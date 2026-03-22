@@ -330,9 +330,9 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           )}
 
           {/* Centered content block — same layout as WebOnlySlidePanel */}
-          <div className="flex-1 flex items-start justify-center overflow-hidden min-h-0">
-            <div className="w-[95%] md:w-[90%] lg:w-[70%] max-h-full overflow-hidden rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 flex flex-col gap-5 text-white pointer-events-auto">
-              {/* Logo + name + toggle */}
+          <div className="flex-1 flex flex-col items-center overflow-hidden min-h-0 gap-3 pointer-events-auto">
+            {/* Block 1: Logo + name — always visible */}
+            <div className="w-[95%] md:w-[90%] lg:w-[70%] shrink-0 rounded-2xl bg-black/40 backdrop-blur-sm px-4 py-3 md:px-6 md:py-4 text-white">
               <div className="flex items-end gap-4">
                 {business.logo_url && (
                   <div
@@ -356,27 +356,40 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                     </p>
                   ) : null}
                 </div>
-                {hasExpandableContent && (
-                  <button
-                    onClick={() => setDescExpanded((p) => !p)}
-                    className="shrink-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-                    aria-label={descExpanded ? "Replier" : "Déplier"}
-                  >
-                    {descExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-                  </button>
-                )}
               </div>
+            </div>
 
-              {/* Description + opening hours — collapsible */}
-              {hasExpandableContent && descExpanded && (
-                <div className="min-h-0 max-h-[280px] md:max-h-[480px] overflow-y-auto pr-1 text-sm leading-relaxed">
+            {/* Block 2: Description + opening hours — 4 lines by default */}
+            {hasExpandableContent && (
+              <div className="w-[95%] md:w-[90%] lg:w-[70%] max-h-[40%] overflow-y-auto rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 text-white">
+                <div className={`text-sm leading-relaxed pr-1 ${!descExpanded ? 'line-clamp-4' : ''}`}>
                   {woDescription && (
-                    <div
-                      className="prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17]"
-                      dangerouslySetInnerHTML={{ __html: woDescription }}
-                    />
+                    <>
+                      {hasExpandableContent && (
+                        <button
+                          onClick={() => setDescExpanded((p) => !p)}
+                          className="float-right ml-2 mt-0.5 shrink-0 w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                          aria-label={descExpanded ? "Replier" : "Déplier"}
+                        >
+                          {descExpanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}
+                        </button>
+                      )}
+                      <div
+                        className="prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17]"
+                        dangerouslySetInnerHTML={{ __html: woDescription }}
+                      />
+                    </>
                   )}
-                  {hasOpeningHours && business && (
+                  {!woDescription && hasExpandableContent && (
+                    <button
+                      onClick={() => setDescExpanded((p) => !p)}
+                      className="float-right ml-2 mt-0.5 shrink-0 w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                      aria-label={descExpanded ? "Replier" : "Déplier"}
+                    >
+                      {descExpanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}
+                    </button>
+                  )}
+                  {hasOpeningHours && descExpanded && business && (
                     <div className={`${woDescription ? 'mt-4 pt-4 border-t border-white/20' : ''}`}>
                       <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
                         {language === "en" ? "Opening hours" : "Horaires"}
@@ -413,8 +426,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                     </div>
                   )}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Destinations horizontal scroll */}
