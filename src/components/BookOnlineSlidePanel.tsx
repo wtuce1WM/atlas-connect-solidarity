@@ -143,6 +143,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   const [showHook, setShowHook] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement>(null);
+  const carouselRailRef = useRef<HTMLDivElement>(null);
+  const firstCarouselCardRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const iframeSrcRef = useRef<string>("");
 
@@ -261,6 +263,35 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
     const computed = computeWeightedRatingOn20(sources);
     return { avgOn20: computed, totalReviewCount: total };
   }, [business]);
+
+  const hasTextCard = !!woDescription;
+  const hasContactCard = !!(business?.phone || business?.whatsapp || business?.email || business?.website || business?.address);
+  const hasReviewsCard = avgOn20 !== null && avgOn20 > 0;
+
+  useEffect(() => {
+    const rail = carouselRailRef.current;
+    const firstCard = firstCarouselCardRef.current;
+    if (!rail || !firstCard) return;
+
+    const centerFirstCard = () => {
+      const maxScroll = Math.max(0, rail.scrollWidth - rail.clientWidth);
+      const target = Math.max(0, firstCard.offsetLeft - (rail.clientWidth - firstCard.clientWidth) / 2);
+      rail.scrollTo({ left: Math.min(target, maxScroll), behavior: "auto" });
+    };
+
+    const rafId = requestAnimationFrame(centerFirstCard);
+    const timeoutId = window.setTimeout(centerFirstCard, 60);
+
+    const resizeObserver = new ResizeObserver(centerFirstCard);
+    resizeObserver.observe(rail);
+    resizeObserver.observe(firstCard);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.clearTimeout(timeoutId);
+      resizeObserver.disconnect();
+    };
+  }, [businessId, hasTextCard, hasContactCard, hasReviewsCard]);
 
   // Hook text for current language
   const hookText = useMemo(() => {
@@ -642,11 +673,11 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
             {/* Block 2: Horizontal card carousel */}
             <div className="w-full shrink-0 self-start">
-              <div className="w-full overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory" style={{ scrollPaddingInline: 0 }}>
-                <div className="flex w-max gap-3 pl-[7.5%] md:pl-[27.5%]">
+              <div ref={carouselRailRef} className="w-full overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory" style={{ scrollPaddingInline: 0 }}>
+                <div className="flex w-max gap-3 [&>*:not(:last-child)]:snap-start [&>*:last-child]:snap-end">
                   {/* Card 1: Texte */}
                   {woDescription && (
-                    <div className="snap-start shrink-0 w-[85vw] md:w-[45vw] max-w-[85%] md:max-w-[45%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[18em] md:max-h-[24em] overflow-y-auto">
+                    <div ref={hasTextCard ? firstCarouselCardRef : undefined} className="shrink-0 w-[85vw] md:w-[45vw] max-w-[85%] md:max-w-[45%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[18em] md:max-h-[24em] overflow-y-auto">
                     {/* No title for text card */}
                     <div
                       className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17]"
@@ -656,8 +687,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                   )}
 
                   {/* Card 2: Contact */}
-                  {(business.phone || business.whatsapp || business.email || business.website || business.address) && (
-                    <div className="snap-start shrink-0 w-[85vw] md:w-[45vw] max-w-[85%] md:max-w-[45%] h-[18em] md:h-[24em]" style={{ perspective: '1000px' }}>
+                  {hasContactCard && (
+                    <div ref={!hasTextCard ? firstCarouselCardRef : undefined} className="shrink-0 w-[85vw] md:w-[45vw] max-w-[85%] md:max-w-[45%] h-[18em] md:h-[24em]" style={{ perspective: '1000px' }}>
                     <div
                       className="relative w-full h-full transition-transform duration-500"
                       style={{
@@ -794,8 +825,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                   )}
 
                   {/* Card 3: Avis Clients — Flip card */}
-                  {(avgOn20 !== null && avgOn20 > 0) && (
-                    <div className="snap-start shrink-0 w-[85vw] md:w-[45vw] max-w-[85%] md:max-w-[45%] h-[18em] md:h-[24em]" style={{ perspective: '1000px' }}>
+                  {hasReviewsCard && (
+                    <div ref={!hasTextCard && !hasContactCard ? firstCarouselCardRef : undefined} className="shrink-0 w-[85vw] md:w-[45vw] max-w-[85%] md:max-w-[45%] h-[18em] md:h-[24em]" style={{ perspective: '1000px' }}>
                     <div
                       className="relative w-full h-full transition-transform duration-500"
                       style={{
