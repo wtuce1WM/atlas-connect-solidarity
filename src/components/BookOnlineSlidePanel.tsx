@@ -374,19 +374,37 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           {/* CTAs */}
           {(bookUrl || (business.latitude && business.longitude)) && (
             <div className="shrink-0 py-2 flex flex-col items-center gap-2 pointer-events-auto">
-              {bookUrl && (
-                <a
-                  href={bookUrl.startsWith("http") ? bookUrl : `https://${bookUrl}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal"
-                  style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-                >
-                  <CalendarCheck className="h-4 w-4" />
-                  {language === "en" ? "Book Online" : "Réservez en ligne"}
-                  <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
-                </a>
-              )}
+              {bookUrl && (() => {
+                const fullUrl = bookUrl.startsWith("http") ? bookUrl : `https://${bookUrl}`;
+                const isShopUrl = !!business.online_shop_url;
+                const forceExternal = isShopUrl ? business.online_shop_force_external : business.website_force_external;
+                
+                if (forceExternal) {
+                  return (
+                    <a
+                      href={fullUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal"
+                      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                    >
+                      <CalendarCheck className="h-4 w-4" />
+                      {language === "en" ? "Book Online" : "Réservez en ligne"}
+                      <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
+                    </a>
+                  );
+                }
+                return (
+                  <button
+                    onClick={() => setShowBookingOverlay(true)}
+                    className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal"
+                    style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                  >
+                    <CalendarCheck className="h-4 w-4" />
+                    {language === "en" ? "Book Online" : "Réservez en ligne"}
+                  </button>
+                );
+              })()}
               {business.latitude && business.longitude && (
                 <button
                   onClick={() => setShowDirections(true)}
