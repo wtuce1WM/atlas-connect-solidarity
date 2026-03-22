@@ -61,6 +61,7 @@ interface BookOnlineBusiness {
   google_maps_url: string | null;
   phone: string | null;
   skype: string | null;
+  email: string | null;
   languages: string[] | null;
   opening_hours: unknown;
   show_opening_hours: boolean | null;
