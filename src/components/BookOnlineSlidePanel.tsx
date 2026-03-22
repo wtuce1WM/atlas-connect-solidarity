@@ -572,15 +572,13 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           {/* Centered content block — same layout as WebOnlySlidePanel */}
           <div className="flex-1 flex flex-col items-center overflow-hidden min-h-0 gap-3 pointer-events-auto">
             {/* Block 1: Logo + name — always visible */}
-            <div className="w-[95%] md:w-[90%] shrink-0 rounded-2xl bg-black/40 backdrop-blur-sm px-4 py-3 md:px-6 md:py-4 text-white overflow-hidden relative" style={{ minHeight: '4.5rem' }}>
+            <div className="w-[95%] md:w-[90%] shrink-0 rounded-2xl bg-black/40 backdrop-blur-sm px-4 md:px-6 text-white overflow-hidden relative h-[5.5rem]">
               {/* Info view: Logo + name + city */}
               <div
-                className="flex items-center gap-4 transition-all duration-500 ease-in-out"
+                className="absolute inset-0 flex items-center gap-4 px-4 md:px-6 transition-all duration-500 ease-in-out"
                 style={{
                   opacity: showHook && hookText ? 0 : 1,
                   transform: showHook && hookText ? 'translateY(-8px)' : 'translateY(0)',
-                  position: showHook && hookText ? 'absolute' : 'relative',
-                  inset: showHook && hookText ? '0.75rem 1rem' : undefined,
                   pointerEvents: showHook && hookText ? 'none' : 'auto',
                 }}
               >
@@ -610,16 +608,14 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
               {/* Hook view */}
               {hookText && (
                 <div
-                  className="flex items-center justify-center transition-all duration-500 ease-in-out"
+                  className="absolute inset-0 flex items-center justify-center px-6 transition-all duration-500 ease-in-out"
                   style={{
                     opacity: showHook ? 1 : 0,
                     transform: showHook ? 'translateY(0)' : 'translateY(8px)',
-                    position: showHook ? 'relative' : 'absolute',
-                    inset: showHook ? undefined : '0.75rem 1rem',
                     pointerEvents: showHook ? 'auto' : 'none',
                   }}
                 >
-                  <p className="text-sm md:text-base text-white/90 italic text-center leading-relaxed">{hookText}</p>
+                  <p className="text-base md:text-lg text-white/90 italic text-center leading-relaxed">{hookText}</p>
                 </div>
               )}
               {/* Rating — always visible, absolute right */}
