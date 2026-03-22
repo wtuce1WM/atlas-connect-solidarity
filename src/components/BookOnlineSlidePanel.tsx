@@ -296,11 +296,23 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
   const toolbarPortal = document.getElementById("slide-panel-toolbar");
   const toolbarCenterPortal = document.getElementById("slide-panel-toolbar-center");
+  const toolbarLeftPortal = document.getElementById("slide-panel-toolbar-left");
 
   const destName = (d: Destination) => language === "en" && d.name_en ? d.name_en : d.name_fr;
 
   return (
     <div className="h-full overflow-hidden overscroll-none bg-black">
+      {/* Portal media button into left of fixed bar (next to close) */}
+      {toolbarLeftPortal && totalMedia > 0 && createPortal(
+        <button
+          onClick={() => { setLightboxIndex(0); setIsLightboxOpen(true); }}
+          className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground/80 text-background shadow-md hover:bg-foreground transition-colors"
+          title="Voir tous les médias"
+        >
+          <Maximize2 className="h-4 w-4" />
+        </button>,
+        toolbarLeftPortal
+      )}
       {/* Portal WhatsApp icon into center of fixed bar */}
       {toolbarCenterPortal && createPortal(
         <div className="flex items-center gap-6">
@@ -317,18 +329,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
       )}
       {/* Portal Share into right of fixed bar */}
       {toolbarPortal && createPortal(
-        <div className="flex items-center gap-2">
-          {totalMedia > 0 && (
-            <button
-              onClick={() => { setLightboxIndex(0); setIsLightboxOpen(true); }}
-              className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground/80 text-background shadow-md hover:bg-foreground transition-colors"
-              title="Voir tous les médias"
-            >
-              <Maximize2 className="h-4 w-4" />
-            </button>
-          )}
-          <ShareButton title={business.name} variant="dark" className="shrink-0" />
-        </div>,
+        <ShareButton title={business.name} variant="dark" className="shrink-0" />,
         toolbarPortal
       )}
 
