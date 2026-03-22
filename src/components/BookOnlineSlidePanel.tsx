@@ -343,23 +343,26 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           {destinations.length > 0 && (
             <div className="shrink-0 mt-3 pointer-events-auto">
               <div className="flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-hide">
-                {destinations.map((dest) => (
-                  <div
-                    key={dest.id}
-                    className="shrink-0 w-28 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10"
-                  >
-                    {dest.image_url ? (
-                      <img src={dest.image_url} alt={destName(dest)} className="w-full h-16 object-cover" />
-                    ) : (
-                      <div className="w-full h-16 bg-white/10 flex items-center justify-center">
-                        <MapPin className="h-5 w-5 text-white/40" />
-                      </div>
-                    )}
-                    <p className="text-[10px] font-medium text-white text-center py-1 px-1 truncate">
-                      {destName(dest)}
-                    </p>
-                  </div>
-                ))}
+                {destinations.map((dest) => {
+                  const destImg = dest.images?.filter(Boolean)?.[0] || dest.image_url;
+                  return (
+                    <div
+                      key={dest.id}
+                      className="shrink-0 w-28 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10"
+                    >
+                      {destImg ? (
+                        <img src={destImg} alt={destName(dest)} className="w-full h-16 object-cover" />
+                      ) : (
+                        <div className="w-full h-16 bg-white/10 flex items-center justify-center">
+                          <MapPin className="h-5 w-5 text-white/40" />
+                        </div>
+                      )}
+                      <p className="text-[10px] font-medium text-white text-center py-1 px-1 truncate">
+                        {destName(dest)}
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
