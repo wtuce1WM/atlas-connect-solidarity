@@ -2529,12 +2529,14 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-sm font-medium">Description Points d'intérêt — {((formData as any).poi_description || "").replace(/<[^>]*>/g, '').length}/500</Label>
+                        <Label className="text-sm font-medium">Description Points d'intérêt — {(() => { const el = document.createElement('div'); el.innerHTML = (formData as any).poi_description || ''; return (el.textContent || '').replace(/\s+/g, ' ').trim().length; })()}/500</Label>
                         <RichTextEditor
                           content={(formData as any).poi_description || ""}
                           onChange={(val) => {
-                            const plainText = val.replace(/<[^>]*>/g, '');
-                            if (plainText.length <= 500) {
+                            const el = document.createElement('div');
+                            el.innerHTML = val;
+                            const plainLen = (el.textContent || '').replace(/\s+/g, ' ').trim().length;
+                            if (plainLen <= 500) {
                               handleChange("poi_description" as any, val);
                             }
                           }}
