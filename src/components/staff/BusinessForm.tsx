@@ -1145,6 +1145,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       poi_hook: (formData as any).poi_hook?.trim().slice(0, 120) || null,
       poi_description: (formData as any).poi_description?.trim().slice(0, 500) || null,
       is_poi: (formData as any).is_poi ?? false,
+      website_force_external: (formData as any).website_force_external ?? false,
+      reserve_now_force_external: (formData as any).reserve_now_force_external ?? false,
+      online_shop_force_external: (formData as any).online_shop_force_external ?? false,
     };
 
     try {
