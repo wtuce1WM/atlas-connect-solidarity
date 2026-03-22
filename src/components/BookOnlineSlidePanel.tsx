@@ -272,6 +272,10 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
       : visibleCardsCount === 2
         ? "w-[calc(50%_-_0.375rem)] md:w-[calc(50%_-_0.375rem)]"
         : "w-[85%] md:w-[45%]";
+  const cardsRailClass = visibleCardsCount >= 3
+    ? "w-[calc(100%_+_1rem)] -mr-4 md:w-[calc(100%_+_1.5rem)] md:-mr-6"
+    : "w-full";
+  const cardsTrackClass = visibleCardsCount >= 3 ? "flex w-max gap-3" : "flex w-full gap-3";
   const textCardSnapClass = !hasContactCard && !hasReviewsCard ? "snap-end" : "snap-start";
   const contactCardSnapClass = hasContactCard && !hasReviewsCard ? "snap-end" : "snap-start";
   const reviewsCardSnapClass = "snap-end";
@@ -656,8 +660,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
             {/* Block 2: Horizontal card carousel */}
             <div className="w-full shrink-0 self-start">
-              <div className="w-[calc(100%_+_1rem)] -mr-4 md:w-[calc(100%_+_1.5rem)] md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
-                <div className="flex w-max gap-3">
+              <div className={`${cardsRailClass} overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory`}>
+                <div className={cardsTrackClass}>
                   {/* Card 1: Texte */}
                   {woDescription && (
                     <div className={`${textCardSnapClass} shrink-0 ${cardWidthClass} rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[18em] md:max-h-[24em] overflow-y-auto`}>
