@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Info, CalendarCheck, Star, Phone, Mail, Globe, Clock, MessageCircle } from "lucide-react";
+import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Info, CalendarCheck, Star, Phone, Mail, Globe, Clock, MessageCircle, Maximize2 } from "lucide-react";
 import { formatDayHours as formatDayHoursDisplay, isCurrentlyOpen } from "@/lib/formatOpeningHours";
+import FullscreenLightbox from "@/components/FullscreenLightbox";
+import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { supabase } from "@/integrations/supabase/client";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
@@ -128,6 +130,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; language?: string | null }[]>([]);
   const [translatedReviewTexts, setTranslatedReviewTexts] = useState<string[] | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -313,7 +317,18 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
       )}
       {/* Portal Share into right of fixed bar */}
       {toolbarPortal && createPortal(
-        <ShareButton title={business.name} variant="dark" className="toolbar-icon shrink-0" />,
+        <div className="flex items-center gap-2">
+          {totalMedia > 0 && (
+            <button
+              onClick={() => { setLightboxIndex(0); setIsLightboxOpen(true); }}
+              className="toolbar-icon shrink-0 text-white/80 hover:text-white transition-colors"
+              title="Voir tous les médias"
+            >
+              <Maximize2 className="h-5 w-5" />
+            </button>
+          )}
+          <ShareButton title={business.name} variant="dark" className="toolbar-icon shrink-0" />
+        </div>,
         toolbarPortal
       )}
 
@@ -908,6 +923,22 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           slideFrom="bottom"
         />
       )}
+      {/* Fullscreen media lightbox */}
+      {isLightboxOpen && totalMedia > 0 && (() => {
+        const lbItems: LightboxMediaItem[] = mediaItems.map((m) =>
+          m.kind === "video"
+            ? { type: "video" as const, src: m.url, alt: business?.name || "" }
+            : { type: "image" as const, src: m.url, alt: business?.name || "" }
+        );
+        return (
+          <FullscreenLightbox
+            items={lbItems}
+            currentIndex={lightboxIndex}
+            onIndexChange={setLightboxIndex}
+            onClose={() => setIsLightboxOpen(false)}
+          />
+        );
+      })()}
     </div>
   );
 };
