@@ -432,7 +432,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
             >
               <ChevronUp className="h-3.5 w-3.5" />
               <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Afficher</span>
-              <span className="h-1.5 w-8 rounded-full bg-foreground/60" />
+              <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
             </button>
             {totalMedia > 1 && (
               <button onClick={() => goMedia(1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
@@ -549,7 +549,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
               >
                 <ChevronDown className="h-3.5 w-3.5" />
                 <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Masquer</span>
-                <span className="h-1.5 w-8 rounded-full bg-foreground/60" />
+                <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
               </button>
 
               {/* Media counter — absolute right */}
