@@ -292,26 +292,37 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                     </p>
                   ) : null}
                 </div>
-                {hasExpandableContent && (
-                  <button
-                    onClick={() => setDescExpanded((p) => !p)}
-                    className="shrink-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-                    aria-label={descExpanded ? "Replier" : "Déplier"}
-                  >
-                    {descExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-                  </button>
-                )}
               </div>
 
-              {/* Web only description + opening hours — collapsible */}
-              {hasExpandableContent && descExpanded && (
-                <div className="w-[95%] md:w-[90%] lg:w-[70%] max-h-[40%] overflow-y-auto rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 text-white pointer-events-auto">
-                  <div className="text-sm leading-relaxed pr-1">
+              {/* Web only description + opening hours — always show 4 lines, expandable */}
+              {hasExpandableContent && (
+                <div className="w-[95%] md:w-[90%] lg:w-[70%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 text-white pointer-events-auto overflow-hidden">
+                  <div className={`text-sm leading-relaxed pr-1 ${!descExpanded ? 'line-clamp-4' : ''}`}>
                     {woDescription && (
-                      <div
-                        className="prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17]"
-                        dangerouslySetInnerHTML={{ __html: woDescription }}
-                      />
+                      <div className="relative">
+                        {hasExpandableContent && (
+                          <button
+                            onClick={() => setDescExpanded((p) => !p)}
+                            className="float-right ml-2 mt-0.5 shrink-0 w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                            aria-label={descExpanded ? "Replier" : "Déplier"}
+                          >
+                            {descExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                          </button>
+                        )}
+                        <div
+                          className="prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17]"
+                          dangerouslySetInnerHTML={{ __html: woDescription }}
+                        />
+                      </div>
+                    )}
+                    {!woDescription && hasExpandableContent && (
+                      <button
+                        onClick={() => setDescExpanded((p) => !p)}
+                        className="float-right ml-2 mt-0.5 shrink-0 w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                        aria-label={descExpanded ? "Replier" : "Déplier"}
+                      >
+                        {descExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                      </button>
                     )}
                     {hasOpeningHours && business && (
                       <div className={`${woDescription ? 'mt-4 pt-4 border-t border-white/20' : ''}`}>
