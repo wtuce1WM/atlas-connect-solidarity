@@ -426,8 +426,21 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           }}
         >
           {/* Drag handle — swipe or click to toggle cards */}
-          <div
-            className="flex justify-center mb-2 pointer-events-auto cursor-grab active:cursor-grabbing select-none"
+          <div className="flex justify-center mb-2 pointer-events-auto">
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:bg-background transition-colors"
+              title={cardsHidden ? "Afficher les cartes" : "Masquer les cartes"}
+              aria-label={cardsHidden ? "Afficher les cartes" : "Masquer les cartes"}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  const next = !cardsHiddenRef.current;
+                  cardsHiddenRef.current = next;
+                  setCardsHidden(next);
+                  setDragOffsetY(0);
+                }
+              }}
             onMouseDown={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -468,8 +481,13 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
               window.addEventListener('mousemove', onMove);
               window.addEventListener('mouseup', onUp);
             }}
-          >
-            <div className="w-12 h-1.5 rounded-full bg-white/50 hover:bg-white/70 transition-colors" />
+            >
+              {cardsHidden ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+              <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">
+                {cardsHidden ? "Afficher" : "Masquer"}
+              </span>
+              <span className="h-1.5 w-8 rounded-full bg-foreground/60" />
+            </button>
           </div>
 
           {/* Mobile-only floating rating badge — top right under toolbar */}
