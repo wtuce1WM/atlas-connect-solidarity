@@ -670,6 +670,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                       className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17]"
                       dangerouslySetInnerHTML={{ __html: woDescription }}
                     />
+                    <div className="h-6" aria-hidden="true" />
                   </div>
                 )}
                 {/* Card 2: Contact with Flip to Google Map */}
