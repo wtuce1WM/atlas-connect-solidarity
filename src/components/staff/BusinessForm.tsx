@@ -1414,6 +1414,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     getyourguide_review_count: fd.getyourguide_review_count ? Number(fd.getyourguide_review_count) : null,
                     viator_rating: fd.viator_rating ? Number(fd.viator_rating) : null,
                     viator_review_count: fd.viator_review_count ? Number(fd.viator_review_count) : null,
+                    tourradar_rating: fd.tourradar_rating ? Number(fd.tourradar_rating) : null,
+                    tourradar_review_count: fd.tourradar_review_count ? Number(fd.tourradar_review_count) : null,
                   }));
                   if (avg !== null) {
                     display = `${avg}/20`;
