@@ -2347,6 +2347,12 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Label htmlFor="online_shop_url_top">Boutique en ligne</Label>
             )}
             <div className="flex items-center gap-2">
+              <Switch
+                checked={(formData as any).online_shop_force_external}
+                onCheckedChange={(checked) => handleChange("online_shop_force_external", checked)}
+                title="Ouvrir en lien externe"
+                className="shrink-0"
+              />
               <Input
                 id="online_shop_url_top"
                 value={formData.online_shop_url}
@@ -2360,6 +2366,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 </Button>
               )}
             </div>
+            {(formData as any).online_shop_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
             <BrokenUrlBadge url={formData.online_shop_url} />
           </div>
         </div>
