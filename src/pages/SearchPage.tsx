@@ -39,6 +39,7 @@ import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type Subca
 import AISearchAnswer, { parseInline, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import BusinessSlidePanel, { type BusinessSlidePanelHandle } from "@/components/BusinessSlidePanel";
 import WebOnlySlidePanel from "@/components/WebOnlySlidePanel";
+import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import MobileSearchOverlay from "@/components/MobileSearchOverlay";
@@ -717,6 +718,7 @@ const SearchPage = () => {
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
       const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
       const [isCompactPanelWebOnly, setIsCompactPanelWebOnly] = useState(false);
+      const [isCompactPanelBookOnline, setIsCompactPanelBookOnline] = useState(false);
 
       const openCompactPanel = useCallback((bizOrData: AIBusinessData | { id: string; name: string }, forceWebOnly?: boolean) => {
         hasInteractedWithCompactPanelRef.current = true;
@@ -737,9 +739,12 @@ const SearchPage = () => {
             });
             const shopUrl = (found as any).online_shop_url || (found as any).website;
             const hasReservation = hasEng("Réservation en ligne obligatoire");
-            setIsCompactPanelWebOnly(!!(( hasEng("Commandez en ligne et recevez votre colis chez vous") && shopUrl) || hasReservation));
+            const hasCommande = hasEng("Commandez en ligne et recevez votre colis chez vous") && shopUrl;
+            setIsCompactPanelBookOnline(!!hasReservation);
+            setIsCompactPanelWebOnly(!!(hasCommande && !hasReservation));
           } else {
             setIsCompactPanelWebOnly(false);
+            setIsCompactPanelBookOnline(false);
           }
         }
       }, [allBusinesses]);
@@ -4224,7 +4229,7 @@ const SearchPage = () => {
       )}
 
       {/* Floating Search Bar */}
-      <div className={`fixed bottom-0 left-0 right-0 py-3 px-4 transition-transform duration-300 ${(isCompactPanelWebOnly && compactPanelBusiness) || (isSubDesktop && showMobileMap) ? "translate-y-full" : ""} ${isCompactPanelExpanded ? "z-[190]" : "z-[210]"}`}>
+      <div className={`fixed bottom-0 left-0 right-0 py-3 px-4 transition-transform duration-300 ${((isCompactPanelWebOnly || isCompactPanelBookOnline) && compactPanelBusiness) || (isSubDesktop && showMobileMap) ? "translate-y-full" : ""} ${isCompactPanelExpanded ? "z-[190]" : "z-[210]"}`}>
         <div className="max-w-2xl mx-auto">
           {/* Desktop: normal inline SearchInput — only mounted on desktop to avoid duplicate hooks */}
           {!isMobile && (
@@ -4611,16 +4616,21 @@ const SearchPage = () => {
 
           {/* Right panel — business detail */}
           <div
-            className={`fixed top-0 left-0 right-0 bottom-0 z-[201] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:top-[53px] lg:left-auto lg:bottom-auto lg:border-l lg:border-border lg:transition-[width] lg:duration-300 lg:ease-out ${isCompactPanelExpanded && !isCompactPanelWebOnly ? "lg:w-full border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "lg:w-1/2"}`}
+            className={`fixed top-0 left-0 right-0 bottom-0 z-[201] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:top-[53px] lg:left-auto lg:bottom-auto lg:border-l lg:border-border lg:transition-[width] lg:duration-300 lg:ease-out ${isCompactPanelExpanded && !isCompactPanelWebOnly && !isCompactPanelBookOnline ? "lg:w-full border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "lg:w-1/2"}`}
             style={{ height: isSubDesktop ? undefined : "calc(100vh - 53px)" }}
           >
             <SlidePanelHeader
               onClose={handleCompactPanelClose}
-              isExpanded={isCompactPanelWebOnly ? undefined : isCompactPanelExpanded}
-              onToggleExpand={isCompactPanelWebOnly ? undefined : (compactBusinessImageCount > 5 ? () => setIsCompactPanelExpanded(prev => !prev) : undefined)}
+              isExpanded={(isCompactPanelWebOnly || isCompactPanelBookOnline) ? undefined : isCompactPanelExpanded}
+              onToggleExpand={(isCompactPanelWebOnly || isCompactPanelBookOnline) ? undefined : (compactBusinessImageCount > 5 ? () => setIsCompactPanelExpanded(prev => !prev) : undefined)}
             />
-            <div className={`flex-1 min-h-0 ${isCompactPanelWebOnly ? "overflow-hidden" : ""}`}>
-              {isCompactPanelWebOnly ? (
+            <div className={`flex-1 min-h-0 ${(isCompactPanelWebOnly || isCompactPanelBookOnline) ? "overflow-hidden" : ""}`}>
+              {isCompactPanelBookOnline ? (
+                <BookOnlineSlidePanel
+                  businessId={compactPanelBusiness.id}
+                  onClose={closeCompactPanel}
+                />
+              ) : isCompactPanelWebOnly ? (
                 <WebOnlySlidePanel
                   businessId={compactPanelBusiness.id}
                   onClose={closeCompactPanel}
