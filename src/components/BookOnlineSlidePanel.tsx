@@ -794,7 +794,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
                 {/* Card 3: Avis Clients — Flip card */}
                 {(avgOn20 !== null && avgOn20 > 0) && (
-                  <div className="snap-start shrink-0 w-[85%] md:w-[45%] h-[18em] md:h-[24em]" style={{ perspective: '1000px' }}>
+                  <div className="snap-start last:snap-end shrink-0 w-[85%] md:w-[45%] h-[18em] md:h-[24em]" style={{ perspective: '1000px' }}>
                     <div
                       className="relative w-full h-full transition-transform duration-500"
                       style={{
