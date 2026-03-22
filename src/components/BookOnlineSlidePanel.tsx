@@ -354,17 +354,17 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
             </div>
           )}
           {/* Language flags + media counter — single row */}
-          <div className="flex items-center justify-between pb-4 pointer-events-auto">
+          <div className="relative flex items-center justify-center pb-4 pointer-events-auto">
             {/* Language flags — left */}
             {languages.length > 0 ? (
-              <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full py-1 px-2.5">
+              <div className="absolute left-0 flex items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full py-1 px-2.5">
                 {languages.map((lang, i) => (
                   <span key={i} className="text-lg leading-none" title={lang}>
                     {getLangFlag(lang)}
                   </span>
                 ))}
               </div>
-            ) : <div />}
+            ) : null}
             {/* Media counter + arrows — right/center */}
             {totalMedia > 1 ? (
               <div className="flex items-center gap-2">
@@ -378,7 +378,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                   <ChevronRight className="h-4 w-4" />
                 </button>
               </div>
-            ) : <div />}
+            ) : null}
           </div>
 
           {/* Centered content block — same layout as WebOnlySlidePanel */}
