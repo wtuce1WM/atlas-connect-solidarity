@@ -156,8 +156,9 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
   }
 
   if (exactCoords) {
+    const q2 = `${businessName}${cityQuerySuffix}`;
     console.log(`Strategy 2: DB name "${businessName}" with exact coords @${exactCoords.lat},${exactCoords.lng} (100m radius)`);
-    const place = await searchGooglePlace(`${businessName} ${city}`, exactCoords, 100.0, apiKey);
+    const place = await searchGooglePlace(q2, exactCoords, 100.0, apiKey);
     if (place) {
       console.log(`Found: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
       const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
