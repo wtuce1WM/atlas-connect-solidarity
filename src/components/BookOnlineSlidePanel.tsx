@@ -201,6 +201,14 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   const hasExpandableContent = !!(woDescription || hasOpeningHours);
   const languages = business?.languages?.filter(Boolean) || [];
 
+  const { avgOn20, totalReviewCount } = useMemo(() => {
+    if (!business) return { avgOn20: null, totalReviewCount: 0 };
+    const sources = collectRatingSources(business);
+    const total = sources.reduce((s, r) => s + r.count, 0);
+    const computed = computeWeightedRatingOn20(sources);
+    return { avgOn20: computed, totalReviewCount: total };
+  }, [business]);
+
   type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
   const mediaItems: MediaItem[] = [
     ...videos.map((v) => ({ kind: "video" as const, url: v })),
