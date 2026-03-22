@@ -856,6 +856,9 @@ export type Database = {
           tripadvisor_review_url: string | null
           tripadvisor_url: string | null
           trivago_url: string | null
+          trustpilot_rating: number | null
+          trustpilot_review_count: number | null
+          trustpilot_url: string | null
           twitter_url: string | null
           updated_at: string
           vacation_dates: Json | null
@@ -978,6 +981,9 @@ export type Database = {
           tripadvisor_review_url?: string | null
           tripadvisor_url?: string | null
           trivago_url?: string | null
+          trustpilot_rating?: number | null
+          trustpilot_review_count?: number | null
+          trustpilot_url?: string | null
           twitter_url?: string | null
           updated_at?: string
           vacation_dates?: Json | null
@@ -1100,6 +1106,9 @@ export type Database = {
           tripadvisor_review_url?: string | null
           tripadvisor_url?: string | null
           trivago_url?: string | null
+          trustpilot_rating?: number | null
+          trustpilot_review_count?: number | null
+          trustpilot_url?: string | null
           twitter_url?: string | null
           updated_at?: string
           vacation_dates?: Json | null
@@ -3457,6 +3466,9 @@ export type Database = {
               tripadvisor_review_url: string | null
               tripadvisor_url: string | null
               trivago_url: string | null
+              trustpilot_rating: number | null
+              trustpilot_review_count: number | null
+              trustpilot_url: string | null
               twitter_url: string | null
               updated_at: string
               vacation_dates: Json | null
@@ -3595,6 +3607,9 @@ export type Database = {
               tripadvisor_review_url: string | null
               tripadvisor_url: string | null
               trivago_url: string | null
+              trustpilot_rating: number | null
+              trustpilot_review_count: number | null
+              trustpilot_url: string | null
               twitter_url: string | null
               updated_at: string
               vacation_dates: Json | null
