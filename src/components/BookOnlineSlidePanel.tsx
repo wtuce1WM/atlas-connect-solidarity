@@ -215,7 +215,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
     }
 
     return () => resizeObserver.disconnect();
-  }, [woDescription, avgOn20, business]);
+  }, [businessId, business, webOnlyData]);
 
   useEffect(() => {
     const fetchData = async () => {
