@@ -539,6 +539,20 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
             </div>
           )}
 
+          {/* Mobile-only floating rating badge — top right under toolbar */}
+          {avgOn20 !== null && avgOn20 > 0 && (
+            <div className="md:hidden absolute top-2 right-4 z-20 flex flex-col items-center bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2.5 pointer-events-auto animate-slide-in-right">
+              <div className="flex items-center gap-1">
+                <Star className="h-3.5 w-3.5 text-gold fill-gold" />
+                <span className="text-base font-bold text-white">{avgOn20}</span>
+                <span className="text-[10px] text-white/60">/20</span>
+              </div>
+              {totalReviewCount > 0 && (
+                <span className="text-[9px] text-white/60">{totalReviewCount.toLocaleString("fr-FR")} avis</span>
+              )}
+            </div>
+          )}
+
           {/* Centered content block — same layout as WebOnlySlidePanel */}
           <div className="flex-1 flex flex-col items-center overflow-hidden min-h-0 gap-3 pointer-events-auto">
             {/* Block 1: Logo + name — always visible */}
