@@ -399,7 +399,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
         </div>
 
         {/* Left / Right arrows — desktop */}
-        {totalMedia > 1 && (
+        {totalMedia > 1 && cardsHidden && (
           <>
             <button onClick={() => goMedia(-1)} className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
               <ChevronLeft className="h-5 w-5" />
