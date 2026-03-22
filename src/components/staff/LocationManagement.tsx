@@ -2196,7 +2196,29 @@ const LocationManagement = () => {
               {/* Images */}
               <Card>
                 <CardHeader><CardTitle className="text-lg flex items-center gap-2"><ImageIcon className="h-5 w-5" /> Images</CardTitle></CardHeader>
-                <CardContent>
+                <CardContent className="space-y-4">
+                  {/* Image principale (image_url) */}
+                  {destinationForm.image_url && (
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Image principale</Label>
+                      <div className="relative inline-block">
+                        <img
+                          src={destinationForm.image_url}
+                          alt="Image principale"
+                          className="h-28 w-auto rounded-lg border object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setDestinationForm(prev => ({ ...prev, image_url: "" }))}
+                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center text-xs hover:opacity-80"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <p className="text-xs text-muted-foreground truncate max-w-md">{destinationForm.image_url}</p>
+                    </div>
+                  )}
+                  {/* Galerie d'images */}
                   <ImageUploader
                     images={destinationForm.images}
                     onChange={(imgs) => setDestinationForm(prev => ({ ...prev, images: imgs }))}
