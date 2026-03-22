@@ -619,12 +619,12 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                     pointerEvents: showHook ? 'auto' : 'none',
                   }}
                 >
-                  <p className="text-base md:text-lg text-white/90 italic text-center leading-relaxed">{hookText}</p>
+                  <p className="text-base md:text-lg text-white/90 italic text-center leading-relaxed pr-20">{hookText}</p>
                 </div>
               )}
               {/* Rating — always visible, absolute right */}
               {avgOn20 !== null && avgOn20 > 0 && (
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 shrink-0 hidden md:flex flex-col items-center">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 shrink-0 hidden md:flex flex-col items-center ml-4 pl-4 border-l border-white/20">
                   <div className="flex items-center gap-1">
                     <Star className="h-4 w-4 text-gold fill-gold" />
                     <span className="text-lg font-bold text-white">{avgOn20}</span>
