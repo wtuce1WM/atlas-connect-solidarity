@@ -3270,6 +3270,16 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             <span className="text-xs text-muted-foreground">avis</span>
             <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer Viator" onClick={() => { handleChange("viator_url" as any, ""); handleChange("viator_rating" as any, ""); handleChange("viator_review_count" as any, ""); }}>🗑️</Button>
           </div>
+          <div className="flex items-center gap-2">
+            <span className="text-lg">✅</span>
+            {(formData as any).avis_verifies_url ? <a href={(formData as any).avis_verifies_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Avis Vérifiés ↗</a> : <span className="text-sm font-medium">Avis Vérifiés</span>}
+            <Input value={(formData as any).avis_verifies_url} onChange={(e) => handleChange("avis_verifies_url" as any, e.target.value)} placeholder="https://www.avis-verifies.com/avis-clients/..." className="flex-1" />
+            <Input type="number" step="0.1" min="0" max="5" value={(formData as any).avis_verifies_rating} onChange={(e) => handleChange("avis_verifies_rating" as any, e.target.value)} placeholder="Note" className="w-20" />
+            <span className="text-xs text-muted-foreground">/5</span>
+            <Input type="number" min="0" value={(formData as any).avis_verifies_review_count} onChange={(e) => handleChange("avis_verifies_review_count" as any, e.target.value)} placeholder="Nb" className="w-20" />
+            <span className="text-xs text-muted-foreground">avis</span>
+            <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer Avis Vérifiés" onClick={() => { handleChange("avis_verifies_url" as any, ""); handleChange("avis_verifies_rating" as any, ""); handleChange("avis_verifies_review_count" as any, ""); }}>🗑️</Button>
+          </div>
         </div>
 
         {/* Engagements & Services */}
