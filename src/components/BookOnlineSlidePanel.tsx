@@ -441,7 +441,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
               <div ref={carouselRef} className="flex gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-1">
                 {/* Card 1: Texte */}
                 {woDescription && (
-                  <div className="snap-start shrink-0 w-[85%] md:w-[48%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[22em] overflow-y-auto">
+                  <div className="snap-start shrink-0 w-[85%] md:w-[48%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[24em] overflow-y-auto">
                     {/* No title for text card */}
                     <div
                       className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17]"
@@ -452,7 +452,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
                 {/* Card 2: Contact */}
                 {(business.phone || business.whatsapp || business.email || business.website || business.address) && (
-                  <div className="snap-start shrink-0 w-[85%] md:w-[48%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[22em] overflow-y-auto">
+                  <div className="snap-start shrink-0 w-[85%] md:w-[48%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[24em] overflow-y-auto">
                     {/* No title for contact card */}
                     <div className="space-y-2.5 text-sm">
                       {business.address && (
@@ -529,7 +529,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
                 {/* Card 3: Avis Clients — Flip card */}
                 {(avgOn20 !== null && avgOn20 > 0) && (
-                  <div className="snap-start shrink-0 w-[85%] md:w-[48%] h-[22em]" style={{ perspective: '1000px' }}>
+                  <div className="snap-start shrink-0 w-[85%] md:w-[48%] h-[24em]" style={{ perspective: '1000px' }}>
                     <div
                       className="relative w-full h-full transition-transform duration-500"
                       style={{
@@ -681,9 +681,9 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
                 {/* Card 4: Localiser */}
                 {business.latitude && business.longitude && (
-                  <div className="snap-start shrink-0 w-[85%] md:w-[48%] rounded-2xl bg-black/40 backdrop-blur-sm p-0 text-white max-h-[22em] overflow-hidden">
+                  <div className="snap-start shrink-0 w-[85%] md:w-[48%] rounded-2xl bg-black/40 backdrop-blur-sm p-0 text-white max-h-[24em] overflow-hidden">
                     {/* No title for location card */}
-                    <div className="relative w-full h-[22em] overflow-hidden rounded-2xl">
+                    <div className="relative w-full h-[24em] overflow-hidden rounded-2xl">
                       <iframe
                         src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${business.latitude},${business.longitude}&zoom=15`}
                         className="w-full h-full border-0 pointer-events-none"
