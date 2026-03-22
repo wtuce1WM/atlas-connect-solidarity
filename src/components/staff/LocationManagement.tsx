@@ -153,7 +153,48 @@ interface PointOfInterest {
   keywords: string[] | null;
 }
 
-const LocationManagement = () => {
+const MAX_DEST_VIDEOS = 5;
+
+const getYouTubeId = (url: string) => {
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/);
+  return m?.[1] ?? null;
+};
+
+const isDirectVideo = (url: string) => /\.(mp4|webm|mov|ogg)(\?|$)/i.test(url);
+
+const SortableDestVideo = ({ id, url, index, onRemove }: { id: string; url: string; index: number; onRemove: (i: number) => void }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1, zIndex: isDragging ? 10 : undefined };
+  const ytId = getYouTubeId(url);
+  const direct = isDirectVideo(url);
+
+  return (
+    <div ref={setNodeRef} style={style} className="flex gap-3 bg-background rounded-lg border p-2 items-start group">
+      <button type="button" {...attributes} {...listeners} className="mt-1 shrink-0 cursor-grab text-muted-foreground hover:text-foreground">
+        <GripVertical className="h-4 w-4" />
+      </button>
+      <div className="shrink-0 w-32 h-20 rounded overflow-hidden bg-muted flex items-center justify-center">
+        {ytId ? (
+          <img src={`https://img.youtube.com/vi/${ytId}/mqdefault.jpg`} alt="YouTube thumbnail" className="w-full h-full object-cover" />
+        ) : direct ? (
+          <video src={url} muted className="w-full h-full object-cover" preload="metadata" />
+        ) : (
+          <Video className="h-6 w-6 text-muted-foreground" />
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <span className="text-xs truncate block">{url.length > 80 ? url.slice(0, 80) + "…" : url}</span>
+        {ytId && <span className="text-[10px] text-muted-foreground">YouTube</span>}
+        {direct && <span className="text-[10px] text-muted-foreground">Vidéo directe</span>}
+      </div>
+      <button type="button" onClick={() => onRemove(index)} className="h-5 w-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+        <X className="h-3 w-3" />
+      </button>
+    </div>
+  );
+};
+
+
   const [geocodingField, setGeocodingField] = useState<string | null>(null);
   const [batchGeocoding, setBatchGeocoding] = useState(false);
 
