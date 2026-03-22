@@ -413,7 +413,12 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
         {/* Languages + media counter — top left */}
 
         {cardsHidden && (
-          <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
+          <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-30 pointer-events-auto flex items-center gap-3">
+            {totalMedia > 1 && (
+              <button onClick={() => goMedia(-1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+            )}
             <button
               type="button"
               className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm hover:bg-background transition-colors"
@@ -429,6 +434,11 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
               <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Afficher</span>
               <span className="h-1.5 w-8 rounded-full bg-foreground/60" />
             </button>
+            {totalMedia > 1 && (
+              <button onClick={() => goMedia(1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            )}
           </div>
         )}
 
