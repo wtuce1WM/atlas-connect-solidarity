@@ -39,6 +39,7 @@ import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type Subca
 import AISearchAnswer, { parseInline, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import BusinessSlidePanel, { type BusinessSlidePanelHandle } from "@/components/BusinessSlidePanel";
 import WebOnlySlidePanel from "@/components/WebOnlySlidePanel";
+import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import MobileSearchOverlay from "@/components/MobileSearchOverlay";
