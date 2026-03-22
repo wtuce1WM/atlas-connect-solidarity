@@ -455,6 +455,11 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                   <div className="snap-start shrink-0 w-[85%] md:w-[48%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[24em] overflow-y-auto">
                     {/* No title for contact card */}
                     <div className="space-y-2.5 text-sm">
+                      {business.google_maps_url && (
+                        <a href={business.google_maps_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center mb-1">
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Google_Maps_icon_%282020%29.svg/187px-Google_Maps_icon_%282020%29.svg.png" alt="Google Maps" className="h-10 w-10 drop-shadow-lg hover:scale-110 transition-transform" />
+                        </a>
+                      )}
                       {business.address && (
                         <div className="flex items-start gap-2">
                           <MapPin className="h-4 w-4 shrink-0 mt-0.5 text-white/60" />
@@ -476,7 +481,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                       {business.email && (
                         <a href={`mailto:${business.email}`} className="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
                           <Mail className="h-4 w-4 shrink-0 text-white/60" />
-                          {business.email}
+                          Email
                         </a>
                       )}
                       {business.website && (
@@ -506,6 +511,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                                 return displayOrder.map(day => {
                                   const dh = hours[day];
                                   if (!dh) return null;
+                                  const formatted = formatDayHoursDisplay(dh, { language });
+                                  if (!formatted || formatted.toLowerCase().includes('fermé') || formatted.toLowerCase().includes('closed')) return null;
                                   const isToday = day === todayKey;
                                   return (
                                     <div key={day} className={`flex gap-3 text-xs ${isToday ? 'font-bold' : ''}`}>
@@ -513,7 +520,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                                         {dayNames[day]}{isToday ? ' ●' : ''}
                                       </span>
                                       <span className="text-white/80">
-                                        {formatDayHoursDisplay(dh, { language })}
+                                        {formatted}
                                       </span>
                                     </div>
                                   );
@@ -663,11 +670,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                                   </div>
                                   {displayText && (
                                     <p className="text-xs text-white/70 line-clamp-4">{displayText}</p>
-                                  )}
-                                  {wasTranslated && (
-                                    <p className="text-[9px] text-white/30 mt-0.5 italic">
-                                      {language === "en" ? "Translated" : "Traduit"}
-                                    </p>
                                   )}
                                 </div>
                               );
