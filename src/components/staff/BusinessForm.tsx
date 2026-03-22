@@ -540,6 +540,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     viator_url: (business as any)?.viator_url || "",
     viator_rating: (business as any)?.viator_rating ?? "",
     viator_review_count: (business as any)?.viator_review_count ?? "",
+    avis_verifies_url: (business as any)?.avis_verifies_url || "",
+    avis_verifies_rating: (business as any)?.avis_verifies_rating ?? "",
+    avis_verifies_review_count: (business as any)?.avis_verifies_review_count ?? "",
     tripadvisor_review_url: (business as any)?.tripadvisor_review_url || "",
     tripadvisor_rating: (business as any)?.tripadvisor_rating ?? "",
     tripadvisor_review_count: (business as any)?.tripadvisor_review_count ?? "",
@@ -1110,6 +1113,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       google_reviews_url: (formData as any).google_reviews_url || null,
       google_rating: (formData as any).google_rating !== "" ? parseFloat((formData as any).google_rating) : null,
       google_review_count: (formData as any).google_review_count !== "" ? parseInt((formData as any).google_review_count) : null,
+      avis_verifies_url: (formData as any).avis_verifies_url || null,
+      avis_verifies_rating: (formData as any).avis_verifies_rating !== "" ? parseFloat((formData as any).avis_verifies_rating) : null,
+      avis_verifies_review_count: (formData as any).avis_verifies_review_count !== "" ? parseInt((formData as any).avis_verifies_review_count) : null,
       other_booking_url: formData.other_booking_url || null,
       other_booking_name: formData.other_booking_name || null,
       glovo_url: (formData as any).glovo_url || null,
@@ -3141,6 +3147,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 getyourguide_review_count: fd.getyourguide_review_count ? Number(fd.getyourguide_review_count) : null,
                 viator_rating: fd.viator_rating ? Number(fd.viator_rating) : null,
                 viator_review_count: fd.viator_review_count ? Number(fd.viator_review_count) : null,
+                avis_verifies_rating: fd.avis_verifies_rating ? Number(fd.avis_verifies_rating) : null,
+                avis_verifies_review_count: fd.avis_verifies_review_count ? Number(fd.avis_verifies_review_count) : null,
               });
               if (sources.length === 0) return null;
               const totalCount = sources.reduce((sum, r) => sum + r.count, 0);
@@ -3261,6 +3269,16 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             <Input type="number" min="0" value={(formData as any).viator_review_count} onChange={(e) => handleChange("viator_review_count" as any, e.target.value)} placeholder="Nb" className="w-20" />
             <span className="text-xs text-muted-foreground">avis</span>
             <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer Viator" onClick={() => { handleChange("viator_url" as any, ""); handleChange("viator_rating" as any, ""); handleChange("viator_review_count" as any, ""); }}>🗑️</Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-lg">✅</span>
+            {(formData as any).avis_verifies_url ? <a href={(formData as any).avis_verifies_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Avis Vérifiés ↗</a> : <span className="text-sm font-medium">Avis Vérifiés</span>}
+            <Input value={(formData as any).avis_verifies_url} onChange={(e) => handleChange("avis_verifies_url" as any, e.target.value)} placeholder="https://www.avis-verifies.com/avis-clients/..." className="flex-1" />
+            <Input type="number" step="0.1" min="0" max="5" value={(formData as any).avis_verifies_rating} onChange={(e) => handleChange("avis_verifies_rating" as any, e.target.value)} placeholder="Note" className="w-20" />
+            <span className="text-xs text-muted-foreground">/5</span>
+            <Input type="number" min="0" value={(formData as any).avis_verifies_review_count} onChange={(e) => handleChange("avis_verifies_review_count" as any, e.target.value)} placeholder="Nb" className="w-20" />
+            <span className="text-xs text-muted-foreground">avis</span>
+            <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer Avis Vérifiés" onClick={() => { handleChange("avis_verifies_url" as any, ""); handleChange("avis_verifies_rating" as any, ""); handleChange("avis_verifies_review_count" as any, ""); }}>🗑️</Button>
           </div>
         </div>
 

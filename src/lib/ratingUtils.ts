@@ -23,6 +23,8 @@ export function collectRatingSources(business: {
   getyourguide_review_count?: number | null;
   viator_rating?: number | null;
   viator_review_count?: number | null;
+  avis_verifies_rating?: number | null;
+  avis_verifies_review_count?: number | null;
 }): RatingSource[] {
   const sources: RatingSource[] = [];
   if (business.google_rating && business.google_review_count) {
@@ -39,6 +41,9 @@ export function collectRatingSources(business: {
   }
   if (business.viator_rating && business.viator_review_count) {
     sources.push({ rating: business.viator_rating, count: business.viator_review_count });
+  }
+  if (business.avis_verifies_rating && business.avis_verifies_review_count) {
+    sources.push({ rating: business.avis_verifies_rating, count: business.avis_verifies_review_count });
   }
   return sources;
 }
@@ -76,8 +81,9 @@ export function getTotalReviewCount(business: {
   restaurant_guru_review_count?: number | null;
   getyourguide_review_count?: number | null;
   viator_review_count?: number | null;
+  avis_verifies_review_count?: number | null;
 }): number {
-  return (business.google_review_count || 0) + (business.tripadvisor_review_count || 0) + (business.restaurant_guru_review_count || 0) + (business.getyourguide_review_count || 0) + (business.viator_review_count || 0);
+  return (business.google_review_count || 0) + (business.tripadvisor_review_count || 0) + (business.restaurant_guru_review_count || 0) + (business.getyourguide_review_count || 0) + (business.viator_review_count || 0) + (business.avis_verifies_review_count || 0);
 }
 
 /**
