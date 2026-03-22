@@ -966,8 +966,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           {destinations.length > 0 && (
             <div className="shrink-0 mt-3 pointer-events-auto">
               {/* Duplicated destinations carousel — above the label */}
-              <div className="w-full overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mb-2">
-                <div className="flex w-full gap-3" style={{ maxWidth: '80vw' }}>
+               <div className="w-[calc(100%_+_1rem)] -mr-4 md:w-[calc(100%_+_1.5rem)] md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mb-2">
+                <div className="flex w-max gap-3">
                 {destinations.map((dest, index) => {
                   const destImg = dest.images?.filter(Boolean)?.[0] || dest.image_url;
                   const isLast = index === destinations.length - 1;
