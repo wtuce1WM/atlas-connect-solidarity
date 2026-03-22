@@ -964,7 +964,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           {/* Destinations horizontal scroll */}
           {destinations.length > 0 && (
             <div className="shrink-0 mt-3 pointer-events-auto">
-              <p className="text-xs font-medium text-white/90 mb-1.5 rounded-lg py-1.5 px-4 bg-black/40 backdrop-blur-sm border border-white/10 text-center">
+              <div className="flex justify-center mb-1.5"><p className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10 inline-block">
                 {business.name} vous emmène à :
               </p>
               <div className="w-[calc(100%_+_1rem)] -mr-4 md:w-[calc(100%_+_1.5rem)] md:-mr-6 flex gap-2 overflow-x-auto pr-0 pb-1 scrollbar-hide">
