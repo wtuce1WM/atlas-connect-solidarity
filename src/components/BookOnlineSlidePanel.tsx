@@ -622,19 +622,19 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                   <p className="text-sm md:text-base text-white/90 italic text-center leading-relaxed">{hookText}</p>
                 </div>
               )}
-                {avgOn20 !== null && avgOn20 > 0 && (
-                  <div className="shrink-0 hidden md:flex flex-col items-center animate-slide-in-right">
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 text-gold fill-gold" />
-                      <span className="text-lg font-bold text-white">{avgOn20}</span>
-                      <span className="text-xs text-white/60">/20</span>
-                    </div>
-                    {totalReviewCount > 0 && (
-                      <span className="text-[10px] text-white/60">{totalReviewCount.toLocaleString("fr-FR")} avis</span>
-                    )}
+              {/* Rating — always visible, absolute right */}
+              {avgOn20 !== null && avgOn20 > 0 && (
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 shrink-0 hidden md:flex flex-col items-center">
+                  <div className="flex items-center gap-1">
+                    <Star className="h-4 w-4 text-gold fill-gold" />
+                    <span className="text-lg font-bold text-white">{avgOn20}</span>
+                    <span className="text-xs text-white/60">/20</span>
                   </div>
-                )}
-              </div>
+                  {totalReviewCount > 0 && (
+                    <span className="text-[10px] text-white/60">{totalReviewCount.toLocaleString("fr-FR")} avis</span>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Block 2: Horizontal card carousel */}
