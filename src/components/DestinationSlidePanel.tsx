@@ -329,12 +329,12 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
           {destination.latitude && destination.longitude && (
             <div className="shrink-0 py-2 flex flex-col items-center gap-2">
               <button
-                onClick={() => setShowMap(true)}
+                onClick={() => setShowDirections(true)}
                 className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2.5 rounded-lg text-white font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity normal-case tracking-normal"
                 style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: "#C04F17" }}
               >
                 <Navigation className="h-4 w-4" />
-                {language === "en" ? "Locate" : "Localiser"}
+                {language === "en" ? "Directions" : "Itinéraire"}
               </button>
             </div>
           )}
