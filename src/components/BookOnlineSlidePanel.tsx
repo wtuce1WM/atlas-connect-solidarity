@@ -476,7 +476,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                       {business.email && (
                         <a href={`mailto:${business.email}`} className="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
                           <Mail className="h-4 w-4 shrink-0 text-white/60" />
-                          {business.email}
+                          Email
                         </a>
                       )}
                       {business.website && (
