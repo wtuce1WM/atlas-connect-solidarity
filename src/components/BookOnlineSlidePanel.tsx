@@ -545,11 +545,13 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                                             </div>
                                           );
                                         })}
-                                        <div className={`mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${openNow ? 'bg-green-600/80 text-white' : 'bg-red-600/80 text-white'}`}>
-                                          <span className={`w-1.5 h-1.5 rounded-full ${openNow ? 'bg-green-300' : 'bg-red-300'}`} />
-                                          {openNow
-                                            ? (language === "en" ? "Open" : language === "ar" ? "مفتوح" : "Ouvert")
-                                            : (language === "en" ? "Closed" : language === "ar" ? "مغلق" : "Fermé")}
+                                        <div className="mt-3 flex justify-center">
+                                          <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider ${openNow ? 'bg-[#25D366] text-white' : 'bg-[#C04F17] text-white'}`}>
+                                            <span className={`w-1.5 h-1.5 rounded-full ${openNow ? 'bg-white/70' : 'bg-white/70'}`} />
+                                            {openNow
+                                              ? (language === "en" ? "Open" : language === "ar" ? "مفتوح" : "Ouvert")
+                                              : (language === "en" ? "Closed" : language === "ar" ? "مغلق" : "Fermé")}
+                                          </div>
                                         </div>
                                       </>
                                     );
