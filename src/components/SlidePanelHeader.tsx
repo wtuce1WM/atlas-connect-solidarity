@@ -21,6 +21,7 @@ const SlidePanelHeader = ({
   onToggleExpand,
   centerContent,
   closeVariant = "dark",
+  toolbarLeftId = "slide-panel-toolbar-left",
   toolbarCenterId = "slide-panel-toolbar-center",
   toolbarRightId = "slide-panel-toolbar",
 }: SlidePanelHeaderProps) => {
