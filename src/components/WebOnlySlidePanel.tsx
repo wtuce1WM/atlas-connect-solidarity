@@ -269,7 +269,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
           {/* Centered content block */}
           <div className="flex-1 flex flex-col items-center overflow-hidden min-h-0 gap-3">
               {/* Logo + name — always visible */}
-              <div className="w-[95%] md:w-[90%] lg:w-[70%] rounded-2xl bg-black/40 backdrop-blur-sm px-4 py-3 md:px-6 md:py-4 flex items-end gap-4 text-white pointer-events-auto shrink-0">
+              <div className="w-[95%] md:w-[90%] rounded-2xl bg-black/40 backdrop-blur-sm px-4 py-3 md:px-6 md:py-4 flex items-end gap-4 text-white pointer-events-auto shrink-0">
                 {business.logo_url && (
                   <div
                     className="shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg"
