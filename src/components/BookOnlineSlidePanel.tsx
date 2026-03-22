@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Info, CalendarCheck, Star, Phone, Mail, Globe, Clock, MessageCircle } from "lucide-react";
-import { formatDayHours as formatDayHoursDisplay } from "@/lib/formatOpeningHours";
+import { formatDayHours as formatDayHoursDisplay, isCurrentlyOpen } from "@/lib/formatOpeningHours";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { supabase } from "@/integrations/supabase/client";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
@@ -524,23 +524,35 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                                     const hours = business.opening_hours as Record<string, any>;
                                     const now = new Date();
                                     const todayKey = dayOrder[now.getDay()];
-                                    return displayOrder.map(day => {
-                                      const dh = hours[day];
-                                      if (!dh) return null;
-                                      const formatted = formatDayHoursDisplay(dh, { language });
-                                      if (!formatted || formatted.toLowerCase().includes('fermé') || formatted.toLowerCase().includes('closed')) return null;
-                                      const isToday = day === todayKey;
-                                      return (
-                                        <div key={day} className={`flex gap-3 text-xs ${isToday ? 'font-bold' : ''}`}>
-                                          <span className={`font-medium ${isToday ? 'text-white' : 'text-white/70'}`}>
-                                            {dayNames[day]}{isToday ? ' ●' : ''}
-                                          </span>
-                                          <span className="text-white/80">
-                                            {formatted}
-                                          </span>
+                                    const todayDh = todayKey ? hours[todayKey] : null;
+                                    const openNow = business.is_open_24h || isCurrentlyOpen(todayDh);
+                                    return (
+                                      <>
+                                        {displayOrder.map(day => {
+                                          const dh = hours[day];
+                                          if (!dh) return null;
+                                          const formatted = formatDayHoursDisplay(dh, { language });
+                                          if (!formatted || formatted.toLowerCase().includes('fermé') || formatted.toLowerCase().includes('closed')) return null;
+                                          const isToday = day === todayKey;
+                                          return (
+                                            <div key={day} className={`flex text-xs ${isToday ? 'font-bold' : ''}`}>
+                                              <span className={`w-[2.5rem] shrink-0 font-medium ${isToday ? 'text-white' : 'text-white/70'}`}>
+                                                {dayNames[day]}{isToday ? ' ●' : ''}
+                                              </span>
+                                              <span className="text-white/80">
+                                                {formatted}
+                                              </span>
+                                            </div>
+                                          );
+                                        })}
+                                        <div className={`mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${openNow ? 'bg-green-600/80 text-white' : 'bg-red-600/80 text-white'}`}>
+                                          <span className={`w-1.5 h-1.5 rounded-full ${openNow ? 'bg-green-300' : 'bg-red-300'}`} />
+                                          {openNow
+                                            ? (language === "en" ? "Open" : language === "ar" ? "مفتوح" : "Ouvert")
+                                            : (language === "en" ? "Closed" : language === "ar" ? "مغلق" : "Fermé")}
                                         </div>
-                                      );
-                                    });
+                                      </>
+                                    );
                                   })()}
                                 </div>
                               ) : null}
