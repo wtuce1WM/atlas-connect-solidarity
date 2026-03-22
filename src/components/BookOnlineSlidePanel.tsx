@@ -72,6 +72,7 @@ interface BookOnlineBusiness {
   tripadvisor_rating: number | null;
   tripadvisor_review_count: number | null;
   tripadvisor_url: string | null;
+  tripadvisor_review_url: string | null;
   restaurant_guru_rating: number | null;
   restaurant_guru_review_count: number | null;
   restaurant_guru_url: string | null;
