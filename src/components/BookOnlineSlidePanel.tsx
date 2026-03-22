@@ -314,7 +314,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
       {toolbarLeftPortal && totalMedia > 0 && createPortal(
         <button
           onClick={() => { setLightboxIndex(0); setIsLightboxOpen(true); }}
-          className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground/80 text-background shadow-md hover:bg-foreground transition-colors"
+          className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background shadow-md hover:bg-foreground/90 transition-colors"
           title="Voir tous les médias"
         >
           <Maximize2 className="h-4 w-4" />
