@@ -336,7 +336,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
               {/* Description — collapsible */}
               {woDescription && descExpanded && (
                 <div
-                  className="flex-1 min-h-0 overflow-y-auto pr-1 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
+                  className="min-h-0 max-h-16 md:max-h-20 overflow-y-auto pr-1 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
                   dangerouslySetInnerHTML={{ __html: woDescription }}
                 />
               )}
