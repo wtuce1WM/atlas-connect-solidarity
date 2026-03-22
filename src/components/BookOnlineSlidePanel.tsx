@@ -494,8 +494,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                         </a>
                       )}
                       {business.whatsapp && (
-                        <a href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
-                          <WhatsAppIcon className="h-4 w-4 shrink-0 text-white/60" />
+                        <a href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-[#25D366] hover:text-[#20bd5a] transition-colors">
+                          <WhatsAppIcon className="h-4 w-4 shrink-0" />
                           WhatsApp
                         </a>
                       )}
