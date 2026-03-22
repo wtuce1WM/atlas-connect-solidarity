@@ -966,15 +966,15 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           {destinations.length > 0 && (
             <div className="shrink-0 mt-3 pointer-events-auto">
               {/* Duplicated destinations carousel — above the label */}
-              <div className="w-[calc(100%_+_1rem)] -mr-4 md:w-[calc(100%_+_1.5rem)] md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mb-2">
-                <div className="flex w-max gap-3">
-                {destinations.map((dest, index) => {
+              <div className="w-full overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mb-2">
+                <div className="flex w-full gap-3" style={{ maxWidth: '80vw' }}>
+                {destinations.slice(0, 3).map((dest, index) => {
                   const destImg = dest.images?.filter(Boolean)?.[0] || dest.image_url;
-                  const isLastDestination = index === destinations.length - 1;
+                  const isLast = index === Math.min(destinations.length, 3) - 1;
                   return (
                     <div
                       key={dest.id}
-                      className={`${isLastDestination ? "snap-end" : "snap-start"} shrink-0 ${cardWidthClass} h-[18em] md:h-[24em] rounded-2xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors flex flex-col`}
+                      className={`${isLast ? "snap-end" : "snap-start"} shrink-0 w-[80vw] md:w-[80vw] h-[18em] md:h-[24em] rounded-2xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors flex flex-col`}
                       style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
                       onClick={() => setSelectedDestinationId(dest.id)}
                     >
