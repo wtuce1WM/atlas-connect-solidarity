@@ -653,11 +653,11 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
             {/* Block 2: Horizontal card carousel */}
             <div className="w-full shrink-0 self-start">
-              <div className="w-[calc(100%+1rem)] -mr-4 md:w-[calc(100%+1.5rem)] md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
+              <div className="w-full overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
                 <div className="flex w-full gap-3">
                   {/* Card 1: Texte */}
                   {woDescription && (
-                    <div className={`snap-start last:snap-end shrink-0 ${cardWidthClass} rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[18em] md:max-h-[24em] overflow-y-auto`}>
+                    <div className={`snap-start shrink-0 ${cardWidthClass} rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[18em] md:max-h-[24em] overflow-y-auto`}>
                     {/* No title for text card */}
                     <div
                       className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17]"
@@ -668,7 +668,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
                   {/* Card 2: Contact */}
                   {hasContactCard && (
-                    <div className={`snap-start last:snap-end shrink-0 ${cardWidthClass} h-[18em] md:h-[24em]`} style={{ perspective: '1000px' }}>
+                    <div className={`snap-start shrink-0 ${cardWidthClass} h-[18em] md:h-[24em]`} style={{ perspective: '1000px' }}>
                     <div
                       className="relative w-full h-full transition-transform duration-500"
                       style={{
@@ -806,7 +806,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
                   {/* Card 3: Avis Clients — Flip card */}
                   {hasReviewsCard && (
-                    <div className={`snap-start last:snap-end shrink-0 ${cardWidthClass} h-[18em] md:h-[24em]`} style={{ perspective: '1000px' }}>
+                    <div className={`snap-start shrink-0 ${cardWidthClass} h-[18em] md:h-[24em]`} style={{ perspective: '1000px' }}>
                     <div
                       className="relative w-full h-full transition-transform duration-500"
                       style={{
