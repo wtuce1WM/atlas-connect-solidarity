@@ -316,7 +316,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                 <div className="min-w-0 flex-1">
                   <h2 className="text-xl font-bold truncate drop-shadow-lg">{business.name}</h2>
                   {business.city && (
-                    <p className="text-sm text-white/80 flex items-center gap-1 mt-0.5">
+                    <p className="text-xs md:text-sm text-white/80 flex items-center gap-1 mt-0.5">
                       <MapPin className="h-3.5 w-3.5" />
                       {[business.city, business.neighborhood].filter(Boolean).join(", ")}
                     </p>
