@@ -642,7 +642,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
             </div>
 
             {/* Block 2: Horizontal card carousel */}
-            <div className="w-full md:w-[90%] shrink-0 self-start">
+            <div className="w-full shrink-0 self-start">
               <div ref={carouselRef} className="w-[calc(100%+1rem)] -mr-4 md:w-[calc(100%+1.5rem)] md:-mr-6 flex gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-1 pr-0">
                 {/* Card 1: Texte */}
                 {woDescription && (
