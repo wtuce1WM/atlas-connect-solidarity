@@ -2515,7 +2515,7 @@ const SearchPage = () => {
               </div>
             )}
 
-            {/* Service filters when subcategory is known — only for Results tab */}
+            {/* Service filters when subcategory is known — COMMENTED OUT
             {activeTab === "suggestions" && (() => {
               const effectiveSub = selectedSubcategoryFilter || detectedSubcategory;
               const effectiveCity = (selectedCity && selectedCity !== "all") ? selectedCity : detectedCity;
@@ -2550,7 +2550,7 @@ const SearchPage = () => {
                   </div>
                 </div>
               );
-            })()}
+            })()} */}
 
             <div className="max-w-3xl mx-auto">
               <div className="text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
