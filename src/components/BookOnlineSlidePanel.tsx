@@ -435,7 +435,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
             transform: isDragging
               ? `translateY(${dragOffsetY}px)`
               : cardsHidden
-                ? 'translateY(calc(100% - 3rem))'
+                ? 'translateY(100%)'
                 : 'translateY(0)',
             transition: isDragging ? 'none' : 'transform 0.35s cubic-bezier(.4,0,.2,1)',
           }}
