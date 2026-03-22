@@ -121,27 +121,10 @@ const BookingOverlay = ({ bookingUrl, onClose }: BookingOverlayProps) => {
         </div>
       </div>
 
-      {iframeBlocked && (
-        <div className="flex flex-col items-center justify-center gap-4 p-6 text-center flex-1">
-          <p className="text-sm text-muted-foreground">
-            Ce site de réservation ne peut pas s'afficher ici.
-          </p>
-          <a
-            href={bookingUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
-          >
-            <ExternalLink className="h-4 w-4" />
-            Ouvrir la réservation
-          </a>
-        </div>
-      )}
-
       <iframe
         ref={iframeRef}
         src={bookingUrl}
-        className={`flex-1 w-full border-0 ${iframeBlocked ? "hidden" : ""}`}
+        className="flex-1 w-full border-0"
         allow="payment"
         title="Réservation"
         onLoad={handleIframeLoad}
