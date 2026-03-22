@@ -939,7 +939,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                   </div>
                 )}
               </div>
-            </div>
           </div>
 
           {/* Destinations horizontal scroll */}
