@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Info, Globe, CalendarCheck } from "lucide-react";
+import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Info, CalendarCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -262,10 +262,9 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           </>
         )}
 
-        {/* Languages floating right */}
+        {/* Languages floating right — upper half */}
         {languages.length > 0 && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full py-2 px-1.5">
-            <Globe className="h-3.5 w-3.5 text-white/70 mb-0.5" />
+          <div className="absolute right-3 top-[15%] z-20 flex flex-col items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full py-2 px-1.5">
             {languages.map((lang, i) => (
               <span key={i} className="text-base leading-none" title={lang}>
                 {getLangFlag(lang)}
@@ -291,48 +290,47 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
             </div>
           )}
 
-          {/* Spacer to push content down */}
-          <div className="flex-1 min-h-0" />
-
-          {/* Compact content block — shorter text area */}
-          <div className="shrink-0 w-[95%] md:w-[90%] lg:w-[70%] mx-auto rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-5 flex flex-col gap-3 text-white pointer-events-auto max-h-[40%] overflow-hidden">
-            {/* Logo + name + toggle */}
-            <div className="flex items-end gap-4">
-              {business.logo_url && (
-                <div
-                  className="shrink-0 w-12 h-12 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg"
-                  style={{ backgroundColor: business.logo_bg || "#fff" }}
-                >
-                  <img src={business.logo_url} alt="" className="w-full h-full object-contain p-1" />
+          {/* Centered content block — same layout as WebOnlySlidePanel */}
+          <div className="flex-1 flex items-start justify-center overflow-hidden min-h-0">
+            <div className="w-[95%] md:w-[90%] lg:w-[70%] max-h-full overflow-hidden rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 flex flex-col gap-5 text-white pointer-events-auto">
+              {/* Logo + name + toggle */}
+              <div className="flex items-end gap-4">
+                {business.logo_url && (
+                  <div
+                    className="shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg"
+                    style={{ backgroundColor: business.logo_bg || "#fff" }}
+                  >
+                    <img src={business.logo_url} alt="" className="w-full h-full object-contain p-1" />
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-xl font-bold truncate drop-shadow-lg">{business.name}</h2>
+                  {business.city && (
+                    <p className="text-sm text-white/80 flex items-center gap-1 mt-0.5">
+                      <MapPin className="h-3.5 w-3.5" />
+                      {[business.city, business.neighborhood].filter(Boolean).join(", ")}
+                    </p>
+                  )}
                 </div>
-              )}
-              <div className="min-w-0 flex-1">
-                <h2 className="text-lg font-bold truncate drop-shadow-lg">{business.name}</h2>
-                {business.city && (
-                  <p className="text-xs text-white/80 flex items-center gap-1 mt-0.5">
-                    <MapPin className="h-3 w-3" />
-                    {[business.city, business.neighborhood].filter(Boolean).join(", ")}
-                  </p>
+                {woDescription && (
+                  <button
+                    onClick={() => setDescExpanded((p) => !p)}
+                    className="shrink-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                    aria-label={descExpanded ? "Replier" : "Déplier"}
+                  >
+                    {descExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+                  </button>
                 )}
               </div>
-              {woDescription && (
-                <button
-                  onClick={() => setDescExpanded((p) => !p)}
-                  className="shrink-0 w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-                  aria-label={descExpanded ? "Replier" : "Déplier"}
-                >
-                  {descExpanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}
-                </button>
+
+              {/* Description — collapsible */}
+              {woDescription && descExpanded && (
+                <div
+                  className="flex-1 min-h-0 overflow-y-auto pr-1 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
+                  dangerouslySetInnerHTML={{ __html: woDescription }}
+                />
               )}
             </div>
-
-            {/* Description — collapsible, shorter */}
-            {woDescription && descExpanded && (
-              <div
-                className="min-h-0 overflow-y-auto pr-1 text-xs leading-relaxed prose prose-invert prose-xs max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white max-h-24 md:max-h-32"
-                dangerouslySetInnerHTML={{ __html: woDescription }}
-              />
-            )}
           </div>
 
           {/* Destinations horizontal scroll */}
