@@ -659,11 +659,11 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           </div>
 
           {/* Info Carousel — above destinations */}
-          <div className="shrink-0 w-[calc(100%_+_1rem)] -mr-4 md:w-[calc(100%_+_1.5rem)] md:-mr-6 overflow-x-auto pl-4 pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 mb-4 pointer-events-auto">
+          <div className="shrink-0 w-[calc(100%_+_1rem)] -mr-4 md:w-[calc(100%_+_1.5rem)] md:-mr-6 overflow-x-auto pl-4 pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto">
             <div className="flex w-max gap-2">
               {/* Card 1: Texte Web only */}
               {woDescription && (
-                <div className="snap-start shrink-0 w-[40rem] h-[18em] md:h-[24em] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10"
+                <div className="snap-start shrink-0 w-[40rem] h-[18em] md:h-[24em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10"
                     style={{ animationFillMode: 'forwards' }}
                   >
                     <div
@@ -674,7 +674,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                 )}
                 {/* Card 2: Contact with Flip to Google Map */}
                 {hasContactCard && (
-                  <div className="snap-start shrink-0 w-[30rem] h-[18em] md:h-[24em] animate-slide-in-left opacity-0"
+                  <div className="snap-start shrink-0 w-[30rem] h-[18em] md:h-[24em] mb-4 animate-slide-in-left opacity-0"
                     style={{ perspective: '1000px', animationDelay: woDescription ? '120ms' : '0ms', animationFillMode: 'forwards' }}
                   >
                     <div
@@ -813,7 +813,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                 )}
                 {/* Card 3: Avis Clients with Flip to translated reviews */}
                 {hasReviewsCard && (
-                  <div className="snap-start shrink-0 w-[30rem] h-[18em] md:h-[24em] animate-slide-in-left opacity-0"
+                  <div className="snap-start shrink-0 w-[30rem] h-[18em] md:h-[24em] mb-4 animate-slide-in-left opacity-0"
                     style={{ perspective: '1000px', animationDelay: `${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`, animationFillMode: 'forwards' }}
                   >
                     <div
