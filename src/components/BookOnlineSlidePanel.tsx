@@ -68,10 +68,28 @@ interface BookOnlineBusiness {
   is_open_24h: boolean;
   google_rating: number | null;
   google_review_count: number | null;
+  google_reviews_url: string | null;
   tripadvisor_rating: number | null;
   tripadvisor_review_count: number | null;
+  tripadvisor_url: string | null;
   restaurant_guru_rating: number | null;
   restaurant_guru_review_count: number | null;
+  restaurant_guru_url: string | null;
+  trustpilot_rating: number | null;
+  trustpilot_review_count: number | null;
+  trustpilot_url: string | null;
+  getyourguide_rating: number | null;
+  getyourguide_review_count: number | null;
+  getyourguide_url: string | null;
+  viator_rating: number | null;
+  viator_review_count: number | null;
+  viator_url: string | null;
+  avis_verifies_rating: number | null;
+  avis_verifies_review_count: number | null;
+  avis_verifies_url: string | null;
+  tourradar_rating: number | null;
+  tourradar_review_count: number | null;
+  tourradar_url: string | null;
   online_shop_force_external: boolean;
   website_force_external: boolean;
 }
@@ -104,7 +122,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   const [showInfoCard, setShowInfoCard] = useState(true);
   const [showBookingOverlay, setShowBookingOverlay] = useState(false);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
-  const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null }[]>([]);
+  
   const videoRef = useRef<HTMLVideoElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -155,7 +173,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
       const [bizRes, woRes, destLinksRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, online_shop_force_external, website_force_external")
+          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, online_shop_force_external, website_force_external")
           .eq("id", businessId)
           .eq("is_active", true)
           .maybeSingle(),
@@ -189,30 +207,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
       } else {
         setDestinations([]);
       }
-
-      // Fetch reviews
-      const langCode = language === "en" ? "en" : language === "ar" ? "ar" : "fr";
-      const { data: langReviews } = await supabase
-        .from("reviews" as any)
-        .select("source, author_name, rating, text")
-        .eq("business_id", businessId)
-        .eq("language", langCode)
-        .not("text", "is", null)
-        .order("rating", { ascending: false })
-        .limit(5);
-      if (langReviews && langReviews.length >= 2) {
-        setReviewTexts(langReviews as any[]);
-      } else {
-        const { data: allReviews } = await supabase
-          .from("reviews" as any)
-          .select("source, author_name, rating, text")
-          .eq("business_id", businessId)
-          .not("text", "is", null)
-          .order("rating", { ascending: false })
-          .limit(5);
-        setReviewTexts(allReviews ? (allReviews as any[]) : []);
-      }
-
       setIsLoading(false);
     };
     fetchData();
@@ -528,24 +522,38 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                         <span className="text-xs text-white/50 ml-1">({totalReviewCount.toLocaleString("fr-FR")} avis)</span>
                       )}
                     </div>
-                    {reviewTexts.length > 0 && (
-                      <div className="space-y-3">
-                        {reviewTexts.slice(0, 3).map((review, i) => (
-                          <div key={i} className="border-t border-white/10 pt-2">
-                            <div className="flex items-center gap-1.5 mb-1">
-                              <MessageCircle className="h-3 w-3 text-white/40" />
-                              <span className="text-xs font-medium text-white/70">{review.author_name || review.source}</span>
-                              {review.rating && (
-                                <span className="text-xs text-gold ml-auto">{"★".repeat(Math.round(review.rating))}</span>
-                              )}
-                            </div>
-                            {review.text && (
-                              <p className="text-xs text-white/70 line-clamp-3">{review.text}</p>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    {business && (() => {
+                      const platforms: { name: string; rating: number | null; count: number | null; url: string | null }[] = [
+                        { name: "Google", rating: business.google_rating, count: business.google_review_count, url: business.google_reviews_url || business.google_maps_url },
+                        { name: "TripAdvisor", rating: business.tripadvisor_rating, count: business.tripadvisor_review_count, url: business.tripadvisor_url },
+                        { name: "Restaurant Guru", rating: business.restaurant_guru_rating, count: business.restaurant_guru_review_count, url: business.restaurant_guru_url },
+                        { name: "Trustpilot", rating: business.trustpilot_rating, count: business.trustpilot_review_count, url: business.trustpilot_url },
+                        { name: "GetYourGuide", rating: business.getyourguide_rating, count: business.getyourguide_review_count, url: business.getyourguide_url },
+                        { name: "Viator", rating: business.viator_rating, count: business.viator_review_count, url: business.viator_url },
+                        { name: "Avis Vérifiés", rating: business.avis_verifies_rating, count: business.avis_verifies_review_count, url: business.avis_verifies_url },
+                        { name: "TourRadar", rating: business.tourradar_rating, count: business.tourradar_review_count, url: business.tourradar_url },
+                      ].filter(p => p.rating && p.count);
+                      return (
+                        <div className="space-y-2">
+                          {platforms.map((p) => (
+                            <a
+                              key={p.name}
+                              href={p.url || "#"}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={`flex items-center justify-between text-sm border-t border-white/10 pt-2 ${p.url ? 'hover:text-gold transition-colors' : 'pointer-events-none'}`}
+                            >
+                              <span className="text-white/80 font-medium">{p.name}</span>
+                              <span className="flex items-center gap-1.5">
+                                <span className="text-gold font-semibold">{p.rating}/5</span>
+                                <span className="text-white/50 text-xs">({p.count?.toLocaleString("fr-FR")})</span>
+                                {p.url && <ExternalLink className="h-3 w-3 text-white/40" />}
+                              </span>
+                            </a>
+                          ))}
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
 
