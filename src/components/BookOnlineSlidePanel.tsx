@@ -484,7 +484,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
             <div className="relative flex items-center justify-center pb-3 pointer-events-auto">
               {/* Language flags — absolute left */}
               {languages.length > 0 && (
-                <div className="absolute left-0 flex items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full py-1 px-2.5">
+                <div className={`absolute left-0 flex flex-wrap items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full py-1 px-2.5 ${languages.length > 4 ? 'max-w-[5.5rem] md:max-w-none rounded-xl' : ''}`}>
                   {languages.map((lang, i) => (
                     <span key={i} className="text-lg leading-none" title={lang}>
                       {getLangFlag(lang)}
