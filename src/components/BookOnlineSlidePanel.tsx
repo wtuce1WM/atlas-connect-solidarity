@@ -481,7 +481,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
         >
           {/* Single row: flags (left) — Masquer button (center) — media counter (right) */}
           {!cardsHidden && (
-            <div className="relative flex items-center justify-center pb-3 pointer-events-auto">
+            <div className="relative flex items-center justify-center pb-3 pointer-events-auto ml-2 md:ml-0">
               {/* Language flags — absolute left */}
               {languages.length > 0 && (
                 <div className="absolute left-0 flex items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full py-1 px-2.5">
