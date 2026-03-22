@@ -3147,6 +3147,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 getyourguide_review_count: fd.getyourguide_review_count ? Number(fd.getyourguide_review_count) : null,
                 viator_rating: fd.viator_rating ? Number(fd.viator_rating) : null,
                 viator_review_count: fd.viator_review_count ? Number(fd.viator_review_count) : null,
+                avis_verifies_rating: fd.avis_verifies_rating ? Number(fd.avis_verifies_rating) : null,
+                avis_verifies_review_count: fd.avis_verifies_review_count ? Number(fd.avis_verifies_review_count) : null,
               });
               if (sources.length === 0) return null;
               const totalCount = sources.reduce((sum, r) => sum + r.count, 0);
