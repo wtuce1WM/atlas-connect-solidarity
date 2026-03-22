@@ -959,29 +959,31 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           {destinations.length > 0 && (
             <div className="shrink-0 mt-3 pointer-events-auto">
               {/* Duplicated destinations carousel — above the label */}
-              <div className="w-[calc(100%+1rem)] -mr-4 md:w-[calc(100%+1.5rem)] md:-mr-6 flex gap-2 overflow-x-auto pl-4 pr-0 pb-1 scrollbar-hide mb-2">
+              <div className="w-full overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mb-2">
+                <div className="flex w-full gap-3">
                 {destinations.map((dest, index) => {
                   const destImg = dest.images?.filter(Boolean)?.[0] || dest.image_url;
                   return (
                     <div
                       key={dest.id}
-                      className="shrink-0 w-36 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                      className={`snap-start shrink-0 ${cardWidthClass} h-[18em] md:h-[24em] rounded-2xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors flex flex-col`}
                       style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
                       onClick={() => setSelectedDestinationId(dest.id)}
                     >
                       {destImg ? (
-                        <img src={destImg} alt={destName(dest)} className="w-full h-24 object-cover" />
+                        <img src={destImg} alt={destName(dest)} className="w-full flex-1 object-cover" />
                       ) : (
-                        <div className="w-full h-24 bg-white/10 flex items-center justify-center">
+                        <div className="w-full flex-1 bg-white/10 flex items-center justify-center">
                           <MapPin className="h-5 w-5 text-white/40" />
                         </div>
                       )}
-                      <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
+                      <p className="text-sm font-medium text-white text-center py-3 px-2 truncate shrink-0">
                         {destName(dest)}
                       </p>
                     </div>
                   );
                 })}
+                </div>
               </div>
               <p className="text-xs font-medium text-white/90 px-4 mb-1.5 rounded-lg mx-4 py-1.5 bg-black/40 backdrop-blur-sm border border-white/10 inline-block">
                 {business.name} vous emmène à :
