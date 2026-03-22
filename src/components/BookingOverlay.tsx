@@ -74,24 +74,36 @@ const BookingOverlay = ({ bookingUrl, onClose }: BookingOverlayProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const loadedRef = useRef(false);
 
+  // If domain is known blocked, open externally immediately and close overlay
   useEffect(() => {
-    if (knownBlocked) return; // No need for timeout, already blocked
+    if (knownBlocked) {
+      window.open(bookingUrl, "_blank", "noopener,noreferrer");
+      onClose();
+    }
+  }, [knownBlocked, bookingUrl, onClose]);
+
+  useEffect(() => {
+    if (knownBlocked) return;
 
     loadedRef.current = false;
     const timer = setTimeout(() => {
-      // Only show fallback if onLoad never fired
       if (!loadedRef.current) {
-        setIframeBlocked(true);
+        // Timeout: open externally and close
+        window.open(bookingUrl, "_blank", "noopener,noreferrer");
+        onClose();
       }
     }, IFRAME_LOAD_TIMEOUT_MS);
 
     return () => clearTimeout(timer);
-  }, [bookingUrl, knownBlocked]);
+  }, [bookingUrl, knownBlocked, onClose]);
 
   const handleIframeLoad = () => {
     loadedRef.current = true;
     setIframeBlocked(false);
   };
+
+  // Don't render if blocked
+  if (iframeBlocked) return null;
 
   return (
     <div className="absolute inset-0 z-[60] bg-white flex flex-col animate-fade-in">
@@ -109,27 +121,10 @@ const BookingOverlay = ({ bookingUrl, onClose }: BookingOverlayProps) => {
         </div>
       </div>
 
-      {iframeBlocked && (
-        <div className="flex flex-col items-center justify-center gap-4 p-6 text-center flex-1">
-          <p className="text-sm text-muted-foreground">
-            Ce site de réservation ne peut pas s'afficher ici.
-          </p>
-          <a
-            href={bookingUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
-          >
-            <ExternalLink className="h-4 w-4" />
-            Ouvrir la réservation
-          </a>
-        </div>
-      )}
-
       <iframe
         ref={iframeRef}
         src={bookingUrl}
-        className={`flex-1 w-full border-0 ${iframeBlocked ? "hidden" : ""}`}
+        className="flex-1 w-full border-0"
         allow="payment"
         title="Réservation"
         onLoad={handleIframeLoad}
