@@ -98,7 +98,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   if (!destination) return null;
 
   return (
-    <div className="absolute inset-0 z-[70] bg-black overflow-hidden animate-slide-in-right">
+    <div className={`absolute inset-0 z-[70] bg-black overflow-hidden ${slideAnim}`}>
       {/* Close button */}
       <button
         onClick={onClose}
