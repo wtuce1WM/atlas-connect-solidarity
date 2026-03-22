@@ -27,6 +27,17 @@ function parseRating(value: unknown): number | null {
 function parseReviewCount(value: unknown): number | null {
   if (typeof value === 'number' && Number.isFinite(value)) return Math.round(value);
   if (typeof value === 'string') {
+    // Prefer number groups that look like review volumes (e.g. 17,062 or 2 777)
+    const candidates = value.match(/\d{1,3}(?:[.,\s]\d{3})+|\d{2,}/g);
+    if (candidates && candidates.length > 0) {
+      const parsedCandidates = candidates
+        .map((c) => Number(c.replace(/[^0-9]/g, '')))
+        .filter((n) => Number.isFinite(n) && n > 0);
+      if (parsedCandidates.length > 0) {
+        return Math.max(...parsedCandidates);
+      }
+    }
+
     const digits = value.replace(/[^0-9]/g, '');
     if (!digits) return null;
     const parsed = Number(digits);
