@@ -49,7 +49,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   useEffect(() => {
     setCurrentMediaIndex(0);
     setDescExpanded(true);
-    setShowMap(false);
+    setShowDirections(false);
   }, [destinationId]);
 
   useEffect(() => {
