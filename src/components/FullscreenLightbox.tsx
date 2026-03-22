@@ -51,7 +51,7 @@ const FullscreenLightbox = ({ items, currentIndex, onIndexChange, onClose }: Ful
       if (ytMatch) {
         return (
           <iframe
-            src={`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=0&loop=1&playlist=${ytMatch[1]}&rel=0`}
+            src={`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=0&loop=1&playlist=${ytMatch[1]}&rel=0&controls=0&modestbranding=1&playsinline=1&iv_load_policy=3&cc_load_policy=0&disablekb=1&fs=0`}
             className="w-[90%] max-h-[90vh] aspect-video"
             allow="autoplay; encrypted-media; fullscreen"
             allowFullScreen
