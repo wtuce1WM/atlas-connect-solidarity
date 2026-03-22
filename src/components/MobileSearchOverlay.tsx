@@ -168,7 +168,7 @@ const MobileSearchOverlay = ({ open, onClose, onBusinessSelect, onSearch }: Mobi
               </button>
             </div>
             <div className="space-y-0.5">
-              {history.slice(0, 5).map((entry) => (
+              {history.slice(0, 8).map((entry) => (
                 <div key={entry.id} className="group flex items-center rounded-lg hover:bg-muted/50 transition-colors">
                   <button
                     type="button"
@@ -212,10 +212,10 @@ const MobileSearchOverlay = ({ open, onClose, onBusinessSelect, onSearch }: Mobi
                       navigate(`/search?openBusiness=${biz.id}`);
                     }
                   }}
-                  className="flex flex-col items-center gap-1.5 shrink-0 w-[72px] group animate-slide-in-right"
+                  className="flex flex-col items-center gap-1.5 shrink-0 w-[88px] group animate-slide-in-right"
                   style={{ animationDelay: `${i * 80}ms`, animationFillMode: "backwards" }}
                 >
-                  <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted border border-border">
+                  <div className="w-[72px] h-[72px] rounded-xl overflow-hidden bg-muted border border-border">
                     {biz.image ? (
                       <img src={biz.image} alt={biz.name} className="w-full h-full object-cover" loading="lazy" />
                     ) : (
