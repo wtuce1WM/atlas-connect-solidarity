@@ -923,6 +923,22 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           slideFrom="bottom"
         />
       )}
+      {/* Fullscreen media lightbox */}
+      {isLightboxOpen && totalMedia > 0 && (() => {
+        const lbItems: LightboxMediaItem[] = mediaItems.map((m) =>
+          m.kind === "video"
+            ? { type: "video" as const, src: m.url, alt: business?.name || "" }
+            : { type: "image" as const, src: m.url, alt: business?.name || "" }
+        );
+        return (
+          <FullscreenLightbox
+            items={lbItems}
+            currentIndex={lightboxIndex}
+            onIndexChange={setLightboxIndex}
+            onClose={() => setIsLightboxOpen(false)}
+          />
+        );
+      })()}
     </div>
   );
 };
