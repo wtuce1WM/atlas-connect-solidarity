@@ -262,10 +262,9 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           </>
         )}
 
-        {/* Languages floating right */}
+        {/* Languages floating right — upper half */}
         {languages.length > 0 && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full py-2 px-1.5">
-            <Globe className="h-3.5 w-3.5 text-white/70 mb-0.5" />
+          <div className="absolute right-3 top-[15%] z-20 flex flex-col items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full py-2 px-1.5">
             {languages.map((lang, i) => (
               <span key={i} className="text-base leading-none" title={lang}>
                 {getLangFlag(lang)}
