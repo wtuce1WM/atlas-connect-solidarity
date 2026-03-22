@@ -103,6 +103,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const iframeSrcRef = useRef<string>("");
 
   useEffect(() => {
     if (selectedDestinationId) {
@@ -111,12 +112,16 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
         videoRef.current.muted = true;
       }
       if (iframeRef.current) {
+        iframeSrcRef.current = iframeRef.current.src;
         iframeRef.current.src = "";
       }
     } else {
       if (videoRef.current) {
         videoRef.current.muted = false;
         videoRef.current.play().catch(() => {});
+      }
+      if (iframeRef.current && iframeSrcRef.current) {
+        iframeRef.current.src = iframeSrcRef.current;
       }
     }
   }, [selectedDestinationId]);
