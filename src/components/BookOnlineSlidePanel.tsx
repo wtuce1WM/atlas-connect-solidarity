@@ -419,75 +419,192 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
               </div>
             </div>
 
-            {/* Block 2: Description + opening hours — 4 lines by default */}
-            {hasExpandableContent && (
-              <div className={`w-[95%] md:w-[90%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 text-white ${descExpanded ? 'max-h-[30em] overflow-y-auto' : 'overflow-hidden'}`}>
-                <div className={`text-sm leading-relaxed pr-1 ${!descExpanded ? 'max-h-[3.4em] overflow-hidden' : ''}`}>
-                  {woDescription && (
-                    <>
-                      {hasExpandableContent && (
-                        <button
-                          onClick={() => setDescExpanded((p) => !p)}
-                          className="float-right ml-2 mt-0.5 shrink-0 w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-                          aria-label={descExpanded ? "Replier" : "Déplier"}
-                        >
-                          {descExpanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}
-                        </button>
-                      )}
+            {/* Block 2: Horizontal card carousel */}
+            <div className="w-[95%] md:w-[90%] shrink-0">
+              <div ref={carouselRef} className="flex gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-1">
+                {/* Card 1: Texte */}
+                {(woDescription || hasOpeningHours) && (
+                  <div className="snap-start shrink-0 w-[85%] md:w-[48%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[18em] overflow-y-auto">
+                    <p className="text-[10px] font-semibold text-white/50 uppercase tracking-wider mb-2">
+                      {language === "en" ? "Description" : "Texte"}
+                    </p>
+                    {woDescription && (
                       <div
-                        className="prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17]"
+                        className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17]"
                         dangerouslySetInnerHTML={{ __html: woDescription }}
                       />
-                    </>
-                  )}
-                  {!woDescription && hasExpandableContent && (
-                    <button
-                      onClick={() => setDescExpanded((p) => !p)}
-                      className="float-right ml-2 mt-0.5 shrink-0 w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-                      aria-label={descExpanded ? "Replier" : "Déplier"}
-                    >
-                      {descExpanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}
-                    </button>
-                  )}
-                  {hasOpeningHours && descExpanded && business && (
-                    <div className={`${woDescription ? 'mt-4 pt-4 border-t border-white/20' : ''}`}>
-                      <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
-                        {language === "en" ? "Opening hours" : "Horaires"}
-                      </p>
-                      {business.is_open_24h ? (
-                        <p className="text-white/80">Ouvert 24h/24</p>
-                      ) : business.opening_hours ? (
-                        <div className="space-y-0.5">
-                          {(() => {
-                            const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-                            const dayNames: Record<string, string> = { monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim" };
-                            const displayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
-                            const hours = business.opening_hours as Record<string, any>;
-                            const now = new Date();
-                            const todayKey = dayOrder[now.getDay()];
-                            return displayOrder.map(day => {
-                              const dh = hours[day];
-                              if (!dh) return null;
-                              const isToday = day === todayKey;
-                              return (
-                                <div key={day} className={`flex gap-3 text-sm ${isToday ? 'font-bold' : ''}`}>
-                                  <span className={`font-medium ${isToday ? 'text-white' : 'text-white/70'}`}>
-                                    {dayNames[day]}{isToday ? ' ●' : ''}
-                                  </span>
-                                  <span className="text-white/80">
-                                    {formatDayHoursDisplay(dh, { language })}
-                                  </span>
-                                </div>
-                              );
-                            });
-                          })()}
+                    )}
+                    {hasOpeningHours && business && (
+                      <div className={`${woDescription ? 'mt-3 pt-3 border-t border-white/20' : ''}`}>
+                        <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+                          <Clock className="h-3 w-3 inline mr-1" />
+                          {language === "en" ? "Opening hours" : "Horaires"}
+                        </p>
+                        {business.is_open_24h ? (
+                          <p className="text-white/80 text-sm">Ouvert 24h/24</p>
+                        ) : business.opening_hours ? (
+                          <div className="space-y-0.5">
+                            {(() => {
+                              const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+                              const dayNames: Record<string, string> = { monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim" };
+                              const displayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+                              const hours = business.opening_hours as Record<string, any>;
+                              const now = new Date();
+                              const todayKey = dayOrder[now.getDay()];
+                              return displayOrder.map(day => {
+                                const dh = hours[day];
+                                if (!dh) return null;
+                                const isToday = day === todayKey;
+                                return (
+                                  <div key={day} className={`flex gap-3 text-sm ${isToday ? 'font-bold' : ''}`}>
+                                    <span className={`font-medium ${isToday ? 'text-white' : 'text-white/70'}`}>
+                                      {dayNames[day]}{isToday ? ' ●' : ''}
+                                    </span>
+                                    <span className="text-white/80">
+                                      {formatDayHoursDisplay(dh, { language })}
+                                    </span>
+                                  </div>
+                                );
+                              });
+                            })()}
+                          </div>
+                        ) : null}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Card 2: Contact */}
+                {(business.phone || business.whatsapp || business.email || business.website || business.address) && (
+                  <div className="snap-start shrink-0 w-[85%] md:w-[48%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[18em] overflow-y-auto">
+                    <p className="text-[10px] font-semibold text-white/50 uppercase tracking-wider mb-2">Contact</p>
+                    <div className="space-y-2.5 text-sm">
+                      {business.address && (
+                        <div className="flex items-start gap-2">
+                          <MapPin className="h-4 w-4 shrink-0 mt-0.5 text-white/60" />
+                          <span className="text-white/80">{business.address}</span>
                         </div>
-                      ) : null}
+                      )}
+                      {business.phone && (
+                        <a href={`tel:${business.phone}`} className="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
+                          <Phone className="h-4 w-4 shrink-0 text-white/60" />
+                          {business.phone}
+                        </a>
+                      )}
+                      {business.whatsapp && (
+                        <a href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
+                          <WhatsAppIcon className="h-4 w-4 shrink-0 text-white/60" />
+                          WhatsApp
+                        </a>
+                      )}
+                      {business.email && (
+                        <a href={`mailto:${business.email}`} className="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
+                          <Mail className="h-4 w-4 shrink-0 text-white/60" />
+                          {business.email}
+                        </a>
+                      )}
+                      {business.website && (
+                        <a href={business.website.startsWith('http') ? business.website : `https://${business.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
+                          <Globe className="h-4 w-4 shrink-0 text-white/60" />
+                          {language === "en" ? "Website" : "Site web"}
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      )}
+                      {hasOpeningHours && business && (
+                        <div className="mt-2 pt-2 border-t border-white/20">
+                          <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-1.5">
+                            <Clock className="h-3 w-3 inline mr-1" />
+                            {language === "en" ? "Hours" : "Horaires"}
+                          </p>
+                          {business.is_open_24h ? (
+                            <p className="text-white/80 text-sm">Ouvert 24h/24</p>
+                          ) : business.opening_hours ? (
+                            <div className="space-y-0.5">
+                              {(() => {
+                                const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+                                const dayNames: Record<string, string> = { monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim" };
+                                const displayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+                                const hours = business.opening_hours as Record<string, any>;
+                                const now = new Date();
+                                const todayKey = dayOrder[now.getDay()];
+                                return displayOrder.map(day => {
+                                  const dh = hours[day];
+                                  if (!dh) return null;
+                                  const isToday = day === todayKey;
+                                  return (
+                                    <div key={day} className={`flex gap-3 text-xs ${isToday ? 'font-bold' : ''}`}>
+                                      <span className={`font-medium ${isToday ? 'text-white' : 'text-white/70'}`}>
+                                        {dayNames[day]}{isToday ? ' ●' : ''}
+                                      </span>
+                                      <span className="text-white/80">
+                                        {formatDayHoursDisplay(dh, { language })}
+                                      </span>
+                                    </div>
+                                  );
+                                });
+                              })()}
+                            </div>
+                          ) : null}
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
+
+                {/* Card 3: Avis Clients */}
+                {(avgOn20 !== null && avgOn20 > 0) && (
+                  <div className="snap-start shrink-0 w-[85%] md:w-[48%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[18em] overflow-y-auto">
+                    <p className="text-[10px] font-semibold text-white/50 uppercase tracking-wider mb-2">
+                      {language === "en" ? "Reviews" : "Avis clients"}
+                    </p>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Star className="h-5 w-5 text-gold fill-gold" />
+                      <span className="text-2xl font-bold text-white">{avgOn20}</span>
+                      <span className="text-sm text-white/60">/20</span>
+                      {totalReviewCount > 0 && (
+                        <span className="text-xs text-white/50 ml-1">({totalReviewCount.toLocaleString("fr-FR")} avis)</span>
+                      )}
+                    </div>
+                    {reviewTexts.length > 0 && (
+                      <div className="space-y-3">
+                        {reviewTexts.slice(0, 3).map((review, i) => (
+                          <div key={i} className="border-t border-white/10 pt-2">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <MessageCircle className="h-3 w-3 text-white/40" />
+                              <span className="text-xs font-medium text-white/70">{review.author_name || review.source}</span>
+                              {review.rating && (
+                                <span className="text-xs text-gold ml-auto">{"★".repeat(Math.round(review.rating))}</span>
+                              )}
+                            </div>
+                            {review.text && (
+                              <p className="text-xs text-white/70 line-clamp-3">{review.text}</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Card 4: Localiser */}
+                {business.latitude && business.longitude && (
+                  <div className="snap-start shrink-0 w-[85%] md:w-[48%] rounded-2xl bg-black/40 backdrop-blur-sm p-1 text-white max-h-[18em] overflow-hidden">
+                    <p className="text-[10px] font-semibold text-white/50 uppercase tracking-wider mb-1 px-3 pt-3">
+                      {language === "en" ? "Location" : "Localiser"}
+                    </p>
+                    <div className="w-full h-[14em] rounded-xl overflow-hidden">
+                      <iframe
+                        src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${business.latitude},${business.longitude}&zoom=15`}
+                        className="w-full h-full border-0"
+                        allowFullScreen
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
 
           {/* Destinations horizontal scroll */}
