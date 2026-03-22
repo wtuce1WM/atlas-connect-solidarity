@@ -10,6 +10,7 @@ interface SlidePanelHeaderProps {
   /** Close button style variant */
   closeVariant?: "dark" | "destructive";
   /** IDs for portal targets — defaults to slide-panel-toolbar-center / slide-panel-toolbar */
+  toolbarLeftId?: string;
   toolbarCenterId?: string;
   toolbarRightId?: string;
 }
@@ -20,6 +21,7 @@ const SlidePanelHeader = ({
   onToggleExpand,
   centerContent,
   closeVariant = "dark",
+  toolbarLeftId = "slide-panel-toolbar-left",
   toolbarCenterId = "slide-panel-toolbar-center",
   toolbarRightId = "slide-panel-toolbar",
 }: SlidePanelHeaderProps) => {
@@ -40,6 +42,7 @@ const SlidePanelHeader = ({
         >
           <X className="h-4 w-4" />
         </button>
+        <div id={toolbarLeftId} className="flex items-center gap-3" />
         <button
           type="button"
           onClick={onToggleExpand}
