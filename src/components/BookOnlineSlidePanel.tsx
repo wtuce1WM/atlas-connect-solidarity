@@ -347,12 +347,13 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           {destinations.length > 0 && (
             <div className="shrink-0 mt-3 pointer-events-auto">
               <div className="flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-hide">
-                {destinations.map((dest) => {
+                {destinations.map((dest, index) => {
                   const destImg = dest.images?.filter(Boolean)?.[0] || dest.image_url;
                   return (
                     <div
                       key={dest.id}
-                      className="shrink-0 w-36 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10"
+                      className="shrink-0 w-36 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0"
+                      style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
                     >
                       {destImg ? (
                         <img src={destImg} alt={destName(dest)} className="w-full h-24 object-cover" />
