@@ -141,6 +141,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   const woDescription = webOnlyData?.description || null;
   const hasOpeningHours = business?.show_opening_hours !== false && (business?.is_open_24h || business?.opening_hours);
   const hasExpandableContent = !!(woDescription || hasOpeningHours);
+  const languages = business?.languages?.filter(Boolean) || [];
 
   const { avgOn20, totalReviewCount } = useMemo(() => {
     if (!business) return { avgOn20: null, totalReviewCount: 0 };
