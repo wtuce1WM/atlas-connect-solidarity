@@ -545,15 +545,9 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
               {/* Media counter — absolute right */}
               {totalMedia > 1 && (
                 <div className="absolute right-0 flex items-center gap-2">
-                  <button onClick={() => goMedia(-1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
-                    <ChevronLeft className="h-4 w-4" />
-                  </button>
                   <span className="text-white/80 text-xs font-medium bg-black/30 rounded-full px-3 py-1">
                     {safeIndex + 1} / {totalMedia}
                   </span>
-                  <button onClick={() => goMedia(1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
                 </div>
               )}
             </div>
