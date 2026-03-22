@@ -2206,6 +2206,65 @@ const LocationManagement = () => {
                 </CardContent>
               </Card>
 
+              {/* Vidéos – sortable */}
+              <Card>
+                <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Video className="h-5 w-5" /> Vidéos ({destinationForm.videos.length}/{MAX_DEST_VIDEOS}) — glisser pour réordonner</CardTitle></CardHeader>
+                <CardContent className="space-y-2">
+                  <DndContext sensors={destVideoSensors} collisionDetection={closestCenter} onDragEnd={(event: DragEndEvent) => {
+                    const { active, over } = event;
+                    if (!over || active.id === over.id) return;
+                    const oldIndex = destinationForm.videos.findIndex((_, i) => `dest-vid-${i}` === active.id);
+                    const newIndex = destinationForm.videos.findIndex((_, i) => `dest-vid-${i}` === over.id);
+                    if (oldIndex === -1 || newIndex === -1) return;
+                    const next = arrayMove(destinationForm.videos, oldIndex, newIndex);
+                    setDestinationForm(prev => ({ ...prev, videos: next }));
+                  }}>
+                    <SortableContext items={destinationForm.videos.map((_, i) => `dest-vid-${i}`)} strategy={verticalListSortingStrategy}>
+                      <div className="space-y-2">
+                        {destinationForm.videos.map((url, i) => (
+                          <SortableDestVideo
+                            key={`dest-vid-${i}`}
+                            id={`dest-vid-${i}`}
+                            url={url}
+                            index={i}
+                            onRemove={(idx) => setDestinationForm(prev => ({ ...prev, videos: prev.videos.filter((_, j) => j !== idx) }))}
+                          />
+                        ))}
+                      </div>
+                    </SortableContext>
+                  </DndContext>
+                  {destinationForm.videos.length < MAX_DEST_VIDEOS && (
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="https://youtube.com/watch?v=... ou URL vidéo"
+                        value={destVideoUrlInput}
+                        onChange={(e) => setDestVideoUrlInput(e.target.value)}
+                        className="flex-1 text-sm"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            const url = destVideoUrlInput.trim();
+                            if (url) {
+                              setDestinationForm(prev => ({ ...prev, videos: [...prev.videos, url] }));
+                              setDestVideoUrlInput("");
+                            }
+                          }
+                        }}
+                      />
+                      <Button type="button" size="sm" variant="outline" onClick={() => {
+                        const url = destVideoUrlInput.trim();
+                        if (url) {
+                          setDestinationForm(prev => ({ ...prev, videos: [...prev.videos, url] }));
+                          setDestVideoUrlInput("");
+                        }
+                      }} disabled={!destVideoUrlInput.trim()}>
+                        <Plus className="h-4 w-4 mr-1" />URL
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
               {/* Hook (H2) */}
               <Card>
                 <CardHeader><CardTitle className="text-lg">Hook (H2)</CardTitle></CardHeader>
