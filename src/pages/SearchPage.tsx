@@ -727,6 +727,7 @@ const SearchPage = () => {
         setIsCompactPanelExpanded(false);
         if (forceWebOnly !== undefined) {
           setIsCompactPanelWebOnly(forceWebOnly);
+          setIsCompactPanelBookOnline(false);
         } else {
           // Try to detect from allBusinesses
           const found = allBusinesses.find(biz => biz.id === b.id);
