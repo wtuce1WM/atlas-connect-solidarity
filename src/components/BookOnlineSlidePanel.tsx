@@ -438,7 +438,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                     )}
                     {hasOpeningHours && business && (
                       <div className={`${woDescription ? 'mt-3 pt-3 border-t border-white/20' : ''}`}>
-                        <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-2">
+                        <p className="text-xs font-semibold text-gold uppercase tracking-wider mb-2">
                           <Clock className="h-3 w-3 inline mr-1" />
                           {language === "en" ? "Opening hours" : "Horaires"}
                         </p>
@@ -494,8 +494,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                         </a>
                       )}
                       {business.whatsapp && (
-                        <a href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
-                          <WhatsAppIcon className="h-4 w-4 shrink-0 text-white/60" />
+                        <a href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-[#25D366] hover:text-[#20bd5a] transition-colors">
+                          <WhatsAppIcon className="h-4 w-4 shrink-0" />
                           WhatsApp
                         </a>
                       )}
@@ -514,7 +514,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                       )}
                       {hasOpeningHours && business && (
                         <div className="mt-2 pt-2 border-t border-white/20">
-                          <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-1.5">
+                          <p className="text-xs font-semibold text-gold uppercase tracking-wider mb-1.5">
                             <Clock className="h-3 w-3 inline mr-1" />
                             {language === "en" ? "Hours" : "Horaires"}
                           </p>
@@ -556,7 +556,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                 {/* Card 3: Avis Clients */}
                 {(avgOn20 !== null && avgOn20 > 0) && (
                   <div className="snap-start shrink-0 w-[85%] md:w-[48%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[18em] overflow-y-auto">
-                    <p className="text-[10px] font-semibold text-primary uppercase tracking-wider mb-2">
+                    <p className="text-[10px] font-semibold text-gold uppercase tracking-wider mb-2">
                       {language === "en" ? "Reviews" : "Avis clients"}
                     </p>
                     <div className="flex items-center gap-2 mb-3">
@@ -590,9 +590,9 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
                 {/* Card 4: Localiser */}
                 {business.latitude && business.longitude && (
-                  <div className="snap-start shrink-0 w-[85%] md:w-[48%] rounded-2xl bg-black/40 backdrop-blur-sm p-1 text-white max-h-[18em] overflow-hidden">
+                  <div className="snap-start shrink-0 w-[85%] md:w-[48%] rounded-2xl bg-black/40 backdrop-blur-sm p-0 text-white max-h-[18em] overflow-hidden">
                     {/* No title for location card */}
-                    <div className="w-full h-[14em] rounded-xl overflow-hidden">
+                    <div className="w-full h-[18em] overflow-hidden rounded-2xl">
                       <iframe
                         src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${business.latitude},${business.longitude}&zoom=15`}
                         className="w-full h-full border-0"
