@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Info, CalendarCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -101,6 +101,30 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   const [showInfoCard, setShowInfoCard] = useState(true);
   const [showBookingOverlay, setShowBookingOverlay] = useState(false);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const iframeSrcRef = useRef<string>("");
+
+  useEffect(() => {
+    if (selectedDestinationId) {
+      if (videoRef.current) {
+        videoRef.current.pause();
+        videoRef.current.muted = true;
+      }
+      if (iframeRef.current) {
+        iframeSrcRef.current = iframeRef.current.src;
+        iframeRef.current.src = "";
+      }
+    } else {
+      if (videoRef.current) {
+        videoRef.current.muted = false;
+        videoRef.current.play().catch(() => {});
+      }
+      if (iframeRef.current && iframeSrcRef.current) {
+        iframeRef.current.src = iframeSrcRef.current;
+      }
+    }
+  }, [selectedDestinationId]);
 
   useEffect(() => {
     if (!showDirections) return;
@@ -246,9 +270,9 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
         <div className="absolute inset-0">
           {currentMedia?.kind === "video" && videoInfo && !showDirections ? (
             videoInfo.type === "file" ? (
-              <video key={currentMedia.url} src={videoInfo.embedUrl} autoPlay loop playsInline controls className="w-full h-full object-contain bg-black" />
+              <video ref={videoRef} key={currentMedia.url} src={videoInfo.embedUrl} autoPlay loop playsInline controls className="w-full h-full object-contain bg-black" />
             ) : (
-              <iframe key={currentMedia.url} src={videoInfo.embedUrl} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen frameBorder="0" style={{ border: 0 }} />
+              <iframe ref={iframeRef} key={currentMedia.url} src={videoInfo.embedUrl} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen frameBorder="0" style={{ border: 0 }} />
             )
           ) : currentMedia?.kind === "image" ? (
             <img src={currentMedia.url} alt={business.name} className="w-full h-full object-cover" />
