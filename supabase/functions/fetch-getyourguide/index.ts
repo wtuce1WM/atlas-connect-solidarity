@@ -116,17 +116,28 @@ Deno.serve(async (req) => {
   try {
     console.log(`Fetching GetYourGuide reviews: ${url}`);
 
-    const maxPages = 5;
-    const pageResults = await Promise.all(
-      Array.from({ length: maxPages }, (_, i) => scrapePage(apiKey, url, i + 1)),
-    );
+    const firstPage = await scrapePage(apiKey, url, 1);
 
-    const allActivitiesRaw = pageResults
-      .filter((r): r is PageExtract => !!r)
-      .flatMap((r) => r.activities);
+    if (!firstPage || firstPage.activities.length === 0) {
+      return new Response(JSON.stringify({ success: false, error: 'No activities found on supplier page' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    let allActivitiesRaw: ActivityData[] = [...firstPage.activities];
+    const firstPageReviews = firstPage.activities.reduce((sum, a) => sum + a.review_count, 0);
+
+    // Fallback pagination only if first page clearly incomplete/too low
+    if (firstPage.activities.length < 12 || firstPageReviews < 1000) {
+      const fallbackPages = await Promise.all([2, 3].map((page) => scrapePage(apiKey, url, page)));
+      allActivitiesRaw = [
+        ...allActivitiesRaw,
+        ...fallbackPages.filter((r): r is PageExtract => !!r).flatMap((r) => r.activities),
+      ];
+    }
 
     if (allActivitiesRaw.length === 0) {
-      return new Response(JSON.stringify({ success: false, error: 'No activities found on supplier pages' }), {
+      return new Response(JSON.stringify({ success: false, error: 'No activities found after pagination' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
