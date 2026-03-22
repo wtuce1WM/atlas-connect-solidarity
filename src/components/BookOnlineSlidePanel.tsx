@@ -98,6 +98,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
   const [showInfoCard, setShowInfoCard] = useState(true);
+  const [showBookingOverlay, setShowBookingOverlay] = useState(false);
 
   useEffect(() => {
     if (!showDirections) return;
