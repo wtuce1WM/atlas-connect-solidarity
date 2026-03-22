@@ -80,6 +80,7 @@ interface Destination {
   name_fr: string;
   name_en: string | null;
   image_url: string | null;
+  images: string[] | null;
 }
 
 const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps) => {
