@@ -3896,17 +3896,20 @@ const SearchPage = () => {
                       const needle = target.toLowerCase();
                       return normalized === needle || normalized === `logistique:${needle}` || normalized.endsWith(`:${needle}`);
                     });
-                  const webOnlyUrl = business.online_shop_url || business.website || null;
-                  const isWebOnly = !!(
-                    hasEngagement("Commandez en ligne et recevez votre colis chez vous") &&
-                    webOnlyUrl
-                  );
+                   const webOnlyUrl = business.online_shop_url || business.website || null;
+                   const isWebOnly = !!(
+                     hasEngagement("Commandez en ligne et recevez votre colis chez vous") &&
+                     webOnlyUrl
+                   );
+                   const isBookOnline = hasEngagement("Réservation en ligne obligatoire");
+                   // Don't pass forceWebOnly when BookOnline — let auto-detection handle it
+                   const forceFlag = isBookOnline ? undefined : (isWebOnly ? true : undefined);
 
-                  const card = (
-                    <div
-                      key={business.id}
-                      data-result-card={index === 0 ? "true" : undefined}
-                      onClick={() => openCompactPanel({ id: business.id, name: business.name } as AIBusinessData, isWebOnly)}
+                   const card = (
+                     <div
+                       key={business.id}
+                       data-result-card={index === 0 ? "true" : undefined}
+                       onClick={() => openCompactPanel({ id: business.id, name: business.name } as AIBusinessData, forceFlag)}
                       onMouseEnter={() => setHoveredResultId(business.id)}
                       onMouseLeave={() => setHoveredResultId(null)}
                       className="group overflow-hidden rounded-xl border border-border shadow-sm hover:shadow-md transition-all cursor-pointer relative aspect-square bg-muted"
