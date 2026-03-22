@@ -372,7 +372,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                 <div className="min-h-0 max-h-[280px] md:max-h-[480px] overflow-y-auto pr-1 text-sm leading-relaxed">
                   {woDescription && (
                     <div
-                      className="prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
+                      className="prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17]"
                       dangerouslySetInnerHTML={{ __html: woDescription }}
                     />
                   )}

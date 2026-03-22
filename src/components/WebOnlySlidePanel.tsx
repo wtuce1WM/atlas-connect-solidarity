@@ -309,7 +309,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                 <div className="flex-1 min-h-0 overflow-y-auto pr-1 text-sm leading-relaxed">
                   {woDescription && (
                     <div
-                      className="prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
+                      className="prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17]"
                       dangerouslySetInnerHTML={{ __html: woDescription }}
                     />
                   )}
