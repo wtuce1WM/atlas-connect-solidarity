@@ -1266,31 +1266,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                     </div>
                   </div>
                 )}
-                {/* Destination cards */}
-                {destinations.map((dest, index) => {
-                  const cardOffset = Number(!!woDescription) + Number(hasContactCard) + Number(hasReviewsCard);
-                  const destImg = dest.images?.filter(Boolean)?.[0] || dest.image_url;
-                  const isLast = index === destinations.length - 1;
-                  return (
-                    <div
-                      key={dest.id}
-                      className={`${isLast ? "snap-end" : "snap-start"} shrink-0 w-[40rem] h-[18em] md:h-[24em] rounded-2xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors flex flex-col`}
-                      style={{ animationDelay: `${(index + cardOffset) * 120}ms`, animationFillMode: 'forwards' }}
-                      onClick={() => setSelectedDestinationId(dest.id)}
-                    >
-                      {destImg ? (
-                        <img src={destImg} alt={destName(dest)} className="w-full flex-1 object-cover" />
-                      ) : (
-                        <div className="w-full flex-1 bg-white/10 flex items-center justify-center">
-                          <MapPin className="h-5 w-5 text-white/40" />
-                        </div>
-                      )}
-                      <p className="text-sm font-medium text-white text-center py-3 px-2 truncate shrink-0">
-                        {destName(dest)}
-                      </p>
-                    </div>
-                  );
-                })}
                 </div>
               </div>
               <p className="text-xs font-medium text-white/90 px-4 mb-1.5 rounded-lg mx-4 py-1.5 bg-black/40 backdrop-blur-sm border border-white/10 inline-block">
