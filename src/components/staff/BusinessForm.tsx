@@ -576,6 +576,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     poi_hook: (business as any)?.poi_hook || "",
     poi_description: (business as any)?.poi_description || "",
     is_poi: (business as any)?.is_poi ?? false,
+    website_force_external: (business as any)?.website_force_external ?? false,
+    reserve_now_force_external: (business as any)?.reserve_now_force_external ?? false,
+    online_shop_force_external: (business as any)?.online_shop_force_external ?? false,
   });
 
   // --- Business documents (menus & flipbooks) ---
