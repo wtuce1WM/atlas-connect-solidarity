@@ -3273,10 +3273,13 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 toast({ title: "Récupération GetYourGuide en cours..." });
                 const { data, error } = await supabase.functions.invoke('fetch-getyourguide', { body: { url } });
                 if (error) throw error;
-                const extract = data?.data?.data?.extract;
-                if (extract?.rating != null) handleChange("getyourguide_rating" as any, String(extract.rating));
-                if (extract?.review_count != null) handleChange("getyourguide_review_count" as any, String(extract.review_count));
-                toast({ title: "GetYourGuide récupéré ✓", description: `Note: ${extract?.rating}/5 — ${extract?.review_count} avis${extract?.activity_count ? ` (${extract.activity_count} activités)` : ''}` });
+                const extract = data?.data?.data?.extract ?? data?.data?.extract ?? data?.extract;
+                if (!extract || extract.rating == null || extract.review_count == null) {
+                  throw new Error("Réponse GetYourGuide invalide (rating/review_count manquants)");
+                }
+                handleChange("getyourguide_rating" as any, String(extract.rating));
+                handleChange("getyourguide_review_count" as any, String(extract.review_count));
+                toast({ title: "GetYourGuide récupéré ✓", description: `Note: ${extract.rating}/5 — ${extract.review_count} avis${extract.activity_count ? ` (${extract.activity_count} activités)` : ''}` });
               } catch (e: any) { toast({ title: "Erreur GetYourGuide", description: e.message, variant: "destructive" }); }
             }}>📥 Fetch</Button>
             <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer GetYourGuide" onClick={() => { handleChange("getyourguide_url" as any, ""); handleChange("getyourguide_rating" as any, ""); handleChange("getyourguide_review_count" as any, ""); }}>🗑️</Button>
