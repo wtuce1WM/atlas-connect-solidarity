@@ -445,8 +445,23 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
             touchStartRef.current = null;
           }}
         >
+          {/* Single row: flags (left) — Masquer button (center) — media counter (right) */}
           {!cardsHidden && (
-            <div className="flex justify-center mb-2 pointer-events-auto">
+            <div className="flex items-center justify-between pb-3 pointer-events-auto">
+              {/* Language flags — left */}
+              <div className="flex items-center gap-1.5 min-w-0">
+                {languages.length > 0 && (
+                  <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full py-1 px-2.5">
+                    {languages.map((lang, i) => (
+                      <span key={i} className="text-lg leading-none" title={lang}>
+                        {getLangFlag(lang)}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Masquer button — center */}
               <button
                 type="button"
                 className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:bg-background transition-colors"
@@ -504,49 +519,25 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                 <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Masquer</span>
                 <span className="h-1.5 w-8 rounded-full bg-foreground/60" />
               </button>
-            </div>
-          )}
 
-          {/* Mobile-only floating rating badge — top right under toolbar */}
-          {avgOn20 !== null && avgOn20 > 0 && (
-            <div className="md:hidden absolute top-2 right-4 z-20 flex flex-col items-center bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2.5 pointer-events-auto animate-slide-in-right">
-              <div className="flex items-center gap-1">
-                <Star className="h-3.5 w-3.5 text-gold fill-gold" />
-                <span className="text-base font-bold text-white">{avgOn20}</span>
-                <span className="text-[10px] text-white/60">/20</span>
+              {/* Media counter — right */}
+              <div className="flex items-center gap-2 min-w-0">
+                {totalMedia > 1 ? (
+                  <>
+                    <button onClick={() => goMedia(-1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <span className="text-white/80 text-xs font-medium bg-black/30 rounded-full px-3 py-1">
+                      {safeIndex + 1} / {totalMedia}
+                    </span>
+                    <button onClick={() => goMedia(1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </>
+                ) : <span />}
               </div>
-              {totalReviewCount > 0 && (
-                <span className="text-[9px] text-white/60">{totalReviewCount.toLocaleString("fr-FR")} avis</span>
-              )}
             </div>
           )}
-          {/* Language flags + media counter — single row (hidden when cards collapsed) */}
-          <div className={`relative flex items-center justify-center pb-4 pointer-events-auto transition-opacity duration-300 ${cardsHidden ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
-            {/* Language flags — left */}
-            {languages.length > 0 ? (
-              <div className="absolute left-0 flex items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full py-1 px-2.5">
-                {languages.map((lang, i) => (
-                  <span key={i} className="text-lg leading-none" title={lang}>
-                    {getLangFlag(lang)}
-                  </span>
-                ))}
-              </div>
-            ) : null}
-            {/* Media counter + arrows — right/center */}
-            {totalMedia > 1 ? (
-              <div className="flex items-center gap-2">
-                <button onClick={() => goMedia(-1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <span className="text-white/80 text-xs font-medium bg-black/30 rounded-full px-3 py-1">
-                  {safeIndex + 1} / {totalMedia}
-                </span>
-                <button onClick={() => goMedia(1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
-            ) : null}
-          </div>
 
           {/* Centered content block — same layout as WebOnlySlidePanel */}
           <div className="flex-1 flex flex-col items-center overflow-hidden min-h-0 gap-3 pointer-events-auto">
