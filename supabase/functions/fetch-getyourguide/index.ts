@@ -3,131 +3,109 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-interface ActivityData {
-  title?: string;
+interface ActivityMetrics {
+  url: string;
   rating: number;
   review_count: number;
 }
 
-interface PageExtract {
-  activities: ActivityData[];
-  total_results_on_page: number;
+function parseDecimal(value: string): number | null {
+  const parsed = Number(value.replace(',', '.'));
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
-function parseRating(value: unknown): number | null {
-  if (typeof value === 'number' && Number.isFinite(value)) return value;
-  if (typeof value === 'string') {
-    const cleaned = value.replace(/[^0-9.,-]/g, '').replace(',', '.');
-    const parsed = Number(cleaned);
-    return Number.isFinite(parsed) ? parsed : null;
-  }
-  return null;
+function parseInteger(value: string): number | null {
+  const parsed = Number(value.replace(/[^0-9]/g, ''));
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
-function parseReviewCount(value: unknown): number | null {
-  if (typeof value === 'number' && Number.isFinite(value)) return Math.round(value);
-  if (typeof value === 'string') {
-    // Prefer number groups that look like review volumes (e.g. 17,062 or 2 777)
-    const candidates = value.match(/\d{1,3}(?:[.,\s]\d{3})+|\d{2,}/g);
-    if (candidates && candidates.length > 0) {
-      const parsedCandidates = candidates
-        .map((c) => Number(c.replace(/[^0-9]/g, '')))
-        .filter((n) => Number.isFinite(n) && n > 0);
-      if (parsedCandidates.length > 0) {
-        return Math.max(...parsedCandidates);
-      }
-    }
-
-    const digits = value.replace(/[^0-9]/g, '');
-    if (!digits) return null;
-    const parsed = Number(digits);
-    return Number.isFinite(parsed) ? parsed : null;
-  }
-  return null;
-}
-
-function buildPageUrl(baseUrl: string, page: number): string {
+function normalizeActivityUrl(url: string): string {
   try {
-    const parsed = new URL(baseUrl);
-    if (page > 1) {
-      parsed.searchParams.set('page', String(page));
-    } else {
-      parsed.searchParams.delete('page');
-    }
-    return parsed.toString();
+    const parsed = new URL(url);
+    parsed.search = '';
+    parsed.hash = '';
+    return parsed.toString().replace(/\/+$/, '');
   } catch {
-    const separator = baseUrl.includes('?') ? '&' : '?';
-    return page === 1 ? baseUrl : `${baseUrl}${separator}page=${page}`;
+    return url.replace(/\?.*$/, '').replace(/#.*$/, '').replace(/\/+$/, '');
   }
 }
 
-async function scrapePage(apiKey: string, baseUrl: string, page: number): Promise<PageExtract | null> {
-  const url = buildPageUrl(baseUrl, page);
-  console.log(`Scraping page ${page}: ${url}`);
-
+async function firecrawlMarkdown(apiKey: string, url: string, waitFor = 2000): Promise<string> {
   const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       url,
-      formats: ['extract'],
-      extract: {
-        prompt: `This is a GetYourGuide search results page showing activities/tours.
-Extract EVERY activity card visible on this page.
-For each activity, extract:
-- title
-- rating (decimal like 4.9, out of 5)
-- review_count (integer, e.g. "17,062 reviews" -> 17062)
-Return all activities in an array. If no activities exist on this page, return an empty array.`,
-        schema: {
-          type: 'object',
-          properties: {
-            activities: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  title: { type: 'string', description: 'Activity title' },
-                  rating: { type: 'number', description: 'Rating out of 5' },
-                  review_count: { type: 'number', description: 'Number of reviews as integer' },
-                },
-              },
-            },
-            total_results_on_page: { type: 'number' },
-          },
-        },
-      },
-      waitFor: 3500,
+      formats: ['markdown'],
+      onlyMainContent: false,
+      waitFor,
     }),
   });
 
-  const raw = await response.json();
-  const extract = raw?.data?.extract ?? raw?.extract;
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(`Firecrawl scrape failed [${response.status}]: ${JSON.stringify(data).slice(0, 300)}`);
+  }
 
-  if (!extract?.activities || !Array.isArray(extract.activities)) {
-    console.log(`Page ${page}: no extract.activities`);
+  return data?.data?.markdown ?? data?.markdown ?? '';
+}
+
+function extractActivityUrlsFromListing(markdown: string): string[] {
+  const regex = /\((https:\/\/www\.getyourguide\.com\/[^)\s]*-t\d+[^)\s]*)\)/gi;
+  const urls = new Set<string>();
+
+  for (const match of markdown.matchAll(regex)) {
+    const raw = match[1];
+    if (!raw) continue;
+    urls.add(normalizeActivityUrl(raw));
+  }
+
+  return Array.from(urls);
+}
+
+function extractMetricsFromActivityMarkdown(markdown: string): { rating: number; review_count: number } | null {
+  // Typical pattern in GYG markdown:
+  // "4.9 out of 5 stars"
+  // "[17,154 reviews](...)"
+  const ratingMatch = markdown.match(/(\d(?:[.,]\d)?)\s*out of 5 stars/i);
+  const countMatch =
+    markdown.match(/\[(\d[\d\s,\.]*)\s+(?:reviews?|avis)\]/i) ??
+    markdown.match(/(\d[\d\s,\.]*)\s+(?:reviews?|avis)/i);
+
+  if (!ratingMatch?.[1] || !countMatch?.[1]) return null;
+
+  const rating = parseDecimal(ratingMatch[1]);
+  const review_count = parseInteger(countMatch[1]);
+
+  if (rating == null || review_count == null || rating <= 0 || rating > 5 || review_count <= 0) {
     return null;
   }
 
-  const validActivities = extract.activities
-    .map((a: Record<string, unknown>) => {
-      const rating = parseRating(a?.rating);
-      const review_count = parseReviewCount(a?.review_count);
-      const title = typeof a?.title === 'string' ? a.title : undefined;
-      return { title, rating, review_count };
-    })
-    .filter((a) => a.rating != null && a.rating > 0 && a.review_count != null && a.review_count > 0)
-    .map((a) => ({ title: a.title, rating: a.rating as number, review_count: a.review_count as number }));
+  return { rating, review_count };
+}
 
-  console.log(`Page ${page}: found ${validActivities.length} valid activities (raw: ${extract.activities.length})`);
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  worker: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let nextIndex = 0;
 
-  return {
-    activities: validActivities,
-    total_results_on_page: extract.total_results_on_page || validActivities.length,
-  };
+  async function runWorker() {
+    while (true) {
+      const current = nextIndex;
+      nextIndex += 1;
+      if (current >= items.length) break;
+      results[current] = await worker(items[current], current);
+    }
+  }
+
+  await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, () => runWorker()));
+  return results;
 }
 
 Deno.serve(async (req) => {
@@ -135,77 +113,73 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
-  if (!apiKey) {
-    return new Response(JSON.stringify({ error: 'FIRECRAWL_API_KEY not configured' }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  }
-
-  const { url } = await req.json();
-  if (!url) {
-    return new Response(JSON.stringify({ error: 'URL is required' }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  }
-
   try {
-    console.log(`Fetching GetYourGuide reviews: ${url}`);
-
-    const firstPage = await scrapePage(apiKey, url, 1);
-
-    if (!firstPage || firstPage.activities.length === 0) {
-      return new Response(JSON.stringify({ success: false, error: 'No activities found on supplier page' }), {
+    const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
+    if (!apiKey) {
+      return new Response(JSON.stringify({ success: false, error: 'FIRECRAWL_API_KEY not configured' }), {
+        status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    let allActivitiesRaw: ActivityData[] = [...firstPage.activities];
-    const firstPageReviews = firstPage.activities.reduce((sum, a) => sum + a.review_count, 0);
-
-    // Fallback pagination only if first page clearly incomplete/too low
-    if (firstPage.activities.length < 12 || firstPageReviews < 1000) {
-      const fallbackPages = await Promise.all([2, 3].map((page) => scrapePage(apiKey, url, page)));
-      allActivitiesRaw = [
-        ...allActivitiesRaw,
-        ...fallbackPages.filter((r): r is PageExtract => !!r).flatMap((r) => r.activities),
-      ];
-    }
-
-    if (allActivitiesRaw.length === 0) {
-      return new Response(JSON.stringify({ success: false, error: 'No activities found after pagination' }), {
+    const { url } = await req.json();
+    if (!url) {
+      return new Response(JSON.stringify({ success: false, error: 'URL is required' }), {
+        status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Dédoublonnage basique par titre (quand disponible) pour éviter comptage double inter-pages
-    const deduped = new Map<string, ActivityData>();
-    allActivitiesRaw.forEach((activity, index) => {
-      const key = activity.title?.trim().toLowerCase() || `${activity.rating}-${activity.review_count}-${index}`;
-      if (!deduped.has(key)) {
-        deduped.set(key, activity);
+    console.log(`Fetching GetYourGuide listing: ${url}`);
+    const listingMarkdown = await firecrawlMarkdown(apiKey, url, 2500);
+    const activityUrls = extractActivityUrlsFromListing(listingMarkdown);
+
+    if (activityUrls.length === 0) {
+      return new Response(JSON.stringify({ success: false, error: 'No activity URLs found on listing page' }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    console.log(`Found ${activityUrls.length} activity URLs`);
+
+    const activityResults = await mapWithConcurrency(activityUrls, 6, async (activityUrl) => {
+      try {
+        const markdown = await firecrawlMarkdown(apiKey, activityUrl, 1200);
+        const metrics = extractMetricsFromActivityMarkdown(markdown);
+        if (!metrics) return null;
+
+        return {
+          url: activityUrl,
+          rating: metrics.rating,
+          review_count: metrics.review_count,
+        } satisfies ActivityMetrics;
+      } catch (err) {
+        console.log(`Failed activity scrape: ${activityUrl} - ${String(err).slice(0, 120)}`);
+        return null;
       }
     });
 
-    const allActivities = Array.from(deduped.values());
-    const totalReviews = allActivities.reduce((sum, a) => sum + a.review_count, 0);
-    const weightedSum = allActivities.reduce((sum, a) => sum + a.rating * a.review_count, 0);
+    const activities = activityResults.filter((a): a is ActivityMetrics => !!a);
+
+    if (activities.length === 0) {
+      return new Response(JSON.stringify({ success: false, error: 'No valid ratings found on activity pages' }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const totalReviews = activities.reduce((sum, a) => sum + a.review_count, 0);
+    const weightedSum = activities.reduce((sum, a) => sum + a.rating * a.review_count, 0);
     const weightedAvg = Math.round((weightedSum / totalReviews) * 100) / 100;
 
-    const topCounts = [...allActivities]
-      .sort((a, b) => b.review_count - a.review_count)
-      .slice(0, 8)
-      .map((a) => ({ title: a.title, rating: a.rating, review_count: a.review_count }));
-
-    console.log(`FINAL: ${allActivities.length} activities, ${totalReviews} total reviews, weighted avg ${weightedAvg}/5`);
-    console.log(`TOP_COUNTS: ${JSON.stringify(topCounts)}`);
+    console.log(`FINAL: ${activities.length}/${activityUrls.length} activities parsed, ${totalReviews} total reviews, weighted avg ${weightedAvg}/5`);
 
     const extract = {
       rating: weightedAvg,
       review_count: totalReviews,
-      activity_count: allActivities.length,
+      activity_count: activities.length,
+      activity_total_found: activityUrls.length,
     };
 
     return new Response(
@@ -214,7 +188,7 @@ Deno.serve(async (req) => {
         extract,
         data: {
           extract,
-          data: { extract },
+          data: { extract }, // backward compatibility with older UI parsing
         },
       }),
       {
@@ -223,7 +197,7 @@ Deno.serve(async (req) => {
     );
   } catch (e) {
     console.error('Error:', e);
-    return new Response(JSON.stringify({ error: String(e) }), {
+    return new Response(JSON.stringify({ success: false, error: String(e) }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
