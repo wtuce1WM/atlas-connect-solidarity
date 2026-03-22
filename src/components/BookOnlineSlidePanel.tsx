@@ -536,52 +536,109 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                   </div>
                 )}
 
-                {/* Card 3: Avis Clients */}
+                {/* Card 3: Avis Clients — Flip card */}
                 {(avgOn20 !== null && avgOn20 > 0) && (
-                  <div className="snap-start shrink-0 w-[85%] md:w-[48%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[22em] overflow-y-auto">
-                    <p className="text-[10px] font-semibold text-gold uppercase tracking-wider mb-2">
-                      {language === "en" ? "Reviews" : "Avis clients"}
-                    </p>
-                    <div className="flex items-center gap-2 mb-3">
-                      <Star className="h-5 w-5 text-gold fill-gold" />
-                      <span className="text-2xl font-bold text-white">{avgOn20}</span>
-                      <span className="text-sm text-white/60">/20</span>
-                      {totalReviewCount > 0 && (
-                        <span className="text-xs text-white/50 ml-1">({totalReviewCount.toLocaleString("fr-FR")} avis)</span>
-                      )}
-                    </div>
-                    {business && (() => {
-                      const platforms: { name: string; rating: number | null; count: number | null; url: string | null }[] = [
-                        { name: "Google", rating: business.google_rating, count: business.google_review_count, url: business.google_reviews_url || business.google_maps_url },
-                        { name: "TripAdvisor", rating: business.tripadvisor_rating, count: business.tripadvisor_review_count, url: business.tripadvisor_url },
-                        { name: "Restaurant Guru", rating: business.restaurant_guru_rating, count: business.restaurant_guru_review_count, url: business.restaurant_guru_url },
-                        { name: "Trustpilot", rating: business.trustpilot_rating, count: business.trustpilot_review_count, url: business.trustpilot_url },
-                        { name: "GetYourGuide", rating: business.getyourguide_rating, count: business.getyourguide_review_count, url: business.getyourguide_url },
-                        { name: "Viator", rating: business.viator_rating, count: business.viator_review_count, url: business.viator_url },
-                        { name: "Avis Vérifiés", rating: business.avis_verifies_rating, count: business.avis_verifies_review_count, url: business.avis_verifies_url },
-                        { name: "TourRadar", rating: business.tourradar_rating, count: business.tourradar_review_count, url: business.tourradar_url },
-                      ].filter(p => p.rating && p.count);
-                      return (
-                        <div className="space-y-2">
-                          {platforms.map((p) => (
-                            <a
-                              key={p.name}
-                              href={p.url || "#"}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={`flex items-center justify-between text-sm border-t border-white/10 pt-2 ${p.url ? 'hover:text-gold transition-colors' : 'pointer-events-none'}`}
-                            >
-                              <span className="text-white/80 font-medium">{p.name}</span>
-                              <span className="flex items-center gap-1.5">
-                                <span className="text-gold font-semibold">{p.rating}/5</span>
-                                <span className="text-white/50 text-xs">({p.count?.toLocaleString("fr-FR")})</span>
-                                {p.url && <ExternalLink className="h-3 w-3 text-white/40" />}
-                              </span>
-                            </a>
+                  <div className="snap-start shrink-0 w-[85%] md:w-[48%] h-[22em]" style={{ perspective: '1000px' }}>
+                    <div
+                      className="relative w-full h-full transition-transform duration-500"
+                      style={{
+                        transformStyle: 'preserve-3d',
+                        transform: reviewsFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+                      }}
+                    >
+                      {/* FRONT — Platform ratings */}
+                      <div
+                        className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto"
+                        style={{ backfaceVisibility: 'hidden' }}
+                      >
+                        <p className="text-[10px] font-semibold text-gold uppercase tracking-wider mb-2">
+                          {language === "en" ? "Reviews" : "Avis clients"}
+                        </p>
+                        <div className="flex items-center gap-2 mb-3">
+                          <Star className="h-5 w-5 text-gold fill-gold" />
+                          <span className="text-2xl font-bold text-white">{avgOn20}</span>
+                          <span className="text-sm text-white/60">/20</span>
+                          {totalReviewCount > 0 && (
+                            <span className="text-xs text-white/50 ml-1">({totalReviewCount.toLocaleString("fr-FR")} avis)</span>
+                          )}
+                        </div>
+                        {business && (() => {
+                          const platforms: { name: string; rating: number | null; count: number | null; url: string | null }[] = [
+                            { name: "Google", rating: business.google_rating, count: business.google_review_count, url: business.google_reviews_url || business.google_maps_url },
+                            { name: "TripAdvisor", rating: business.tripadvisor_rating, count: business.tripadvisor_review_count, url: business.tripadvisor_review_url || business.tripadvisor_url },
+                            { name: "Restaurant Guru", rating: business.restaurant_guru_rating, count: business.restaurant_guru_review_count, url: business.restaurant_guru_url },
+                            { name: "Trustpilot", rating: business.trustpilot_rating, count: business.trustpilot_review_count, url: business.trustpilot_url },
+                            { name: "GetYourGuide", rating: business.getyourguide_rating, count: business.getyourguide_review_count, url: business.getyourguide_url },
+                            { name: "Viator", rating: business.viator_rating, count: business.viator_review_count, url: business.viator_url },
+                            { name: "Avis Vérifiés", rating: business.avis_verifies_rating, count: business.avis_verifies_review_count, url: business.avis_verifies_url },
+                            { name: "TourRadar", rating: business.tourradar_rating, count: business.tourradar_review_count, url: business.tourradar_url },
+                          ].filter(p => p.rating && p.count);
+                          return (
+                            <div className="space-y-2">
+                              {platforms.map((p) => (
+                                <a
+                                  key={p.name}
+                                  href={p.url || "#"}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className={`flex items-center justify-between text-sm border-t border-white/10 pt-2 ${p.url ? 'hover:text-gold transition-colors' : 'pointer-events-none'}`}
+                                >
+                                  <span className="text-white/80 font-medium">{p.name}</span>
+                                  <span className="flex items-center gap-1.5">
+                                    <span className="text-gold font-semibold">{p.rating}/5</span>
+                                    <span className="text-white/50 text-xs">({p.count?.toLocaleString("fr-FR")})</span>
+                                    {p.url && <ExternalLink className="h-3 w-3 text-white/40" />}
+                                  </span>
+                                </a>
+                              ))}
+                            </div>
+                          );
+                        })()}
+                        {reviewTexts.length > 0 && (
+                          <button
+                            onClick={() => setReviewsFlipped(true)}
+                            className="mt-3 w-full text-center text-xs text-gold hover:text-white transition-colors uppercase tracking-wider font-semibold py-1.5 border-t border-white/10"
+                          >
+                            <MessageCircle className="h-3 w-3 inline mr-1" />
+                            {language === "en" ? "Read reviews" : "Lire les avis"}
+                          </button>
+                        )}
+                      </div>
+
+                      {/* BACK — Review texts */}
+                      <div
+                        className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto"
+                        style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <p className="text-[10px] font-semibold text-gold uppercase tracking-wider">
+                            {language === "en" ? "Reviews" : "Avis clients"}
+                          </p>
+                          <button
+                            onClick={() => setReviewsFlipped(false)}
+                            className="text-xs text-white/50 hover:text-white transition-colors uppercase tracking-wider"
+                          >
+                            ← {language === "en" ? "Back" : "Retour"}
+                          </button>
+                        </div>
+                        <div className="space-y-3">
+                          {reviewTexts.slice(0, 3).map((review, i) => (
+                            <div key={i} className="border-t border-white/10 pt-2">
+                              <div className="flex items-center gap-1.5 mb-1">
+                                <MessageCircle className="h-3 w-3 text-white/40" />
+                                <span className="text-xs font-medium text-white/70">{review.author_name || review.source}</span>
+                                {review.rating && (
+                                  <span className="text-xs text-gold ml-auto">{"★".repeat(Math.round(review.rating))}</span>
+                                )}
+                              </div>
+                              {review.text && (
+                                <p className="text-xs text-white/70 line-clamp-4">{review.text}</p>
+                              )}
+                            </div>
                           ))}
                         </div>
-                      );
-                    })()}
+                      </div>
+                    </div>
                   </div>
                 )}
 
