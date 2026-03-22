@@ -645,7 +645,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
               <div ref={carouselRef} className="w-[calc(100%+1rem)] -mr-4 md:w-[calc(100%+1.5rem)] md:-mr-6 shrink-0 self-start flex gap-3 overflow-x-auto pl-4 md:pl-6 pr-0 pb-1 scrollbar-hide snap-x snap-mandatory">
                 {/* Card 1: Texte */}
                 {woDescription && (
-                  <div className="snap-start shrink-0 w-[85%] md:w-[45%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[18em] md:max-h-[24em] overflow-y-auto">
+                  <div className="snap-start last:snap-end shrink-0 w-[85%] md:w-[45%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[18em] md:max-h-[24em] overflow-y-auto">
                     {/* No title for text card */}
                     <div
                       className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17]"
