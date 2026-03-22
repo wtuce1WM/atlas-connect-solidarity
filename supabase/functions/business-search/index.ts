@@ -3210,9 +3210,13 @@ serve(async (req) => {
         }
 
         // Filter by category: use effectiveCategories (from intent/URL) or fall back to detected subcategory's parent
+        // BUT skip category filter when a specific service filter is active (not subcategory-as-service fallback)
+        // so cross-category businesses offering the exact service are included
+        // (e.g. Alkamar Camp Agafay has main_category "Hôtellerie" but offers "Excursions Vélo")
+        const hasSpecificServiceFilter = serviceFilter && serviceFilter.length > 0;
         const enrichmentCats = effectiveCategories.length > 0 ? effectiveCategories : (subcategoryParentCategory ? [subcategoryParentCategory] : []);
         const skipEnrichmentCategoryFilterForConflict = intentSubcategoryConflict && intentCategories.length <= 1;
-        if (enrichmentCats.length > 0 && !skipEnrichmentCategoryFilterForConflict) {
+        if (enrichmentCats.length > 0 && !skipEnrichmentCategoryFilterForConflict && !hasSpecificServiceFilter) {
           const catOrClauses = enrichmentCats.map(c => `main_category.eq.${c},categories.cs.{"${c}"}`).join(",");
           svcBuilder = svcBuilder.or(catOrClauses);
         }
