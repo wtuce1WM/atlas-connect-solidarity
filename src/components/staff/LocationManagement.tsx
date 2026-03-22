@@ -112,6 +112,7 @@ interface Destination {
   keywords: string[] | null;
   is_searchable: boolean;
   internal_notes: string | null;
+  videos: string[] | null;
 }
 
 interface PointOfInterest {
