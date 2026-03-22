@@ -1128,7 +1128,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                     <div
                       key={dest.id}
                       className={`${isLast ? "snap-end" : "snap-start"} shrink-0 w-[40rem] h-[18em] md:h-[24em] rounded-2xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors flex flex-col`}
-                      style={{ animationDelay: `${(index + (woDescription ? 1 : 0)) * 120}ms`, animationFillMode: 'forwards' }}
+                      style={{ animationDelay: `${(index + cardOffset) * 120}ms`, animationFillMode: 'forwards' }}
                       onClick={() => setSelectedDestinationId(dest.id)}
                     >
                       {destImg ? (
