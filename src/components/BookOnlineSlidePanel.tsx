@@ -424,47 +424,52 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
             });
             touchStartRef.current = null;
           }}
-          onMouseDown={(e) => {
-            touchStartRef.current = { y: e.clientY, time: Date.now() };
-            setIsDragging(true);
-            const onMove = (ev: MouseEvent) => {
-              if (!touchStartRef.current) return;
-              const dy = ev.clientY - touchStartRef.current.y;
-              setDragOffsetY(cardsHiddenRef.current ? Math.min(0, dy) : Math.max(0, dy));
-            };
-            const onUp = () => {
-              setIsDragging(false);
-              setDragOffsetY((prev) => {
-                const threshold = 60;
-                const hidden = cardsHiddenRef.current;
-                if (hidden && prev < -threshold) {
-                  cardsHiddenRef.current = false;
-                  setCardsHidden(false);
-                } else if (!hidden && prev > threshold) {
-                  cardsHiddenRef.current = true;
-                  setCardsHidden(true);
-                }
-                return 0;
-              });
-              touchStartRef.current = null;
-              window.removeEventListener('mousemove', onMove);
-              window.removeEventListener('mouseup', onUp);
-            };
-            window.addEventListener('mousemove', onMove);
-            window.addEventListener('mouseup', onUp);
-          }}
         >
           {/* Drag handle — swipe or click to toggle cards */}
           <div
-            className="flex justify-center mb-2 pointer-events-auto cursor-grab active:cursor-grabbing"
-            onClick={(e) => {
+            className="flex justify-center mb-2 pointer-events-auto cursor-grab active:cursor-grabbing select-none"
+            onMouseDown={(e) => {
+              e.preventDefault();
               e.stopPropagation();
-              const next = !cardsHiddenRef.current;
-              cardsHiddenRef.current = next;
-              setCardsHidden(next);
+              touchStartRef.current = { y: e.clientY, time: Date.now() };
+              setIsDragging(true);
+              let moved = false;
+              const onMove = (ev: MouseEvent) => {
+                if (!touchStartRef.current) return;
+                moved = true;
+                const dy = ev.clientY - touchStartRef.current.y;
+                setDragOffsetY(cardsHiddenRef.current ? Math.min(0, dy) : Math.max(0, dy));
+              };
+              const onUp = () => {
+                setIsDragging(false);
+                if (!moved) {
+                  const next = !cardsHiddenRef.current;
+                  cardsHiddenRef.current = next;
+                  setCardsHidden(next);
+                  setDragOffsetY(0);
+                } else {
+                  setDragOffsetY((prev) => {
+                    const threshold = 60;
+                    const hidden = cardsHiddenRef.current;
+                    if (hidden && prev < -threshold) {
+                      cardsHiddenRef.current = false;
+                      setCardsHidden(false);
+                    } else if (!hidden && prev > threshold) {
+                      cardsHiddenRef.current = true;
+                      setCardsHidden(true);
+                    }
+                    return 0;
+                  });
+                }
+                touchStartRef.current = null;
+                window.removeEventListener('mousemove', onMove);
+                window.removeEventListener('mouseup', onUp);
+              };
+              window.addEventListener('mousemove', onMove);
+              window.addEventListener('mouseup', onUp);
             }}
           >
-            <div className="w-10 h-1 rounded-full bg-white/40" />
+            <div className="w-12 h-1.5 rounded-full bg-white/50 hover:bg-white/70 transition-colors" />
           </div>
 
           {/* Mobile-only floating rating badge — top right under toolbar */}
