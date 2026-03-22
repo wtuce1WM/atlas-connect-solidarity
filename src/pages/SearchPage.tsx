@@ -718,6 +718,7 @@ const SearchPage = () => {
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
       const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
       const [isCompactPanelWebOnly, setIsCompactPanelWebOnly] = useState(false);
+      const [isCompactPanelBookOnline, setIsCompactPanelBookOnline] = useState(false);
 
       const openCompactPanel = useCallback((bizOrData: AIBusinessData | { id: string; name: string }, forceWebOnly?: boolean) => {
         hasInteractedWithCompactPanelRef.current = true;
