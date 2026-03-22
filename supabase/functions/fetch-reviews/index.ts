@@ -58,6 +58,22 @@ function extractPlaceNameFromGoogleUrl(url: string | null): string | null {
   return null;
 }
 
+/**
+ * Extract Google Place reference ID from URL.
+ * Patterns: 16s/g/XXXXX (Knowledge Graph ID) or ftid 0x...:0x...
+ */
+function extractGooglePlaceRef(url: string | null): string | null {
+  if (!url) return null;
+  try {
+    // Decode URL first
+    const decoded = decodeURIComponent(url);
+    // Pattern: /g/XXXXX (Google KG ID)
+    const kgMatch = decoded.match(/16s(\/g\/[A-Za-z0-9_-]+)/);
+    if (kgMatch) return kgMatch[1];
+  } catch (_) { /* ignore */ }
+  return null;
+}
+
 async function fetchReviewsFromPlaceId(placeId: string, apiKey: string): Promise<ReviewText[]> {
   const reviewTexts: ReviewText[] = [];
   try {
@@ -138,9 +154,37 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
 
   const exactCoords = extractExactCoordsFromGoogleUrl(googleMapsUrl);
   const urlPlaceName = extractPlaceNameFromGoogleUrl(googleMapsUrl);
+  const placeRef = extractGooglePlaceRef(googleMapsUrl);
 
   const cityStr = city || '';
   const cityQuerySuffix = cityStr ? ` ${cityStr}` : '';
+
+  // Strategy 0: Direct Place ID from URL (/g/XXXXX)
+  if (placeRef) {
+    console.log(`Strategy 0: Direct place ref "${placeRef}" from URL`);
+    try {
+      // Use findplacefromtext with the place ref as input
+      const searchRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': apiKey,
+          'X-Goog-FieldMask': 'places.id,places.rating,places.userRatingCount,places.displayName',
+        },
+        body: JSON.stringify({ textQuery: placeRef }),
+      });
+      const searchData = await searchRes.json();
+      if (searchData.places && searchData.places.length > 0) {
+        const place = searchData.places[0];
+        console.log(`Found via place ref: "${place.displayName?.text}" - rating=${place.rating}, count=${place.userRatingCount}`);
+        const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
+        if (reviews.length > 0) console.log(`Got ${reviews.length} Google review texts`);
+        return { rating: place.rating ?? null, count: place.userRatingCount ?? null, reviews };
+      }
+    } catch (e) {
+      console.log(`Strategy 0 failed: ${e}`);
+    }
+  }
 
   if (urlPlaceName && exactCoords) {
     const q1 = `${urlPlaceName}${cityQuerySuffix}`;
@@ -181,6 +225,18 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
       console.log(`[Fallback] Found: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
       const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
       if (reviews.length > 0) console.log(`[Fallback] Got ${reviews.length} Google review texts`);
+      return { rating: place.rating, count: place.count, reviews };
+    }
+  }
+
+  // Strategy 4: Search without any location constraint
+  if (urlPlaceName) {
+    console.log(`Strategy 4 [No-location]: "${urlPlaceName}"`);
+    const place = await searchGooglePlace(urlPlaceName, null, 0, apiKey);
+    if (place) {
+      console.log(`[No-location] Found: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
+      const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
+      if (reviews.length > 0) console.log(`[No-location] Got ${reviews.length} Google review texts`);
       return { rating: place.rating, count: place.count, reviews };
     }
   }
