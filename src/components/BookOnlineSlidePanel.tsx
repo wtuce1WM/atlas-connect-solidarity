@@ -642,7 +642,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
             </div>
 
             {/* Block 2: Horizontal card carousel */}
-            <div className="w-[calc(100%+1rem)] -mr-4 md:mr-0 md:w-[90%] shrink-0 self-start md:self-center">
+            <div className="w-[calc(100%+1rem)] -mr-4 md:w-[calc(100%+1.5rem)] md:-mr-6 shrink-0 self-start">
               <div ref={carouselRef} className="flex gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-1">
                 {/* Card 1: Texte */}
                 {woDescription && (
@@ -949,7 +949,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
               <p className="text-xs font-medium text-white/90 px-4 mb-1.5 rounded-lg mx-4 py-1.5 bg-black/40 backdrop-blur-sm border border-white/10 inline-block">
                 {business.name} vous emmène à :
               </p>
-              <div className="flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-hide">
+              <div className="flex gap-2 overflow-x-auto pl-4 pr-0 pb-1 scrollbar-hide">
                 {destinations.map((dest, index) => {
                   const destImg = dest.images?.filter(Boolean)?.[0] || dest.image_url;
                   return (
