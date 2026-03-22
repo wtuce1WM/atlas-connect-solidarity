@@ -361,8 +361,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
             {/* Block 2: Description + opening hours — 4 lines by default */}
             {hasExpandableContent && (
-              <div className="w-[95%] md:w-[90%] lg:w-[70%] max-h-[40%] overflow-y-auto rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 text-white">
-                <div className={`text-sm leading-relaxed pr-1 ${!descExpanded ? 'line-clamp-4' : ''}`}>
+              <div className={`w-[95%] md:w-[90%] lg:w-[70%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 text-white ${descExpanded ? 'max-h-[40%] overflow-y-auto' : 'overflow-hidden'}`}>
+                <div className={`text-sm leading-relaxed pr-1 ${!descExpanded ? 'max-h-[5.6em] overflow-hidden' : ''}`}>
                   {woDescription && (
                     <>
                       {hasExpandableContent && (
