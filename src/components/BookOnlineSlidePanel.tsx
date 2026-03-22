@@ -427,7 +427,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
         >
           {/* Drag handle — swipe or click to toggle cards
               When hidden, position in bottom-right corner so video controls stay accessible */}
-          <div className={`mb-2 pointer-events-auto ${cardsHidden ? "flex justify-end pr-2" : "flex justify-center"}`}>
+          <div className="flex justify-center mb-2 pointer-events-auto">
             <button
               type="button"
               className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:bg-background transition-colors"
@@ -504,8 +504,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
               )}
             </div>
           )}
-          {/* Language flags + media counter — single row */}
-          <div className="relative flex items-center justify-center pb-4 pointer-events-auto">
+          {/* Language flags + media counter — single row (hidden when cards collapsed) */}
+          <div className={`relative flex items-center justify-center pb-4 pointer-events-auto transition-opacity duration-300 ${cardsHidden ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
             {/* Language flags — left */}
             {languages.length > 0 ? (
               <div className="absolute left-0 flex items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full py-1 px-2.5">
