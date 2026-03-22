@@ -796,8 +796,9 @@ const LocationManagement = () => {
       name_fr: "", name_en: "", name_ar: "", regions: [],
       latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
       hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
-      is_searchable: false, images: [] as string[], internal_notes: "",
+      is_searchable: false, images: [] as string[], internal_notes: "", videos: [] as string[],
     });
+    setDestVideoUrlInput("");
   };
 
   const openEditDestination = (d: Destination) => {
