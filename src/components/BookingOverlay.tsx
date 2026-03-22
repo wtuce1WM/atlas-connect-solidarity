@@ -74,24 +74,36 @@ const BookingOverlay = ({ bookingUrl, onClose }: BookingOverlayProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const loadedRef = useRef(false);
 
+  // If domain is known blocked, open externally immediately and close overlay
   useEffect(() => {
-    if (knownBlocked) return; // No need for timeout, already blocked
+    if (knownBlocked) {
+      window.open(bookingUrl, "_blank", "noopener,noreferrer");
+      onClose();
+    }
+  }, [knownBlocked, bookingUrl, onClose]);
+
+  useEffect(() => {
+    if (knownBlocked) return;
 
     loadedRef.current = false;
     const timer = setTimeout(() => {
-      // Only show fallback if onLoad never fired
       if (!loadedRef.current) {
-        setIframeBlocked(true);
+        // Timeout: open externally and close
+        window.open(bookingUrl, "_blank", "noopener,noreferrer");
+        onClose();
       }
     }, IFRAME_LOAD_TIMEOUT_MS);
 
     return () => clearTimeout(timer);
-  }, [bookingUrl, knownBlocked]);
+  }, [bookingUrl, knownBlocked, onClose]);
 
   const handleIframeLoad = () => {
     loadedRef.current = true;
     setIframeBlocked(false);
   };
+
+  // Don't render if blocked
+  if (iframeBlocked) return null;
 
   return (
     <div className="absolute inset-0 z-[60] bg-white flex flex-col animate-fade-in">
