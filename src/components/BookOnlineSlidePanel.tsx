@@ -95,6 +95,9 @@ interface BookOnlineBusiness {
   tourradar_url: string | null;
   online_shop_force_external: boolean;
   website_force_external: boolean;
+  hook_fr: string | null;
+  hook_en: string | null;
+  hook_ar: string | null;
 }
 
 interface WebOnlyData {
