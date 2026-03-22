@@ -317,7 +317,18 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
       )}
       {/* Portal Share into right of fixed bar */}
       {toolbarPortal && createPortal(
-        <ShareButton title={business.name} variant="dark" className="toolbar-icon shrink-0" />,
+        <div className="flex items-center gap-2">
+          {totalMedia > 0 && (
+            <button
+              onClick={() => { setLightboxIndex(0); setIsLightboxOpen(true); }}
+              className="toolbar-icon shrink-0 text-white/80 hover:text-white transition-colors"
+              title="Voir tous les médias"
+            >
+              <Maximize2 className="h-5 w-5" />
+            </button>
+          )}
+          <ShareButton title={business.name} variant="dark" className="toolbar-icon shrink-0" />
+        </div>,
         toolbarPortal
       )}
 
