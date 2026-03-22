@@ -982,7 +982,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                 )}
                 {/* Card 2: Contact with Flip to Google Map */}
                 {hasContactCard && (
-                  <div className="snap-start shrink-0 w-[20rem] h-[18em] md:h-[24em] animate-slide-in-left opacity-0"
+                  <div className="snap-start shrink-0 w-[30rem] h-[18em] md:h-[24em] animate-slide-in-left opacity-0"
                     style={{ perspective: '1000px', animationDelay: woDescription ? '120ms' : '0ms', animationFillMode: 'forwards' }}
                   >
                     <div
