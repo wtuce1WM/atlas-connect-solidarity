@@ -270,7 +270,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
     visibleCardsCount <= 1
       ? "w-full md:w-full"
       : visibleCardsCount === 2
-        ? "w-[calc(50%-0.375rem)] md:w-[calc(50%-0.375rem)]"
+        ? "w-[calc(50%_-_0.375rem)] md:w-[calc(50%_-_0.375rem)]"
         : "w-[85%] md:w-[45%]";
   const textCardSnapClass = !hasContactCard && !hasReviewsCard ? "snap-end" : "snap-start";
   const contactCardSnapClass = hasContactCard && !hasReviewsCard ? "snap-end" : "snap-start";
@@ -656,7 +656,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
             {/* Block 2: Horizontal card carousel */}
             <div className="w-full shrink-0 self-start">
-              <div className="w-[calc(100%+1rem)] -mr-4 md:w-[calc(100%+1.5rem)] md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
+              <div className="w-[calc(100%_+_1rem)] -mr-4 md:w-[calc(100%_+_1.5rem)] md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
                 <div className="flex w-max gap-3">
                   {/* Card 1: Texte */}
                   {woDescription && (
@@ -962,7 +962,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           {destinations.length > 0 && (
             <div className="shrink-0 mt-3 pointer-events-auto">
               {/* Duplicated destinations carousel — above the label */}
-              <div className="w-[calc(100%+1rem)] -mr-4 md:w-[calc(100%+1.5rem)] md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mb-2">
+              <div className="w-[calc(100%_+_1rem)] -mr-4 md:w-[calc(100%_+_1.5rem)] md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mb-2">
                 <div className="flex w-max gap-3">
                 {destinations.map((dest, index) => {
                   const destImg = dest.images?.filter(Boolean)?.[0] || dest.image_url;
@@ -992,7 +992,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
               <p className="text-xs font-medium text-white/90 px-4 mb-1.5 rounded-lg mx-4 py-1.5 bg-black/40 backdrop-blur-sm border border-white/10 inline-block">
                 {business.name} vous emmène à :
               </p>
-              <div className="w-[calc(100%+1rem)] -mr-4 md:w-[calc(100%+1.5rem)] md:-mr-6 flex gap-2 overflow-x-auto pl-4 pr-0 pb-1 scrollbar-hide">
+              <div className="w-[calc(100%_+_1rem)] -mr-4 md:w-[calc(100%_+_1.5rem)] md:-mr-6 flex gap-2 overflow-x-auto pl-4 pr-0 pb-1 scrollbar-hide">
                 {destinations.map((dest, index) => {
                   const destImg = dest.images?.filter(Boolean)?.[0] || dest.image_url;
                   return (
