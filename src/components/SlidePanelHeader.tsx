@@ -10,6 +10,7 @@ interface SlidePanelHeaderProps {
   /** Close button style variant */
   closeVariant?: "dark" | "destructive";
   /** IDs for portal targets — defaults to slide-panel-toolbar-center / slide-panel-toolbar */
+  toolbarLeftId?: string;
   toolbarCenterId?: string;
   toolbarRightId?: string;
 }
