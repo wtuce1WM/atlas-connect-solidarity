@@ -129,7 +129,7 @@ async function searchGooglePlace(query: string, coords: { lat: number; lng: numb
   return null;
 }
 
-async function fetchGoogleReviews(businessName: string, city: string, googleMapsUrl: string | null): Promise<{ rating: number | null; count: number | null; reviews: ReviewText[] }> {
+async function fetchGoogleReviews(businessName: string, city: string | null, googleMapsUrl: string | null): Promise<{ rating: number | null; count: number | null; reviews: ReviewText[] }> {
   const apiKey = Deno.env.get('GOOGLE_MAPS_API_KEY');
   if (!apiKey) {
     console.error('GOOGLE_MAPS_API_KEY not configured');
@@ -139,9 +139,13 @@ async function fetchGoogleReviews(businessName: string, city: string, googleMaps
   const exactCoords = extractExactCoordsFromGoogleUrl(googleMapsUrl);
   const urlPlaceName = extractPlaceNameFromGoogleUrl(googleMapsUrl);
 
+  const cityStr = city || '';
+  const cityQuerySuffix = cityStr ? ` ${cityStr}` : '';
+
   if (urlPlaceName && exactCoords) {
-    console.log(`Strategy 1: URL place name "${urlPlaceName} ${city}" with restriction @${exactCoords.lat},${exactCoords.lng} (200m)`);
-    const place = await searchGooglePlace(`${urlPlaceName} ${city}`, exactCoords, 200.0, apiKey, true);
+    const q1 = `${urlPlaceName}${cityQuerySuffix}`;
+    console.log(`Strategy 1: URL place name "${q1}" with restriction @${exactCoords.lat},${exactCoords.lng} (200m)`);
+    const place = await searchGooglePlace(q1, exactCoords, 200.0, apiKey, true);
     if (place) {
       console.log(`Found: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
       const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
@@ -152,8 +156,9 @@ async function fetchGoogleReviews(businessName: string, city: string, googleMaps
   }
 
   if (exactCoords) {
+    const q2 = `${businessName}${cityQuerySuffix}`;
     console.log(`Strategy 2: DB name "${businessName}" with exact coords @${exactCoords.lat},${exactCoords.lng} (100m radius)`);
-    const place = await searchGooglePlace(`${businessName} ${city}`, exactCoords, 100.0, apiKey);
+    const place = await searchGooglePlace(q2, exactCoords, 100.0, apiKey);
     if (place) {
       console.log(`Found: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
       const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
@@ -165,8 +170,8 @@ async function fetchGoogleReviews(businessName: string, city: string, googleMaps
 
   const simplifiedName = businessName.replace(/\s+by\s+.*/i, '').trim();
   const queries = [
-    `${businessName} ${city}`,
-    `${simplifiedName} ${city}`,
+    `${businessName}${cityQuerySuffix}`,
+    `${simplifiedName}${cityQuerySuffix}`,
   ];
 
   for (const q of queries) {
@@ -180,7 +185,7 @@ async function fetchGoogleReviews(businessName: string, city: string, googleMaps
     }
   }
 
-  console.log(`No Google Place found for: ${businessName} ${city}`);
+  console.log(`No Google Place found for: ${businessName}${cityQuerySuffix}`);
   return { rating: null, count: null, reviews: [] };
 }
 

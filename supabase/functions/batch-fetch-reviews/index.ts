@@ -96,12 +96,13 @@ async function searchGooglePlace(query: string, coords: { lat: number; lng: numb
 }
 
 // Main: URL place name + exact coords (50m) → DB name + exact coords (100m) → fallback (500m)
-async function fetchGoogleForBusiness(name: string, city: string, googleMapsUrl: string | null, apiKey: string): Promise<{ rating: number | null; count: number | null; reviews: ReviewText[] }> {
+async function fetchGoogleForBusiness(name: string, city: string | null, googleMapsUrl: string | null, apiKey: string): Promise<{ rating: number | null; count: number | null; reviews: ReviewText[] }> {
   const exactCoords = extractExactCoordsFromGoogleUrl(googleMapsUrl);
   const urlPlaceName = extractPlaceNameFromGoogleUrl(googleMapsUrl);
+  const cityQuerySuffix = city ? ` ${city}` : '';
 
   if (urlPlaceName && exactCoords) {
-    const place = await searchGooglePlace(urlPlaceName, exactCoords, 50.0, apiKey);
+    const place = await searchGooglePlace(`${urlPlaceName}${cityQuerySuffix}`, exactCoords, 50.0, apiKey);
     if (place) {
       const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
       return { rating: place.rating, count: place.count, reviews };
@@ -109,14 +110,14 @@ async function fetchGoogleForBusiness(name: string, city: string, googleMapsUrl:
   }
 
   if (exactCoords) {
-    const place = await searchGooglePlace(`${name} ${city}`, exactCoords, 100.0, apiKey);
+    const place = await searchGooglePlace(`${name}${cityQuerySuffix}`, exactCoords, 100.0, apiKey);
     if (place) {
       const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
       return { rating: place.rating, count: place.count, reviews };
     }
   }
 
-  const queries = [`${name} ${city}`, `${name.replace(/\s+by\s+.*/i, '').trim()} ${city}`];
+  const queries = [`${name}${cityQuerySuffix}`, `${name.replace(/\s+by\s+.*/i, '').trim()}${cityQuerySuffix}`];
   for (const q of queries) {
     const place = await searchGooglePlace(q, exactCoords, 500.0, apiKey);
     if (place) {
