@@ -666,6 +666,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                 <div className="snap-start shrink-0 w-[40rem] h-[18em] md:h-[24em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 pb-10 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10"
                     style={{ animationFillMode: 'forwards' }}
                   >
+                    <div className="h-6" aria-hidden="true" />
                     <div
                       className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17]"
                       dangerouslySetInnerHTML={{ __html: woDescription }}
