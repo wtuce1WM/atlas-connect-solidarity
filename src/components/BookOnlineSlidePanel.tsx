@@ -975,14 +975,14 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                   return (
                     <div
                       key={dest.id}
-                      className="shrink-0 w-36 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                      className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
                       style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
                       onClick={() => setSelectedDestinationId(dest.id)}
                     >
                       {destImg ? (
-                        <img src={destImg} alt={destName(dest)} className="w-full h-24 object-cover" />
+                        <img src={destImg} alt={destName(dest)} className="w-full h-32 object-cover" />
                       ) : (
-                        <div className="w-full h-24 bg-white/10 flex items-center justify-center">
+                        <div className="w-full h-32 bg-white/10 flex items-center justify-center">
                           <MapPin className="h-5 w-5 text-white/40" />
                         </div>
                       )}
