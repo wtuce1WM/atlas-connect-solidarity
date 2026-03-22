@@ -591,9 +591,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                 {/* Card 4: Localiser */}
                 {business.latitude && business.longitude && (
                   <div className="snap-start shrink-0 w-[85%] md:w-[48%] rounded-2xl bg-black/40 backdrop-blur-sm p-1 text-white max-h-[18em] overflow-hidden">
-                    <p className="text-[10px] font-semibold text-white/50 uppercase tracking-wider mb-1 px-3 pt-3">
-                      {language === "en" ? "Location" : "Localiser"}
-                    </p>
+                    {/* No title for location card */}
                     <div className="w-full h-[14em] rounded-xl overflow-hidden">
                       <iframe
                         src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${business.latitude},${business.longitude}&zoom=15`}
