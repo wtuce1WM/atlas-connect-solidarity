@@ -438,7 +438,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                     )}
                     {hasOpeningHours && business && (
                       <div className={`${woDescription ? 'mt-3 pt-3 border-t border-white/20' : ''}`}>
-                        <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+                        <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-2">
                           <Clock className="h-3 w-3 inline mr-1" />
                           {language === "en" ? "Opening hours" : "Horaires"}
                         </p>
