@@ -378,7 +378,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                   <ChevronRight className="h-4 w-4" />
                 </button>
               </div>
-            ) : <div />}
+            ) : null}
           </div>
 
           {/* Centered content block — same layout as WebOnlySlidePanel */}
