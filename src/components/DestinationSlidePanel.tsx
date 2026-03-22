@@ -144,7 +144,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
           embedSrc = `https://player.vimeo.com/video/${fvInfo.id}?autoplay=1`;
         }
         return (
-          <div className="absolute inset-0 z-[76] bg-black flex flex-col animate-fade-in">
+          <div className="absolute inset-0 z-[76] bg-black flex flex-col animate-slide-in-left">
             <div className="shrink-0 flex items-center px-3 py-2">
               <button
                 onClick={() => setFullscreenVideo(null)}
