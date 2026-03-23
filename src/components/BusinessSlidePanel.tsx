@@ -1024,20 +1024,19 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
           onClose={() => { setAvailabilityOverlayCtx(null); setIsBookingOpen(false); }}
           onSelectBusiness={(id) => { setInternalBusinessId(id); }}
           onOpenFallbackPanel={(data) => {
-            // Show a black transition overlay immediately to hide the flash
-            setShowTransitionOverlay(true);
+            const isMobileOrTablet = typeof window !== "undefined" && window.innerWidth < 1024;
+            if (isMobileOrTablet) {
+              // Enable fullscreen black handoff only on mobile/tablet.
+              setShowTransitionOverlay(true);
+            }
+
             setFallbackPanelData(data);
             setSelectedFallbackHotelId(null);
             setFallbackHiddenOnMobile(false);
-            // Close the availability overlay behind the black screen
+
+            // Close availability overlay immediately behind transition/fallback layers.
             setAvailabilityOverlayCtx(null);
             setIsBookingOpen(false);
-            // Remove the black overlay after the fallback panel has rendered
-            requestAnimationFrame(() => {
-              requestAnimationFrame(() => {
-                setShowTransitionOverlay(false);
-              });
-            });
           }}
         />
       )}
