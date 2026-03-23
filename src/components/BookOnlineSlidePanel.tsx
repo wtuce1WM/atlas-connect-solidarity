@@ -774,10 +774,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                               onClick={() => setDupContactFlipped(true)}
                               className="flex items-center justify-center w-full mb-1"
                             >
-                              <img
-                                src="https://maps.google.com/mapfiles/kml/shapes/placemark_circle.png"
-                                alt="Google Maps"
-                                className="h-10 w-10 drop-shadow-lg hover:scale-110 transition-transform"
+                              <MapPin
+                                className="h-10 w-10 drop-shadow-lg hover:scale-110 transition-transform text-white"
                                 style={{
                                   animation: 'map-pin-drop 0.5s ease-out 0.4s both',
                                 }}
