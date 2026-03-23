@@ -287,6 +287,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
         );
       })()}
 
+      <div className="relative w-full h-full">
         {/* Media background */}
         <div className="absolute inset-0">
           {currentMedia?.kind === "image" ? (
