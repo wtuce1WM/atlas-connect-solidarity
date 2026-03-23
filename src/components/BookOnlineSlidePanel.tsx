@@ -405,9 +405,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   const destName = (d: Destination) => language === "en" && d.name_en ? d.name_en : d.name_fr;
 
   return (
-    <div className="h-full overflow-hidden overscroll-none bg-black flex flex-col">
-      <SlidePanelHeader onClose={onClose} />
-      <div className="flex-1 min-h-0 relative">
+    <div className="h-full overflow-hidden overscroll-none bg-black">
       {/* Portal media button into left of fixed bar (next to close) */}
       {toolbarLeftPortal && totalMedia > 0 && createPortal(
         <button
