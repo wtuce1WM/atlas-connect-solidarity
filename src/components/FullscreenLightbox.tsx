@@ -50,10 +50,11 @@ const FullscreenLightbox = ({ items, currentIndex, onIndexChange, onClose }: Ful
       const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
       if (ytMatch) {
         return (
-          <div className="w-[90%] max-h-[90vh] aspect-video overflow-hidden" onClick={(e) => e.stopPropagation()}>
+          <div className="relative w-[90%] max-h-[90vh] aspect-video overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="absolute inset-x-0 top-0 h-16 bg-black z-10" />
             <iframe
-              src={`https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&mute=0&loop=1&playlist=${ytMatch[1]}&rel=0&controls=0&modestbranding=1&playsinline=1&iv_load_policy=3&cc_load_policy=0&disablekb=1&fs=0&showinfo=0&autohide=1`}
-              className="w-full h-[calc(100%+96px)] -mt-12 pointer-events-none"
+              src={`https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&mute=0&loop=1&playlist=${ytMatch[1]}&rel=0&controls=1&modestbranding=1&playsinline=1&iv_load_policy=3&cc_load_policy=0&disablekb=1&fs=0&showinfo=0&autohide=1`}
+              className="w-full h-[calc(100%+80px)] -mt-16"
               allow="autoplay; encrypted-media; fullscreen"
               allowFullScreen
               frameBorder="0"
