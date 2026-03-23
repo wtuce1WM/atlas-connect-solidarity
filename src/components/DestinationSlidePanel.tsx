@@ -22,6 +22,7 @@ interface DestinationFull {
   image_url: string | null;
   images: string[] | null;
   videos: string[] | null;
+  matterport_url: string | null;
   latitude: number | null;
   longitude: number | null;
 }
