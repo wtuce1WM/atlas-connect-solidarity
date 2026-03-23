@@ -158,10 +158,10 @@ function OpeningHoursBlock({
     friday: "Ven", saturday: "Sam", sunday: "Dim",
   };
   const displayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
-  const hours = business.opening_hours as Record<string, any>;
+  const hours = business.opening_hours as Record<string, any> | null;
   const now = new Date();
   const todayKey = dayOrder[now.getDay()];
-  const todayDh = todayKey ? hours[todayKey] : null;
+  const todayDh = todayKey && hours ? hours[todayKey] : null;
   const openNow = business.is_open_24h || isCurrentlyOpen(todayDh);
 
   return (
