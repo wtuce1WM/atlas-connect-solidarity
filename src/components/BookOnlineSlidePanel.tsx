@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Info, CalendarCheck, Star, Phone, Mail, Globe, Clock, MessageCircle, Minimize2 } from "lucide-react";
+import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Info, CalendarCheck, Star, Minimize2 } from "lucide-react";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
-import { formatDayHours as formatDayHoursDisplay, isCurrentlyOpen } from "@/lib/formatOpeningHours";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
@@ -13,53 +12,12 @@ import ShareButton from "@/components/ShareButton";
 import { Skeleton } from "@/components/ui/skeleton";
 import BookingOverlay from "@/components/BookingOverlay";
 import DestinationSlidePanel from "@/components/DestinationSlidePanel";
-
-const WhatsAppIcon = ({ className = "h-5 w-5" }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-  </svg>
-);
-
-// Language flag mapping
-const LANG_FLAGS: Record<string, string> = {
-  français: "🇫🇷", french: "🇫🇷", fr: "🇫🇷",
-  anglais: "🇬🇧", english: "🇬🇧", en: "🇬🇧",
-  arabe: "🇲🇦", arabic: "🇲🇦", ar: "🇲🇦",
-  espagnol: "🇪🇸", spanish: "🇪🇸", es: "🇪🇸",
-  allemand: "🇩🇪", german: "🇩🇪", de: "🇩🇪",
-  italien: "🇮🇹", italian: "🇮🇹", it: "🇮🇹",
-  portugais: "🇵🇹", portuguese: "🇵🇹", pt: "🇵🇹",
-  néerlandais: "🇳🇱", dutch: "🇳🇱", nl: "🇳🇱",
-  russe: "🇷🇺", russian: "🇷🇺", ru: "🇷🇺",
-  chinois: "🇨🇳", chinese: "🇨🇳", zh: "🇨🇳",
-  japonais: "🇯🇵", japanese: "🇯🇵", ja: "🇯🇵",
-  amazigh: "ⵣ", berbère: "ⵣ", tamazight: "ⵣ",
-};
-// Alt text for language flags — "We speak X" in the target language
-const LANG_ALT: Record<string, string> = {
-  français: "Nous parlons français", french: "Nous parlons français", fr: "Nous parlons français",
-  anglais: "We speak English", english: "We speak English", en: "We speak English",
-  arabe: "نتحدث العربية", arabic: "نتحدث العربية", ar: "نتحدث العربية",
-  espagnol: "Hablamos español", spanish: "Hablamos español", es: "Hablamos español",
-  allemand: "Wir sprechen Deutsch", german: "Wir sprechen Deutsch", de: "Wir sprechen Deutsch",
-  italien: "Parliamo italiano", italian: "Parliamo italiano", it: "Parliamo italiano",
-  portugais: "Falamos português", portuguese: "Falamos português", pt: "Falamos português",
-  néerlandais: "Wij spreken Nederlands", dutch: "Wij spreken Nederlands", nl: "Wij spreken Nederlands",
-  russe: "Мы говорим по-русски", russian: "Мы говорим по-русски", ru: "Мы говорим по-русски",
-  chinois: "我们说中文", chinese: "我们说中文", zh: "我们说中文",
-  japonais: "日本語を話します", japanese: "日本語を話します", ja: "日本語を話します",
-  amazigh: "ⵏⵙⴰⵡⴰⵍ ⵜⴰⵎⴰⵣⵉⵖⵜ", berbère: "ⵏⵙⴰⵡⴰⵍ ⵜⴰⵎⴰⵣⵉⵖⵜ", tamazight: "ⵏⵙⴰⵡⴰⵍ ⵜⴰⵎⴰⵣⵉⵖⵜ",
-};
-
-const getLangFlag = (lang: string) => {
-  const key = lang.toLowerCase().trim();
-  return LANG_FLAGS[key] || "🌐";
-};
-
-const getLangAlt = (lang: string) => {
-  const key = lang.toLowerCase().trim();
-  return LANG_ALT[key] || lang;
-};
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
+import { getLangFlag, getLangAlt } from "@/lib/languageFlags";
+import { getVideoEmbed } from "@/lib/videoEmbed";
+import ContactFlipCard from "@/components/cards/ContactFlipCard";
+import ReviewsFlipCard from "@/components/cards/ReviewsFlipCard";
+import type { ReviewText } from "@/components/cards/ReviewsFlipCard";
 
 interface BookOnlineSlidePanelProps {
   businessId: string;
@@ -151,13 +109,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const [showInfoCard, setShowInfoCard] = useState(true);
   const [showBookingOverlay, setShowBookingOverlay] = useState(false);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
-  const [reviewsFlipped, setReviewsFlipped] = useState(false);
-  const [contactFlipped, setContactFlipped] = useState(false);
-  const [dupContactFlipped, setDupContactFlipped] = useState(false);
-  const [dupReviewsFlipped, setDupReviewsFlipped] = useState(false);
-  const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; language?: string | null }[]>([]);
-  const [translatedReviewTexts, setTranslatedReviewTexts] = useState<string[] | null>(null);
-  const [isTranslating, setIsTranslating] = useState(false);
+  const [reviewTexts, setReviewTexts] = useState<ReviewText[]>([]);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [cardsHidden, setCardsHidden] = useState(false);
@@ -167,11 +119,14 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const cardsHiddenRef = useRef(false);
   const [showHook, setShowHook] = useState(false);
 
-  // Reset cards visibility when switching business
+  // Reset all state when switching business
   useEffect(() => {
     setCardsHidden(false);
     cardsHiddenRef.current = false;
     setDragOffsetY(0);
+    setShowDirections(false);
+    setCurrentMediaIndex(0);
+    setDescExpanded(true);
   }, [businessId]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -211,17 +166,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
     }
   }, [showDirections]);
 
-  useEffect(() => {
-    setShowDirections(false);
-    setCurrentMediaIndex(0);
-    setDescExpanded(true);
-    setReviewsFlipped(false);
-    setContactFlipped(false);
-    setDupContactFlipped(false);
-    setDupReviewsFlipped(false);
-    setTranslatedReviewTexts(null);
-    setIsTranslating(false);
-  }, [businessId]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -285,7 +229,20 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const images = woImages.length > 0 ? woImages : (business?.images?.filter(Boolean) || []);
   const woDescription = webOnlyData?.description || null;
   const hasOpeningHours = business?.show_opening_hours !== false && (business?.is_open_24h || business?.opening_hours);
-  const hasExpandableContent = !!(woDescription || hasOpeningHours);
+
+  const reviewPlatforms = useMemo(() => {
+    if (!business) return [];
+    return [
+      { name: "Google", rating: business.google_rating, count: business.google_review_count, url: business.google_reviews_url || business.google_maps_url },
+      { name: "TripAdvisor", rating: business.tripadvisor_rating, count: business.tripadvisor_review_count, url: business.tripadvisor_review_url || business.tripadvisor_url },
+      { name: "Restaurant Guru", rating: business.restaurant_guru_rating, count: business.restaurant_guru_review_count, url: business.restaurant_guru_url },
+      { name: "Trustpilot", rating: business.trustpilot_rating, count: business.trustpilot_review_count, url: business.trustpilot_url },
+      { name: "GetYourGuide", rating: business.getyourguide_rating, count: business.getyourguide_review_count, url: business.getyourguide_url },
+      { name: "Viator", rating: business.viator_rating, count: business.viator_review_count, url: business.viator_url },
+      { name: "Avis Vérifiés", rating: business.avis_verifies_rating, count: business.avis_verifies_review_count, url: business.avis_verifies_url },
+      { name: "TourRadar", rating: business.tourradar_rating, count: business.tourradar_review_count, url: business.tourradar_url },
+    ];
+  }, [business]);
   const languages = business?.languages?.filter(Boolean) || [];
 
   const { avgOn20, totalReviewCount } = useMemo(() => {
@@ -298,21 +255,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
 
   const hasContactCard = !!(business?.phone || business?.whatsapp || business?.email || business?.website || business?.address);
   const hasReviewsCard = avgOn20 !== null && avgOn20 > 0;
-  const hasTextCard = !!woDescription;
-  const visibleCardsCount = Number(hasTextCard) + Number(hasContactCard) + Number(hasReviewsCard);
-  const cardWidthClass =
-    visibleCardsCount <= 1
-      ? "w-full md:w-full"
-      : visibleCardsCount === 2
-        ? "w-[calc(50%_-_0.375rem)] md:w-[calc(50%_-_0.375rem)]"
-        : "w-[85%] md:w-[45%]";
-  const cardsRailClass = visibleCardsCount >= 3
-    ? "w-[calc(100%_+_1rem)] -mr-4 md:w-[calc(100%_+_1.5rem)] md:-mr-6"
-    : "w-full";
-  const cardsTrackClass = visibleCardsCount >= 3 ? "flex w-max gap-3" : "flex w-full gap-3";
-  const textCardSnapClass = !hasContactCard && !hasReviewsCard ? "snap-end" : "snap-start";
-  const contactCardSnapClass = hasContactCard && !hasReviewsCard ? "snap-end" : "snap-start";
-  const reviewsCardSnapClass = "snap-end";
 
   // Hook text for current language
   const hookText = useMemo(() => {
@@ -348,24 +290,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [totalMedia]);
 
-  const getVideoEmbed = (url: string) => {
-    const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
-    if (ytMatch) {
-      const isShort = /\/shorts\//.test(url);
-      return {
-        type: "youtube" as const,
-        embedUrl: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=0&rel=0&controls=1&modestbranding=1&playsinline=1&iv_load_policy=3&cc_load_policy=0&disablekb=0&fs=0&showinfo=0&autohide=1&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`,
-        isVertical: isShort,
-      };
-    }
-    const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-    if (vimeoMatch) {
-      return { type: "vimeo" as const, embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=1&loop=0`, isVertical: false };
-    }
-    return { type: "file" as const, embedUrl: url, isVertical: false };
-  };
-
-  const videoInfo = currentMedia?.kind === "video" ? getVideoEmbed(currentMedia.url) : null;
+  const videoInfo = currentMedia?.kind === "video" ? getVideoEmbed(currentMedia.url, window.location.origin) : null;
 
   // Detect vertical orientation for file videos
   const [isFileVideoVertical, setIsFileVideoVertical] = useState(false);
@@ -772,294 +697,24 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                   </div>
                 )}
                 {/* Card 2: Contact with Flip to Google Map */}
-                {hasContactCard && (
-                  <div className="snap-start shrink-0 w-[20rem] h-[18em] md:h-[24em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0"
-                    style={{ perspective: '1000px', animationDelay: woDescription ? '120ms' : '0ms', animationFillMode: 'forwards' }}
-                  >
-                    <div
-                      className="relative w-full h-full transition-transform duration-500"
-                      style={{
-                        transformStyle: 'preserve-3d',
-                        transform: dupContactFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
-                      }}
-                    >
-                      {/* FRONT — Contact info */}
-                      <div
-                        className="absolute inset-0 rounded-2xl p-4 text-white overflow-y-auto"
-                        style={{ backfaceVisibility: 'hidden' }}
-                      >
-                        <div className="space-y-2.5 text-sm">
-                          {business.google_maps_url && (
-                            <button
-                              onClick={() => setDupContactFlipped(true)}
-                              className="flex items-center justify-center w-full mb-1"
-                            >
-                              <MapPin
-                                className="h-10 w-10 drop-shadow-lg hover:scale-110 transition-transform text-white"
-                                style={{
-                                  animation: 'map-pin-drop 0.5s ease-out 0.4s both',
-                                }}
-                              />
-                            </button>
-                          )}
-                          {business.address && (
-                            <div className="flex items-start gap-2">
-                              <MapPin className="h-4 w-4 shrink-0 mt-0.5 text-white/60" />
-                              <span className="text-white/80">{business.address}</span>
-                            </div>
-                          )}
-                          {business.phone && (
-                            <a href={`tel:${business.phone}`} className="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
-                              <Phone className="h-4 w-4 shrink-0 text-white/60" />
-                              {business.phone}
-                            </a>
-                          )}
-                          {business.whatsapp && (
-                            <a href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-[#25D366] hover:text-[#20bd5a] transition-colors">
-                              <WhatsAppIcon className="h-4 w-4 shrink-0" />
-                              WhatsApp
-                            </a>
-                          )}
-                          {business.email && (
-                            <a href={`mailto:${business.email}`} className="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
-                              <Mail className="h-4 w-4 shrink-0 text-white/60" />
-                              Email
-                            </a>
-                          )}
-                          {business.website && (
-                            <a href={business.website.startsWith('http') ? business.website : `https://${business.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
-                              <Globe className="h-4 w-4 shrink-0 text-white/60" />
-                              {language === "en" ? "Website" : "Site web"}
-                              <ExternalLink className="h-3 w-3" />
-                            </a>
-                          )}
-                          {hasOpeningHours && business && (
-                            <div className="mt-2 pt-2 border-t border-white/20">
-                              <p className="text-xs font-semibold text-gold uppercase tracking-wider mb-1.5">
-                                <Clock className="h-3 w-3 inline mr-1" />
-                                {language === "en" ? "Hours" : "Horaires"}
-                              </p>
-                              {business.is_open_24h ? (
-                                <p className="text-white/80 text-sm">Ouvert 24h/24</p>
-                              ) : business.opening_hours ? (
-                                  (() => {
-                                    const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-                                    const dayNames: Record<string, string> = { monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim" };
-                                    const displayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
-                                    const hours = business.opening_hours as Record<string, any>;
-                                    const now = new Date();
-                                    const todayKey = dayOrder[now.getDay()];
-                                    const todayDh = todayKey ? hours[todayKey] : null;
-                                    const openNow = business.is_open_24h || isCurrentlyOpen(todayDh);
-                                    return (
-                                      <>
-                                        <div className="space-y-0.5">
-                                          {displayOrder.map(day => {
-                                            const dh = hours[day];
-                                            if (!dh) return null;
-                                            const formatted = formatDayHoursDisplay(dh, { language });
-                                            if (!formatted || formatted.toLowerCase().includes('fermé') || formatted.toLowerCase().includes('closed')) return null;
-                                            const isToday = day === todayKey;
-                                            return (
-                                              <div key={day} className={`flex text-xs ${isToday ? 'font-bold' : ''}`}>
-                                                <span className={`w-[2.5rem] shrink-0 font-medium ${isToday ? 'text-white' : 'text-white/70'}`}>
-                                                  {dayNames[day]}{isToday ? ' ●' : ''}
-                                                </span>
-                                                <span className="text-white/80">
-                                                  {formatted}
-                                                </span>
-                                              </div>
-                                            );
-                                          })}
-                                        </div>
-                                        <div className="mt-6 flex justify-center">
-                                          <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider ${openNow ? 'bg-[#25D366] text-white' : 'bg-black text-white'}`}>
-                                            <span className={`w-1.5 h-1.5 rounded-full bg-white/70`} />
-                                            {openNow
-                                              ? (language === "en" ? "Open" : language === "ar" ? "مفتوح" : "Ouvert")
-                                              : (language === "en" ? "Closed" : language === "ar" ? "مغلق" : "Fermé")}
-                                          </div>
-                                        </div>
-                                      </>
-                                    );
-                                  })()
-                              ) : null}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* BACK — Google Map */}
-                      <div
-                        className="absolute inset-0 rounded-2xl overflow-hidden"
-                        style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
-                      >
-                        <div className="absolute top-0 right-0 p-3 z-10">
-                          <button
-                            onClick={() => setDupContactFlipped(false)}
-                            className="text-xs text-black font-bold hover:text-black/70 transition-colors uppercase tracking-wider drop-shadow-md"
-                          >
-                            ← {language === "en" ? "Back" : "Retour"}
-                          </button>
-                        </div>
-                        {business.latitude && business.longitude && dupContactFlipped && (
-                          <iframe
-                            src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${business.latitude},${business.longitude}&zoom=13`}
-                            className="w-full h-full border-0 pointer-events-none"
-                            allowFullScreen
-                            loading="lazy"
-                            referrerPolicy="no-referrer-when-downgrade"
-                          />
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                {hasContactCard && business && (
+                  <ContactFlipCard
+                    business={business}
+                    language={language}
+                    hasOpeningHours={!!hasOpeningHours}
+                    animationDelay={woDescription ? "120ms" : "0ms"}
+                  />
                 )}
                 {/* Card 3: Avis Clients with Flip to translated reviews */}
-                {hasReviewsCard && (
-                  <div className="snap-start shrink-0 w-[20rem] h-[18em] md:h-[24em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0"
-                    style={{ perspective: '1000px', animationDelay: `${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`, animationFillMode: 'forwards' }}
-                  >
-                    <div
-                      className="relative w-full h-full transition-transform duration-500"
-                      style={{
-                        transformStyle: 'preserve-3d',
-                        transform: dupReviewsFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
-                      }}
-                    >
-                      {/* FRONT — Platform ratings */}
-                      <div
-                        className="absolute inset-0 rounded-2xl p-4 text-white overflow-y-auto"
-                        style={{ backfaceVisibility: 'hidden' }}
-                      >
-                        <p className="text-[10px] font-semibold text-gold uppercase tracking-wider mb-2">
-                          {language === "en" ? "Reviews" : "Avis clients"}
-                        </p>
-                        <div className="flex items-center gap-2 mb-3">
-                          <Star className="h-5 w-5 text-gold fill-gold" />
-                          <span className="text-2xl font-bold text-white">{avgOn20}</span>
-                          <span className="text-sm text-white/60">/20</span>
-                          {totalReviewCount > 0 && (
-                            <span className="text-xs text-white/50 ml-1">({totalReviewCount.toLocaleString("fr-FR")} avis)</span>
-                          )}
-                        </div>
-                        {business && (() => {
-                          const platforms: { name: string; rating: number | null; count: number | null; url: string | null }[] = [
-                            { name: "Google", rating: business.google_rating, count: business.google_review_count, url: business.google_reviews_url || business.google_maps_url },
-                            { name: "TripAdvisor", rating: business.tripadvisor_rating, count: business.tripadvisor_review_count, url: business.tripadvisor_review_url || business.tripadvisor_url },
-                            { name: "Restaurant Guru", rating: business.restaurant_guru_rating, count: business.restaurant_guru_review_count, url: business.restaurant_guru_url },
-                            { name: "Trustpilot", rating: business.trustpilot_rating, count: business.trustpilot_review_count, url: business.trustpilot_url },
-                            { name: "GetYourGuide", rating: business.getyourguide_rating, count: business.getyourguide_review_count, url: business.getyourguide_url },
-                            { name: "Viator", rating: business.viator_rating, count: business.viator_review_count, url: business.viator_url },
-                            { name: "Avis Vérifiés", rating: business.avis_verifies_rating, count: business.avis_verifies_review_count, url: business.avis_verifies_url },
-                            { name: "TourRadar", rating: business.tourradar_rating, count: business.tourradar_review_count, url: business.tourradar_url },
-                          ].filter(p => p.rating && p.count);
-                          return (
-                            <div className="space-y-2">
-                              {platforms.map((p) => (
-                                <a
-                                  key={p.name}
-                                  href={p.url || "#"}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className={`flex items-center justify-between text-sm border-t border-white/10 pt-2 ${p.url ? 'hover:text-gold transition-colors' : 'pointer-events-none'}`}
-                                >
-                                  <span className="text-white/80 font-medium">{p.name}</span>
-                                  <span className="flex items-center gap-1.5">
-                                    <span className="text-gold font-semibold">{p.rating}/5</span>
-                                    <span className="text-white/50 text-xs">({p.count?.toLocaleString("fr-FR")})</span>
-                                    {p.url && <ExternalLink className="h-3 w-3 text-white/40" />}
-                                  </span>
-                                </a>
-                              ))}
-                            </div>
-                          );
-                        })()}
-                        {reviewTexts.length > 0 && (
-                          <button
-                            onClick={async () => {
-                              setDupReviewsFlipped(true);
-                              const targetLang = language === "en" ? "en" : language === "ar" ? "ar" : "fr";
-                              const needsTranslation = reviewTexts.some(r => r.language && r.language !== targetLang);
-                              if (needsTranslation && !translatedReviewTexts) {
-                                setIsTranslating(true);
-                                try {
-                                  const { data, error } = await supabase.functions.invoke("translate-reviews", {
-                                    body: {
-                                      reviews: reviewTexts.filter(r => r.text).map(r => ({ text: r.text })),
-                                      targetLanguage: targetLang,
-                                    },
-                                  });
-                                  if (!error && data?.translations?.length) {
-                                    setTranslatedReviewTexts(data.translations);
-                                  }
-                                } catch (e) {
-                                  console.error("Translation error:", e);
-                                }
-                                setIsTranslating(false);
-                              }
-                            }}
-                            className="mt-3 w-full text-center text-xs text-gold hover:text-white transition-colors uppercase tracking-wider font-semibold py-1.5 border-t border-white/10"
-                          >
-                            <MessageCircle className="h-3 w-3 inline mr-1" />
-                            {language === "en" ? "Read reviews" : "Lire les avis"}
-                          </button>
-                        )}
-                      </div>
-
-                      {/* BACK — Translated review texts */}
-                      <div
-                        className="absolute inset-0 rounded-2xl p-4 text-white overflow-y-auto"
-                        style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <p className="text-[10px] font-semibold text-gold uppercase tracking-wider">
-                            {language === "en" ? "Reviews" : "Avis clients"}
-                          </p>
-                          <button
-                            onClick={() => setDupReviewsFlipped(false)}
-                            className="text-xs text-white/50 hover:text-white transition-colors uppercase tracking-wider"
-                          >
-                            ← {language === "en" ? "Back" : "Retour"}
-                          </button>
-                        </div>
-                        {isTranslating ? (
-                          <div className="space-y-3">
-                            {[1, 2, 3].map(i => (
-                              <div key={i} className="border-t border-white/10 pt-2 space-y-1">
-                                <Skeleton className="h-3 w-24 bg-white/10" />
-                                <Skeleton className="h-3 w-full bg-white/10" />
-                                <Skeleton className="h-3 w-3/4 bg-white/10" />
-                              </div>
-                            ))}
-                            <p className="text-[10px] text-white/40 text-center mt-2">
-                              {language === "en" ? "Translating…" : "Traduction en cours…"}
-                            </p>
-                          </div>
-                        ) : (
-                          <div className="space-y-3">
-                            {reviewTexts.slice(0, 3).map((review, i) => {
-                              const displayText = translatedReviewTexts?.[i] || review.text;
-                              return (
-                                <div key={i} className="border-t border-white/10 pt-2">
-                                  <div className="flex items-center gap-1.5 mb-1">
-                                    <MessageCircle className="h-3 w-3 text-white/40" />
-                                    <span className="text-xs font-medium text-white/70">{review.author_name || review.source}</span>
-                                    {review.rating && (
-                                      <span className="text-xs text-gold ml-auto">{"★".repeat(Math.round(review.rating))}</span>
-                                    )}
-                                  </div>
-                                  {displayText && (
-                                    <p className="text-xs text-white/70 line-clamp-4">{displayText}</p>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                {hasReviewsCard && business && (
+                  <ReviewsFlipCard
+                    avgOn20={avgOn20!}
+                    totalReviewCount={totalReviewCount}
+                    platforms={reviewPlatforms}
+                    reviewTexts={reviewTexts}
+                    language={language}
+                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
+                  />
                 )}
                 <div className="shrink-0 w-4" aria-hidden="true" />
             </div>
