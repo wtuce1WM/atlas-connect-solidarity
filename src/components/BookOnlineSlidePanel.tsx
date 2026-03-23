@@ -429,7 +429,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                   ref={iframeRef}
                   key={currentMedia.url}
                   src={videoInfo.embedUrl}
-                  className={videoInfo.type === "youtube" ? "w-full h-[calc(100%+80px)] -mt-16 -mb-[20px]" : "w-full h-full pointer-events-none"}
+                  className={videoInfo.type === "youtube" ? "w-full h-[calc(100%+80px)] -mt-16 -mb-[36px]" : "w-full h-full pointer-events-none"}
                   allow="autoplay; encrypted-media"
                   allowFullScreen
                   frameBorder="0"
