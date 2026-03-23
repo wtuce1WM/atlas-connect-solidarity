@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation } from "lucide-react";
+import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation, Minimize2 } from "lucide-react";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
+import FullscreenLightbox from "@/components/FullscreenLightbox";
+import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 
