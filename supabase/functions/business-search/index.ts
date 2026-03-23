@@ -4632,6 +4632,7 @@ serve(async (req) => {
               }
             }
           }
+        }
       } catch (e) {
         console.warn("Destination enrichment failed:", e);
       }
