@@ -230,7 +230,63 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
         );
       })()}
 
-      <div className="relative w-full h-full">
+      {/* Mosaic overlay */}
+      {showMosaic && (
+        <div className="absolute inset-0 z-[76] bg-black overflow-y-auto animate-slide-in-left">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-1 p-1">
+            {[...allImages.map((url, i) => ({ kind: "image" as const, url, idx: i })), ...videos.map((url, i) => ({ kind: "video" as const, url, idx: allImages.length + i }))].map((item) => {
+              if (item.kind === "video") {
+                const info = getVideoInfo(item.url);
+                return (
+                  <div
+                    key={`v-${item.idx}`}
+                    className="relative aspect-square cursor-pointer overflow-hidden bg-black/40"
+                    onClick={() => {
+                      setFullscreenVideo(item.url);
+                    }}
+                  >
+                    {info.thumbnail ? (
+                      <img src={info.thumbnail} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-white/10 flex items-center justify-center">
+                        <span className="text-white text-2xl">▶</span>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                      <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
+                        <span className="text-white text-lg">▶</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+              return (
+                <div
+                  key={`i-${item.idx}`}
+                  className="relative aspect-square cursor-pointer overflow-hidden"
+                  onClick={() => setLightboxIndex(item.idx)}
+                >
+                  <img src={item.url} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Fullscreen lightbox from mosaic */}
+      {lightboxIndex !== null && (() => {
+        const lbItems: LightboxMediaItem[] = allImages.map((url) => ({ type: "image" as const, src: url, alt: destName }));
+        return (
+          <FullscreenLightbox
+            items={lbItems}
+            currentIndex={lightboxIndex}
+            onIndexChange={setLightboxIndex}
+            onClose={() => setLightboxIndex(null)}
+          />
+        );
+      })()}
+
         {/* Media background */}
         <div className="absolute inset-0">
           {currentMedia?.kind === "image" ? (
