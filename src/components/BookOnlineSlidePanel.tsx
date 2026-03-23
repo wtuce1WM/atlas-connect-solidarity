@@ -166,17 +166,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
     }
   }, [showDirections]);
 
-  useEffect(() => {
-    setShowDirections(false);
-    setCurrentMediaIndex(0);
-    setDescExpanded(true);
-    setReviewsFlipped(false);
-    setContactFlipped(false);
-    setDupContactFlipped(false);
-    setDupReviewsFlipped(false);
-    setTranslatedReviewTexts(null);
-    setIsTranslating(false);
-  }, [businessId]);
 
   useEffect(() => {
     const fetchData = async () => {
