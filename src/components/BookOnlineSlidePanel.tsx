@@ -529,7 +529,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     return (
                       <span
                         key={i}
-                        className="group relative inline-flex items-center justify-center text-base md:text-lg leading-none cursor-help"
+                        className="group relative inline-flex items-center justify-center text-base md:text-lg leading-none cursor-help shrink-0"
                         title={langAlt}
                         aria-label={langAlt}
                         tabIndex={0}
