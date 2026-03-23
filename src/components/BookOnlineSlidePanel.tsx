@@ -525,7 +525,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
             <div className="relative flex items-center justify-center pb-3 pointer-events-auto">
               {/* Language flags — absolute left */}
               {languages.length > 0 && (
-                <div className={`absolute left-0 flex flex-wrap items-center justify-center gap-0.5 md:gap-1.5 bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2 md:px-2.5 ${languages.length > 4 ? 'max-w-[4.5rem] md:max-w-none' : ''} md:rounded-full md:py-1`}>
+                <div className={`absolute left-0 z-20 flex flex-wrap items-center justify-center gap-0.5 md:gap-1.5 bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2 md:px-2.5 ${languages.length > 4 ? 'max-w-[4.5rem] md:max-w-none' : ''} md:rounded-full md:py-1`}>
                   {languages.map((lang, i) => {
                     const langAlt = getLangAlt(lang);
                     return (
@@ -539,7 +539,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                         {getLangFlag(lang)}
                         <span
                           role="tooltip"
-                          className="pointer-events-none absolute left-1/2 top-full z-40 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[10px] md:text-xs text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100"
+                          className="pointer-events-none absolute left-0 top-full z-50 mt-2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[10px] md:text-xs text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100"
                         >
                           {langAlt}
                         </span>
