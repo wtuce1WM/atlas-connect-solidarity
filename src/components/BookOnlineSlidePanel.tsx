@@ -968,13 +968,15 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
           {/* Destinations horizontal scroll */}
           {destinations.length > 0 && (
-            <div className="shrink-0 mt-6 pointer-events-auto">
+            <div className="shrink-0 mt-6 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6">
               <div className="flex justify-center mb-1.5">
                 <p className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10">
                   {business.name} vous emmène à :
                 </p>
               </div>
-              <div className="w-[calc(100%_+_1rem)] -mr-4 md:w-[calc(100%_+_1.5rem)] md:-mr-6 flex gap-2 overflow-x-auto pr-0 pb-1 scrollbar-hide">
+              <div className="flex gap-2 overflow-x-auto pr-0 pb-1 scrollbar-hide snap-x snap-mandatory">
+                {/* Spacer to preserve left margin after snap */}
+                <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
                 {destinations.map((dest, index) => {
                   const destImg = dest.images?.filter(Boolean)?.[0] || dest.image_url;
                   return (
