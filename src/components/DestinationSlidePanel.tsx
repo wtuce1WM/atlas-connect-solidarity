@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation } from "lucide-react";
+import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation, Minimize2 } from "lucide-react";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
+import FullscreenLightbox from "@/components/FullscreenLightbox";
+import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -35,6 +37,8 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
   const [fullscreenVideo, setFullscreenVideo] = useState<string | null>(null);
+  const [showMosaic, setShowMosaic] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (!showDirections) return;
@@ -126,11 +130,15 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
           </button>
           {totalMedia > 0 && (
             <button
-              onClick={() => setFullscreenVideo(mediaItems[0]?.url || null)}
+              onClick={() => setShowMosaic((p) => !p)}
               className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-              title="Voir tous les médias"
+              title={showMosaic ? "Fermer la mosaïque" : "Voir tous les médias"}
             >
-              <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert" />
+              {showMosaic ? (
+                <Minimize2 className="h-4 w-4" />
+              ) : (
+                <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert" />
+              )}
             </button>
           )}
         </div>
@@ -219,6 +227,63 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
               )}
             </div>
           </div>
+        );
+      })()}
+
+      {/* Mosaic overlay */}
+      {showMosaic && (
+        <div className="absolute inset-0 z-[76] bg-black overflow-y-auto animate-slide-in-left">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-1 p-1">
+            {[...allImages.map((url, i) => ({ kind: "image" as const, url, idx: i })), ...videos.map((url, i) => ({ kind: "video" as const, url, idx: allImages.length + i }))].map((item) => {
+              if (item.kind === "video") {
+                const info = getVideoInfo(item.url);
+                return (
+                  <div
+                    key={`v-${item.idx}`}
+                    className="relative aspect-square cursor-pointer overflow-hidden bg-black/40"
+                    onClick={() => {
+                      setFullscreenVideo(item.url);
+                    }}
+                  >
+                    {info.thumbnail ? (
+                      <img src={info.thumbnail} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-white/10 flex items-center justify-center">
+                        <span className="text-white text-2xl">▶</span>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                      <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
+                        <span className="text-white text-lg">▶</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+              return (
+                <div
+                  key={`i-${item.idx}`}
+                  className="relative aspect-square cursor-pointer overflow-hidden"
+                  onClick={() => setLightboxIndex(item.idx)}
+                >
+                  <img src={item.url} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Fullscreen lightbox from mosaic */}
+      {lightboxIndex !== null && (() => {
+        const lbItems: LightboxMediaItem[] = allImages.map((url) => ({ type: "image" as const, src: url, alt: destName }));
+        return (
+          <FullscreenLightbox
+            items={lbItems}
+            currentIndex={lightboxIndex}
+            onIndexChange={setLightboxIndex}
+            onClose={() => setLightboxIndex(null)}
+          />
         );
       })()}
 
