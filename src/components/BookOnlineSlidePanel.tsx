@@ -1241,6 +1241,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
         );
       })()}
     </div>
+  );
 };
 
 export default BookOnlineSlidePanel;
