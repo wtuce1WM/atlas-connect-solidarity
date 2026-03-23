@@ -19,7 +19,7 @@ interface MobileSearchOverlayProps {
   onVoiceStart?: () => void;
 }
 
-const MobileSearchOverlay = ({ open, onClose, onBusinessSelect, onSearch }: MobileSearchOverlayProps) => {
+const MobileSearchOverlay = ({ open, onClose, onBusinessSelect, onSearch, onVoiceStart }: MobileSearchOverlayProps) => {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
