@@ -111,6 +111,23 @@ Journal des décisions d'architecture, règles métier et apprentissages issus d
 
 ---
 
+## 🏗️ Architecture des composants partagés (panneaux latéraux)
+
+### Modules extraits pour réutilisation BookOnline ↔ WebOnly
+| Module | Fichier | Contenu |
+|---|---|---|
+| Drapeaux de langues | `src/lib/languageFlags.ts` | `LANG_FLAGS`, `LANG_ALT`, `getLangFlag()`, `getLangAlt()` |
+| Icône WhatsApp | `src/components/icons/WhatsAppIcon.tsx` | SVG réutilisable |
+| Parsing vidéo | `src/lib/videoEmbed.ts` | `getVideoEmbed()` — YouTube/Vimeo/fichier → embed URL + détection verticale |
+| Carte Contact flip | `src/components/cards/ContactFlipCard.tsx` | Contact + horaires (front) / Google Map (back) |
+| Carte Avis flip | `src/components/cards/ReviewsFlipCard.tsx` | Notes agrégées (front) / Avis traduits (back) |
+
+### Règles d'extraction
+- Les sous-composants de cartes gèrent leur propre état de flip (`flipped`) et de traduction — pas de remontée d'état au parent.
+- `getVideoEmbed` est une fonction pure (pas de hooks) définie hors composant pour éviter la recréation à chaque render.
+
+---
+
 ## 🔊 Lecture d'articles (concept — pas encore implémenté)
 
 ### Flux proposé : "Lire un article de presse"
