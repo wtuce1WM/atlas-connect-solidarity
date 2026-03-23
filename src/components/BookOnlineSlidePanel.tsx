@@ -454,10 +454,21 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
         <div className="absolute inset-0">
           {currentMedia?.kind === "video" && videoInfo && !showDirections ? (
             videoInfo.type === "file" ? (
-              <video ref={videoRef} key={currentMedia.url} src={videoInfo.embedUrl} autoPlay playsInline controls className="w-full h-full object-contain bg-black" onEnded={() => totalMedia > 1 && goMedia(1)} />
+              <video
+                ref={videoRef}
+                key={currentMedia.url}
+                src={videoInfo.embedUrl}
+                autoPlay playsInline controls
+                className={`w-full h-full bg-black ${isFileVideoVertical ? "object-cover" : "object-contain"}`}
+                onEnded={() => totalMedia > 1 && goMedia(1)}
+                onLoadedMetadata={(e) => {
+                  const v = e.currentTarget;
+                  setIsFileVideoVertical(v.videoHeight > v.videoWidth);
+                }}
+              />
             ) : (
               <div className={`w-full h-full overflow-hidden bg-black ${videoInfo.type === "youtube" ? "relative" : ""}`}>
-                {videoInfo.type === "youtube" && (
+                {videoInfo.type === "youtube" && !isVerticalVideo && (
                   <>
                     {/* Hide top bar */}
                     <div className="absolute inset-x-0 top-0 h-16 bg-black z-10" />
@@ -471,7 +482,11 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                   ref={iframeRef}
                   key={currentMedia.url}
                   src={videoInfo.embedUrl}
-                  className={videoInfo.type === "youtube" ? "w-full h-[calc(100%+80px)] -mt-16 -mb-[46px]" : "w-full h-full pointer-events-none"}
+                  className={videoInfo.type === "youtube"
+                    ? isVerticalVideo
+                      ? "w-full h-full"
+                      : "w-full h-[calc(100%+80px)] -mt-16 -mb-[46px]"
+                    : "w-full h-full pointer-events-none"}
                   allow="autoplay; encrypted-media"
                   allowFullScreen
                   frameBorder="0"
