@@ -700,7 +700,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                               onClick={() => setDupContactFlipped(true)}
                               className="flex items-center justify-center w-full mb-1"
                             >
-                              <MapPin className="h-10 w-10 drop-shadow-lg hover:scale-110 transition-transform" style={{ color: "#C04F17" }} />
+                              <MapPin className="h-10 w-10 drop-shadow-lg hover:scale-110 transition-transform text-white" />
                             </button>
                           )}
                           {business.address && (
