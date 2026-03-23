@@ -244,7 +244,11 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
       {showMosaic && (
         <div className="absolute inset-0 z-[76] bg-black overflow-y-auto animate-slide-in-left">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-1 p-1">
-            {[...allImages.map((url, i) => ({ kind: "image" as const, url, idx: i })), ...videos.map((url, i) => ({ kind: "video" as const, url, idx: allImages.length + i }))].map((item) => {
+            {[
+              ...allImages.map((url, i) => ({ kind: "image" as const, url, idx: i })),
+              ...videos.map((url, i) => ({ kind: "video" as const, url, idx: allImages.length + i })),
+              ...(matterportUrl ? [{ kind: "matterport" as const, url: matterportUrl, idx: allImages.length + videos.length }] : []),
+            ].map((item) => {
               if (item.kind === "video") {
                 const info = getVideoInfo(item.url);
                 return (
@@ -252,7 +256,9 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                     key={`v-${item.idx}`}
                     className="relative aspect-square cursor-pointer overflow-hidden bg-black/40"
                     onClick={() => {
-                      setFullscreenVideo(item.url);
+                      // Open in lightbox at the correct index
+                      const lbIdx = allImages.length + videos.indexOf(item.url);
+                      setLightboxIndex(lbIdx);
                     }}
                   >
                     {info.thumbnail ? (
@@ -266,6 +272,23 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                       <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
                         <span className="text-white text-lg">▶</span>
                       </div>
+                    </div>
+                  </div>
+                );
+              }
+              if (item.kind === "matterport") {
+                return (
+                  <div
+                    key="matterport"
+                    className="relative aspect-square cursor-pointer overflow-hidden bg-black/40"
+                    onClick={() => {
+                      const lbIdx = allImages.length + videos.length;
+                      setLightboxIndex(lbIdx);
+                    }}
+                  >
+                    <div className="w-full h-full bg-white/10 flex flex-col items-center justify-center gap-2">
+                      <span className="text-white text-3xl">🏠</span>
+                      <span className="text-white/80 text-xs font-medium">Visite 3D</span>
                     </div>
                   </div>
                 );
@@ -285,17 +308,14 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
       )}
 
       {/* Fullscreen lightbox from mosaic */}
-      {lightboxIndex !== null && (() => {
-        const lbItems: LightboxMediaItem[] = allImages.map((url) => ({ type: "image" as const, src: url, alt: destName }));
-        return (
-          <FullscreenLightbox
-            items={lbItems}
-            currentIndex={lightboxIndex}
-            onIndexChange={setLightboxIndex}
-            onClose={() => setLightboxIndex(null)}
-          />
-        );
-      })()}
+      {lightboxIndex !== null && (
+        <FullscreenLightbox
+          items={lightboxItems}
+          currentIndex={lightboxIndex}
+          onIndexChange={setLightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
+      )}
 
       <div className="relative w-full h-full">
         {/* Media background */}
