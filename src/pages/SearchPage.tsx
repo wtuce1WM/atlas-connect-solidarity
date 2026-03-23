@@ -4626,7 +4626,7 @@ const SearchPage = () => {
             <SlidePanelHeader
               onClose={handleCompactPanelClose}
               isExpanded={isCompactPanelWebOnly ? undefined : isCompactPanelExpanded}
-              onToggleExpand={isCompactPanelWebOnly ? undefined : (compactBusinessImageCount > 5 ? () => setIsCompactPanelExpanded(prev => !prev) : undefined)}
+              onToggleExpand={(isCompactPanelWebOnly || isCompactPanelBookOnline) ? undefined : (compactBusinessImageCount > 5 ? () => setIsCompactPanelExpanded(prev => !prev) : undefined)}
             />
             <div className={`flex-1 min-h-0 ${isCompactPanelWebOnly ? "overflow-hidden" : ""}`}>
               {isCompactPanelBookOnline && !isCompactPanelExpanded ? (
