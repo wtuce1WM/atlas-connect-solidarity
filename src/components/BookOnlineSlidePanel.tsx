@@ -225,7 +225,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
     fetchData();
   }, [businessId]);
 
-  const bookUrl = business?.online_shop_url || business?.website || null;
+  const bookUrl = business?.reserve_now_url || business?.website || null;
   const videos = webOnlyData?.videos?.filter(Boolean) || [];
   const woImages = webOnlyData?.images?.filter(Boolean) || [];
   const images = woImages.length > 0 ? woImages : (business?.images?.filter(Boolean) || []);
