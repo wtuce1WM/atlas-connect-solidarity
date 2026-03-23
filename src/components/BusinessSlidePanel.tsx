@@ -1252,7 +1252,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
         toolbarCenterPortal
       )}
       {/* Portal media button into left of fixed bar */}
-      {toolbarLeftPortal && mediaCount > 0 && createPortal(
+      {toolbarLeftPortal && mediaCount >= 5 && createPortal(
         <button
           onClick={() => { onToggleExpand?.(); }}
           className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background shadow-md hover:bg-foreground/90 transition-colors"
