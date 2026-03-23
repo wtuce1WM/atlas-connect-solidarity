@@ -688,7 +688,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                     >
                       {/* FRONT — Contact info */}
                       <div
-                        className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto border border-white/10"
+                        className="absolute inset-0 rounded-2xl p-4 text-white overflow-y-auto"
                         style={{ backfaceVisibility: 'hidden' }}
                       >
                         <div className="space-y-2.5 text-sm">
