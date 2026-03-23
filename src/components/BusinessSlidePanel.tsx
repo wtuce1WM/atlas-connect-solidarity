@@ -1006,15 +1006,20 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
           onClose={() => { setAvailabilityOverlayCtx(null); setIsBookingOpen(false); }}
           onSelectBusiness={(id) => { setInternalBusinessId(id); }}
           onOpenFallbackPanel={(data) => {
+            // Show a black transition overlay immediately to hide the flash
+            setShowTransitionOverlay(true);
             setFallbackPanelData(data);
             setSelectedFallbackHotelId(null);
             setFallbackHiddenOnMobile(false);
-            // Delay closing overlay so fallback panel (z-[220]) renders and paints on top first,
-            // avoiding a brief flash of the underlying business detail on mobile/tablet.
-            setTimeout(() => {
-              setAvailabilityOverlayCtx(null);
-              setIsBookingOpen(false);
-            }, 400);
+            // Close the availability overlay behind the black screen
+            setAvailabilityOverlayCtx(null);
+            setIsBookingOpen(false);
+            // Remove the black overlay after the fallback panel has rendered
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                setShowTransitionOverlay(false);
+              });
+            });
           }}
         />
       )}
