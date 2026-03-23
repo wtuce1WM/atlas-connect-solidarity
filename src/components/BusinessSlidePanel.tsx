@@ -258,10 +258,10 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
   useEffect(() => { fallbackDataRef.current = fallbackPanelData; }, [fallbackPanelData]);
 
   // Keep black transition overlay visible long enough on mobile/tablet
-  // to fully cover the handoff from availability overlay to fallback panel.
+  // to fully cover the handoff from availability overlay to fallback panel,
+  // OR when switching between hotels inside the fallback panel.
   useEffect(() => {
     if (!showTransitionOverlay) return;
-    if (!fallbackPanelData || fallbackHiddenOnMobile) return;
     if (typeof window !== "undefined" && window.innerWidth >= 1024) {
       setShowTransitionOverlay(false);
       return;
@@ -269,10 +269,10 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
 
     const timer = window.setTimeout(() => {
       setShowTransitionOverlay(false);
-    }, 220);
+    }, 300);
 
     return () => window.clearTimeout(timer);
-  }, [showTransitionOverlay, fallbackPanelData, fallbackHiddenOnMobile]);
+  }, [showTransitionOverlay]);
 
   const [selectedFallbackHotelId, setSelectedFallbackHotelId] = useState<string | null>(null);
   const [pressEntries, setPressEntries] = useState<{ name: string; logo_url: string; url: string; language: string }[]>([]);
