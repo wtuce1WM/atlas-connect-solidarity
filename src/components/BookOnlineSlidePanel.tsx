@@ -412,7 +412,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
         <div className="absolute inset-0">
           {currentMedia?.kind === "video" && videoInfo && !showDirections ? (
             videoInfo.type === "file" ? (
-              <video ref={videoRef} key={currentMedia.url} src={videoInfo.embedUrl} autoPlay loop playsInline controls className="w-full h-full object-contain bg-black" />
+              <video ref={videoRef} key={currentMedia.url} src={videoInfo.embedUrl} autoPlay playsInline controls className="w-full h-full object-contain bg-black" onEnded={() => totalMedia > 1 && goMedia(1)} />
             ) : (
               <div className={`w-full h-full overflow-hidden bg-black ${videoInfo.type === "youtube" ? "relative" : ""}`}>
                 {videoInfo.type === "youtube" && (
