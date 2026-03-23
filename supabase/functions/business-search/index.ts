@@ -4538,24 +4538,24 @@ serve(async (req) => {
             const kws = (dest.keywords || []).map((k: string) => stripAccentsGlobal(k.toLowerCase()));
             const allTerms = [...names, ...kws];
             
-            // Check if any query word matches a destination name/keyword (word boundary)
+            // Check if any query word matches a destination name/keyword
             const matched = allTerms.some(term => {
               const termWords = term.split(/\s+/);
-              // Single word: require exact match or high overlap (>=80% of longer string)
+              // Single word term
               if (termWords.length === 1) return queryWords.some(qw => {
                 if (qw === term) return true;
-                // Prevent short words (<=3 chars) from substring-matching longer terms (e.g. "mer" matching "merzouga")
+                // Substring match only if BOTH words are > 3 chars and the shorter is >= 80% of the longer
+                if (qw.length <= 3 || term.length <= 3) return false;
                 const shorter = qw.length <= term.length ? qw : term;
                 const longer = qw.length <= term.length ? term : qw;
-                if (shorter.length <= 3) return false;
                 return longer.includes(shorter) && shorter.length / longer.length >= 0.8;
               });
-              // Multi-word: all words must be present with same strict matching
+              // Multi-word term: all term words must match a query word (exact only for short words)
               return termWords.every(tw => queryWords.some(qw => {
                 if (qw === tw) return true;
+                if (qw.length <= 3 || tw.length <= 3) return false;
                 const shorter = qw.length <= tw.length ? qw : tw;
                 const longer = qw.length <= tw.length ? tw : qw;
-                if (shorter.length <= 3) return false;
                 return longer.includes(shorter) && shorter.length / longer.length >= 0.8;
               }));
             });
