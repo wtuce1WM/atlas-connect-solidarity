@@ -131,7 +131,14 @@ const MobileSearchOverlay = ({ open, onClose, onBusinessSelect, onSearch, onVoic
         {/* Mic button */}
         <button
           type="button"
-          onClick={voice.toggleRecording}
+          onClick={() => {
+            if (onVoiceStart) {
+              onClose();
+              setTimeout(() => onVoiceStart(), 150);
+            } else {
+              voice.toggleRecording();
+            }
+          }}
           disabled={voice.status === "processing"}
           className={`flex items-center justify-center w-10 h-10 rounded-xl shrink-0 transition-all ${
             voice.status === "recording"
