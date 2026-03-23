@@ -136,7 +136,7 @@ interface Destination {
   images: string[] | null;
 }
 
-const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps) => {
+const BookOnlineSlidePanel = ({ businessId, onClose, onToggleExpand }: BookOnlineSlidePanelProps) => {
   const { language } = useLanguage();
   const [business, setBusiness] = useState<BookOnlineBusiness | null>(null);
   const [webOnlyData, setWebOnlyData] = useState<WebOnlyData | null>(null);
