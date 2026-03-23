@@ -243,34 +243,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
       { name: "TourRadar", rating: business.tourradar_rating, count: business.tourradar_review_count, url: business.tourradar_url },
     ];
   }, [business]);
-  const hasExpandableContent = !!(woDescription || hasOpeningHours);
   const languages = business?.languages?.filter(Boolean) || [];
-
-  const { avgOn20, totalReviewCount } = useMemo(() => {
-    if (!business) return { avgOn20: null, totalReviewCount: 0 };
-    const sources = collectRatingSources(business);
-    const total = sources.reduce((s, r) => s + r.count, 0);
-    const computed = computeWeightedRatingOn20(sources);
-    return { avgOn20: computed, totalReviewCount: total };
-  }, [business]);
-
-  const hasContactCard = !!(business?.phone || business?.whatsapp || business?.email || business?.website || business?.address);
-  const hasReviewsCard = avgOn20 !== null && avgOn20 > 0;
-  const hasTextCard = !!woDescription;
-  const visibleCardsCount = Number(hasTextCard) + Number(hasContactCard) + Number(hasReviewsCard);
-  const cardWidthClass =
-    visibleCardsCount <= 1
-      ? "w-full md:w-full"
-      : visibleCardsCount === 2
-        ? "w-[calc(50%_-_0.375rem)] md:w-[calc(50%_-_0.375rem)]"
-        : "w-[85%] md:w-[45%]";
-  const cardsRailClass = visibleCardsCount >= 3
-    ? "w-[calc(100%_+_1rem)] -mr-4 md:w-[calc(100%_+_1.5rem)] md:-mr-6"
-    : "w-full";
-  const cardsTrackClass = visibleCardsCount >= 3 ? "flex w-max gap-3" : "flex w-full gap-3";
-  const textCardSnapClass = !hasContactCard && !hasReviewsCard ? "snap-end" : "snap-start";
-  const contactCardSnapClass = hasContactCard && !hasReviewsCard ? "snap-end" : "snap-start";
-  const reviewsCardSnapClass = "snap-end";
 
   // Hook text for current language
   const hookText = useMemo(() => {
