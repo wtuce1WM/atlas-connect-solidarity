@@ -4248,7 +4248,7 @@ const SearchPage = () => {
       )}
 
       {/* Floating Search Bar */}
-      <div className={`fixed bottom-0 left-0 right-0 py-3 px-4 transition-transform duration-300 ${((isCompactPanelWebOnly || isCompactPanelBookOnline) && compactPanelBusiness) || (isSubDesktop && showMobileMap) ? "translate-y-full" : ""} ${isCompactPanelExpanded ? "z-[190]" : "z-[210]"}`}>
+      <div className={`fixed bottom-0 left-0 py-3 px-4 transition-transform duration-300 ${hasKnownLocation && !compactPanelBusiness ? "w-1/2" : "right-0"} ${((isCompactPanelWebOnly || isCompactPanelBookOnline) && compactPanelBusiness) || (isSubDesktop && showMobileMap) ? "translate-y-full" : ""} ${isCompactPanelExpanded ? "z-[190]" : "z-[210]"}`}>
         <div className="max-w-2xl mx-auto">
           {/* Desktop: normal inline SearchInput — only mounted on desktop to avoid duplicate hooks */}
           {!isMobile && (
