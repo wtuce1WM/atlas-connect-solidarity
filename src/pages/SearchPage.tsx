@@ -4320,6 +4320,7 @@ const SearchPage = () => {
             setIsGeoCityAutoSelected(false);
             setSearchParams(params);
           }}
+          onVoiceStart={() => toggleRecording()}
         />
       )}
 
