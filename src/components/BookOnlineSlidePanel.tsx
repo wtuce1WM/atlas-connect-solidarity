@@ -561,7 +561,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
         >
           {/* Single row: flags (left) — Masquer button (center) — media counter (right) */}
           {!cardsHidden && (
-            <div className="relative flex items-center justify-center pb-3 pointer-events-auto">
+            <div key={businessId + '-topbar'} className="relative flex items-center justify-center pb-3 pointer-events-auto animate-[slide-in-top_0.35s_ease-out_both]">
               {/* Language flags — absolute left */}
               {languages.length > 0 && (
                 <div className={`absolute left-0 z-20 flex flex-wrap items-center justify-center gap-0.5 md:gap-1.5 bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2 md:px-2.5 ${languages.length > 4 ? 'max-w-[4.5rem] md:max-w-none' : ''} md:rounded-full md:py-1`}>
