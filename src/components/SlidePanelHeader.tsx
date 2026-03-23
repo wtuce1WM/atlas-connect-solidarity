@@ -52,7 +52,7 @@ const SlidePanelHeader = ({
           aria-label={isExpanded ? "Réduire le panneau" : "Agrandir le panneau"}
           style={{ display: onToggleExpand ? undefined : "none" }}
         >
-          {isExpanded ? <Minimize2 className="h-4 w-4" /> : <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 dark:invert" />}
+          {isExpanded ? <Minimize2 className="h-4 w-4" /> : <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert dark:invert-0" />}
         </button>
       </div>
       {centerContent ? (
