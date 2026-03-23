@@ -766,8 +766,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
             <div className="shrink-0 py-2 flex flex-col items-center gap-2 pointer-events-auto">
               {bookUrl && (() => {
                 const fullUrl = bookUrl.startsWith("http") ? bookUrl : `https://${bookUrl}`;
-                const isShopUrl = !!business.online_shop_url;
-                const forceExternal = isShopUrl ? business.online_shop_force_external : business.website_force_external;
+                const isReserveUrl = !!business.reserve_now_url;
+                const forceExternal = isReserveUrl ? business.reserve_now_force_external : business.website_force_external;
                 
                 if (forceExternal) {
                   return (
