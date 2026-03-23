@@ -523,7 +523,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
             <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex items-center justify-center pb-3 pointer-events-auto animate-[slide-in-top_0.35s_ease-out_both]">
               {/* Language flags — absolute left */}
               {languages.length > 0 && (
-                 <div className={`absolute left-0 z-50 flex flex-wrap items-center justify-center gap-0.5 md:gap-1.5 bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2 md:px-2.5 ${languages.length > 4 ? 'max-w-[4.5rem] md:max-w-none' : ''} md:rounded-full md:py-1`}>
+                 <div className={`absolute left-0 z-50 flex items-center gap-0.5 md:gap-1.5 bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2 md:px-2.5 md:rounded-full md:py-1 ${languages.length > 5 ? 'max-w-[5.5rem] overflow-x-auto scrollbar-none' : ''} md:flex-wrap md:justify-center md:max-w-none md:overflow-visible ${languages.length > 4 ? 'md:max-w-none' : ''}`}>
                   {languages.map((lang, i) => {
                     const langAlt = getLangAlt(lang);
                     return (
