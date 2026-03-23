@@ -661,7 +661,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           </div>
 
           {/* Info Carousel — above destinations */}
-          <div className="shrink-0 w-[calc(100%_+_2rem)] -ml-4 -mr-4 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto">
+          <div className="shrink-0 w-[calc(100%_+_1.5rem)] -ml-4 -mr-2 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto">
             <div className="flex w-max gap-2">
               {/* Spacer to preserve left margin after snap */}
               <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
