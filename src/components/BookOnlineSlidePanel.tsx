@@ -743,8 +743,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                               {business.is_open_24h ? (
                                 <p className="text-white/80 text-sm">Ouvert 24h/24</p>
                               ) : business.opening_hours ? (
-                                <div className="space-y-0.5">
-                                  {(() => {
+                                  (() => {
                                     const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
                                     const dayNames: Record<string, string> = { monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim" };
                                     const displayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
@@ -784,7 +783,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                                         </div>
                                       </>
                                     );
-                                  })()}
+                                  })()
                               ) : null}
                             </div>
                           )}
