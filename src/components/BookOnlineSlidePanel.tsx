@@ -664,7 +664,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           <div className="shrink-0 w-[calc(100%_+_2rem)] -ml-4 -mr-4 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto">
             <div className="flex w-max gap-2">
               {/* Spacer to preserve left margin after snap */}
-              <div className="snap-start shrink-0 w-4 md:w-6" aria-hidden="true" />
+              <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
               {/* Card 1: Texte Web only */}
               {woDescription && (
                 <div className="snap-start shrink-0 w-[30rem] h-[18em] md:h-[24em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10"
