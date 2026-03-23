@@ -163,7 +163,14 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   const touchStartRef = useRef<{ y: number; time: number } | null>(null);
   const cardsHiddenRef = useRef(false);
   const [showHook, setShowHook] = useState(false);
-  
+
+  // Reset cards visibility when switching business
+  useEffect(() => {
+    setCardsHidden(false);
+    cardsHiddenRef.current = false;
+    setDragOffsetY(0);
+  }, [businessId]);
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const iframeSrcRef = useRef<string>("");
