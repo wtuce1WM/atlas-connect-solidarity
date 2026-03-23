@@ -2170,7 +2170,7 @@ const SearchPage = () => {
   const showPompiers = activeEasterEggNames.has("Pompiers") && isPompiersQuery(spokenText || searchQuery);
 
   return (
-    <div className="min-h-screen bg-white overflow-x-hidden">
+    <div className="min-h-screen bg-white" style={{ overflowX: 'clip' }}>
       <Header />
 
       {/* Shared LocationPickerDialog — accessible from all tabs */}
