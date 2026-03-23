@@ -215,7 +215,7 @@ const StaffBackoffice = () => {
     
     const duplicatedBusiness = {
       ...businessData,
-      name: "",
+      name: business.name,
       is_active: false,
       slug: tempSlug,
     };
