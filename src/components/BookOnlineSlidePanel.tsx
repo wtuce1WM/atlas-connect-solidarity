@@ -772,8 +772,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                                             </div>
                                           );
                                         })}
-                                        <div className="mt-3 flex justify-center">
-                                          <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider ${openNow ? 'bg-[#25D366] text-white' : 'bg-[#C04F17] text-white'}`}>
+                                        <div className="mt-4 flex justify-center">
+                                          <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider ${openNow ? 'bg-[#25D366] text-white' : 'bg-black text-white'}`}>
                                             <span className={`w-1.5 h-1.5 rounded-full bg-white/70`} />
                                             {openNow
                                               ? (language === "en" ? "Open" : language === "ar" ? "مفتوح" : "Ouvert")
