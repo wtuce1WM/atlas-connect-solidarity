@@ -64,6 +64,7 @@ const getLangAlt = (lang: string) => {
 interface BookOnlineSlidePanelProps {
   businessId: string;
   onClose: () => void;
+  onToggleExpand?: () => void;
 }
 
 interface BookOnlineBusiness {
@@ -135,7 +136,7 @@ interface Destination {
   images: string[] | null;
 }
 
-const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps) => {
+const BookOnlineSlidePanel = ({ businessId, onClose, onToggleExpand }: BookOnlineSlidePanelProps) => {
   const { language } = useLanguage();
   const [business, setBusiness] = useState<BookOnlineBusiness | null>(null);
   const [webOnlyData, setWebOnlyData] = useState<WebOnlyData | null>(null);
@@ -408,7 +409,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
       {/* Portal media button into left of fixed bar (next to close) */}
       {toolbarLeftPortal && totalMedia > 0 && createPortal(
         <button
-          onClick={() => { setLightboxIndex(0); setIsLightboxOpen(true); }}
+          onClick={() => { onToggleExpand?.(); }}
           className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background shadow-md hover:bg-foreground/90 transition-colors"
           title="Voir tous les médias"
         >
