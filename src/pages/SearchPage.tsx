@@ -1314,7 +1314,7 @@ const SearchPage = () => {
       filtered = filtered.filter(b => {
         if (b.city === selectedCity) return true;
         if (selectedCityId && b.zone_city_ids?.includes(selectedCityId) && b.is_visible_locale) return true;
-        if (searchLevel === "destination" && b.destination_enriched) return true;
+        if (b.destination_enriched) return true;
         return false;
       });
     }
