@@ -345,7 +345,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   return (
     <div className="h-full overflow-hidden overscroll-none bg-black">
       {/* Portal media button into left of fixed bar (next to close) */}
-      {toolbarLeftPortal && totalMedia > 0 && createPortal(
+      {toolbarLeftPortal && images.length >= 5 && createPortal(
         <button
           onClick={() => { onToggleExpand?.(); }}
           className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background shadow-md hover:bg-foreground/90 transition-colors"
