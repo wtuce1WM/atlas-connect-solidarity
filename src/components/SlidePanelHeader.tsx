@@ -1,5 +1,4 @@
-import { X, Minimize2 } from "lucide-react";
-import iconePhotoVideo from "@/assets/icone_photo_video.png";
+import { X } from "lucide-react";
 
 interface SlidePanelHeaderProps {
   onClose: () => void;
