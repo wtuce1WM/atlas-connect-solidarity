@@ -130,11 +130,15 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
           </button>
           {totalMedia > 0 && (
             <button
-              onClick={() => setFullscreenVideo(mediaItems[0]?.url || null)}
+              onClick={() => setShowMosaic((p) => !p)}
               className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-              title="Voir tous les médias"
+              title={showMosaic ? "Fermer la mosaïque" : "Voir tous les médias"}
             >
-              <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert" />
+              {showMosaic ? (
+                <Minimize2 className="h-4 w-4" />
+              ) : (
+                <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert" />
+              )}
             </button>
           )}
         </div>
