@@ -256,6 +256,24 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
   // Keep ref in sync for imperative close check
   useEffect(() => { fallbackDataRef.current = fallbackPanelData; }, [fallbackPanelData]);
+
+  // Keep black transition overlay visible long enough on mobile/tablet
+  // to fully cover the handoff from availability overlay to fallback panel.
+  useEffect(() => {
+    if (!showTransitionOverlay) return;
+    if (!fallbackPanelData || fallbackHiddenOnMobile) return;
+    if (typeof window !== "undefined" && window.innerWidth >= 1024) {
+      setShowTransitionOverlay(false);
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setShowTransitionOverlay(false);
+    }, 220);
+
+    return () => window.clearTimeout(timer);
+  }, [showTransitionOverlay, fallbackPanelData, fallbackHiddenOnMobile]);
+
   const [selectedFallbackHotelId, setSelectedFallbackHotelId] = useState<string | null>(null);
   const [pressEntries, setPressEntries] = useState<{ name: string; logo_url: string; url: string; language: string }[]>([]);
   const [articlePreview, setArticlePreview] = useState<{ title: string; summary: string; screenshot: string; url: string; name: string; publishedDate?: string } | null>(null);
