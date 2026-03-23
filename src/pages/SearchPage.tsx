@@ -1296,7 +1296,15 @@ const SearchPage = () => {
       filtered = [...serviceFilterBusinesses];
     } else if (selectedSubcategoryFilter && subcategoryFilterBusinesses.length > 0) {
       // When a subcategory is selected, use direct DB results to get ALL matches
-      filtered = [...subcategoryFilterBusinesses];
+      // but merge with API results when destination enrichment added businesses
+      // (those businesses may not match the subcategory but are relevant via destination)
+      if (searchLevel === "destination" && allBusinesses.length > 0) {
+        const ids = new Set(subcategoryFilterBusinesses.map(b => b.id));
+        const extras = allBusinesses.filter(b => !ids.has(b.id));
+        filtered = [...subcategoryFilterBusinesses, ...extras];
+      } else {
+        filtered = [...subcategoryFilterBusinesses];
+      }
     } else {
       filtered = [...allBusinesses];
     }
