@@ -4251,8 +4251,6 @@ const SearchPage = () => {
       <div className={`fixed bottom-0 bg-white border-t border-border pt-3 py-3 px-4 md:px-4 transition-transform duration-300 ${hasKnownLocation ? "left-0 w-1/2" : "left-0 right-0"} ${((isCompactPanelWebOnly || isCompactPanelBookOnline) && compactPanelBusiness) || (isSubDesktop && showMobileMap) ? "translate-y-full" : ""} ${isCompactPanelExpanded ? "z-[190]" : "z-[210]"}`}>
         <div className="max-w-2xl mx-auto">
           <div>
-          {/* Desktop: normal inline SearchInput — only mounted on desktop to avoid duplicate hooks */}
-          {!isMobile && (
             <SearchInput
               variant="floating"
               value={inputValue}
@@ -4280,19 +4278,6 @@ const SearchPage = () => {
               }}
               voiceControl={{ status: voiceStatus, toggleRecording, liveTranscript }}
             />
-          )}
-
-          {/* Mobile: fake input that opens fullscreen overlay */}
-          {isMobile && (
-            <button
-              type="button"
-              onClick={() => setMobileSearchOverlayOpen(true)}
-              className="w-full flex items-center gap-3 px-4 py-3.5 bg-background border border-border rounded-xl shadow-sm text-left"
-            >
-              <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-              <span className="text-sm text-muted-foreground truncate">{inputValue || (language === "fr" ? "Rechercher un établissement..." : language === "ar" ? "ابحث عن مؤسسة..." : "Search for a business...")}</span>
-            </button>
-          )}
           </div>
         </div>
       </div>
