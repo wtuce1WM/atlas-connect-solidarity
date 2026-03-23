@@ -351,19 +351,25 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const getVideoEmbed = (url: string) => {
     const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
     if (ytMatch) {
+      const isShort = /\/shorts\//.test(url);
       return {
         type: "youtube" as const,
         embedUrl: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=0&rel=0&controls=1&modestbranding=1&playsinline=1&iv_load_policy=3&cc_load_policy=0&disablekb=0&fs=0&showinfo=0&autohide=1&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`,
+        isVertical: isShort,
       };
     }
     const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
     if (vimeoMatch) {
-      return { type: "vimeo" as const, embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=1&loop=0` };
+      return { type: "vimeo" as const, embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=1&loop=0`, isVertical: false };
     }
-    return { type: "file" as const, embedUrl: url };
+    return { type: "file" as const, embedUrl: url, isVertical: false };
   };
 
   const videoInfo = currentMedia?.kind === "video" ? getVideoEmbed(currentMedia.url) : null;
+
+  // Detect vertical orientation for file videos
+  const [isFileVideoVertical, setIsFileVideoVertical] = useState(false);
+  const isVerticalVideo = videoInfo ? (videoInfo.type === "file" ? isFileVideoVertical : videoInfo.isVertical) : false;
 
   // Listen for YouTube iframe API "ended" state to advance to next media
   useEffect(() => {
@@ -448,10 +454,21 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
         <div className="absolute inset-0">
           {currentMedia?.kind === "video" && videoInfo && !showDirections ? (
             videoInfo.type === "file" ? (
-              <video ref={videoRef} key={currentMedia.url} src={videoInfo.embedUrl} autoPlay playsInline controls className="w-full h-full object-contain bg-black" onEnded={() => totalMedia > 1 && goMedia(1)} />
+              <video
+                ref={videoRef}
+                key={currentMedia.url}
+                src={videoInfo.embedUrl}
+                autoPlay playsInline controls
+                className={`w-full h-full bg-black ${isFileVideoVertical ? "object-cover" : "object-contain"}`}
+                onEnded={() => totalMedia > 1 && goMedia(1)}
+                onLoadedMetadata={(e) => {
+                  const v = e.currentTarget;
+                  setIsFileVideoVertical(v.videoHeight > v.videoWidth);
+                }}
+              />
             ) : (
               <div className={`w-full h-full overflow-hidden bg-black ${videoInfo.type === "youtube" ? "relative" : ""}`}>
-                {videoInfo.type === "youtube" && (
+                {videoInfo.type === "youtube" && !isVerticalVideo && (
                   <>
                     {/* Hide top bar */}
                     <div className="absolute inset-x-0 top-0 h-16 bg-black z-10" />
@@ -465,7 +482,11 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                   ref={iframeRef}
                   key={currentMedia.url}
                   src={videoInfo.embedUrl}
-                  className={videoInfo.type === "youtube" ? "w-full h-[calc(100%+80px)] -mt-16 -mb-[46px]" : "w-full h-full pointer-events-none"}
+                  className={videoInfo.type === "youtube"
+                    ? isVerticalVideo
+                      ? "w-full h-full"
+                      : "w-full h-[calc(100%+80px)] -mt-16 -mb-[46px]"
+                    : "w-full h-full pointer-events-none"}
                   allow="autoplay; encrypted-media"
                   allowFullScreen
                   frameBorder="0"
