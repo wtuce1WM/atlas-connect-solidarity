@@ -718,6 +718,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
                   />
                 )}
+                <div className="shrink-0 w-4" aria-hidden="true" />
+            </div>
           </div>
 
           {/* Destinations horizontal scroll */}
