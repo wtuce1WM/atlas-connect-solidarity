@@ -106,7 +106,7 @@ const BookingOverlay = ({ bookingUrl, onClose }: BookingOverlayProps) => {
   if (iframeBlocked) return null;
 
   return (
-    <div className="absolute inset-0 z-[60] bg-white flex flex-col animate-fade-in">
+    <div className="absolute inset-0 z-[60] bg-white flex flex-col animate-slide-down-from-top">
       <div className="flex items-center justify-between px-4 py-2 border-b bg-white">
         <div className="flex items-center gap-3">
           <button
