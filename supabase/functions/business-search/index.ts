@@ -4517,8 +4517,8 @@ serve(async (req) => {
       }
     }
 
-    // ── Destination enrichment: merge businesses linked to searchable destinations ──
-    if (effectiveQuery) {
+    // ── Destination enrichment: merge businesses linked to searchable destinations (only when no city is explicitly resolved) ──
+    if (effectiveQuery && !effectiveCity) {
       try {
         const queryLower = stripAccentsGlobal(effectiveQuery.toLowerCase());
         const queryWords = queryLower.split(/\s+/).filter(w => w.length > 2);
