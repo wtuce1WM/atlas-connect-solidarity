@@ -4541,10 +4541,23 @@ serve(async (req) => {
             // Check if any query word matches a destination name/keyword (word boundary)
             const matched = allTerms.some(term => {
               const termWords = term.split(/\s+/);
-              // Single word: check if query contains it
-              if (termWords.length === 1) return queryWords.some(qw => qw.includes(term) || term.includes(qw));
-              // Multi-word: all words must be present
-              return termWords.every(tw => queryWords.some(qw => qw.includes(tw) || tw.includes(qw)));
+              // Single word: require exact match or high overlap (>=80% of longer string)
+              if (termWords.length === 1) return queryWords.some(qw => {
+                if (qw === term) return true;
+                // Prevent short words (<=3 chars) from substring-matching longer terms (e.g. "mer" matching "merzouga")
+                const shorter = qw.length <= term.length ? qw : term;
+                const longer = qw.length <= term.length ? term : qw;
+                if (shorter.length <= 3) return false;
+                return longer.includes(shorter) && shorter.length / longer.length >= 0.8;
+              });
+              // Multi-word: all words must be present with same strict matching
+              return termWords.every(tw => queryWords.some(qw => {
+                if (qw === tw) return true;
+                const shorter = qw.length <= tw.length ? qw : tw;
+                const longer = qw.length <= tw.length ? tw : qw;
+                if (shorter.length <= 3) return false;
+                return longer.includes(shorter) && shorter.length / longer.length >= 0.8;
+              }));
             });
             
             if (matched) {
