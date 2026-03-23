@@ -119,11 +119,14 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const cardsHiddenRef = useRef(false);
   const [showHook, setShowHook] = useState(false);
 
-  // Reset cards visibility when switching business
+  // Reset all state when switching business
   useEffect(() => {
     setCardsHidden(false);
     cardsHiddenRef.current = false;
     setDragOffsetY(0);
+    setShowDirections(false);
+    setCurrentMediaIndex(0);
+    setDescExpanded(true);
   }, [businessId]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
