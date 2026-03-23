@@ -64,6 +64,7 @@ const getLangAlt = (lang: string) => {
 interface BookOnlineSlidePanelProps {
   businessId: string;
   onClose: () => void;
+  onToggleExpand?: () => void;
 }
 
 interface BookOnlineBusiness {
