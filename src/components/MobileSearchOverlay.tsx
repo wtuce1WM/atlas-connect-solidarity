@@ -15,6 +15,8 @@ interface MobileSearchOverlayProps {
   onBusinessSelect?: (businessId: string) => void;
   /** Called when user submits a search — allows parent (SearchPage) to use setSearchParams instead of navigate */
   onSearch?: (params: Record<string, string>) => void;
+  /** Called when user taps the mic — parent should start its own voice recording and this overlay will close */
+  onVoiceStart?: () => void;
 }
 
 const MobileSearchOverlay = ({ open, onClose, onBusinessSelect, onSearch }: MobileSearchOverlayProps) => {
