@@ -15,9 +15,11 @@ interface MobileSearchOverlayProps {
   onBusinessSelect?: (businessId: string) => void;
   /** Called when user submits a search — allows parent (SearchPage) to use setSearchParams instead of navigate */
   onSearch?: (params: Record<string, string>) => void;
+  /** Called when user taps the mic — parent should start its own voice recording and this overlay will close */
+  onVoiceStart?: () => void;
 }
 
-const MobileSearchOverlay = ({ open, onClose, onBusinessSelect, onSearch }: MobileSearchOverlayProps) => {
+const MobileSearchOverlay = ({ open, onClose, onBusinessSelect, onSearch, onVoiceStart }: MobileSearchOverlayProps) => {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -129,7 +131,14 @@ const MobileSearchOverlay = ({ open, onClose, onBusinessSelect, onSearch }: Mobi
         {/* Mic button */}
         <button
           type="button"
-          onClick={voice.toggleRecording}
+          onClick={() => {
+            if (onVoiceStart) {
+              onClose();
+              setTimeout(() => onVoiceStart(), 150);
+            } else {
+              voice.toggleRecording();
+            }
+          }}
           disabled={voice.status === "processing"}
           className={`flex items-center justify-center w-10 h-10 rounded-xl shrink-0 transition-all ${
             voice.status === "recording"
