@@ -253,6 +253,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
     backgroundImage?: string;
   } | null>(null);
   const [fallbackPanelData, setFallbackPanelData] = useState<FallbackPanelData | null>(null);
+  const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
   // Keep ref in sync for imperative close check
   useEffect(() => { fallbackDataRef.current = fallbackPanelData; }, [fallbackPanelData]);
   const [selectedFallbackHotelId, setSelectedFallbackHotelId] = useState<string | null>(null);
