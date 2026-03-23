@@ -1008,8 +1008,12 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
             setFallbackPanelData(data);
             setSelectedFallbackHotelId(null);
             setFallbackHiddenOnMobile(false);
-            setAvailabilityOverlayCtx(null);
-            setIsBookingOpen(false);
+            // Delay closing overlay so fallback panel (z-[220]) renders on top first,
+            // avoiding a brief flash of the underlying business detail on mobile/tablet.
+            requestAnimationFrame(() => {
+              setAvailabilityOverlayCtx(null);
+              setIsBookingOpen(false);
+            });
           }}
         />
       )}
