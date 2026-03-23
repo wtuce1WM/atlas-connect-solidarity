@@ -654,14 +654,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                 <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
               </button>
 
-              {/* Media counter — absolute right */}
-              {totalMedia > 1 && (
-                <div className="absolute right-0 flex items-center gap-2">
-                  <span className="text-white/80 text-xs font-medium bg-black/30 rounded-full px-3 py-1">
-                    {safeIndex + 1} / {totalMedia}
-                  </span>
-                </div>
-              )}
             </div>
           )}
 
