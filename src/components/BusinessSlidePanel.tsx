@@ -1023,6 +1023,10 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
           }}
         />
       )}
+      {showTransitionOverlay && createPortal(
+        <div className="fixed inset-0 z-[215] bg-black" />,
+        document.body
+      )}
       {isBookingOpen && !hasLiteApiMapping && !availabilityOverlayCtx && bookingUrl && (
         <BookingOverlay
           bookingUrl={bookingUrl}
