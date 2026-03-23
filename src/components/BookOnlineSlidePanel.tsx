@@ -245,6 +245,17 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   }, [business]);
   const languages = business?.languages?.filter(Boolean) || [];
 
+  const { avgOn20, totalReviewCount } = useMemo(() => {
+    if (!business) return { avgOn20: null, totalReviewCount: 0 };
+    const sources = collectRatingSources(business);
+    const total = sources.reduce((s, r) => s + r.count, 0);
+    const computed = computeWeightedRatingOn20(sources);
+    return { avgOn20: computed, totalReviewCount: total };
+  }, [business]);
+
+  const hasContactCard = !!(business?.phone || business?.whatsapp || business?.email || business?.website || business?.address);
+  const hasReviewsCard = avgOn20 !== null && avgOn20 > 0;
+
   // Hook text for current language
   const hookText = useMemo(() => {
     if (!business) return null;
