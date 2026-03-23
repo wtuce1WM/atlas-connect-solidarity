@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Info, CalendarCheck, Star, Phone, Mail, Globe, Clock, MessageCircle } from "lucide-react";
+import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Info, CalendarCheck, Star, Phone, Mail, Globe, Clock, MessageCircle, Minimize2 } from "lucide-react";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import { formatDayHours as formatDayHoursDisplay, isCurrentlyOpen } from "@/lib/formatOpeningHours";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
@@ -64,6 +64,7 @@ const getLangAlt = (lang: string) => {
 interface BookOnlineSlidePanelProps {
   businessId: string;
   onClose: () => void;
+  isExpanded?: boolean;
   onToggleExpand?: () => void;
 }
 
@@ -136,7 +137,7 @@ interface Destination {
   images: string[] | null;
 }
 
-const BookOnlineSlidePanel = ({ businessId, onClose, onToggleExpand }: BookOnlineSlidePanelProps) => {
+const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }: BookOnlineSlidePanelProps) => {
   const { language } = useLanguage();
   const [business, setBusiness] = useState<BookOnlineBusiness | null>(null);
   const [webOnlyData, setWebOnlyData] = useState<WebOnlyData | null>(null);
@@ -413,7 +414,11 @@ const BookOnlineSlidePanel = ({ businessId, onClose, onToggleExpand }: BookOnlin
           className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background shadow-md hover:bg-foreground/90 transition-colors"
           title="Voir tous les médias"
         >
-          <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert" />
+          {isExpanded ? (
+            <Minimize2 className="h-4 w-4" />
+          ) : (
+            <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert" />
+          )}
         </button>,
         toolbarLeftPortal
       )}
