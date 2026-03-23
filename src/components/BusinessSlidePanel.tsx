@@ -1220,6 +1220,17 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
         </div>,
         toolbarCenterPortal
       )}
+      {/* Portal media button into left of fixed bar */}
+      {toolbarLeftPortal && mediaCount > 0 && createPortal(
+        <button
+          onClick={() => { setCurrentImageIndex(0); setIsLightboxOpen(true); }}
+          className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background shadow-md hover:bg-foreground/90 transition-colors"
+          title="Voir tous les médias"
+        >
+          <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert" />
+        </button>,
+        toolbarLeftPortal
+      )}
       {/* Portal action icons into right of fixed bar */}
       {toolbarPortal && createPortal(
         <>
