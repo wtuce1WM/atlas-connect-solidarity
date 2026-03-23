@@ -4633,7 +4633,7 @@ const SearchPage = () => {
                 <BookOnlineSlidePanel
                   businessId={compactPanelBusiness.id}
                   onClose={closeCompactPanel}
-                  onToggleExpand={compactBusinessImageCount > 5 ? () => setIsCompactPanelExpanded(prev => !prev) : undefined}
+                  onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
                 />
               ) : isCompactPanelWebOnly ? (
                 <WebOnlySlidePanel
