@@ -90,6 +90,7 @@ interface Business {
   zone_chalandise?: string | null;
   is_visible_locale?: boolean;
   zone_city_ids?: string[] | null;
+  destination_enriched?: boolean;
   default_service?: string | null;
   neighborhood?: string | null;
   engagements?: string[];
@@ -1298,7 +1299,8 @@ const SearchPage = () => {
       // When a subcategory is selected, use direct DB results to get ALL matches
       // but merge with API results when destination enrichment added businesses
       // (those businesses may not match the subcategory but are relevant via destination)
-      if (searchLevel === "destination" && allBusinesses.length > 0) {
+      const hasDestinationEnrichment = allBusinesses.some(b => b.destination_enriched);
+      if (hasDestinationEnrichment && allBusinesses.length > 0) {
         const ids = new Set(subcategoryFilterBusinesses.map(b => b.id));
         const extras = allBusinesses.filter(b => !ids.has(b.id));
         filtered = [...subcategoryFilterBusinesses, ...extras];
@@ -1312,6 +1314,7 @@ const SearchPage = () => {
       filtered = filtered.filter(b => {
         if (b.city === selectedCity) return true;
         if (selectedCityId && b.zone_city_ids?.includes(selectedCityId) && b.is_visible_locale) return true;
+        if (b.destination_enriched) return true;
         return false;
       });
     }

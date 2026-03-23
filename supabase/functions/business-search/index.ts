@@ -4617,6 +4617,7 @@ serve(async (req) => {
               if (deduped.length > 0) {
                 const mapped = deduped.map((b: any) => ({
                   ...b,
+                  destination_enriched: true,
                   distance_km: latitude && longitude && b.latitude && b.longitude
                     ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
                 }));
