@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo, forwardRef, useImperativeHandle } from "react";
 import { createPortal } from "react-dom";
-import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, ChevronDown, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize, Play, Pause, Headphones, Mic, Maximize2, Minimize2, Navigation, Box, BookOpen, BedDouble, Search, Route } from "lucide-react";
+import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, ChevronDown, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize, Play, Pause, Headphones, Mic, Minimize2, Navigation, Box, BookOpen, BedDouble, Search, Route } from "lucide-react";
+import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem } from "@/components/FullscreenLightbox";
 import { supabase } from "@/integrations/supabase/client";
@@ -944,7 +945,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
 
   const toolbarPortal = document.getElementById("slide-panel-toolbar");
   const toolbarCenterPortal = document.getElementById("slide-panel-toolbar-center");
-
+  const toolbarLeftPortal = document.getElementById("slide-panel-toolbar-left");
   const bookingUrl = business.reserve_now_url || business.booking_url || business.other_booking_url || null;
   const hasLiteApiMapping = !!liteApiHotelId;
   const showFloatingButton = (business.reserve_now_url || hasLiteApiMapping) && !isBookingOpen && !isExpanded;
@@ -1218,6 +1219,17 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
           )}
         </div>,
         toolbarCenterPortal
+      )}
+      {/* Portal media button into left of fixed bar */}
+      {toolbarLeftPortal && mediaCount > 0 && createPortal(
+        <button
+          onClick={() => { setCurrentImageIndex(0); setIsLightboxOpen(true); }}
+          className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background shadow-md hover:bg-foreground/90 transition-colors"
+          title="Voir tous les médias"
+        >
+          <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert" />
+        </button>,
+        toolbarLeftPortal
       )}
       {/* Portal action icons into right of fixed bar */}
       {toolbarPortal && createPortal(

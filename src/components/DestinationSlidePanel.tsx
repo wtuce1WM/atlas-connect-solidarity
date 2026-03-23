@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation } from "lucide-react";
+import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -115,13 +116,24 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
     <div className={`absolute inset-0 z-[70] bg-black overflow-hidden ${slideAnim}`}>
       {/* Close button — hidden when fullscreen video is open */}
       {!fullscreenVideo && !showDirections && (
-        <button
-          onClick={onClose}
-          className="absolute top-3 left-3 z-[80] w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-          aria-label="Fermer"
-        >
-          <X className="h-5 w-5" />
-        </button>
+        <div className="absolute top-3 left-3 z-[80] flex items-center gap-2">
+          <button
+            onClick={onClose}
+            className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+            aria-label="Fermer"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          {totalMedia > 0 && (
+            <button
+              onClick={() => setFullscreenVideo(mediaItems[0]?.url || null)}
+              className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+              title="Voir tous les médias"
+            >
+              <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert" />
+            </button>
+          )}
+        </div>
       )}
 
       {/* Directions overlay */}
