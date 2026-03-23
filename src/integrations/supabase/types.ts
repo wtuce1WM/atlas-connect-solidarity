@@ -1412,6 +1412,7 @@ export type Database = {
           keywords: string[] | null
           latitude: number | null
           longitude: number | null
+          matterport_url: string | null
           name_ar: string | null
           name_en: string | null
           name_fr: string
@@ -1435,6 +1436,7 @@ export type Database = {
           keywords?: string[] | null
           latitude?: number | null
           longitude?: number | null
+          matterport_url?: string | null
           name_ar?: string | null
           name_en?: string | null
           name_fr: string
@@ -1458,6 +1460,7 @@ export type Database = {
           keywords?: string[] | null
           latitude?: number | null
           longitude?: number | null
+          matterport_url?: string | null
           name_ar?: string | null
           name_en?: string | null
           name_fr?: string

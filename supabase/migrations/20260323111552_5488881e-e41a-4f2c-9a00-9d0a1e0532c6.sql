@@ -1,0 +1,1 @@
+ALTER TABLE public.destinations ADD COLUMN matterport_url text DEFAULT NULL;
