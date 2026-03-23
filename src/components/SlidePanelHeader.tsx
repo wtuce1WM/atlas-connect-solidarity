@@ -43,16 +43,6 @@ const SlidePanelHeader = ({
           <X className="h-4 w-4" />
         </button>
         <div id={toolbarLeftId} className="flex items-center gap-3" />
-        <button
-          type="button"
-          onClick={onToggleExpand}
-          className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background shadow-md hover:bg-foreground/90 transition-colors"
-          title={isExpanded ? "Réduire" : "Agrandir"}
-          aria-label={isExpanded ? "Réduire le panneau" : "Agrandir le panneau"}
-          style={{ display: onToggleExpand ? undefined : "none" }}
-        >
-          {isExpanded ? <Minimize2 className="h-4 w-4" /> : <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert dark:invert-0" />}
-        </button>
       </div>
       {centerContent ? (
         <>
