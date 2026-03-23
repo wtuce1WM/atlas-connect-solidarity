@@ -789,7 +789,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
                       {/* BACK — Google Map */}
                       <div
-                        className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm overflow-hidden border border-white/10"
+                        className="absolute inset-0 rounded-2xl overflow-hidden"
                         style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
                       >
                         <div className="absolute top-0 right-0 p-3 z-10">
