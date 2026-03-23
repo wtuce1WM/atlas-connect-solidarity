@@ -661,7 +661,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                   pointerEvents: showHook ? 'auto' : 'none',
                 }}
               >
-                <p className="text-base md:text-lg text-white/90 italic text-center leading-relaxed md:pr-28 lg:pr-20">{hookText}</p>
+                <p className="text-base md:text-lg text-white/90 italic text-center leading-relaxed md:pr-28">{hookText}</p>
               </div>
             )}
             {/* Rating — always visible, absolute right */}
