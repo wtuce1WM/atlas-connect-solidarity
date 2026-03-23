@@ -815,7 +815,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                 )}
                 {/* Card 3: Avis Clients with Flip to translated reviews */}
                 {hasReviewsCard && (
-                  <div className="snap-start shrink-0 w-[30rem] h-[18em] md:h-[24em] mb-4 animate-slide-in-left opacity-0"
+                  <div className="snap-start shrink-0 w-[30rem] h-[18em] md:h-[24em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0"
                     style={{ perspective: '1000px', animationDelay: `${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`, animationFillMode: 'forwards' }}
                   >
                     <div
