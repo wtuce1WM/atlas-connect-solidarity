@@ -209,11 +209,15 @@ const StaffBackoffice = () => {
     // Create a copy of the business without id and timestamps
     const { id, created_at, updated_at, search_vector, slug, ...businessData } = business;
     
+    // Use a temporary slug placeholder — the real slug will be generated
+    // when the user saves with the correct name
+    const tempSlug = `temp-${crypto.randomUUID()}`;
+    
     const duplicatedBusiness = {
       ...businessData,
-      name: `${business.name} (copie)`,
+      name: business.name,
       is_active: false,
-      slug: null,
+      slug: tempSlug,
     };
 
     const { data, error } = await supabase

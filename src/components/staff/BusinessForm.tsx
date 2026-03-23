@@ -1160,10 +1160,15 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       let businessId = business?.id;
       
       if (business) {
+        // If this is a duplicated record (temp slug), force slug regeneration
+        const updatePayload = business.slug?.startsWith("temp-")
+          ? { ...businessData, slug: null }
+          : businessData;
+        
         // Update
         const { error } = await supabase
           .from("businesses")
-          .update(businessData)
+          .update(updatePayload)
           .eq("id", business.id);
 
         if (error) throw error;
