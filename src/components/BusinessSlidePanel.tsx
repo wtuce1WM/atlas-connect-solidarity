@@ -945,7 +945,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
 
   const toolbarPortal = document.getElementById("slide-panel-toolbar");
   const toolbarCenterPortal = document.getElementById("slide-panel-toolbar-center");
-
+  const toolbarLeftPortal = document.getElementById("slide-panel-toolbar-left");
   const bookingUrl = business.reserve_now_url || business.booking_url || business.other_booking_url || null;
   const hasLiteApiMapping = !!liteApiHotelId;
   const showFloatingButton = (business.reserve_now_url || hasLiteApiMapping) && !isBookingOpen && !isExpanded;
