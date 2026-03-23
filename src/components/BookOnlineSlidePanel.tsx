@@ -416,7 +416,14 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
             ) : (
               <div className={`w-full h-full overflow-hidden bg-black ${videoInfo.type === "youtube" ? "relative" : ""}`}>
                 {videoInfo.type === "youtube" && (
-                  <div className="absolute inset-x-0 top-0 h-16 bg-black z-10" />
+                  <>
+                    {/* Hide top bar */}
+                    <div className="absolute inset-x-0 top-0 h-16 bg-black z-10" />
+                    {/* Hide bottom-right: "Plus de vidéos" + YouTube logo */}
+                    <div className="absolute right-0 bottom-0 w-[280px] h-[54px] bg-gradient-to-l from-black via-black to-transparent z-10 pointer-events-none" />
+                    {/* Hide bottom-left link icon */}
+                    <div className="absolute left-0 bottom-0 w-[60px] h-[54px] bg-gradient-to-r from-black to-transparent z-10 pointer-events-none" />
+                  </>
                 )}
                 <iframe
                   ref={iframeRef}
