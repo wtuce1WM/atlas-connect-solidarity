@@ -82,13 +82,22 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const videos = destination?.videos?.filter(Boolean) || [];
   const description = destination?.description || null;
 
-  type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
+  const matterportUrl = destination?.matterport_url || null;
+
+  type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string } | { kind: "matterport"; url: string };
   const mediaItems: MediaItem[] = [
     ...allImages.map((i) => ({ kind: "image" as const, url: i })),
   ];
   const totalMedia = mediaItems.length;
   const safeIndex = totalMedia > 0 ? currentMediaIndex % totalMedia : 0;
   const currentMedia = totalMedia > 0 ? mediaItems[safeIndex] : null;
+
+  // Build full lightbox items (images + videos + matterport)
+  const lightboxItems: LightboxMediaItem[] = [
+    ...allImages.map((url) => ({ type: "image" as const, src: url, alt: destName })),
+    ...videos.map((url) => ({ type: "video" as const, src: url, alt: destName })),
+    ...(matterportUrl ? [{ type: "matterport" as const, src: matterportUrl, alt: `${destName} – Visite 3D` }] : []),
+  ];
 
   const goMedia = useCallback((dir: 1 | -1) => {
     if (totalMedia <= 1) return;
