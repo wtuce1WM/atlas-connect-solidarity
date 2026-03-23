@@ -414,12 +414,15 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
             videoInfo.type === "file" ? (
               <video ref={videoRef} key={currentMedia.url} src={videoInfo.embedUrl} autoPlay loop playsInline controls className="w-full h-full object-contain bg-black" />
             ) : (
-              <div className="w-full h-full overflow-hidden bg-black">
+              <div className={`w-full h-full overflow-hidden bg-black ${videoInfo.type === "youtube" ? "relative" : ""}`}>
+                {videoInfo.type === "youtube" && (
+                  <div className="absolute inset-x-0 top-0 h-16 bg-black z-10" />
+                )}
                 <iframe
                   ref={iframeRef}
                   key={currentMedia.url}
                   src={videoInfo.embedUrl}
-                  className={videoInfo.type === "youtube" ? "w-full h-[calc(100%+160px)] -mt-20 pointer-events-none" : "w-full h-full pointer-events-none"}
+                  className={videoInfo.type === "youtube" ? "w-full h-[calc(100%+80px)] -mt-16" : "w-full h-full pointer-events-none"}
                   allow="autoplay; encrypted-media"
                   allowFullScreen
                   frameBorder="0"
