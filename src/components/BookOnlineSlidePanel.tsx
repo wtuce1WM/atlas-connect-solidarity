@@ -76,6 +76,8 @@ interface BookOnlineBusiness {
   tourradar_url: string | null;
   online_shop_force_external: boolean;
   website_force_external: boolean;
+  reserve_now_url: string | null;
+  reserve_now_force_external: boolean;
   hook_fr: string | null;
   hook_en: string | null;
   hook_ar: string | null;
