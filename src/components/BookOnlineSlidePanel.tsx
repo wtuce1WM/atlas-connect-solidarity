@@ -676,7 +676,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                 )}
                 {/* Card 2: Contact with Flip to Google Map */}
                 {hasContactCard && (
-                  <div className="snap-start shrink-0 w-[30rem] h-[18em] md:h-[24em] mb-4 animate-slide-in-left opacity-0"
+                  <div className="snap-start shrink-0 w-[30rem] h-[18em] md:h-[24em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0"
                     style={{ perspective: '1000px', animationDelay: woDescription ? '120ms' : '0ms', animationFillMode: 'forwards' }}
                   >
                     <div
@@ -688,7 +688,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                     >
                       {/* FRONT — Contact info */}
                       <div
-                        className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto border border-white/10"
+                        className="absolute inset-0 rounded-2xl p-4 text-white overflow-y-auto"
                         style={{ backfaceVisibility: 'hidden' }}
                       >
                         <div className="space-y-2.5 text-sm">
@@ -789,7 +789,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
                       {/* BACK — Google Map */}
                       <div
-                        className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm overflow-hidden border border-white/10"
+                        className="absolute inset-0 rounded-2xl overflow-hidden"
                         style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
                       >
                         <div className="absolute top-0 right-0 p-3 z-10">
@@ -815,7 +815,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                 )}
                 {/* Card 3: Avis Clients with Flip to translated reviews */}
                 {hasReviewsCard && (
-                  <div className="snap-start shrink-0 w-[30rem] h-[18em] md:h-[24em] mb-4 animate-slide-in-left opacity-0"
+                  <div className="snap-start shrink-0 w-[30rem] h-[18em] md:h-[24em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0"
                     style={{ perspective: '1000px', animationDelay: `${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`, animationFillMode: 'forwards' }}
                   >
                     <div
@@ -827,7 +827,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                     >
                       {/* FRONT — Platform ratings */}
                       <div
-                        className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto border border-white/10"
+                        className="absolute inset-0 rounded-2xl p-4 text-white overflow-y-auto"
                         style={{ backfaceVisibility: 'hidden' }}
                       >
                         <p className="text-[10px] font-semibold text-gold uppercase tracking-wider mb-2">
@@ -907,7 +907,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
                       {/* BACK — Translated review texts */}
                       <div
-                        className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto border border-white/10"
+                        className="absolute inset-0 rounded-2xl p-4 text-white overflow-y-auto"
                         style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
                       >
                         <div className="flex items-center justify-between mb-3">
