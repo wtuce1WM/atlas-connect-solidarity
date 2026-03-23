@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Info, CalendarCheck, Star, Phone, Mail, Globe, Clock, MessageCircle } from "lucide-react";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
+import SlidePanelHeader from "@/components/SlidePanelHeader";
 import { formatDayHours as formatDayHoursDisplay, isCurrentlyOpen } from "@/lib/formatOpeningHours";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
@@ -404,7 +405,9 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   const destName = (d: Destination) => language === "en" && d.name_en ? d.name_en : d.name_fr;
 
   return (
-    <div className="h-full overflow-hidden overscroll-none bg-black">
+    <div className="h-full overflow-hidden overscroll-none bg-black flex flex-col">
+      <SlidePanelHeader onClose={onClose} />
+      <div className="flex-1 min-h-0 relative">
       {/* Portal media button into left of fixed bar (next to close) */}
       {toolbarLeftPortal && totalMedia > 0 && createPortal(
         <button
@@ -1239,6 +1242,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           />
         );
       })()}
+      </div>
     </div>
   );
 };

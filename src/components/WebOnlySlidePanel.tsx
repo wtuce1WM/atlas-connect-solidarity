@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
+import SlidePanelHeader from "@/components/SlidePanelHeader";
 import { ExternalLink, ShoppingBag, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Info, Star } from "lucide-react";
 import { formatDayHours as formatDayHoursDisplay } from "@/lib/formatOpeningHours";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
@@ -195,7 +196,9 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   const toolbarCenterPortal = document.getElementById("slide-panel-toolbar-center");
 
   return (
-    <div className="h-full overflow-hidden overscroll-none bg-black">
+    <div className="h-full overflow-hidden overscroll-none bg-black flex flex-col">
+      <SlidePanelHeader onClose={onClose} />
+      <div className="flex-1 min-h-0 relative">
       {/* Portal WhatsApp icon into center of fixed bar */}
       {toolbarCenterPortal && createPortal(
         <div className="flex items-center gap-6">
@@ -545,6 +548,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
           </div>
         );
       })()}
+      </div>
     </div>
   );
 };
