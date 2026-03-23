@@ -907,7 +907,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
                       {/* BACK — Translated review texts */}
                       <div
-                        className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto border border-white/10"
+                        className="absolute inset-0 rounded-2xl p-4 text-white overflow-y-auto"
                         style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
                       >
                         <div className="flex items-center justify-between mb-3">
