@@ -4361,8 +4361,26 @@ serve(async (req) => {
       if (nameMatchData) {
         const qNorm = stripAccentsGlobal(effectiveQuery.toLowerCase().trim());
         const relevantIds = nameMatchData.filter((b: any) => {
-          // Never remove keyword-pinned businesses (they matched via keywords, not name)
-          if (keywordPinnedIds.has(b.id)) return true;
+          // Keyword-pinned businesses: validate against detected subcategory/services
+          // e.g. "VIP at Marrakech" has keyword "restaurants" but is NOT a restaurant
+          if (keywordPinnedIds.has(b.id)) {
+            const bCats = (b.categories || []).map((c: string) => c.toLowerCase());
+            const bSvcs = (b.services || []).map((s: string) => s.toLowerCase());
+            // If a subcategory is detected, require the business to have it in categories
+            if (detectedSubcategory) {
+              const subLower = detectedSubcategory.toLowerCase();
+              if (bCats.some(c => c.includes(subLower) || subLower.includes(c))) return true;
+            }
+            // If services are detected, require the business to have at least one
+            if (detectedServices.length > 0) {
+              if (detectedServices.some(ds => bSvcs.some(bs => bs.includes(ds.toLowerCase()) || ds.toLowerCase().includes(bs)))) return true;
+            }
+            // If no subcategory/service detected, keep the keyword match
+            if (!detectedSubcategory && detectedServices.length === 0) return true;
+            // Otherwise, this keyword-pinned business is irrelevant
+            console.log(`Removed keyword-pinned business "${b.name}" (categories: [${bCats.join(",")}]) — doesn't match detected subcategory "${detectedSubcategory}"`);
+            return false;
+          }
           // Never remove exact name matches (the query IS the business name)
           const bNameNorm = stripAccentsGlobal((b.name || "").toLowerCase().trim());
           if (bNameNorm === qNorm) return true;
