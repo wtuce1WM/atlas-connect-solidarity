@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
-import SlidePanelHeader from "@/components/SlidePanelHeader";
+
 import { ExternalLink, ShoppingBag, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Info, Star } from "lucide-react";
 import { formatDayHours as formatDayHoursDisplay } from "@/lib/formatOpeningHours";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
