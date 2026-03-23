@@ -90,6 +90,7 @@ interface Business {
   zone_chalandise?: string | null;
   is_visible_locale?: boolean;
   zone_city_ids?: string[] | null;
+  destination_enriched?: boolean;
   default_service?: string | null;
   neighborhood?: string | null;
   engagements?: string[];
