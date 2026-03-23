@@ -243,10 +243,14 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onError, lan
     }
     const transcript = accumulatedTranscriptRef.current;
     accumulatedTranscriptRef.current = "";
-    setLiveTranscript("");
     if (transcript) {
-      processTranscript(transcript);
+      // Set processing immediately — keep liveTranscript visible until processing starts
+      setStatus("processing");
+      processTranscript(transcript).finally(() => {
+        setLiveTranscript("");
+      });
     } else {
+      setLiveTranscript("");
       setStatus("idle");
     }
   }, [clearSilenceTimer, processTranscript]);
