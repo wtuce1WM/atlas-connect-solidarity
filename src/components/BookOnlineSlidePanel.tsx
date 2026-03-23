@@ -229,6 +229,20 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const images = woImages.length > 0 ? woImages : (business?.images?.filter(Boolean) || []);
   const woDescription = webOnlyData?.description || null;
   const hasOpeningHours = business?.show_opening_hours !== false && (business?.is_open_24h || business?.opening_hours);
+
+  const reviewPlatforms = useMemo(() => {
+    if (!business) return [];
+    return [
+      { name: "Google", rating: business.google_rating, count: business.google_review_count, url: business.google_reviews_url || business.google_maps_url },
+      { name: "TripAdvisor", rating: business.tripadvisor_rating, count: business.tripadvisor_review_count, url: business.tripadvisor_review_url || business.tripadvisor_url },
+      { name: "Restaurant Guru", rating: business.restaurant_guru_rating, count: business.restaurant_guru_review_count, url: business.restaurant_guru_url },
+      { name: "Trustpilot", rating: business.trustpilot_rating, count: business.trustpilot_review_count, url: business.trustpilot_url },
+      { name: "GetYourGuide", rating: business.getyourguide_rating, count: business.getyourguide_review_count, url: business.getyourguide_url },
+      { name: "Viator", rating: business.viator_rating, count: business.viator_review_count, url: business.viator_url },
+      { name: "Avis Vérifiés", rating: business.avis_verifies_rating, count: business.avis_verifies_review_count, url: business.avis_verifies_url },
+      { name: "TourRadar", rating: business.tourradar_rating, count: business.tourradar_review_count, url: business.tourradar_url },
+    ];
+  }, [business]);
   const hasExpandableContent = !!(woDescription || hasOpeningHours);
   const languages = business?.languages?.filter(Boolean) || [];
 
