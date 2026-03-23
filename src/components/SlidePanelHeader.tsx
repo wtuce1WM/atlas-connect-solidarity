@@ -1,4 +1,5 @@
-import { X, Maximize2, Minimize2 } from "lucide-react";
+import { X, Minimize2 } from "lucide-react";
+import iconePhotoVideo from "@/assets/icone_photo_video.png";
 
 interface SlidePanelHeaderProps {
   onClose: () => void;
@@ -51,7 +52,7 @@ const SlidePanelHeader = ({
           aria-label={isExpanded ? "Réduire le panneau" : "Agrandir le panneau"}
           style={{ display: onToggleExpand ? undefined : "none" }}
         >
-          {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+          {isExpanded ? <Minimize2 className="h-4 w-4" /> : <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 dark:invert" />}
         </button>
       </div>
       {centerContent ? (
