@@ -2639,6 +2639,10 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
                       onClick={(e) => {
                         e.stopPropagation();
                         if (hotel.businessId) {
+                          // Show transition overlay on mobile/tablet to mask stale data flash
+                          if (window.innerWidth < 1024) {
+                            setShowTransitionOverlay(true);
+                          }
                           setSelectedFallbackHotelId(hotel.hotelId);
                           setInternalBusinessId(hotel.businessId);
                           scrollContainerRef.current?.scrollTo({ top: 0 });
