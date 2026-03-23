@@ -343,7 +343,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
     if (ytMatch) {
       return {
         type: "youtube" as const,
-        embedUrl: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${ytMatch[1]}&rel=0&controls=1&modestbranding=1&playsinline=1&iv_load_policy=3&cc_load_policy=0&disablekb=1&fs=0&showinfo=0&autohide=1`,
+        embedUrl: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&mute=0&loop=1&playlist=${ytMatch[1]}&rel=0&controls=1&modestbranding=1&playsinline=1&iv_load_policy=3&cc_load_policy=0&disablekb=1&fs=0&showinfo=0&autohide=1`,
       };
     }
     const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
@@ -429,7 +429,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                   ref={iframeRef}
                   key={currentMedia.url}
                   src={videoInfo.embedUrl}
-                  className={videoInfo.type === "youtube" ? "w-full h-[calc(100%+80px)] -mt-16" : "w-full h-full pointer-events-none"}
+                  className={videoInfo.type === "youtube" ? "w-full h-[calc(100%+80px)] -mt-16 -mb-[20px]" : "w-full h-full pointer-events-none"}
                   allow="autoplay; encrypted-media"
                   allowFullScreen
                   frameBorder="0"
