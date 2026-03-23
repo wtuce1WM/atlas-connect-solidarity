@@ -974,9 +974,9 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                   {business.name} vous emmène à :
                 </p>
               </div>
-              <div className="flex w-max gap-2">
-                {/* Spacer to preserve left margin after snap */}
-                <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
+              <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                {/* Spacer gauche */}
+                <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
                 {destinations.map((dest, index) => {
                   const destImg = dest.images?.filter(Boolean)?.[0] || dest.image_url;
                   return (
@@ -999,6 +999,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                     </div>
                   );
                 })}
+                {/* Spacer droit */}
+                <div className="shrink-0 w-6" aria-hidden="true" />
               </div>
             </div>
           )}
