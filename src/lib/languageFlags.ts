@@ -3,7 +3,7 @@
 const LANG_FLAGS: Record<string, string> = {
   français: "🇫🇷", french: "🇫🇷", fr: "🇫🇷",
   anglais: "🇬🇧", english: "🇬🇧", en: "🇬🇧",
-  arabe: "🇲🇦", arabic: "🇲🇦", ar: "🇲🇦",
+  arabe: "🇲🇦", arabic: "🇲🇦", ar: "🇲🇦", "ar-std": "🇲🇦",
   espagnol: "🇪🇸", spanish: "🇪🇸", es: "🇪🇸",
   allemand: "🇩🇪", german: "🇩🇪", de: "🇩🇪",
   italien: "🇮🇹", italian: "🇮🇹", it: "🇮🇹",
@@ -18,7 +18,7 @@ const LANG_FLAGS: Record<string, string> = {
 const LANG_ALT: Record<string, string> = {
   français: "Nous parlons français", french: "Nous parlons français", fr: "Nous parlons français",
   anglais: "We speak English", english: "We speak English", en: "We speak English",
-  arabe: "نتحدث العربية", arabic: "نتحدث العربية", ar: "نتحدث العربية",
+  arabe: "نتحدث العربية", arabic: "نتحدث العربية", ar: "نتحدث العربية", "ar-std": "نتحدث العربية",
   espagnol: "Hablamos español", spanish: "Hablamos español", es: "Hablamos español",
   allemand: "Wir sprechen Deutsch", german: "Wir sprechen Deutsch", de: "Wir sprechen Deutsch",
   italien: "Parliamo italiano", italian: "Parliamo italiano", it: "Parliamo italiano",
