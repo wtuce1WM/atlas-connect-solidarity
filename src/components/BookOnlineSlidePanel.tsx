@@ -351,19 +351,25 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const getVideoEmbed = (url: string) => {
     const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
     if (ytMatch) {
+      const isShort = /\/shorts\//.test(url);
       return {
         type: "youtube" as const,
         embedUrl: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=0&rel=0&controls=1&modestbranding=1&playsinline=1&iv_load_policy=3&cc_load_policy=0&disablekb=0&fs=0&showinfo=0&autohide=1&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`,
+        isVertical: isShort,
       };
     }
     const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
     if (vimeoMatch) {
-      return { type: "vimeo" as const, embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=1&loop=0` };
+      return { type: "vimeo" as const, embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=1&loop=0`, isVertical: false };
     }
-    return { type: "file" as const, embedUrl: url };
+    return { type: "file" as const, embedUrl: url, isVertical: false };
   };
 
   const videoInfo = currentMedia?.kind === "video" ? getVideoEmbed(currentMedia.url) : null;
+
+  // Detect vertical orientation for file videos
+  const [isFileVideoVertical, setIsFileVideoVertical] = useState(false);
+  const isVerticalVideo = videoInfo ? (videoInfo.type === "file" ? isFileVideoVertical : videoInfo.isVertical) : false;
 
   // Listen for YouTube iframe API "ended" state to advance to next media
   useEffect(() => {
