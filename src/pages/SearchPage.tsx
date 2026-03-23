@@ -2692,7 +2692,6 @@ const SearchPage = () => {
               <SlidePanelHeader
                 onClose={() => { setOverlaySelectedBusiness(null); setIsOverlayPanelExpanded(false); }}
                 isExpanded={isOverlayPanelExpanded}
-                onToggleExpand={() => setIsOverlayPanelExpanded(prev => !prev)}
                 toolbarCenterId="overlay-slide-panel-toolbar-center"
                 toolbarRightId="overlay-slide-panel-toolbar"
               />
