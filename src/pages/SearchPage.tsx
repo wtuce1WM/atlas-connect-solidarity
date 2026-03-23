@@ -4620,7 +4620,7 @@ const SearchPage = () => {
 
           {/* Right panel — business detail */}
           <div
-            className={`fixed top-0 left-0 right-0 bottom-0 z-[201] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:top-[53px] lg:left-auto lg:bottom-auto lg:border-l lg:border-border lg:transition-[width] lg:duration-300 lg:ease-out ${isCompactPanelExpanded && !isCompactPanelWebOnly && !isCompactPanelBookOnline ? "lg:w-full border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "lg:w-1/2"}`}
+            className={`fixed top-0 left-0 right-0 bottom-0 z-[201] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:top-[53px] lg:left-auto lg:bottom-auto lg:border-l lg:border-border lg:transition-[width] lg:duration-300 lg:ease-out ${isCompactPanelExpanded && !isCompactPanelWebOnly ? "lg:w-full border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "lg:w-1/2"}`}
             style={{ height: isSubDesktop ? undefined : "calc(100vh - 53px)" }}
           >
             <SlidePanelHeader
@@ -4629,7 +4629,7 @@ const SearchPage = () => {
               onToggleExpand={isCompactPanelWebOnly ? undefined : (compactBusinessImageCount > 5 ? () => setIsCompactPanelExpanded(prev => !prev) : undefined)}
             />
             <div className={`flex-1 min-h-0 ${isCompactPanelWebOnly ? "overflow-hidden" : ""}`}>
-              {isCompactPanelBookOnline ? (
+              {isCompactPanelBookOnline && !isCompactPanelExpanded ? (
                 <BookOnlineSlidePanel
                   businessId={compactPanelBusiness.id}
                   onClose={closeCompactPanel}
