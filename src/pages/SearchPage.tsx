@@ -4263,32 +4263,29 @@ const SearchPage = () => {
         </div>
       </div>
 
-      {/* Mobile fullscreen search overlay — only mounted on mobile to avoid duplicate hooks */}
-      {isMobile && (
-        <MobileSearchOverlay
-          open={mobileSearchOverlayOpen}
-          onClose={() => setMobileSearchOverlayOpen(false)}
-          onBusinessSelect={(bizId) => {
-            setCompactPanelBusiness({ id: bizId, name: "" } as any);
-            setIsCompactPanelExpanded(false);
-          }}
-          onSearch={(params) => {
-            // Use setSearchParams instead of navigate to avoid full page reload & preview loading overlay
-            setSelectedCategoryFilter(null);
-            setSelectedSubcategoryFilter(null);
-            setSelectedServiceFilter(null);
-            if (params.q) {
-              setSearchQuery(params.q);
-              setInputValue(params.q);
-            }
-            setActiveTab("suggestions");
-            setSelectedCity("all");
-            setIsGeoCityAutoSelected(false);
-            setSearchParams(params);
-          }}
-          onVoiceStart={() => toggleRecording()}
-        />
-      )}
+      {/* Fullscreen search overlay with recent searches & recently viewed */}
+      <MobileSearchOverlay
+        open={mobileSearchOverlayOpen}
+        onClose={() => setMobileSearchOverlayOpen(false)}
+        onBusinessSelect={(bizId) => {
+          setCompactPanelBusiness({ id: bizId, name: "" } as any);
+          setIsCompactPanelExpanded(false);
+        }}
+        onSearch={(params) => {
+          setSelectedCategoryFilter(null);
+          setSelectedSubcategoryFilter(null);
+          setSelectedServiceFilter(null);
+          if (params.q) {
+            setSearchQuery(params.q);
+            setInputValue(params.q);
+          }
+          setActiveTab("suggestions");
+          setSelectedCity("all");
+          setIsGeoCityAutoSelected(false);
+          setSearchParams(params);
+        }}
+        onVoiceStart={() => toggleRecording()}
+      />
 
 
       {/* Google-style voice search overlay */}
