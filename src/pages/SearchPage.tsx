@@ -760,10 +760,15 @@ const SearchPage = () => {
       }, []);
 
       const handleCompactPanelClose = useCallback(() => {
+        // If BookOnline panel is in expanded/mosaic mode, collapse back to BookOnlineSlidePanel
+        if (isCompactPanelBookOnline && isCompactPanelExpanded) {
+          setIsCompactPanelExpanded(false);
+          return;
+        }
         // Let BSP handle close internally (go back to fallback) if applicable
         if (compactPanelRef.current?.requestClose()) return;
         closeCompactPanel();
-      }, [closeCompactPanel]);
+      }, [closeCompactPanel, isCompactPanelBookOnline, isCompactPanelExpanded]);
 
      const [hoveredResultId, setHoveredResultId] = useState<string | null>(null);
      const [hoveredPoiId, setHoveredPoiId] = useState<string | null>(null);
