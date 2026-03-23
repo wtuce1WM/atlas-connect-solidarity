@@ -409,7 +409,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, onToggleExpand }: BookOnlin
       {/* Portal media button into left of fixed bar (next to close) */}
       {toolbarLeftPortal && totalMedia > 0 && createPortal(
         <button
-          onClick={() => { setLightboxIndex(0); setIsLightboxOpen(true); }}
+          onClick={() => { onToggleExpand?.(); }}
           className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background shadow-md hover:bg-foreground/90 transition-colors"
           title="Voir tous les médias"
         >
