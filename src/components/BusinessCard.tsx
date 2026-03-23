@@ -336,7 +336,7 @@ const BusinessCard = ({
               <Badge variant="outline" className={`text-xs flex items-center gap-1 ${
                 openBadgeText === "Ouvert" || openBadgeText === "Ouvert 24h"
                   ? "bg-atlas/85 text-atlas-foreground border-foreground/70"
-                  : "bg-card/85 text-foreground border-foreground/70"
+                  : "bg-black/85 text-white border-white/30"
               }`}>
                 <Clock className="h-3 w-3" />
                 {openBadgeText}
