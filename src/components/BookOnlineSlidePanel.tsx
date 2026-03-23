@@ -1121,7 +1121,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
               {business.latitude && business.longitude && (
                 <button
                   onClick={() => setShowDirections(true)}
-                  className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-primary text-primary-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-primary/90 transition-colors normal-case tracking-normal"
+                  className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-primary text-primary-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-primary/90 transition-colors normal-case tracking-normal animate-slide-in-left"
                   style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                 >
                   <MapPin className="h-4 w-4" />
