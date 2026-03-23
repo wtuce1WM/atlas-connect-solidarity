@@ -421,10 +421,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                     <div className="absolute inset-x-0 top-0 h-16 bg-black z-10" />
                     {/* Hide bottom-right: "Plus de vidéos" + YouTube logo */}
                     <div className="absolute right-0 bottom-[36px] w-[280px] h-[54px] bg-gradient-to-l from-black via-black to-transparent z-10 pointer-events-none" />
-                    {/* Hide bottom-left link icon */}
-                    <div className="absolute left-0 bottom-[36px] w-[32px] h-[54px] bg-black z-10 pointer-events-none" />
-                    {/* Black strip below controls */}
-                    <div className="absolute inset-x-0 bottom-0 h-[36px] bg-black z-10 pointer-events-none" />
+                    {/* Hide bottom-left link icon without masking volume */}
+                    <div className="absolute left-0 bottom-[44px] w-[14px] h-[28px] bg-black z-10 pointer-events-none" />
                   </>
                 )}
                 <iframe
