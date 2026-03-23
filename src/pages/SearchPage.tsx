@@ -2692,7 +2692,6 @@ const SearchPage = () => {
               <SlidePanelHeader
                 onClose={() => { setOverlaySelectedBusiness(null); setIsOverlayPanelExpanded(false); }}
                 isExpanded={isOverlayPanelExpanded}
-                onToggleExpand={() => setIsOverlayPanelExpanded(prev => !prev)}
                 toolbarCenterId="overlay-slide-panel-toolbar-center"
                 toolbarRightId="overlay-slide-panel-toolbar"
               />
@@ -4642,7 +4641,7 @@ const SearchPage = () => {
             <SlidePanelHeader
               onClose={handleCompactPanelClose}
               isExpanded={isCompactPanelWebOnly ? undefined : isCompactPanelExpanded}
-              onToggleExpand={(isCompactPanelWebOnly || isCompactPanelBookOnline) ? undefined : (compactBusinessImageCount > 5 ? () => setIsCompactPanelExpanded(prev => !prev) : undefined)}
+              onToggleExpand={undefined}
             />
             <div className={`flex-1 min-h-0 ${isCompactPanelWebOnly ? "overflow-hidden" : ""}`}>
               {isCompactPanelBookOnline && !isCompactPanelExpanded ? (
