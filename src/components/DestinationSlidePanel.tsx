@@ -37,6 +37,8 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
   const [fullscreenVideo, setFullscreenVideo] = useState<string | null>(null);
+  const [showMosaic, setShowMosaic] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (!showDirections) return;
