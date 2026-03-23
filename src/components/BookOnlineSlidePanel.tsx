@@ -779,7 +779,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                                 alt="Google Maps"
                                 className="h-10 w-10 drop-shadow-lg hover:scale-110 transition-transform"
                                 style={{
-                                  animation: 'zoom-out-pop 0.4s ease-out 0.4s both',
+                                  animation: 'map-pin-drop 0.5s ease-out 0.4s both',
                                 }}
                               />
                             </button>
