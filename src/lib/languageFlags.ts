@@ -3,7 +3,7 @@
 const LANG_FLAGS: Record<string, string> = {
   français: "🇫🇷", french: "🇫🇷", fr: "🇫🇷",
   anglais: "🇬🇧", english: "🇬🇧", en: "🇬🇧",
-  arabe: "🇲🇦", arabic: "🇲🇦", ar: "🇲🇦",
+  arabe: "🇲🇦", arabic: "🇲🇦", ar: "🇲🇦", "ar-std": "🇲🇦",
   espagnol: "🇪🇸", spanish: "🇪🇸", es: "🇪🇸",
   allemand: "🇩🇪", german: "🇩🇪", de: "🇩🇪",
   italien: "🇮🇹", italian: "🇮🇹", it: "🇮🇹",
