@@ -743,8 +743,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                               {business.is_open_24h ? (
                                 <p className="text-white/80 text-sm">Ouvert 24h/24</p>
                               ) : business.opening_hours ? (
-                                <div className="space-y-0.5">
-                                  {(() => {
+                                  (() => {
                                     const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
                                     const dayNames: Record<string, string> = { monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim" };
                                     const displayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
@@ -755,24 +754,26 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                                     const openNow = business.is_open_24h || isCurrentlyOpen(todayDh);
                                     return (
                                       <>
-                                        {displayOrder.map(day => {
-                                          const dh = hours[day];
-                                          if (!dh) return null;
-                                          const formatted = formatDayHoursDisplay(dh, { language });
-                                          if (!formatted || formatted.toLowerCase().includes('fermé') || formatted.toLowerCase().includes('closed')) return null;
-                                          const isToday = day === todayKey;
-                                          return (
-                                            <div key={day} className={`flex text-xs ${isToday ? 'font-bold' : ''}`}>
-                                              <span className={`w-[2.5rem] shrink-0 font-medium ${isToday ? 'text-white' : 'text-white/70'}`}>
-                                                {dayNames[day]}{isToday ? ' ●' : ''}
-                                              </span>
-                                              <span className="text-white/80">
-                                                {formatted}
-                                              </span>
-                                            </div>
-                                          );
-                                        })}
-                                        <div className="mt-8 flex justify-center">
+                                        <div className="space-y-0.5">
+                                          {displayOrder.map(day => {
+                                            const dh = hours[day];
+                                            if (!dh) return null;
+                                            const formatted = formatDayHoursDisplay(dh, { language });
+                                            if (!formatted || formatted.toLowerCase().includes('fermé') || formatted.toLowerCase().includes('closed')) return null;
+                                            const isToday = day === todayKey;
+                                            return (
+                                              <div key={day} className={`flex text-xs ${isToday ? 'font-bold' : ''}`}>
+                                                <span className={`w-[2.5rem] shrink-0 font-medium ${isToday ? 'text-white' : 'text-white/70'}`}>
+                                                  {dayNames[day]}{isToday ? ' ●' : ''}
+                                                </span>
+                                                <span className="text-white/80">
+                                                  {formatted}
+                                                </span>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                        <div className="mt-6 flex justify-center">
                                           <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider ${openNow ? 'bg-[#25D366] text-white' : 'bg-black text-white'}`}>
                                             <span className={`w-1.5 h-1.5 rounded-full bg-white/70`} />
                                             {openNow
@@ -782,8 +783,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                                         </div>
                                       </>
                                     );
-                                  })()}
-                                </div>
+                                  })()
                               ) : null}
                             </div>
                           )}
