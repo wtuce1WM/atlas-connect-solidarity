@@ -355,6 +355,28 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
   const videoInfo = currentMedia?.kind === "video" ? getVideoEmbed(currentMedia.url) : null;
 
+  // Listen for YouTube iframe API "ended" state to advance to next media
+  useEffect(() => {
+    if (!videoInfo || videoInfo.type !== "youtube" || totalMedia <= 1) return;
+    const onMessage = (e: MessageEvent) => {
+      try {
+        const data = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
+        if (data?.event === "onStateChange" && data?.info === 0) {
+          goMedia(1);
+        }
+      } catch { /* ignore non-JSON messages */ }
+    };
+    // Tell the YouTube iframe to send us state change events
+    const timer = setTimeout(() => {
+      iframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: "listening", id: 0 }),
+        "*"
+      );
+    }, 1000);
+    window.addEventListener("message", onMessage);
+    return () => { window.removeEventListener("message", onMessage); clearTimeout(timer); };
+  }, [videoInfo, totalMedia, goMedia]);
+
   if (isLoading) {
     return (
       <div className="h-full overflow-y-auto bg-background p-6 space-y-6">
