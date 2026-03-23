@@ -343,17 +343,39 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
     if (ytMatch) {
       return {
         type: "youtube" as const,
-        embedUrl: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${ytMatch[1]}&rel=0&controls=1&modestbranding=1&playsinline=1&iv_load_policy=3&cc_load_policy=0&disablekb=0&fs=0&showinfo=0&autohide=1`,
+        embedUrl: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=0&rel=0&controls=1&modestbranding=1&playsinline=1&iv_load_policy=3&cc_load_policy=0&disablekb=0&fs=0&showinfo=0&autohide=1&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`,
       };
     }
     const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
     if (vimeoMatch) {
-      return { type: "vimeo" as const, embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=1&loop=1` };
+      return { type: "vimeo" as const, embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=1&loop=0` };
     }
     return { type: "file" as const, embedUrl: url };
   };
 
   const videoInfo = currentMedia?.kind === "video" ? getVideoEmbed(currentMedia.url) : null;
+
+  // Listen for YouTube iframe API "ended" state to advance to next media
+  useEffect(() => {
+    if (!videoInfo || videoInfo.type !== "youtube" || totalMedia <= 1) return;
+    const onMessage = (e: MessageEvent) => {
+      try {
+        const data = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
+        if (data?.event === "onStateChange" && data?.info === 0) {
+          goMedia(1);
+        }
+      } catch { /* ignore non-JSON messages */ }
+    };
+    // Tell the YouTube iframe to send us state change events
+    const timer = setTimeout(() => {
+      iframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: "listening", id: 0 }),
+        "*"
+      );
+    }, 1000);
+    window.addEventListener("message", onMessage);
+    return () => { window.removeEventListener("message", onMessage); clearTimeout(timer); };
+  }, [videoInfo, totalMedia, goMedia]);
 
   if (isLoading) {
     return (
@@ -412,7 +434,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
         <div className="absolute inset-0">
           {currentMedia?.kind === "video" && videoInfo && !showDirections ? (
             videoInfo.type === "file" ? (
-              <video ref={videoRef} key={currentMedia.url} src={videoInfo.embedUrl} autoPlay loop playsInline controls className="w-full h-full object-contain bg-black" />
+              <video ref={videoRef} key={currentMedia.url} src={videoInfo.embedUrl} autoPlay playsInline controls className="w-full h-full object-contain bg-black" onEnded={() => totalMedia > 1 && goMedia(1)} />
             ) : (
               <div className={`w-full h-full overflow-hidden bg-black ${videoInfo.type === "youtube" ? "relative" : ""}`}>
                 {videoInfo.type === "youtube" && (
