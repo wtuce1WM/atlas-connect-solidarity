@@ -1013,7 +1013,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
             setTimeout(() => {
               setAvailabilityOverlayCtx(null);
               setIsBookingOpen(false);
-            }, 150);
+            }, 400);
           }}
         />
       )}
