@@ -4531,6 +4531,7 @@ serve(async (req) => {
         
         if (destinations && destinations.length > 0) {
           const matchedDestinations: string[] = [];
+          const matchedDestinationNames: string[] = []; // original name_fr for city matching
           
           for (const dest of destinations) {
             const names = [dest.name_fr, dest.name_en, dest.name_ar].filter(Boolean).map((n: string) => stripAccentsGlobal(n.toLowerCase()));
@@ -4546,51 +4547,91 @@ serve(async (req) => {
               return termWords.every(tw => queryWords.some(qw => qw.includes(tw) || tw.includes(qw)));
             });
             
-            if (matched) matchedDestinations.push(dest.id);
+            if (matched) {
+              matchedDestinations.push(dest.id);
+              if (dest.name_fr) matchedDestinationNames.push(dest.name_fr);
+            }
           }
           
           if (matchedDestinations.length > 0) {
-            // Fetch business IDs linked to matched destinations
+            const existingIds = new Set(businesses.map(b => b.id));
+
+            // 1) Fetch businesses linked via business_destinations
             const { data: bdLinks } = await supabase
               .from("business_destinations")
               .select("business_id")
               .in("destination_id", matchedDestinations);
             
-            if (bdLinks && bdLinks.length > 0) {
-              const existingIds = new Set(businesses.map(b => b.id));
-              const newBusinessIds = bdLinks.map(l => l.business_id).filter(id => !existingIds.has(id));
-              
-              if (newBusinessIds.length > 0) {
-                const { data: destBusinesses } = await supabase
+            const linkedIds = (bdLinks || []).map(l => l.business_id).filter(id => !existingIds.has(id));
+
+            // 2) Fetch businesses whose city matches any matched destination name
+            let cityBusinesses: any[] = [];
+            if (matchedDestinationNames.length > 0) {
+              for (const cityName of matchedDestinationNames) {
+                const { data: cityBiz } = await supabase
                   .from("businesses")
                   .select("*")
                   .eq("is_active", true)
-                  .in("id", newBusinessIds)
+                  .ilike("city", cityName)
                   .order("priority_score", { ascending: false })
-                  .limit(20);
-                
-                if (destBusinesses && destBusinesses.length > 0) {
-                  const mapped = destBusinesses.map((b: any) => ({
-                    ...b,
-                    distance_km: latitude && longitude && b.latitude && b.longitude
-                      ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
-                  }));
-                  // If current results are just "recommended" fallback, replace them entirely with destination results
-                  if (searchLevel === "recommended") {
-                    businesses = mapped;
-                  } else {
-                    businesses = [...businesses, ...mapped];
-                  }
-                  // Upgrade searchLevel to reflect that we found destination-based results
-                  if (searchLevel === "recommended" || searchLevel === "region") {
-                    searchLevel = "destination";
-                  }
-                  console.log(`🗺️ Destination enrichment: +${mapped.length} businesses from ${matchedDestinations.length} destination(s) (total: ${businesses.length})`);
+                  .limit(50);
+                if (cityBiz) cityBusinesses.push(...cityBiz);
+              }
+            }
+
+            // Merge all new IDs (linked + city-based), deduplicate
+            const allNewIds = new Set(linkedIds);
+            const cityBizById = new Map<string, any>();
+            for (const b of cityBusinesses) {
+              if (!existingIds.has(b.id)) {
+                allNewIds.add(b.id);
+                cityBizById.set(b.id, b);
+              }
+            }
+
+            if (allNewIds.size > 0) {
+              // Fetch linked businesses not already fetched via city query
+              const idsToFetch = [...allNewIds].filter(id => !cityBizById.has(id));
+              let fetchedLinked: any[] = [];
+              if (idsToFetch.length > 0) {
+                const { data } = await supabase
+                  .from("businesses")
+                  .select("*")
+                  .eq("is_active", true)
+                  .in("id", idsToFetch)
+                  .order("priority_score", { ascending: false });
+                fetchedLinked = data || [];
+              }
+
+              const allNew = [...fetchedLinked, ...cityBusinesses.filter(b => !existingIds.has(b.id))];
+              // Deduplicate
+              const seen = new Set<string>();
+              const deduped: any[] = [];
+              for (const b of allNew) {
+                if (!seen.has(b.id) && !existingIds.has(b.id)) {
+                  seen.add(b.id);
+                  deduped.push(b);
                 }
+              }
+
+              if (deduped.length > 0) {
+                const mapped = deduped.map((b: any) => ({
+                  ...b,
+                  distance_km: latitude && longitude && b.latitude && b.longitude
+                    ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+                }));
+                if (searchLevel === "recommended") {
+                  businesses = mapped;
+                } else {
+                  businesses = [...businesses, ...mapped];
+                }
+                if (searchLevel === "recommended" || searchLevel === "region") {
+                  searchLevel = "destination";
+                }
+                console.log(`🗺️ Destination enrichment: +${mapped.length} businesses from ${matchedDestinations.length} destination(s) + city match (total: ${businesses.length})`);
               }
             }
           }
-        }
       } catch (e) {
         console.warn("Destination enrichment failed:", e);
       }
