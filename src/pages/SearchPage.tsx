@@ -4250,79 +4250,42 @@ const SearchPage = () => {
       {/* Floating Search Bar */}
       <div className={`fixed bottom-0 bg-white border-t border-border pt-3 py-3 px-4 md:px-4 transition-transform duration-300 ${hasKnownLocation ? "left-0 w-1/2" : "left-0 right-0"} ${((isCompactPanelWebOnly || isCompactPanelBookOnline) && compactPanelBusiness) || (isSubDesktop && showMobileMap) ? "translate-y-full" : ""} ${isCompactPanelExpanded ? "z-[190]" : "z-[210]"}`}>
         <div className="max-w-2xl mx-auto">
-          {/* Desktop: normal inline SearchInput */}
-          <div className="hidden md:block">
-            <SearchInput
-              variant="floating"
-              value={inputValue}
-              onChange={setInputValue}
-              showSuggestions={true}
-              suggestionMode="text"
-              suggestionsPosition="top"
-              onSubmit={(query) => {
-                setSelectedCategoryFilter(null);
-                setSelectedSubcategoryFilter(null);
-                setSelectedServiceFilter(null);
-                setSearchQuery(query);
-                setActiveTab("suggestions");
-                setSelectedCity("all");
-                setIsGeoCityAutoSelected(false);
-                const params: Record<string, string> = { q: query, _t: String(Date.now()) };
-                const timeResult = extractTimeSlot(query);
-                if (timeResult) {
-                  params.timeStart = String(timeResult.timeSlot.startHour);
-                  params.timeEnd = String(timeResult.timeSlot.endHour);
-                  params.timeDayOffset = String(timeResult.timeSlot.dayOffset);
-                  if (timeResult.timeSlot.dayOfWeek !== null) params.timeDayOfWeek = String(timeResult.timeSlot.dayOfWeek);
-                }
-                setSearchParams(params);
-              }}
-              voiceControl={{ status: voiceStatus, toggleRecording, liveTranscript }}
-            />
-          </div>
-
-          {/* Mobile: fake input that opens overlay with recent searches & recently viewed */}
-          <div className="md:hidden">
-            <button
-              type="button"
-              onClick={() => setMobileSearchOverlayOpen(true)}
-              className="w-full flex items-center gap-3 px-4 py-3.5 bg-white/90 backdrop-blur-sm border border-border rounded-xl shadow-lg text-left"
-            >
-              <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-              <span className="text-sm text-muted-foreground">
-                {language === "fr" ? "Rechercher un établissement..." : language === "ar" ? "ابحث عن مؤسسة..." : "Search for a business..."}
-              </span>
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setMobileSearchOverlayOpen(true)}
+            className="w-full flex items-center gap-3 px-4 py-3.5 bg-white/90 backdrop-blur-sm border border-border rounded-xl shadow-lg text-left"
+          >
+            <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="text-sm text-muted-foreground">
+              {language === "fr" ? "Rechercher un établissement..." : language === "ar" ? "ابحث عن مؤسسة..." : "Search for a business..."}
+            </span>
+          </button>
         </div>
       </div>
 
-      {/* Mobile fullscreen search overlay — only mounted on mobile to avoid duplicate hooks */}
-      {isMobile && (
-        <MobileSearchOverlay
-          open={mobileSearchOverlayOpen}
-          onClose={() => setMobileSearchOverlayOpen(false)}
-          onBusinessSelect={(bizId) => {
-            setCompactPanelBusiness({ id: bizId, name: "" } as any);
-            setIsCompactPanelExpanded(false);
-          }}
-          onSearch={(params) => {
-            // Use setSearchParams instead of navigate to avoid full page reload & preview loading overlay
-            setSelectedCategoryFilter(null);
-            setSelectedSubcategoryFilter(null);
-            setSelectedServiceFilter(null);
-            if (params.q) {
-              setSearchQuery(params.q);
-              setInputValue(params.q);
-            }
-            setActiveTab("suggestions");
-            setSelectedCity("all");
-            setIsGeoCityAutoSelected(false);
-            setSearchParams(params);
-          }}
-          onVoiceStart={() => toggleRecording()}
-        />
-      )}
+      {/* Fullscreen search overlay with recent searches & recently viewed */}
+      <MobileSearchOverlay
+        open={mobileSearchOverlayOpen}
+        onClose={() => setMobileSearchOverlayOpen(false)}
+        onBusinessSelect={(bizId) => {
+          setCompactPanelBusiness({ id: bizId, name: "" } as any);
+          setIsCompactPanelExpanded(false);
+        }}
+        onSearch={(params) => {
+          setSelectedCategoryFilter(null);
+          setSelectedSubcategoryFilter(null);
+          setSelectedServiceFilter(null);
+          if (params.q) {
+            setSearchQuery(params.q);
+            setInputValue(params.q);
+          }
+          setActiveTab("suggestions");
+          setSelectedCity("all");
+          setIsGeoCityAutoSelected(false);
+          setSearchParams(params);
+        }}
+        onVoiceStart={() => toggleRecording()}
+      />
 
 
       {/* Google-style voice search overlay */}

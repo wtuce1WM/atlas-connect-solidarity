@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import SearchInput from "@/components/SearchInput";
 import MobileSearchOverlay from "@/components/MobileSearchOverlay";
 
 const FloatingSearchBar = () => {
@@ -18,26 +17,18 @@ const FloatingSearchBar = () => {
     <>
       <div className="fixed bottom-0 left-0 right-0 z-[210] bg-black/90 backdrop-blur-md border-t border-gold/20 py-3 px-4">
         <div className="max-w-2xl mx-auto">
-          {/* Desktop: normal inline SearchInput */}
-          <div className="hidden md:block">
-            <SearchInput variant="floating" showSuggestions={true} suggestionMode="text" suggestionsPosition="top" />
-          </div>
-
-          {/* Mobile: fake input that opens overlay */}
-          <div className="md:hidden">
-            <button
-              type="button"
-              onClick={() => setOverlayOpen(true)}
-              className="w-full flex items-center gap-3 px-4 py-3.5 bg-white/90 backdrop-blur-sm border border-gold/50 rounded-xl shadow-lg text-left"
-            >
-              <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-              <span className="text-sm text-muted-foreground">{placeholderText}</span>
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setOverlayOpen(true)}
+            className="w-full flex items-center gap-3 px-4 py-3.5 bg-white/90 backdrop-blur-sm border border-gold/50 rounded-xl shadow-lg text-left"
+          >
+            <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="text-sm text-muted-foreground">{placeholderText}</span>
+          </button>
         </div>
       </div>
 
-      {/* Mobile fullscreen overlay */}
+      {/* Fullscreen search overlay */}
       <MobileSearchOverlay open={overlayOpen} onClose={() => setOverlayOpen(false)} />
     </>
   );
