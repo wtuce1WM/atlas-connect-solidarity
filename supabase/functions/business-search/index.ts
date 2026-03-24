@@ -236,10 +236,34 @@ async function loadSearchConfig(supabase: any) {
       }
     }
   }
-  const { data: noiseData } = await supabase.from("search_noise_words").select("word").eq("is_active", true);
-  if (noiseData) {
-    NOISE_ADJECTIVES = new Set(noiseData.map((r: any) => r.word));
+  const [noiseResult, svcKwResult1, svcKwResult2] = await Promise.all([
+    supabase.from("search_noise_words").select("word").eq("is_active", true),
+    supabase.from("services").select("name_fr, keywords").not("keywords", "eq", "{}").range(0, 999),
+    supabase.from("services").select("name_fr, keywords").not("keywords", "eq", "{}").range(1000, 1999),
+  ]);
+  if (noiseResult.data) {
+    NOISE_ADJECTIVES = new Set(noiseResult.data.map((r: any) => r.word));
   }
+  // Build service keyword index for early detection
+  const allSvcKw = [...(svcKwResult1.data || []), ...(svcKwResult2.data || [])];
+  serviceKeywordIndex = [];
+  const svcKwStopWords = new Set([
+    "de", "du", "des", "le", "la", "les", "un", "une", "à", "au", "aux",
+    "en", "pour", "par", "avec", "sans", "sur", "dans", "et", "ou", "d",
+  ]);
+  for (const svc of allSvcKw) {
+    const kws: string[] = svc.keywords || [];
+    for (const kw of kws) {
+      if (!kw.includes(" ")) continue; // Only multi-word keywords
+      const contentWords = kw.toLowerCase().split(/\s+/)
+        .map((w: string) => stripAccentsGlobal(w))
+        .filter((w: string) => w.length > 1 && !svcKwStopWords.has(w));
+      if (contentWords.length >= 2) {
+        serviceKeywordIndex.push({ keyword: kw, contentWords, serviceName: svc.name_fr });
+      }
+    }
+  }
+  console.log(`Loaded ${serviceKeywordIndex.length} multi-word service keywords for early detection`);
   searchConfigLoadedAt = Date.now();
 }
 
