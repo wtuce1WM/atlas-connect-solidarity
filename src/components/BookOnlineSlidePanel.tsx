@@ -754,12 +754,13 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
 
           {/* Destinations horizontal scroll */}
           {destinations.length > 0 && (
-            <div className="shrink-0 mt-6 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
-              <div className="flex justify-center mb-1.5">
-                <p className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10">
-                  {business.name} vous emmène à :
-                </p>
-              </div>
+            <>
+            <div className="flex justify-center mt-6 mb-1.5 pointer-events-auto">
+              <p className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10">
+                {business.name} vous emmène à :
+              </p>
+            </div>
+            <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
               <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
                 {/* Spacer gauche */}
                 <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
