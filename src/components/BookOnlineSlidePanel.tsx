@@ -369,7 +369,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
           className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background shadow-md hover:bg-foreground/90 transition-colors"
           title={showMosaic ? "Fermer la mosaïque" : "Voir tous les médias"}
         >
-          {isExpanded ? (
+          {showMosaic ? (
             <Minimize2 className="h-4 w-4" />
           ) : (
             <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert" />
