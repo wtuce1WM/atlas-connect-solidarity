@@ -621,13 +621,26 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                 <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Masquer</span>
                 <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
               </button>
+              {/* Mobile-only rating badge — inline right */}
+              {avgOn20 !== null && avgOn20 > 0 && (
+                <div className="md:hidden absolute right-0 z-50 flex flex-col items-center bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2.5 animate-slide-in-right">
+                  <div className="flex items-center gap-1">
+                    <Star className="h-3.5 w-3.5 text-gold fill-gold" />
+                    <span className="text-base font-bold text-white">{avgOn20}</span>
+                    <span className="text-[10px] text-white/60">/20</span>
+                  </div>
+                  {totalReviewCount > 0 && (
+                    <span className="text-[9px] text-white/60">{totalReviewCount.toLocaleString("fr-FR")} avis</span>
+                  )}
+                </div>
+              )}
 
             </div>
           )}
 
-          {/* Mobile-only floating rating badge — top right under toolbar */}
+          {/* Desktop-only floating rating badge — top right under toolbar */}
           {avgOn20 !== null && avgOn20 > 0 && (
-            <div className="md:hidden absolute top-2 right-4 z-20 flex flex-col items-center bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2.5 pointer-events-auto animate-slide-in-right">
+            <div className="hidden md:flex absolute top-2 right-4 z-20 flex-col items-center bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2.5 pointer-events-auto animate-slide-in-right">
               <div className="flex items-center gap-1">
                 <Star className="h-3.5 w-3.5 text-gold fill-gold" />
                 <span className="text-base font-bold text-white">{avgOn20}</span>
