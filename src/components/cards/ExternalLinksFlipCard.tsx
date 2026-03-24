@@ -78,9 +78,9 @@ const ExternalLinksFlipCard = ({
           style={{ backfaceVisibility: "hidden" }}
         >
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5">
+            <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
               <ExternalLink className="w-4 h-4" />
-              Liens externes
+              + d'infos
             </h3>
             {hasBack && (
               <button
