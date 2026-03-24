@@ -35,33 +35,28 @@ const Header = ({ variant = "default" }: HeaderProps) => {
   return (
     <header className={`fixed left-0 right-0 top-0 z-30 ${headerBg}`}>
       <div className="container mx-auto flex items-center justify-between px-4 py-3">
-        {/* Logo */}
-        <a href="/" className="flex items-center gap-2 shrink-0">
-          <span className="text-lg font-bold tracking-tight" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em", textTransform: "uppercase" }}>
-            <span className="text-foreground">ONE WORLD</span>{" "}
-            <span className="text-foreground">MOROCCO</span>
-          </span>
-        </a>
-
-        {/* Desktop nav */}
-        <nav className="hidden lg:flex items-center gap-6">
-          {navLinks}
-        </nav>
-
-        {/* Mobile hamburger */}
-        <button
-          type="button"
-          className="lg:hidden flex items-center justify-center w-10 h-10 rounded-lg text-foreground hover:bg-muted/50 transition-colors"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Menu"
-        >
-          {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+        {/* Left: hamburger + logo */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="flex items-center justify-center w-10 h-10 rounded-lg text-foreground hover:bg-muted/50 transition-colors"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Menu"
+          >
+            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+          <a href="/" className="flex items-center gap-2 shrink-0">
+            <span className="text-lg font-bold tracking-tight" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em", textTransform: "uppercase" }}>
+              <span className="text-foreground">ONE WORLD</span>{" "}
+              <span className="text-foreground">MOROCCO</span>
+            </span>
+          </a>
+        </div>
       </div>
 
-      {/* Mobile dropdown */}
+      {/* Dropdown menu */}
       {mobileOpen && (
-        <div className="lg:hidden border-t border-border bg-white animate-in slide-in-from-top-2 fade-in duration-150">
+        <div className="border-t border-border bg-white animate-in slide-in-from-top-2 fade-in duration-150">
           <nav className="flex flex-col gap-4 px-6 py-5">
             {navLinks}
           </nav>
