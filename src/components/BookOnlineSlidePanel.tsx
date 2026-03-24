@@ -228,6 +228,15 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
         .limit(3);
       setReviewTexts(langReviews ? (langReviews as any[]) : []);
 
+      // Fetch external links
+      const { data: extLinks } = await supabase
+        .from("business_documents")
+        .select("id, name, url, icon")
+        .eq("business_id", businessId)
+        .eq("type", "external_link")
+        .order("sort_order");
+      setExternalLinks((extLinks || []) as ExternalLinkItem[]);
+
       setIsLoading(false);
     };
     fetchData();
