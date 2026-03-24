@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, CalendarCheck, Star, Minimize2 } from "lucide-react";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
@@ -111,13 +112,22 @@ interface Destination {
   images: string[] | null;
 }
 
+interface PoiBusiness {
+  id: string;
+  name: string;
+  images: string[] | null;
+  logo_url: string | null;
+}
+
 type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
 
 const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }: BookOnlineSlidePanelProps) => {
   const { language } = useLanguage();
+  const navigate = useNavigate();
   const [business, setBusiness] = useState<BookOnlineBusiness | null>(null);
   const [webOnlyData, setWebOnlyData] = useState<WebOnlyData | null>(null);
   const [destinations, setDestinations] = useState<Destination[]>([]);
+  const [poiBusinesses, setPoiBusinesses] = useState<PoiBusiness[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [descExpanded, setDescExpanded] = useState(true);
@@ -220,19 +230,39 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
 
       // Fetch destination details (depends on destLinksRes)
       const destIds = (destLinksRes.data || []).map(d => d.destination_id);
+      let fetchedDests: Destination[] = [];
       if (destIds.length > 0) {
         const { data: destData } = await supabase
           .from("destinations")
           .select("id, name_fr, name_en, image_url, images")
           .in("id", destIds);
-        const sorted = ((destData || []) as Destination[]).sort((a, b) => {
+        fetchedDests = ((destData || []) as Destination[]).sort((a, b) => {
           const nameA = (language === "en" && a.name_en ? a.name_en : a.name_fr).toLowerCase();
           const nameB = (language === "en" && b.name_en ? b.name_en : b.name_fr).toLowerCase();
           return nameA.localeCompare(nameB);
         });
-        setDestinations(sorted);
+      }
+      setDestinations(fetchedDests);
+
+      // Fetch POI businesses when destinations ≤ 1
+      if (fetchedDests.length <= 1) {
+        const { data: poiLinks } = await supabase
+          .from("business_poi_businesses")
+          .select("poi_business_id")
+          .eq("business_id", businessId);
+        const poiIds = (poiLinks || []).map(p => p.poi_business_id);
+        if (poiIds.length > 0) {
+          const { data: poiData } = await supabase
+            .from("businesses")
+            .select("id, name, images, logo_url")
+            .in("id", poiIds)
+            .eq("is_active", true);
+          setPoiBusinesses((poiData || []) as PoiBusiness[]);
+        } else {
+          setPoiBusinesses([]);
+        }
       } else {
-        setDestinations([]);
+        setPoiBusinesses([]);
       }
 
       setIsLoading(false);
@@ -649,7 +679,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
               <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
               {/* Card 1: Texte Web only */}
               {woDescription && (
-                <div className={`snap-start shrink-0 w-[20rem] md:w-[30rem] ${destinations.length === 0 ? 'h-[21.6em] md:h-[28.8em]' : 'h-[18em] md:h-[24em]'} mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10`}
+                <div className={`snap-start shrink-0 w-[20rem] md:w-[30rem] ${destinations.length === 0 && poiBusinesses.length === 0 ? 'h-[21.6em] md:h-[28.8em]' : 'h-[18em] md:h-[24em]'} mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10`}
                     style={{ animationFillMode: 'forwards' }}
                   >
                     <div
@@ -665,7 +695,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     business={business}
                     language={language}
                     hasOpeningHours={!!hasOpeningHours}
-                    tallHeight={destinations.length === 0}
+                    tallHeight={destinations.length === 0 && poiBusinesses.length === 0}
                     animationDelay={woDescription ? "120ms" : "0ms"}
                   />
                 )}
@@ -711,12 +741,14 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
             </div>
           </div>
 
-          {/* Destinations horizontal scroll */}
-          {destinations.length > 0 && (
+          {/* Destinations & POI horizontal scroll */}
+          {(destinations.length > 0 || poiBusinesses.length > 0) && (
             <>
             <div className="flex justify-center mt-6 mb-1.5 pointer-events-auto">
               <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                {business.name} vous emmène à :
+                {destinations.length > 0
+                  ? `${business.name} vous emmène à :`
+                  : language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité"}
               </h3>
             </div>
             <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
@@ -745,6 +777,29 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     </div>
                   );
                 })}
+                {/* POI businesses */}
+                {poiBusinesses.map((poi, index) => {
+                  const poiImg = poi.images?.filter(Boolean)?.[0] || poi.logo_url;
+                  return (
+                    <div
+                      key={poi.id}
+                      className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                      style={{ animationDelay: `${(destinations.length + index) * 120}ms`, animationFillMode: 'forwards' }}
+                      onClick={() => navigate(`/search?openBusiness=${poi.id}`)}
+                    >
+                      {poiImg ? (
+                        <img src={poiImg} alt={poi.name} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                      ) : (
+                        <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
+                          <MapPin className="h-5 w-5 text-white/40" />
+                        </div>
+                      )}
+                      <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
+                        {poi.name}
+                      </p>
+                    </div>
+                  );
+                })}
                 {/* Spacer droit */}
                 <div className="shrink-0 w-6" aria-hidden="true" />
               </div>
@@ -754,7 +809,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
 
           {/* CTAs */}
           {(bookUrl || (business.latitude && business.longitude)) && (
-            <div className={`shrink-0 py-2 flex flex-col items-center gap-2 pointer-events-auto ${destinations.length === 0 ? 'mt-auto' : ''}`}>
+            <div className={`shrink-0 py-2 flex flex-col items-center gap-2 pointer-events-auto ${destinations.length === 0 && poiBusinesses.length === 0 ? 'mt-auto' : ''}`}>
               {bookingCta && (
                 bookingCta.forceExternal ? (
                   <a
