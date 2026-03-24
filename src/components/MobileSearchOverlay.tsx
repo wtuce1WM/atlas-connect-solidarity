@@ -109,7 +109,7 @@ const MobileSearchOverlay = ({
     <div
       className={`fixed inset-0 z-[10000] bg-background flex flex-col animate-in slide-in-from-bottom duration-200 ${
         desktopDocked
-          ? `lg:inset-auto lg:top-[53px] lg:bottom-0 lg:left-0 lg:right-auto lg:border-r lg:border-border ${desktopHalfWidth ? "lg:w-1/2" : "lg:w-full"}`
+          ? `lg:inset-auto lg:top-0 lg:bottom-0 lg:left-0 lg:right-auto lg:border-r lg:border-border ${desktopHalfWidth ? "lg:w-1/2" : "lg:w-full"}`
           : ""
       }`}
     >
