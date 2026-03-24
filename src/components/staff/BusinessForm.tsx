@@ -2885,29 +2885,42 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             </Button>
           </div>
           {externalLinkDocs.map((doc, idx) => (
-            <div key={idx} className="space-y-1 border rounded-md p-2 bg-muted/30">
-              <div className="flex items-center gap-2">
-                <Input
-                  value={doc.name}
-                  onChange={(e) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, name: e.target.value } : d))}
-                  placeholder="Titre"
-                  className="flex-1"
+            <div key={idx} className="flex items-center gap-2">
+              {/* Image upload thumbnail */}
+              <label className="shrink-0 cursor-pointer relative group">
+                {doc.image_url ? (
+                  <img src={doc.image_url} alt="" className="h-9 w-9 object-cover rounded border border-input" />
+                ) : (
+                  <div className="h-9 w-9 rounded border border-dashed border-input flex items-center justify-center bg-muted/50 hover:bg-muted">
+                    <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+                    const path = `external-links/${crypto.randomUUID()}.${ext}`;
+                    const { error } = await supabase.storage.from("external-link-images").upload(path, file);
+                    if (error) {
+                      toast({ title: "Erreur upload image", variant: "destructive" });
+                      return;
+                    }
+                    const { data: urlData } = supabase.storage.from("external-link-images").getPublicUrl(path);
+                    setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, image_url: urlData.publicUrl } : d));
+                  }}
                 />
-                <select
-                  value={doc.language}
-                  onChange={(e) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, language: e.target.value } : d))}
-                  className="h-9 rounded-md border border-input bg-background px-3 text-sm w-28"
-                >
-                  <option value="">Langue</option>
-                  {LANGUAGE_OPTIONS.map(({ code, label }) => (
-                    <option key={code} value={code}>{label}</option>
-                  ))}
-                </select>
-                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setExternalLinkDocs(prev => prev.filter((_, i) => i !== idx))}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="flex items-center gap-2">
+              </label>
+              <Input
+                value={doc.name}
+                onChange={(e) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, name: e.target.value } : d))}
+                placeholder="Titre"
+                className="w-40"
+              />
+              <div className="flex-1 flex items-center gap-1">
                 <Input
                   value={doc.url}
                   onChange={(e) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
@@ -2920,17 +2933,19 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   </a>
                 )}
               </div>
-              <div className="flex items-center gap-2">
-                <Input
-                  value={doc.image_url}
-                  onChange={(e) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, image_url: e.target.value } : d))}
-                  placeholder="URL de l'image (optionnel)"
-                  className="flex-1"
-                />
-                {doc.image_url && (
-                  <img src={doc.image_url} alt="" className="h-9 w-9 object-cover rounded border border-input shrink-0" />
-                )}
-              </div>
+              <select
+                value={doc.language}
+                onChange={(e) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, language: e.target.value } : d))}
+                className="h-9 rounded-md border border-input bg-background px-3 text-sm w-28"
+              >
+                <option value="">Langue</option>
+                {LANGUAGE_OPTIONS.map(({ code, label }) => (
+                  <option key={code} value={code}>{label}</option>
+                ))}
+              </select>
+              <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setExternalLinkDocs(prev => prev.filter((_, i) => i !== idx))}>
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </div>
           ))}
           {externalLinkDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucun lien externe ajouté.</p>}
