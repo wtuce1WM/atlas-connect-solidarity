@@ -734,9 +734,20 @@ serve(async (req) => {
     // Detect superlative intent (meilleur, top, best…) → sort by rating
     const isSuperlatif = effectiveQuery ? detectSuperlative(effectiveQuery) : false;
 
-// Auto-détection de ville dans la query (toujours, même si city est passée explicitement,
-    // pour pouvoir purger le terme ville de la requête textuelle)
-    const cityDetection = effectiveQuery ? await detectCityInQueryDynamic(effectiveQuery, supabase) : null;
+// ── Parallelize independent DB lookups ──
+    const [cityDetection, detectedNeighborhood, webOnlySvcRow, relData, configsData] = await Promise.all([
+      // 1. City detection
+      effectiveQuery ? detectCityInQueryDynamic(effectiveQuery, supabase) : Promise.resolve(null),
+      // 2. Neighborhood detection
+      effectiveQuery ? detectNeighborhoodInQuery(effectiveQuery, supabase) : Promise.resolve(null),
+      // 3. Web Only service name
+      supabase.from("services").select("name_fr").eq("id", "9ad4f9a3-f409-498f-8a1e-6b949407365b").limit(1).single().then((r: any) => r.data),
+      // 4. Related subcategories
+      supabase.from("subcategory_relations").select("source_subcategory_id, target_subcategory_id, subcategories!subcategory_relations_source_subcategory_id_fkey(name_fr), target:subcategories!subcategory_relations_target_subcategory_id_fkey(name_fr)").eq("is_active", true).then((r: any) => r.data),
+      // 5. Search configs
+      supabase.from("subcategory_search_config").select("subcategory_id, search_mode, max_results, boost_weight, synonyms, subcategories!inner(name_fr)").then((r: any) => r.data),
+    ]);
+
     const detectedCity = cityDetection?.cityName || null;
     const detectedCityMatchedTerm = cityDetection?.matchedTerm || null;
     let effectiveCity = city || detectedCity || undefined;
@@ -756,20 +767,11 @@ serve(async (req) => {
       }
     }
 
-    // Resolve "Web only" service name from its fixed ID (rename-safe)
-    const WEB_ONLY_SERVICE_ID = "9ad4f9a3-f409-498f-8a1e-6b949407365b";
+    // Web Only service name
     let webOnlyServiceName: string | null = null;
-    {
-      const { data: svcRow } = await supabase
-        .from("services")
-        .select("name_fr")
-        .eq("id", WEB_ONLY_SERVICE_ID)
-        .limit(1)
-        .single();
-      if (svcRow) {
-        webOnlyServiceName = svcRow.name_fr;
-        console.log(`Resolved Web Only service ID → "${webOnlyServiceName}"`);
-      }
+    if (webOnlySvcRow) {
+      webOnlyServiceName = webOnlySvcRow.name_fr;
+      console.log(`Resolved Web Only service ID → "${webOnlyServiceName}"`);
     }
 
     // Helper: build city OR clause including zone_city_ids coverage + "Web only" + "internationale" businesses
@@ -780,23 +782,19 @@ serve(async (req) => {
         // Zone nationale: ville dans zone_city_ids ET is_visible_locale = true
         conditions.push(`and(zone_city_ids.cs.{"${effectiveCityId}"},is_visible_locale.eq.true)`);
       }
-      // "Web only" condition removed — these businesses are covered by zone_city_ids or zone_chalandise
       // Include businesses with zone_chalandise = "internationale" ET visible
       conditions.push(`and(zone_chalandise.eq.internationale,is_visible_locale.eq.true)`);
       return builder.or(conditions.join(","));
     };
 
-    // Auto-détection de quartier dans la query
-    const detectedNeighborhood = effectiveQuery ? await detectNeighborhoodInQuery(effectiveQuery, supabase) : null;
+    // Neighborhood handling
     if (detectedNeighborhood) {
       console.log(`Auto-detected neighborhood "${detectedNeighborhood}" from query "${effectiveQuery}"`);
-      // Derive city from neighborhood if no city was detected
       if (!effectiveCity) {
         const neighborhoodCity = getNeighborhoodCity(detectedNeighborhood, await loadNeighborhoods(supabase));
         if (neighborhoodCity) {
           effectiveCity = neighborhoodCity;
           console.log(`Derived city "${effectiveCity}" from neighborhood "${detectedNeighborhood}"`);
-          // Also resolve city ID for zone_city_ids filtering
           if (!effectiveCityId) {
             const { data: cityRow } = await supabase
               .from("cities")
@@ -813,44 +811,34 @@ serve(async (req) => {
       }
     }
 
-    // Related subcategories: loaded from DB (subcategory_relations table)
+    // Related subcategories
     let RELATED_SUBCATEGORIES: Record<string, string[]> = {};
-    {
-      const { data: relData } = await supabase
-        .from("subcategory_relations")
-        .select("source_subcategory_id, target_subcategory_id, subcategories!subcategory_relations_source_subcategory_id_fkey(name_fr), target:subcategories!subcategory_relations_target_subcategory_id_fkey(name_fr)")
-        .eq("is_active", true);
-      if (relData) {
-        for (const row of relData) {
-          const srcName = (row as any).subcategories?.name_fr;
-          const tgtName = (row as any).target?.name_fr;
-          if (srcName && tgtName) {
-            if (!RELATED_SUBCATEGORIES[srcName]) RELATED_SUBCATEGORIES[srcName] = [];
-            RELATED_SUBCATEGORIES[srcName].push(tgtName);
-          }
+    if (relData) {
+      for (const row of relData) {
+        const srcName = (row as any).subcategories?.name_fr;
+        const tgtName = (row as any).target?.name_fr;
+        if (srcName && tgtName) {
+          if (!RELATED_SUBCATEGORIES[srcName]) RELATED_SUBCATEGORIES[srcName] = [];
+          RELATED_SUBCATEGORIES[srcName].push(tgtName);
         }
       }
     }
-    // ── Load subcategory search configs from DB ──
+
+    // Search configs
     let searchConfigs: Record<string, { search_mode: string; max_results: number | null; boost_weight: number; synonyms: string[] }> = {};
-    {
-      const { data: configs } = await supabase
-        .from("subcategory_search_config")
-        .select("subcategory_id, search_mode, max_results, boost_weight, synonyms, subcategories!inner(name_fr)");
-      if (configs) {
-        for (const c of configs) {
-          const name = (c as any).subcategories?.name_fr;
-          if (name) {
-            searchConfigs[name.toLowerCase()] = {
-              search_mode: c.search_mode,
-              max_results: c.max_results,
-              boost_weight: c.boost_weight,
-              synonyms: c.synonyms || [],
-            };
-          }
+    if (configsData) {
+      for (const c of configsData) {
+        const name = (c as any).subcategories?.name_fr;
+        if (name) {
+          searchConfigs[name.toLowerCase()] = {
+            search_mode: c.search_mode,
+            max_results: c.max_results,
+            boost_weight: c.boost_weight,
+            synonyms: c.synonyms || [],
+          };
         }
-        console.log(`Loaded ${Object.keys(searchConfigs).length} search configs`);
       }
+      console.log(`Loaded ${Object.keys(searchConfigs).length} search configs`);
     }
 
     // ── Check for exact business name match (for pinning, but don't skip subcategory detection) ──
