@@ -11,6 +11,7 @@ interface DestinationSlidePanelProps {
   destinationId: string;
   onClose: () => void;
   slideFrom?: "right" | "bottom";
+  belowToolbar?: boolean;
 }
 
 interface DestinationFull {
