@@ -233,6 +233,23 @@ const StaffBackoffice = () => {
         description: "Impossible de dupliquer l'entreprise.",
       });
     } else {
+      // Duplicate business_web_only if exists
+      if (data) {
+        const { data: webOnly } = await supabase
+          .from("business_web_only")
+          .select("description, images, videos")
+          .eq("business_id", id)
+          .maybeSingle();
+        if (webOnly) {
+          await supabase.from("business_web_only").insert({
+            business_id: data.id,
+            description: webOnly.description,
+            images: webOnly.images,
+            videos: webOnly.videos,
+          });
+        }
+      }
+
       toast({
         title: "Succès",
         description: "Entreprise dupliquée avec succès.",
