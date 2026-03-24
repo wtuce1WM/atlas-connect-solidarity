@@ -171,14 +171,56 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Auto-set reserve_now_force_external for businesses with blocked booking domains
+    const blockedDomainSet = new Set(blockedResults.map((r: any) => r.domain));
+    let autoForcedCount = 0;
+
+    if (blockedDomainSet.size > 0) {
+      // Get all businesses with booking URLs
+      const bookingFields = "id, reserve_now_url, booking_url, other_booking_url, reserve_now_force_external";
+      const { data: allBiz } = await supabase
+        .from("businesses")
+        .select(bookingFields)
+        .eq("is_active", true);
+
+      if (allBiz) {
+        const toForce: string[] = [];
+        for (const b of allBiz) {
+          if (b.reserve_now_force_external) continue; // already forced
+          const urls = [b.reserve_now_url, b.booking_url, b.other_booking_url].filter(Boolean);
+          const hasBlocked = urls.some((u: string) => {
+            try { return blockedDomainSet.has(new URL(u).hostname); } catch { return false; }
+          });
+          if (hasBlocked) toForce.push(b.id);
+        }
+
+        if (toForce.length > 0) {
+          // Update in batches of 50
+          for (let i = 0; i < toForce.length; i += 50) {
+            const batch = toForce.slice(i, i + 50);
+            const { error: forceError } = await supabase
+              .from("businesses")
+              .update({ reserve_now_force_external: true, updated_at: new Date().toISOString() })
+              .in("id", batch);
+            if (forceError) {
+              console.error("Error forcing external for batch:", forceError);
+            }
+          }
+          autoForcedCount = toForce.length;
+          console.log(`Auto-set reserve_now_force_external=true for ${autoForcedCount} businesses`);
+        }
+      }
+    }
+
     const blockedDomains = blockedResults;
     const summary = {
       totalDomains: results.length,
       blockedDomains: blockedDomains.length,
       totalBusinessesAffected: blockedDomains.reduce((sum: number, r: any) => sum + r.businessCount, 0),
+      autoForcedExternal: autoForcedCount,
     };
 
-    console.log(`Done. ${summary.blockedDomains}/${summary.totalDomains} domains blocked. Results persisted to DB.`);
+    console.log(`Done. ${summary.blockedDomains}/${summary.totalDomains} domains blocked. ${autoForcedCount} businesses auto-forced external.`);
 
     return new Response(JSON.stringify({ summary, results }, null, 2), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
