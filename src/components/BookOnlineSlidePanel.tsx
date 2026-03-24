@@ -757,9 +757,9 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
           {destinations.length > 0 && (
             <>
             <div className="flex justify-center mt-6 mb-1.5 pointer-events-auto">
-              <p className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10">
+              <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                 {business.name} vous emmène à :
-              </p>
+              </h3>
             </div>
             <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
               <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
