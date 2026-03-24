@@ -17,11 +17,34 @@ const emitSearchHistorySync = () => {
   window.dispatchEvent(new Event(SEARCH_HISTORY_SYNC_EVENT));
 };
 
+const normalizeQuery = (query: string) => query.trim().toLocaleLowerCase().replace(/\s+/g, " ");
+
+const dedupeHistoryEntries = (entries: SearchHistoryEntry[]) => {
+  const seen = new Set<string>();
+  const unique: SearchHistoryEntry[] = [];
+
+  for (const entry of entries) {
+    const normalized = normalizeQuery(entry.query || "");
+    if (!normalized || seen.has(normalized)) continue;
+    seen.add(normalized);
+
+    unique.push({
+      ...entry,
+      query: entry.query.trim(),
+    });
+
+    if (unique.length >= MAX_ENTRIES) break;
+  }
+
+  return unique;
+};
+
 /** Read from localStorage */
 function getLocalHistory(): SearchHistoryEntry[] {
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const parsed = raw ? JSON.parse(raw) : [];
+    return dedupeHistoryEntries(parsed);
   } catch {
     return [];
   }
@@ -30,7 +53,8 @@ function getLocalHistory(): SearchHistoryEntry[] {
 /** Write to localStorage */
 function setLocalHistory(entries: SearchHistoryEntry[]) {
   try {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(entries.slice(0, MAX_ENTRIES)));
+    const unique = dedupeHistoryEntries(entries);
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(unique.slice(0, MAX_ENTRIES)));
   } catch {
     /* quota exceeded – silently ignore */
   }
@@ -60,14 +84,15 @@ export const useSearchHistory = () => {
         .select("id, query, city, category, created_at")
         .eq("user_id", uid)
         .order("created_at", { ascending: false })
-        .limit(MAX_ENTRIES);
+        .limit(MAX_ENTRIES * 3);
 
-      const nextHistory = error
+      const nextHistoryRaw = error
         ? getLocalHistory()
         : (data?.length ?? 0) > 0
           ? (data ?? [])
           : getLocalHistory();
 
+      const nextHistory = dedupeHistoryEntries(nextHistoryRaw);
       historyRef.current = nextHistory;
       setHistory(nextHistory);
     } catch {
@@ -123,19 +148,21 @@ export const useSearchHistory = () => {
     return () => window.removeEventListener(SEARCH_HISTORY_SYNC_EVENT, handleSync);
   }, [authReady, userId, loadFromDb]);
 
-  /** Save a search entry (deduplicates recent identical searches) */
+  /** Save a search entry (single unique entry per query) */
   const saveSearch = useCallback(async (query: string, city?: string | null, category?: string | null) => {
     if (!query || query.trim().length < 2) return;
 
-    const trimmedQuery = query.trim();
-    const current = historyRef.current;
+    const trimmedQuery = query.trim().replace(/\s+/g, " ");
+    const normalizedQuery = normalizeQuery(trimmedQuery);
+    if (!normalizedQuery || trimmedQuery.length < 2) return;
 
-    // Deduplicate: skip if last entry is the same
-    const isDuplicate = current.length > 0 &&
-      current[0].query === trimmedQuery &&
-      (current[0].city || null) === (city || null) &&
-      (current[0].category || null) === (category || null);
-    if (isDuplicate) return;
+    const current = dedupeHistoryEntries(historyRef.current);
+
+    // If it's already on top, keep as-is (no duplicate + no noisy writes)
+    if (current[0] && normalizeQuery(current[0].query) === normalizedQuery) return;
+
+    const duplicatesInCurrent = current.filter((e) => normalizeQuery(e.query) === normalizedQuery);
+    const updatedBase = current.filter((e) => normalizeQuery(e.query) !== normalizedQuery);
 
     const newEntry: SearchHistoryEntry = {
       id: crypto.randomUUID(),
@@ -145,11 +172,17 @@ export const useSearchHistory = () => {
       created_at: new Date().toISOString(),
     };
 
-    const updated = [newEntry, ...current].slice(0, MAX_ENTRIES);
+    const updated = [newEntry, ...updatedBase].slice(0, MAX_ENTRIES);
     historyRef.current = updated;
     setHistory(updated);
 
     if (userId) {
+      // Cleanup previous duplicate rows for this query (from current loaded history)
+      const duplicateIds = duplicatesInCurrent.map((e) => e.id).filter(Boolean);
+      if (duplicateIds.length > 0) {
+        await supabase.from("search_history").delete().in("id", duplicateIds);
+      }
+
       const { error } = await supabase.from("search_history").insert({
         user_id: userId,
         query: trimmedQuery,
@@ -200,7 +233,7 @@ export const useSearchHistory = () => {
   useEffect(() => {
     if (!userId) return;
 
-    const local = getLocalHistory();
+    const local = dedupeHistoryEntries(getLocalHistory());
     if (local.length === 0) return;
 
     const rows = local.map((e) => ({
