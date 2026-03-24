@@ -852,7 +852,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
         return (
           <BookingOverlay
             bookingUrl={finalUrl}
-            onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); }}
+            title={bookingOverlayUrl ? bookingOverlayTitle : undefined}
+            onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); }}
           />
         );
       })()}
