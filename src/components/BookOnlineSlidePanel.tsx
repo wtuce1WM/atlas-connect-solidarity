@@ -944,11 +944,12 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
           <div className="grid grid-cols-2 gap-2 p-2">
             {mediaItems.map((item, idx) => {
               if (item.kind === "video") {
-                const vInfo = getVideoEmbed(item.url, window.location.origin);
-                const thumbnail = vInfo?.type === "youtube"
-                  ? `https://img.youtube.com/vi/${vInfo.id}/hqdefault.jpg`
-                  : vInfo?.type === "vimeo"
-                    ? `https://vumbnail.com/${vInfo.id}.jpg`
+                const ytMatch = item.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
+                const vimeoMatch = item.url.match(/vimeo\.com\/(\d+)/);
+                const thumbnail = ytMatch
+                  ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`
+                  : vimeoMatch
+                    ? `https://vumbnail.com/${vimeoMatch[1]}.jpg`
                     : null;
                 return (
                   <div
