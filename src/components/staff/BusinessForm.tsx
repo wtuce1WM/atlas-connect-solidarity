@@ -1870,7 +1870,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
           {/* Villes de la zone nationale */}
           {(formData as any).zone_chalandise === "nationale" && (
-            <div className="space-y-2 col-span-1 md:col-span-5">
+            <div className="space-y-2 col-span-1 md:col-span-6">
               <Label>Villes couvertes (zone nationale)</Label>
               <div className="border rounded-md p-3 max-h-48 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                 {dbCities.map((city) => {
