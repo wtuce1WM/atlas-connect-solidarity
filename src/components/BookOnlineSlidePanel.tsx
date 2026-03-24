@@ -743,12 +743,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     links={externalLinks}
                     animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(hasReviewsCard)) * 120}ms`}
                     onOpenUrl={(url) => {
+                      setBookingOverlayUrl(url);
                       setShowBookingOverlay(true);
-                      // Use a small timeout to let the overlay mount before setting URL
-                      setTimeout(() => {
-                        const evt = new CustomEvent("open-booking-url", { detail: url });
-                        window.dispatchEvent(evt);
-                      }, 100);
                     }}
                   />
                 )}
