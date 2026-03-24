@@ -61,7 +61,7 @@ const BookingOverlay = ({ bookingUrl, title, onClose }: BookingOverlayProps) => 
           >
             <X className="h-4 w-4" />
           </button>
-          <span className="text-sm font-semibold">Réservation</span>
+          <span className="text-sm font-semibold">{title || "Réservation"}</span>
         </div>
       </div>
 
