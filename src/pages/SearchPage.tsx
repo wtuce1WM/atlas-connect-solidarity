@@ -4233,16 +4233,50 @@ const SearchPage = () => {
       {/* Floating Search Bar */}
       <div className={`fixed bottom-0 bg-white border-t border-border pt-3 py-3 px-4 md:px-4 transition-transform duration-300 ${hasKnownLocation ? "left-0 w-1/2" : "left-0 right-0"} ${((isCompactPanelWebOnly || isCompactPanelBookOnline) && compactPanelBusiness) || (isSubDesktop && showMobileMap) ? "translate-y-full" : ""} ${isCompactPanelExpanded ? "z-[190]" : "z-[210]"}`}>
         <div className="max-w-2xl mx-auto">
-          <button
-            type="button"
-            onClick={() => setMobileSearchOverlayOpen(true)}
-            className="w-full flex items-center gap-3 px-4 py-3.5 bg-white/90 backdrop-blur-sm border border-border rounded-xl shadow-lg text-left"
-          >
-            <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="text-sm text-muted-foreground">
-              {language === "fr" ? "Rechercher un établissement..." : language === "ar" ? "ابحث عن مؤسسة..." : "Search for a business..."}
-            </span>
-          </button>
+          {/* Desktop: inline input → searches in left panel */}
+          {!isSubDesktop ? (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const val = (e.currentTarget.elements.namedItem("floatingQ") as HTMLInputElement)?.value?.trim();
+                if (!val) return;
+                setSelectedCategoryFilter(null);
+                setSelectedSubcategoryFilter(null);
+                setSelectedServiceFilter(null);
+                setSearchQuery(val);
+                setInputValue(val);
+                setActiveTab("suggestions");
+                setSelectedCity("all");
+                setIsGeoCityAutoSelected(false);
+                setSearchParams({ q: val, _t: String(Date.now()) });
+                (e.currentTarget.elements.namedItem("floatingQ") as HTMLInputElement).value = "";
+              }}
+              className="w-full flex items-center"
+            >
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  name="floatingQ"
+                  type="text"
+                  autoComplete="off"
+                  placeholder={language === "fr" ? "Rechercher un établissement..." : language === "ar" ? "ابحث عن مؤسسة..." : "Search for a business..."}
+                  className="w-full pl-10 pr-4 py-3.5 text-sm bg-white/90 backdrop-blur-sm border border-border rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary placeholder:text-muted-foreground"
+                />
+              </div>
+            </form>
+          ) : (
+            /* Mobile/Tablet: button that opens fullscreen overlay */
+            <button
+              type="button"
+              onClick={() => setMobileSearchOverlayOpen(true)}
+              className="w-full flex items-center gap-3 px-4 py-3.5 bg-white/90 backdrop-blur-sm border border-border rounded-xl shadow-lg text-left"
+            >
+              <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+              <span className="text-sm text-muted-foreground">
+                {language === "fr" ? "Rechercher un établissement..." : language === "ar" ? "ابحث عن مؤسسة..." : "Search for a business..."}
+              </span>
+            </button>
+          )}
         </div>
       </div>
 
