@@ -1027,6 +1027,21 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       return;
     }
 
+    // External links: title + URL are required when a row is filled
+    const hasInvalidExternalLink = externalLinkDocs.some((d) => {
+      const hasAnyValue = !!(d.name.trim() || d.url.trim() || d.image_url.trim() || d.language.trim());
+      return hasAnyValue && (!d.name.trim() || !d.url.trim());
+    });
+
+    if (hasInvalidExternalLink) {
+      toast({
+        variant: "destructive",
+        title: "Liens Externes incomplets",
+        description: "Le Titre et l’URL sont obligatoires pour chaque lien externe.",
+      });
+      return;
+    }
+
     setLoading(true);
 
     // Force token refresh to avoid RLS failures on expired JWT
@@ -1222,11 +1237,13 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         const allDocs = [
           ...menuDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "menu" as const, url: d.url.trim(), name: d.name || null, language: d.language || null, icon: d.icon || null, sort_order: i })),
           ...flipbookDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "flipbook" as const, url: d.url.trim(), name: d.name || null, language: d.language || null, icon: d.icon || null, sort_order: i })),
-          ...externalLinkDocs.filter(d => d.url.trim() || d.name.trim() || d.image_url.trim()).map((d, i) => ({ business_id: businessId, type: "external_link" as const, url: d.url.trim() || "", name: d.name || null, language: d.language || null, icon: d.image_url || null, sort_order: i })),
+          ...externalLinkDocs
+            .filter((d) => d.name.trim() && d.url.trim())
+            .map((d, i) => ({ business_id: businessId, type: "external_link" as const, url: d.url.trim(), name: d.name.trim(), language: d.language || null, icon: d.image_url || null, sort_order: i })),
         ];
         if (allDocs.length > 0) {
           const { error: docsError } = await supabase.from("business_documents" as any).insert(allDocs);
-          if (docsError) console.error("Error saving business_documents:", docsError);
+          if (docsError) throw docsError;
         }
       }
 
@@ -2886,7 +2903,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             </Button>
           </div>
           {externalLinkDocs.map((doc, idx) => (
-            <div key={idx} className="flex items-center gap-2">
+            <div key={idx} className="flex items-center gap-2 flex-nowrap">
               {/* Image upload thumbnail */}
               <label className="shrink-0 cursor-pointer relative group">
                 {doc.image_url ? (
@@ -2918,15 +2935,17 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Input
                 value={doc.name}
                 onChange={(e) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, name: e.target.value } : d))}
-                placeholder="Titre"
-                className="w-40"
+                placeholder="Titre *"
+                className="w-56 lg:w-72 shrink-0"
+                required
               />
-              <div className="flex-1 flex items-center gap-1">
+              <div className="flex-1 min-w-0 flex items-center gap-1">
                 <Input
                   value={doc.url}
                   onChange={(e) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
-                  placeholder="URL du lien"
+                  placeholder="URL du lien *"
                   className="flex-1"
+                  required
                 />
                 {doc.url && (
                   <a href={doc.url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-muted-foreground hover:text-primary" title="Ouvrir le lien">
@@ -2937,7 +2956,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <select
                 value={doc.language}
                 onChange={(e) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, language: e.target.value } : d))}
-                className="h-9 rounded-md border border-input bg-background px-3 text-sm w-28"
+                className="h-9 rounded-md border border-input bg-background px-3 text-sm w-28 shrink-0"
               >
                 <option value="">Langue</option>
                 {LANGUAGE_OPTIONS.map(({ code, label }) => (
