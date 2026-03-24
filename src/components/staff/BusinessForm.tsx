@@ -2967,7 +2967,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>
-          ))
+          ))}
           {externalLinkDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucun lien externe ajouté.</p>}
         </div>
 
