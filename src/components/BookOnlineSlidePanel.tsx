@@ -740,7 +740,21 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
                   />
                 )}
-                {/* Card 4: Reviews Flip */}
+                {/* Card 4: Menu URL */}
+                {menuDocs.length > 0 && (
+                  <MenuUrlCard
+                    menus={menuDocs}
+                    language={language}
+                    tallHeight={destinations.length === 0 && poiBusinesses.length === 0}
+                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0)) * 120}ms`}
+                    onOpenUrl={(url, title) => {
+                      setBookingOverlayUrl(url);
+                      setShowBookingOverlay(true);
+                      setBookingOverlayTitle(title);
+                    }}
+                  />
+                )}
+                {/* Card 5: Reviews Flip */}
                 {hasReviewsCard && (
                   <ReviewsFlipCard
                     avgOn20={avgOn20!}
@@ -748,14 +762,14 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     platforms={reviewPlatforms}
                     reviewTexts={reviewTexts}
                     language={language}
-                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0)) * 120}ms`}
+                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(menuDocs.length > 0)) * 120}ms`}
                   />
                 )}
-                {/* Card 5: Liens Externes with Flip */}
+                {/* Card 6: Liens Externes with Flip */}
                 {externalLinks.length > 0 && (
                   <ExternalLinksFlipCard
                     links={externalLinks}
-                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard)) * 120}ms`}
+                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(menuDocs.length > 0) + Number(hasReviewsCard)) * 120}ms`}
                     onOpenUrl={(url, linkTitle) => {
                       setBookingOverlayUrl(url);
                       setShowBookingOverlay(true);
@@ -763,7 +777,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     }}
                   />
                 )}
-                {/* Card 6: Social Links */}
+                {/* Card 7: Social Links */}
                 {business && (
                   <SocialLinksCard
                     facebook={business.facebook_url}
@@ -775,7 +789,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     pinterest={business.pinterest_url}
                     vimeo={business.vimeo_url}
                     whatsapp={business.whatsapp}
-                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0)) * 120}ms`}
+                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(menuDocs.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0)) * 120}ms`}
                   />
                 )}
                 <div className="shrink-0 w-4" aria-hidden="true" />
