@@ -722,7 +722,7 @@ const SearchPage = () => {
       const [isCompactPanelWebOnly, setIsCompactPanelWebOnly] = useState(false);
       const [isCompactPanelBookOnline, setIsCompactPanelBookOnline] = useState(false);
 
-      const openCompactPanel = useCallback((bizOrData: AIBusinessData | { id: string; name: string }, forceWebOnly?: boolean) => {
+      const openCompactPanel = useCallback(async (bizOrData: AIBusinessData | { id: string; name: string }, forceWebOnly?: boolean) => {
         hasInteractedWithCompactPanelRef.current = true;
         const b = bizOrData as AIBusinessData;
         setCompactPanelBusiness(b);
@@ -731,12 +731,27 @@ const SearchPage = () => {
           setIsCompactPanelWebOnly(forceWebOnly);
           setIsCompactPanelBookOnline(false);
         } else {
-          // Detect panel type from presentation_mode
+          // Detect panel type from presentation_mode — check local data first
           const found = allBusinesses.find(biz => biz.id === b.id);
-          if (found) {
-            const mode = (found as any).presentation_mode || "standard";
-            setIsCompactPanelBookOnline(mode === "reserver");
-            setIsCompactPanelWebOnly(mode === "acheter");
+          const localMode = found ? (found as any).presentation_mode : (b as any).presentation_mode;
+          if (localMode && localMode !== "standard") {
+            setIsCompactPanelBookOnline(localMode === "reserver");
+            setIsCompactPanelWebOnly(localMode === "acheter");
+          } else if (!localMode || !found) {
+            // Fallback: fetch presentation_mode from DB
+            try {
+              const { data } = await supabase
+                .from("businesses")
+                .select("presentation_mode")
+                .eq("id", b.id)
+                .single();
+              const mode = data?.presentation_mode || "standard";
+              setIsCompactPanelBookOnline(mode === "reserver");
+              setIsCompactPanelWebOnly(mode === "acheter");
+            } catch {
+              setIsCompactPanelWebOnly(false);
+              setIsCompactPanelBookOnline(false);
+            }
           } else {
             setIsCompactPanelWebOnly(false);
             setIsCompactPanelBookOnline(false);
