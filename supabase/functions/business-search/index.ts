@@ -689,6 +689,33 @@ serve(async (req) => {
       }
     }
 
+    // ── EARLY service keyword detection: if query matches a multi-word service keyword, skip LLM ──
+    let earlyServiceKeywordHit = false;
+    let earlyServiceKeywordServices: string[] = [];
+    if (query && !earlySynonymHit && serviceKeywordIndex.length > 0) {
+      const rawTexts = [query, spoken].filter(Boolean) as string[];
+      for (const text of rawTexts) {
+        const qWords = text.toLowerCase().split(/\s+/).map(w => stripAccentsGlobal(w)).filter(w => w.length > 1);
+        for (const entry of serviceKeywordIndex) {
+          // Check if ALL content words of the keyword are present in the query
+          const allPresent = entry.contentWords.every(cw =>
+            qWords.some(qw => qw === cw || (qw.endsWith("s") && qw.slice(0, -1) === cw) || (cw.endsWith("s") && cw.slice(0, -1) === qw))
+          );
+          if (allPresent) {
+            earlyServiceKeywordHit = true;
+            if (!earlyServiceKeywordServices.includes(entry.serviceName)) {
+              earlyServiceKeywordServices.push(entry.serviceName);
+            }
+          }
+        }
+        if (earlyServiceKeywordHit) break;
+      }
+      if (earlyServiceKeywordHit) {
+        earlySynonymHit = true; // Reuse the flag to skip LLM
+        console.log(`⚡ Early service keyword hit: [${earlyServiceKeywordServices.join(", ")}] — skipping LLM intent extraction`);
+      }
+    }
+
     // ── Natural language detection: extract keywords via LLM if needed ──
     let effectiveQuery = query;
     if (query && !earlySynonymHit && isNaturalLanguageQuery(query)) {
