@@ -38,7 +38,7 @@ const MenuSummaryCard = ({ summaries, language, animationDelay = "0ms", tallHeig
           <div key={s.id} className="space-y-1.5">
             {s.title && (
               <h4
-                className="text-sm font-semibold text-white/95"
+                className="text-sm font-bold uppercase tracking-wide text-white/95"
                 style={{ fontFamily: "'Josefin Sans', sans-serif" }}
               >
                 {s.title}
