@@ -4789,27 +4789,6 @@ serve(async (req) => {
       }
     }
 
-    // ── Subcategory post-filter: prioritize businesses that actually have the detected subcategory ──
-    // When FTS matches on partial tokens (e.g. "club" from "beach club"), businesses like
-    // "Tennis Academy" or "Montecristo" match on "club" alone. This re-sorts so that businesses
-    // with the exact subcategory in their categories[] appear first.
-    if (detectedSubcategory && businesses.length > 1) {
-      const subLower = detectedSubcategory.toLowerCase();
-      const withSubcat: typeof businesses = [];
-      const withoutSubcat: typeof businesses = [];
-      for (const b of businesses) {
-        const bCats = (b.categories || []).map((c: string) => c.toLowerCase());
-        if (bCats.some(c => c === subLower || c.includes(subLower) || subLower.includes(c))) {
-          withSubcat.push(b);
-        } else {
-          withoutSubcat.push(b);
-        }
-      }
-      if (withSubcat.length > 0 && withoutSubcat.length > 0) {
-        businesses = [...withSubcat, ...withoutSubcat];
-        console.log(`📌 Subcategory prioritization for "${detectedSubcategory}": ${withSubcat.length} with subcat first, ${withoutSubcat.length} others after`);
-      }
-    }
 
     // If results hit the limit, do a count query to get the true total
     // (works for city-scoped and national queries like "maroc")
