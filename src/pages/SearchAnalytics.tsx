@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Search, ArrowUpDown, Clock, BarChart3, ArrowUp, ArrowDown, Minus, RefreshCw, Play } from "lucide-react";
+import { Loader2, Search, ArrowUpDown, Clock, BarChart3, ArrowUp, ArrowDown, Minus, RefreshCw, Play, Copy, Check } from "lucide-react";
+import { toast } from "sonner";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -233,6 +234,16 @@ const SearchAnalytics = ({ embedded = false }: { embedded?: boolean }) => {
                     {format(new Date(log.created_at), "HH:mm:ss", { locale: fr })}
                   </span>
                   <span className="font-medium truncate flex-1">"{log.query}"</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigator.clipboard.writeText(log.query).then(() => toast.success("Copié !"));
+                    }}
+                    className="p-1 rounded hover:bg-muted shrink-0"
+                    title="Copier la requête"
+                  >
+                    <Copy className="h-3 w-3 text-muted-foreground" />
+                  </button>
                   {log.detected_city && <Badge variant="secondary" className="text-xs shrink-0">{log.detected_city}</Badge>}
                   {log.detected_subcategory && <Badge variant="outline" className="text-xs shrink-0">{log.detected_subcategory}</Badge>}
                   <span className="text-muted-foreground text-xs shrink-0">{log.total_results} rés.</span>
