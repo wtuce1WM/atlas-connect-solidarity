@@ -3841,7 +3841,7 @@ serve(async (req) => {
                 }
               }
               const allBusinessTags = collectBusinessTags(b);
-              return extendedCandidates.every(cs => tagsMatchCandidate(cs, allBusinessTags));
+              return extendedCandidates.some(cs => tagsMatchCandidate(cs, allBusinessTags));
             });
             if (beforeCount > 0 && businesses.length === 0) {
               // Debug: log what businesses were filtered out and why
