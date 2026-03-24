@@ -145,7 +145,19 @@ h1, h2, h3 {
   letter-spacing: 0.12em;
 }
 
-/* Libre Baskerville — Corps de texte (replaces Freight Text) */
+/* Josefin Sans for injected HTML headings (no uppercase) */
+.josefin-headings,
+.josefin-headings h1,
+.josefin-headings h2,
+.josefin-headings h3,
+.josefin-headings h4,
+.josefin-headings h5,
+.josefin-headings h6 {
+  font-family: 'Josefin Sans', sans-serif !important;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
 body {
   font-family: 'Libre Baskerville', serif;
 }
