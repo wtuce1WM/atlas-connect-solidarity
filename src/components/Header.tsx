@@ -53,15 +53,12 @@ const Header = ({ variant = "default" }: HeaderProps) => {
           </a>
         </div>
 
-        {/* Desktop inline nav — constrained to left 50% */}
-        <nav className="hidden lg:flex items-center gap-6">
-          {navLinks}
-        </nav>
+        {/* Desktop inline nav removed — use hamburger on all devices */}
       </div>
 
-      {/* Mobile/Tablet dropdown menu */}
+      {/* Dropdown menu — all devices, constrained to left 50% on desktop */}
       {mobileOpen && (
-        <div className="lg:hidden border-t border-border bg-white animate-in slide-in-from-top-2 fade-in duration-150">
+        <div className="border-t border-border bg-white animate-in slide-in-from-top-2 fade-in duration-150 lg:w-1/2">
           <nav className="flex flex-col gap-4 px-6 py-5">
             {navLinks}
           </nav>
