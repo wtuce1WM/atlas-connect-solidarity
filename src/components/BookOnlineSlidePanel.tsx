@@ -23,6 +23,8 @@ import type { ExternalLinkItem } from "@/components/cards/ExternalLinksFlipCard"
 import SocialLinksCard from "@/components/cards/SocialLinksCard";
 import MenuSummaryCard from "@/components/cards/MenuSummaryCard";
 import type { MenuSummary } from "@/components/cards/MenuSummaryCard";
+import MenuUrlCard from "@/components/cards/MenuUrlCard";
+import type { MenuDoc } from "@/components/cards/MenuUrlCard";
 import DirectionsOverlay from "@/components/DirectionsOverlay";
 import MosaicOverlay from "@/components/MosaicOverlay";
 import { useDragToHide } from "@/hooks/useDragToHide";
@@ -98,6 +100,9 @@ interface BookOnlineBusiness {
   linkedin_url: string | null;
   pinterest_url: string | null;
   vimeo_url: string | null;
+  menu_url: string | null;
+  menu_name: string | null;
+  menu_language: string | null;
 }
 
 interface WebOnlyData {
@@ -142,6 +147,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const [reviewTexts, setReviewTexts] = useState<ReviewText[]>([]);
   const [externalLinks, setExternalLinks] = useState<ExternalLinkItem[]>([]);
   const [menuSummaries, setMenuSummaries] = useState<MenuSummary[]>([]);
+  const [menuDocs, setMenuDocs] = useState<MenuDoc[]>([]);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showHook, setShowHook] = useState(false);
@@ -198,10 +204,10 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      const [bizRes, woRes, destLinksRes, reviewsRes, extLinksRes, menuSumRes] = await Promise.all([
+      const [bizRes, woRes, destLinksRes, reviewsRes, extLinksRes, menuSumRes, menuDocsRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, reserve_now_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, online_shop_force_external, website_force_external, reserve_now_force_external, hook_fr, hook_en, hook_ar, description, facebook_url, instagram_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, vimeo_url")
+          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, reserve_now_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, online_shop_force_external, website_force_external, reserve_now_force_external, hook_fr, hook_en, hook_ar, description, facebook_url, instagram_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, vimeo_url, menu_url, menu_name, menu_language")
           .eq("id", businessId)
           .eq("is_active", true)
           .maybeSingle(),
@@ -232,13 +238,27 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
           .select("id, title, content, price_details, avg_price_range")
           .eq("business_id", businessId)
           .order("sort_order"),
+        supabase
+          .from("business_documents")
+          .select("id, name, url, language")
+          .eq("business_id", businessId)
+          .eq("type", "menu")
+          .order("sort_order"),
       ]);
 
-      setBusiness(bizRes.data as BookOnlineBusiness | null);
+      const biz = bizRes.data as BookOnlineBusiness | null;
+      setBusiness(biz);
       setWebOnlyData(woRes.data as WebOnlyData | null);
       setReviewTexts(reviewsRes.data ? (reviewsRes.data as any[]) : []);
       setExternalLinks((extLinksRes.data || []) as ExternalLinkItem[]);
       setMenuSummaries((menuSumRes.data || []) as MenuSummary[]);
+
+      // Build menu docs: from business_documents + legacy menu_url field
+      const docs = ((menuDocsRes.data || []) as MenuDoc[]);
+      if (biz?.menu_url && !docs.some(d => d.url === biz.menu_url)) {
+        docs.unshift({ id: 'legacy-menu', name: biz.menu_name, url: biz.menu_url, language: biz.menu_language });
+      }
+      setMenuDocs(docs);
 
       // Fetch destination details (depends on destLinksRes)
       const destIds = (destLinksRes.data || []).map(d => d.destination_id);
@@ -720,7 +740,21 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
                   />
                 )}
-                {/* Card 4: Reviews Flip */}
+                {/* Card 4: Menu URL */}
+                {menuDocs.length > 0 && (
+                  <MenuUrlCard
+                    menus={menuDocs}
+                    language={language}
+                    tallHeight={destinations.length === 0 && poiBusinesses.length === 0}
+                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0)) * 120}ms`}
+                    onOpenUrl={(url, title) => {
+                      setBookingOverlayUrl(url);
+                      setShowBookingOverlay(true);
+                      setBookingOverlayTitle(title);
+                    }}
+                  />
+                )}
+                {/* Card 5: Reviews Flip */}
                 {hasReviewsCard && (
                   <ReviewsFlipCard
                     avgOn20={avgOn20!}
@@ -728,14 +762,14 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     platforms={reviewPlatforms}
                     reviewTexts={reviewTexts}
                     language={language}
-                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0)) * 120}ms`}
+                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(menuDocs.length > 0)) * 120}ms`}
                   />
                 )}
-                {/* Card 5: Liens Externes with Flip */}
+                {/* Card 6: Liens Externes with Flip */}
                 {externalLinks.length > 0 && (
                   <ExternalLinksFlipCard
                     links={externalLinks}
-                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard)) * 120}ms`}
+                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(menuDocs.length > 0) + Number(hasReviewsCard)) * 120}ms`}
                     onOpenUrl={(url, linkTitle) => {
                       setBookingOverlayUrl(url);
                       setShowBookingOverlay(true);
@@ -743,7 +777,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     }}
                   />
                 )}
-                {/* Card 6: Social Links */}
+                {/* Card 7: Social Links */}
                 {business && (
                   <SocialLinksCard
                     facebook={business.facebook_url}
@@ -755,7 +789,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     pinterest={business.pinterest_url}
                     vimeo={business.vimeo_url}
                     whatsapp={business.whatsapp}
-                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0)) * 120}ms`}
+                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(menuDocs.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0)) * 120}ms`}
                   />
                 )}
                 <div className="shrink-0 w-4" aria-hidden="true" />
