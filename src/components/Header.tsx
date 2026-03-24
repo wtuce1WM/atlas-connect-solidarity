@@ -56,13 +56,25 @@ const Header = ({ variant = "default" }: HeaderProps) => {
         {/* Desktop inline nav removed — use hamburger on all devices */}
       </div>
 
-      {/* Dropdown menu — all devices, constrained to left 50% on desktop */}
+      {/* Dropdown menu — full height left panel on desktop */}
       {mobileOpen && (
-        <div className="border-t border-border bg-white animate-in slide-in-from-top-2 fade-in duration-150 lg:w-1/2">
-          <nav className="flex flex-col gap-4 px-6 py-5">
-            {navLinks}
-          </nav>
-        </div>
+        <>
+          {/* Mobile/Tablet: simple dropdown */}
+          <div className="lg:hidden border-t border-border bg-white animate-in slide-in-from-top-2 fade-in duration-150">
+            <nav className="flex flex-col gap-4 px-6 py-5">
+              {navLinks}
+            </nav>
+          </div>
+          {/* Desktop: full-height left 50% overlay */}
+          <div className="hidden lg:flex fixed inset-0 top-[53px] z-[29]" onClick={() => setMobileOpen(false)}>
+            <div className="w-1/2 bg-white border-r border-border shadow-xl animate-in slide-in-from-left-2 fade-in duration-200" onClick={(e) => e.stopPropagation()}>
+              <nav className="flex flex-col gap-4 px-6 py-5">
+                {navLinks}
+              </nav>
+            </div>
+            <div className="w-1/2 bg-black/20" />
+          </div>
+        </>
       )}
     </header>
   );
