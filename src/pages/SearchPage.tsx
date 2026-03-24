@@ -764,6 +764,50 @@ const SearchPage = () => {
         closeCompactPanel();
       }, [closeCompactPanel, isCompactPanelExpanded]);
 
+     // Same-category businesses for left panel when detail panel is open
+     const [sameCategoryBusinesses, setSameCategoryBusinesses] = useState<Business[]>([]);
+     useEffect(() => {
+       if (!compactPanelBusiness) {
+         setSameCategoryBusinesses([]);
+         return;
+       }
+       const fetchSameCategory = async () => {
+         // Find business info from allBusinesses or fetch it
+         let bizCity: string | null = null;
+         let bizCategory: string | null = null;
+         const found = allBusinesses.find(b => b.id === compactPanelBusiness.id);
+         if (found) {
+           bizCity = found.city;
+           bizCategory = found.main_category;
+         } else {
+           const { data } = await supabase
+             .from("businesses")
+             .select("city, main_category")
+             .eq("id", compactPanelBusiness.id)
+             .maybeSingle();
+           if (data) {
+             bizCity = data.city;
+             bizCategory = data.main_category;
+           }
+         }
+         if (!bizCity || !bizCategory) {
+           setSameCategoryBusinesses([]);
+           return;
+         }
+         const { data: sameBiz } = await supabase
+           .from("businesses")
+           .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, rating, gamme_id, badge_id, hook_fr, hook_en, hook_ar, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids, default_service, neighborhood, engagements, online_shop_url, presentation_mode, keywords")
+           .eq("is_active", true)
+           .eq("main_category", bizCategory)
+           .eq("city", bizCity)
+           .neq("id", compactPanelBusiness.id)
+           .order("priority_score", { ascending: false })
+           .limit(20);
+         setSameCategoryBusinesses((sameBiz || []) as unknown as Business[]);
+       };
+       fetchSameCategory();
+     }, [compactPanelBusiness?.id]);
+
      const [hoveredResultId, setHoveredResultId] = useState<string | null>(null);
      const [hoveredPoiId, setHoveredPoiId] = useState<string | null>(null);
      const [hoveredDestId, setHoveredDestId] = useState<string | null>(null);
@@ -3919,9 +3963,17 @@ const SearchPage = () => {
                   </button>
                 </div>
               </div>
+              {/* Same-category businesses header when panel is open */}
+              {compactPanelBusiness && sameCategoryBusinesses.length > 0 && (
+                <div className="pt-6 pb-2">
+                  <p className="text-sm font-semibold text-muted-foreground">
+                    {language === "en" ? "In the same category" : "Dans la même catégorie"}
+                  </p>
+                </div>
+              )}
               {/* Fallback-style cards in 4-column grid */}
               <div className={`grid gap-4 pt-10 md:pt-7 lg:pt-7 pb-28 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : hasKnownLocation ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
-                {paginatedBusinesses.map((business, index) => {
+                {(compactPanelBusiness && sameCategoryBusinesses.length > 0 ? sameCategoryBusinesses : paginatedBusinesses).map((business, index) => {
                   const img = business.images?.[0] || business.logo_url;
                   const sources = collectRatingSources(business as any);
                   const avgOn20 = computeWeightedRatingOn20(sources);
@@ -4062,8 +4114,8 @@ const SearchPage = () => {
                     </div>
                   );
 
-                  // Insert AI suggestion card (stable slot) after the 3rd result (index 2), only on page 1
-                  if (index === 2 && currentPage === 1) {
+                  // Insert AI suggestion card (stable slot) after the 3rd result (index 2), only on page 1 and not when showing same-category
+                  if (index === 2 && currentPage === 1 && !(compactPanelBusiness && sameCategoryBusinesses.length > 0)) {
                     const isAiReady = !!stickyAiText;
                     return [
                       card,
@@ -4110,7 +4162,7 @@ const SearchPage = () => {
                   return card;
                 })}
               </div>
-              {filteredBusinesses.length > 0 && (
+              {filteredBusinesses.length > 0 && !(compactPanelBusiness && sameCategoryBusinesses.length > 0) && (
                 <p className="text-xs text-muted-foreground font-medium mt-4 text-center">
                   {t.showing} {startResult} {t.to} {endResult} {t.of} {filteredBusinesses.length} {t.results}
                 </p>
@@ -4132,7 +4184,7 @@ const SearchPage = () => {
               */}
 
               {/* Pagination */}
-              {totalPages > 1 && (
+              {totalPages > 1 && !(compactPanelBusiness && sameCategoryBusinesses.length > 0) && (
                 <div className="mt-12 mb-24 flex flex-col items-center gap-4">
                   {/* Results count */}
                   <p className="text-sm text-gray-400">
