@@ -114,6 +114,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const [showInfoCard, setShowInfoCard] = useState(true);
   const [showBookingOverlay, setShowBookingOverlay] = useState(false);
   const [bookingOverlayUrl, setBookingOverlayUrl] = useState<string | null>(null);
+  const [bookingOverlayTitle, setBookingOverlayTitle] = useState<string | undefined>(undefined);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [reviewTexts, setReviewTexts] = useState<ReviewText[]>([]);
   const [externalLinks, setExternalLinks] = useState<ExternalLinkItem[]>([]);
@@ -743,9 +744,10 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                   <ExternalLinksFlipCard
                     links={externalLinks}
                     animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(hasReviewsCard)) * 120}ms`}
-                    onOpenUrl={(url) => {
+                    onOpenUrl={(url, linkTitle) => {
                       setBookingOverlayUrl(url);
                       setShowBookingOverlay(true);
+                      setBookingOverlayTitle(linkTitle);
                     }}
                   />
                 )}
@@ -850,7 +852,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
         return (
           <BookingOverlay
             bookingUrl={finalUrl}
-            onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); }}
+            title={bookingOverlayUrl ? bookingOverlayTitle : undefined}
+            onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); }}
           />
         );
       })()}

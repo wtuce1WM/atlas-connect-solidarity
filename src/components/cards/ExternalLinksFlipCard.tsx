@@ -12,7 +12,7 @@ interface ExternalLinksFlipCardProps {
   links: ExternalLinkItem[];
   animationDelay?: string;
   className?: string;
-  onOpenUrl?: (url: string) => void;
+  onOpenUrl?: (url: string, title?: string) => void;
 }
 
 const ExternalLinksFlipCard = ({
@@ -27,18 +27,18 @@ const ExternalLinksFlipCard = ({
   const backLinks = links.slice(5, 10);
   const hasBack = backLinks.length > 0;
 
-  const handleClick = (url: string) => {
+  const handleClick = (link: ExternalLinkItem) => {
     if (onOpenUrl) {
-      onOpenUrl(url);
+      onOpenUrl(link.url, link.name || undefined);
     } else {
-      window.open(url, "_blank", "noopener");
+      window.open(link.url, "_blank", "noopener");
     }
   };
 
   const renderLink = (link: ExternalLinkItem) => (
     <button
       key={link.id}
-      onClick={(e) => { e.stopPropagation(); handleClick(link.url); }}
+      onClick={(e) => { e.stopPropagation(); handleClick(link); }}
       className="flex items-center gap-2.5 w-full text-left rounded-xl bg-white/10 hover:bg-white/20 transition-colors p-2 group cursor-pointer normal-case tracking-normal"
     >
       {link.icon ? (

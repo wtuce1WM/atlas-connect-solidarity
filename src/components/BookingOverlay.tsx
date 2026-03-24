@@ -4,12 +4,13 @@ import { useBlockedDomains, isDomainInSet } from "@/hooks/useBlockedDomains";
 
 interface BookingOverlayProps {
   bookingUrl: string;
+  title?: string;
   onClose: () => void;
 }
 
 const IFRAME_LOAD_TIMEOUT_MS = 5000;
 
-const BookingOverlay = ({ bookingUrl, onClose }: BookingOverlayProps) => {
+const BookingOverlay = ({ bookingUrl, title, onClose }: BookingOverlayProps) => {
   const { domains, loaded } = useBlockedDomains();
   const knownBlocked = loaded && isDomainInSet(bookingUrl, domains);
   const [iframeBlocked, setIframeBlocked] = useState(false);
@@ -60,7 +61,7 @@ const BookingOverlay = ({ bookingUrl, onClose }: BookingOverlayProps) => {
           >
             <X className="h-4 w-4" />
           </button>
-          <span className="text-sm font-semibold">Réservation</span>
+          <span className="text-sm font-semibold">{title || "Réservation"}</span>
         </div>
       </div>
 
