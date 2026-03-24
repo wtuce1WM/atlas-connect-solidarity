@@ -34,12 +34,12 @@ const Header = ({ variant = "default" }: HeaderProps) => {
 
   return (
     <header className={`fixed left-0 right-0 top-0 z-30 ${headerBg}`}>
-      <div className="container mx-auto flex items-center justify-between px-4 py-3">
+      <div className="mx-auto flex items-center justify-between px-4 py-3 lg:w-1/2 lg:mr-auto lg:ml-0">
         {/* Left: hamburger + logo */}
         <div className="flex items-center gap-2">
           <button
             type="button"
-            className="flex items-center justify-center w-10 h-10 rounded-lg text-foreground hover:bg-muted/50 transition-colors"
+            className="lg:hidden flex items-center justify-center w-10 h-10 rounded-lg text-foreground hover:bg-muted/50 transition-colors"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Menu"
           >
@@ -52,11 +52,16 @@ const Header = ({ variant = "default" }: HeaderProps) => {
             </span>
           </a>
         </div>
+
+        {/* Desktop inline nav — constrained to left 50% */}
+        <nav className="hidden lg:flex items-center gap-6">
+          {navLinks}
+        </nav>
       </div>
 
-      {/* Dropdown menu */}
+      {/* Mobile/Tablet dropdown menu */}
       {mobileOpen && (
-        <div className="border-t border-border bg-white animate-in slide-in-from-top-2 fade-in duration-150">
+        <div className="lg:hidden border-t border-border bg-white animate-in slide-in-from-top-2 fade-in duration-150">
           <nav className="flex flex-col gap-4 px-6 py-5">
             {navLinks}
           </nav>
