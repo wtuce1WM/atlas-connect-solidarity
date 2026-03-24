@@ -45,9 +45,10 @@ const MenuSummaryCard = ({ summaries, language, animationDelay = "0ms", tallHeig
               </h4>
             )}
             {s.content && (
-              <p className="text-sm leading-relaxed text-white/80 font-['Roboto',sans-serif]">
-                {s.content}
-              </p>
+              <div
+                className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] text-white/80 [&_*]:!text-white/80 [&_p]:mb-1.5 [&_ul]:list-disc [&_li::marker]:text-gold/60"
+                dangerouslySetInnerHTML={{ __html: s.content }}
+              />
             )}
             {s.price_details && (
               <p className="text-xs text-gold/90 font-medium mt-1">
