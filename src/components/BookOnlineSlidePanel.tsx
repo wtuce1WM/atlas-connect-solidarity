@@ -234,7 +234,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const videos = webOnlyData?.videos?.filter(Boolean) || [];
   const woImages = webOnlyData?.images?.filter(Boolean) || [];
   const images = woImages.length > 0 ? woImages : (business?.images?.filter(Boolean) || []);
-  const woDescription = webOnlyData?.description || business?.description || null;
+  const rawWoDesc = webOnlyData?.description?.replace(/<[^>]*>/g, "").trim();
+  const woDescription = (rawWoDesc ? webOnlyData!.description : business?.description) || null;
   const hasOpeningHours = business?.show_opening_hours !== false && (business?.is_open_24h || business?.opening_hours);
 
   const reviewPlatforms = useMemo(() => {
