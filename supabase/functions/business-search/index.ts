@@ -3511,9 +3511,8 @@ serve(async (req) => {
       // Skip in strict mode to preserve the rating-based sort order from the DB query
       const isSubcategoryPhraseOnlyMode =
         !!detectedSubcategory &&
-        !!queryForExpansion &&
-        stripAccentsGlobal(queryForExpansion.toLowerCase().trim()) ===
-          stripAccentsGlobal(detectedSubcategory.toLowerCase().trim());
+        detectedSubcategoryIsReal &&
+        isSubcatOnlyQuery;
 
       if (effectiveQuery && businesses.length > 1 && !isSubcategoryPhraseOnlyMode) {
         const qLower = effectiveQuery.toLowerCase();
