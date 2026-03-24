@@ -128,11 +128,11 @@ All colors MUST be HSL.
   }
 }
 
-/* Brummell-inspired typography */
-/* Libre Baskerville — Titres éditoriaux (replaces Freight Text) */
+/* Typography */
+/* Roboto — Titres et corps de texte */
 h1, h2, h3 {
-  font-family: 'Libre Baskerville', serif;
-  font-weight: 400;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
   font-style: normal;
 }
 
@@ -159,7 +159,7 @@ h1, h2, h3 {
 }
 
 body {
-  font-family: 'Libre Baskerville', serif;
+  font-family: 'Roboto', sans-serif;
 }
 
  
