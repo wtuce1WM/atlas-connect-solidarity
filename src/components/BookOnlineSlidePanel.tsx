@@ -736,6 +736,21 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
                   />
                 )}
+                {/* Card 4: Liens Externes with Flip */}
+                {externalLinks.length > 0 && (
+                  <ExternalLinksFlipCard
+                    links={externalLinks}
+                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(hasReviewsCard)) * 120}ms`}
+                    onOpenUrl={(url) => {
+                      setShowBookingOverlay(true);
+                      // Use a small timeout to let the overlay mount before setting URL
+                      setTimeout(() => {
+                        const evt = new CustomEvent("open-booking-url", { detail: url });
+                        window.dispatchEvent(evt);
+                      }, 100);
+                    }}
+                  />
+                )}
                 <div className="shrink-0 w-4" aria-hidden="true" />
             </div>
           </div>
