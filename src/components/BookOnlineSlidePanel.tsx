@@ -20,6 +20,7 @@ import ReviewsFlipCard from "@/components/cards/ReviewsFlipCard";
 import type { ReviewText } from "@/components/cards/ReviewsFlipCard";
 import ExternalLinksFlipCard from "@/components/cards/ExternalLinksFlipCard";
 import type { ExternalLinkItem } from "@/components/cards/ExternalLinksFlipCard";
+import SocialLinksCard from "@/components/cards/SocialLinksCard";
 
 interface BookOnlineSlidePanelProps {
   businessId: string;
@@ -84,6 +85,14 @@ interface BookOnlineBusiness {
   hook_en: string | null;
   hook_ar: string | null;
   description: string | null;
+  facebook_url: string | null;
+  instagram_url: string | null;
+  tiktok_url: string | null;
+  youtube_url: string | null;
+  twitter_url: string | null;
+  linkedin_url: string | null;
+  pinterest_url: string | null;
+  vimeo_url: string | null;
 }
 
 interface WebOnlyData {
@@ -187,7 +196,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
       const [bizRes, woRes, destLinksRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, reserve_now_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, online_shop_force_external, website_force_external, reserve_now_force_external, hook_fr, hook_en, hook_ar, description")
+          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, reserve_now_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, online_shop_force_external, website_force_external, reserve_now_force_external, hook_fr, hook_en, hook_ar, description, facebook_url, instagram_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, vimeo_url")
           .eq("id", businessId)
           .eq("is_active", true)
           .maybeSingle(),
@@ -749,6 +758,21 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                       setShowBookingOverlay(true);
                       setBookingOverlayTitle(linkTitle);
                     }}
+                  />
+                )}
+                {/* Card 5: Social Links */}
+                {business && (
+                  <SocialLinksCard
+                    facebook={business.facebook_url}
+                    instagram={business.instagram_url}
+                    tiktok={business.tiktok_url}
+                    youtube={business.youtube_url}
+                    twitter={business.twitter_url}
+                    linkedin={business.linkedin_url}
+                    pinterest={business.pinterest_url}
+                    vimeo={business.vimeo_url}
+                    whatsapp={business.whatsapp}
+                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(hasReviewsCard) + Number(externalLinks.length > 0)) * 120}ms`}
                   />
                 )}
                 <div className="shrink-0 w-4" aria-hidden="true" />
