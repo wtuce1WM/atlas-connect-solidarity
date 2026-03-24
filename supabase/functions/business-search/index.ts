@@ -633,9 +633,38 @@ serve(async (req) => {
     let businesses: Business[] = [];
     let searchLevel = "exact";
 
+    // ── EARLY synonym detection on raw query: if synonym paired filters match, skip expensive LLM call ──
+    let earlySynonymHit = false;
+    if (query) {
+      const rawTexts = [query, spoken].filter(Boolean) as string[];
+      for (const [key, filters] of Object.entries(synonymFilters)) {
+        if (filters.length === 0) continue;
+        const keyLower = key.toLowerCase();
+        const synValues = synonyms[key] || [];
+        const allTerms = [keyLower, ...synValues.map(v => v.toLowerCase())];
+        for (const text of rawTexts) {
+          const qLower = text.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim();
+          const qWords = qLower.split(/\s+/);
+          const qWordsStripped = qWords.map(w => stripAccentsGlobal(w));
+          const matched = allTerms.some(term => {
+            const termNorm = term.replace(/-/g, " ").replace(/\s+/g, " ").trim();
+            const termStripped = stripAccentsGlobal(termNorm);
+            return termNorm.includes(" ")
+              ? (qLower.includes(termNorm) || stripAccentsGlobal(qLower).includes(termStripped))
+              : (qWords.includes(termNorm) || qWordsStripped.includes(termStripped));
+          });
+          if (matched) { earlySynonymHit = true; break; }
+        }
+        if (earlySynonymHit) break;
+      }
+      if (earlySynonymHit) {
+        console.log(`⚡ Early synonym hit on raw query — skipping LLM intent extraction`);
+      }
+    }
+
     // ── Natural language detection: extract keywords via LLM if needed ──
     let effectiveQuery = query;
-    if (query && isNaturalLanguageQuery(query)) {
+    if (query && !earlySynonymHit && isNaturalLanguageQuery(query)) {
       // Check if this query has pre-extracted keywords in popular_searches
       let cachedKeywords: string | null = null;
       try {
@@ -669,6 +698,13 @@ serve(async (req) => {
           effectiveQuery = extracted;
         }
       }
+    }
+    // When synonym hit skipped LLM, still strip stop words for effectiveQuery
+    if (query && earlySynonymHit && isNaturalLanguageQuery(query)) {
+      effectiveQuery = query.split(/\s+/)
+        .filter(w => !FRENCH_STOP_WORDS.has(w.toLowerCase().replace(/['']/g, "")))
+        .join(" ");
+      console.log(`Early synonym path: stripped stop words → "${effectiveQuery}"`);
     }
     
     // Normalize hyphens to spaces: "Restaurant-galerie" → "Restaurant galerie"
