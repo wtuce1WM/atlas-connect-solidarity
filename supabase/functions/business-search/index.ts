@@ -3686,7 +3686,23 @@ serve(async (req) => {
         const parts = [svcPart, remainderExpanded].filter(p => p.length > 0);
         expandedQuery = parts.join(" & ") || null;
       } else if (queryForExpansion) {
-        expandedQuery = expandQuery(queryForExpansion);
+        // When the query is exactly the detected subcategory and it's multi-word,
+        // use phrase operator (<->) so "beach club" only matches adjacent tokens,
+        // preventing partial matches on just "club" (e.g. Tennis Academy, Montecristo)
+        if (detectedSubcategory && queryForExpansion.toLowerCase().trim() === detectedSubcategory.toLowerCase().trim() && detectedSubcategory.includes(" ")) {
+          const phraseWords = queryForExpansion.toLowerCase().split(/[\s\-]+/)
+            .filter(w => w.length > 0 && !NOISE_ADJECTIVES.has(w))
+            .map(w => stripAccentsGlobal(sanitizeTerm(w)))
+            .filter(t => t.length > 1);
+          if (phraseWords.length >= 2) {
+            expandedQuery = phraseWords.join(" <-> ");
+            console.log(`Phrase matching for multi-word subcategory "${detectedSubcategory}": "${expandedQuery}"`);
+          } else {
+            expandedQuery = expandQuery(queryForExpansion);
+          }
+        } else {
+          expandedQuery = expandQuery(queryForExpansion);
+        }
       }
       if (expandedQuery) console.log(`tsquery: "${expandedQuery}" (service: ${detectedService || "none"}, candidates: [${allCandidateServiceNames.join(", ")}], from: "${queryForExpansion}")`);
 
