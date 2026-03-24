@@ -181,7 +181,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
     return { type: "file" as const, embedUrl: url };
   };
 
-  const videoInfo = currentMedia?.kind === "video" ? getVideoEmbed(currentMedia.url) : null;
+  const videoInfo = currentMedia?.kind === "video" ? getVideoEmbedLocal(currentMedia.url) : null;
 
   if (isLoading) {
     return (
