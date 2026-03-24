@@ -744,9 +744,10 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                   <ExternalLinksFlipCard
                     links={externalLinks}
                     animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(hasReviewsCard)) * 120}ms`}
-                    onOpenUrl={(url) => {
+                    onOpenUrl={(url, linkTitle) => {
                       setBookingOverlayUrl(url);
                       setShowBookingOverlay(true);
+                      setBookingOverlayTitle(linkTitle);
                     }}
                   />
                 )}
