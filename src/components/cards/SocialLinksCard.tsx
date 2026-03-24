@@ -60,9 +60,6 @@ const SocialLinksCard = ({
               >
                 {link.icon}
               </div>
-              <span className="text-[10px] text-white/70 group-hover:text-white transition-colors">
-                {link.name}
-              </span>
             </a>
           ))}
         </div>
