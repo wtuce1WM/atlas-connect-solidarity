@@ -139,6 +139,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
     setSelectedDestinationId(null);
     setShowBookingOverlay(false);
     setIsLightboxOpen(false);
+    setShowMosaic(false);
     setShowHook(false);
   }, [businessId]);
 
