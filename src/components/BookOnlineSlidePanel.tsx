@@ -882,6 +882,15 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
         />
       )}
 
+      {/* POI business detail overlay */}
+      {selectedPoiBusinessId && (
+        <PoiSlidePanel
+          businessId={selectedPoiBusinessId}
+          onClose={() => setSelectedPoiBusinessId(null)}
+          slideFrom="bottom"
+        />
+      )}
+
       {/* Mosaic overlay */}
       {showMosaic && (
         <MosaicOverlay
