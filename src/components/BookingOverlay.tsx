@@ -4,6 +4,7 @@ import { useBlockedDomains, isDomainInSet } from "@/hooks/useBlockedDomains";
 
 interface BookingOverlayProps {
   bookingUrl: string;
+  title?: string;
   onClose: () => void;
 }
 
