@@ -243,7 +243,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
       {/* Mosaic overlay */}
       {showMosaic && (
         <div className="absolute inset-0 z-[76] bg-black overflow-y-auto animate-slide-in-left">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-1 p-1">
+          <div className="grid grid-cols-2 gap-2 p-2">
             {[
               ...allImages.map((url, i) => ({ kind: "image" as const, url, idx: i })),
               ...videos.map((url, i) => ({ kind: "video" as const, url, idx: allImages.length + i })),
