@@ -1702,6 +1702,9 @@ serve(async (req) => {
         serviceShortcutActivated = true;
 
         // ── KEYWORD PINNING INJECTION: merge businesses matched via keywords ──
+        // When synonym paired filters are active, keyword-pinned businesses must also
+        // satisfy at least one paired filter (subcategory + service) to avoid false positives
+        // like Decathlon appearing for "louer un vélo" when it's not a rental business.
         if (keywordPinnedIds.size > 0) {
           const existingIds = new Set(businesses.map(b => b.id));
           const missingKwIds = [...keywordPinnedIds].filter(id => !existingIds.has(id));
@@ -1710,9 +1713,23 @@ serve(async (req) => {
               .from("businesses").select("*")
               .in("id", missingKwIds).eq("is_active", true);
             if (kwBiz && kwBiz.length > 0) {
-              const mapped = kwBiz.map((b: any) => ({ ...b, distance_km: null }));
-              businesses = [...mapped, ...businesses];
-              console.log(`⚡ Keyword-pinned injection: +${mapped.length} [${mapped.map((b: any) => b.name).join(", ")}]`);
+              // Filter keyword-pinned businesses against synonym paired filters
+              const filtered = kwBiz.filter((b: any) => {
+                return matchedSynonymFilters.some(f => {
+                  const subcatOk = !f.subcategory_name || (b.categories && b.categories.includes(f.subcategory_name));
+                  const svcOk = !f.required_service || (b.services && b.services.includes(f.required_service));
+                  return subcatOk && svcOk;
+                });
+              });
+              if (filtered.length > 0) {
+                const mapped = filtered.map((b: any) => ({ ...b, distance_km: null }));
+                businesses = [...mapped, ...businesses];
+                console.log(`⚡ Keyword-pinned injection: +${mapped.length} [${mapped.map((b: any) => b.name).join(", ")}]`);
+              }
+              if (filtered.length < kwBiz.length) {
+                const excluded = kwBiz.filter((b: any) => !filtered.includes(b));
+                console.log(`⚡ Keyword-pinned excluded by synonym filter: [${excluded.map((b: any) => b.name).join(", ")}]`);
+              }
             }
           }
         }
