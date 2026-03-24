@@ -3323,9 +3323,25 @@ serve(async (req) => {
       const enrichmentCity = effectiveCity || neighborhoodCity;
       // When query equals the subcategory name (e.g. "piscine à marrakech" → subcategory "Piscine"),
       // skip service enrichment to avoid pulling in businesses that merely HAVE the service (e.g. riads with pool)
-      const isSubcatOnlyQuery = !!queryForExpansion &&
-        stripAccentsGlobal(queryForExpansion.toLowerCase().trim()) ===
-          stripAccentsGlobal(detectedSubcategory.toLowerCase().trim());
+      // Check if the original query is essentially just subcategory + city + noise
+      const isSubcatOnlyQuery = (() => {
+        if (!effectiveQuery) return false;
+        const subcatWords = new Set(
+          detectedSubcategory.toLowerCase().split(/[\s/\-]+/)
+            .map(w => stripAccentsGlobal(w)).filter(w => w.length > 1)
+        );
+        const cityWords = new Set(
+          (effectiveCity || "").toLowerCase().split(/\s+/)
+            .map(w => stripAccentsGlobal(w)).filter(w => w.length > 1)
+        );
+        const remaining = effectiveQuery.toLowerCase().split(/\s+/)
+          .map(w => stripAccentsGlobal(w))
+          .filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w) && !subcatWords.has(w) && !cityWords.has(w) && !NOISE_ADJECTIVES.has(w));
+        return remaining.length === 0;
+      })();
+      if (isSubcatOnlyQuery) {
+        console.log(`Subcategory-only query detected for "${detectedSubcategory}" — skipping service enrichment and cross-category merge`);
+      }
       const enrichmentServiceNames = (bundleActivated && bundleRequiredServices.length > 0)
         ? bundleRequiredServices
         : (serviceFilter && serviceFilter.length > 0)
