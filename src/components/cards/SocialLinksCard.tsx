@@ -44,8 +44,8 @@ const SocialLinksCard = ({
       className="snap-start shrink-0 w-[20rem] rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 overflow-hidden flex flex-col animate-slide-in-left opacity-0"
       style={{ animationDelay, animationFillMode: "forwards" }}
     >
-      <div className="flex items-center justify-center p-3">
-        <div className="grid grid-cols-3 gap-2">
+      <div className="flex items-center justify-center p-2">
+        <div className="grid grid-cols-3 gap-x-4 gap-y-1">
           {links.map((link) => (
             <a
               key={link.name}
