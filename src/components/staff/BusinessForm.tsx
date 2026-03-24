@@ -1002,6 +1002,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("[BusinessForm] handleSubmit called");
 
     // Auto-clear orphan default_service before saving
     const cleanDefaultService = formData.default_service && !formData.services.includes(formData.default_service)
