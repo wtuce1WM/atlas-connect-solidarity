@@ -1304,10 +1304,19 @@ const SearchPage = () => {
       filtered = [...allBusinesses];
     }
     if (selectedCity && selectedCity !== "all") {
+      const normalizedQuery = normalizeText(searchQuery || "");
       filtered = filtered.filter(b => {
         if (b.city === selectedCity) return true;
         if (selectedCityId && b.zone_city_ids?.includes(selectedCityId) && b.is_visible_locale) return true;
         if (b.destination_enriched) return true;
+
+        // Keep exact/name-pinned businesses visible even when they have no city set
+        // (e.g. "Decathlon Travel"), instead of dropping them due a stale/auto city filter.
+        if (!b.city && normalizedQuery) {
+          const normalizedName = normalizeText(b.name || "");
+          if (normalizedName.includes(normalizedQuery)) return true;
+        }
+
         return false;
       });
     }
