@@ -4470,8 +4470,20 @@ serve(async (req) => {
       if (nameMatchData) {
         const qNorm = stripAccentsGlobal(effectiveQuery.toLowerCase().trim());
         const relevantIds = nameMatchData.filter((b: any) => {
-          // Never remove keyword-pinned businesses (they matched via keywords, not name)
-          if (keywordPinnedIds.has(b.id)) return true;
+          // For keyword-pinned businesses: when specific services are detected,
+          // require the business to have at least one of those services.
+          // This prevents Decathlon (keyword "Vélo") from appearing for "balade en vélo"
+          // when the detected service is "Excursions Vélo".
+          if (keywordPinnedIds.has(b.id)) {
+            if (detectedServices.length > 0) {
+              const bSvcs = (b.services || []).map((s: string) => s.toLowerCase());
+              const hasDetectedService = detectedServices.some(ds => 
+                bSvcs.some(bs => bs.includes(ds.toLowerCase()) || ds.toLowerCase().includes(bs))
+              );
+              if (!hasDetectedService) return false;
+            }
+            return true;
+          }
           // Never remove exact name matches (the query IS the business name)
           const bNameNorm = stripAccentsGlobal((b.name || "").toLowerCase().trim());
           if (bNameNorm === qNorm) return true;
