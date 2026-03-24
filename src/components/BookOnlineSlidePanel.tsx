@@ -1,12 +1,11 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Info, CalendarCheck, Star, Minimize2 } from "lucide-react";
+import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, CalendarCheck, Star, Minimize2 } from "lucide-react";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { supabase } from "@/integrations/supabase/client";
-import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ShareButton from "@/components/ShareButton";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,6 +20,9 @@ import type { ReviewText } from "@/components/cards/ReviewsFlipCard";
 import ExternalLinksFlipCard from "@/components/cards/ExternalLinksFlipCard";
 import type { ExternalLinkItem } from "@/components/cards/ExternalLinksFlipCard";
 import SocialLinksCard from "@/components/cards/SocialLinksCard";
+import DirectionsOverlay from "@/components/DirectionsOverlay";
+import MosaicOverlay from "@/components/MosaicOverlay";
+import { useDragToHide } from "@/hooks/useDragToHide";
 
 interface BookOnlineSlidePanelProps {
   businessId: string;
@@ -109,6 +111,8 @@ interface Destination {
   images: string[] | null;
 }
 
+type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
+
 const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }: BookOnlineSlidePanelProps) => {
   const { language } = useLanguage();
   const [business, setBusiness] = useState<BookOnlineBusiness | null>(null);
@@ -118,9 +122,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [descExpanded, setDescExpanded] = useState(true);
   const [showDirections, setShowDirections] = useState(false);
-  const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
-  const [userOrigin, setUserOrigin] = useState<string | null>(null);
-  const [showInfoCard, setShowInfoCard] = useState(true);
   const [showBookingOverlay, setShowBookingOverlay] = useState(false);
   const [bookingOverlayUrl, setBookingOverlayUrl] = useState<string | null>(null);
   const [bookingOverlayTitle, setBookingOverlayTitle] = useState<string | undefined>(undefined);
@@ -129,19 +130,19 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const [externalLinks, setExternalLinks] = useState<ExternalLinkItem[]>([]);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
-  const [cardsHidden, setCardsHidden] = useState(false);
-  const [dragOffsetY, setDragOffsetY] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const touchStartRef = useRef<{ y: number; time: number } | null>(null);
-  const cardsHiddenRef = useRef(false);
   const [showHook, setShowHook] = useState(false);
   const [showMosaic, setShowMosaic] = useState(false);
 
+  // Unified drag logic via custom hook
+  const {
+    cardsHidden, dragOffsetY, isDragging,
+    showCards, hideCards, resetDrag,
+    onTouchStart, onTouchMove, onTouchEnd, onMouseDownDrag,
+  } = useDragToHide();
+
   // Reset all state when switching business
   useEffect(() => {
-    setCardsHidden(false);
-    cardsHiddenRef.current = false;
-    setDragOffsetY(0);
+    resetDrag();
     setShowDirections(false);
     setCurrentMediaIndex(0);
     setDescExpanded(true);
@@ -150,7 +151,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
     setIsLightboxOpen(false);
     setShowMosaic(false);
     setShowHook(false);
-  }, [businessId]);
+  }, [businessId, resetDrag]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -177,23 +178,11 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
     }
   }, [selectedDestinationId]);
 
-  useEffect(() => {
-    if (!showDirections) return;
-    setUserOrigin(null);
-    setShowInfoCard(true);
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => setUserOrigin(`${pos.coords.latitude},${pos.coords.longitude}`),
-        () => {}
-      );
-    }
-  }, [showDirections]);
-
-
+  // Fetch all data in a single Promise.all
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      const [bizRes, woRes, destLinksRes] = await Promise.all([
+      const [bizRes, woRes, destLinksRes, reviewsRes, extLinksRes] = await Promise.all([
         supabase
           .from("businesses")
           .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, reserve_now_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, online_shop_force_external, website_force_external, reserve_now_force_external, hook_fr, hook_en, hook_ar, description, facebook_url, instagram_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, vimeo_url")
@@ -209,12 +198,27 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
           .from("business_destinations")
           .select("destination_id")
           .eq("business_id", businessId),
+        supabase
+          .from("reviews" as any)
+          .select("source, author_name, rating, text, language")
+          .eq("business_id", businessId)
+          .not("text", "is", null)
+          .order("rating", { ascending: false })
+          .limit(3),
+        supabase
+          .from("business_documents")
+          .select("id, name, url, icon")
+          .eq("business_id", businessId)
+          .eq("type", "external_link")
+          .order("sort_order"),
       ]);
 
       setBusiness(bizRes.data as BookOnlineBusiness | null);
       setWebOnlyData(woRes.data as WebOnlyData | null);
+      setReviewTexts(reviewsRes.data ? (reviewsRes.data as any[]) : []);
+      setExternalLinks((extLinksRes.data || []) as ExternalLinkItem[]);
 
-      // Fetch destination details
+      // Fetch destination details (depends on destLinksRes)
       const destIds = (destLinksRes.data || []).map(d => d.destination_id);
       if (destIds.length > 0) {
         const { data: destData } = await supabase
@@ -230,25 +234,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
       } else {
         setDestinations([]);
       }
-
-      // Fetch review texts for flip card
-      const { data: langReviews } = await supabase
-        .from("reviews" as any)
-        .select("source, author_name, rating, text, language")
-        .eq("business_id", businessId)
-        .not("text", "is", null)
-        .order("rating", { ascending: false })
-        .limit(3);
-      setReviewTexts(langReviews ? (langReviews as any[]) : []);
-
-      // Fetch external links
-      const { data: extLinks } = await supabase
-        .from("business_documents")
-        .select("id, name, url, icon")
-        .eq("business_id", businessId)
-        .eq("type", "external_link")
-        .order("sort_order");
-      setExternalLinks((extLinks || []) as ExternalLinkItem[]);
 
       setIsLoading(false);
     };
@@ -309,11 +294,12 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
     return () => clearInterval(interval);
   }, [hookText, businessId]);
 
-  type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
-  const mediaItems: MediaItem[] = [
+  // Memoize mediaItems
+  const mediaItems = useMemo<MediaItem[]>(() => [
     ...videos.map((v) => ({ kind: "video" as const, url: v })),
     ...images.map((i) => ({ kind: "image" as const, url: i })),
-  ];
+  ], [videos, images]);
+
   const totalMedia = mediaItems.length;
   const safeIndex = totalMedia > 0 ? currentMediaIndex % totalMedia : 0;
   const currentMedia = totalMedia > 0 ? mediaItems[safeIndex] : null;
@@ -340,7 +326,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
         }
       } catch { /* ignore non-JSON messages */ }
     };
-    // Tell the YouTube iframe to send us state change events
     const timer = setTimeout(() => {
       iframeRef.current?.contentWindow?.postMessage(
         JSON.stringify({ event: "listening", id: 0 }),
@@ -350,6 +335,24 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
     window.addEventListener("message", onMessage);
     return () => { window.removeEventListener("message", onMessage); clearTimeout(timer); };
   }, [videoInfo, totalMedia, goMedia]);
+
+  // Lightbox items memoized
+  const lightboxItems = useMemo<LightboxMediaItem[]>(() =>
+    mediaItems.map((m) =>
+      m.kind === "video"
+        ? { type: "video" as const, src: m.url, alt: business?.name || "" }
+        : { type: "image" as const, src: m.url, alt: business?.name || "" }
+    ),
+  [mediaItems, business?.name]);
+
+  // Booking CTA computed values
+  const bookingCta = useMemo(() => {
+    if (!bookUrl) return null;
+    const fullUrl = bookUrl.startsWith("http") ? bookUrl : `https://${bookUrl}`;
+    const isReserveUrl = !!business?.reserve_now_url;
+    const forceExternal = isReserveUrl ? business?.reserve_now_force_external : business?.website_force_external;
+    return { fullUrl, forceExternal };
+  }, [bookUrl, business?.reserve_now_url, business?.reserve_now_force_external, business?.website_force_external]);
 
   if (isLoading) {
     return (
@@ -429,11 +432,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
               <div className={`w-full h-full overflow-hidden bg-black ${videoInfo.type === "youtube" ? "relative" : ""}`}>
                 {videoInfo.type === "youtube" && !isVerticalVideo && (
                   <>
-                    {/* Hide top bar */}
                     <div className="absolute inset-x-0 top-0 h-16 bg-black z-10" />
-                    {/* Hide bottom-right: "Plus de vidéos" + YouTube logo */}
                     <div className="absolute right-0 bottom-[36px] w-[280px] h-[54px] bg-gradient-to-l from-black via-black to-transparent z-10 pointer-events-none" />
-                    {/* Hide bottom-left link icon without masking volume */}
                     <div className="absolute left-0 bottom-[44px] w-[8px] h-[24px] bg-black z-10 pointer-events-none" />
                   </>
                 )}
@@ -477,8 +477,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
           </>
         )}
 
-        {/* Languages + media counter — top left */}
-
         {cardsHidden && (
           <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-30 pointer-events-auto flex items-center gap-3">
             {totalMedia > 1 && (
@@ -491,11 +489,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
               className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm hover:bg-background transition-colors"
               title="Afficher les cartes"
               aria-label="Afficher les cartes"
-              onClick={() => {
-                cardsHiddenRef.current = false;
-                setCardsHidden(false);
-                setDragOffsetY(0);
-              }}
+              onClick={showCards}
             >
               <ChevronUp className="h-3.5 w-3.5" />
               <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Afficher</span>
@@ -520,31 +514,9 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                 : 'translateY(0)',
             transition: isDragging ? 'none' : 'transform 0.35s cubic-bezier(.4,0,.2,1)',
           }}
-          onTouchStart={(e) => {
-            touchStartRef.current = { y: e.touches[0].clientY, time: Date.now() };
-            setIsDragging(true);
-          }}
-          onTouchMove={(e) => {
-            if (!touchStartRef.current) return;
-            const dy = e.touches[0].clientY - touchStartRef.current.y;
-            setDragOffsetY(cardsHiddenRef.current ? Math.min(0, dy) : Math.max(0, dy));
-          }}
-          onTouchEnd={() => {
-            setIsDragging(false);
-            setDragOffsetY((prev) => {
-              const threshold = 60;
-              const hidden = cardsHiddenRef.current;
-              if (hidden && prev < -threshold) {
-                cardsHiddenRef.current = false;
-                setCardsHidden(false);
-              } else if (!hidden && prev > threshold) {
-                cardsHiddenRef.current = true;
-                setCardsHidden(true);
-              }
-              return 0;
-            });
-            touchStartRef.current = null;
-          }}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
         >
           {/* Single row: flags (left) — Masquer button (center) — media counter (right) */}
           {!cardsHidden && (
@@ -584,50 +556,10 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    cardsHiddenRef.current = true;
-                    setCardsHidden(true);
-                    setDragOffsetY(0);
+                    hideCards();
                   }
                 }}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  touchStartRef.current = { y: e.clientY, time: Date.now() };
-                  setIsDragging(true);
-                  let moved = false;
-                  const onMove = (ev: MouseEvent) => {
-                    if (!touchStartRef.current) return;
-                    moved = true;
-                    const dy = ev.clientY - touchStartRef.current.y;
-                    setDragOffsetY(cardsHiddenRef.current ? Math.min(0, dy) : Math.max(0, dy));
-                  };
-                  const onUp = () => {
-                    setIsDragging(false);
-                    if (!moved) {
-                      cardsHiddenRef.current = true;
-                      setCardsHidden(true);
-                      setDragOffsetY(0);
-                    } else {
-                      setDragOffsetY((prev) => {
-                        const threshold = 60;
-                        const hidden = cardsHiddenRef.current;
-                        if (hidden && prev < -threshold) {
-                          cardsHiddenRef.current = false;
-                          setCardsHidden(false);
-                        } else if (!hidden && prev > threshold) {
-                          cardsHiddenRef.current = true;
-                          setCardsHidden(true);
-                        }
-                        return 0;
-                      });
-                    }
-                    touchStartRef.current = null;
-                    window.removeEventListener('mousemove', onMove);
-                    window.removeEventListener('mouseup', onUp);
-                  };
-                  window.addEventListener('mousemove', onMove);
-                  window.addEventListener('mouseup', onUp);
-                }}
+                onMouseDown={onMouseDownDrag}
               >
                 <ChevronDown className="h-3.5 w-3.5" />
                 <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Masquer</span>
@@ -727,18 +659,18 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     
                   </div>
                 )}
-                {/* Card 2: Contact with Flip to Google Map */}
-                {hasContactCard && business && (
+                {/* Card 2: Contact + Map Flip — fixed height */}
+                {hasContactCard && (
                   <ContactFlipCard
                     business={business}
                     language={language}
                     hasOpeningHours={!!hasOpeningHours}
-                    animationDelay={woDescription ? "120ms" : "0ms"}
                     tallHeight={destinations.length === 0}
+                    animationDelay={woDescription ? "120ms" : "0ms"}
                   />
                 )}
-                {/* Card 3: Avis Clients with Flip to translated reviews */}
-                {hasReviewsCard && business && (
+                {/* Card 3: Reviews Flip */}
+                {hasReviewsCard && (
                   <ReviewsFlipCard
                     avgOn20={avgOn20!}
                     totalReviewCount={totalReviewCount}
@@ -823,27 +755,20 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
           {/* CTAs */}
           {(bookUrl || (business.latitude && business.longitude)) && (
             <div className={`shrink-0 py-2 flex flex-col items-center gap-2 pointer-events-auto ${destinations.length === 0 ? 'mt-auto' : ''}`}>
-              {bookUrl && (() => {
-                const fullUrl = bookUrl.startsWith("http") ? bookUrl : `https://${bookUrl}`;
-                const isReserveUrl = !!business.reserve_now_url;
-                const forceExternal = isReserveUrl ? business.reserve_now_force_external : business.website_force_external;
-                
-                if (forceExternal) {
-                  return (
-                    <a
-                      href={fullUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-right"
-                      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-                    >
-                      <CalendarCheck className="h-4 w-4" />
-                      {language === "en" ? "Book Online" : "Réservez en ligne"}
-                      <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
-                    </a>
-                  );
-                }
-                return (
+              {bookingCta && (
+                bookingCta.forceExternal ? (
+                  <a
+                    href={bookingCta.fullUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-right"
+                    style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                  >
+                    <CalendarCheck className="h-4 w-4" />
+                    {language === "en" ? "Book Online" : "Réservez en ligne"}
+                    <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
+                  </a>
+                ) : (
                   <button
                     onClick={() => { setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setShowBookingOverlay(true); }}
                     className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-right"
@@ -852,8 +777,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     <CalendarCheck className="h-4 w-4" />
                     {language === "en" ? "Book Online" : "Réservez en ligne"}
                   </button>
-                );
-              })()}
+                )
+              )}
               {business.latitude && business.longitude && (
                 <button
                   onClick={() => setShowDirections(true)}
@@ -883,77 +808,12 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
       })()}
 
       {/* Directions Overlay */}
-      {showDirections && business && (() => {
-        const dest = business.latitude && business.longitude
-          ? `${business.latitude},${business.longitude}`
-          : encodeURIComponent(business.address || business.name);
-        const destRaw = business.latitude && business.longitude
-          ? `${business.latitude},${business.longitude}`
-          : business.address || business.name;
-        return (
-          <div className="absolute inset-0 z-[60] bg-white flex flex-col animate-slide-in-right">
-            <div className="shrink-0 flex items-center px-4 py-2 border-b bg-white">
-              <button
-                onClick={() => setShowDirections(false)}
-                className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
-                title="Fermer"
-                aria-label="Fermer l'itinéraire"
-              >
-                <X className="h-4 w-4" />
-              </button>
-              <div className="flex-1 flex items-center justify-center">
-                <div className="flex items-center bg-muted rounded-full p-0.5">
-                  <button
-                    onClick={() => setDirectionsMode("walking")}
-                    className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "walking" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-                  >
-                    🚶 À pied
-                  </button>
-                  <button
-                    onClick={() => setDirectionsMode("driving")}
-                    className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "driving" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-                  >
-                    🚗 Voiture
-                  </button>
-                </div>
-              </div>
-              <div className="shrink-0 flex items-center gap-2">
-                <a href={`https://www.google.com/maps/dir/?api=1&destination=${dest}`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Google Maps">
-                  <img src="https://www.gstatic.com/images/branding/product/1x/maps_48dp.png" alt="Google Maps" className="h-6 w-6 object-contain" />
-                </a>
-                <a href={business.latitude && business.longitude ? `https://waze.com/ul?ll=${business.latitude},${business.longitude}&navigate=yes` : `https://waze.com/ul?q=${encodeURIComponent(destRaw)}&navigate=yes`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Waze">
-                  <img src="https://www.waze.com/favicon.ico" alt="Waze" className="h-6 w-6 object-contain" />
-                </a>
-                <a href={business.latitude && business.longitude ? `https://maps.apple.com/?daddr=${business.latitude},${business.longitude}&dirflg=d` : `https://maps.apple.com/?daddr=${encodeURIComponent(destRaw)}&dirflg=d`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Apple Plans">
-                  <img src="https://www.apple.com/favicon.ico" alt="Apple Plans" className="h-7 w-7 object-contain" />
-                </a>
-              </div>
-            </div>
-            <div className="flex-1 relative min-h-0">
-              <iframe
-                src={`https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&origin=${userOrigin || "My+location"}&destination=${dest}&mode=${directionsMode}`}
-                className="absolute inset-0 w-full h-full border-0"
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title={`Itinéraire vers ${business.name}`}
-              />
-              {showInfoCard && (
-                <MapBusinessInfoCard business={business} onClose={() => setShowInfoCard(false)} hideDirections hideClose />
-              )}
-              {!showInfoCard && (
-                <button
-                  onClick={() => setShowInfoCard(true)}
-                  className="absolute top-2 left-2 z-10 h-8 w-8 flex items-center justify-center rounded-full bg-foreground text-background shadow-lg hover:opacity-90 transition-opacity"
-                  title="Infos établissement"
-                >
-                  <Info className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-          </div>
-        );
-      })()}
+      {showDirections && business && (
+        <DirectionsOverlay
+          business={business}
+          onClose={() => setShowDirections(false)}
+        />
+      )}
 
       {/* Destination detail overlay */}
       {selectedDestinationId && (
@@ -963,76 +823,25 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
           slideFrom="bottom"
         />
       )}
+
       {/* Mosaic overlay */}
       {showMosaic && (
-        <div className="absolute inset-0 z-[76] bg-black overflow-y-auto animate-slide-in-left">
-          <div className="sticky top-0 z-10 p-2">
-            <button
-              onClick={() => setShowMosaic(false)}
-              className="w-9 h-9 rounded-full bg-black/70 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
-              aria-label="Fermer la mosaïque"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-          <div className="grid grid-cols-2 gap-2 p-2 -mt-2">
-            {mediaItems.map((item, idx) => {
-              if (item.kind === "video") {
-                const ytMatch = item.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
-                const vimeoMatch = item.url.match(/vimeo\.com\/(\d+)/);
-                const thumbnail = ytMatch
-                  ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`
-                  : vimeoMatch
-                    ? `https://vumbnail.com/${vimeoMatch[1]}.jpg`
-                    : null;
-                return (
-                  <div
-                    key={`mv-${idx}`}
-                    className="relative aspect-square cursor-pointer overflow-hidden rounded-lg bg-black/40"
-                    onClick={() => { setLightboxIndex(idx); setIsLightboxOpen(true); }}
-                  >
-                    {thumbnail ? (
-                      <img src={thumbnail} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <video src={item.url} className="w-full h-full object-cover" muted playsInline preload="metadata" />
-                    )}
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                      <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
-                        <span className="text-white text-lg">▶</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-              return (
-                <div
-                  key={`mi-${idx}`}
-                  className="relative aspect-square cursor-pointer overflow-hidden rounded-lg"
-                  onClick={() => { setLightboxIndex(idx); setIsLightboxOpen(true); }}
-                >
-                  <img src={item.url} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <MosaicOverlay
+          mediaItems={mediaItems}
+          onClose={() => setShowMosaic(false)}
+          onOpenLightbox={(idx) => { setLightboxIndex(idx); setIsLightboxOpen(true); }}
+        />
       )}
+
       {/* Fullscreen media lightbox */}
-      {isLightboxOpen && totalMedia > 0 && (() => {
-        const lbItems: LightboxMediaItem[] = mediaItems.map((m) =>
-          m.kind === "video"
-            ? { type: "video" as const, src: m.url, alt: business?.name || "" }
-            : { type: "image" as const, src: m.url, alt: business?.name || "" }
-        );
-        return (
-          <FullscreenLightbox
-            items={lbItems}
-            currentIndex={lightboxIndex}
-            onIndexChange={setLightboxIndex}
-            onClose={() => setIsLightboxOpen(false)}
-          />
-        );
-      })()}
+      {isLightboxOpen && totalMedia > 0 && (
+        <FullscreenLightbox
+          items={lightboxItems}
+          currentIndex={lightboxIndex}
+          onIndexChange={setLightboxIndex}
+          onClose={() => setIsLightboxOpen(false)}
+        />
+      )}
     </div>
   );
 };
