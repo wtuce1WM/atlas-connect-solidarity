@@ -1908,7 +1908,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           )}
 
           {/* Langues parlées */}
-          <div className="mt-4 space-y-2 col-span-1 md:col-span-5">
+          <div className="mt-4 space-y-2 col-span-1 md:col-span-6">
             <div className="flex items-center justify-between">
               <Label>Langues parlées</Label>
               <div className="flex gap-2">
