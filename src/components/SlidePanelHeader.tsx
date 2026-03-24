@@ -31,7 +31,7 @@ const SlidePanelHeader = ({
       : "bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity";
 
   return (
-    <div className="shrink-0 flex items-center justify-between px-4 py-2 lg:bg-card lg:border-b lg:border-border bg-transparent border-b-0 z-40 relative">
+    <div className="shrink-0 flex items-center justify-between px-4 py-2 bg-transparent lg:bg-card lg:border-b lg:border-border z-40 relative lg:static absolute top-0 left-0 right-0">
       <div className="flex items-center gap-3 shrink-0 relative z-10">
         <button
           type="button"
