@@ -3321,13 +3321,18 @@ serve(async (req) => {
       // - If a specific service filter exists, enrich by that service list (e.g. "alcool")
       // - Otherwise, fallback to subcategory-as-service enrichment (legacy behavior)
       const enrichmentCity = effectiveCity || neighborhoodCity;
+      // When query equals the subcategory name (e.g. "piscine à marrakech" → subcategory "Piscine"),
+      // skip service enrichment to avoid pulling in businesses that merely HAVE the service (e.g. riads with pool)
+      const isSubcatOnlyQuery = !!queryForExpansion &&
+        stripAccentsGlobal(queryForExpansion.toLowerCase().trim()) ===
+          stripAccentsGlobal(detectedSubcategory.toLowerCase().trim());
       const enrichmentServiceNames = (bundleActivated && bundleRequiredServices.length > 0)
         ? bundleRequiredServices
         : (serviceFilter && serviceFilter.length > 0)
         ? serviceFilter
         : (detectedServices.length > 0 ? detectedServices : [detectedSubcategory]);
 
-      if (enrichmentServiceNames.length > 0) {
+      if (enrichmentServiceNames.length > 0 && !isSubcatOnlyQuery) {
         const existingIds = new Set(businesses.map(b => b.id));
         let svcBuilder = supabase.from("businesses").select("*").eq("is_active", true)
           .overlaps("services", enrichmentServiceNames);
@@ -3380,7 +3385,7 @@ serve(async (req) => {
       // When the query word matched a subcategory name (e.g. "Céramique" → "Poterie / Céramique"),
       // the word was excluded from service detection. But if it also matches a real service name,
       // businesses with that service in OTHER categories are missing. Merge them here.
-      if (detectedSubcategory && detectedServices.length === 0 && effectiveQuery) {
+      if (detectedSubcategory && detectedServices.length === 0 && effectiveQuery && !isSubcatOnlyQuery) {
         const subcatWords = detectedSubcategory.toLowerCase().split(/[\s/]+/).filter(w => w.length > 2);
         const queryWordsLower = effectiveQuery.toLowerCase().split(/\s+/).filter(w => w.length > 2 && !FRENCH_STOP_WORDS.has(w));
         // Find query words that overlap with subcategory name words
