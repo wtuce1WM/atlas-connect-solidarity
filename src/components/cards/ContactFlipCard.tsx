@@ -21,6 +21,7 @@ interface ContactFlipCardProps {
   language: string;
   hasOpeningHours: boolean;
   animationDelay?: string;
+  tallHeight?: boolean;
   className?: string;
 }
 
