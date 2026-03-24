@@ -663,10 +663,10 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                 {hasContactCard && (
                   <ContactFlipCard
                     business={business}
+                    language={language}
                     hasOpeningHours={!!hasOpeningHours}
-                    heightClass={destinations.length === 0 ? 'h-[21.6em] md:h-[28.8em]' : 'h-[18em] md:h-[24em]'}
+                    tallHeight={destinations.length === 0}
                     animationDelay={woDescription ? "120ms" : "0ms"}
-                    enableZoomControl={true}
                   />
                 )}
                 {/* Card 3: Reviews Flip */}
