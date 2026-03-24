@@ -111,6 +111,13 @@ interface Destination {
   images: string[] | null;
 }
 
+interface PoiBusiness {
+  id: string;
+  name: string;
+  images: string[] | null;
+  logo_url: string | null;
+}
+
 type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
 
 const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }: BookOnlineSlidePanelProps) => {
