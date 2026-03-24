@@ -4114,8 +4114,8 @@ const SearchPage = () => {
                     </div>
                   );
 
-                  // Insert AI suggestion card (stable slot) after the 3rd result (index 2), only on page 1
-                  if (index === 2 && currentPage === 1) {
+                  // Insert AI suggestion card (stable slot) after the 3rd result (index 2), only on page 1 and not when showing same-category
+                  if (index === 2 && currentPage === 1 && !(compactPanelBusiness && sameCategoryBusinesses.length > 0)) {
                     const isAiReady = !!stickyAiText;
                     return [
                       card,
