@@ -12,6 +12,7 @@ import ShareButton from "@/components/ShareButton";
 import { Skeleton } from "@/components/ui/skeleton";
 import BookingOverlay from "@/components/BookingOverlay";
 import DestinationSlidePanel from "@/components/DestinationSlidePanel";
+import PoiSlidePanel from "@/components/PoiSlidePanel";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { getLangFlag, getLangAlt } from "@/lib/languageFlags";
 import { getVideoEmbed } from "@/lib/videoEmbed";
