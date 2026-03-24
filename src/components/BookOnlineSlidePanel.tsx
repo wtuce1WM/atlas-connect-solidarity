@@ -724,6 +724,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     language={language}
                     hasOpeningHours={!!hasOpeningHours}
                     animationDelay={woDescription ? "120ms" : "0ms"}
+                    tallHeight={destinations.length === 0}
                   />
                 )}
                 {/* Card 3: Avis Clients with Flip to translated reviews */}
