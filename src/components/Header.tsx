@@ -39,7 +39,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            className="lg:hidden flex items-center justify-center w-10 h-10 rounded-lg text-foreground hover:bg-muted/50 transition-colors"
+            className="flex items-center justify-center w-10 h-10 rounded-lg text-foreground hover:bg-muted/50 transition-colors"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Menu"
           >
