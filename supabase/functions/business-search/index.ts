@@ -3465,8 +3465,14 @@ serve(async (req) => {
       }
 
       // Skip in strict mode to preserve the rating-based sort order from the DB query
-      // TEST: Force broad mode — ignore strict check
-      if (effectiveQuery && businesses.length > 1 /* && subcategorySearchConfig?.search_mode !== "strict" */) {
+      const isSubcategoryPhraseOnlyMode =
+        !!detectedSubcategory &&
+        !!queryForExpansion &&
+        detectedSubcategory.includes(" ") &&
+        stripAccentsGlobal(queryForExpansion.toLowerCase().trim()) ===
+          stripAccentsGlobal(detectedSubcategory.toLowerCase().trim());
+
+      if (effectiveQuery && businesses.length > 1 && !isSubcategoryPhraseOnlyMode) {
         const qLower = effectiveQuery.toLowerCase();
         const qWords = qLower.split(/\s+/).filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
         if (qWords.length >= 2) {
@@ -3505,8 +3511,18 @@ serve(async (req) => {
     }
 
     // In strict mode, if subcategory was detected, do NOT fall through to tsquery
-    // TEST: Force broad mode — always false
-    const isStrictMode = false; // subcategorySearchConfig?.search_mode === 'strict' && !!detectedSubcategory;
+    const isSubcategoryPhraseOnlyMode =
+      !!detectedSubcategory &&
+      !!queryForExpansion &&
+      detectedSubcategory.includes(" ") &&
+      stripAccentsGlobal(queryForExpansion.toLowerCase().trim()) ===
+        stripAccentsGlobal(detectedSubcategory.toLowerCase().trim());
+    const isStrictMode =
+      (subcategorySearchConfig?.search_mode === "strict" && !!detectedSubcategory) ||
+      isSubcategoryPhraseOnlyMode;
+    if (isSubcategoryPhraseOnlyMode) {
+      console.log(`Subcategory-only phrase mode enabled for "${detectedSubcategory}"`);
+    }
     // In broad mode (default), ALSO run tsquery even if subcategory direct query found results,
     // and merge the results. This is the key difference: broad = subcategory + full-text merged.
     const isBroadWithResults = !isStrictMode && !bundleActivated && detectedSubcategory && businesses.length > 0;
@@ -3572,7 +3588,7 @@ serve(async (req) => {
 
     // ── Synonym-linked subcategories: merge AFTER strict mode so they don't get overwritten ──
     // Skip if synonyms were scoped out (detected subcategory had no matching synonym filters)
-    if (detectedSubcategory && synonymLinkedSubcategories.length > 0 && !synonymsScopedOut) {
+    if (detectedSubcategory && synonymLinkedSubcategories.length > 0 && !synonymsScopedOut && !isSubcategoryPhraseOnlyMode) {
       const existingIds = new Set(businesses.map(b => b.id));
       const extraSubcats = synonymLinkedSubcategories.filter(sc => sc.toLowerCase() !== detectedSubcategory!.toLowerCase());
       for (const synSubcat of extraSubcats) {
@@ -4527,7 +4543,7 @@ serve(async (req) => {
     // Inject name-matched businesses that may have been filtered out by strict mode
     // Skip injection when a bundle is activated — bundles define precise intent, name matches would pollute results
     
-    if (nameMatchedBusinessIds.length > 0 && !bundleActivated) {
+    if (nameMatchedBusinessIds.length > 0 && !bundleActivated && !isSubcategoryPhraseOnlyMode) {
       const existingIds = new Set(businesses.map(b => b.id));
       const missingIds = nameMatchedBusinessIds.filter(id => !existingIds.has(id));
       if (missingIds.length > 0) {
@@ -4564,6 +4580,8 @@ serve(async (req) => {
       }
     } else if (nameMatchedBusinessIds.length > 0 && bundleActivated) {
       console.log(`⏭️ Name-match injection/pinning skipped (bundle activated, ${nameMatchedBusinessIds.length} name matches ignored)`);
+    } else if (nameMatchedBusinessIds.length > 0 && isSubcategoryPhraseOnlyMode) {
+      console.log(`⏭️ Name-match injection/pinning skipped (subcategory-only phrase mode for "${detectedSubcategory}")`);
     }
     // LLM Re-ranking: DISABLED — SQL ordering (ts_rank + priority_score + wtuce_status) is sufficient
     // The rerank added 1.5s–12s latency for marginal relevance gains
