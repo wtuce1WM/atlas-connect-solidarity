@@ -439,8 +439,7 @@ const SearchPage = () => {
   useEffect(() => {
     const openBizId = searchParams.get("openBusiness");
     if (openBizId) {
-      setCompactPanelBusiness({ id: openBizId, name: "" } as any);
-      setIsCompactPanelExpanded(false);
+      openCompactPanel({ id: openBizId, name: "" } as any);
       // Clean up the param from URL
       const next = new URLSearchParams(searchParams);
       next.delete("openBusiness");
