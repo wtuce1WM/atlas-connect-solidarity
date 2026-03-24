@@ -1555,8 +1555,17 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           type="button"
           onClick={(e) => {
             e.preventDefault();
+            console.log("[BusinessForm] Save button clicked");
             const form = document.querySelector('form');
-            if (form) form.requestSubmit();
+            console.log("[BusinessForm] Form found:", !!form);
+            if (form) {
+              try {
+                form.requestSubmit();
+                console.log("[BusinessForm] requestSubmit() called");
+              } catch (err) {
+                console.error("[BusinessForm] requestSubmit error:", err);
+              }
+            }
           }}
           disabled={loading}
           className="bg-gold hover:bg-gold/90 text-gold-foreground flex-shrink-0"
