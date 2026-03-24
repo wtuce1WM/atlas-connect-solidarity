@@ -84,6 +84,14 @@ interface BookOnlineBusiness {
   hook_en: string | null;
   hook_ar: string | null;
   description: string | null;
+  facebook_url: string | null;
+  instagram_url: string | null;
+  tiktok_url: string | null;
+  youtube_url: string | null;
+  twitter_url: string | null;
+  linkedin_url: string | null;
+  pinterest_url: string | null;
+  vimeo_url: string | null;
 }
 
 interface WebOnlyData {
