@@ -18,6 +18,8 @@ import { getVideoEmbed } from "@/lib/videoEmbed";
 import ContactFlipCard from "@/components/cards/ContactFlipCard";
 import ReviewsFlipCard from "@/components/cards/ReviewsFlipCard";
 import type { ReviewText } from "@/components/cards/ReviewsFlipCard";
+import ExternalLinksFlipCard from "@/components/cards/ExternalLinksFlipCard";
+import type { ExternalLinkItem } from "@/components/cards/ExternalLinksFlipCard";
 
 interface BookOnlineSlidePanelProps {
   businessId: string;
@@ -111,8 +113,10 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
   const [showInfoCard, setShowInfoCard] = useState(true);
   const [showBookingOverlay, setShowBookingOverlay] = useState(false);
+  const [bookingOverlayUrl, setBookingOverlayUrl] = useState<string | null>(null);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [reviewTexts, setReviewTexts] = useState<ReviewText[]>([]);
+  const [externalLinks, setExternalLinks] = useState<ExternalLinkItem[]>([]);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [cardsHidden, setCardsHidden] = useState(false);
@@ -224,6 +228,15 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
         .order("rating", { ascending: false })
         .limit(3);
       setReviewTexts(langReviews ? (langReviews as any[]) : []);
+
+      // Fetch external links
+      const { data: extLinks } = await supabase
+        .from("business_documents")
+        .select("id, name, url, icon")
+        .eq("business_id", businessId)
+        .eq("type", "external_link")
+        .order("sort_order");
+      setExternalLinks((extLinks || []) as ExternalLinkItem[]);
 
       setIsLoading(false);
     };
@@ -724,6 +737,17 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
                   />
                 )}
+                {/* Card 4: Liens Externes with Flip */}
+                {externalLinks.length > 0 && (
+                  <ExternalLinksFlipCard
+                    links={externalLinks}
+                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(hasReviewsCard)) * 120}ms`}
+                    onOpenUrl={(url) => {
+                      setBookingOverlayUrl(url);
+                      setShowBookingOverlay(true);
+                    }}
+                  />
+                )}
                 <div className="shrink-0 w-4" aria-hidden="true" />
             </div>
           </div>
@@ -817,12 +841,16 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
       </div>
 
       {/* Booking Overlay */}
-      {showBookingOverlay && bookUrl && (
-        <BookingOverlay
-          bookingUrl={bookUrl.startsWith("http") ? bookUrl : `https://${bookUrl}`}
-          onClose={() => setShowBookingOverlay(false)}
-        />
-      )}
+      {showBookingOverlay && (bookingOverlayUrl || bookUrl) && (() => {
+        const overlayUrl = bookingOverlayUrl || bookUrl!;
+        const finalUrl = overlayUrl.startsWith("http") ? overlayUrl : `https://${overlayUrl}`;
+        return (
+          <BookingOverlay
+            bookingUrl={finalUrl}
+            onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); }}
+          />
+        );
+      })()}
 
       {/* Directions Overlay */}
       {showDirections && business && (() => {
