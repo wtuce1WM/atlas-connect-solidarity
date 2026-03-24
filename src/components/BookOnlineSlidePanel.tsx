@@ -788,7 +788,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                       key={poi.id}
                       className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
                       style={{ animationDelay: `${(destinations.length + index) * 120}ms`, animationFillMode: 'forwards' }}
-                      onClick={() => navigate(`/search?openBusiness=${poi.id}`)}
+                      onClick={() => setSelectedPoiBusinessId(poi.id)}
                     >
                       {poiImg ? (
                         <img src={poiImg} alt={poi.name} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
