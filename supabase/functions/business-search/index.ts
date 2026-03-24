@@ -1050,6 +1050,7 @@ serve(async (req) => {
     let detectedSubcategory: string | null = null;
     let detectedSubcategoryIsReal = false;
     let subcategoryParentCategory: string | null = null;
+    let keywordLinkedSubcategories: string[] = []; // additional subcategories found via keyword match
     if (effectiveQuery && !labelShortcutActivated) {
       const qLower = effectiveQuery.toLowerCase();
       const qWords = qLower.split(/\s+/);
@@ -1110,14 +1111,16 @@ serve(async (req) => {
           }
         }
 
-        // ── PASS 2: Keyword matches (only if no name match found) ──
-        // When a keyword matches MULTIPLE subcategories, don't lock to one — skip subcategory auto-detection
-        // so the broader category or FTS results are used instead.
-        if (!detectedSubcategory) {
+        // ── PASS 2: Keyword matches ──
+        // If name match found: collect additional keyword-linked subcategories
+        // If no name match: use keyword match as primary detection (skip if ambiguous)
+        {
           const keywordMatchedSubcats: string[] = [];
           for (const sc of sorted) {
             const n = sc.name_fr?.toLowerCase();
             if (!n) continue;
+            // Skip the subcategory already detected by name match
+            if (detectedSubcategory && sc.name_fr === detectedSubcategory) continue;
             const kws: string[] = (sc.keywords || []).map((k: string) => k.toLowerCase());
             if (kws.length === 0) continue;
             if (kws.length > 0 && (
@@ -1138,11 +1141,20 @@ serve(async (req) => {
               keywordMatchedSubcats.push(sc.name_fr);
             }
           }
-          if (keywordMatchedSubcats.length === 1) {
-            detectedSubcategory = keywordMatchedSubcats[0];
-            console.log(`Auto-detected subcategory "${keywordMatchedSubcats[0]}" from keyword match in query "${effectiveQuery}"`);
-          } else if (keywordMatchedSubcats.length > 1) {
-            console.log(`Keyword matched ${keywordMatchedSubcats.length} subcategories [${keywordMatchedSubcats.join(", ")}] — skipping subcategory lock, will use broader search`);
+          if (detectedSubcategory) {
+            // Name match already found — store keyword matches as additional linked subcategories
+            if (keywordMatchedSubcats.length > 0) {
+              keywordLinkedSubcategories = keywordMatchedSubcats;
+              console.log(`Keyword-linked subcategories for "${detectedSubcategory}": [${keywordLinkedSubcategories.join(", ")}]`);
+            }
+          } else {
+            // No name match — use keyword match as primary
+            if (keywordMatchedSubcats.length === 1) {
+              detectedSubcategory = keywordMatchedSubcats[0];
+              console.log(`Auto-detected subcategory "${keywordMatchedSubcats[0]}" from keyword match in query "${effectiveQuery}"`);
+            } else if (keywordMatchedSubcats.length > 1) {
+              console.log(`Keyword matched ${keywordMatchedSubcats.length} subcategories [${keywordMatchedSubcats.join(", ")}] — skipping subcategory lock, will use broader search`);
+            }
           }
         }
 
@@ -3143,6 +3155,17 @@ serve(async (req) => {
           }
         }
       }
+    }
+    // ── Inject keyword-linked subcategories into MERGED_SUBCATEGORIES ──
+    if (detectedSubcategory && keywordLinkedSubcategories.length > 0) {
+      const key = detectedSubcategory.toLowerCase();
+      const existing = MERGED_SUBCATEGORIES[key] || [detectedSubcategory];
+      const merged = [...new Set([...existing, ...keywordLinkedSubcategories])];
+      // Update all entries in the merge group
+      for (const name of merged) {
+        MERGED_SUBCATEGORIES[name.toLowerCase()] = merged;
+      }
+      console.log(`Keyword-linked merge: "${detectedSubcategory}" now merged with [${merged.join(", ")}]`);
     }
 
     const bundleResultIds = new Set(businesses.map(b => b.id));
