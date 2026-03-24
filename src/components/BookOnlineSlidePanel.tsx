@@ -81,6 +81,7 @@ interface BookOnlineBusiness {
   hook_fr: string | null;
   hook_en: string | null;
   hook_ar: string | null;
+  description: string | null;
 }
 
 interface WebOnlyData {
