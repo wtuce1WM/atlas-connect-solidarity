@@ -961,6 +961,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
           destinationId={selectedDestinationId}
           onClose={() => setSelectedDestinationId(null)}
           slideFrom="bottom"
+          belowToolbar
         />
       )}
       {/* Mosaic overlay */}
