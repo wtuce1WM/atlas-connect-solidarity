@@ -730,20 +730,12 @@ const SearchPage = () => {
           setIsCompactPanelWebOnly(forceWebOnly);
           setIsCompactPanelBookOnline(false);
         } else {
-          // Try to detect from allBusinesses
+          // Detect panel type from presentation_mode
           const found = allBusinesses.find(biz => biz.id === b.id);
           if (found) {
-            const engs = (found as any).engagements || [];
-            const hasEng = (target: string) => engs.some((e: string) => {
-              const n = e.toLowerCase().trim();
-              const needle = target.toLowerCase();
-              return n === needle || n === `logistique:${needle}` || n.endsWith(`:${needle}`);
-            });
-            const shopUrl = (found as any).online_shop_url || (found as any).website;
-            const hasReservation = hasEng("Réservation en ligne obligatoire");
-            const hasCommande = hasEng("Commandez en ligne et recevez votre colis chez vous") && shopUrl;
-            setIsCompactPanelBookOnline(!!hasReservation);
-            setIsCompactPanelWebOnly(!!(hasCommande && !hasReservation));
+            const mode = (found as any).presentation_mode || "standard";
+            setIsCompactPanelBookOnline(mode === "reserver");
+            setIsCompactPanelWebOnly(mode === "acheter");
           } else {
             setIsCompactPanelWebOnly(false);
             setIsCompactPanelBookOnline(false);
