@@ -37,7 +37,7 @@ const ContactFlipCard = ({
 
   return (
     <div
-      className={`snap-start shrink-0 w-[20rem] ${tallHeight ? 'h-[21.6em] md:h-[30.8em]' : 'h-[18em] md:h-[25.7em]'} mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 ${className}`}
+      className={`snap-start shrink-0 w-[20rem] ${tallHeight ? 'h-[21.6em] md:h-[32.3em]' : 'h-[18em] md:h-[27em]'} mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 ${className}`}
       style={{ perspective: "1000px", animationDelay, animationFillMode: "forwards" }}
     >
       <div
