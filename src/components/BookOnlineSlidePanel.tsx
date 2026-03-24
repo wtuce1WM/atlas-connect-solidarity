@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { createPortal } from "react-dom";
 import { createPortal } from "react-dom";
 import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, CalendarCheck, Star, Minimize2 } from "lucide-react";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
