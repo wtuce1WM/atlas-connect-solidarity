@@ -1807,6 +1807,14 @@ const SearchPage = () => {
             setSelectedCategoryFilter(null);
             setSelectedSubcategoryFilter(null);
             setSelectedServiceFilter(null);
+            // Reset city filter if backend didn't detect a city, to prevent stale
+            // city from a prior search from filtering out results (e.g. "Decathlon Travel" with city=null)
+            if (!data.detectedCity) {
+              setSelectedCity("all");
+            } else {
+              setSelectedCity(data.detectedCity);
+              setIsGeoCityAutoSelected(false);
+            }
           }
           setMoreFilterTimeSlots([]);
           setMoreFilterEngagements([]);
