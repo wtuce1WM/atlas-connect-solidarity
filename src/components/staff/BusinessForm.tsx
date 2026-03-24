@@ -2903,7 +2903,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             </Button>
           </div>
           {externalLinkDocs.map((doc, idx) => (
-            <div key={idx} className="flex items-center gap-2">
+            <div key={idx} className="flex items-center gap-2 flex-nowrap">
               {/* Image upload thumbnail */}
               <label className="shrink-0 cursor-pointer relative group">
                 {doc.image_url ? (
@@ -2935,15 +2935,17 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Input
                 value={doc.name}
                 onChange={(e) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, name: e.target.value } : d))}
-                placeholder="Titre"
-                className="w-40"
+                placeholder="Titre *"
+                className="w-56 lg:w-72 shrink-0"
+                required
               />
-              <div className="flex-1 flex items-center gap-1">
+              <div className="flex-1 min-w-0 flex items-center gap-1">
                 <Input
                   value={doc.url}
                   onChange={(e) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
-                  placeholder="URL du lien"
+                  placeholder="URL du lien *"
                   className="flex-1"
+                  required
                 />
                 {doc.url && (
                   <a href={doc.url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-muted-foreground hover:text-primary" title="Ouvrir le lien">
@@ -2954,7 +2956,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <select
                 value={doc.language}
                 onChange={(e) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, language: e.target.value } : d))}
-                className="h-9 rounded-md border border-input bg-background px-3 text-sm w-28"
+                className="h-9 rounded-md border border-input bg-background px-3 text-sm w-28 shrink-0"
               >
                 <option value="">Langue</option>
                 {LANGUAGE_OPTIONS.map(({ code, label }) => (
@@ -2965,7 +2967,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>
-          ))}
+          ))
           {externalLinkDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucun lien externe ajouté.</p>}
         </div>
 
