@@ -4184,7 +4184,7 @@ const SearchPage = () => {
               */}
 
               {/* Pagination */}
-              {totalPages > 1 && (
+              {totalPages > 1 && !(compactPanelBusiness && sameCategoryBusinesses.length > 0) && (
                 <div className="mt-12 mb-24 flex flex-col items-center gap-4">
                   {/* Results count */}
                   <p className="text-sm text-gray-400">
