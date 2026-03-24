@@ -764,49 +764,7 @@ const SearchPage = () => {
         closeCompactPanel();
       }, [closeCompactPanel, isCompactPanelExpanded]);
 
-     // Same-category businesses for left panel when detail panel is open
-     const [sameCategoryBusinesses, setSameCategoryBusinesses] = useState<Business[]>([]);
-     useEffect(() => {
-       if (!compactPanelBusiness) {
-         setSameCategoryBusinesses([]);
-         return;
-       }
-       const fetchSameCategory = async () => {
-         // Find business info from allBusinesses or fetch it
-         let bizCity: string | null = null;
-         let bizCategory: string | null = null;
-         const found = allBusinesses.find(b => b.id === compactPanelBusiness.id);
-         if (found) {
-           bizCity = found.city;
-           bizCategory = found.main_category;
-         } else {
-           const { data } = await supabase
-             .from("businesses")
-             .select("city, main_category")
-             .eq("id", compactPanelBusiness.id)
-             .maybeSingle();
-           if (data) {
-             bizCity = data.city;
-             bizCategory = data.main_category;
-           }
-         }
-         if (!bizCity || !bizCategory) {
-           setSameCategoryBusinesses([]);
-           return;
-         }
-         const { data: sameBiz } = await supabase
-           .from("businesses")
-           .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, rating, gamme_id, badge_id, hook_fr, hook_en, hook_ar, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids, default_service, neighborhood, engagements, online_shop_url, presentation_mode, keywords")
-           .eq("is_active", true)
-           .eq("main_category", bizCategory)
-           .eq("city", bizCity)
-           .neq("id", compactPanelBusiness.id)
-           .order("priority_score", { ascending: false })
-           .limit(20);
-         setSameCategoryBusinesses((sameBiz || []) as unknown as Business[]);
-       };
-       fetchSameCategory();
-     }, [compactPanelBusiness?.id]);
+
 
      const [hoveredResultId, setHoveredResultId] = useState<string | null>(null);
      const [hoveredPoiId, setHoveredPoiId] = useState<string | null>(null);
