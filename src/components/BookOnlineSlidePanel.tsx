@@ -410,6 +410,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                 autoPlay muted playsInline controls
                 className={`w-full h-full bg-black ${isFileVideoVertical ? "object-cover" : "object-contain"}`}
                 onEnded={() => totalMedia > 1 && goMedia(1)}
+                onPlay={(e) => { e.currentTarget.muted = false; }}
                 onLoadedMetadata={(e) => {
                   const v = e.currentTarget;
                   setIsFileVideoVertical(v.videoHeight > v.videoWidth);
