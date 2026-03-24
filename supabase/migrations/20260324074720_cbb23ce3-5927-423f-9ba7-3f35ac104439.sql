@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS presentation_mode text NOT NULL DEFAULT 'standard';
