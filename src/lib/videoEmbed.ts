@@ -24,5 +24,13 @@ export function getVideoEmbed(url: string, origin: string): VideoEmbedInfo {
       isVertical: false,
     };
   }
+  const bunnyMatch = url.match(/iframe\.mediadelivery\.net\/embed\/(\d+)\/([\w-]+)/);
+  if (bunnyMatch) {
+    return {
+      type: "bunny",
+      embedUrl: `https://iframe.mediadelivery.net/embed/${bunnyMatch[1]}/${bunnyMatch[2]}?autoplay=true&preload=true&loop=false&responsive=true`,
+      isVertical: false,
+    };
+  }
   return { type: "file", embedUrl: url, isVertical: false };
 }
