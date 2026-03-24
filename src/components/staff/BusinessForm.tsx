@@ -1849,6 +1849,23 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             </Select>
           </div>
 
+          <div className="space-y-2">
+            <Label>Présentation</Label>
+            <Select
+              value={(formData as any).presentation_mode || "standard"}
+              onValueChange={(value) => handleChange("presentation_mode", value)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-background z-50">
+                <SelectItem value="standard">Standard</SelectItem>
+                <SelectItem value="acheter">Acheter</SelectItem>
+                <SelectItem value="reserver">Réserver</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Villes de la zone nationale */}
           {(formData as any).zone_chalandise === "nationale" && (
             <div className="space-y-2 col-span-1 md:col-span-5">
