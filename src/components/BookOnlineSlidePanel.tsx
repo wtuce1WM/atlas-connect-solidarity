@@ -126,6 +126,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const touchStartRef = useRef<{ y: number; time: number } | null>(null);
   const cardsHiddenRef = useRef(false);
   const [showHook, setShowHook] = useState(false);
+  const [showMosaic, setShowMosaic] = useState(false);
 
   // Reset all state when switching business
   useEffect(() => {
@@ -138,6 +139,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
     setSelectedDestinationId(null);
     setShowBookingOverlay(false);
     setIsLightboxOpen(false);
+    setShowMosaic(false);
     setShowHook(false);
   }, [businessId]);
 
@@ -363,11 +365,11 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
       {/* Portal media button into left of fixed bar (next to close) */}
       {toolbarLeftPortal && images.length >= 5 && createPortal(
         <button
-          onClick={() => { onToggleExpand?.(); }}
+          onClick={() => setShowMosaic((p) => !p)}
           className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background shadow-md hover:bg-foreground/90 transition-colors"
-          title="Voir tous les médias"
+          title={showMosaic ? "Fermer la mosaïque" : "Voir tous les médias"}
         >
-          {isExpanded ? (
+          {showMosaic ? (
             <Minimize2 className="h-4 w-4" />
           ) : (
             <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert" />
@@ -935,6 +937,51 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
           onClose={() => setSelectedDestinationId(null)}
           slideFrom="bottom"
         />
+      )}
+      {/* Mosaic overlay */}
+      {showMosaic && (
+        <div className="absolute inset-0 z-[76] bg-black overflow-y-auto animate-slide-in-left">
+          <div className="grid grid-cols-2 gap-2 p-2">
+            {mediaItems.map((item, idx) => {
+              if (item.kind === "video") {
+                const ytMatch = item.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
+                const vimeoMatch = item.url.match(/vimeo\.com\/(\d+)/);
+                const thumbnail = ytMatch
+                  ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`
+                  : vimeoMatch
+                    ? `https://vumbnail.com/${vimeoMatch[1]}.jpg`
+                    : null;
+                return (
+                  <div
+                    key={`mv-${idx}`}
+                    className="relative aspect-square cursor-pointer overflow-hidden rounded-lg bg-black/40"
+                    onClick={() => { setLightboxIndex(idx); setIsLightboxOpen(true); }}
+                  >
+                    {thumbnail ? (
+                      <img src={thumbnail} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <video src={item.url} className="w-full h-full object-cover" muted playsInline preload="metadata" />
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                      <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
+                        <span className="text-white text-lg">▶</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+              return (
+                <div
+                  key={`mi-${idx}`}
+                  className="relative aspect-square cursor-pointer overflow-hidden rounded-lg"
+                  onClick={() => { setLightboxIndex(idx); setIsLightboxOpen(true); }}
+                >
+                  <img src={item.url} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                </div>
+              );
+            })}
+          </div>
+        </div>
       )}
       {/* Fullscreen media lightbox */}
       {isLightboxOpen && totalMedia > 0 && (() => {
