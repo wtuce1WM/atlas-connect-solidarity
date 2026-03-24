@@ -676,7 +676,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     totalReviewCount={totalReviewCount}
                     platforms={reviewPlatforms}
                     reviewTexts={reviewTexts}
-                    businessId={business.id}
+                    language={language}
                     animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
                   />
                 )}
