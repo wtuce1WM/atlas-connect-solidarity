@@ -841,12 +841,16 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
       </div>
 
       {/* Booking Overlay */}
-      {showBookingOverlay && bookUrl && (
-        <BookingOverlay
-          bookingUrl={bookUrl.startsWith("http") ? bookUrl : `https://${bookUrl}`}
-          onClose={() => setShowBookingOverlay(false)}
-        />
-      )}
+      {showBookingOverlay && (bookingOverlayUrl || bookUrl) && (() => {
+        const overlayUrl = bookingOverlayUrl || bookUrl!;
+        const finalUrl = overlayUrl.startsWith("http") ? overlayUrl : `https://${overlayUrl}`;
+        return (
+          <BookingOverlay
+            bookingUrl={finalUrl}
+            onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); }}
+          />
+        );
+      })()}
 
       {/* Directions Overlay */}
       {showDirections && business && (() => {
