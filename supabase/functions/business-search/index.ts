@@ -4818,13 +4818,19 @@ serve(async (req) => {
     }
 
     // Determine disambiguation type
+    // Skip disambiguation when few results (≤ 5) — the user already has a manageable list
+    // Also skip when a business name exactly matches the query (name-pinning)
     const hasCity = !!effectiveCity;
     const hasSubcategory = !!detectedSubcategory;
+    const queryNorm = stripAccentsGlobal(query.trim().toLowerCase());
+    const hasExactNameMatch = businesses.some(b => stripAccentsGlobal(b.name.toLowerCase()) === queryNorm);
     let disambiguationType: "needs_category" | "needs_city" | null = null;
-    if (hasCity && !hasSubcategory && businesses.length > 10) {
-      disambiguationType = "needs_category";
-    } else if (hasSubcategory && !hasCity) {
-      disambiguationType = "needs_city";
+    if (!hasExactNameMatch && businesses.length > 5) {
+      if (hasCity && !hasSubcategory && businesses.length > 10) {
+        disambiguationType = "needs_category";
+      } else if (hasSubcategory && !hasCity) {
+        disambiguationType = "needs_city";
+      }
     }
 
     const synonymWasUsed = matchedSynonymFilters.length > 0 || !!matchedSynonymBadgeId;
