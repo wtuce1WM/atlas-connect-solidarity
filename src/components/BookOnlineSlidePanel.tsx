@@ -790,6 +790,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                 <div className="shrink-0 w-6" aria-hidden="true" />
               </div>
             </div>
+            </>
           )}
 
           {/* CTAs */}
