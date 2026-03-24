@@ -1273,7 +1273,7 @@ const BusinessDetail = () => {
                 )}
                 {businessDestinationDescription && (
                   <div
-                    className={`prose max-w-none text-sm leading-relaxed ${isVerified ? 'text-white/70 prose-invert' : 'text-muted-foreground'}`}
+                    className={`prose max-w-none text-sm leading-relaxed prose-josefin-headings ${isVerified ? 'text-white/70 prose-invert' : 'text-muted-foreground'}`}
                     dangerouslySetInnerHTML={{ __html: businessDestinationDescription }}
                   />
                 )}
