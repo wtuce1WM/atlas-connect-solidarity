@@ -53,7 +53,7 @@ const ExternalLinksFlipCard = ({
           <ExternalLink className="w-4 h-4 text-white/60" />
         </div>
       )}
-      <span className="text-xs leading-tight text-white/90 group-hover:text-white line-clamp-2 flex-1">
+      <span className="text-xs leading-tight text-white/90 group-hover:text-white line-clamp-2 flex-1" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
         {link.name || "Lien externe"}
       </span>
       <ChevronRight className="w-3.5 h-3.5 text-white/40 shrink-0" />
