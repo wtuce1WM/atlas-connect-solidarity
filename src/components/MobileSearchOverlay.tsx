@@ -8,6 +8,7 @@ import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Search, Clock, X, Mic, MicOff, Loader, TrendingUp, MapPin } from "lucide-react";
 import { businessUrl } from "@/lib/businessUrl";
+
 interface MobileSearchOverlayProps {
   open: boolean;
   onClose: () => void;
@@ -17,9 +18,21 @@ interface MobileSearchOverlayProps {
   onSearch?: (params: Record<string, string>) => void;
   /** Called when user taps the mic — parent should start its own voice recording and this overlay will close */
   onVoiceStart?: () => void;
+  /** Desktop-only: render overlay docked in the left search panel instead of fullscreen */
+  desktopDocked?: boolean;
+  /** Desktop-only: when docked, constrain width to left half (split layout) */
+  desktopHalfWidth?: boolean;
 }
 
-const MobileSearchOverlay = ({ open, onClose, onBusinessSelect, onSearch, onVoiceStart }: MobileSearchOverlayProps) => {
+const MobileSearchOverlay = ({
+  open,
+  onClose,
+  onBusinessSelect,
+  onSearch,
+  onVoiceStart,
+  desktopDocked = false,
+  desktopHalfWidth = false,
+}: MobileSearchOverlayProps) => {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -64,13 +77,13 @@ const MobileSearchOverlay = ({ open, onClose, onBusinessSelect, onSearch, onVoic
     }
   }, [open]);
 
-  // Lock body scroll when open
+  // Lock body scroll when open (fullscreen mode only)
   useEffect(() => {
-    if (open) {
+    if (open && !desktopDocked) {
       document.body.style.overflow = "hidden";
       return () => { document.body.style.overflow = ""; };
     }
-  }, [open]);
+  }, [open, desktopDocked]);
 
   const handleSubmit = useCallback(() => {
     if (!query.trim()) return;
@@ -93,7 +106,13 @@ const MobileSearchOverlay = ({ open, onClose, onBusinessSelect, onSearch, onVoic
   const showPopular = popularSuggestions.length > 0;
 
   return (
-    <div className="fixed inset-0 z-[10000] bg-background flex flex-col animate-in slide-in-from-bottom duration-200">
+    <div
+      className={`fixed inset-0 z-[10000] bg-background flex flex-col animate-in slide-in-from-bottom duration-200 ${
+        desktopDocked
+          ? `lg:inset-auto lg:top-[53px] lg:bottom-[88px] lg:left-0 lg:right-auto lg:border-r lg:border-border ${desktopHalfWidth ? "lg:w-1/2" : "lg:w-full"}`
+          : ""
+      }`}
+    >
       {/* Header with search bar */}
       <div className="flex items-center gap-2 px-3 py-3 border-b border-border bg-background">
         <button
