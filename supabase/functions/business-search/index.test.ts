@@ -147,3 +147,19 @@ Deno.test("stripAccentsGlobal: removes French accents", () => {
   assertEquals(stripAccentsGlobal("Bien-être"), "Bien-etre");
   assertEquals(stripAccentsGlobal("montgolfière"), "montgolfiere");
 });
+
+// ═══════════════════════════════════════════════════
+// Word-boundary keyword matching regression
+// ═══════════════════════════════════════════════════
+
+Deno.test("tagsMatchCandidate: 'Vélo' should NOT match 'velours'", () => {
+  assertEquals(tagsMatchCandidate("Vélo", ["velours"]), false);
+});
+
+Deno.test("tagsMatchCandidate: 'Vélo' should match 'Vélo électrique'", () => {
+  assertEquals(tagsMatchCandidate("Vélo", ["Vélo électrique"]), true);
+});
+
+Deno.test("tagsMatchCandidate: 'velo' should NOT match 'velours'", () => {
+  assertEquals(tagsMatchCandidate("velo", ["velours"]), false);
+});
