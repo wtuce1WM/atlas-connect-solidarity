@@ -1,7 +1,7 @@
 /** Parse a video URL into embed info — shared across panels */
 
 export interface VideoEmbedInfo {
-  type: "youtube" | "vimeo" | "file";
+  type: "youtube" | "vimeo" | "bunny" | "file";
   embedUrl: string;
   isVertical: boolean;
 }
@@ -21,6 +21,14 @@ export function getVideoEmbed(url: string, origin: string): VideoEmbedInfo {
     return {
       type: "vimeo",
       embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=1&loop=0`,
+      isVertical: false,
+    };
+  }
+  const bunnyMatch = url.match(/iframe\.mediadelivery\.net\/embed\/(\d+)\/([\w-]+)/);
+  if (bunnyMatch) {
+    return {
+      type: "bunny",
+      embedUrl: `https://iframe.mediadelivery.net/embed/${bunnyMatch[1]}/${bunnyMatch[2]}?autoplay=true&preload=true&loop=false&responsive=true`,
       isVertical: false,
     };
   }
