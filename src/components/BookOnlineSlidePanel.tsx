@@ -18,6 +18,8 @@ import { getVideoEmbed } from "@/lib/videoEmbed";
 import ContactFlipCard from "@/components/cards/ContactFlipCard";
 import ReviewsFlipCard from "@/components/cards/ReviewsFlipCard";
 import type { ReviewText } from "@/components/cards/ReviewsFlipCard";
+import ExternalLinksFlipCard from "@/components/cards/ExternalLinksFlipCard";
+import type { ExternalLinkItem } from "@/components/cards/ExternalLinksFlipCard";
 
 interface BookOnlineSlidePanelProps {
   businessId: string;
