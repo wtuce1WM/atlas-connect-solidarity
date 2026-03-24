@@ -2857,6 +2857,66 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           <p className="text-xs text-muted-foreground">Collez l'URL de la publication Issuu ou Calaméo. Elle sera intégrée dans le panneau de l'établissement.</p>
         </div>
 
+        {/* External Links */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="text-base font-semibold">🔗 Liens Externes</Label>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setExternalLinkDocs(prev => [...prev, { url: "", name: "", language: "", image_url: "" }])}>
+              <Plus className="h-3 w-3" /> Ajouter
+            </Button>
+          </div>
+          {externalLinkDocs.map((doc, idx) => (
+            <div key={idx} className="space-y-1 border rounded-md p-2 bg-muted/30">
+              <div className="flex items-center gap-2">
+                <Input
+                  value={doc.name}
+                  onChange={(e) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, name: e.target.value } : d))}
+                  placeholder="Titre"
+                  className="flex-1"
+                />
+                <select
+                  value={doc.language}
+                  onChange={(e) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, language: e.target.value } : d))}
+                  className="h-9 rounded-md border border-input bg-background px-3 text-sm w-28"
+                >
+                  <option value="">Langue</option>
+                  {LANGUAGE_OPTIONS.map(({ code, label }) => (
+                    <option key={code} value={code}>{label}</option>
+                  ))}
+                </select>
+                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setExternalLinkDocs(prev => prev.filter((_, i) => i !== idx))}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="flex items-center gap-2">
+                <Input
+                  value={doc.url}
+                  onChange={(e) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
+                  placeholder="URL du lien"
+                  className="flex-1"
+                />
+                {doc.url && (
+                  <a href={doc.url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-muted-foreground hover:text-primary" title="Ouvrir le lien">
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <Input
+                  value={doc.image_url}
+                  onChange={(e) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, image_url: e.target.value } : d))}
+                  placeholder="URL de l'image (optionnel)"
+                  className="flex-1"
+                />
+                {doc.image_url && (
+                  <img src={doc.image_url} alt="" className="h-9 w-9 object-cover rounded border border-input shrink-0" />
+                )}
+              </div>
+            </div>
+          ))}
+          {externalLinkDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucun lien externe ajouté.</p>}
+        </div>
+
         {/* Video */}
         <div id="section-images" className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '160px' }}>
           <Label className="text-base font-semibold">Vidéo</Label>

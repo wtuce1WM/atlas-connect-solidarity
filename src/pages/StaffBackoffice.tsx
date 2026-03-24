@@ -233,13 +233,12 @@ const StaffBackoffice = () => {
         description: "Impossible de dupliquer l'entreprise.",
       });
     } else {
-      // Duplicate business_web_only if exists
+      // Duplicate business_web_only and business_documents if exists
       if (data) {
-        const { data: webOnly } = await supabase
-          .from("business_web_only")
-          .select("description, images, videos")
-          .eq("business_id", id)
-          .maybeSingle();
+        const [{ data: webOnly }, { data: docs }] = await Promise.all([
+          supabase.from("business_web_only").select("description, images, videos").eq("business_id", id).maybeSingle(),
+          supabase.from("business_documents" as any).select("type, url, name, language, icon, sort_order").eq("business_id", id),
+        ]);
         if (webOnly) {
           await supabase.from("business_web_only").insert({
             business_id: data.id,
@@ -247,6 +246,11 @@ const StaffBackoffice = () => {
             images: webOnly.images,
             videos: webOnly.videos,
           });
+        }
+        if (docs && (docs as any[]).length > 0) {
+          await supabase.from("business_documents" as any).insert(
+            (docs as any[]).map((d: any) => ({ business_id: data.id, type: d.type, url: d.url, name: d.name, language: d.language, icon: d.icon, sort_order: d.sort_order }))
+          );
         }
       }
 
