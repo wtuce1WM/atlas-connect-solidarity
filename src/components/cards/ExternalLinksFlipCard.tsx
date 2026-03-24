@@ -27,11 +27,11 @@ const ExternalLinksFlipCard = ({
   const backLinks = links.slice(5, 10);
   const hasBack = backLinks.length > 0;
 
-  const handleClick = (url: string) => {
+  const handleClick = (link: ExternalLinkItem) => {
     if (onOpenUrl) {
-      onOpenUrl(url);
+      onOpenUrl(link.url, link.name || undefined);
     } else {
-      window.open(url, "_blank", "noopener");
+      window.open(link.url, "_blank", "noopener");
     }
   };
 
