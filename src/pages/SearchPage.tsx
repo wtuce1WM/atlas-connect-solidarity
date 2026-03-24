@@ -95,6 +95,7 @@ interface Business {
   neighborhood?: string | null;
   engagements?: string[];
   online_shop_url?: string | null;
+  presentation_mode?: string | null;
 }
 
 interface SearchResult {
@@ -596,7 +597,7 @@ const SearchPage = () => {
     const fetchSubcategoryBusinesses = async () => {
       let query = supabase
         .from("businesses")
-        .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, engagements, online_shop_url, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, rating, gamme_id, badge_id, hook_fr, hook_en, hook_ar, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids, default_service, neighborhood, priority_score")
+        .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, engagements, online_shop_url, presentation_mode, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, rating, gamme_id, badge_id, hook_fr, hook_en, hook_ar, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids, default_service, neighborhood, priority_score")
         .eq("is_active", true)
         .contains("categories", [selectedSubcategoryFilter]);
 
@@ -636,7 +637,7 @@ const SearchPage = () => {
       
       let query = supabase
         .from("businesses")
-        .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, engagements, online_shop_url, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, rating, gamme_id, badge_id, hook_fr, hook_en, hook_ar, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids, default_service, neighborhood")
+        .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, engagements, online_shop_url, presentation_mode, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, rating, gamme_id, badge_id, hook_fr, hook_en, hook_ar, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids, default_service, neighborhood")
         .eq("is_active", true)
         .contains("services", [selectedServiceFilter]);
 
@@ -730,20 +731,12 @@ const SearchPage = () => {
           setIsCompactPanelWebOnly(forceWebOnly);
           setIsCompactPanelBookOnline(false);
         } else {
-          // Try to detect from allBusinesses
+          // Detect panel type from presentation_mode
           const found = allBusinesses.find(biz => biz.id === b.id);
           if (found) {
-            const engs = (found as any).engagements || [];
-            const hasEng = (target: string) => engs.some((e: string) => {
-              const n = e.toLowerCase().trim();
-              const needle = target.toLowerCase();
-              return n === needle || n === `logistique:${needle}` || n.endsWith(`:${needle}`);
-            });
-            const shopUrl = (found as any).online_shop_url || (found as any).website;
-            const hasReservation = hasEng("Réservation en ligne obligatoire");
-            const hasCommande = hasEng("Commandez en ligne et recevez votre colis chez vous") && shopUrl;
-            setIsCompactPanelBookOnline(!!hasReservation);
-            setIsCompactPanelWebOnly(!!(hasCommande && !hasReservation));
+            const mode = (found as any).presentation_mode || "standard";
+            setIsCompactPanelBookOnline(mode === "reserver");
+            setIsCompactPanelWebOnly(mode === "acheter");
           } else {
             setIsCompactPanelWebOnly(false);
             setIsCompactPanelBookOnline(false);
@@ -3905,19 +3898,9 @@ const SearchPage = () => {
                   const avgOn20 = computeWeightedRatingOn20(sources);
                   const totalReviews = sources.reduce((s, r) => s + r.count, 0);
                   const subcat = business.categories?.[0] || null;
-                  const hasEngagement = (target: string) =>
-                    (business.engagements || []).some((entry) => {
-                      const normalized = entry.toLowerCase().trim();
-                      const needle = target.toLowerCase();
-                      return normalized === needle || normalized === `logistique:${needle}` || normalized.endsWith(`:${needle}`);
-                    });
-                   const webOnlyUrl = business.online_shop_url || business.website || null;
-                   const isWebOnly = !!(
-                     hasEngagement("Commandez en ligne et recevez votre colis chez vous") &&
-                     webOnlyUrl
-                   );
-                   const isBookOnline = hasEngagement("Réservation en ligne obligatoire");
-                   // Don't pass forceWebOnly when BookOnline — let auto-detection handle it
+                   const mode = (business as any).presentation_mode || "standard";
+                   const isWebOnly = mode === "acheter";
+                   const isBookOnline = mode === "reserver";
                    const forceFlag = isBookOnline ? undefined : (isWebOnly ? true : undefined);
 
                    const card = (

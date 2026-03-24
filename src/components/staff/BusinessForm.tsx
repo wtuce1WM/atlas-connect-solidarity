@@ -3678,17 +3678,10 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </div>
         </div>
 
-        {/* Web Only section — visible when "Commandez en ligne" engagement is present */}
-        {(() => {
-          const engs: string[] = (formData as any).engagements || [];
-          const hasCommandeEnLigne = engs.some(e => {
-            const lower = e.toLowerCase();
-            return lower === "logistique:commandez en ligne et recevez votre colis chez vous" || lower === "logistique:réservation en ligne obligatoire";
-          });
-          return hasCommandeEnLigne && business?.id ? (
-            <WebOnlyEditor businessId={business.id} />
-          ) : null;
-        })()}
+        {/* Web Only section — visible when presentation_mode is "acheter" or "reserver" */}
+        {((formData as any).presentation_mode === "acheter" || (formData as any).presentation_mode === "reserver") && business?.id ? (
+          <WebOnlyEditor businessId={business.id} />
+        ) : null}
 
         <Dialog open={!!quickAddDialog} onOpenChange={(open) => !open && setQuickAddDialog(null)}>
           <DialogContent className="sm:max-w-md">
