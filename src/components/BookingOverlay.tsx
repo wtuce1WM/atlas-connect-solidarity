@@ -125,6 +125,7 @@ const BookingOverlay = ({ bookingUrl, onClose }: BookingOverlayProps) => {
         ref={iframeRef}
         src={bookingUrl}
         className="flex-1 w-full border-0"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
         allow="payment"
         title="Réservation"
         onLoad={handleIframeLoad}
