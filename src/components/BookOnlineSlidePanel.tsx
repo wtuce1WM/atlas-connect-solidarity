@@ -711,15 +711,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     style={{ animationFillMode: 'forwards' }}
                   >
                     <div
-                      className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17] [&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-semibold [&_h4]:font-semibold"
+                      className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17] [&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-semibold [&_h4]:font-semibold [&_h1,&_h2,&_h3,&_h4,&_h5,&_h6]:![font-family:'Josefin_Sans',sans-serif]"
                       style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-                      ref={(el) => {
-                        if (el) {
-                          el.querySelectorAll("h1,h2,h3,h4,h5,h6").forEach((h) => {
-                            (h as HTMLElement).style.fontFamily = "'Josefin Sans', sans-serif";
-                          });
-                        }
-                      }}
                       dangerouslySetInnerHTML={{ __html: woDescription }}
                     />
                     
