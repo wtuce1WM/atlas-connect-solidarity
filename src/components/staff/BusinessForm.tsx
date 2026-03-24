@@ -504,6 +504,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     account_type: (business as any)?.account_type || "",
     zone_chalandise: (business as any)?.zone_chalandise || "locale",
     is_visible_locale: (business as any)?.is_visible_locale ?? true,
+    presentation_mode: (business as any)?.presentation_mode || "standard",
     languages: (business as any)?.languages || [],
     affiliate_id: (business as any)?.affiliate_id || "",
     internal_notes: (business as any)?.internal_notes || "",
@@ -1080,6 +1081,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       account_type: formData.account_type || null,
       zone_chalandise: (formData as any).zone_chalandise || null,
       is_visible_locale: (formData as any).is_visible_locale ?? false,
+      presentation_mode: (formData as any).presentation_mode || "standard",
       zone_city_ids: (formData as any).zone_chalandise === "nationale" && (formData as any).zone_city_ids?.length > 0 ? (formData as any).zone_city_ids : [],
       languages: (formData as any).languages?.length > 0 ? (formData as any).languages : [],
       affiliate_id: (formData as any).affiliate_id || null,
@@ -1738,7 +1740,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 border rounded-lg bg-red-50">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 border rounded-lg bg-red-50">
           <div className="space-y-2">
             <Label htmlFor="main_category">Catégorie principale</Label>
             <Select
@@ -1849,9 +1851,26 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             </Select>
           </div>
 
+          <div className="space-y-2">
+            <Label>Présentation</Label>
+            <Select
+              value={(formData as any).presentation_mode || "standard"}
+              onValueChange={(value) => handleChange("presentation_mode", value)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-background z-50">
+                <SelectItem value="standard">Standard</SelectItem>
+                <SelectItem value="acheter">Acheter</SelectItem>
+                <SelectItem value="reserver">Réserver</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Villes de la zone nationale */}
           {(formData as any).zone_chalandise === "nationale" && (
-            <div className="space-y-2 col-span-1 md:col-span-5">
+            <div className="space-y-2 col-span-1 md:col-span-6">
               <Label>Villes couvertes (zone nationale)</Label>
               <div className="border rounded-md p-3 max-h-48 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                 {dbCities.map((city) => {
@@ -1889,7 +1908,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           )}
 
           {/* Langues parlées */}
-          <div className="mt-4 space-y-2 col-span-1 md:col-span-5">
+          <div className="mt-4 space-y-2 col-span-1 md:col-span-6">
             <div className="flex items-center justify-between">
               <Label>Langues parlées</Label>
               <div className="flex gap-2">
