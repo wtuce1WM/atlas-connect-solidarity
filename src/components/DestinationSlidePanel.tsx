@@ -28,7 +28,7 @@ interface DestinationFull {
   longitude: number | null;
 }
 
-const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: DestinationSlidePanelProps) => {
+const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", belowToolbar = false }: DestinationSlidePanelProps) => {
   const { language } = useLanguage();
   const slideAnim = slideFrom === "bottom" ? "animate-slide-up-from-bottom" : "animate-slide-in-right";
   const [destination, setDestination] = useState<DestinationFull | null>(null);
