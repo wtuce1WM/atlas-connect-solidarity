@@ -11,7 +11,6 @@ interface DestinationSlidePanelProps {
   destinationId: string;
   onClose: () => void;
   slideFrom?: "right" | "bottom";
-  belowToolbar?: boolean;
 }
 
 interface DestinationFull {
@@ -28,7 +27,7 @@ interface DestinationFull {
   longitude: number | null;
 }
 
-const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", belowToolbar = false }: DestinationSlidePanelProps) => {
+const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: DestinationSlidePanelProps) => {
   const { language } = useLanguage();
   const slideAnim = slideFrom === "bottom" ? "animate-slide-up-from-bottom" : "animate-slide-in-right";
   const [destination, setDestination] = useState<DestinationFull | null>(null);
@@ -119,7 +118,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", be
 
   if (isLoading) {
     return (
-      <div className={`absolute inset-0 ${belowToolbar ? 'md:top-14' : ''} z-[70] bg-black flex items-center justify-center ${slideAnim}`}>
+      <div className={`absolute inset-0 z-[70] bg-black flex items-center justify-center ${slideAnim}`}>
         <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
       </div>
     );
@@ -128,7 +127,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", be
   if (!destination) return null;
 
   return (
-    <div className={`absolute inset-0 ${belowToolbar ? 'md:top-14' : ''} z-[70] bg-black overflow-hidden ${slideAnim}`}>
+    <div className={`absolute inset-0 z-[70] bg-black overflow-hidden ${slideAnim}`}>
       {/* Close button — hidden when fullscreen video is open */}
       {!fullscreenVideo && !showDirections && (
         <div className="absolute top-3 left-3 z-[80] flex items-center gap-2">
