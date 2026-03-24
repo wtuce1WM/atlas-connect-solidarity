@@ -197,6 +197,9 @@ let synonymBadges: Record<string, string> = {}; // key_word → badge_id (for ba
 let synonymEngagements: Record<string, string[]> = {}; // key_word → engagement_filters
 let synonymCommodities: Record<string, string[]> = {}; // key_word → commodity_filters (Logistique:X)
 let NOISE_ADJECTIVES = new Set<string>();
+// Service keyword index: multi-word keywords from services table → service name(s)
+// Used for early detection to skip LLM when query matches a service keyword
+let serviceKeywordIndex: { keyword: string; contentWords: string[]; serviceName: string }[] = [];
 let searchConfigLoadedAt = 0;
 const SEARCH_CONFIG_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
@@ -233,10 +236,34 @@ async function loadSearchConfig(supabase: any) {
       }
     }
   }
-  const { data: noiseData } = await supabase.from("search_noise_words").select("word").eq("is_active", true);
-  if (noiseData) {
-    NOISE_ADJECTIVES = new Set(noiseData.map((r: any) => r.word));
+  const [noiseResult, svcKwResult1, svcKwResult2] = await Promise.all([
+    supabase.from("search_noise_words").select("word").eq("is_active", true),
+    supabase.from("services").select("name_fr, keywords").not("keywords", "eq", "{}").range(0, 999),
+    supabase.from("services").select("name_fr, keywords").not("keywords", "eq", "{}").range(1000, 1999),
+  ]);
+  if (noiseResult.data) {
+    NOISE_ADJECTIVES = new Set(noiseResult.data.map((r: any) => r.word));
   }
+  // Build service keyword index for early detection
+  const allSvcKw = [...(svcKwResult1.data || []), ...(svcKwResult2.data || [])];
+  serviceKeywordIndex = [];
+  const svcKwStopWords = new Set([
+    "de", "du", "des", "le", "la", "les", "un", "une", "à", "au", "aux",
+    "en", "pour", "par", "avec", "sans", "sur", "dans", "et", "ou", "d",
+  ]);
+  for (const svc of allSvcKw) {
+    const kws: string[] = svc.keywords || [];
+    for (const kw of kws) {
+      if (!kw.includes(" ")) continue; // Only multi-word keywords
+      const contentWords = kw.toLowerCase().split(/\s+/)
+        .map((w: string) => stripAccentsGlobal(w))
+        .filter((w: string) => w.length > 1 && !svcKwStopWords.has(w));
+      if (contentWords.length >= 2) {
+        serviceKeywordIndex.push({ keyword: kw, contentWords, serviceName: svc.name_fr });
+      }
+    }
+  }
+  console.log(`Loaded ${serviceKeywordIndex.length} multi-word service keywords for early detection`);
   searchConfigLoadedAt = Date.now();
 }
 
@@ -659,6 +686,33 @@ serve(async (req) => {
       }
       if (earlySynonymHit) {
         console.log(`⚡ Early synonym hit on raw query — skipping LLM intent extraction`);
+      }
+    }
+
+    // ── EARLY service keyword detection: if query matches a multi-word service keyword, skip LLM ──
+    let earlyServiceKeywordHit = false;
+    let earlyServiceKeywordServices: string[] = [];
+    if (query && !earlySynonymHit && serviceKeywordIndex.length > 0) {
+      const rawTexts = [query, spoken].filter(Boolean) as string[];
+      for (const text of rawTexts) {
+        const qWords = text.toLowerCase().split(/\s+/).map(w => stripAccentsGlobal(w)).filter(w => w.length > 1);
+        for (const entry of serviceKeywordIndex) {
+          // Check if ALL content words of the keyword are present in the query
+          const allPresent = entry.contentWords.every(cw =>
+            qWords.some(qw => qw === cw || (qw.endsWith("s") && qw.slice(0, -1) === cw) || (cw.endsWith("s") && cw.slice(0, -1) === qw))
+          );
+          if (allPresent) {
+            earlyServiceKeywordHit = true;
+            if (!earlyServiceKeywordServices.includes(entry.serviceName)) {
+              earlyServiceKeywordServices.push(entry.serviceName);
+            }
+          }
+        }
+        if (earlyServiceKeywordHit) break;
+      }
+      if (earlyServiceKeywordHit) {
+        earlySynonymHit = true; // Reuse the flag to skip LLM
+        console.log(`⚡ Early service keyword hit: [${earlyServiceKeywordServices.join(", ")}] — skipping LLM intent extraction`);
       }
     }
 
@@ -4416,8 +4470,20 @@ serve(async (req) => {
       if (nameMatchData) {
         const qNorm = stripAccentsGlobal(effectiveQuery.toLowerCase().trim());
         const relevantIds = nameMatchData.filter((b: any) => {
-          // Never remove keyword-pinned businesses (they matched via keywords, not name)
-          if (keywordPinnedIds.has(b.id)) return true;
+          // For keyword-pinned businesses: when specific services are detected,
+          // require the business to have at least one of those services.
+          // This prevents Decathlon (keyword "Vélo") from appearing for "balade en vélo"
+          // when the detected service is "Excursions Vélo".
+          if (keywordPinnedIds.has(b.id)) {
+            if (detectedServices.length > 0) {
+              const bSvcs = (b.services || []).map((s: string) => s.toLowerCase());
+              const hasDetectedService = detectedServices.some(ds => 
+                bSvcs.some(bs => bs.includes(ds.toLowerCase()) || ds.toLowerCase().includes(bs))
+              );
+              if (!hasDetectedService) return false;
+            }
+            return true;
+          }
           // Never remove exact name matches (the query IS the business name)
           const bNameNorm = stripAccentsGlobal((b.name || "").toLowerCase().trim());
           if (bNameNorm === qNorm) return true;
