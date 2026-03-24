@@ -941,7 +941,16 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
       {/* Mosaic overlay */}
       {showMosaic && (
         <div className="absolute inset-0 z-[76] bg-black overflow-y-auto animate-slide-in-left">
-          <div className="grid grid-cols-2 gap-2 p-2">
+          <div className="sticky top-0 z-10 p-2">
+            <button
+              onClick={() => setShowMosaic(false)}
+              className="w-9 h-9 rounded-full bg-black/70 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors"
+              aria-label="Fermer la mosaïque"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-2 p-2 -mt-2">
             {mediaItems.map((item, idx) => {
               if (item.kind === "video") {
                 const ytMatch = item.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
