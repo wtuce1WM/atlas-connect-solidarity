@@ -1222,7 +1222,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         const allDocs = [
           ...menuDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "menu" as const, url: d.url.trim(), name: d.name || null, language: d.language || null, icon: d.icon || null, sort_order: i })),
           ...flipbookDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "flipbook" as const, url: d.url.trim(), name: d.name || null, language: d.language || null, icon: d.icon || null, sort_order: i })),
-          ...externalLinkDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "external_link" as const, url: d.url.trim(), name: d.name || null, language: d.language || null, icon: d.image_url || null, sort_order: i })),
+          ...externalLinkDocs.filter(d => d.url.trim() || d.name.trim() || d.image_url.trim()).map((d, i) => ({ business_id: businessId, type: "external_link" as const, url: d.url.trim() || "", name: d.name || null, language: d.language || null, icon: d.image_url || null, sort_order: i })),
         ];
         if (allDocs.length > 0) {
           await supabase.from("business_documents" as any).insert(allDocs);
