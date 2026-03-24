@@ -115,6 +115,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const [showBookingOverlay, setShowBookingOverlay] = useState(false);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [reviewTexts, setReviewTexts] = useState<ReviewText[]>([]);
+  const [externalLinks, setExternalLinks] = useState<ExternalLinkItem[]>([]);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [cardsHidden, setCardsHidden] = useState(false);
