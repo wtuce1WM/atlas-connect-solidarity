@@ -228,19 +228,39 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
 
       // Fetch destination details (depends on destLinksRes)
       const destIds = (destLinksRes.data || []).map(d => d.destination_id);
+      let fetchedDests: Destination[] = [];
       if (destIds.length > 0) {
         const { data: destData } = await supabase
           .from("destinations")
           .select("id, name_fr, name_en, image_url, images")
           .in("id", destIds);
-        const sorted = ((destData || []) as Destination[]).sort((a, b) => {
+        fetchedDests = ((destData || []) as Destination[]).sort((a, b) => {
           const nameA = (language === "en" && a.name_en ? a.name_en : a.name_fr).toLowerCase();
           const nameB = (language === "en" && b.name_en ? b.name_en : b.name_fr).toLowerCase();
           return nameA.localeCompare(nameB);
         });
-        setDestinations(sorted);
+      }
+      setDestinations(fetchedDests);
+
+      // Fetch POI businesses when destinations ≤ 1
+      if (fetchedDests.length <= 1) {
+        const { data: poiLinks } = await supabase
+          .from("business_poi_businesses")
+          .select("poi_business_id")
+          .eq("business_id", businessId);
+        const poiIds = (poiLinks || []).map(p => p.poi_business_id);
+        if (poiIds.length > 0) {
+          const { data: poiData } = await supabase
+            .from("businesses")
+            .select("id, name, images, logo_url")
+            .in("id", poiIds)
+            .eq("is_active", true);
+          setPoiBusinesses((poiData || []) as PoiBusiness[]);
+        } else {
+          setPoiBusinesses([]);
+        }
       } else {
-        setDestinations([]);
+        setPoiBusinesses([]);
       }
 
       setIsLoading(false);
