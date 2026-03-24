@@ -50,11 +50,6 @@ const MenuSummaryCard = ({ summaries, language, animationDelay = "0ms", tallHeig
                 dangerouslySetInnerHTML={{ __html: s.content }}
               />
             )}
-            {s.price_details && (
-              <p className="text-xs text-gold/90 font-medium mt-1">
-                {s.price_details}
-              </p>
-            )}
           </div>
         ))}
       </div>
