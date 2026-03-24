@@ -880,11 +880,24 @@ serve(async (req) => {
             for (const b of kwMatches) {
               if (nameMatchedBusinessIds.includes(b.id)) continue;
               const bKeywords: string[] = b.keywords || [];
-              // Check if any keyword contains the full query or vice versa
+              // Check if any keyword matches the full query as a whole word (not substring)
+              // e.g. "velo" must NOT match keyword "velours" — only exact word boundaries
+              const kwQueryWords = kwQuery.split(/\s+/).filter(w => w.length > 0);
               const hasMatch = bKeywords.some((kw: string) => {
                 const kwNorm = stripAccentsGlobal(kw.toLowerCase().trim());
                 if (!kwNorm) return false;
-                return kwNorm === kwQuery || kwNorm.includes(kwQuery);
+                if (kwNorm === kwQuery) return true;
+                // Check if the full query appears as whole word(s) inside the keyword
+                // Use word-boundary regex to prevent "velo" matching "velours"
+                const queryRegex = new RegExp(`(?:^|\\s)${kwQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\s|$)`);
+                if (queryRegex.test(kwNorm)) return true;
+                // Also check if a keyword appears as whole word(s) in the query
+                const kwWords = kwNorm.split(/\s+/).filter(w => w.length > 0);
+                if (kwWords.length > 0 && kwWords.length <= kwQueryWords.length) {
+                  const kwRegex = new RegExp(`(?:^|\\s)${kwNorm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\s|$)`);
+                  if (kwRegex.test(kwQuery)) return true;
+                }
+                return false;
               });
               if (hasMatch) {
                 kwPinned.push(b.id);
