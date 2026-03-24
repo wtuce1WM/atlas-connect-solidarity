@@ -1027,6 +1027,21 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       return;
     }
 
+    // External links: title + URL are required when a row is filled
+    const hasInvalidExternalLink = externalLinkDocs.some((d) => {
+      const hasAnyValue = !!(d.name.trim() || d.url.trim() || d.image_url.trim() || d.language.trim());
+      return hasAnyValue && (!d.name.trim() || !d.url.trim());
+    });
+
+    if (hasInvalidExternalLink) {
+      toast({
+        variant: "destructive",
+        title: "Liens Externes incomplets",
+        description: "Le Titre et l’URL sont obligatoires pour chaque lien externe.",
+      });
+      return;
+    }
+
     setLoading(true);
 
     // Force token refresh to avoid RLS failures on expired JWT
