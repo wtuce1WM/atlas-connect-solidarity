@@ -651,10 +651,10 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
             >
               {business.logo_url && (
                 <div
-                  className="shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg hidden md:block"
-                  style={{ backgroundColor: business.logo_bg || "#fff" }}
+                  className={`shrink-0 w-20 h-20 overflow-hidden hidden md:block ${business.logo_bg === 'transparent' ? '' : 'rounded-xl border-2 border-white/20 shadow-lg'}`}
+                  style={{ backgroundColor: business.logo_bg === 'transparent' ? 'transparent' : (business.logo_bg || '#fff') }}
                 >
-                  <img src={business.logo_url} alt="" className="w-full h-full object-contain p-1" />
+                  <img src={business.logo_url} alt="" className={`w-full h-full object-contain ${business.logo_bg === 'transparent' ? '' : 'p-1'}`} />
                 </div>
               )}
               <div className="min-w-0 flex-1 text-center md:text-left">
