@@ -173,7 +173,7 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
               <div className="absolute bottom-0 left-0 right-0 p-2 space-y-0.5">
-                <p className="font-semibold text-[11px] text-white leading-tight line-clamp-2">{name}</p>
+                <p className="font-semibold text-[11px] text-white leading-tight line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}>{name}</p>
                 {dest.hook && (
                   <p className="text-[9px] text-white/70 line-clamp-2">{dest.hook}</p>
                 )}
