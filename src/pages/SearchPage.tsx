@@ -95,6 +95,7 @@ interface Business {
   neighborhood?: string | null;
   engagements?: string[];
   online_shop_url?: string | null;
+  presentation_mode?: string | null;
 }
 
 interface SearchResult {
