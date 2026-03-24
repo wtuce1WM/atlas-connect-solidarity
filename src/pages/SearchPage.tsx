@@ -3897,19 +3897,9 @@ const SearchPage = () => {
                   const avgOn20 = computeWeightedRatingOn20(sources);
                   const totalReviews = sources.reduce((s, r) => s + r.count, 0);
                   const subcat = business.categories?.[0] || null;
-                  const hasEngagement = (target: string) =>
-                    (business.engagements || []).some((entry) => {
-                      const normalized = entry.toLowerCase().trim();
-                      const needle = target.toLowerCase();
-                      return normalized === needle || normalized === `logistique:${needle}` || normalized.endsWith(`:${needle}`);
-                    });
-                   const webOnlyUrl = business.online_shop_url || business.website || null;
-                   const isWebOnly = !!(
-                     hasEngagement("Commandez en ligne et recevez votre colis chez vous") &&
-                     webOnlyUrl
-                   );
-                   const isBookOnline = hasEngagement("Réservation en ligne obligatoire");
-                   // Don't pass forceWebOnly when BookOnline — let auto-detection handle it
+                   const mode = (business as any).presentation_mode || "standard";
+                   const isWebOnly = mode === "acheter";
+                   const isBookOnline = mode === "reserver";
                    const forceFlag = isBookOnline ? undefined : (isWebOnly ? true : undefined);
 
                    const card = (
