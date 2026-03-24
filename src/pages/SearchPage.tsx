@@ -1842,6 +1842,18 @@ const SearchPage = () => {
             setTotalCount(data.totalCount || null);
             setSearchMessage(data.message || "");
 
+            // Auto-open business detail when exact name match found
+            const biz = data.businesses || [];
+            if (biz.length >= 1 && searchQuery.trim()) {
+              const normalize = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/s\b/g, "").trim();
+              const qNorm = normalize(searchQuery);
+              const exactMatch = biz.find((b: any) => normalize(b.name) === qNorm);
+              if (exactMatch) {
+                setCompactPanelBusiness(exactMatch as any);
+                setIsCompactPanelExpanded(false);
+              }
+            }
+
             // Save search to history
             if (searchQuery.trim()) {
               const categoryParam = searchParams.get("category") || undefined;
