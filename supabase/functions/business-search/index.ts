@@ -3491,7 +3491,6 @@ serve(async (req) => {
       const isSubcategoryPhraseOnlyMode =
         !!detectedSubcategory &&
         !!queryForExpansion &&
-        detectedSubcategory.includes(" ") &&
         stripAccentsGlobal(queryForExpansion.toLowerCase().trim()) ===
           stripAccentsGlobal(detectedSubcategory.toLowerCase().trim());
 
@@ -3537,7 +3536,6 @@ serve(async (req) => {
     const isSubcategoryPhraseOnlyMode =
       !!detectedSubcategory &&
       !!queryForExpansion &&
-      detectedSubcategory.includes(" ") &&
       stripAccentsGlobal(queryForExpansion.toLowerCase().trim()) ===
         stripAccentsGlobal(detectedSubcategory.toLowerCase().trim());
     const isStrictMode =
