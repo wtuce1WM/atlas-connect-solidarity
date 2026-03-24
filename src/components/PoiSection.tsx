@@ -136,19 +136,21 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-              <div className="absolute bottom-0 left-0 right-0 p-2 space-y-0.5">
-                <p className="font-semibold text-[11px] text-white leading-tight line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}>{biz.name}</p>
-                <div className="flex items-center gap-1 text-[10px] text-white/80">
-                  <MapPin className="h-2.5 w-2.5 shrink-0" />
-                  <span className="truncate">{biz.city}{biz.neighborhood ? ` · ${biz.neighborhood}` : ""}</span>
-                </div>
+              <div className="absolute bottom-0 left-0 right-0 p-3 space-y-1">
+                <p className="font-semibold text-base text-white leading-tight line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}>{biz.name}</p>
                 {avgOn20 && (
-                  <div className="flex items-center gap-1 text-[10px]">
-                    <Star className="h-2.5 w-2.5 text-gold fill-gold" />
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <Star className="h-3 w-3 text-gold fill-gold" />
                     <span className="font-medium text-white">{avgOn20}/20</span>
                     {totalReviews > 0 && (
                       <span className="text-white/70">· {totalReviews} avis</span>
                     )}
+                  </div>
+                )}
+                {biz.city && (
+                  <div className="flex items-center gap-1 text-xs text-white/60">
+                    <MapPin className="h-3 w-3" />
+                    <span className="truncate">{biz.neighborhood ? `${biz.city}, ${biz.neighborhood}` : biz.city}</span>
                   </div>
                 )}
               </div>
