@@ -795,7 +795,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
 
           {/* CTAs */}
           {(bookUrl || (business.latitude && business.longitude)) && (
-            <div className="shrink-0 py-2 flex flex-col items-center gap-2 pointer-events-auto">
+            <div className={`shrink-0 py-2 flex flex-col items-center gap-2 pointer-events-auto ${destinations.length === 0 ? 'mt-auto' : ''}`}>
               {bookUrl && (() => {
                 const fullUrl = bookUrl.startsWith("http") ? bookUrl : `https://${bookUrl}`;
                 const isReserveUrl = !!business.reserve_now_url;
