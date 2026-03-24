@@ -10,7 +10,7 @@ interface BookingOverlayProps {
 
 const IFRAME_LOAD_TIMEOUT_MS = 5000;
 
-const BookingOverlay = ({ bookingUrl, onClose }: BookingOverlayProps) => {
+const BookingOverlay = ({ bookingUrl, title, onClose }: BookingOverlayProps) => {
   const { domains, loaded } = useBlockedDomains();
   const knownBlocked = loaded && isDomainInSet(bookingUrl, domains);
   const [iframeBlocked, setIframeBlocked] = useState(false);
