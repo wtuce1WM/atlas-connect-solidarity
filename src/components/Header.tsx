@@ -37,7 +37,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
       <div className="container mx-auto flex items-center justify-between px-4 py-3">
         {/* Logo */}
         <a href="/" className="flex items-center gap-2 shrink-0">
-          <span className="text-lg font-bold tracking-tight">
+          <span className="text-lg font-bold tracking-tight" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em", textTransform: "uppercase" }}>
             <span className="text-foreground">ONE WORLD</span>{" "}
             <span className="text-foreground">MOROCCO</span>
           </span>
