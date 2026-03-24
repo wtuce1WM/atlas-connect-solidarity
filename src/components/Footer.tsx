@@ -110,9 +110,9 @@ const Footer = ({ variant = "default" }: FooterProps) => {
           {/* Brand */}
           <div className="md:col-span-2 text-center md:text-left flex flex-col items-center md:items-start">
             <div className="mb-4 flex items-center gap-2">
-            <span className="text-lg font-bold tracking-tight">
-              <span className="text-black">ONE WORLD</span> <span className="text-black">MOROCCO</span>
-            </span>
+            <span className="text-lg font-bold tracking-tight" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em", textTransform: "uppercase" }}>
+               <span className="text-black">ONE WORLD</span> <span className="text-black">MOROCCO</span>
+             </span>
             </div>
             <p className={`mb-6 text-sm leading-relaxed ${textSecondary}`}>
               Faites de chaque achat un acte de générosité. Nous sommes la seule plateforme où l'engagement est inscrit dans notre ADN : 20% du montant de chaque cotisation des annonceurs est directement reversé à des actions humanitaires et de solidarité concrètes sur le terrain. Vous consommez, nous agissons ensemble.
