@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Search, ArrowUpDown, Clock, BarChart3, ArrowUp, ArrowDown, Minus, RefreshCw, Play } from "lucide-react";
+import { Loader2, Search, ArrowUpDown, Clock, BarChart3, ArrowUp, ArrowDown, Minus, RefreshCw, Play, Copy, Check } from "lucide-react";
+import { toast } from "sonner";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
