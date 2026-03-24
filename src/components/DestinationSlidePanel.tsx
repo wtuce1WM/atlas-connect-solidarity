@@ -381,7 +381,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
               {/* Description — collapsible */}
               {description && descExpanded && (
                 <div
-                  className="min-h-0 max-h-[460px] md:max-h-[600px] lg:max-h-[730px] overflow-y-auto pr-1 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
+                  className="min-h-0 max-h-[460px] md:max-h-[600px] lg:max-h-[730px] overflow-y-auto pr-1 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words prose-josefin-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
                   dangerouslySetInnerHTML={{ __html: description }}
                 />
               )}
