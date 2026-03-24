@@ -131,7 +131,7 @@ const ContactFlipCard = ({
           {business.latitude && business.longitude && flipped && (
             <iframe
               src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${business.latitude},${business.longitude}&zoom=13`}
-              className="w-full h-full border-0 pointer-events-none"
+              className="w-full h-full border-0"
               allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
