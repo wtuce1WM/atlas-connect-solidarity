@@ -365,9 +365,9 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
       {/* Portal media button into left of fixed bar (next to close) */}
       {toolbarLeftPortal && images.length >= 5 && createPortal(
         <button
-          onClick={() => { onToggleExpand?.(); }}
+          onClick={() => setShowMosaic((p) => !p)}
           className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background shadow-md hover:bg-foreground/90 transition-colors"
-          title="Voir tous les médias"
+          title={showMosaic ? "Fermer la mosaïque" : "Voir tous les médias"}
         >
           {isExpanded ? (
             <Minimize2 className="h-4 w-4" />
