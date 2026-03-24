@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, CalendarCheck, Star, Minimize2 } from "lucide-react";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
@@ -12,6 +11,7 @@ import ShareButton from "@/components/ShareButton";
 import { Skeleton } from "@/components/ui/skeleton";
 import BookingOverlay from "@/components/BookingOverlay";
 import DestinationSlidePanel from "@/components/DestinationSlidePanel";
+import PoiSlidePanel from "@/components/PoiSlidePanel";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { getLangFlag, getLangAlt } from "@/lib/languageFlags";
 import { getVideoEmbed } from "@/lib/videoEmbed";
@@ -123,7 +123,7 @@ type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string }
 
 const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }: BookOnlineSlidePanelProps) => {
   const { language } = useLanguage();
-  const navigate = useNavigate();
+  
   const [business, setBusiness] = useState<BookOnlineBusiness | null>(null);
   const [webOnlyData, setWebOnlyData] = useState<WebOnlyData | null>(null);
   const [destinations, setDestinations] = useState<Destination[]>([]);
@@ -136,6 +136,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const [bookingOverlayUrl, setBookingOverlayUrl] = useState<string | null>(null);
   const [bookingOverlayTitle, setBookingOverlayTitle] = useState<string | undefined>(undefined);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
+  const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
   const [reviewTexts, setReviewTexts] = useState<ReviewText[]>([]);
   const [externalLinks, setExternalLinks] = useState<ExternalLinkItem[]>([]);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -157,6 +158,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
     setCurrentMediaIndex(0);
     setDescExpanded(true);
     setSelectedDestinationId(null);
+    setSelectedPoiBusinessId(null);
     setShowBookingOverlay(false);
     setIsLightboxOpen(false);
     setShowMosaic(false);
@@ -168,7 +170,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const iframeSrcRef = useRef<string>("");
 
   useEffect(() => {
-    if (selectedDestinationId) {
+    const subPanelOpen = !!selectedDestinationId || !!selectedPoiBusinessId;
+    if (subPanelOpen) {
       if (videoRef.current) {
         videoRef.current.pause();
         videoRef.current.muted = true;
@@ -186,7 +189,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
         iframeRef.current.src = iframeSrcRef.current;
       }
     }
-  }, [selectedDestinationId]);
+  }, [selectedDestinationId, selectedPoiBusinessId]);
 
   // Fetch all data in a single Promise.all
   useEffect(() => {
@@ -785,7 +788,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                       key={poi.id}
                       className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
                       style={{ animationDelay: `${(destinations.length + index) * 120}ms`, animationFillMode: 'forwards' }}
-                      onClick={() => navigate(`/search?openBusiness=${poi.id}`)}
+                      onClick={() => setSelectedPoiBusinessId(poi.id)}
                     >
                       {poiImg ? (
                         <img src={poiImg} alt={poi.name} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
@@ -875,6 +878,15 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
         <DestinationSlidePanel
           destinationId={selectedDestinationId}
           onClose={() => setSelectedDestinationId(null)}
+          slideFrom="bottom"
+        />
+      )}
+
+      {/* POI business detail overlay */}
+      {selectedPoiBusinessId && (
+        <PoiSlidePanel
+          businessId={selectedPoiBusinessId}
+          onClose={() => setSelectedPoiBusinessId(null)}
           slideFrom="bottom"
         />
       )}
