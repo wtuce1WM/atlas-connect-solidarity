@@ -46,7 +46,6 @@ async function checkUrl(url: string): Promise<{ blocked: boolean; reason: string
     });
     clearTimeout(timeout);
 
-    // Flag server errors (5xx) — iframe will show an error page
     if (resp.status >= 500) {
       return { blocked: true, reason: `HTTP ${resp.status}`, httpStatus: resp.status };
     }
@@ -54,7 +53,6 @@ async function checkUrl(url: string): Promise<{ blocked: boolean; reason: string
     const iframeCheck = isIframeBlocked(resp.headers);
     return { ...iframeCheck, httpStatus: resp.status };
   } catch (err) {
-    // Connection failures = iframe won't load
     return { blocked: true, reason: `Connexion échouée`, error: String(err) };
   }
 }
@@ -71,7 +69,6 @@ Deno.serve(async (req) => {
 
     console.log("Fetching businesses...");
 
-    // Fetch all active businesses that have at least one booking URL
     const fields = "id, name, reserve_now_url, booking_url, other_booking_url, other_booking_name";
     
     const [r1, r2, r3] = await Promise.all([
@@ -136,14 +133,52 @@ Deno.serve(async (req) => {
       return b.businessCount - a.businessCount;
     });
 
-    const blockedDomains = results.filter(r => r.blocked);
+    // Persist blocked domains to the database
+    const blockedResults = results.filter(r => r.blocked);
+    const unblockedDomains = results.filter(r => !r.blocked).map(r => r.domain);
+
+    if (blockedResults.length > 0) {
+      // Upsert blocked domains
+      const rows = blockedResults.map(r => ({
+        domain: r.domain,
+        reason: r.reason || r.error || 'Unknown',
+        is_active: true,
+        updated_at: new Date().toISOString(),
+      }));
+
+      const { error: upsertError } = await supabase
+        .from("blocked_domains")
+        .upsert(rows, { onConflict: "domain" });
+
+      if (upsertError) {
+        console.error("Error upserting blocked domains:", upsertError);
+      } else {
+        console.log(`Upserted ${rows.length} blocked domains`);
+      }
+    }
+
+    // Deactivate domains that are no longer blocked
+    if (unblockedDomains.length > 0) {
+      const { error: deactivateError } = await supabase
+        .from("blocked_domains")
+        .update({ is_active: false, updated_at: new Date().toISOString() })
+        .in("domain", unblockedDomains);
+
+      if (deactivateError) {
+        console.error("Error deactivating unblocked domains:", deactivateError);
+      } else {
+        console.log(`Deactivated ${unblockedDomains.length} previously blocked domains`);
+      }
+    }
+
+    const blockedDomains = blockedResults;
     const summary = {
       totalDomains: results.length,
       blockedDomains: blockedDomains.length,
       totalBusinessesAffected: blockedDomains.reduce((sum: number, r: any) => sum + r.businessCount, 0),
     };
 
-    console.log(`Done. ${summary.blockedDomains}/${summary.totalDomains} domains blocked.`);
+    console.log(`Done. ${summary.blockedDomains}/${summary.totalDomains} domains blocked. Results persisted to DB.`);
 
     return new Response(JSON.stringify({ summary, results }, null, 2), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
