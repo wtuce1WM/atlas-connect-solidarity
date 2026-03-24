@@ -406,6 +406,7 @@ const BusinessCard = ({
           {/* Name - selectable for copy-paste */}
           <h3
             className={`font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors select-text cursor-text ${business.wtuce_status === "verified" ? "text-foreground font-bold" : "text-foreground"}`}
+            style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}
             onClick={(e) => e.preventDefault()}
             onMouseDown={(e) => e.stopPropagation()}
           >
