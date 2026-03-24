@@ -938,6 +938,50 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
           slideFrom="bottom"
         />
       )}
+      {/* Mosaic overlay */}
+      {showMosaic && (
+        <div className="absolute inset-0 z-[76] bg-black overflow-y-auto animate-slide-in-left">
+          <div className="grid grid-cols-2 gap-2 p-2">
+            {mediaItems.map((item, idx) => {
+              if (item.kind === "video") {
+                const vInfo = getVideoEmbed(item.url, window.location.origin);
+                const thumbnail = vInfo?.type === "youtube"
+                  ? `https://img.youtube.com/vi/${vInfo.id}/hqdefault.jpg`
+                  : vInfo?.type === "vimeo"
+                    ? `https://vumbnail.com/${vInfo.id}.jpg`
+                    : null;
+                return (
+                  <div
+                    key={`mv-${idx}`}
+                    className="relative aspect-square cursor-pointer overflow-hidden rounded-lg bg-black/40"
+                    onClick={() => { setLightboxIndex(idx); setIsLightboxOpen(true); }}
+                  >
+                    {thumbnail ? (
+                      <img src={thumbnail} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <video src={item.url} className="w-full h-full object-cover" muted playsInline preload="metadata" />
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                      <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
+                        <span className="text-white text-lg">▶</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+              return (
+                <div
+                  key={`mi-${idx}`}
+                  className="relative aspect-square cursor-pointer overflow-hidden rounded-lg"
+                  onClick={() => { setLightboxIndex(idx); setIsLightboxOpen(true); }}
+                >
+                  <img src={item.url} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
       {/* Fullscreen media lightbox */}
       {isLightboxOpen && totalMedia > 0 && (() => {
         const lbItems: LightboxMediaItem[] = mediaItems.map((m) =>
