@@ -197,6 +197,9 @@ let synonymBadges: Record<string, string> = {}; // key_word → badge_id (for ba
 let synonymEngagements: Record<string, string[]> = {}; // key_word → engagement_filters
 let synonymCommodities: Record<string, string[]> = {}; // key_word → commodity_filters (Logistique:X)
 let NOISE_ADJECTIVES = new Set<string>();
+// Service keyword index: multi-word keywords from services table → service name(s)
+// Used for early detection to skip LLM when query matches a service keyword
+let serviceKeywordIndex: { keyword: string; contentWords: string[]; serviceName: string }[] = [];
 let searchConfigLoadedAt = 0;
 const SEARCH_CONFIG_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
