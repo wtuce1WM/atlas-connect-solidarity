@@ -3921,14 +3921,6 @@ const SearchPage = () => {
                   </button>
                 </div>
               </div>
-              {/* Same-category businesses header when panel is open */}
-              {compactPanelBusiness && sameCategoryBusinesses.length > 0 && (
-                <div className="pt-6 pb-2">
-                  <p className="text-sm font-semibold text-muted-foreground">
-                    {language === "en" ? "In the same category" : "Dans la même catégorie"}
-                  </p>
-                </div>
-              )}
               {/* Fallback-style cards in 4-column grid */}
               <div className={`grid gap-4 pt-10 md:pt-7 lg:pt-7 pb-28 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : hasKnownLocation ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
                 {(compactPanelBusiness && sameCategoryBusinesses.length > 0 ? sameCategoryBusinesses : paginatedBusinesses).map((business, index) => {
