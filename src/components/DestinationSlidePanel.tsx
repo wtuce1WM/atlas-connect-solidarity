@@ -128,7 +128,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", be
   if (!destination) return null;
 
   return (
-    <div className={`absolute inset-0 z-[70] bg-black overflow-hidden ${slideAnim}`}>
+    <div className={`absolute inset-0 ${belowToolbar ? 'md:top-14' : ''} z-[70] bg-black overflow-hidden ${slideAnim}`}>
       {/* Close button — hidden when fullscreen video is open */}
       {!fullscreenVideo && !showDirections && (
         <div className="absolute top-3 left-3 z-[80] flex items-center gap-2">
