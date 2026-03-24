@@ -629,9 +629,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     <span className="text-base font-bold text-white">{avgOn20}</span>
                     <span className="text-[10px] text-white/60">/20</span>
                   </div>
-                  {totalReviewCount > 0 && (
-                    <span className="text-[9px] text-white/60">{totalReviewCount.toLocaleString("fr-FR")} avis</span>
-                  )}
                 </div>
               )}
 
