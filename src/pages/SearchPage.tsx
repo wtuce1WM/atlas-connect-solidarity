@@ -3121,8 +3121,7 @@ const SearchPage = () => {
                 })()}
                 neighborhoodCenter={neighborhoodCoords}
                 onBusinessClick={(b) => {
-                  setCompactPanelBusiness(b as any);
-                  setIsCompactPanelExpanded(false);
+                  openCompactPanel(b as any);
                 }}
               />
             </Suspense>
