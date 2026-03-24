@@ -760,6 +760,21 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     }}
                   />
                 )}
+                {/* Card 5: Social Links */}
+                {business && (
+                  <SocialLinksCard
+                    facebook={business.facebook_url}
+                    instagram={business.instagram_url}
+                    tiktok={business.tiktok_url}
+                    youtube={business.youtube_url}
+                    twitter={business.twitter_url}
+                    linkedin={business.linkedin_url}
+                    pinterest={business.pinterest_url}
+                    vimeo={business.vimeo_url}
+                    whatsapp={business.whatsapp}
+                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(hasReviewsCard) + Number(externalLinks.length > 0)) * 120}ms`}
+                  />
+                )}
                 <div className="shrink-0 w-4" aria-hidden="true" />
             </div>
           </div>
