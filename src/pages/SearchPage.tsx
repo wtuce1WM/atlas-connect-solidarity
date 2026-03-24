@@ -1865,8 +1865,7 @@ const SearchPage = () => {
               const qNorm = normalize(searchQuery);
               const exactMatch = biz.find((b: any) => normalize(b.name) === qNorm);
               if (exactMatch) {
-                setCompactPanelBusiness(exactMatch as any);
-                setIsCompactPanelExpanded(false);
+                openCompactPanel(exactMatch as any);
               }
             }
 
