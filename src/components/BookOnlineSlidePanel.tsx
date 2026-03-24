@@ -741,12 +741,14 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
             </div>
           </div>
 
-          {/* Destinations horizontal scroll */}
-          {destinations.length > 0 && (
+          {/* Destinations & POI horizontal scroll */}
+          {(destinations.length > 0 || poiBusinesses.length > 0) && (
             <>
             <div className="flex justify-center mt-6 mb-1.5 pointer-events-auto">
               <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                {business.name} vous emmène à :
+                {destinations.length > 0
+                  ? `${business.name} vous emmène à :`
+                  : language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité"}
               </h3>
             </div>
             <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
@@ -771,6 +773,29 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                       )}
                       <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
                         {destName(dest)}
+                      </p>
+                    </div>
+                  );
+                })}
+                {/* POI businesses */}
+                {poiBusinesses.map((poi, index) => {
+                  const poiImg = poi.images?.filter(Boolean)?.[0] || poi.logo_url;
+                  return (
+                    <div
+                      key={poi.id}
+                      className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                      style={{ animationDelay: `${(destinations.length + index) * 120}ms`, animationFillMode: 'forwards' }}
+                      onClick={() => navigate(`/search?openBusiness=${poi.id}`)}
+                    >
+                      {poiImg ? (
+                        <img src={poiImg} alt={poi.name} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                      ) : (
+                        <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
+                          <MapPin className="h-5 w-5 text-white/40" />
+                        </div>
+                      )}
+                      <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
+                        {poi.name}
                       </p>
                     </div>
                   );
