@@ -707,7 +707,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
               <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
               {/* Card 1: Texte Web only */}
               {woDescription && (
-                <div className="snap-start shrink-0 w-[20rem] md:w-[30rem] h-[18em] md:h-[24em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10"
+                <div className={`snap-start shrink-0 w-[20rem] md:w-[30rem] ${destinations.length === 0 ? 'h-[27em] md:h-[36em]' : 'h-[18em] md:h-[24em]'} mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10`}
                     style={{ animationFillMode: 'forwards' }}
                   >
                     <div
@@ -724,6 +724,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     language={language}
                     hasOpeningHours={!!hasOpeningHours}
                     animationDelay={woDescription ? "120ms" : "0ms"}
+                    tallHeight={destinations.length === 0}
                   />
                 )}
                 {/* Card 3: Avis Clients with Flip to translated reviews */}

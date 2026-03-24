@@ -21,6 +21,7 @@ interface ContactFlipCardProps {
   language: string;
   hasOpeningHours: boolean;
   animationDelay?: string;
+  tallHeight?: boolean;
   className?: string;
 }
 
@@ -29,13 +30,14 @@ const ContactFlipCard = ({
   language,
   hasOpeningHours,
   animationDelay = "0ms",
+  tallHeight = false,
   className = "",
 }: ContactFlipCardProps) => {
   const [flipped, setFlipped] = useState(false);
 
   return (
     <div
-      className={`snap-start shrink-0 w-[20rem] h-[18em] md:h-[24em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 ${className}`}
+      className={`snap-start shrink-0 w-[20rem] ${tallHeight ? 'h-[21.6em] md:h-[28.8em]' : 'h-[18em] md:h-[24em]'} mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 ${className}`}
       style={{ perspective: "1000px", animationDelay, animationFillMode: "forwards" }}
     >
       <div
