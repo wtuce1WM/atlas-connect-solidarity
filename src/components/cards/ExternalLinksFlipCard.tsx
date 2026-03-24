@@ -23,8 +23,8 @@ const ExternalLinksFlipCard = ({
 }: ExternalLinksFlipCardProps) => {
   const [flipped, setFlipped] = useState(false);
 
-  const frontLinks = links.slice(0, 4);
-  const backLinks = links.slice(4, 8);
+  const frontLinks = links.slice(0, 5);
+  const backLinks = links.slice(5, 10);
   const hasBack = backLinks.length > 0;
 
   const handleClick = (url: string) => {
