@@ -52,7 +52,7 @@ const ContactFlipCard = ({
           className="absolute inset-0 rounded-2xl p-4 text-white overflow-y-auto"
           style={{ backfaceVisibility: "hidden" }}
         >
-          <div className="space-y-2.5 text-xs">
+          <div className="space-y-2.5 text-sm">
             {business.google_maps_url && (
               <button
                 onClick={() => setFlipped(true)}
