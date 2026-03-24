@@ -831,7 +831,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                 }
                 return (
                   <button
-                    onClick={() => setShowBookingOverlay(true)}
+                    onClick={() => { setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setShowBookingOverlay(true); }}
                     className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-right"
                     style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                   >
