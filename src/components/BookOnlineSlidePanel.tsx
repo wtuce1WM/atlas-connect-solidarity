@@ -246,11 +246,19 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
           .order("sort_order"),
       ]);
 
-      setBusiness(bizRes.data as BookOnlineBusiness | null);
+      const biz = bizRes.data as BookOnlineBusiness | null;
+      setBusiness(biz);
       setWebOnlyData(woRes.data as WebOnlyData | null);
       setReviewTexts(reviewsRes.data ? (reviewsRes.data as any[]) : []);
       setExternalLinks((extLinksRes.data || []) as ExternalLinkItem[]);
       setMenuSummaries((menuSumRes.data || []) as MenuSummary[]);
+
+      // Build menu docs: from business_documents + legacy menu_url field
+      const docs = ((menuDocsRes.data || []) as MenuDoc[]);
+      if (biz?.menu_url && !docs.some(d => d.url === biz.menu_url)) {
+        docs.unshift({ id: 'legacy-menu', name: biz.menu_name, url: biz.menu_url, language: biz.menu_language });
+      }
+      setMenuDocs(docs);
 
       // Fetch destination details (depends on destLinksRes)
       const destIds = (destLinksRes.data || []).map(d => d.destination_id);
