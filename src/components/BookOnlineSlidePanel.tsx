@@ -126,6 +126,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const touchStartRef = useRef<{ y: number; time: number } | null>(null);
   const cardsHiddenRef = useRef(false);
   const [showHook, setShowHook] = useState(false);
+  const [showMosaic, setShowMosaic] = useState(false);
 
   // Reset all state when switching business
   useEffect(() => {
