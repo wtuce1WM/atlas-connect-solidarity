@@ -12,7 +12,7 @@ interface ExternalLinksFlipCardProps {
   links: ExternalLinkItem[];
   animationDelay?: string;
   className?: string;
-  onOpenUrl?: (url: string) => void;
+  onOpenUrl?: (url: string, title?: string) => void;
 }
 
 const ExternalLinksFlipCard = ({
