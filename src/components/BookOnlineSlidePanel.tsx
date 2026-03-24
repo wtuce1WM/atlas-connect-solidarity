@@ -20,6 +20,7 @@ import ReviewsFlipCard from "@/components/cards/ReviewsFlipCard";
 import type { ReviewText } from "@/components/cards/ReviewsFlipCard";
 import ExternalLinksFlipCard from "@/components/cards/ExternalLinksFlipCard";
 import type { ExternalLinkItem } from "@/components/cards/ExternalLinksFlipCard";
+import SocialLinksCard from "@/components/cards/SocialLinksCard";
 
 interface BookOnlineSlidePanelProps {
   businessId: string;
