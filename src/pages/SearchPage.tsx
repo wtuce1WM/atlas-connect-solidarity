@@ -4622,6 +4622,7 @@ const SearchPage = () => {
               onClose={handleCompactPanelClose}
               isExpanded={isCompactPanelWebOnly ? undefined : isCompactPanelExpanded}
               onToggleExpand={undefined}
+              mobileTransparent={isCompactPanelBookOnline}
             />
             <div className={`flex-1 min-h-0 ${isCompactPanelWebOnly ? "overflow-hidden" : ""}`}>
               {isCompactPanelBookOnline && !isCompactPanelExpanded ? (
