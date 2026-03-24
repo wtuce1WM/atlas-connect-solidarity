@@ -3686,7 +3686,23 @@ serve(async (req) => {
         const parts = [svcPart, remainderExpanded].filter(p => p.length > 0);
         expandedQuery = parts.join(" & ") || null;
       } else if (queryForExpansion) {
-        expandedQuery = expandQuery(queryForExpansion);
+        // When the query is exactly the detected subcategory and it's multi-word,
+        // use phrase operator (<->) so "beach club" only matches adjacent tokens,
+        // preventing partial matches on just "club" (e.g. Tennis Academy, Montecristo)
+        if (detectedSubcategory && queryForExpansion.toLowerCase().trim() === detectedSubcategory.toLowerCase().trim() && detectedSubcategory.includes(" ")) {
+          const phraseWords = queryForExpansion.toLowerCase().split(/[\s\-]+/)
+            .filter(w => w.length > 0 && !NOISE_ADJECTIVES.has(w))
+            .map(w => stripAccentsGlobal(sanitizeTerm(w)))
+            .filter(t => t.length > 1);
+          if (phraseWords.length >= 2) {
+            expandedQuery = phraseWords.join(" <-> ");
+            console.log(`Phrase matching for multi-word subcategory "${detectedSubcategory}": "${expandedQuery}"`);
+          } else {
+            expandedQuery = expandQuery(queryForExpansion);
+          }
+        } else {
+          expandedQuery = expandQuery(queryForExpansion);
+        }
       }
       if (expandedQuery) console.log(`tsquery: "${expandedQuery}" (service: ${detectedService || "none"}, candidates: [${allCandidateServiceNames.join(", ")}], from: "${queryForExpansion}")`);
 
@@ -4789,27 +4805,6 @@ serve(async (req) => {
       }
     }
 
-    // ── Subcategory post-filter: prioritize businesses that actually have the detected subcategory ──
-    // When FTS matches on partial tokens (e.g. "club" from "beach club"), businesses like
-    // "Tennis Academy" or "Montecristo" match on "club" alone. This re-sorts so that businesses
-    // with the exact subcategory in their categories[] appear first.
-    if (detectedSubcategory && businesses.length > 1) {
-      const subLower = detectedSubcategory.toLowerCase();
-      const withSubcat: typeof businesses = [];
-      const withoutSubcat: typeof businesses = [];
-      for (const b of businesses) {
-        const bCats = (b.categories || []).map((c: string) => c.toLowerCase());
-        if (bCats.some(c => c === subLower || c.includes(subLower) || subLower.includes(c))) {
-          withSubcat.push(b);
-        } else {
-          withoutSubcat.push(b);
-        }
-      }
-      if (withSubcat.length > 0 && withoutSubcat.length > 0) {
-        businesses = [...withSubcat, ...withoutSubcat];
-        console.log(`📌 Subcategory prioritization for "${detectedSubcategory}": ${withSubcat.length} with subcat first, ${withoutSubcat.length} others after`);
-      }
-    }
 
     // If results hit the limit, do a count query to get the true total
     // (works for city-scoped and national queries like "maroc")
