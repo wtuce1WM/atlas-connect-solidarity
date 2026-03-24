@@ -1,7 +1,7 @@
 /** Parse a video URL into embed info — shared across panels */
 
 export interface VideoEmbedInfo {
-  type: "youtube" | "vimeo" | "file";
+  type: "youtube" | "vimeo" | "bunny" | "file";
   embedUrl: string;
   isVertical: boolean;
 }
