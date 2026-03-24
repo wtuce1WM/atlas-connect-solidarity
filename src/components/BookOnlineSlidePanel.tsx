@@ -21,6 +21,8 @@ import type { ReviewText } from "@/components/cards/ReviewsFlipCard";
 import ExternalLinksFlipCard from "@/components/cards/ExternalLinksFlipCard";
 import type { ExternalLinkItem } from "@/components/cards/ExternalLinksFlipCard";
 import SocialLinksCard from "@/components/cards/SocialLinksCard";
+import MenuSummaryCard from "@/components/cards/MenuSummaryCard";
+import type { MenuSummary } from "@/components/cards/MenuSummaryCard";
 import DirectionsOverlay from "@/components/DirectionsOverlay";
 import MosaicOverlay from "@/components/MosaicOverlay";
 import { useDragToHide } from "@/hooks/useDragToHide";
