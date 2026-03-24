@@ -1050,6 +1050,7 @@ serve(async (req) => {
     let detectedSubcategory: string | null = null;
     let detectedSubcategoryIsReal = false;
     let subcategoryParentCategory: string | null = null;
+    let keywordLinkedSubcategories: string[] = []; // additional subcategories found via keyword match
     if (effectiveQuery && !labelShortcutActivated) {
       const qLower = effectiveQuery.toLowerCase();
       const qWords = qLower.split(/\s+/);
@@ -1110,14 +1111,16 @@ serve(async (req) => {
           }
         }
 
-        // ── PASS 2: Keyword matches (only if no name match found) ──
-        // When a keyword matches MULTIPLE subcategories, don't lock to one — skip subcategory auto-detection
-        // so the broader category or FTS results are used instead.
-        if (!detectedSubcategory) {
+        // ── PASS 2: Keyword matches ──
+        // If name match found: collect additional keyword-linked subcategories
+        // If no name match: use keyword match as primary detection (skip if ambiguous)
+        {
           const keywordMatchedSubcats: string[] = [];
           for (const sc of sorted) {
             const n = sc.name_fr?.toLowerCase();
             if (!n) continue;
+            // Skip the subcategory already detected by name match
+            if (detectedSubcategory && sc.name_fr === detectedSubcategory) continue;
             const kws: string[] = (sc.keywords || []).map((k: string) => k.toLowerCase());
             if (kws.length === 0) continue;
             if (kws.length > 0 && (
@@ -1138,11 +1141,20 @@ serve(async (req) => {
               keywordMatchedSubcats.push(sc.name_fr);
             }
           }
-          if (keywordMatchedSubcats.length === 1) {
-            detectedSubcategory = keywordMatchedSubcats[0];
-            console.log(`Auto-detected subcategory "${keywordMatchedSubcats[0]}" from keyword match in query "${effectiveQuery}"`);
-          } else if (keywordMatchedSubcats.length > 1) {
-            console.log(`Keyword matched ${keywordMatchedSubcats.length} subcategories [${keywordMatchedSubcats.join(", ")}] — skipping subcategory lock, will use broader search`);
+          if (detectedSubcategory) {
+            // Name match already found — store keyword matches as additional linked subcategories
+            if (keywordMatchedSubcats.length > 0) {
+              keywordLinkedSubcategories = keywordMatchedSubcats;
+              console.log(`Keyword-linked subcategories for "${detectedSubcategory}": [${keywordLinkedSubcategories.join(", ")}]`);
+            }
+          } else {
+            // No name match — use keyword match as primary
+            if (keywordMatchedSubcats.length === 1) {
+              detectedSubcategory = keywordMatchedSubcats[0];
+              console.log(`Auto-detected subcategory "${keywordMatchedSubcats[0]}" from keyword match in query "${effectiveQuery}"`);
+            } else if (keywordMatchedSubcats.length > 1) {
+              console.log(`Keyword matched ${keywordMatchedSubcats.length} subcategories [${keywordMatchedSubcats.join(", ")}] — skipping subcategory lock, will use broader search`);
+            }
           }
         }
 
@@ -3144,9 +3156,39 @@ serve(async (req) => {
         }
       }
     }
+    // ── Inject keyword-linked subcategories into MERGED_SUBCATEGORIES ──
+    if (detectedSubcategory && keywordLinkedSubcategories.length > 0) {
+      const key = detectedSubcategory.toLowerCase();
+      const existing = MERGED_SUBCATEGORIES[key] || [detectedSubcategory];
+      const merged = [...new Set([...existing, ...keywordLinkedSubcategories])];
+      // Update all entries in the merge group
+      for (const name of merged) {
+        MERGED_SUBCATEGORIES[name.toLowerCase()] = merged;
+      }
+      console.log(`Keyword-linked merge: "${detectedSubcategory}" now merged with [${merged.join(", ")}]`);
+    }
 
     const bundleResultIds = new Set(businesses.map(b => b.id));
     const bundleIsActive = bundleResultIds.size > 0;
+    // Determine if query is essentially just subcategory + city + noise (no additional terms)
+    const isSubcatOnlyQuery = !!detectedSubcategory && detectedSubcategoryIsReal && (() => {
+      if (!effectiveQuery) return false;
+      const subcatWords = new Set(
+        detectedSubcategory!.toLowerCase().split(/[\s/\-]+/)
+          .map(w => stripAccentsGlobal(w)).filter(w => w.length > 1)
+      );
+      const cityWords = new Set(
+        (effectiveCity || "").toLowerCase().split(/\s+/)
+          .map(w => stripAccentsGlobal(w)).filter(w => w.length > 1)
+      );
+      const remaining = effectiveQuery.toLowerCase().split(/\s+/)
+        .map(w => stripAccentsGlobal(w))
+        .filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w) && !subcatWords.has(w) && !cityWords.has(w) && !NOISE_ADJECTIVES.has(w));
+      return remaining.length === 0;
+    })();
+    if (isSubcatOnlyQuery) {
+      console.log(`Subcategory-only query detected for "${detectedSubcategory}" — strict subcategory mode`);
+    }
     if (detectedSubcategory) {
       // Helper to fetch businesses for a given subcategory (or merged group) with current filters
       const fetchSubcategoryBusinesses = async (subcat: string, filterByServices?: string[], options?: { skipNeighborhood?: boolean; overrideCity?: string }) => {
@@ -3298,13 +3340,14 @@ serve(async (req) => {
       // - If a specific service filter exists, enrich by that service list (e.g. "alcool")
       // - Otherwise, fallback to subcategory-as-service enrichment (legacy behavior)
       const enrichmentCity = effectiveCity || neighborhoodCity;
+      // isSubcatOnlyQuery is computed above (before this block) so it's accessible everywhere
       const enrichmentServiceNames = (bundleActivated && bundleRequiredServices.length > 0)
         ? bundleRequiredServices
         : (serviceFilter && serviceFilter.length > 0)
         ? serviceFilter
         : (detectedServices.length > 0 ? detectedServices : [detectedSubcategory]);
 
-      if (enrichmentServiceNames.length > 0) {
+      if (enrichmentServiceNames.length > 0 && !isSubcatOnlyQuery) {
         const existingIds = new Set(businesses.map(b => b.id));
         let svcBuilder = supabase.from("businesses").select("*").eq("is_active", true)
           .overlaps("services", enrichmentServiceNames);
@@ -3357,7 +3400,7 @@ serve(async (req) => {
       // When the query word matched a subcategory name (e.g. "Céramique" → "Poterie / Céramique"),
       // the word was excluded from service detection. But if it also matches a real service name,
       // businesses with that service in OTHER categories are missing. Merge them here.
-      if (detectedSubcategory && detectedServices.length === 0 && effectiveQuery) {
+      if (detectedSubcategory && detectedServices.length === 0 && effectiveQuery && !isSubcatOnlyQuery) {
         const subcatWords = detectedSubcategory.toLowerCase().split(/[\s/]+/).filter(w => w.length > 2);
         const queryWordsLower = effectiveQuery.toLowerCase().split(/\s+/).filter(w => w.length > 2 && !FRENCH_STOP_WORDS.has(w));
         // Find query words that overlap with subcategory name words
@@ -3467,10 +3510,8 @@ serve(async (req) => {
       // Skip in strict mode to preserve the rating-based sort order from the DB query
       const isSubcategoryPhraseOnlyMode =
         !!detectedSubcategory &&
-        !!queryForExpansion &&
-        detectedSubcategory.includes(" ") &&
-        stripAccentsGlobal(queryForExpansion.toLowerCase().trim()) ===
-          stripAccentsGlobal(detectedSubcategory.toLowerCase().trim());
+        detectedSubcategoryIsReal &&
+        isSubcatOnlyQuery;
 
       if (effectiveQuery && businesses.length > 1 && !isSubcategoryPhraseOnlyMode) {
         const qLower = effectiveQuery.toLowerCase();
@@ -3513,10 +3554,8 @@ serve(async (req) => {
     // In strict mode, if subcategory was detected, do NOT fall through to tsquery
     const isSubcategoryPhraseOnlyMode =
       !!detectedSubcategory &&
-      !!queryForExpansion &&
-      detectedSubcategory.includes(" ") &&
-      stripAccentsGlobal(queryForExpansion.toLowerCase().trim()) ===
-        stripAccentsGlobal(detectedSubcategory.toLowerCase().trim());
+      detectedSubcategoryIsReal &&
+      isSubcatOnlyQuery;
     const isStrictMode =
       (subcategorySearchConfig?.search_mode === "strict" && !!detectedSubcategory) ||
       isSubcategoryPhraseOnlyMode;
