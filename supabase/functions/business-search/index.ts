@@ -3556,9 +3556,8 @@ serve(async (req) => {
     // In strict mode, if subcategory was detected, do NOT fall through to tsquery
     const isSubcategoryPhraseOnlyMode =
       !!detectedSubcategory &&
-      !!queryForExpansion &&
-      stripAccentsGlobal(queryForExpansion.toLowerCase().trim()) ===
-        stripAccentsGlobal(detectedSubcategory.toLowerCase().trim());
+      detectedSubcategoryIsReal &&
+      isSubcatOnlyQuery;
     const isStrictMode =
       (subcategorySearchConfig?.search_mode === "strict" && !!detectedSubcategory) ||
       isSubcategoryPhraseOnlyMode;
