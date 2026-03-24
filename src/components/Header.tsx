@@ -169,11 +169,14 @@ const Header = ({ variant = "default" }: HeaderProps) => {
       {/* Dropdown menu */}
       {mobileOpen && (
         <>
-          {/* Mobile/Tablet: simple dropdown */}
-          <div className="lg:hidden border-t border-border bg-white animate-in slide-in-from-top-2 fade-in duration-150">
+          {/* Mobile/Tablet: dropdown with footer content */}
+          <div className="lg:hidden border-t border-border bg-white animate-in slide-in-from-top-2 fade-in duration-150 max-h-[calc(100vh-53px)] overflow-y-auto">
             <nav className="flex flex-col gap-4 px-6 py-5">
               {navLinks}
             </nav>
+            <div className="px-6 pb-6">
+              {footerContent}
+            </div>
           </div>
           {/* Desktop: full-height left 50% overlay with footer content */}
           <div className="hidden lg:flex fixed inset-0 top-[53px] z-[29]" onClick={() => setMobileOpen(false)}>
