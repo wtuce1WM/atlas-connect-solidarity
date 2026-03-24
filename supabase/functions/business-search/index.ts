@@ -3170,6 +3170,25 @@ serve(async (req) => {
 
     const bundleResultIds = new Set(businesses.map(b => b.id));
     const bundleIsActive = bundleResultIds.size > 0;
+    // Determine if query is essentially just subcategory + city + noise (no additional terms)
+    const isSubcatOnlyQuery = !!detectedSubcategory && detectedSubcategoryIsReal && (() => {
+      if (!effectiveQuery) return false;
+      const subcatWords = new Set(
+        detectedSubcategory!.toLowerCase().split(/[\s/\-]+/)
+          .map(w => stripAccentsGlobal(w)).filter(w => w.length > 1)
+      );
+      const cityWords = new Set(
+        (effectiveCity || "").toLowerCase().split(/\s+/)
+          .map(w => stripAccentsGlobal(w)).filter(w => w.length > 1)
+      );
+      const remaining = effectiveQuery.toLowerCase().split(/\s+/)
+        .map(w => stripAccentsGlobal(w))
+        .filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w) && !subcatWords.has(w) && !cityWords.has(w) && !NOISE_ADJECTIVES.has(w));
+      return remaining.length === 0;
+    })();
+    if (isSubcatOnlyQuery) {
+      console.log(`Subcategory-only query detected for "${detectedSubcategory}" — strict subcategory mode`);
+    }
     if (detectedSubcategory) {
       // Helper to fetch businesses for a given subcategory (or merged group) with current filters
       const fetchSubcategoryBusinesses = async (subcat: string, filterByServices?: string[], options?: { skipNeighborhood?: boolean; overrideCity?: string }) => {
@@ -3321,27 +3340,7 @@ serve(async (req) => {
       // - If a specific service filter exists, enrich by that service list (e.g. "alcool")
       // - Otherwise, fallback to subcategory-as-service enrichment (legacy behavior)
       const enrichmentCity = effectiveCity || neighborhoodCity;
-      // When query equals the subcategory name (e.g. "piscine à marrakech" → subcategory "Piscine"),
-      // skip service enrichment to avoid pulling in businesses that merely HAVE the service (e.g. riads with pool)
-      // Check if the original query is essentially just subcategory + city + noise
-      const isSubcatOnlyQuery = (() => {
-        if (!effectiveQuery) return false;
-        const subcatWords = new Set(
-          detectedSubcategory.toLowerCase().split(/[\s/\-]+/)
-            .map(w => stripAccentsGlobal(w)).filter(w => w.length > 1)
-        );
-        const cityWords = new Set(
-          (effectiveCity || "").toLowerCase().split(/\s+/)
-            .map(w => stripAccentsGlobal(w)).filter(w => w.length > 1)
-        );
-        const remaining = effectiveQuery.toLowerCase().split(/\s+/)
-          .map(w => stripAccentsGlobal(w))
-          .filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w) && !subcatWords.has(w) && !cityWords.has(w) && !NOISE_ADJECTIVES.has(w));
-        return remaining.length === 0;
-      })();
-      if (isSubcatOnlyQuery) {
-        console.log(`Subcategory-only query detected for "${detectedSubcategory}" — skipping service enrichment and cross-category merge`);
-      }
+      // isSubcatOnlyQuery is computed above (before this block) so it's accessible everywhere
       const enrichmentServiceNames = (bundleActivated && bundleRequiredServices.length > 0)
         ? bundleRequiredServices
         : (serviceFilter && serviceFilter.length > 0)
