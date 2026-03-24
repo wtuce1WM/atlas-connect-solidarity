@@ -404,7 +404,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                 ref={videoRef}
                 key={currentMedia.url}
                 src={videoInfo.embedUrl}
-                autoPlay playsInline controls
+                autoPlay muted playsInline controls
                 className={`w-full h-full bg-black ${isFileVideoVertical ? "object-cover" : "object-contain"}`}
                 onEnded={() => totalMedia > 1 && goMedia(1)}
                 onLoadedMetadata={(e) => {
