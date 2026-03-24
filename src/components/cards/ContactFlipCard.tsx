@@ -30,6 +30,7 @@ const ContactFlipCard = ({
   language,
   hasOpeningHours,
   animationDelay = "0ms",
+  tallHeight = false,
   className = "",
 }: ContactFlipCardProps) => {
   const [flipped, setFlipped] = useState(false);
