@@ -1421,7 +1421,7 @@ const BusinessDetail = () => {
                       {(isOpen || !showHeader) && (
                         <div className={`px-4 pb-4 ${showHeader ? 'pt-0' : 'pt-4'}`}>
                           {group.description && (
-                            <div className={`mb-3 text-sm leading-relaxed prose max-w-none ${isVerified ? 'text-white/70 prose-headings:text-white prose-strong:text-white' : 'text-muted-foreground prose-headings:text-foreground'}`} dangerouslySetInnerHTML={{ __html: group.description }} />
+                            <div className={`mb-3 text-sm leading-relaxed prose max-w-none prose-josefin-headings ${isVerified ? 'text-white/70 prose-headings:text-white prose-strong:text-white' : 'text-muted-foreground prose-headings:text-foreground'}`} dangerouslySetInnerHTML={{ __html: group.description }} />
                           )}
                           <ul className="space-y-2">
                             {group.services.map((service, index) => (
