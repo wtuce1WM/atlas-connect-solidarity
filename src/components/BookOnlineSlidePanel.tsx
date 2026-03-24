@@ -227,6 +227,11 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
           .eq("business_id", businessId)
           .eq("type", "external_link")
           .order("sort_order"),
+        supabase
+          .from("business_menu_summaries")
+          .select("id, title, content, price_details, avg_price_range")
+          .eq("business_id", businessId)
+          .order("sort_order"),
       ]);
 
       setBusiness(bizRes.data as BookOnlineBusiness | null);
