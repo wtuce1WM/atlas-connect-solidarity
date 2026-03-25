@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Trash2, Edit, X, Check, Loader2, Award, Link, ChevronDown, ChevronRight, RotateCcw } from "lucide-react";
+import RichTextEditor from "./RichTextEditor";
 import { cn } from "@/lib/utils";
 import {
   AlertDialog,
@@ -216,9 +217,20 @@ const LabelManagement = () => {
     ]);
   };
 
+  const plainTextLength = (html: string | null) => {
+    if (!html) return 0;
+    const tmp = document.createElement("div");
+    tmp.innerHTML = html;
+    return (tmp.textContent || "").length;
+  };
+
   const handleCreate = async () => {
     if (!newLabel.name_fr.trim()) {
       toast({ variant: "destructive", title: "Erreur", description: "Le nom en français est requis." });
+      return;
+    }
+    if ([newLabel.description_fr, newLabel.description_en, newLabel.description_ar].some(d => plainTextLength(d) > 1500)) {
+      toast({ variant: "destructive", title: "Erreur", description: "Une description dépasse 1500 caractères." });
       return;
     }
 
@@ -228,9 +240,9 @@ const LabelManagement = () => {
         name_fr: newLabel.name_fr.trim(),
         name_en: newLabel.name_en.trim() || null,
         name_ar: newLabel.name_ar.trim() || null,
-        description_fr: newLabel.description_fr.trim() || null,
-        description_en: newLabel.description_en.trim() || null,
-        description_ar: newLabel.description_ar.trim() || null,
+        description_fr: newLabel.description_fr || null,
+        description_en: newLabel.description_en || null,
+        description_ar: newLabel.description_ar || null,
         url_fr: newLabel.url_fr.trim() || null,
         url_en: newLabel.url_en.trim() || null,
         url_ar: newLabel.url_ar.trim() || null,
@@ -264,6 +276,10 @@ const LabelManagement = () => {
       toast({ variant: "destructive", title: "Erreur", description: "Le nom en français est requis." });
       return;
     }
+    if ([editForm.description_fr, editForm.description_en, editForm.description_ar].some(d => plainTextLength(d) > 1500)) {
+      toast({ variant: "destructive", title: "Erreur", description: "Une description dépasse 1500 caractères." });
+      return;
+    }
 
     const { error } = await supabase
       .from("labels" as any)
@@ -271,9 +287,9 @@ const LabelManagement = () => {
         name_fr: editForm.name_fr.trim(),
         name_en: editForm.name_en.trim() || null,
         name_ar: editForm.name_ar.trim() || null,
-        description_fr: editForm.description_fr.trim() || null,
-        description_en: editForm.description_en.trim() || null,
-        description_ar: editForm.description_ar.trim() || null,
+        description_fr: editForm.description_fr || null,
+        description_en: editForm.description_en || null,
+        description_ar: editForm.description_ar || null,
         url_fr: editForm.url_fr.trim() || null,
         url_en: editForm.url_en.trim() || null,
         url_ar: editForm.url_ar.trim() || null,
@@ -465,21 +481,27 @@ const LabelManagement = () => {
         </div>
       </div>
 
-      {/* Descriptions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <Label htmlFor={isNew ? "new-desc-fr" : "edit-desc-fr"}>Description (FR)</Label>
-          <Input id={isNew ? "new-desc-fr" : "edit-desc-fr"} value={form.description_fr} onChange={(e) => setForm({ ...form, description_fr: e.target.value })} placeholder="Découvrez les établissements..." />
-        </div>
-        <div>
-          <Label htmlFor={isNew ? "new-desc-en" : "edit-desc-en"}>Description (EN)</Label>
-          <Input id={isNew ? "new-desc-en" : "edit-desc-en"} value={form.description_en} onChange={(e) => setForm({ ...form, description_en: e.target.value })} placeholder="Discover the establishments..." />
-        </div>
-        <div>
-          <Label htmlFor={isNew ? "new-desc-ar" : "edit-desc-ar"}>Description (AR)</Label>
-          <Input id={isNew ? "new-desc-ar" : "edit-desc-ar"} value={form.description_ar} onChange={(e) => setForm({ ...form, description_ar: e.target.value })} placeholder="اكتشف المؤسسات..." dir="rtl" />
-        </div>
-      </div>
+      {/* Descriptions (Rich Text) */}
+      {(["fr", "en", "ar"] as const).map((lang) => {
+        const key = `description_${lang}` as keyof LabelFormState;
+        const val = (form[key] as string) || "";
+        const plainLen = (() => { const tmp = document.createElement("div"); tmp.innerHTML = val; return (tmp.textContent || "").length; })();
+        const label = lang === "fr" ? "Description (FR)" : lang === "en" ? "Description (EN)" : "Description (AR)";
+        return (
+          <div key={lang}>
+            <div className="flex items-center justify-between mb-1">
+              <Label>{label} — texte riche</Label>
+              <span className={`text-xs ${plainLen > 1500 ? "text-destructive font-semibold" : "text-muted-foreground"}`}>{plainLen} / 1500</span>
+            </div>
+            <RichTextEditor
+              content={val}
+              onChange={(html) => setForm({ ...form, [key]: html })}
+              placeholder={label}
+              maxHeight="200px"
+            />
+          </div>
+        );
+      })}
 
       {/* URLs */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
