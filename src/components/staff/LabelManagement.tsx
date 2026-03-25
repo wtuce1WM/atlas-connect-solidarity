@@ -217,9 +217,20 @@ const LabelManagement = () => {
     ]);
   };
 
+  const plainTextLength = (html: string | null) => {
+    if (!html) return 0;
+    const tmp = document.createElement("div");
+    tmp.innerHTML = html;
+    return (tmp.textContent || "").length;
+  };
+
   const handleCreate = async () => {
     if (!newLabel.name_fr.trim()) {
       toast({ variant: "destructive", title: "Erreur", description: "Le nom en français est requis." });
+      return;
+    }
+    if ([newLabel.description_fr, newLabel.description_en, newLabel.description_ar].some(d => plainTextLength(d) > 1500)) {
+      toast({ variant: "destructive", title: "Erreur", description: "Une description dépasse 1500 caractères." });
       return;
     }
 
