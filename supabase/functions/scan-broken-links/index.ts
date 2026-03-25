@@ -22,6 +22,23 @@ const URL_FIELDS = [
   "matterport_url",
 ];
 
+// Known legitimate redirect pairs (from → to) — not domain hijacking
+const REDIRECT_WHITELIST: [string, string][] = [
+  ["youtu.be", "youtube.com"],
+  ["youtube.com", "youtube.com"],
+  ["vimeo.com", "vimeocdn.com"],
+  ["player.vimeo.com", "vimeocdn.com"],
+  ["bit.ly", ""],            // any destination is expected
+  ["goo.gl", ""],
+  ["t.co", ""],
+  ["tinyurl.com", ""],
+  ["ow.ly", ""],
+  ["permalink.fairmont.com", "fairmont.com"],
+  ["app.thebookingbutton.com", "direct-book.com"],
+  ["book.eatnow.ma", "eat-now.io"],
+  ["lesterrassesdesarts.ma", "filesusr.com"],  // Wix CDN
+];
+
 function extractDomain(url: string): string {
   try {
     return new URL(url).hostname.replace(/^www\./, "").toLowerCase();
@@ -30,44 +47,51 @@ function extractDomain(url: string): string {
   }
 }
 
+function isWhitelistedRedirect(fromDomain: string, toDomain: string): boolean {
+  for (const [from, to] of REDIRECT_WHITELIST) {
+    if (fromDomain.endsWith(from)) {
+      if (to === "" || toDomain.endsWith(to)) return true;
+    }
+  }
+  return false;
+}
+
 async function checkUrl(
   url: string
 ): Promise<{ ok: boolean; status: number | null; error?: string; domainChanged?: boolean; finalUrl?: string }> {
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
+    const timeout = setTimeout(() => controller.abort(), 5000);
     const resp = await fetch(url, {
       method: "HEAD",
       redirect: "follow",
       signal: controller.signal,
-      headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; LinkChecker/1.0)",
-      },
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; LinkChecker/1.0)" },
     });
     clearTimeout(timeout);
 
-    // Some servers don't support HEAD, try GET for 405
     if (resp.status === 405) {
       const controller2 = new AbortController();
-      const timeout2 = setTimeout(() => controller2.abort(), 8000);
+      const timeout2 = setTimeout(() => controller2.abort(), 5000);
       const resp2 = await fetch(url, {
         method: "GET",
         redirect: "follow",
         signal: controller2.signal,
-        headers: {
-          "User-Agent": "Mozilla/5.0 (compatible; LinkChecker/1.0)",
-        },
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; LinkChecker/1.0)" },
       });
       clearTimeout(timeout2);
       await resp2.text().catch(() => {});
       const ok2 = resp2.status >= 200 && resp2.status < 400;
-      const domainChanged2 = ok2 && extractDomain(url) !== extractDomain(resp2.url);
+      const fromD = extractDomain(url);
+      const toD = extractDomain(resp2.url);
+      const domainChanged2 = ok2 && fromD !== toD && !isWhitelistedRedirect(fromD, toD);
       return { ok: ok2 && !domainChanged2, status: resp2.status, domainChanged: domainChanged2, finalUrl: domainChanged2 ? resp2.url : undefined };
     }
 
     const ok = resp.status >= 200 && resp.status < 400;
-    // Detect domain hijacking: original domain redirects to a completely different domain
-    const domainChanged = ok && extractDomain(url) !== extractDomain(resp.url);
+    const fromD = extractDomain(url);
+    const toD = extractDomain(resp.url);
+    const domainChanged = ok && fromD !== toD && !isWhitelistedRedirect(fromD, toD);
     return {
       ok: ok && !domainChanged,
       status: resp.status,
@@ -95,7 +119,6 @@ Deno.serve(async (req) => {
 
     const selectFields = ["id", "name", ...URL_FIELDS].join(", ");
 
-    // Fetch all active businesses
     let allBusinesses: any[] = [];
     let from = 0;
     const pageSize = 1000;
@@ -114,13 +137,7 @@ Deno.serve(async (req) => {
 
     console.log(`Scanning URLs for ${allBusinesses.length} businesses`);
 
-    // Build deduplicated URL list with business/field mapping
-    const urlEntries: {
-      url: string;
-      businessId: string;
-      field: string;
-    }[] = [];
-
+    const urlEntries: { url: string; businessId: string; field: string }[] = [];
     for (const b of allBusinesses) {
       for (const field of URL_FIELDS) {
         const url = b[field];
@@ -130,18 +147,17 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Deduplicate by URL for checking (but keep all entries for persistence)
     const uniqueUrls = [...new Set(urlEntries.map((e) => e.url))];
     console.log(`Checking ${uniqueUrls.length} unique URLs...`);
 
-    // Check in batches of 10
     const urlResults = new Map<
       string,
       { ok: boolean; status: number | null; error?: string; domainChanged?: boolean; finalUrl?: string }
     >();
 
-    for (let i = 0; i < uniqueUrls.length; i += 10) {
-      const batch = uniqueUrls.slice(i, i + 10);
+    // Batch of 20 for speed
+    for (let i = 0; i < uniqueUrls.length; i += 20) {
+      const batch = uniqueUrls.slice(i, i + 20);
       const checks = await Promise.all(
         batch.map(async (url) => {
           const result = await checkUrl(url);
@@ -186,14 +202,11 @@ Deno.serve(async (req) => {
         };
       });
 
-      // Upsert in batches of 50
       for (let i = 0; i < rows.length; i += 50) {
         const batch = rows.slice(i, i + 50);
         const { error } = await supabase
           .from("broken_links")
-          .upsert(batch, {
-            onConflict: "url,business_id,field_name",
-          });
+          .upsert(batch, { onConflict: "url,business_id,field_name" });
         if (error) console.error("Upsert error:", error);
       }
       console.log(`Upserted ${rows.length} broken link entries`);
@@ -201,16 +214,12 @@ Deno.serve(async (req) => {
 
     // Deactivate previously broken links that are now OK
     if (okUrls.length > 0) {
-      // Process in chunks to avoid query size limits
       const chunkSize = 100;
       for (let i = 0; i < okUrls.length; i += chunkSize) {
         const chunk = okUrls.slice(i, i + chunkSize);
         await supabase
           .from("broken_links")
-          .update({
-            is_active: false,
-            updated_at: new Date().toISOString(),
-          })
+          .update({ is_active: false, updated_at: new Date().toISOString() })
           .in("url", chunk)
           .eq("is_active", true);
       }
@@ -223,9 +232,7 @@ Deno.serve(async (req) => {
       brokenEntries: brokenEntries.length,
     };
 
-    console.log(
-      `Done. ${summary.brokenUrls}/${summary.totalUrls} URLs broken.`
-    );
+    console.log(`Done. ${summary.brokenUrls}/${summary.totalUrls} URLs broken.`);
 
     return new Response(JSON.stringify({ summary }, null, 2), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
