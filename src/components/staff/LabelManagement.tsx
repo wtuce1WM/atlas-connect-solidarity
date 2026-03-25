@@ -466,21 +466,27 @@ const LabelManagement = () => {
         </div>
       </div>
 
-      {/* Descriptions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <Label htmlFor={isNew ? "new-desc-fr" : "edit-desc-fr"}>Description (FR)</Label>
-          <Input id={isNew ? "new-desc-fr" : "edit-desc-fr"} value={form.description_fr} onChange={(e) => setForm({ ...form, description_fr: e.target.value })} placeholder="Découvrez les établissements..." />
-        </div>
-        <div>
-          <Label htmlFor={isNew ? "new-desc-en" : "edit-desc-en"}>Description (EN)</Label>
-          <Input id={isNew ? "new-desc-en" : "edit-desc-en"} value={form.description_en} onChange={(e) => setForm({ ...form, description_en: e.target.value })} placeholder="Discover the establishments..." />
-        </div>
-        <div>
-          <Label htmlFor={isNew ? "new-desc-ar" : "edit-desc-ar"}>Description (AR)</Label>
-          <Input id={isNew ? "new-desc-ar" : "edit-desc-ar"} value={form.description_ar} onChange={(e) => setForm({ ...form, description_ar: e.target.value })} placeholder="اكتشف المؤسسات..." dir="rtl" />
-        </div>
-      </div>
+      {/* Descriptions (Rich Text) */}
+      {(["fr", "en", "ar"] as const).map((lang) => {
+        const key = `description_${lang}` as keyof LabelFormState;
+        const val = (form[key] as string) || "";
+        const plainLen = (() => { const tmp = document.createElement("div"); tmp.innerHTML = val; return (tmp.textContent || "").length; })();
+        const label = lang === "fr" ? "Description (FR)" : lang === "en" ? "Description (EN)" : "Description (AR)";
+        return (
+          <div key={lang}>
+            <div className="flex items-center justify-between mb-1">
+              <Label>{label} — texte riche</Label>
+              <span className={`text-xs ${plainLen > 1500 ? "text-destructive font-semibold" : "text-muted-foreground"}`}>{plainLen} / 1500</span>
+            </div>
+            <RichTextEditor
+              content={val}
+              onChange={(html) => setForm({ ...form, [key]: html })}
+              placeholder={label}
+              maxHeight="200px"
+            />
+          </div>
+        );
+      })}
 
       {/* URLs */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
