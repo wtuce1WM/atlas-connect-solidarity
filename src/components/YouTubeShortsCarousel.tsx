@@ -92,7 +92,7 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange, onSe
       {/* Shorts row */}
       {shorts.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-xs font-medium text-gold" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>Shorts</p>
+          {!hideLabel && <p className="text-xs font-medium text-gold" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>Shorts</p>}
           <VideoRow
             videos={shorts}
             scrollRef={scrollRef}
