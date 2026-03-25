@@ -177,6 +177,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
     setShowMosaic(false);
     setShowHook(false);
     setYoutubeVideoCount(null);
+    setActiveYoutubeVideo(null);
+    setYoutubeIsPlaying(false);
   }, [businessId, resetDrag]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
