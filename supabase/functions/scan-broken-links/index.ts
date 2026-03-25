@@ -180,7 +180,7 @@ Deno.serve(async (req) => {
           business_id: e.businessId,
           field_name: e.field,
           http_status: r.status,
-          error_message: r.error || null,
+          error_message: r.domainChanged ? `Domain changed → ${r.finalUrl}` : (r.error || null),
           is_active: true,
           updated_at: new Date().toISOString(),
         };
