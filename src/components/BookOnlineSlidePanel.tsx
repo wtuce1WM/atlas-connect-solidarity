@@ -990,10 +990,10 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
             </button>
           </div>
 
-          {/* Video player */}
-          {activeYoutubeVideo && (
-            <div className={`flex-1 flex items-center justify-center px-4 ${activeYoutubeVideo.isShort ? "" : "mb-4"}`}>
-              <div className={`w-full ${activeYoutubeVideo.isShort ? "aspect-[9/16] max-h-[45vh] max-w-[240px]" : "aspect-video max-w-full"}`}>
+          {/* Video player — top half */}
+          <div className="flex-1 flex items-center justify-center px-4 min-h-0">
+            {activeYoutubeVideo ? (
+              <div className={`w-full ${activeYoutubeVideo.isShort ? "aspect-[9/16] max-h-full max-w-[240px]" : "aspect-video max-w-full"}`}>
                 <iframe
                   src={`https://www.youtube-nocookie.com/embed/${activeYoutubeVideo.videoId}?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1`}
                   className="w-full h-full rounded-xl"
@@ -1001,15 +1001,16 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                   allowFullScreen
                 />
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="text-sm text-white/50" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                {language === "en" ? "Select a video" : "Sélectionnez une vidéo"}
+              </p>
+            )}
+          </div>
 
-          {/* Spacer when no video selected */}
-          {!activeYoutubeVideo && <div className="flex-1" />}
-
-          {/* Carousel pinned at bottom */}
+          {/* Carousel — bottom half */}
           {business?.youtube_url && (
-            <div className="flex-shrink-0 px-3 pb-2 pt-2 mb-6 border-t border-white/10">
+            <div className="flex-1 min-h-0 overflow-y-auto px-3 pb-3 pt-2 border-t border-white/10">
               <YouTubeShortsCarousel
                 youtubeUrl={business.youtube_url}
                 onVideoCount={() => {}}
