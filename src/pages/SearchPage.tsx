@@ -4049,6 +4049,14 @@ const SearchPage = () => {
                           })()}
                         </div>
                         <div className="absolute bottom-0 left-0 right-0 z-[15] p-3 space-y-1">
+                          {/* Label logos - above name */}
+                          {businessLabelLogos[business.id]?.length > 0 && (
+                            <div className="flex gap-2">
+                              {businessLabelLogos[business.id].map((logoUrl, li) => (
+                                <img key={li} src={logoUrl} alt="" className="h-10 w-auto object-contain drop-shadow-lg" />
+                              ))}
+                            </div>
+                          )}
                           <p className="font-semibold text-base text-white leading-tight line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}>{business.name}</p>
                           {avgOn20 !== null && (
                             <div className="flex items-center gap-1.5 text-xs">
@@ -4063,19 +4071,11 @@ const SearchPage = () => {
                             <div className="flex items-center gap-1 text-xs text-white/60">
                               <MapPin className="h-3 w-3" />
                               <span className="truncate">{business.neighborhood ? `${business.city}, ${business.neighborhood}` : business.city}</span>
-                              {/* Label logos - inline right */}
-                              {businessLabelLogos[business.id]?.length > 0 && (
-                                <div className="ml-auto flex gap-1.5 shrink-0">
-                                  {businessLabelLogos[business.id].map((logoUrl, li) => (
-                                    <img key={li} src={logoUrl} alt="" className="h-8 w-auto object-contain drop-shadow-lg" />
-                                  ))}
-                                </div>
-                              )}
                               {(() => {
                                 const dist = getDistanceKm(business);
                                 if (dist == null) return null;
                                 return (
-                                  <span className={`text-[10px] font-medium text-gold whitespace-nowrap ${businessLabelLogos[business.id]?.length ? '' : 'ml-auto'}`}>
+                                  <span className="ml-auto text-[10px] font-medium text-gold whitespace-nowrap">
                                     {dist < 1 ? `${Math.round(dist * 1000)} m` : `${dist.toFixed(1)} km`}
                                   </span>
                                 );
