@@ -45,7 +45,7 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange, onSe
       setError(null);
       try {
         const { data, error: fnError } = await supabase.functions.invoke("fetch-youtube-channel", {
-          body: { channelUrl: youtubeUrl, maxResults: 12 },
+          body: { channelUrl: youtubeUrl, maxResults: 20 },
         });
         if (fnError) throw fnError;
         const items = data?.videos || [];
@@ -146,23 +146,7 @@ function VideoRow({ videos, scrollRef, activeVideoId, onPlay, onScroll, isShort,
   }, [ref]);
 
   return (
-    <div className="relative group">
-      {videos.length > 2 && (
-        <>
-          <button
-            onClick={() => localScroll(-1)}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => localScroll(1)}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </>
-      )}
+    <div>
 
       <div
         ref={ref as React.RefObject<HTMLDivElement>}
