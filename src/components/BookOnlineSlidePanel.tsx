@@ -991,7 +991,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
           </div>
 
           {/* Video player area */}
-          <div className={`flex items-center justify-center px-4 shrink-0 ${<div className={`flex items-center justify-center px-4 shrink-0 ${activeYoutubeVideo?.isShort ? "h-[40%]" : "h-auto py-2"}`}>}`}>
+          <div className={`flex items-center justify-center px-4 shrink-0 ${activeYoutubeVideo?.isShort ? "h-[35%]" : "h-auto py-2"}`}>
             {activeYoutubeVideo ? (
               <div className={`flex items-center justify-center ${activeYoutubeVideo.isShort ? "h-full" : "w-full"}`}>
                 <div className={`${activeYoutubeVideo.isShort ? "h-full aspect-[9/16]" : "w-full aspect-video"}`}>
