@@ -699,6 +699,41 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
         );
       })()}
 
+      {/* Document Overlay (PDF / Flipbook) */}
+      {docOverlay && (
+        <div className="absolute inset-0 z-[60] bg-white flex flex-col animate-fade-in overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2 border-b bg-white">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setDocOverlay(null)}
+                className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-white/20 shadow-2xl hover:opacity-90 transition-opacity shrink-0"
+                title="Fermer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+              <span className="text-sm font-semibold truncate">{docOverlay.name}</span>
+            </div>
+          </div>
+          <div className="flex-1 flex items-center justify-center pb-16 bg-background">
+            {docOverlay.type === 'flipbook' ? (
+              <iframe
+                src={docOverlay.url}
+                className="h-full w-full border-0"
+                allow="clipboard-write; fullscreen"
+                title={docOverlay.name}
+              />
+            ) : (
+              <iframe
+                key={`${docOverlay.url}-gview-${docOverlay.ts}`}
+                src={`https://docs.google.com/gview?url=${encodeURIComponent(docOverlay.url)}&embedded=true`}
+                className="h-full w-full border-0"
+                title={docOverlay.name}
+              />
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Directions Overlay */}
       {showDirections && business && (
         <DirectionsOverlay
