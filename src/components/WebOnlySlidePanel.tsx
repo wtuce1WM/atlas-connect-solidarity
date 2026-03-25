@@ -128,6 +128,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
     setShowDirections(false);
     setCurrentMediaIndex(0);
     setShowBookingOverlay(false);
+    setDocOverlay(null);
     setIsLightboxOpen(false);
     setShowMosaic(false);
     setShowHook(false);
