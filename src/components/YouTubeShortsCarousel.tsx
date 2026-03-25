@@ -134,9 +134,10 @@ interface VideoRowProps {
   onPlay: (video: YouTubeVideo) => void;
   onScroll: (dir: number) => void;
   isShort: boolean;
+  size?: "default" | "large";
 }
 
-function VideoRow({ videos, scrollRef, activeVideoId, onPlay, onScroll, isShort }: VideoRowProps) {
+function VideoRow({ videos, scrollRef, activeVideoId, onPlay, onScroll, isShort, size = "default" }: VideoRowProps) {
   const localRef = useRef<HTMLDivElement>(null);
   const ref = scrollRef || localRef;
 
