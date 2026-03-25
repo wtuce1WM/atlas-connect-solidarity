@@ -9,7 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ChevronDown, ChevronRight, Plus, Loader2, Eye, ExternalLink, ShieldCheck } from "lucide-react";
+import { ChevronDown, ChevronRight, Plus, Loader2, Eye, ExternalLink, ShieldCheck, Settings2 } from "lucide-react";
+import CertificationMetadataDialog from "./CertificationMetadataDialog";
 import { toast } from "sonner";
 
 interface Props {
