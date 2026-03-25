@@ -174,7 +174,7 @@ function VideoRow({ videos, scrollRef, activeVideoId, onPlay, onScroll, isShort,
             <div
               key={video.videoId}
               className={`flex-shrink-0 rounded-xl overflow-hidden bg-black relative cursor-pointer group/card transition-all ${
-                isShort ? "w-[140px] aspect-[9/16]" : "w-[200px] aspect-video"
+                isShort ? (size === "large" ? "w-[170px] aspect-[9/16]" : "w-[140px] aspect-[9/16]") : (size === "large" ? "w-[240px] aspect-video" : "w-[200px] aspect-video")
               } ${isActive ? "ring-2 ring-red-500 opacity-100" : "opacity-90 hover:opacity-100"}`}
               onClick={() => onPlay(video)}
             >
