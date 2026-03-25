@@ -386,7 +386,22 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
   const hasContactCard = !!(business?.phone || business?.whatsapp || business?.email || business?.website || business?.address);
   const hasReviewsCard = avgOn20 !== null && avgOn20 > 0;
-  const noBottomCarousel = (destinations.length === 0 && poiBusinesses.length === 0) || (youtubeVideoCount != null && youtubeVideoCount > 0);
+
+  // Priority-based bottom carousel: KP > YouTube > Destinations > POI
+  const hasKpCarousel = kpRelated.length > 0;
+  const hasYoutubeBottomCarousel = !!(business?.youtube_url && (business as any)?.youtube_force_external && youtubeVideoCount !== 0);
+  const hasYoutubeReady = !!(youtubeVideoCount && youtubeVideoCount > 0);
+  const hasDestPoiCarousel = destinations.length > 0 || poiBusinesses.length > 0;
+
+  const activeBottomCarousel: "kp" | "youtube" | "destpoi" | "none" =
+    hasKpCarousel ? "kp" :
+    (hasYoutubeBottomCarousel && hasYoutubeReady) ? "youtube" :
+    // YouTube still loading (count not yet known) — reserve slot
+    hasYoutubeBottomCarousel ? "youtube" :
+    hasDestPoiCarousel ? "destpoi" :
+    "none";
+
+  const noBottomCarousel = activeBottomCarousel === "none";
 
   // Hook text for current language
   const hookText = useMemo(() => {
