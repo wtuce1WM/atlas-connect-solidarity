@@ -108,8 +108,17 @@ interface BookOnlineBusiness {
   menu_name: string | null;
   menu_language: string | null;
   video_1_url: string | null;
+  kp_regroupement: string | null;
 }
 
+interface KpRelatedBusiness {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url: string | null;
+  images: string[] | null;
+  is_master: boolean;
+}
 interface Destination {
   id: string;
   name_fr: string;
