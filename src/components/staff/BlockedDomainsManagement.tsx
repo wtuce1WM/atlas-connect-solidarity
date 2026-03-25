@@ -231,7 +231,7 @@ const BlockedDomainsManagement = () => {
               <Loader2 className="h-3 w-3 animate-spin" /> Chargement…
             </div>
           ) : (
-            <div className="overflow-auto border rounded-md max-h-[600px]">
+            <div className="overflow-auto border rounded-md max-h-[1200px]">
               <table className="w-full text-xs">
                 <thead className="bg-muted sticky top-0">
                   <tr>
