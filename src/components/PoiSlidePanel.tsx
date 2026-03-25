@@ -48,6 +48,42 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
     setShowDirections(false);
     setShowMosaic(false);
     setIsLightboxOpen(false);
+    setFlipped(false);
+    setLinkedBusinesses([]);
+  }, [businessId]);
+
+  // Fetch businesses linked to this POI
+  useEffect(() => {
+    const fetchLinked = async () => {
+      // Get business IDs linked to this POI via business_points_of_interest
+      const { data: links } = await supabase
+        .from("business_points_of_interest")
+        .select("business_id")
+        .eq("point_of_interest_id", businessId);
+      if (!links || links.length === 0) return;
+      const ids = links.map((l) => l.business_id);
+      const { data: businesses } = await supabase
+        .from("businesses")
+        .select("id, name, latitude, longitude, images, city, neighborhood, rating, main_category")
+        .in("id", ids)
+        .eq("is_active", true);
+      if (businesses) {
+        setLinkedBusinesses(
+          businesses.map((b) => ({
+            id: b.id,
+            name: b.name,
+            latitude: b.latitude,
+            longitude: b.longitude,
+            images: b.images,
+            city: b.city,
+            neighborhood: b.neighborhood,
+            rating: b.rating ? Number(b.rating) : null,
+            subcategory: b.main_category,
+          }))
+        );
+      }
+    };
+    fetchLinked();
   }, [businessId]);
 
   useEffect(() => {
