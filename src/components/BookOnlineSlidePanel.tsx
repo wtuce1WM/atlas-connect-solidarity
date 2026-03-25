@@ -255,6 +255,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
       setReviewTexts(reviewsRes.data ? (reviewsRes.data as any[]) : []);
       setExternalLinks((extLinksRes.data || []) as ExternalLinkItem[]);
       setMenuSummaries((menuSumRes.data || []) as MenuSummary[]);
+      setVideoDocUrls((videoDocsRes.data || []).map((d: any) => d.url).filter(Boolean));
 
       // Build menu docs: from business_documents + legacy menu_url field
       const docs = ((menuDocsRes.data || []) as MenuDoc[]);
