@@ -100,7 +100,7 @@ type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string }
 const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   const { language } = useLanguage();
   const [business, setBusiness] = useState<WebOnlyBusiness | null>(null);
-  const [webOnlyData, setWebOnlyData] = useState<WebOnlyData | null>(null);
+  const [woDescription, setWoDescription] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [showDirections, setShowDirections] = useState(false);
