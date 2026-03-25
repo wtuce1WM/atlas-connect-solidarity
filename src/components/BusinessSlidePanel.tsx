@@ -1201,7 +1201,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
               <span className="text-sm font-semibold truncate">{docOverlay.name}</span>
             </div>
           </div>
-          <div className="flex-1 flex items-center justify-center pb-16 bg-background">
+          <div className="flex-1 relative pb-16 bg-background">
             {docOverlay.type === 'flipbook' ? (
               <iframe
                 src={getFlipbookEmbedUrl(docOverlay.url)}
@@ -1216,20 +1216,27 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
                 title={docOverlay.name}
                 sandbox="allow-scripts allow-same-origin allow-popups"
               />
-            ) : /supabase\.co\/storage\/v1\/object\/public\//i.test(docOverlay.url) ? (
-              <iframe
-                key={`${docOverlay.url}-direct-${docOverlay.ts}`}
-                src={docOverlay.url}
-                className="h-full w-full border-0"
-                title={docOverlay.name}
-              />
             ) : (
-              <iframe
-                key={`${docOverlay.url}-gview-${docOverlay.ts}`}
-                src={`https://docs.google.com/gview?url=${encodeURIComponent(docOverlay.url)}&embedded=true`}
-                className="h-full w-full border-0"
-                title={docOverlay.name}
-              />
+              <>
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-0">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">Chargement du document…</span>
+                  <a
+                    href={docOverlay.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 text-xs text-primary underline hover:no-underline"
+                  >
+                    Ouvrir dans un nouvel onglet
+                  </a>
+                </div>
+                <iframe
+                  key={`${docOverlay.url}-gview-${docOverlay.ts}`}
+                  src={`https://docs.google.com/gview?url=${encodeURIComponent(docOverlay.url)}&embedded=true`}
+                  className="relative z-10 h-full w-full border-0 bg-transparent"
+                  title={docOverlay.name}
+                />
+              </>
             )}
           </div>
         </div>
