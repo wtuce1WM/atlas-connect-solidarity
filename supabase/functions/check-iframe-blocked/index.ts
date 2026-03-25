@@ -158,6 +158,7 @@ Deno.serve(async (req) => {
     }
 
     // Deactivate domains that are no longer blocked
+    let autoUnforcedCount = 0;
     if (unblockedDomains.length > 0) {
       const { error: deactivateError } = await supabase
         .from("blocked_domains")
@@ -168,6 +169,37 @@ Deno.serve(async (req) => {
         console.error("Error deactivating unblocked domains:", deactivateError);
       } else {
         console.log(`Deactivated ${unblockedDomains.length} previously blocked domains`);
+      }
+
+      // Auto-reset reserve_now_force_external for businesses whose booking domains are now unblocked
+      const unblockedSet = new Set(unblockedDomains);
+      const { data: forcedBiz } = await supabase
+        .from("businesses")
+        .select("id, reserve_now_url, booking_url, other_booking_url")
+        .eq("is_active", true)
+        .eq("reserve_now_force_external", true);
+
+      if (forcedBiz) {
+        const toUnforce: string[] = [];
+        for (const b of forcedBiz) {
+          const urls = [b.reserve_now_url, b.booking_url, b.other_booking_url].filter(Boolean);
+          const allUnblocked = urls.length > 0 && urls.every((u: string) => {
+            try { return unblockedSet.has(new URL(u).hostname); } catch { return false; }
+          });
+          if (allUnblocked) toUnforce.push(b.id);
+        }
+
+        if (toUnforce.length > 0) {
+          for (let i = 0; i < toUnforce.length; i += 50) {
+            const batch = toUnforce.slice(i, i + 50);
+            await supabase
+              .from("businesses")
+              .update({ reserve_now_force_external: false, updated_at: new Date().toISOString() })
+              .in("id", batch);
+          }
+          autoUnforcedCount = toUnforce.length;
+          console.log(`Auto-reset reserve_now_force_external=false for ${autoUnforcedCount} businesses`);
+        }
       }
     }
 
