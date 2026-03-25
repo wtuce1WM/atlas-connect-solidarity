@@ -179,8 +179,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const iframeSrcRef = useRef<string>("");
 
   useEffect(() => {
-    const subPanelOpen = !!selectedDestinationId || !!selectedPoiBusinessId;
-    if (subPanelOpen) {
+    const overlayOpen = !!selectedDestinationId || !!selectedPoiBusinessId || !!docOverlay || showBookingOverlay;
+    if (overlayOpen) {
       if (videoRef.current) {
         videoRef.current.pause();
         videoRef.current.muted = true;
@@ -198,7 +198,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
         iframeRef.current.src = iframeSrcRef.current;
       }
     }
-  }, [selectedDestinationId, selectedPoiBusinessId]);
+  }, [selectedDestinationId, selectedPoiBusinessId, docOverlay, showBookingOverlay]);
 
   // Fetch all data in a single Promise.all
   useEffect(() => {
