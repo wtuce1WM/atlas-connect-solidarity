@@ -2489,6 +2489,14 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
             </>
           )}
 
+          {/* YouTube Shorts/Videos from channel */}
+          {business.youtube_url && (
+            <>
+              <YouTubeShortsCarousel youtubeUrl={business.youtube_url} />
+              <Separator />
+            </>
+          )}
+
           {/* Social embeds */}
           <div ref={socialSectionRef} className="scroll-mt-28" />
           <SocialEmbedsTab businessId={business.id} onPostCount={setSocialPostCount} />
