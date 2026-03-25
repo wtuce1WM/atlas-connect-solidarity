@@ -53,8 +53,7 @@ const MenuUrlCard = ({ menus, language, animationDelay = "0ms", tallHeight, onOp
             className="w-full flex items-center gap-3 rounded-xl bg-white/10 hover:bg-white/20 transition-colors px-3 py-2.5 text-left"
           >
             {m.icon ? (
-              <DynamicIcon name={m.icon} className="h-4 w-4 text-gold shrink-0" size={16} />
-            ) : m.language ? (
+              <img src={getDocIconSrc(m.icon)} alt="" className="h-5 w-5 object-contain shrink-0" />
               <img
                 src={getLangFlag(m.language)}
                 alt={getLangAlt(m.language)}
