@@ -110,7 +110,7 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange }: Yo
             videos={regular}
             scrollRef={shorts.length > 0 ? undefined : scrollRef}
             playingId={playingId}
-            onPlay={setPlayingId}
+            onPlay={handlePlay}
             onScroll={scroll}
             isShort={false}
           />
