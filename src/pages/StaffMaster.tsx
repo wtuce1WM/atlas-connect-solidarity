@@ -208,7 +208,10 @@ const StaffMaster = () => {
           </TabsContent>
 
           <TabsContent value="blocked-domains">
-            <BlockedDomainsManagement />
+            <div className="space-y-6">
+              <BlockedDomainsManagement />
+              <BrokenLinksManagement />
+            </div>
           </TabsContent>
 
           <TabsContent value="display">
