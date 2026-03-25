@@ -236,15 +236,13 @@ const StaffBackoffice = () => {
       // Duplicate business_web_only and business_documents if exists
       if (data) {
         const [{ data: webOnly }, { data: docs }] = await Promise.all([
-          supabase.from("business_web_only").select("description, images, videos").eq("business_id", id).maybeSingle(),
+          supabase.from("business_web_only").select("description").eq("business_id", id).maybeSingle(),
           supabase.from("business_documents" as any).select("type, url, name, language, icon, sort_order").eq("business_id", id),
         ]);
         if (webOnly) {
           await supabase.from("business_web_only").insert({
             business_id: data.id,
             description: webOnly.description,
-            images: webOnly.images,
-            videos: webOnly.videos,
           });
         }
         if (docs && (docs as any[]).length > 0) {
