@@ -274,6 +274,9 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
         : docs;
       setMenuDocs(filteredDocs);
 
+      // Fetch destination details (depends on destLinksRes)
+      setMenuDocs(filteredDocs);
+
       const destIds = (destLinksRes.data || []).map(d => d.destination_id);
       let fetchedDests: Destination[] = [];
       if (destIds.length > 0) {
