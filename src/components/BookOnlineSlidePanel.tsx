@@ -828,6 +828,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                 youtubeUrl={business.youtube_url}
                 onVideoCount={setYoutubeVideoCount}
                 onPlayingChange={setYoutubeIsPlaying}
+                onSelectVideo={setActiveYoutubeVideo}
+                activeVideoId={activeYoutubeVideo?.videoId ?? null}
               />
             </div>
           )}
