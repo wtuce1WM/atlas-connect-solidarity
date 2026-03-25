@@ -718,7 +718,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
           <div className="flex-1 flex items-center justify-center pb-16 bg-background">
             {docOverlay.type === 'flipbook' ? (
               <iframe
-                src={docOverlay.url}
+                src={getFlipbookEmbedUrl(docOverlay.url)}
                 className="h-full w-full border-0"
                 allow="clipboard-write; fullscreen"
                 title={docOverlay.name}
