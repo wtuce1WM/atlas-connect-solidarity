@@ -198,13 +198,13 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
                   <TableRow>
                     <TableHead>Nom</TableHead>
                     <TableHead className="text-center w-[100px]">Utilisations</TableHead>
-                    
+                    {type === "certifications" && <TableHead className="w-[60px]"></TableHead>}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {items.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={2} className="text-center text-muted-foreground py-6 text-sm">
+                      <TableCell colSpan={type === "certifications" ? 3 : 2} className="text-center text-muted-foreground py-6 text-sm">
                         Aucun élément
                       </TableCell>
                     </TableRow>
@@ -230,6 +230,19 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
                               <Eye className="h-3.5 w-3.5" /> {count}
                             </Button>
                           </TableCell>
+                          {type === "certifications" && (
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7"
+                                title="Modifier métadonnées"
+                                onClick={() => setEditingCert(item)}
+                              >
+                                <Settings2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </TableCell>
+                          )}
                         </TableRow>
                       );
                     })
