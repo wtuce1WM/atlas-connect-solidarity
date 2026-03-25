@@ -21,9 +21,10 @@ interface YouTubeShortsCarouselProps {
   activeVideoId?: string | null;
   shortsOnly?: boolean;
   hideLabel?: boolean;
+  size?: "default" | "large";
 }
 
-const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange, onSelectVideo, activeVideoId, shortsOnly, hideLabel }: YouTubeShortsCarouselProps) => {
+const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange, onSelectVideo, activeVideoId, shortsOnly, hideLabel, size = "default" }: YouTubeShortsCarouselProps) => {
   const { language } = useLanguage();
   const [videos, setVideos] = useState<YouTubeVideo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -100,6 +101,7 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange, onSe
             onPlay={handlePlay}
             onScroll={scroll}
             isShort
+            size={size}
           />
         </div>
       )}
@@ -117,6 +119,7 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange, onSe
             onPlay={handlePlay}
             onScroll={scroll}
             isShort={false}
+            size={size}
           />
         </div>
       )}
@@ -131,9 +134,10 @@ interface VideoRowProps {
   onPlay: (video: YouTubeVideo) => void;
   onScroll: (dir: number) => void;
   isShort: boolean;
+  size?: "default" | "large";
 }
 
-function VideoRow({ videos, scrollRef, activeVideoId, onPlay, onScroll, isShort }: VideoRowProps) {
+function VideoRow({ videos, scrollRef, activeVideoId, onPlay, onScroll, isShort, size = "default" }: VideoRowProps) {
   const localRef = useRef<HTMLDivElement>(null);
   const ref = scrollRef || localRef;
 
@@ -170,7 +174,7 @@ function VideoRow({ videos, scrollRef, activeVideoId, onPlay, onScroll, isShort 
             <div
               key={video.videoId}
               className={`flex-shrink-0 rounded-xl overflow-hidden bg-black relative cursor-pointer group/card transition-all ${
-                isShort ? "w-[140px] aspect-[9/16]" : "w-[200px] aspect-video"
+                isShort ? (size === "large" ? "w-[170px] aspect-[9/16]" : "w-[140px] aspect-[9/16]") : (size === "large" ? "w-[240px] aspect-video" : "w-[200px] aspect-video")
               } ${isActive ? "ring-2 ring-red-500 opacity-100" : "opacity-90 hover:opacity-100"}`}
               onClick={() => onPlay(video)}
             >
