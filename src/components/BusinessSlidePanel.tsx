@@ -2490,7 +2490,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
           )}
 
           {/* YouTube Shorts/Videos from channel */}
-          {business.youtube_url && (
+          {business.youtube_url && (business as any).youtube_force_external && (
             <>
               <YouTubeShortsCarousel youtubeUrl={business.youtube_url} />
               <Separator />
