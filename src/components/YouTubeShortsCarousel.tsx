@@ -45,7 +45,7 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange, onSe
       setError(null);
       try {
         const { data, error: fnError } = await supabase.functions.invoke("fetch-youtube-channel", {
-          body: { channelUrl: youtubeUrl, maxResults: 12 },
+          body: { channelUrl: youtubeUrl, maxResults: 20 },
         });
         if (fnError) throw fnError;
         const items = data?.videos || [];
