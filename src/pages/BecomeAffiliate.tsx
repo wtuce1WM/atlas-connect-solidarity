@@ -46,7 +46,7 @@ const BecomeAffiliate = () => {
       formTitle: "Lancez votre visibilité maintenant.",
       formBadge1: "Mise en ligne rapide",
       formBadge2: "Sans engagement",
-      formBadge3: "Support 24/7",
+      formBadge3: "Support",
       labelName: "Nom de l'établissement *",
       labelContact: "Nom du contact *",
       labelPhone: "Téléphone *",
