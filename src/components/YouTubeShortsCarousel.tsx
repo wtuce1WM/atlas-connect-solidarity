@@ -119,6 +119,7 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange, onSe
             onPlay={handlePlay}
             onScroll={scroll}
             isShort={false}
+            size={size}
           />
         </div>
       )}
