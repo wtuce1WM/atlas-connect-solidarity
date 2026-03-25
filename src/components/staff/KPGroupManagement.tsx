@@ -305,14 +305,14 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
                     </div>
                     <Button
                       size="sm"
-                      variant={b.is_master ? "default" : "outline"}
-                      className={b.is_master ? "bg-gold text-black hover:bg-gold/80" : ""}
-                      disabled={b.is_master || saving !== null}
+                      variant={b.is_master && group.businesses.filter(x => x.is_master).length === 1 ? "default" : "outline"}
+                      className={b.is_master && group.businesses.filter(x => x.is_master).length === 1 ? "bg-gold text-black hover:bg-gold/80" : ""}
+                      disabled={b.is_master && group.businesses.filter(x => x.is_master).length === 1 || saving !== null}
                       onClick={() => setMaster(group.kp, b.id)}
                     >
                       {saving === b.id ? (
                         <Loader2 className="h-3 w-3 animate-spin" />
-                      ) : b.is_master ? (
+                      ) : b.is_master && group.businesses.filter(x => x.is_master).length === 1 ? (
                         <>
                           <Crown className="h-3 w-3 mr-1" />
                           Principal
