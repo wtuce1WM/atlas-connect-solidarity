@@ -226,8 +226,10 @@ const CertificationMetadataDialog = ({ certificationName, onClose, onSaved }: Pr
             </div>
           </div>
         )}
-      </DialogContent>
-    </Dialog>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
