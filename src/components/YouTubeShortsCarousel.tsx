@@ -19,7 +19,7 @@ interface YouTubeShortsCarouselProps {
   onPlayingChange?: (isPlaying: boolean) => void;
 }
 
-const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount }: YouTubeShortsCarouselProps) => {
+const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange }: YouTubeShortsCarouselProps) => {
   const { language } = useLanguage();
   const [videos, setVideos] = useState<YouTubeVideo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
