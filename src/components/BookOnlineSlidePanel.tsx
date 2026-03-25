@@ -27,6 +27,7 @@ import MenuUrlCard from "@/components/cards/MenuUrlCard";
 import type { MenuDoc } from "@/components/cards/MenuUrlCard";
 import DirectionsOverlay from "@/components/DirectionsOverlay";
 import MosaicOverlay from "@/components/MosaicOverlay";
+import YouTubeShortsCarousel from "@/components/YouTubeShortsCarousel";
 import { useDragToHide } from "@/hooks/useDragToHide";
 import { useBrokenLinks } from "@/hooks/useBrokenLinks";
 
@@ -151,6 +152,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showHook, setShowHook] = useState(false);
   const [showMosaic, setShowMosaic] = useState(false);
+  const [youtubeVideoCount, setYoutubeVideoCount] = useState<number | null>(null);
 
   // Unified drag logic via custom hook
   const {
@@ -172,6 +174,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
     setIsLightboxOpen(false);
     setShowMosaic(false);
     setShowHook(false);
+    setYoutubeVideoCount(null);
   }, [businessId, resetDrag]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -816,6 +819,15 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                 <div className="shrink-0 w-4" aria-hidden="true" />
             </div>
           </div>
+
+          {business?.youtube_url && youtubeVideoCount !== 0 && (
+            <div className="mt-2 mb-2 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 p-3 pointer-events-auto">
+              <YouTubeShortsCarousel
+                youtubeUrl={business.youtube_url}
+                onVideoCount={setYoutubeVideoCount}
+              />
+            </div>
+          )}
 
           {/* Destinations & POI horizontal scroll */}
           {(destinations.length > 0 || poiBusinesses.length > 0) && (
