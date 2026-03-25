@@ -613,9 +613,15 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                   links={externalLinks}
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(hasReviewsCard)) * 120}ms`}
                   onOpenUrl={(url, linkTitle) => {
-                    setBookingOverlayUrl(url);
-                    setShowBookingOverlay(true);
-                    setBookingOverlayTitle(linkTitle);
+                    const isPdf = url?.toLowerCase().endsWith('.pdf') || url?.includes('/pdfs/');
+                    const isFlipbook = /issuu\.com|calameo\.com/i.test(url || '');
+                    if (isPdf || isFlipbook) {
+                      setDocOverlay({ url, name: linkTitle || 'Document', type: isPdf ? 'pdf' : 'flipbook', ts: Date.now() });
+                    } else {
+                      setBookingOverlayUrl(url);
+                      setShowBookingOverlay(true);
+                      setBookingOverlayTitle(linkTitle);
+                    }
                   }}
                 />
               )}
