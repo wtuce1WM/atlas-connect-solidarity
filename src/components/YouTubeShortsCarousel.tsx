@@ -25,6 +25,11 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange }: Yo
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
+
+  const handlePlay = useCallback((id: string | null) => {
+    setPlayingId(id);
+    onPlayingChange?.(!!id);
+  }, [onPlayingChange]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
