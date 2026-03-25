@@ -261,11 +261,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
       setMenuSummaries((menuSumRes.data || []) as MenuSummary[]);
       setVideoDocUrls((videoDocsRes.data || []).map((d: any) => d.url).filter(Boolean));
 
-      // Build menu docs: from business_documents + legacy menu_url field
       const docs = ((menuDocsRes.data || []) as MenuDoc[]);
-      if (biz?.menu_url && !docs.some(d => d.url === biz.menu_url)) {
-        docs.unshift({ id: 'legacy-menu', name: biz.menu_name, url: biz.menu_url, language: biz.menu_language });
-      }
       // Filter out broken links from menu docs
       const filteredDocs = brokenLinksLoaded
         ? docs.filter(d => !brokenLinksSet.has(d.url))
