@@ -362,6 +362,42 @@ export type Database = {
           },
         ]
       }
+      broken_links: {
+        Row: {
+          business_id: string
+          created_at: string
+          error_message: string | null
+          field_name: string
+          http_status: number | null
+          id: string
+          is_active: boolean
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          error_message?: string | null
+          field_name: string
+          http_status?: number | null
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          error_message?: string | null
+          field_name?: string
+          http_status?: number | null
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       business_badges: {
         Row: {
           badge_id: string
