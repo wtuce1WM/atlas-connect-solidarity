@@ -127,7 +127,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const { language } = useLanguage();
   
   const [business, setBusiness] = useState<BookOnlineBusiness | null>(null);
-  const [webOnlyData, setWebOnlyData] = useState<WebOnlyData | null>(null);
+  const [woDescription, setWoDescription] = useState<string | null>(null);
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [poiBusinesses, setPoiBusinesses] = useState<PoiBusiness[]>([]);
   const [isLoading, setIsLoading] = useState(true);
