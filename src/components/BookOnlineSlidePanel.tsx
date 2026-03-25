@@ -946,13 +946,14 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
 
       {/* YouTube Video Overlay */}
       {activeYoutubeVideo && (
-        <div className="absolute inset-0 z-[60] bg-black/80 backdrop-blur-sm flex flex-col animate-fade-in overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3">
+        <div className="absolute inset-0 z-[60] bg-black/85 backdrop-blur-sm flex flex-col animate-slide-up-from-bottom overflow-hidden">
+          {/* Header bar */}
+          <div className="flex items-center justify-between px-4 py-3 flex-shrink-0">
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
-                <svg viewBox="0 0 24 24" className="w-4 h-4 text-white fill-white"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+              <div className="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
+                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 text-white fill-white"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
               </div>
-              <p className="text-sm text-white font-medium truncate" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+              <p className="text-xs text-white font-medium truncate" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                 {activeYoutubeVideo.title}
               </p>
             </div>
@@ -963,8 +964,10 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
               <X className="h-4 w-4 text-white" />
             </button>
           </div>
-          <div className="flex-1 flex items-center justify-center px-4 pb-4">
-            <div className={`w-full ${activeYoutubeVideo.isShort ? "aspect-[9/16] max-h-[80vh] max-w-[320px]" : "aspect-video max-w-full"}`}>
+
+          {/* Video player */}
+          <div className="flex-1 flex items-center justify-center px-4">
+            <div className={`w-full ${activeYoutubeVideo.isShort ? "aspect-[9/16] max-h-[55vh] max-w-[280px]" : "aspect-video max-w-full"}`}>
               <iframe
                 src={`https://www.youtube-nocookie.com/embed/${activeYoutubeVideo.videoId}?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1`}
                 className="w-full h-full rounded-xl"
@@ -973,6 +976,19 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
               />
             </div>
           </div>
+
+          {/* Carousel pinned at bottom */}
+          {business?.youtube_url && (
+            <div className="flex-shrink-0 px-3 pb-3 pt-2 border-t border-white/10">
+              <YouTubeShortsCarousel
+                youtubeUrl={business.youtube_url}
+                onVideoCount={() => {}}
+                onPlayingChange={setYoutubeIsPlaying}
+                onSelectVideo={setActiveYoutubeVideo}
+                activeVideoId={activeYoutubeVideo?.videoId ?? null}
+              />
+            </div>
+          )}
         </div>
       )}
 
