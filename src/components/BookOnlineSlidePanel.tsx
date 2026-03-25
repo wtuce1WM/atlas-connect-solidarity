@@ -155,6 +155,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const [youtubeVideoCount, setYoutubeVideoCount] = useState<number | null>(null);
   const [youtubeIsPlaying, setYoutubeIsPlaying] = useState(false);
   const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
+  const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
 
   // Unified drag logic via custom hook
   const {
@@ -179,6 +180,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
     setYoutubeVideoCount(null);
     setActiveYoutubeVideo(null);
     setYoutubeIsPlaying(false);
+    setShowYoutubeOverlay(false);
   }, [businessId, resetDrag]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -186,7 +188,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const iframeSrcRef = useRef<string>("");
 
   useEffect(() => {
-    const overlayOpen = !!selectedDestinationId || !!selectedPoiBusinessId || !!docOverlay || showBookingOverlay || youtubeIsPlaying;
+    const overlayOpen = !!selectedDestinationId || !!selectedPoiBusinessId || !!docOverlay || showBookingOverlay || showYoutubeOverlay;
     if (overlayOpen) {
       if (videoRef.current) {
         videoRef.current.pause();
@@ -205,7 +207,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
         iframeRef.current.src = iframeSrcRef.current;
       }
     }
-  }, [selectedDestinationId, selectedPoiBusinessId, docOverlay, showBookingOverlay, youtubeIsPlaying]);
+  }, [selectedDestinationId, selectedPoiBusinessId, docOverlay, showBookingOverlay, showYoutubeOverlay]);
 
   // Fetch all data in a single Promise.all
   useEffect(() => {
@@ -453,18 +455,31 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   return (
     <div className="h-full overflow-hidden overscroll-none bg-black">
       {/* Portal media button into left of fixed bar (next to close) */}
-      {toolbarLeftPortal && images.length >= 5 && createPortal(
-        <button
-          onClick={() => setShowMosaic((p) => !p)}
-          className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background shadow-md hover:bg-foreground/90 transition-colors"
-          title={showMosaic ? "Fermer la mosaïque" : "Voir tous les médias"}
-        >
-          {showMosaic ? (
-            <Minimize2 className="h-4 w-4" />
-          ) : (
-            <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert" />
+      {toolbarLeftPortal && createPortal(
+        <div className="flex items-center gap-2">
+          {images.length >= 5 && (
+            <button
+              onClick={() => setShowMosaic((p) => !p)}
+              className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background shadow-md hover:bg-foreground/90 transition-colors"
+              title={showMosaic ? "Fermer la mosaïque" : "Voir tous les médias"}
+            >
+              {showMosaic ? (
+                <Minimize2 className="h-4 w-4" />
+              ) : (
+                <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert" />
+              )}
+            </button>
           )}
-        </button>,
+          {youtubeVideoCount && youtubeVideoCount > 0 && (
+            <button
+              onClick={() => { setShowYoutubeOverlay(true); setYoutubeIsPlaying(true); }}
+              className="h-9 w-9 flex items-center justify-center rounded-full bg-red-600 text-white shadow-md hover:bg-red-700 transition-colors"
+              title="Vidéos YouTube"
+            >
+              <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            </button>
+          )}
+        </div>,
         toolbarLeftPortal
       )}
       {/* Portal WhatsApp icon into center of fixed bar */}
@@ -824,8 +839,9 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
             </div>
           </div>
 
+          {/* Hidden YouTube fetcher — carousel only visible inside the overlay */}
           {business?.youtube_url && youtubeVideoCount !== 0 && (
-            <div className="mt-2 mb-2 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 p-3 pointer-events-auto">
+            <div className="hidden">
               <YouTubeShortsCarousel
                 youtubeUrl={business.youtube_url}
                 onVideoCount={setYoutubeVideoCount}
@@ -945,7 +961,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
       </div>
 
       {/* YouTube Video Overlay */}
-      {activeYoutubeVideo && (
+      {showYoutubeOverlay && (
         <div className="absolute inset-0 z-[60] bg-black/85 backdrop-blur-sm flex flex-col animate-slide-up-from-bottom overflow-hidden">
           {/* Header bar */}
           <div className="flex items-center justify-between px-4 py-3 flex-shrink-0">
@@ -953,12 +969,18 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
               <div className="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
                 <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 text-white fill-white"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
               </div>
-              <p className="text-xs text-white font-medium truncate" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                {activeYoutubeVideo.title}
-              </p>
+              {activeYoutubeVideo ? (
+                <p className="text-xs text-white font-medium truncate" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                  {activeYoutubeVideo.title}
+                </p>
+              ) : (
+                <p className="text-xs text-white/70 font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                  {language === "en" ? "Select a video" : "Sélectionnez une vidéo"}
+                </p>
+              )}
             </div>
             <button
-              onClick={() => { setActiveYoutubeVideo(null); setYoutubeIsPlaying(false); }}
+              onClick={() => { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); setYoutubeIsPlaying(false); }}
               className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors flex-shrink-0 ml-2"
             >
               <X className="h-4 w-4 text-white" />
@@ -966,16 +988,21 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
           </div>
 
           {/* Video player */}
-          <div className="flex-1 flex items-center justify-center px-4">
-            <div className={`w-full ${activeYoutubeVideo.isShort ? "aspect-[9/16] max-h-[55vh] max-w-[280px]" : "aspect-video max-w-full"}`}>
-              <iframe
-                src={`https://www.youtube-nocookie.com/embed/${activeYoutubeVideo.videoId}?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1`}
-                className="w-full h-full rounded-xl"
-                allow="autoplay; encrypted-media"
-                allowFullScreen
-              />
+          {activeYoutubeVideo && (
+            <div className="flex-1 flex items-center justify-center px-4">
+              <div className={`w-full ${activeYoutubeVideo.isShort ? "aspect-[9/16] max-h-[55vh] max-w-[280px]" : "aspect-video max-w-full"}`}>
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${activeYoutubeVideo.videoId}?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1`}
+                  className="w-full h-full rounded-xl"
+                  allow="autoplay; encrypted-media"
+                  allowFullScreen
+                />
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Spacer when no video selected */}
+          {!activeYoutubeVideo && <div className="flex-1" />}
 
           {/* Carousel pinned at bottom */}
           {business?.youtube_url && (
