@@ -839,15 +839,16 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
             </div>
           </div>
 
-          {/* Hidden YouTube fetcher — carousel only visible inside the overlay */}
+          {/* YouTube Shorts strip — above CTAs, edge-to-edge */}
           {business?.youtube_url && youtubeVideoCount !== 0 && (
-            <div className="hidden">
+            <div className="pointer-events-auto px-2">
               <YouTubeShortsCarousel
                 youtubeUrl={business.youtube_url}
                 onVideoCount={setYoutubeVideoCount}
                 onPlayingChange={setYoutubeIsPlaying}
-                onSelectVideo={setActiveYoutubeVideo}
+                onSelectVideo={(v) => { setActiveYoutubeVideo(v); if (v) setShowYoutubeOverlay(true); }}
                 activeVideoId={activeYoutubeVideo?.videoId ?? null}
+                shortsOnly
               />
             </div>
           )}

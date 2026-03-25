@@ -76,7 +76,7 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange, onSe
   if (error || videos.length === 0) return null;
 
   const shorts = videos.filter((v) => v.isShort);
-  const regular = videos.filter((v) => !v.isShort);
+  const regular = shortsOnly ? [] : videos.filter((v) => !v.isShort);
 
   return (
     <div className="space-y-3">
