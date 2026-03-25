@@ -820,6 +820,15 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
             </div>
           </div>
 
+          {business?.youtube_url && youtubeVideoCount !== 0 && (
+            <div className="mt-2 mb-2 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 p-3 pointer-events-auto">
+              <YouTubeShortsCarousel
+                youtubeUrl={business.youtube_url}
+                onVideoCount={setYoutubeVideoCount}
+              />
+            </div>
+          )}
+
           {/* Destinations & POI horizontal scroll */}
           {(destinations.length > 0 || poiBusinesses.length > 0) && (
             <>
