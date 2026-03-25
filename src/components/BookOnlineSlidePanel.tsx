@@ -308,7 +308,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
 
   const bookUrl = business?.reserve_now_url || business?.website || null;
   // Collect videos from business_documents + legacy video_1_url
-  const videoDocUrls = (videoDocsRes?.data || []).map((d: any) => d.url).filter(Boolean);
   const legacyVideo = business?.video_1_url;
   const allVideoUrls = [...videoDocUrls];
   if (legacyVideo && !allVideoUrls.includes(legacyVideo)) allVideoUrls.unshift(legacyVideo);
