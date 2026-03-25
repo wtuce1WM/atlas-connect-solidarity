@@ -140,7 +140,7 @@ const BecomeAffiliate = () => {
       formTitle: "أطلق رؤيتك الآن.",
       formBadge1: "إعداد سريع",
       formBadge2: "بدون التزام",
-      formBadge3: "دعم 24/7",
+      formBadge3: "دعم",
       labelName: "اسم المؤسسة *",
       labelContact: "اسم جهة الاتصال *",
       labelPhone: "الهاتف *",
