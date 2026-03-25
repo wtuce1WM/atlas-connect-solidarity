@@ -183,7 +183,11 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   }, [businessId]);
 
   const shopUrl = business?.online_shop_url || business?.website || null;
-  const videos = business?.video_1_url ? [business.video_1_url] : [];
+  const videoDocUrls = (videoDocsRes?.data || []).map((d: any) => d.url).filter(Boolean);
+  const legacyVideo = business?.video_1_url;
+  const allVideoUrls = [...videoDocUrls];
+  if (legacyVideo && !allVideoUrls.includes(legacyVideo)) allVideoUrls.unshift(legacyVideo);
+  const videos = allVideoUrls;
   const images = business?.images?.filter(Boolean) || [];
   const languages = business?.languages?.filter(Boolean) || [];
 

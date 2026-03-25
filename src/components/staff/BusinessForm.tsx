@@ -2985,14 +2985,45 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           {externalLinkDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucun lien externe ajouté.</p>}
         </div>
 
-        {/* Video */}
+        {/* Videos (multiple) */}
         <div id="section-images" className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '160px' }}>
-          <Label className="text-base font-semibold">Vidéo</Label>
-          <VideoUploader
-            videoUrl={formData.video_1_url}
-            onChange={(url) => handleChange("video_1_url", url)}
-            businessId={business?.id}
-          />
+          <div className="flex items-center justify-between">
+            <Label className="text-base font-semibold">🎬 Vidéos</Label>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => [...prev, { url: "", name: "" }])}>
+              <Plus className="h-3 w-3" /> Ajouter
+            </Button>
+          </div>
+          {/* Legacy video_1_url */}
+          {formData.video_1_url && (
+            <div className="space-y-1 p-3 border rounded-md bg-background">
+              <p className="text-xs text-muted-foreground">Vidéo principale (ancien champ)</p>
+              <VideoUploader
+                videoUrl={formData.video_1_url}
+                onChange={(url) => handleChange("video_1_url", url)}
+                businessId={business?.id}
+              />
+            </div>
+          )}
+          {videoDocs.map((doc, idx) => (
+            <div key={idx} className="flex items-center gap-2">
+              <Input
+                value={doc.url}
+                onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
+                placeholder="URL vidéo (YouTube, Vimeo, lien direct…)"
+                className="flex-1"
+              />
+              <Input
+                value={doc.name}
+                onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, name: e.target.value } : d))}
+                placeholder="Titre (optionnel)"
+                className="w-48 shrink-0"
+              />
+              <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setVideoDocs(prev => prev.filter((_, i) => i !== idx))}>
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          {!formData.video_1_url && videoDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucune vidéo ajoutée.</p>}
         </div>
 
         {/* Matterport */}

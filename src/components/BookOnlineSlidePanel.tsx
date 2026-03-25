@@ -305,7 +305,12 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   }, [businessId]);
 
   const bookUrl = business?.reserve_now_url || business?.website || null;
-  const videos = business?.video_1_url ? [business.video_1_url] : [];
+  // Collect videos from business_documents + legacy video_1_url
+  const videoDocUrls = (videoDocsRes?.data || []).map((d: any) => d.url).filter(Boolean);
+  const legacyVideo = business?.video_1_url;
+  const allVideoUrls = [...videoDocUrls];
+  if (legacyVideo && !allVideoUrls.includes(legacyVideo)) allVideoUrls.unshift(legacyVideo);
+  const videos = allVideoUrls;
   const images = business?.images?.filter(Boolean) || [];
   const hasOpeningHours = business?.show_opening_hours !== false && (business?.is_open_24h || business?.opening_hours);
 
