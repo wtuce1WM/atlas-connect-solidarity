@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle, Copy, ExternalLink, Globe, Star, Plus, Merge, ArrowRight, Loader2, FileText, X, Upload, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle, Copy, ExternalLink, Globe, Star, Plus, Merge, ArrowRight, Loader2, FileText, X, Upload, Image as ImageIcon, ChevronUp, ChevronDown } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import type { Tables } from "@/integrations/supabase/types";
 import RichTextEditor from "./RichTextEditor";
@@ -3007,12 +3007,18 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           {videoDocs.map((doc, idx) => (
             <div key={idx} className="space-y-2 p-3 border rounded-md bg-background">
               <div className="flex items-center gap-2">
-                <Input
-                  value={doc.url}
-                  onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
-                  placeholder="URL vidéo (YouTube, Vimeo, lien direct…)"
-                  className="flex-1"
-                />
+                {/* Reorder arrows */}
+                <div className="flex flex-col gap-0.5 shrink-0">
+                  <Button type="button" variant="ghost" size="sm" className="h-5 w-5 p-0" disabled={idx === 0}
+                    onClick={() => setVideoDocs(prev => { const a = [...prev]; [a[idx - 1], a[idx]] = [a[idx], a[idx - 1]]; return a; })}>
+                    <ChevronUp className="h-3 w-3" />
+                  </Button>
+                  <Button type="button" variant="ghost" size="sm" className="h-5 w-5 p-0" disabled={idx === videoDocs.length - 1}
+                    onClick={() => setVideoDocs(prev => { const a = [...prev]; [a[idx], a[idx + 1]] = [a[idx + 1], a[idx]]; return a; })}>
+                    <ChevronDown className="h-3 w-3" />
+                  </Button>
+                </div>
+                <span className="text-xs text-muted-foreground shrink-0 w-5 text-center">{idx + 1}</span>
                 <Input
                   value={doc.name}
                   onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, name: e.target.value } : d))}
@@ -3023,41 +3029,56 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
-              {/* Upload button or preview */}
-              {!doc.url ? (
-                <div className="flex items-center gap-2">
-                  <input
-                    type="file"
-                    accept="video/mp4,video/webm,video/quicktime"
-                    id={`video-doc-upload-${idx}`}
-                    className="hidden"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      if (file.size > 100 * 1024 * 1024) {
-                        toast({ variant: "destructive", title: "Fichier trop volumineux", description: "Max 100MB" });
-                        return;
-                      }
-                      const ext = file.name.split(".").pop()?.toLowerCase() || "mp4";
-                      const fileName = `${business?.id || "new"}-${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
-                      const path = `businesses/${fileName}`;
-                      const { error } = await supabase.storage.from("business-videos").upload(path, file, { cacheControl: "3600", upsert: false });
-                      if (error) { toast({ variant: "destructive", title: "Erreur d'upload", description: error.message }); return; }
-                      const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
-                      if (urlData?.publicUrl) {
-                        setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: urlData.publicUrl } : d));
-                        toast({ title: "Vidéo uploadée ✓" });
-                      }
-                    }}
-                  />
-                  <Button type="button" variant="outline" size="sm" className="text-xs gap-1" onClick={() => document.getElementById(`video-doc-upload-${idx}`)?.click()}>
-                    <Upload className="h-3 w-3" /> Uploader un fichier
-                  </Button>
-                  <span className="text-xs text-muted-foreground">ou collez une URL ci-dessus</span>
+              {/* Video preview / upload / URL input */}
+              {doc.url ? (
+                <div className="space-y-2">
+                  <div className="relative aspect-video w-full max-w-lg rounded-lg overflow-hidden border bg-black">
+                    {(() => {
+                      const url = doc.url;
+                      const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
+                      if (ytMatch) return <iframe src={`https://www.youtube.com/embed/${ytMatch[1]}`} className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />;
+                      const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+                      if (vimeoMatch) return <iframe src={`https://player.vimeo.com/video/${vimeoMatch[1]}`} className="w-full h-full" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen />;
+                      return <video src={url} controls className="w-full h-full object-contain" playsInline />;
+                    })()}
+                    <button type="button" onClick={() => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: "" } : d))}
+                      className="absolute top-2 right-2 p-1.5 bg-destructive text-destructive-foreground rounded-full opacity-80 hover:opacity-100 transition-opacity">
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <p className="text-xs text-muted-foreground truncate max-w-lg" title={doc.url}>
+                    {doc.url.includes("supabase.co/storage") ? "📦 Stockée en interne" : "🌐 URL externe"} — {doc.url}
+                  </p>
                 </div>
-              ) : doc.url.includes("supabase.co/storage") ? (
-                <p className="text-xs text-muted-foreground">📦 Fichier uploadé</p>
-              ) : null}
+              ) : (
+                <div className="space-y-2">
+                  <Input
+                    value={doc.url}
+                    onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
+                    placeholder="Collez une URL vidéo (YouTube, Vimeo, lien direct…)"
+                  />
+                  <div className="flex items-center gap-2">
+                    <input type="file" accept="video/mp4,video/webm,video/quicktime" id={`video-doc-upload-${idx}`} className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        if (file.size > 100 * 1024 * 1024) { toast({ variant: "destructive", title: "Fichier trop volumineux", description: "Max 100MB" }); return; }
+                        const ext = file.name.split(".").pop()?.toLowerCase() || "mp4";
+                        const fileName = `${business?.id || "new"}-${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+                        const path = `businesses/${fileName}`;
+                        const { error } = await supabase.storage.from("business-videos").upload(path, file, { cacheControl: "3600", upsert: false });
+                        if (error) { toast({ variant: "destructive", title: "Erreur d'upload", description: error.message }); return; }
+                        const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
+                        if (urlData?.publicUrl) { setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: urlData.publicUrl } : d)); toast({ title: "Vidéo uploadée ✓" }); }
+                      }}
+                    />
+                    <Button type="button" variant="outline" size="sm" className="text-xs gap-1" onClick={() => document.getElementById(`video-doc-upload-${idx}`)?.click()}>
+                      <Upload className="h-3 w-3" /> Uploader un fichier
+                    </Button>
+                    <span className="text-xs text-muted-foreground">MP4, WebM, MOV • Max 100MB</span>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
           {!formData.video_1_url && videoDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucune vidéo ajoutée.</p>}
