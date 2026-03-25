@@ -1009,7 +1009,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
 
           {/* Carousel pinned at bottom */}
           {business?.youtube_url && (
-            <div className="flex-shrink-0 px-3 pb-3 pt-2 border-t border-white/10">
+            <div className="flex-shrink-0 px-3 pb-2 pt-2 border-t border-white/10">
               <YouTubeShortsCarousel
                 youtubeUrl={business.youtube_url}
                 onVideoCount={() => {}}
