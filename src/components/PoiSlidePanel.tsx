@@ -39,6 +39,8 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
   const [showMosaic, setShowMosaic] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [linkedBusinesses, setLinkedBusinesses] = useState<PoiMapItem[]>([]);
 
   useEffect(() => {
     setCurrentMediaIndex(0);
