@@ -2993,6 +2993,57 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
+          {/* Drop zone for multiple video files */}
+          <div
+            onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("border-primary", "bg-primary/5"); }}
+            onDragLeave={(e) => { e.preventDefault(); e.currentTarget.classList.remove("border-primary", "bg-primary/5"); }}
+            onDrop={async (e) => {
+              e.preventDefault();
+              e.currentTarget.classList.remove("border-primary", "bg-primary/5");
+              const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith("video/"));
+              if (files.length === 0) return;
+              for (const file of files) {
+                if (file.size > 100 * 1024 * 1024) { toast({ variant: "destructive", title: "Fichier trop volumineux", description: `${file.name} dépasse 100MB` }); continue; }
+                const ext = file.name.split(".").pop()?.toLowerCase() || "mp4";
+                const fileName = `${business?.id || "new"}-${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+                const path = `businesses/${fileName}`;
+                const { error } = await supabase.storage.from("business-videos").upload(path, file, { cacheControl: "3600", upsert: false });
+                if (error) { toast({ variant: "destructive", title: "Erreur", description: `${file.name}: ${error.message}` }); continue; }
+                const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
+                if (urlData?.publicUrl) {
+                  setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: file.name.replace(/\.[^.]+$/, "") }]);
+                }
+              }
+              toast({ title: `${files.length} vidéo(s) uploadée(s) ✓` });
+            }}
+            className="border-2 border-dashed rounded-lg p-4 text-center transition-colors cursor-pointer hover:border-primary/50"
+          >
+            <input type="file" accept="video/mp4,video/webm,video/quicktime" multiple id="video-drop-multi" className="hidden"
+              onChange={async (e) => {
+                const files = Array.from(e.target.files || []);
+                if (files.length === 0) return;
+                for (const file of files) {
+                  if (file.size > 100 * 1024 * 1024) { toast({ variant: "destructive", title: "Fichier trop volumineux", description: `${file.name} dépasse 100MB` }); continue; }
+                  const ext = file.name.split(".").pop()?.toLowerCase() || "mp4";
+                  const fileName = `${business?.id || "new"}-${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+                  const path = `businesses/${fileName}`;
+                  const { error } = await supabase.storage.from("business-videos").upload(path, file, { cacheControl: "3600", upsert: false });
+                  if (error) { toast({ variant: "destructive", title: "Erreur", description: `${file.name}: ${error.message}` }); continue; }
+                  const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
+                  if (urlData?.publicUrl) {
+                    setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: file.name.replace(/\.[^.]+$/, "") }]);
+                  }
+                }
+                toast({ title: `${files.length} vidéo(s) uploadée(s) ✓` });
+                e.target.value = "";
+              }}
+            />
+            <label htmlFor="video-drop-multi" className="cursor-pointer flex flex-col items-center gap-1">
+              <div className="p-2 bg-primary/10 rounded-full"><Upload className="h-4 w-4 text-primary" /></div>
+              <p className="text-xs font-medium">Glissez-déposez ou cliquez pour uploader des vidéos</p>
+              <p className="text-[10px] text-muted-foreground">MP4, WebM, MOV • Max 100MB • Plusieurs fichiers acceptés</p>
+            </label>
+          </div>
           {/* Legacy video_1_url */}
           {formData.video_1_url && (
             <div className="space-y-1 p-3 border rounded-md bg-background">
