@@ -229,8 +229,8 @@ const LabelManagement = () => {
       toast({ variant: "destructive", title: "Erreur", description: "Le nom en français est requis." });
       return;
     }
-    if ([newLabel.description_fr, newLabel.description_en, newLabel.description_ar].some(d => plainTextLength(d) > 1500)) {
-      toast({ variant: "destructive", title: "Erreur", description: "Une description dépasse 1500 caractères." });
+    if ([newLabel.description_fr, newLabel.description_en, newLabel.description_ar].some(d => plainTextLength(d) > 5000)) {
+      toast({ variant: "destructive", title: "Erreur", description: "Une description dépasse 5000 caractères." });
       return;
     }
 
@@ -276,8 +276,8 @@ const LabelManagement = () => {
       toast({ variant: "destructive", title: "Erreur", description: "Le nom en français est requis." });
       return;
     }
-    if ([editForm.description_fr, editForm.description_en, editForm.description_ar].some(d => plainTextLength(d) > 1500)) {
-      toast({ variant: "destructive", title: "Erreur", description: "Une description dépasse 1500 caractères." });
+    if ([editForm.description_fr, editForm.description_en, editForm.description_ar].some(d => plainTextLength(d) > 5000)) {
+      toast({ variant: "destructive", title: "Erreur", description: "Une description dépasse 5000 caractères." });
       return;
     }
 
@@ -491,7 +491,7 @@ const LabelManagement = () => {
           <div key={lang}>
             <div className="flex items-center justify-between mb-1">
               <Label>{label} — texte riche</Label>
-              <span className={`text-xs ${plainLen > 1500 ? "text-destructive font-semibold" : "text-muted-foreground"}`}>{plainLen} / 1500</span>
+              <span className={`text-xs ${plainLen > 5000 ? "text-destructive font-semibold" : "text-muted-foreground"}`}>{plainLen} / 5000</span>
             </div>
             <RichTextEditor
               content={val}
