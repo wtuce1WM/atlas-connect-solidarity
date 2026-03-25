@@ -70,12 +70,12 @@ const BrokenLinksManagement = () => {
         }
       }
 
-      setBrokenLinks(
-        links.map((l) => ({
-          ...l,
-          business_name: bizNames.get(l.business_id) || l.business_id,
-        }))
-      );
+      const enriched = links.map((l) => ({
+        ...l,
+        business_name: bizNames.get(l.business_id) || l.business_id,
+      }));
+      enriched.sort((a, b) => (a.business_name || "").localeCompare(b.business_name || "", "fr"));
+      setBrokenLinks(enriched);
     } catch (err: any) {
       setBrokenLinks([]);
       toast({
