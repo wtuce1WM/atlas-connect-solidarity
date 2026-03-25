@@ -1,6 +1,15 @@
 import { UtensilsCrossed, ExternalLink } from "lucide-react";
 import { getLangFlag, getLangAlt } from "@/lib/languageFlags";
-import DynamicIcon from "@/components/DynamicIcon";
+
+const DOC_ICON_MAP: Record<string, string> = {
+  icon_menu: "icon_menu.png",
+  icon_wine: "icon_wine.png",
+  icon_cocktails: "icon_cocktails.avif",
+  icon_cocktails2: "icon_cocktails2.png",
+};
+
+const getDocIconSrc = (icon: string) =>
+  `/images/doc-icons/${DOC_ICON_MAP[icon] || "icon_menu.png"}`;
 
 interface MenuDoc {
   id: string;
