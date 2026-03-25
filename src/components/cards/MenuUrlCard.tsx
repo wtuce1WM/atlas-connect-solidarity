@@ -45,7 +45,7 @@ const MenuUrlCard = ({ menus, language, animationDelay = "0ms", tallHeight, onOp
         </h3>
       </div>
 
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-col gap-3">
         {menus.map((m) => (
           <button
             key={m.id}
