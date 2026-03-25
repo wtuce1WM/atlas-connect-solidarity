@@ -453,18 +453,31 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   return (
     <div className="h-full overflow-hidden overscroll-none bg-black">
       {/* Portal media button into left of fixed bar (next to close) */}
-      {toolbarLeftPortal && images.length >= 5 && createPortal(
-        <button
-          onClick={() => setShowMosaic((p) => !p)}
-          className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background shadow-md hover:bg-foreground/90 transition-colors"
-          title={showMosaic ? "Fermer la mosaïque" : "Voir tous les médias"}
-        >
-          {showMosaic ? (
-            <Minimize2 className="h-4 w-4" />
-          ) : (
-            <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert" />
+      {toolbarLeftPortal && createPortal(
+        <div className="flex items-center gap-2">
+          {images.length >= 5 && (
+            <button
+              onClick={() => setShowMosaic((p) => !p)}
+              className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background shadow-md hover:bg-foreground/90 transition-colors"
+              title={showMosaic ? "Fermer la mosaïque" : "Voir tous les médias"}
+            >
+              {showMosaic ? (
+                <Minimize2 className="h-4 w-4" />
+              ) : (
+                <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert" />
+              )}
+            </button>
           )}
-        </button>,
+          {youtubeVideoCount && youtubeVideoCount > 0 && (
+            <button
+              onClick={() => { setActiveYoutubeVideo(prev => prev ? null : { videoId: '__open__', title: '', thumbnail: '', publishedAt: '', isShort: false, durationSeconds: 0 } as any); }}
+              className="h-9 w-9 flex items-center justify-center rounded-full bg-red-600 text-white shadow-md hover:bg-red-700 transition-colors"
+              title="Vidéos YouTube"
+            >
+              <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            </button>
+          )}
+        </div>,
         toolbarLeftPortal
       )}
       {/* Portal WhatsApp icon into center of fixed bar */}
