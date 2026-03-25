@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
 import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, ShoppingBag, Star, Minimize2, X } from "lucide-react";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
@@ -717,7 +718,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
           <div className="flex-1 flex items-center justify-center pb-16 bg-background">
             {docOverlay.type === 'flipbook' ? (
               <iframe
-                src={docOverlay.url}
+                src={getFlipbookEmbedUrl(docOverlay.url)}
                 className="h-full w-full border-0"
                 allow="clipboard-write; fullscreen"
                 title={docOverlay.name}
