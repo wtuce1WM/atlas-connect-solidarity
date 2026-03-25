@@ -93,7 +93,7 @@ const BecomeAffiliate = () => {
       formTitle: "Launch your visibility now.",
       formBadge1: "Quick setup",
       formBadge2: "No commitment",
-      formBadge3: "24/7 Support",
+      formBadge3: "Support",
       labelName: "Business name *",
       labelContact: "Contact name *",
       labelPhone: "Phone *",
