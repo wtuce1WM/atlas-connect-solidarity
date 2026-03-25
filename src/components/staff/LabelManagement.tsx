@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Trash2, Edit, X, Check, Loader2, Award, Link, ChevronDown, ChevronRight, RotateCcw } from "lucide-react";
+import RichTextEditor from "./RichTextEditor";
 import { cn } from "@/lib/utils";
 import {
   AlertDialog,
