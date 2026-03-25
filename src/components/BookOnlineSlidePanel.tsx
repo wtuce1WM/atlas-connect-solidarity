@@ -268,7 +268,12 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
       }
       setMenuDocs(docs);
 
-      // Fetch destination details (depends on destLinksRes)
+      // Filter out broken links from menu docs
+      const filteredDocs = brokenLinksLoaded
+        ? docs.filter(d => !brokenLinksSet.has(d.url))
+        : docs;
+      setMenuDocs(filteredDocs);
+
       const destIds = (destLinksRes.data || []).map(d => d.destination_id);
       let fetchedDests: Destination[] = [];
       if (destIds.length > 0) {
