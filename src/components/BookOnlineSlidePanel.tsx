@@ -755,9 +755,15 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     tallHeight={destinations.length === 0 && poiBusinesses.length === 0}
                     animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0)) * 120}ms`}
                     onOpenUrl={(url, title) => {
-                      setBookingOverlayUrl(url);
-                      setShowBookingOverlay(true);
-                      setBookingOverlayTitle(title);
+                      const isPdf = url?.toLowerCase().endsWith('.pdf') || url?.includes('/pdfs/');
+                      const isFlipbook = /issuu\.com|calameo\.com/i.test(url || '');
+                      if (isPdf || isFlipbook) {
+                        setDocOverlay({ url, name: title || 'Menu', type: isPdf ? 'pdf' : 'flipbook', ts: Date.now() });
+                      } else {
+                        setBookingOverlayUrl(url);
+                        setShowBookingOverlay(true);
+                        setBookingOverlayTitle(title);
+                      }
                     }}
                   />
                 )}
