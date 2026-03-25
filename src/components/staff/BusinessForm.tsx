@@ -3005,22 +3005,59 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             </div>
           )}
           {videoDocs.map((doc, idx) => (
-            <div key={idx} className="flex items-center gap-2">
-              <Input
-                value={doc.url}
-                onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
-                placeholder="URL vidéo (YouTube, Vimeo, lien direct…)"
-                className="flex-1"
-              />
-              <Input
-                value={doc.name}
-                onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, name: e.target.value } : d))}
-                placeholder="Titre (optionnel)"
-                className="w-48 shrink-0"
-              />
-              <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setVideoDocs(prev => prev.filter((_, i) => i !== idx))}>
-                <Trash2 className="h-4 w-4" />
-              </Button>
+            <div key={idx} className="space-y-2 p-3 border rounded-md bg-background">
+              <div className="flex items-center gap-2">
+                <Input
+                  value={doc.url}
+                  onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
+                  placeholder="URL vidéo (YouTube, Vimeo, lien direct…)"
+                  className="flex-1"
+                />
+                <Input
+                  value={doc.name}
+                  onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, name: e.target.value } : d))}
+                  placeholder="Titre (optionnel)"
+                  className="w-48 shrink-0"
+                />
+                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setVideoDocs(prev => prev.filter((_, i) => i !== idx))}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+              {/* Upload button or preview */}
+              {!doc.url ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="file"
+                    accept="video/mp4,video/webm,video/quicktime"
+                    id={`video-doc-upload-${idx}`}
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (file.size > 100 * 1024 * 1024) {
+                        toast({ variant: "destructive", title: "Fichier trop volumineux", description: "Max 100MB" });
+                        return;
+                      }
+                      const ext = file.name.split(".").pop()?.toLowerCase() || "mp4";
+                      const fileName = `${business?.id || "new"}-${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+                      const path = `businesses/${fileName}`;
+                      const { error } = await supabase.storage.from("business-videos").upload(path, file, { cacheControl: "3600", upsert: false });
+                      if (error) { toast({ variant: "destructive", title: "Erreur d'upload", description: error.message }); return; }
+                      const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
+                      if (urlData?.publicUrl) {
+                        setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: urlData.publicUrl } : d));
+                        toast({ title: "Vidéo uploadée ✓" });
+                      }
+                    }}
+                  />
+                  <Button type="button" variant="outline" size="sm" className="text-xs gap-1" onClick={() => document.getElementById(`video-doc-upload-${idx}`)?.click()}>
+                    <Upload className="h-3 w-3" /> Uploader un fichier
+                  </Button>
+                  <span className="text-xs text-muted-foreground">ou collez une URL ci-dessus</span>
+                </div>
+              ) : doc.url.includes("supabase.co/storage") ? (
+                <p className="text-xs text-muted-foreground">📦 Fichier uploadé</p>
+              ) : null}
             </div>
           ))}
           {!formData.video_1_url && videoDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucune vidéo ajoutée.</p>}
