@@ -585,12 +585,14 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     online_shop_force_external: (business as any)?.online_shop_force_external ?? false,
   });
 
-  // --- Business documents (menus, flipbooks & external links) ---
+  // --- Business documents (menus, flipbooks, external links & videos) ---
   type DocEntry = { id?: string; url: string; name: string; language: string; icon: string };
   const [menuDocs, setMenuDocs] = useState<DocEntry[]>([]);
   const [flipbookDocs, setFlipbookDocs] = useState<DocEntry[]>([]);
   type ExternalLinkEntry = { id?: string; url: string; name: string; language: string; image_url: string };
   const [externalLinkDocs, setExternalLinkDocs] = useState<ExternalLinkEntry[]>([]);
+  type VideoDocEntry = { id?: string; url: string; name: string };
+  const [videoDocs, setVideoDocs] = useState<VideoDocEntry[]>([]);
 
   // --- Menu summaries (multiple per business) ---
   type MenuSummaryEntry = { id?: string; title: string; content: string; avg_price_range: any; price_details: string };
