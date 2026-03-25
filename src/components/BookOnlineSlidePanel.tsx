@@ -327,6 +327,22 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
         setPoiBusinesses([]);
       }
 
+      // Fetch KP related businesses
+      const kpVal = (bizRes.data as any)?.kp_regroupement;
+      if (kpVal && kpVal.trim() !== "") {
+        const { data: kpData } = await supabase
+          .from("businesses")
+          .select("id, name, slug, logo_url, images, is_master")
+          .eq("kp_regroupement", kpVal)
+          .eq("is_active", true)
+          .neq("id", businessId)
+          .order("is_master", { ascending: false })
+          .order("priority_score", { ascending: false });
+        setKpRelated((kpData || []) as KpRelatedBusiness[]);
+      } else {
+        setKpRelated([]);
+      }
+
       setIsLoading(false);
     };
     fetchData();
