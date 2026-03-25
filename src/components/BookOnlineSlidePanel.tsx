@@ -990,11 +990,11 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
             </button>
           </div>
 
-          {/* Video player — top 40% */}
-          <div className="h-[38%] flex items-center justify-center px-4 shrink-0">
+          {/* Video player area */}
+          <div className={`flex items-center justify-center px-4 shrink-0 ${activeYoutubeVideo?.isShort ? "h-[50%]" : "h-auto py-2"}`}>
             {activeYoutubeVideo ? (
-              <div className={`w-full h-full flex items-center justify-center`}>
-                <div className={`${activeYoutubeVideo.isShort ? "aspect-[9/16] max-h-full max-w-[200px]" : "aspect-video max-w-full max-h-full"}`}>
+              <div className={`flex items-center justify-center ${activeYoutubeVideo.isShort ? "h-full" : "w-full"}`}>
+                <div className={`${activeYoutubeVideo.isShort ? "h-full aspect-[9/16]" : "w-full aspect-video"}`}>
                   <iframe
                     src={`https://www.youtube-nocookie.com/embed/${activeYoutubeVideo.videoId}?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1`}
                     className="w-full h-full rounded-xl"
@@ -1004,7 +1004,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-white/50" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+              <p className="text-sm text-white/50 py-8" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                 {language === "en" ? "Select a video" : "Sélectionnez une vidéo"}
               </p>
             )}
