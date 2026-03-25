@@ -30,6 +30,8 @@ import MosaicOverlay from "@/components/MosaicOverlay";
 import YouTubeShortsCarousel, { type YouTubeVideo } from "@/components/YouTubeShortsCarousel";
 import { useDragToHide } from "@/hooks/useDragToHide";
 import { useBrokenLinks } from "@/hooks/useBrokenLinks";
+import { useNavigate } from "react-router-dom";
+import { businessUrl } from "@/lib/businessUrl";
 
 interface BookOnlineSlidePanelProps {
   businessId: string;
@@ -106,8 +108,17 @@ interface BookOnlineBusiness {
   menu_name: string | null;
   menu_language: string | null;
   video_1_url: string | null;
+  kp_regroupement: string | null;
 }
 
+interface KpRelatedBusiness {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url: string | null;
+  images: string[] | null;
+  is_master: boolean;
+}
 interface Destination {
   id: string;
   name_fr: string;
@@ -127,6 +138,7 @@ type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string }
 
 const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }: BookOnlineSlidePanelProps) => {
   const { language } = useLanguage();
+  const navigate = useNavigate();
   const { brokenUrls: brokenLinksSet, loaded: brokenLinksLoaded } = useBrokenLinks();
   
   const [business, setBusiness] = useState<BookOnlineBusiness | null>(null);
@@ -148,6 +160,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const [menuSummaries, setMenuSummaries] = useState<MenuSummary[]>([]);
   const [menuDocs, setMenuDocs] = useState<MenuDoc[]>([]);
   const [videoDocUrls, setVideoDocUrls] = useState<string[]>([]);
+  const [kpRelated, setKpRelated] = useState<KpRelatedBusiness[]>([]);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showHook, setShowHook] = useState(false);
@@ -216,7 +229,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
       const [bizRes, woRes, destLinksRes, reviewsRes, extLinksRes, menuSumRes, menuDocsRes, videoDocsRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, reserve_now_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, online_shop_force_external, website_force_external, reserve_now_force_external, hook_fr, hook_en, hook_ar, description, facebook_url, instagram_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, vimeo_url, menu_url, menu_name, menu_language, video_1_url")
+          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, reserve_now_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, online_shop_force_external, website_force_external, reserve_now_force_external, hook_fr, hook_en, hook_ar, description, facebook_url, instagram_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, vimeo_url, menu_url, menu_name, menu_language, video_1_url, kp_regroupement")
           .eq("id", businessId)
           .eq("is_active", true)
           .maybeSingle(),
@@ -312,6 +325,22 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
         }
       } else {
         setPoiBusinesses([]);
+      }
+
+      // Fetch KP related businesses
+      const kpVal = (bizRes.data as any)?.kp_regroupement;
+      if (kpVal && kpVal.trim() !== "") {
+        const { data: kpData } = await supabase
+          .from("businesses")
+          .select("id, name, slug, logo_url, images, is_master")
+          .eq("kp_regroupement", kpVal)
+          .eq("is_active", true)
+          .neq("id", businessId)
+          .order("is_master", { ascending: false })
+          .order("priority_score", { ascending: false });
+        setKpRelated((kpData || []) as KpRelatedBusiness[]);
+      } else {
+        setKpRelated([]);
       }
 
       setIsLoading(false);
@@ -915,6 +944,46 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                   );
                 })}
                 {/* Spacer droit */}
+                <div className="shrink-0 w-6" aria-hidden="true" />
+              </div>
+            </div>
+            </>
+          )}
+
+          {/* KP Related Establishments carousel */}
+          {kpRelated.length > 0 && (
+            <>
+            <div className="flex justify-center mt-4 mb-1.5 pointer-events-auto">
+              <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                {language === "en" ? "Other establishments" : "Autres établissements"}
+              </h3>
+            </div>
+            <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
+              <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
+                {kpRelated.map((rel, index) => {
+                  const relImg = rel.images?.filter(Boolean)?.[0] || rel.logo_url;
+                  return (
+                    <div
+                      key={rel.id}
+                      className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                      style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
+                      onClick={() => navigate(businessUrl(rel))}
+                    >
+                      {relImg ? (
+                        <img src={relImg} alt={rel.name} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                      ) : (
+                        <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
+                          <MapPin className="h-5 w-5 text-white/40" />
+                        </div>
+                      )}
+                      <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
+                        {rel.is_master && <span className="text-gold mr-1">★</span>}
+                        {rel.name}
+                      </p>
+                    </div>
+                  );
+                })}
                 <div className="shrink-0 w-6" aria-hidden="true" />
               </div>
             </div>
