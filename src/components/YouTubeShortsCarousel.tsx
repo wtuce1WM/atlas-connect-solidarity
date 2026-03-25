@@ -16,14 +16,20 @@ interface YouTubeVideo {
 interface YouTubeShortsCarouselProps {
   youtubeUrl: string;
   onVideoCount?: (count: number) => void;
+  onPlayingChange?: (isPlaying: boolean) => void;
 }
 
-const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount }: YouTubeShortsCarouselProps) => {
+const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange }: YouTubeShortsCarouselProps) => {
   const { language } = useLanguage();
   const [videos, setVideos] = useState<YouTubeVideo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
+
+  const handlePlay = useCallback((id: string | null) => {
+    setPlayingId(id);
+    onPlayingChange?.(!!id);
+  }, [onPlayingChange]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -87,7 +93,7 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount }: YouTubeShortsCarous
             videos={shorts}
             scrollRef={scrollRef}
             playingId={playingId}
-            onPlay={setPlayingId}
+            onPlay={handlePlay}
             onScroll={scroll}
             isShort
           />
@@ -104,7 +110,7 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount }: YouTubeShortsCarous
             videos={regular}
             scrollRef={shorts.length > 0 ? undefined : scrollRef}
             playingId={playingId}
-            onPlay={setPlayingId}
+            onPlay={handlePlay}
             onScroll={scroll}
             isShort={false}
           />
