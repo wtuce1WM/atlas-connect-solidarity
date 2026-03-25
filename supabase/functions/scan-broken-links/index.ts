@@ -137,7 +137,7 @@ Deno.serve(async (req) => {
     // Check in batches of 10
     const urlResults = new Map<
       string,
-      { ok: boolean; status: number | null; error?: string }
+      { ok: boolean; status: number | null; error?: string; domainChanged?: boolean; finalUrl?: string }
     >();
 
     for (let i = 0; i < uniqueUrls.length; i += 10) {
