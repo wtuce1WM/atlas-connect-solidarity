@@ -22,9 +22,17 @@ const URL_FIELDS = [
   "matterport_url",
 ];
 
+function extractDomain(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "").toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
 async function checkUrl(
   url: string
-): Promise<{ ok: boolean; status: number | null; error?: string }> {
+): Promise<{ ok: boolean; status: number | null; error?: string; domainChanged?: boolean; finalUrl?: string }> {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
@@ -51,14 +59,21 @@ async function checkUrl(
         },
       });
       clearTimeout(timeout2);
-      // Consume body to free resources
       await resp2.text().catch(() => {});
-      const ok = resp2.status >= 200 && resp2.status < 400;
-      return { ok, status: resp2.status };
+      const ok2 = resp2.status >= 200 && resp2.status < 400;
+      const domainChanged2 = ok2 && extractDomain(url) !== extractDomain(resp2.url);
+      return { ok: ok2 && !domainChanged2, status: resp2.status, domainChanged: domainChanged2, finalUrl: domainChanged2 ? resp2.url : undefined };
     }
 
     const ok = resp.status >= 200 && resp.status < 400;
-    return { ok, status: resp.status };
+    // Detect domain hijacking: original domain redirects to a completely different domain
+    const domainChanged = ok && extractDomain(url) !== extractDomain(resp.url);
+    return {
+      ok: ok && !domainChanged,
+      status: resp.status,
+      domainChanged,
+      finalUrl: domainChanged ? resp.url : undefined,
+    };
   } catch (err) {
     return {
       ok: false,
