@@ -1756,7 +1756,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
               <div className="space-y-1.5">
                 {business.website && (
                   <button
-                    onClick={() => setDocOverlay({ url: business.website!.replace(/^http:\/\//i, 'https://'), name: 'Site web', type: 'webpage' })}
+                    onClick={() => setDocOverlay({ url: business.website!.replace(/^http:\/\//i, 'https://'), name: 'Site web', type: 'webpage', ts: Date.now() })}
                     className="text-sm hover:text-foreground transition-colors flex items-center gap-2 text-left"
                   >
                     <Globe className="h-4 w-4 shrink-0 text-foreground/60" />
