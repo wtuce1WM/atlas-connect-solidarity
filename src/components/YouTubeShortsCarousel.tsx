@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { ChevronLeft, ChevronRight, Play, Loader2, X, ExternalLink } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
 
-interface YouTubeVideo {
+export interface YouTubeVideo {
   videoId: string;
   title: string;
   thumbnail: string;
@@ -17,25 +17,22 @@ interface YouTubeShortsCarouselProps {
   youtubeUrl: string;
   onVideoCount?: (count: number) => void;
   onPlayingChange?: (isPlaying: boolean) => void;
+  onSelectVideo?: (video: YouTubeVideo | null) => void;
+  activeVideoId?: string | null;
 }
 
-const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange }: YouTubeShortsCarouselProps) => {
+const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange, onSelectVideo, activeVideoId }: YouTubeShortsCarouselProps) => {
   const { language } = useLanguage();
   const [videos, setVideos] = useState<YouTubeVideo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeVideo, setActiveVideo] = useState<YouTubeVideo | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const handlePlay = useCallback((video: YouTubeVideo | null) => {
-    setActiveVideo(video);
-    onPlayingChange?.(!!video);
-  }, [onPlayingChange]);
-
-  const handleClose = useCallback(() => {
-    setActiveVideo(null);
-    onPlayingChange?.(false);
-  }, [onPlayingChange]);
+  const handlePlay = useCallback((video: YouTubeVideo) => {
+    const isToggleOff = activeVideoId === video.videoId;
+    onSelectVideo?.(isToggleOff ? null : video);
+    onPlayingChange?.(!isToggleOff);
+  }, [activeVideoId, onSelectVideo, onPlayingChange]);
 
   useEffect(() => {
     if (!youtubeUrl) return;
@@ -90,43 +87,6 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange }: Yo
         </h3>
       </div>
 
-      {/* Active video overlay player */}
-      {activeVideo && (
-        <div className="rounded-xl overflow-hidden bg-black/60 backdrop-blur-sm border border-white/10 animate-fade-in">
-          <div className="flex items-center justify-between px-3 py-2">
-            <p className="text-xs text-white font-medium truncate flex-1 mr-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-              {activeVideo.title}
-            </p>
-            <div className="flex items-center gap-2">
-              <a
-                href={`https://www.youtube.com/${activeVideo.isShort ? 'shorts/' : 'watch?v='}${activeVideo.videoId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <ExternalLink className="h-3 w-3 text-white" />
-              </a>
-              <button
-                onClick={handleClose}
-                className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
-              >
-                <X className="h-3.5 w-3.5 text-white" />
-              </button>
-            </div>
-          </div>
-          <div className={`w-full ${activeVideo.isShort ? "aspect-[9/16] max-h-[60vh] mx-auto" : "aspect-video"}`}
-               style={activeVideo.isShort ? { maxWidth: "280px" } : undefined}>
-            <iframe
-              src={`https://www.youtube-nocookie.com/embed/${activeVideo.videoId}?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1`}
-              className="w-full h-full"
-              allow="autoplay; encrypted-media"
-              allowFullScreen
-            />
-          </div>
-        </div>
-      )}
-
       {/* Shorts row */}
       {shorts.length > 0 && (
         <div className="space-y-1.5">
@@ -134,7 +94,7 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange }: Yo
           <VideoRow
             videos={shorts}
             scrollRef={scrollRef}
-            activeVideoId={activeVideo?.videoId ?? null}
+            activeVideoId={activeVideoId ?? null}
             onPlay={handlePlay}
             onScroll={scroll}
             isShort
@@ -151,7 +111,7 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange }: Yo
           <VideoRow
             videos={regular}
             scrollRef={shorts.length > 0 ? undefined : scrollRef}
-            activeVideoId={activeVideo?.videoId ?? null}
+            activeVideoId={activeVideoId ?? null}
             onPlay={handlePlay}
             onScroll={scroll}
             isShort={false}
@@ -166,7 +126,7 @@ interface VideoRowProps {
   videos: YouTubeVideo[];
   scrollRef?: React.RefObject<HTMLDivElement>;
   activeVideoId: string | null;
-  onPlay: (video: YouTubeVideo | null) => void;
+  onPlay: (video: YouTubeVideo) => void;
   onScroll: (dir: number) => void;
   isShort: boolean;
 }
@@ -210,7 +170,7 @@ function VideoRow({ videos, scrollRef, activeVideoId, onPlay, onScroll, isShort 
               className={`flex-shrink-0 rounded-xl overflow-hidden bg-black relative cursor-pointer group/card transition-all ${
                 isShort ? "w-[140px] aspect-[9/16]" : "w-[200px] aspect-video"
               } ${isActive ? "ring-2 ring-red-500 opacity-100" : "opacity-90 hover:opacity-100"}`}
-              onClick={() => onPlay(isActive ? null : video)}
+              onClick={() => onPlay(video)}
             >
               <img
                 src={video.thumbnail}
