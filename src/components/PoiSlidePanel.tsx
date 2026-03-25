@@ -55,13 +55,13 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
   // Fetch businesses linked to this POI
   useEffect(() => {
     const fetchLinked = async () => {
-      // Get business IDs linked to this POI via business_points_of_interest
+      // Get business IDs linked to this POI via business_poi_businesses
       const { data: links } = await supabase
-        .from("business_points_of_interest")
+        .from("business_poi_businesses")
         .select("business_id")
-        .eq("point_of_interest_id", businessId);
+        .eq("poi_business_id", businessId);
       if (!links || links.length === 0) return;
-      const ids = links.map((l) => l.business_id);
+      const ids = [...new Set(links.map((l) => l.business_id))];
       const { data: businesses } = await supabase
         .from("businesses")
         .select("id, name, latitude, longitude, images, city, neighborhood, rating, main_category")
