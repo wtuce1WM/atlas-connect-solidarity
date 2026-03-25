@@ -585,12 +585,14 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     online_shop_force_external: (business as any)?.online_shop_force_external ?? false,
   });
 
-  // --- Business documents (menus, flipbooks & external links) ---
+  // --- Business documents (menus, flipbooks, external links & videos) ---
   type DocEntry = { id?: string; url: string; name: string; language: string; icon: string };
   const [menuDocs, setMenuDocs] = useState<DocEntry[]>([]);
   const [flipbookDocs, setFlipbookDocs] = useState<DocEntry[]>([]);
   type ExternalLinkEntry = { id?: string; url: string; name: string; language: string; image_url: string };
   const [externalLinkDocs, setExternalLinkDocs] = useState<ExternalLinkEntry[]>([]);
+  type VideoDocEntry = { id?: string; url: string; name: string };
+  const [videoDocs, setVideoDocs] = useState<VideoDocEntry[]>([]);
 
   // --- Menu summaries (multiple per business) ---
   type MenuSummaryEntry = { id?: string; title: string; content: string; avg_price_range: any; price_details: string };
@@ -608,6 +610,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         setMenuDocs((data as any[]).filter((d: any) => d.type === "menu").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "" })));
         setFlipbookDocs((data as any[]).filter((d: any) => d.type === "flipbook").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "" })));
         setExternalLinkDocs((data as any[]).filter((d: any) => d.type === "external_link").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", image_url: d.icon || "" })));
+        setVideoDocs((data as any[]).filter((d: any) => d.type === "video").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "" })));
       }
     };
     const fetchSummaries = async () => {
@@ -1241,6 +1244,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           ...externalLinkDocs
             .filter((d) => d.name.trim() && d.url.trim())
             .map((d, i) => ({ business_id: businessId, type: "external_link" as const, url: d.url.trim(), name: d.name.trim(), language: d.language || null, icon: d.image_url || null, sort_order: i })),
+          ...videoDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "video" as const, url: d.url.trim(), name: d.name || null, language: null, icon: null, sort_order: i })),
         ];
         if (allDocs.length > 0) {
           const { error: docsError } = await supabase.from("business_documents" as any).insert(allDocs);
@@ -2981,14 +2985,45 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           {externalLinkDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucun lien externe ajouté.</p>}
         </div>
 
-        {/* Video */}
+        {/* Videos (multiple) */}
         <div id="section-images" className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '160px' }}>
-          <Label className="text-base font-semibold">Vidéo</Label>
-          <VideoUploader
-            videoUrl={formData.video_1_url}
-            onChange={(url) => handleChange("video_1_url", url)}
-            businessId={business?.id}
-          />
+          <div className="flex items-center justify-between">
+            <Label className="text-base font-semibold">🎬 Vidéos</Label>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => [...prev, { url: "", name: "" }])}>
+              <Plus className="h-3 w-3" /> Ajouter
+            </Button>
+          </div>
+          {/* Legacy video_1_url */}
+          {formData.video_1_url && (
+            <div className="space-y-1 p-3 border rounded-md bg-background">
+              <p className="text-xs text-muted-foreground">Vidéo principale (ancien champ)</p>
+              <VideoUploader
+                videoUrl={formData.video_1_url}
+                onChange={(url) => handleChange("video_1_url", url)}
+                businessId={business?.id}
+              />
+            </div>
+          )}
+          {videoDocs.map((doc, idx) => (
+            <div key={idx} className="flex items-center gap-2">
+              <Input
+                value={doc.url}
+                onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
+                placeholder="URL vidéo (YouTube, Vimeo, lien direct…)"
+                className="flex-1"
+              />
+              <Input
+                value={doc.name}
+                onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, name: e.target.value } : d))}
+                placeholder="Titre (optionnel)"
+                className="w-48 shrink-0"
+              />
+              <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setVideoDocs(prev => prev.filter((_, i) => i !== idx))}>
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          {!formData.video_1_url && videoDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucune vidéo ajoutée.</p>}
         </div>
 
         {/* Matterport */}
