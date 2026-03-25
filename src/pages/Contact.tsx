@@ -59,6 +59,16 @@ const Contact = () => {
                   </div>
                 </div>
               </div>
+
+              <a
+                href="https://wa.me/212661439221"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-3 w-full bg-[#25D366] hover:bg-[#1da851] text-white py-4 px-6 rounded-xl font-semibold text-lg transition-colors"
+              >
+                <MessageCircle className="h-6 w-6" />
+                WhatsApp
+              </a>
             </div>
             
             <div className="bg-card border rounded-lg p-6">
