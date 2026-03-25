@@ -51,5 +51,8 @@ verify_jwt = false
 [functions.yext-sync]
 verify_jwt = false
 
+[functions.scan-broken-links]
+verify_jwt = false
+
 [functions.fetch-getyourguide]
 verify_jwt = false
