@@ -20,9 +20,10 @@ interface YouTubeShortsCarouselProps {
   onSelectVideo?: (video: YouTubeVideo | null) => void;
   activeVideoId?: string | null;
   shortsOnly?: boolean;
+  hideLabel?: boolean;
 }
 
-const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange, onSelectVideo, activeVideoId, shortsOnly }: YouTubeShortsCarouselProps) => {
+const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange, onSelectVideo, activeVideoId, shortsOnly, hideLabel }: YouTubeShortsCarouselProps) => {
   const { language } = useLanguage();
   const [videos, setVideos] = useState<YouTubeVideo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -91,7 +92,7 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange, onSe
       {/* Shorts row */}
       {shorts.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-xs font-medium text-gold" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>Shorts</p>
+          {!hideLabel && <p className="text-xs font-medium text-gold" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>Shorts</p>}
           <VideoRow
             videos={shorts}
             scrollRef={scrollRef}
