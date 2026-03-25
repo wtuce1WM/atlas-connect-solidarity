@@ -185,9 +185,10 @@ function VideoRow({ videos, scrollRef, activeVideoId, onPlay, onScroll, isShort,
                   </div>
                 )}
               </div>
-              <p className="absolute bottom-0 left-0 right-0 px-2 py-1.5 text-[10px] leading-tight text-white font-medium bg-gradient-to-t from-black/80 to-transparent line-clamp-2">
-                {video.title}
-              </p>
+               <p className="absolute bottom-0 left-0 right-0 px-2 py-1.5 text-[10px] leading-tight text-white font-medium bg-gradient-to-t from-black/80 to-transparent line-clamp-2">
+                 {video.title}
+               </p>
+              </div>
             </div>
           );
         })}
