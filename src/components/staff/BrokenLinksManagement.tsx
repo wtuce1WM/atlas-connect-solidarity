@@ -43,34 +43,49 @@ const BrokenLinksManagement = () => {
 
   const fetchBrokenLinks = useCallback(async () => {
     setIsLoadingList(true);
-    const { data } = await (supabase as any)
-      .from("broken_links")
-      .select("*")
-      .eq("is_active", true)
-      .order("updated_at", { ascending: false });
+    try {
+      const { data, error } = await (supabase as any)
+        .from("broken_links")
+        .select("*")
+        .eq("is_active", true)
+        .order("updated_at", { ascending: false });
 
-    const links = (data || []) as BrokenLink[];
+      if (error) throw error;
 
-    // Fetch business names
-    const bizIds = [...new Set(links.map((l) => l.business_id))];
-    let bizNames = new Map<string, string>();
-    if (bizIds.length > 0) {
-      const { data: bizData } = await supabase
-        .from("businesses")
-        .select("id, name")
-        .in("id", bizIds);
-      for (const b of bizData || []) {
-        bizNames.set(b.id, b.name);
+      const links = (data || []) as BrokenLink[];
+
+      // Fetch business names
+      const bizIds = [...new Set(links.map((l) => l.business_id))];
+      const bizNames = new Map<string, string>();
+      if (bizIds.length > 0) {
+        const { data: bizData, error: bizError } = await supabase
+          .from("businesses")
+          .select("id, name")
+          .in("id", bizIds);
+
+        if (bizError) throw bizError;
+
+        for (const b of bizData || []) {
+          bizNames.set(b.id, b.name);
+        }
       }
-    }
 
-    setBrokenLinks(
-      links.map((l) => ({
-        ...l,
-        business_name: bizNames.get(l.business_id) || l.business_id,
-      }))
-    );
-    setIsLoadingList(false);
+      setBrokenLinks(
+        links.map((l) => ({
+          ...l,
+          business_name: bizNames.get(l.business_id) || l.business_id,
+        }))
+      );
+    } catch (err: any) {
+      setBrokenLinks([]);
+      toast({
+        title: "Erreur",
+        description: `Impossible de charger les liens cassés (${err.message})`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingList(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -83,15 +98,19 @@ const BrokenLinksManagement = () => {
       const { data, error } = await supabase.functions.invoke("scan-broken-links");
       if (error) throw error;
       setSummary(data.summary || null);
-      await fetchBrokenLinks();
-      invalidateBrokenLinksCache();
       toast({
         title: "Scan terminé",
         description: `${data.summary?.brokenUrls || 0} URLs cassées détectées.`,
       });
     } catch (err: any) {
-      toast({ title: "Erreur", description: err.message, variant: "destructive" });
+      toast({
+        title: "Scan interrompu",
+        description: "Le scan a pris trop de temps, mais les résultats partiels ont été sauvegardés.",
+        variant: "destructive",
+      });
     } finally {
+      await fetchBrokenLinks();
+      invalidateBrokenLinksCache();
       setIsLoading(false);
     }
   }, [fetchBrokenLinks]);
