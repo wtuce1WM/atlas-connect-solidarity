@@ -4059,6 +4059,14 @@ const SearchPage = () => {
                               )}
                             </div>
                           )}
+                          {/* Label logos */}
+                          {businessLabelLogos[business.id]?.length > 0 && (
+                            <div className="flex gap-2 py-0.5">
+                              {businessLabelLogos[business.id].map((logoUrl, li) => (
+                                <img key={li} src={logoUrl} alt="" className="h-6 w-auto object-contain drop-shadow-lg" />
+                              ))}
+                            </div>
+                          )}
                           {business.city && (
                             <div className="flex items-center gap-1 text-xs text-white/60">
                               <MapPin className="h-3 w-3" />
