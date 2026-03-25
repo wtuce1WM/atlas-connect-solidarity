@@ -72,7 +72,7 @@ async function checkUrl(
 
     if (resp.status === 405) {
       const controller2 = new AbortController();
-      const timeout2 = setTimeout(() => controller2.abort(), 5000);
+      const timeout2 = setTimeout(() => controller2.abort(), 12000);
       const resp2 = await fetch(url, {
         method: "GET",
         redirect: "follow",
