@@ -16,6 +16,7 @@ interface YouTubeVideo {
 interface YouTubeShortsCarouselProps {
   youtubeUrl: string;
   onVideoCount?: (count: number) => void;
+  onPlayingChange?: (isPlaying: boolean) => void;
 }
 
 const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount }: YouTubeShortsCarouselProps) => {
