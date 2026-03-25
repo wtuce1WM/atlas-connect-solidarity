@@ -3004,83 +3004,86 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               />
             </div>
           )}
-          {videoDocs.map((doc, idx) => (
-            <div key={idx} className="space-y-2 p-3 border rounded-md bg-background">
-              <div className="flex items-center gap-2">
-                {/* Reorder arrows */}
-                <div className="flex flex-col gap-0.5 shrink-0">
-                  <Button type="button" variant="ghost" size="sm" className="h-5 w-5 p-0" disabled={idx === 0}
-                    onClick={() => setVideoDocs(prev => { const a = [...prev]; [a[idx - 1], a[idx]] = [a[idx], a[idx - 1]]; return a; })}>
-                    <ChevronUp className="h-3 w-3" />
-                  </Button>
-                  <Button type="button" variant="ghost" size="sm" className="h-5 w-5 p-0" disabled={idx === videoDocs.length - 1}
-                    onClick={() => setVideoDocs(prev => { const a = [...prev]; [a[idx], a[idx + 1]] = [a[idx + 1], a[idx]]; return a; })}>
-                    <ChevronDown className="h-3 w-3" />
-                  </Button>
-                </div>
-                <span className="text-xs text-muted-foreground shrink-0 w-5 text-center">{idx + 1}</span>
-                <Input
-                  value={doc.name}
-                  onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, name: e.target.value } : d))}
-                  placeholder="Titre (optionnel)"
-                  className="w-48 shrink-0"
-                />
-                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setVideoDocs(prev => prev.filter((_, i) => i !== idx))}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-              {/* Video preview / upload / URL input */}
-              {doc.url ? (
-                <div className="space-y-2">
-                  <div className="relative aspect-video w-full max-w-lg rounded-lg overflow-hidden border bg-black">
-                    {(() => {
-                      const url = doc.url;
-                      const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
-                      if (ytMatch) return <iframe src={`https://www.youtube.com/embed/${ytMatch[1]}`} className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />;
-                      const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-                      if (vimeoMatch) return <iframe src={`https://player.vimeo.com/video/${vimeoMatch[1]}`} className="w-full h-full" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen />;
-                      return <video src={url} controls className="w-full h-full object-contain" playsInline />;
-                    })()}
-                    <button type="button" onClick={() => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: "" } : d))}
-                      className="absolute top-2 right-2 p-1.5 bg-destructive text-destructive-foreground rounded-full opacity-80 hover:opacity-100 transition-opacity">
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <p className="text-xs text-muted-foreground truncate max-w-lg" title={doc.url}>
-                    {doc.url.includes("supabase.co/storage") ? "📦 Stockée en interne" : "🌐 URL externe"} — {doc.url}
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <Input
-                    value={doc.url}
-                    onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
-                    placeholder="Collez une URL vidéo (YouTube, Vimeo, lien direct…)"
-                  />
-                  <div className="flex items-center gap-2">
-                    <input type="file" accept="video/mp4,video/webm,video/quicktime" id={`video-doc-upload-${idx}`} className="hidden"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        if (file.size > 100 * 1024 * 1024) { toast({ variant: "destructive", title: "Fichier trop volumineux", description: "Max 100MB" }); return; }
-                        const ext = file.name.split(".").pop()?.toLowerCase() || "mp4";
-                        const fileName = `${business?.id || "new"}-${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
-                        const path = `businesses/${fileName}`;
-                        const { error } = await supabase.storage.from("business-videos").upload(path, file, { cacheControl: "3600", upsert: false });
-                        if (error) { toast({ variant: "destructive", title: "Erreur d'upload", description: error.message }); return; }
-                        const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
-                        if (urlData?.publicUrl) { setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: urlData.publicUrl } : d)); toast({ title: "Vidéo uploadée ✓" }); }
-                      }}
-                    />
-                    <Button type="button" variant="outline" size="sm" className="text-xs gap-1" onClick={() => document.getElementById(`video-doc-upload-${idx}`)?.click()}>
-                      <Upload className="h-3 w-3" /> Uploader un fichier
+          {/* Grid 3 columns */}
+          <div className="grid grid-cols-3 gap-3">
+            {videoDocs.map((doc, idx) => (
+              <div key={idx} className="space-y-1.5 p-2 border rounded-md bg-background relative group">
+                {/* Header: order + title + actions */}
+                <div className="flex items-center gap-1">
+                  <div className="flex gap-0.5 shrink-0">
+                    <Button type="button" variant="ghost" size="sm" className="h-5 w-5 p-0" disabled={idx === 0}
+                      onClick={() => setVideoDocs(prev => { const a = [...prev]; [a[idx - 1], a[idx]] = [a[idx], a[idx - 1]]; return a; })}>
+                      <ChevronUp className="h-3 w-3" />
                     </Button>
-                    <span className="text-xs text-muted-foreground">MP4, WebM, MOV • Max 100MB</span>
+                    <Button type="button" variant="ghost" size="sm" className="h-5 w-5 p-0" disabled={idx === videoDocs.length - 1}
+                      onClick={() => setVideoDocs(prev => { const a = [...prev]; [a[idx], a[idx + 1]] = [a[idx + 1], a[idx]]; return a; })}>
+                      <ChevronDown className="h-3 w-3" />
+                    </Button>
                   </div>
+                  <span className="text-[10px] text-muted-foreground shrink-0">{idx + 1}</span>
+                  <Input
+                    value={doc.name}
+                    onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, name: e.target.value } : d))}
+                    placeholder="Titre"
+                    className="h-6 text-xs flex-1 min-w-0"
+                  />
+                  <Button type="button" variant="ghost" size="sm" className="h-5 w-5 p-0 text-destructive hover:text-destructive shrink-0" title="Supprimer" onClick={() => setVideoDocs(prev => prev.filter((_, i) => i !== idx))}>
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
                 </div>
-              )}
-            </div>
-          ))}
+                {/* Preview or input */}
+                {doc.url ? (
+                  <div className="space-y-1">
+                    <div className="relative aspect-video w-full rounded overflow-hidden border bg-black">
+                      {(() => {
+                        const url = doc.url;
+                        const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
+                        if (ytMatch) return <iframe src={`https://www.youtube.com/embed/${ytMatch[1]}`} className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />;
+                        const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+                        if (vimeoMatch) return <iframe src={`https://player.vimeo.com/video/${vimeoMatch[1]}`} className="w-full h-full" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen />;
+                        return <video src={url} controls className="w-full h-full object-contain" playsInline />;
+                      })()}
+                      <button type="button" onClick={() => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: "" } : d))}
+                        className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full opacity-80 hover:opacity-100 transition-opacity">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground truncate" title={doc.url}>
+                      {doc.url.includes("supabase.co/storage") ? "📦" : "🌐"} {doc.url.split('/').pop()?.substring(0, 30)}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-1.5">
+                    <Input
+                      value={doc.url}
+                      onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
+                      placeholder="URL vidéo…"
+                      className="h-7 text-xs"
+                    />
+                    <div>
+                      <input type="file" accept="video/mp4,video/webm,video/quicktime" id={`video-doc-upload-${idx}`} className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          if (file.size > 100 * 1024 * 1024) { toast({ variant: "destructive", title: "Fichier trop volumineux", description: "Max 100MB" }); return; }
+                          const ext = file.name.split(".").pop()?.toLowerCase() || "mp4";
+                          const fileName = `${business?.id || "new"}-${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+                          const path = `businesses/${fileName}`;
+                          const { error } = await supabase.storage.from("business-videos").upload(path, file, { cacheControl: "3600", upsert: false });
+                          if (error) { toast({ variant: "destructive", title: "Erreur d'upload", description: error.message }); return; }
+                          const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
+                          if (urlData?.publicUrl) { setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: urlData.publicUrl } : d)); toast({ title: "Vidéo uploadée ✓" }); }
+                        }}
+                      />
+                      <Button type="button" variant="outline" size="sm" className="h-6 text-[10px] gap-1 w-full" onClick={() => document.getElementById(`video-doc-upload-${idx}`)?.click()}>
+                        <Upload className="h-3 w-3" /> Uploader
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
           {!formData.video_1_url && videoDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucune vidéo ajoutée.</p>}
         </div>
 
