@@ -155,7 +155,10 @@ Deno.serve(async (req) => {
       { ok: boolean; status: number | null; error?: string; domainChanged?: boolean; finalUrl?: string }
     >();
 
-    // Batch of 20 for speed
+    let totalBrokenPersisted = 0;
+    let totalOkDeactivated = 0;
+
+    // Process in batches of 20 and persist immediately after each batch
     for (let i = 0; i < uniqueUrls.length; i += 20) {
       const batch = uniqueUrls.slice(i, i + 20);
       const checks = await Promise.all(
@@ -164,6 +167,10 @@ Deno.serve(async (req) => {
           return { url, result };
         })
       );
+
+      const batchBrokenRows: any[] = [];
+      const batchOkUrls: string[] = [];
+
       for (const { url, result } of checks) {
         urlResults.set(url, result);
         if (!result.ok) {
@@ -171,65 +178,53 @@ Deno.serve(async (req) => {
             ? `DOMAIN CHANGED → ${result.finalUrl}`
             : `${result.status || result.error}`;
           console.log(`BROKEN: ${url} → ${reason}`);
+
+          // Collect broken entries for this URL
+          for (const entry of urlEntries.filter(e => e.url === url)) {
+            batchBrokenRows.push({
+              url: entry.url,
+              business_id: entry.businessId,
+              field_name: entry.field,
+              http_status: result.status,
+              error_message: result.domainChanged ? `Domain changed → ${result.finalUrl}` : (result.error || null),
+              is_active: true,
+              updated_at: new Date().toISOString(),
+            });
+          }
+        } else {
+          batchOkUrls.push(url);
         }
       }
-    }
 
-    // Persist broken links
-    const brokenEntries = urlEntries.filter((e) => {
-      const r = urlResults.get(e.url);
-      return r && !r.ok;
-    });
-
-    const okUrls = urlEntries
-      .filter((e) => {
-        const r = urlResults.get(e.url);
-        return r && r.ok;
-      })
-      .map((e) => e.url);
-
-    if (brokenEntries.length > 0) {
-      const rows = brokenEntries.map((e) => {
-        const r = urlResults.get(e.url)!;
-        return {
-          url: e.url,
-          business_id: e.businessId,
-          field_name: e.field,
-          http_status: r.status,
-          error_message: r.domainChanged ? `Domain changed → ${r.finalUrl}` : (r.error || null),
-          is_active: true,
-          updated_at: new Date().toISOString(),
-        };
-      });
-
-      for (let i = 0; i < rows.length; i += 50) {
-        const batch = rows.slice(i, i + 50);
+      // Persist broken links immediately
+      if (batchBrokenRows.length > 0) {
         const { error } = await supabase
           .from("broken_links")
-          .upsert(batch, { onConflict: "url,business_id,field_name" });
+          .upsert(batchBrokenRows, { onConflict: "url,business_id,field_name" });
         if (error) console.error("Upsert error:", error);
+        else totalBrokenPersisted += batchBrokenRows.length;
       }
-      console.log(`Upserted ${rows.length} broken link entries`);
-    }
 
-    // Deactivate previously broken links that are now OK
-    if (okUrls.length > 0) {
-      const chunkSize = 100;
-      for (let i = 0; i < okUrls.length; i += chunkSize) {
-        const chunk = okUrls.slice(i, i + chunkSize);
+      // Deactivate OK links immediately
+      if (batchOkUrls.length > 0) {
         await supabase
           .from("broken_links")
           .update({ is_active: false, updated_at: new Date().toISOString() })
-          .in("url", chunk)
+          .in("url", batchOkUrls)
           .eq("is_active", true);
+        totalOkDeactivated += batchOkUrls.length;
       }
+
+      console.log(`Progress: ${Math.min(i + 20, uniqueUrls.length)}/${uniqueUrls.length} URLs checked, ${totalBrokenPersisted} broken persisted`);
     }
+
+    const brokenCount = [...urlResults.values()].filter(r => !r.ok).length;
 
     const summary = {
       totalBusinesses: allBusinesses.length,
       totalUrls: uniqueUrls.length,
-      brokenUrls: new Set(brokenEntries.map((e) => e.url)).size,
-      brokenEntries: brokenEntries.length,
+      brokenUrls: brokenCount,
+      brokenEntries: totalBrokenPersisted,
     };
 
     console.log(`Done. ${summary.brokenUrls}/${summary.totalUrls} URLs broken.`);
