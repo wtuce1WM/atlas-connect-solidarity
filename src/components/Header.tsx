@@ -120,6 +120,16 @@ const Header = ({ variant = "default" }: HeaderProps) => {
           <li><Link to="/blog" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>{t("footer.blog")}</Link></li>
           <li><Link to="/devenir-affilie" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>{language === "ar" ? "أدرج شركتك" : language === "en" ? "List your business" : "Listez votre entreprise"}</Link></li>
         </ul>
+        <a
+          href="https://wa.me/212661439221"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-2 mt-3 self-center bg-[#25D366] hover:bg-[#1da851] text-white py-2.5 px-5 rounded-xl font-semibold text-sm transition-colors"
+          onClick={() => setMobileOpen(false)}
+        >
+          {SOCIAL_ICONS.social_whatsapp("h-4 w-4")}
+          WhatsApp
+        </a>
       </div>
 
       {/* Contact */}
