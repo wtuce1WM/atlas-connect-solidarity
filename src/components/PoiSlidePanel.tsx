@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation, Minimize2 } from "lucide-react";
+import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation, Minimize2, Map } from "lucide-react";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import DirectionsOverlay from "@/components/DirectionsOverlay";
 import MosaicOverlay from "@/components/MosaicOverlay";
+import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 
 interface PoiSlidePanelProps {
   businessId: string;
