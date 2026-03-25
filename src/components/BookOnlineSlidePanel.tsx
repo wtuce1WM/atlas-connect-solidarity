@@ -202,13 +202,13 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
       const [bizRes, woRes, destLinksRes, reviewsRes, extLinksRes, menuSumRes, menuDocsRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, reserve_now_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, online_shop_force_external, website_force_external, reserve_now_force_external, hook_fr, hook_en, hook_ar, description, facebook_url, instagram_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, vimeo_url, menu_url, menu_name, menu_language")
+          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, reserve_now_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, online_shop_force_external, website_force_external, reserve_now_force_external, hook_fr, hook_en, hook_ar, description, facebook_url, instagram_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, vimeo_url, menu_url, menu_name, menu_language, video_1_url")
           .eq("id", businessId)
           .eq("is_active", true)
           .maybeSingle(),
         supabase
           .from("business_web_only")
-          .select("description, videos, images")
+          .select("description")
           .eq("business_id", businessId)
           .maybeSingle(),
         supabase
@@ -243,7 +243,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
 
       const biz = bizRes.data as BookOnlineBusiness | null;
       setBusiness(biz);
-      setWebOnlyData(woRes.data as WebOnlyData | null);
+      const rawWoDesc = (woRes.data as any)?.description?.replace(/<[^>]*>/g, "").trim();
+      setWoDescription(rawWoDesc ? (woRes.data as any).description : biz?.description || null);
       setReviewTexts(reviewsRes.data ? (reviewsRes.data as any[]) : []);
       setExternalLinks((extLinksRes.data || []) as ExternalLinkItem[]);
       setMenuSummaries((menuSumRes.data || []) as MenuSummary[]);
@@ -298,11 +299,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   }, [businessId]);
 
   const bookUrl = business?.reserve_now_url || business?.website || null;
-  const videos = webOnlyData?.videos?.filter(Boolean) || [];
-  const woImages = webOnlyData?.images?.filter(Boolean) || [];
-  const images = woImages.length > 0 ? woImages : (business?.images?.filter(Boolean) || []);
-  const rawWoDesc = webOnlyData?.description?.replace(/<[^>]*>/g, "").trim();
-  const woDescription = (rawWoDesc ? webOnlyData!.description : business?.description) || null;
+  const videos = business?.video_1_url ? [business.video_1_url] : [];
+  const images = business?.images?.filter(Boolean) || [];
   const hasOpeningHours = business?.show_opening_hours !== false && (business?.is_open_24h || business?.opening_hours);
 
   const reviewPlatforms = useMemo(() => {
