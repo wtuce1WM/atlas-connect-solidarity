@@ -178,13 +178,13 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
       setWoDescription(rawWoDesc ? (woRes.data as any).description : (bizRes.data as any)?.description || null);
       setReviewTexts(reviewsRes.data ? (reviewsRes.data as any[]) : []);
       setExternalLinks((extLinksRes.data || []) as ExternalLinkItem[]);
+      setVideoDocUrls((videoDocsRes.data || []).map((d: any) => d.url).filter(Boolean));
       setIsLoading(false);
     };
     fetchData();
   }, [businessId]);
 
   const shopUrl = business?.online_shop_url || business?.website || null;
-  const videoDocUrls = (videoDocsRes?.data || []).map((d: any) => d.url).filter(Boolean);
   const legacyVideo = business?.video_1_url;
   const allVideoUrls = [...videoDocUrls];
   if (legacyVideo && !allVideoUrls.includes(legacyVideo)) allVideoUrls.unshift(legacyVideo);
