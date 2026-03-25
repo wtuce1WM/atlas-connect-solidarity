@@ -70,19 +70,19 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount }: YouTubeShortsCarous
   const regular = videos.filter((v) => !v.isShort);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Section title */}
       <div className="flex items-center gap-2">
         <YouTubeIcon className="h-5 w-5 text-red-600" />
-        <h3 className="text-sm font-semibold text-foreground">
+        <h3 className="text-sm font-semibold text-white tracking-wide" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
           {language === "en" ? "Latest Videos" : "Dernières vidéos"}
         </h3>
       </div>
 
       {/* Shorts row */}
       {shorts.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-xs text-muted-foreground font-medium">Shorts</p>
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium text-gold" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>Shorts</p>
           <VideoRow
             videos={shorts}
             scrollRef={scrollRef}
@@ -96,8 +96,8 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount }: YouTubeShortsCarous
 
       {/* Regular videos row */}
       {regular.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-xs text-muted-foreground font-medium">
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium text-gold" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
             {language === "en" ? "Videos" : "Vidéos"}
           </p>
           <VideoRow
