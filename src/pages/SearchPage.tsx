@@ -4059,23 +4059,23 @@ const SearchPage = () => {
                               )}
                             </div>
                           )}
-                          {/* Label logos */}
-                          {businessLabelLogos[business.id]?.length > 0 && (
-                            <div className="flex gap-2 py-0.5">
-                              {businessLabelLogos[business.id].map((logoUrl, li) => (
-                                <img key={li} src={logoUrl} alt="" className="h-6 w-auto object-contain drop-shadow-lg" />
-                              ))}
-                            </div>
-                          )}
                           {business.city && (
                             <div className="flex items-center gap-1 text-xs text-white/60">
                               <MapPin className="h-3 w-3" />
                               <span className="truncate">{business.neighborhood ? `${business.city}, ${business.neighborhood}` : business.city}</span>
+                              {/* Label logos - inline right */}
+                              {businessLabelLogos[business.id]?.length > 0 && (
+                                <div className="ml-auto flex gap-1.5 shrink-0">
+                                  {businessLabelLogos[business.id].map((logoUrl, li) => (
+                                    <img key={li} src={logoUrl} alt="" className="h-8 w-auto object-contain drop-shadow-lg" />
+                                  ))}
+                                </div>
+                              )}
                               {(() => {
                                 const dist = getDistanceKm(business);
                                 if (dist == null) return null;
                                 return (
-                                  <span className="ml-auto text-[10px] font-medium text-gold whitespace-nowrap">
+                                  <span className={`text-[10px] font-medium text-gold whitespace-nowrap ${businessLabelLogos[business.id]?.length ? '' : 'ml-auto'}`}>
                                     {dist < 1 ? `${Math.round(dist * 1000)} m` : `${dist.toFixed(1)} km`}
                                   </span>
                                 );
