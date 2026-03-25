@@ -4005,6 +4005,14 @@ const SearchPage = () => {
                             <img src={logoGold} alt="Vérifié" className="w-12 h-12 object-contain" />
                           </div>
                         )}
+                        {/* Label logos - bottom right */}
+                        {businessLabelLogos[business.id]?.length > 0 && (
+                          <div className="absolute bottom-2 right-2 z-[16] flex gap-1.5">
+                            {businessLabelLogos[business.id].map((logoUrl, li) => (
+                              <img key={li} src={logoUrl} alt="" className="h-8 w-auto object-contain drop-shadow-lg" />
+                            ))}
+                          </div>
+                        )}
                         <div className="absolute top-2 left-2 z-[15] flex flex-wrap gap-1">
                           {subcat && (
                             <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-gold text-gold-foreground">
