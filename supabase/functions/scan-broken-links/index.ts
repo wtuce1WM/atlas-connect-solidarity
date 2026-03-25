@@ -22,9 +22,17 @@ const URL_FIELDS = [
   "matterport_url",
 ];
 
+function extractDomain(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "").toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
 async function checkUrl(
   url: string
-): Promise<{ ok: boolean; status: number | null; error?: string }> {
+): Promise<{ ok: boolean; status: number | null; error?: string; domainChanged?: boolean; finalUrl?: string }> {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
@@ -51,14 +59,21 @@ async function checkUrl(
         },
       });
       clearTimeout(timeout2);
-      // Consume body to free resources
       await resp2.text().catch(() => {});
-      const ok = resp2.status >= 200 && resp2.status < 400;
-      return { ok, status: resp2.status };
+      const ok2 = resp2.status >= 200 && resp2.status < 400;
+      const domainChanged2 = ok2 && extractDomain(url) !== extractDomain(resp2.url);
+      return { ok: ok2 && !domainChanged2, status: resp2.status, domainChanged: domainChanged2, finalUrl: domainChanged2 ? resp2.url : undefined };
     }
 
     const ok = resp.status >= 200 && resp.status < 400;
-    return { ok, status: resp.status };
+    // Detect domain hijacking: original domain redirects to a completely different domain
+    const domainChanged = ok && extractDomain(url) !== extractDomain(resp.url);
+    return {
+      ok: ok && !domainChanged,
+      status: resp.status,
+      domainChanged,
+      finalUrl: domainChanged ? resp.url : undefined,
+    };
   } catch (err) {
     return {
       ok: false,
@@ -122,7 +137,7 @@ Deno.serve(async (req) => {
     // Check in batches of 10
     const urlResults = new Map<
       string,
-      { ok: boolean; status: number | null; error?: string }
+      { ok: boolean; status: number | null; error?: string; domainChanged?: boolean; finalUrl?: string }
     >();
 
     for (let i = 0; i < uniqueUrls.length; i += 10) {
@@ -136,9 +151,10 @@ Deno.serve(async (req) => {
       for (const { url, result } of checks) {
         urlResults.set(url, result);
         if (!result.ok) {
-          console.log(
-            `BROKEN: ${url} → ${result.status || result.error}`
-          );
+          const reason = result.domainChanged
+            ? `DOMAIN CHANGED → ${result.finalUrl}`
+            : `${result.status || result.error}`;
+          console.log(`BROKEN: ${url} → ${reason}`);
         }
       }
     }
@@ -164,7 +180,7 @@ Deno.serve(async (req) => {
           business_id: e.businessId,
           field_name: e.field,
           http_status: r.status,
-          error_message: r.error || null,
+          error_message: r.domainChanged ? `Domain changed → ${r.finalUrl}` : (r.error || null),
           is_active: true,
           updated_at: new Date().toISOString(),
         };
