@@ -888,8 +888,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             </div>
           </div>
 
-          {/* YouTube Shorts strip — above CTAs, edge-to-edge */}
-          {business?.youtube_url && (business as any)?.youtube_force_external && youtubeVideoCount !== 0 && (
+          {/* YouTube Shorts strip — only when YouTube wins priority */}
+          {activeBottomCarousel === "youtube" && business?.youtube_url && (business as any)?.youtube_force_external && youtubeVideoCount !== 0 && (
             <div className="pointer-events-auto -mr-4 md:-mr-6">
               <YouTubeShortsCarousel
                 youtubeUrl={business.youtube_url}
