@@ -53,11 +53,6 @@ const MenuUrlCard = ({ menus, language, animationDelay = "0ms", tallHeight, onOp
             className="w-full flex items-center gap-3 rounded-xl bg-white/10 hover:bg-white/20 transition-colors px-3 py-2.5 text-left"
           >
             <img src={getDocIconSrc(m.icon || "icon_menu")} alt="" className="h-5 w-5 object-contain shrink-0" />
-            {m.language && (
-              <span className="text-sm shrink-0" title={getLangAlt(m.language)}>
-                {getLangFlag(m.language)}
-              </span>
-            )}
             <span className="text-sm text-white/90 truncate flex-1" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
               {m.name || (language === "en" ? "View menu" : "Voir la carte")}
             </span>
