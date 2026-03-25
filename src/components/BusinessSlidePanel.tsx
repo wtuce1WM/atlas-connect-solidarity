@@ -24,6 +24,7 @@ import { Separator } from "@/components/ui/separator";
 import { FacebookIcon, InstagramIcon, LinkedInIcon, YouTubeIcon, TikTokIcon, TwitterIcon, PinterestIcon, VimeoIcon } from "@/components/staff/SocialMediaIcons";
 import BookingOverlay from "@/components/BookingOverlay";
 import SocialEmbedsTab from "@/components/SocialEmbedsTab";
+import YouTubeShortsCarousel from "@/components/YouTubeShortsCarousel";
 import DynamicIcon from "@/components/DynamicIcon";
 import ServiceListItem from "@/components/ServiceListItem";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
@@ -2484,6 +2485,14 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
                   )}
                 </div>
               </div>
+              <Separator />
+            </>
+          )}
+
+          {/* YouTube Shorts/Videos from channel */}
+          {business.youtube_url && (
+            <>
+              <YouTubeShortsCarousel youtubeUrl={business.youtube_url} />
               <Separator />
             </>
           )}
