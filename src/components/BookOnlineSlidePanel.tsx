@@ -743,7 +743,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 </div>
               )}
               <div className="min-w-0 flex-1 text-center md:text-left md:pr-28">
-                <h2 className={`text-xl font-bold uppercase${business.name.length > 18 ? ' line-clamp-2 md:truncate' : ' truncate'}`} style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>{business.name}</h2>
+                <h2 className={`text-xl font-bold uppercase${business.name.length > 18 ? ' line-clamp-2 lg:truncate' : ' truncate'}`} style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>{business.name}</h2>
                 {(business.city || business.neighborhood) ? (
                   <p className={`text-xs md:text-sm text-white/80 flex items-center gap-1 mt-0.5 justify-center md:justify-start${business.name.length > 18 ? ' hidden lg:flex' : ''}`}>
                     <MapPin className="h-3.5 w-3.5" />
