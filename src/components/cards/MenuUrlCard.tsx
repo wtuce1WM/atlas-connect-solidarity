@@ -45,18 +45,17 @@ const MenuUrlCard = ({ menus, language, animationDelay = "0ms", tallHeight, onOp
         </h3>
       </div>
 
-      <div className="space-y-2">
+      <div className="flex flex-wrap gap-4">
         {menus.map((m) => (
           <button
             key={m.id}
             onClick={() => onOpenUrl(m.url, m.name || (language === "en" ? "Menu" : "La Carte"))}
-            className="w-full flex items-center gap-3 rounded-xl bg-white/10 hover:bg-white/20 transition-colors px-3 py-2.5 text-left"
+            className="flex flex-col items-center gap-1.5 rounded-xl bg-white/10 hover:bg-white/20 transition-colors px-4 py-3"
           >
-            <img src={getDocIconSrc(m.icon || "icon_menu")} alt="" className="h-5 w-5 object-contain shrink-0" />
-            <span className="text-sm text-white/90 truncate flex-1" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+            <img src={getDocIconSrc(m.icon || "icon_menu")} alt="" className="w-auto h-auto max-h-16 object-contain" />
+            <span className="text-xs text-white/90 text-center" style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: '0.02em' }}>
               {m.name || (language === "en" ? "View menu" : "Voir la carte")}
             </span>
-            <ExternalLink className="h-3.5 w-3.5 text-white/50 shrink-0" />
           </button>
         ))}
       </div>
