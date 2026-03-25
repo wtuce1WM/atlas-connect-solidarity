@@ -242,7 +242,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
           .from("business_documents")
           .select("id, name, url, language, icon")
           .eq("business_id", businessId)
-          .eq("type", "menu")
+          .in("type", ["menu", "flipbook"])
           .order("sort_order"),
         supabase
           .from("business_documents")
