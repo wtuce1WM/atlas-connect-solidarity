@@ -23,7 +23,7 @@ interface Props {
   onSaved: () => void;
 }
 
-const MAX_DESCRIPTION_LENGTH = 1500;
+const MAX_DESCRIPTION_LENGTH = 5000;
 
 const CertificationMetadataDialog = ({ certificationName, onClose, onSaved }: Props) => {
   const [loading, setLoading] = useState(true);
