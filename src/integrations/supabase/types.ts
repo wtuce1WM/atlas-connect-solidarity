@@ -1241,6 +1241,39 @@ export type Database = {
         }
         Relationships: []
       }
+      certification_metadata: {
+        Row: {
+          certification_name: string
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          link_title: string | null
+          link_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          certification_name: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          link_title?: string | null
+          link_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          certification_name?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          link_title?: string | null
+          link_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       cities: {
         Row: {
           country_id: string

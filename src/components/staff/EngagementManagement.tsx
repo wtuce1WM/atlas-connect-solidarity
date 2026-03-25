@@ -9,7 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ChevronDown, ChevronRight, Plus, Loader2, Eye, ExternalLink, ShieldCheck } from "lucide-react";
+import { ChevronDown, ChevronRight, Plus, Loader2, Eye, ExternalLink, ShieldCheck, Settings2 } from "lucide-react";
+import CertificationMetadataDialog from "./CertificationMetadataDialog";
 import { toast } from "sonner";
 
 interface Props {
@@ -52,6 +53,7 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
   // Popup state
   const [popup, setPopup] = useState<{ title: string; businesses: BusinessMini[]; loading: boolean } | null>(null);
   const [popupCityFilter, setPopupCityFilter] = useState<string>("all");
+  const [editingCert, setEditingCert] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -196,13 +198,13 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
                   <TableRow>
                     <TableHead>Nom</TableHead>
                     <TableHead className="text-center w-[100px]">Utilisations</TableHead>
-                    
+                    {type === "certifications" && <TableHead className="w-[60px]"></TableHead>}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {items.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={2} className="text-center text-muted-foreground py-6 text-sm">
+                      <TableCell colSpan={type === "certifications" ? 3 : 2} className="text-center text-muted-foreground py-6 text-sm">
                         Aucun élément
                       </TableCell>
                     </TableRow>
@@ -228,6 +230,19 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
                               <Eye className="h-3.5 w-3.5" /> {count}
                             </Button>
                           </TableCell>
+                          {type === "certifications" && (
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7"
+                                title="Modifier métadonnées"
+                                onClick={() => setEditingCert(item)}
+                              >
+                                <Settings2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </TableCell>
+                          )}
                         </TableRow>
                       );
                     })
@@ -332,6 +347,12 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
           )}
         </DialogContent>
       </Dialog>
+
+      <CertificationMetadataDialog
+        certificationName={editingCert}
+        onClose={() => setEditingCert(null)}
+        onSaved={() => {}}
+      />
     </>
   );
 };
