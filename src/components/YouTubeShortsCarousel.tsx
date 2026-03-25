@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { ChevronLeft, ChevronRight, Play, Loader2, ExternalLink } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play, Loader2, X, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { YouTubeIcon } from "@/components/staff/SocialMediaIcons";
@@ -24,13 +24,18 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange }: Yo
   const [videos, setVideos] = useState<YouTubeVideo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [playingId, setPlayingId] = useState<string | null>(null);
-
-  const handlePlay = useCallback((id: string | null) => {
-    setPlayingId(id);
-    onPlayingChange?.(!!id);
-  }, [onPlayingChange]);
+  const [activeVideo, setActiveVideo] = useState<YouTubeVideo | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const handlePlay = useCallback((video: YouTubeVideo | null) => {
+    setActiveVideo(video);
+    onPlayingChange?.(!!video);
+  }, [onPlayingChange]);
+
+  const handleClose = useCallback(() => {
+    setActiveVideo(null);
+    onPlayingChange?.(false);
+  }, [onPlayingChange]);
 
   useEffect(() => {
     if (!youtubeUrl) return;
@@ -85,6 +90,43 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange }: Yo
         </h3>
       </div>
 
+      {/* Active video overlay player */}
+      {activeVideo && (
+        <div className="rounded-xl overflow-hidden bg-black/60 backdrop-blur-sm border border-white/10 animate-fade-in">
+          <div className="flex items-center justify-between px-3 py-2">
+            <p className="text-xs text-white font-medium truncate flex-1 mr-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+              {activeVideo.title}
+            </p>
+            <div className="flex items-center gap-2">
+              <a
+                href={`https://www.youtube.com/${activeVideo.isShort ? 'shorts/' : 'watch?v='}${activeVideo.videoId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ExternalLink className="h-3 w-3 text-white" />
+              </a>
+              <button
+                onClick={handleClose}
+                className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+              >
+                <X className="h-3.5 w-3.5 text-white" />
+              </button>
+            </div>
+          </div>
+          <div className={`w-full ${activeVideo.isShort ? "aspect-[9/16] max-h-[60vh] mx-auto" : "aspect-video"}`}
+               style={activeVideo.isShort ? { maxWidth: "280px" } : undefined}>
+            <iframe
+              src={`https://www.youtube-nocookie.com/embed/${activeVideo.videoId}?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1`}
+              className="w-full h-full"
+              allow="autoplay; encrypted-media"
+              allowFullScreen
+            />
+          </div>
+        </div>
+      )}
+
       {/* Shorts row */}
       {shorts.length > 0 && (
         <div className="space-y-1.5">
@@ -92,7 +134,7 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange }: Yo
           <VideoRow
             videos={shorts}
             scrollRef={scrollRef}
-            playingId={playingId}
+            activeVideoId={activeVideo?.videoId ?? null}
             onPlay={handlePlay}
             onScroll={scroll}
             isShort
@@ -109,7 +151,7 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange }: Yo
           <VideoRow
             videos={regular}
             scrollRef={shorts.length > 0 ? undefined : scrollRef}
-            playingId={playingId}
+            activeVideoId={activeVideo?.videoId ?? null}
             onPlay={handlePlay}
             onScroll={scroll}
             isShort={false}
@@ -123,13 +165,13 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange }: Yo
 interface VideoRowProps {
   videos: YouTubeVideo[];
   scrollRef?: React.RefObject<HTMLDivElement>;
-  playingId: string | null;
-  onPlay: (id: string | null) => void;
+  activeVideoId: string | null;
+  onPlay: (video: YouTubeVideo | null) => void;
   onScroll: (dir: number) => void;
   isShort: boolean;
 }
 
-function VideoRow({ videos, scrollRef, playingId, onPlay, onScroll, isShort }: VideoRowProps) {
+function VideoRow({ videos, scrollRef, activeVideoId, onPlay, onScroll, isShort }: VideoRowProps) {
   const localRef = useRef<HTMLDivElement>(null);
   const ref = scrollRef || localRef;
 
@@ -160,40 +202,44 @@ function VideoRow({ videos, scrollRef, playingId, onPlay, onScroll, isShort }: V
         ref={ref as React.RefObject<HTMLDivElement>}
         className="flex gap-3 overflow-x-auto scrollbar-hide scroll-smooth pb-1"
       >
-        {videos.map((video) => (
-          <div
-            key={video.videoId}
-            className={`flex-shrink-0 rounded-xl overflow-hidden bg-black relative cursor-pointer group/card ${
-              isShort ? "w-[140px] aspect-[9/16]" : "w-[200px] aspect-video"
-            }`}
-            onClick={() => onPlay(playingId === video.videoId ? null : video.videoId)}
-          >
-            {playingId === video.videoId ? (
-              <iframe
-                src={`https://www.youtube-nocookie.com/embed/${video.videoId}?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1`}
-                className="w-full h-full"
-                allow="autoplay; encrypted-media"
-                allowFullScreen
+        {videos.map((video) => {
+          const isActive = activeVideoId === video.videoId;
+          return (
+            <div
+              key={video.videoId}
+              className={`flex-shrink-0 rounded-xl overflow-hidden bg-black relative cursor-pointer group/card transition-all ${
+                isShort ? "w-[140px] aspect-[9/16]" : "w-[200px] aspect-video"
+              } ${isActive ? "ring-2 ring-red-500 opacity-100" : "opacity-90 hover:opacity-100"}`}
+              onClick={() => onPlay(isActive ? null : video)}
+            >
+              <img
+                src={video.thumbnail}
+                alt={video.title}
+                className="w-full h-full object-cover"
               />
-            ) : (
-              <>
-                <img
-                  src={video.thumbnail}
-                  alt={video.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-100 group-hover/card:bg-black/40 transition-colors">
+              <div className={`absolute inset-0 flex items-center justify-center transition-colors ${
+                isActive ? "bg-black/50" : "bg-black/20 group-hover/card:bg-black/40"
+              }`}>
+                {isActive ? (
+                  <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                    <div className="flex gap-0.5">
+                      <span className="w-1 h-4 bg-white rounded-full animate-pulse" />
+                      <span className="w-1 h-4 bg-white rounded-full animate-pulse" style={{ animationDelay: "0.15s" }} />
+                      <span className="w-1 h-4 bg-white rounded-full animate-pulse" style={{ animationDelay: "0.3s" }} />
+                    </div>
+                  </div>
+                ) : (
                   <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
                     <Play className="h-5 w-5 text-white fill-white ml-0.5" />
                   </div>
-                </div>
-                <p className="absolute bottom-0 left-0 right-0 px-2 py-1.5 text-[10px] leading-tight text-white font-medium bg-gradient-to-t from-black/80 to-transparent line-clamp-2">
-                  {video.title}
-                </p>
-              </>
-            )}
-          </div>
-        ))}
+                )}
+              </div>
+              <p className="absolute bottom-0 left-0 right-0 px-2 py-1.5 text-[10px] leading-tight text-white font-medium bg-gradient-to-t from-black/80 to-transparent line-clamp-2">
+                {video.title}
+              </p>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
