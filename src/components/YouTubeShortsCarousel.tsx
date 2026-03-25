@@ -157,11 +157,12 @@ function VideoRow({ videos, scrollRef, activeVideoId, onPlay, onScroll, isShort,
           return (
             <div
               key={video.videoId}
-              className={`flex-shrink-0 rounded-xl overflow-hidden bg-black relative cursor-pointer group/card transition-all ${
+              className={`flex-shrink-0 rounded-xl bg-black relative cursor-pointer group/card transition-all ${
                 isShort ? (size === "large" ? "w-[190px] aspect-[9/16]" : "w-[140px] aspect-[9/16]") : (size === "large" ? "w-[260px] aspect-video" : "w-[200px] aspect-video")
-              } ${isActive ? "ring-2 ring-red-500 opacity-100" : "opacity-90 hover:opacity-100"}`}
+              } ${isActive ? "ring-2 ring-offset-1 ring-offset-black ring-red-500 opacity-100" : "opacity-90 hover:opacity-100"}`}
               onClick={() => onPlay(video)}
             >
+             <div className="absolute inset-0 rounded-xl overflow-hidden">
               <img
                 src={video.thumbnail}
                 alt={video.title}
