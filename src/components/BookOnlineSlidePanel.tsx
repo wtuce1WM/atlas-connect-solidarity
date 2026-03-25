@@ -386,7 +386,22 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
   const hasContactCard = !!(business?.phone || business?.whatsapp || business?.email || business?.website || business?.address);
   const hasReviewsCard = avgOn20 !== null && avgOn20 > 0;
-  const noBottomCarousel = (destinations.length === 0 && poiBusinesses.length === 0) || (youtubeVideoCount != null && youtubeVideoCount > 0);
+
+  // Priority-based bottom carousel: KP > YouTube > Destinations > POI
+  const hasKpCarousel = kpRelated.length > 0;
+  const hasYoutubeBottomCarousel = !!(business?.youtube_url && (business as any)?.youtube_force_external && youtubeVideoCount !== 0);
+  const hasYoutubeReady = !!(youtubeVideoCount && youtubeVideoCount > 0);
+  const hasDestPoiCarousel = destinations.length > 0 || poiBusinesses.length > 0;
+
+  const activeBottomCarousel: "kp" | "youtube" | "destpoi" | "none" =
+    hasKpCarousel ? "kp" :
+    (hasYoutubeBottomCarousel && hasYoutubeReady) ? "youtube" :
+    // YouTube still loading (count not yet known) — reserve slot
+    hasYoutubeBottomCarousel ? "youtube" :
+    hasDestPoiCarousel ? "destpoi" :
+    "none";
+
+  const noBottomCarousel = activeBottomCarousel === "none";
 
   // Hook text for current language
   const hookText = useMemo(() => {
@@ -873,8 +888,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             </div>
           </div>
 
-          {/* YouTube Shorts strip — above CTAs, edge-to-edge */}
-          {business?.youtube_url && (business as any)?.youtube_force_external && youtubeVideoCount !== 0 && (
+          {/* YouTube Shorts strip — only when YouTube wins priority */}
+          {activeBottomCarousel === "youtube" && business?.youtube_url && (business as any)?.youtube_force_external && youtubeVideoCount !== 0 && (
             <div className="pointer-events-auto -mr-4 md:-mr-6">
               <YouTubeShortsCarousel
                 youtubeUrl={business.youtube_url}
@@ -887,9 +902,20 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               />
             </div>
           )}
+          {/* Hidden YouTube count probe when YouTube doesn't win priority but is enabled */}
+          {activeBottomCarousel !== "youtube" && business?.youtube_url && (business as any)?.youtube_force_external && youtubeVideoCount === null && (
+            <div className="hidden">
+              <YouTubeShortsCarousel
+                youtubeUrl={business.youtube_url}
+                onVideoCount={setYoutubeVideoCount}
+                shortsOnly
+                hideLabel
+              />
+            </div>
+          )}
 
-          {/* Destinations & POI horizontal scroll — hidden when YouTube carousel is visible */}
-          {(destinations.length > 0 || poiBusinesses.length > 0) && !(youtubeVideoCount && youtubeVideoCount > 0) && (
+          {/* Destinations & POI — only when destpoi wins priority */}
+          {activeBottomCarousel === "destpoi" && (
             <>
             <div className="flex justify-center mt-6 mb-1.5 pointer-events-auto">
               <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
@@ -954,8 +980,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             </>
           )}
 
-          {/* KP Related Establishments carousel */}
-          {kpRelated.length > 0 && (
+          {/* KP Related Establishments carousel — highest priority */}
+          {activeBottomCarousel === "kp" && (
             <>
             <div className="flex justify-center mt-4 mb-1.5 pointer-events-auto">
               <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
