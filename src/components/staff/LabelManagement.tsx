@@ -276,6 +276,10 @@ const LabelManagement = () => {
       toast({ variant: "destructive", title: "Erreur", description: "Le nom en français est requis." });
       return;
     }
+    if ([editForm.description_fr, editForm.description_en, editForm.description_ar].some(d => plainTextLength(d) > 1500)) {
+      toast({ variant: "destructive", title: "Erreur", description: "Une description dépasse 1500 caractères." });
+      return;
+    }
 
     const { error } = await supabase
       .from("labels" as any)
