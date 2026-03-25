@@ -54,6 +54,7 @@ const MenuUrlCard = ({ menus, language, animationDelay = "0ms", tallHeight, onOp
           >
             {m.icon ? (
               <img src={getDocIconSrc(m.icon)} alt="" className="h-5 w-5 object-contain shrink-0" />
+            ) : m.language ? (
               <img
                 src={getLangFlag(m.language)}
                 alt={getLangAlt(m.language)}
