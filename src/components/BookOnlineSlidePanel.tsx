@@ -28,6 +28,7 @@ import type { MenuDoc } from "@/components/cards/MenuUrlCard";
 import DirectionsOverlay from "@/components/DirectionsOverlay";
 import MosaicOverlay from "@/components/MosaicOverlay";
 import { useDragToHide } from "@/hooks/useDragToHide";
+import { useBrokenLinks } from "@/hooks/useBrokenLinks";
 
 interface BookOnlineSlidePanelProps {
   businessId: string;
@@ -125,6 +126,7 @@ type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string }
 
 const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }: BookOnlineSlidePanelProps) => {
   const { language } = useLanguage();
+  const { brokenUrls: brokenLinksSet, loaded: brokenLinksLoaded } = useBrokenLinks();
   
   const [business, setBusiness] = useState<BookOnlineBusiness | null>(null);
   const [woDescription, setWoDescription] = useState<string | null>(null);
@@ -264,7 +266,11 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
       if (biz?.menu_url && !docs.some(d => d.url === biz.menu_url)) {
         docs.unshift({ id: 'legacy-menu', name: biz.menu_name, url: biz.menu_url, language: biz.menu_language });
       }
-      setMenuDocs(docs);
+      // Filter out broken links from menu docs
+      const filteredDocs = brokenLinksLoaded
+        ? docs.filter(d => !brokenLinksSet.has(d.url))
+        : docs;
+      setMenuDocs(filteredDocs);
 
       // Fetch destination details (depends on destLinksRes)
       const destIds = (destLinksRes.data || []).map(d => d.destination_id);
