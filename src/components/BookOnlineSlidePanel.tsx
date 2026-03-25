@@ -28,6 +28,7 @@ import type { MenuDoc } from "@/components/cards/MenuUrlCard";
 import DirectionsOverlay from "@/components/DirectionsOverlay";
 import MosaicOverlay from "@/components/MosaicOverlay";
 import { useDragToHide } from "@/hooks/useDragToHide";
+import { useBrokenLinks } from "@/hooks/useBrokenLinks";
 
 interface BookOnlineSlidePanelProps {
   businessId: string;
