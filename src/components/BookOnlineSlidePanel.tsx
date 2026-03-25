@@ -353,6 +353,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
 
   const hasContactCard = !!(business?.phone || business?.whatsapp || business?.email || business?.website || business?.address);
   const hasReviewsCard = avgOn20 !== null && avgOn20 > 0;
+  const noBottomCarousel = (destinations.length === 0 && poiBusinesses.length === 0) || (youtubeVideoCount != null && youtubeVideoCount > 0);
 
   // Hook text for current language
   const hookText = useMemo(() => {
