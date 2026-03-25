@@ -234,35 +234,91 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
             </div>
           )}
 
-          {/* Content block */}
-          <div className="flex-1 flex items-start justify-center overflow-hidden min-h-0">
-            <div className="w-[95%] md:w-[90%] lg:w-[70%] max-h-full overflow-hidden rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 flex flex-col gap-5 text-white">
-              {/* Name + toggle */}
-              <div className="flex items-end gap-4">
-                <div className="min-w-0 flex-1">
-                  <h2 className="text-xl font-bold truncate drop-shadow-lg">{poi.name}</h2>
-                  {poi.poi_hook && (
-                    <p className="text-sm text-white/70 mt-1 line-clamp-2">{poi.poi_hook}</p>
-                  )}
+          {/* Flip card container */}
+          <div className="flex-1 flex items-start justify-center overflow-hidden min-h-0" style={{ perspective: "1200px" }}>
+            <div
+              className="w-[95%] md:w-[90%] lg:w-[70%] max-h-full relative"
+              style={{
+                transformStyle: "preserve-3d",
+                transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+                transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
+              }}
+            >
+              {/* FRONT — Description */}
+              <div
+                className="rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 flex flex-col gap-5 text-white overflow-hidden max-h-full"
+                style={{ backfaceVisibility: "hidden" }}
+              >
+                {/* Name + toggle */}
+                <div className="flex items-end gap-4">
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-xl font-bold truncate drop-shadow-lg">{poi.name}</h2>
+                    {poi.poi_hook && (
+                      <p className="text-sm text-white/70 mt-1 line-clamp-2">{poi.poi_hook}</p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {linkedBusinesses.length > 0 && (
+                      <button
+                        onClick={() => setFlipped(true)}
+                        className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                        aria-label="Voir la carte"
+                        title="Voir sur la carte"
+                      >
+                        <Map className="h-4 w-4" />
+                      </button>
+                    )}
+                    {displayDescription && (
+                      <button
+                        onClick={() => setDescExpanded((p) => !p)}
+                        className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                        aria-label={descExpanded ? "Replier" : "Déplier"}
+                      >
+                        {descExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+                      </button>
+                    )}
+                  </div>
                 </div>
-                {displayDescription && (
-                  <button
-                    onClick={() => setDescExpanded((p) => !p)}
-                    className="shrink-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-                    aria-label={descExpanded ? "Replier" : "Déplier"}
-                  >
-                    {descExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-                  </button>
+
+                {/* Description */}
+                {displayDescription && descExpanded && (
+                  <div
+                    className="min-h-0 max-h-[460px] md:max-h-[600px] lg:max-h-[730px] overflow-y-auto pr-1 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words prose-josefin-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
+                    dangerouslySetInnerHTML={{ __html: displayDescription }}
+                  />
                 )}
               </div>
 
-              {/* Description */}
-              {displayDescription && descExpanded && (
-                <div
-                  className="min-h-0 max-h-[460px] md:max-h-[600px] lg:max-h-[730px] overflow-y-auto pr-1 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words prose-josefin-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
-                  dangerouslySetInnerHTML={{ __html: displayDescription }}
-                />
-              )}
+              {/* BACK — Google Map */}
+              <div
+                className="absolute inset-0 rounded-2xl bg-black/60 backdrop-blur-sm overflow-hidden flex flex-col"
+                style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+              >
+                {/* Back header */}
+                <div className="flex items-center gap-3 p-4 text-white">
+                  <button
+                    onClick={() => setFlipped(false)}
+                    className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                    aria-label="Retourner"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  <h3 className="text-sm font-semibold truncate">
+                    {language === "en" ? "Nearby businesses" : "Établissements à proximité"}
+                  </h3>
+                </div>
+                {/* Map */}
+                <div className="flex-1 min-h-0">
+                  {flipped && (
+                    <PoiGoogleMap
+                      pois={linkedBusinesses}
+                      selectedPoiId={null}
+                      center={poi.latitude && poi.longitude ? { lat: poi.latitude, lng: poi.longitude } : undefined}
+                      fitToMarkers
+                    />
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
