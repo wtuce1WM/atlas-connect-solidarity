@@ -1865,7 +1865,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
                         if (isInlineDoc) {
                           e.preventDefault();
                           const docType = isFlipbook ? 'flipbook' : isPdf ? 'pdf' : 'webpage';
-                          setDocOverlay({ url: doc.url, name: doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu"), type: docType });
+                          setDocOverlay({ url: doc.url, name: doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu"), type: docType, ts: Date.now() });
                         }
                       };
                       return (
