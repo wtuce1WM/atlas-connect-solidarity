@@ -824,8 +824,9 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
             </div>
           </div>
 
+          {/* Hidden YouTube fetcher — carousel only visible inside the overlay */}
           {business?.youtube_url && youtubeVideoCount !== 0 && (
-            <div className="mt-2 mb-2 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 p-3 pointer-events-auto">
+            <div className="hidden">
               <YouTubeShortsCarousel
                 youtubeUrl={business.youtube_url}
                 onVideoCount={setYoutubeVideoCount}
