@@ -164,10 +164,16 @@ const BlockedDomainsManagement = () => {
         </p>
 
         {summary && (
-          <div className="flex gap-4 text-sm">
+          <div className="flex gap-4 text-sm flex-wrap">
             <Badge variant="outline">{summary.totalDomains} domaines scannés</Badge>
             <Badge variant="destructive">{summary.blockedDomains} bloqués</Badge>
             <Badge variant="secondary">{summary.totalBusinessesAffected} établissements concernés</Badge>
+            {summary.autoForcedExternal > 0 && (
+              <Badge variant="destructive">{summary.autoForcedExternal} → lien externe activé</Badge>
+            )}
+            {summary.autoUnforcedExternal > 0 && (
+              <Badge className="bg-green-600 text-white hover:bg-green-700">{summary.autoUnforcedExternal} → lien externe désactivé</Badge>
+            )}
           </div>
         )}
 
