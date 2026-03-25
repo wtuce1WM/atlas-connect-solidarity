@@ -1,11 +1,13 @@
 import { UtensilsCrossed, ExternalLink } from "lucide-react";
 import { getLangFlag, getLangAlt } from "@/lib/languageFlags";
+import DynamicIcon from "@/components/DynamicIcon";
 
 interface MenuDoc {
   id: string;
   name: string | null;
   url: string;
   language: string | null;
+  icon: string | null;
 }
 
 interface MenuUrlCardProps {
@@ -39,19 +41,26 @@ const MenuUrlCard = ({ menus, language, animationDelay = "0ms", tallHeight, onOp
           <button
             key={m.id}
             onClick={() => onOpenUrl(m.url, m.name || (language === "en" ? "Menu" : "La Carte"))}
-            className="w-full flex items-center gap-3 rounded-xl bg-white/10 hover:bg-white/20 transition-colors px-3 py-2.5 text-left"
+            className="w-full flex flex-col items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 transition-colors px-3 py-3 text-center"
           >
-            {m.language && (
-              <img
-                src={getLangFlag(m.language)}
-                alt={getLangAlt(m.language)}
-                className="h-4 w-5 rounded-sm object-cover shrink-0"
-              />
-            )}
-            <span className="text-sm text-white/90 truncate flex-1" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+            <div className="flex items-center gap-2">
+              {m.icon ? (
+                <DynamicIcon name={m.icon} className="h-5 w-5 text-gold" size={20} />
+              ) : (
+                <UtensilsCrossed className="h-5 w-5 text-gold" />
+              )}
+              {m.language && (
+                <img
+                  src={getLangFlag(m.language)}
+                  alt={getLangAlt(m.language)}
+                  className="h-4 w-5 rounded-sm object-cover shrink-0"
+                />
+              )}
+              <ExternalLink className="h-3.5 w-3.5 text-white/50 shrink-0" />
+            </div>
+            <span className="text-xs text-white/80 truncate max-w-full" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
               {m.name || (language === "en" ? "View menu" : "Voir la carte")}
             </span>
-            <ExternalLink className="h-3.5 w-3.5 text-white/50 shrink-0" />
           </button>
         ))}
       </div>
