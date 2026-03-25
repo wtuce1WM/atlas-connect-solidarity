@@ -150,7 +150,7 @@ function VideoRow({ videos, scrollRef, activeVideoId, onPlay, onScroll, isShort,
 
       <div
         ref={ref as React.RefObject<HTMLDivElement>}
-        className="flex gap-3 overflow-x-auto scrollbar-hide scroll-smooth pb-1"
+        className="flex gap-3 overflow-x-auto scrollbar-hide scroll-smooth pt-1 pb-1 -mt-1"
       >
         {videos.map((video) => {
           const isActive = activeVideoId === video.videoId;
