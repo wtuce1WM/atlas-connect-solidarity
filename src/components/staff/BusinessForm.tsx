@@ -3308,9 +3308,16 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 {formData.youtube_url ? <a href={formData.youtube_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">YouTube ↗</a> : "YouTube"}
               </Label>
               <div className="flex items-center gap-1">
+                <Switch
+                  checked={(formData as any).youtube_force_external}
+                  onCheckedChange={(checked) => handleChange("youtube_force_external", checked)}
+                  title="Ouvrir en lien externe"
+                  className="shrink-0"
+                />
                 <Input id="youtube_url" value={formData.youtube_url} onChange={(e) => handleChange("youtube_url", e.target.value)} placeholder="https://youtube.com/@..." className="flex-1" />
                 {formData.youtube_url && <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" onClick={() => handleChange("youtube_url", "")}><Trash2 className="h-4 w-4" /></Button>}
               </div>
+              {(formData as any).youtube_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
               <BrokenUrlBadge url={formData.youtube_url} />
             </div>
 
