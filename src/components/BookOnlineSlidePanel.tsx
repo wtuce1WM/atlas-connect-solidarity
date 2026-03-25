@@ -137,6 +137,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const [showBookingOverlay, setShowBookingOverlay] = useState(false);
   const [bookingOverlayUrl, setBookingOverlayUrl] = useState<string | null>(null);
   const [bookingOverlayTitle, setBookingOverlayTitle] = useState<string | undefined>(undefined);
+  const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook'; ts: number } | null>(null);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
   const [reviewTexts, setReviewTexts] = useState<ReviewText[]>([]);
