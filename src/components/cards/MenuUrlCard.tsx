@@ -1,6 +1,15 @@
 import { UtensilsCrossed, ExternalLink } from "lucide-react";
 import { getLangFlag, getLangAlt } from "@/lib/languageFlags";
-import DynamicIcon from "@/components/DynamicIcon";
+
+const DOC_ICON_MAP: Record<string, string> = {
+  icon_menu: "icon_menu.png",
+  icon_wine: "icon_wine.png",
+  icon_cocktails: "icon_cocktails.avif",
+  icon_cocktails2: "icon_cocktails2.png",
+};
+
+const getDocIconSrc = (icon: string) =>
+  `/images/doc-icons/${DOC_ICON_MAP[icon] || "icon_menu.png"}`;
 
 interface MenuDoc {
   id: string;
@@ -43,15 +52,14 @@ const MenuUrlCard = ({ menus, language, animationDelay = "0ms", tallHeight, onOp
             onClick={() => onOpenUrl(m.url, m.name || (language === "en" ? "Menu" : "La Carte"))}
             className="w-full flex items-center gap-3 rounded-xl bg-white/10 hover:bg-white/20 transition-colors px-3 py-2.5 text-left"
           >
-            {m.icon ? (
-              <DynamicIcon name={m.icon} className="h-4 w-4 text-gold shrink-0" size={16} />
-            ) : m.language ? (
+            <img src={getDocIconSrc(m.icon || "icon_menu")} alt="" className="h-5 w-5 object-contain shrink-0" />
+            {m.language && (
               <img
                 src={getLangFlag(m.language)}
                 alt={getLangAlt(m.language)}
                 className="h-4 w-5 rounded-sm object-cover shrink-0"
               />
-            ) : null}
+            )}
             <span className="text-sm text-white/90 truncate flex-1" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
               {m.name || (language === "en" ? "View menu" : "Voir la carte")}
             </span>
