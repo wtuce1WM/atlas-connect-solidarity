@@ -250,9 +250,10 @@ Deno.serve(async (req) => {
       blockedDomains: blockedDomains.length,
       totalBusinessesAffected: blockedDomains.reduce((sum: number, r: any) => sum + r.businessCount, 0),
       autoForcedExternal: autoForcedCount,
+      autoUnforcedExternal: autoUnforcedCount,
     };
 
-    console.log(`Done. ${summary.blockedDomains}/${summary.totalDomains} domains blocked. ${autoForcedCount} businesses auto-forced external.`);
+    console.log(`Done. ${summary.blockedDomains}/${summary.totalDomains} domains blocked. ${autoForcedCount} forced, ${autoUnforcedCount} unforced.`);
 
     return new Response(JSON.stringify({ summary, results }, null, 2), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
