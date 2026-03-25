@@ -205,7 +205,7 @@ const BecomeAffiliate = () => {
         {/* Hero */}
         <section className="container mx-auto px-4 text-center mb-20">
           <div className="max-w-3xl mx-auto">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', textTransform: 'uppercase' }}>
               {t.title}
             </h1>
             <p className="text-xl md:text-2xl text-gold mb-4">
