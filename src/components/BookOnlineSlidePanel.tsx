@@ -969,8 +969,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             </>
           )}
 
-          {/* KP Related Establishments carousel */}
-          {kpRelated.length > 0 && (
+          {/* KP Related Establishments carousel — highest priority */}
+          {activeBottomCarousel === "kp" && (
             <>
             <div className="flex justify-center mt-4 mb-1.5 pointer-events-auto">
               <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
