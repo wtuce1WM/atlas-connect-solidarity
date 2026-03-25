@@ -53,6 +53,7 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
   // Popup state
   const [popup, setPopup] = useState<{ title: string; businesses: BusinessMini[]; loading: boolean } | null>(null);
   const [popupCityFilter, setPopupCityFilter] = useState<string>("all");
+  const [editingCert, setEditingCert] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
