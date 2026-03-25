@@ -138,6 +138,7 @@ type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string }
 
 const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }: BookOnlineSlidePanelProps) => {
   const { language } = useLanguage();
+  const navigate = useNavigate();
   const { brokenUrls: brokenLinksSet, loaded: brokenLinksLoaded } = useBrokenLinks();
   
   const [business, setBusiness] = useState<BookOnlineBusiness | null>(null);
