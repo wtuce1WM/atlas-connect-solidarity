@@ -610,6 +610,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         setMenuDocs((data as any[]).filter((d: any) => d.type === "menu").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "" })));
         setFlipbookDocs((data as any[]).filter((d: any) => d.type === "flipbook").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "" })));
         setExternalLinkDocs((data as any[]).filter((d: any) => d.type === "external_link").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", image_url: d.icon || "" })));
+        setVideoDocs((data as any[]).filter((d: any) => d.type === "video").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "" })));
       }
     };
     const fetchSummaries = async () => {
