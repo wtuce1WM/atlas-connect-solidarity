@@ -179,8 +179,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const iframeSrcRef = useRef<string>("");
 
   useEffect(() => {
-    const subPanelOpen = !!selectedDestinationId || !!selectedPoiBusinessId;
-    if (subPanelOpen) {
+    const overlayOpen = !!selectedDestinationId || !!selectedPoiBusinessId || !!docOverlay || showBookingOverlay;
+    if (overlayOpen) {
       if (videoRef.current) {
         videoRef.current.pause();
         videoRef.current.muted = true;
