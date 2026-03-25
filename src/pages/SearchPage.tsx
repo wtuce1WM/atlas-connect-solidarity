@@ -1935,6 +1935,42 @@ const SearchPage = () => {
     fetchData();
   }, [searchQuery, categoryFromUrl, language, urlT]);
 
+  // Fetch label logos for search result businesses
+  useEffect(() => {
+    if (allBusinesses.length === 0) {
+      setBusinessLabelLogos({});
+      return;
+    }
+    const ids = allBusinesses.map(b => b.id);
+    (async () => {
+      const { data: blData } = await supabase
+        .from("business_labels")
+        .select("business_id, label_id")
+        .in("business_id", ids);
+      if (!blData || blData.length === 0) { setBusinessLabelLogos({}); return; }
+      const labelIds = [...new Set(blData.map(bl => bl.label_id))];
+      const { data: labelsData } = await supabase
+        .from("labels" as any)
+        .select("id, logo_url, image_url")
+        .in("id", labelIds);
+      if (!labelsData) { setBusinessLabelLogos({}); return; }
+      const logoMap: Record<string, string> = {};
+      (labelsData as any[]).forEach((l: any) => {
+        const url = l.logo_url || l.image_url;
+        if (url) logoMap[l.id] = url;
+      });
+      const result: Record<string, string[]> = {};
+      blData.forEach(bl => {
+        const url = logoMap[bl.label_id];
+        if (url) {
+          if (!result[bl.business_id]) result[bl.business_id] = [];
+          if (!result[bl.business_id].includes(url)) result[bl.business_id].push(url);
+        }
+      });
+      setBusinessLabelLogos(result);
+    })();
+  }, [allBusinesses]);
+
   // Fetch celebrity businesses on mount (used when celebrity query detected)
   useEffect(() => {
     supabase
