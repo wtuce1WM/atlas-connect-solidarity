@@ -281,7 +281,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
   
   const [businessDocs, setBusinessDocs] = useState<{ id: string; type: string; url: string; name: string | null; icon: string | null; sort_order: number }[]>([]);
   const [menuSummaries, setMenuSummaries] = useState<any[]>([]);
-  const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook' | 'webpage' } | null>(null);
+  const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook' | 'webpage'; ts: number } | null>(null);
   const [showDirectionsOverlay, setShowDirectionsOverlay] = useState(false);
   const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
