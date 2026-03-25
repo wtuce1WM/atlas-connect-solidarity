@@ -1218,7 +1218,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
               />
             ) : (
               <iframe
-                key={`${docOverlay.url}-gview`}
+                key={`${docOverlay.url}-gview-${docOverlay.ts}`}
                 src={`https://docs.google.com/gview?url=${encodeURIComponent(docOverlay.url)}&embedded=true`}
                 className="h-full w-full border-0"
                 title={docOverlay.name}
