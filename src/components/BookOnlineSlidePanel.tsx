@@ -136,7 +136,11 @@ interface PoiBusiness {
 
 type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
 
-const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }: BookOnlineSlidePanelProps) => {
+const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand }: BookOnlineSlidePanelProps) => {
+  const [activeBusinessId, setActiveBusinessId] = useState(propBusinessId);
+  // Sync when parent changes the prop
+  useEffect(() => { setActiveBusinessId(propBusinessId); }, [propBusinessId]);
+  const businessId = activeBusinessId;
   const { language } = useLanguage();
   const navigate = useNavigate();
   const { brokenUrls: brokenLinksSet, loaded: brokenLinksLoaded } = useBrokenLinks();
@@ -968,7 +972,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                       key={rel.id}
                       className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
                       style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
-                      onClick={() => navigate(businessUrl(rel))}
+                      onClick={() => setActiveBusinessId(rel.id)}
                     >
                       {relImg ? (
                         <img src={relImg} alt={rel.name} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
