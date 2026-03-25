@@ -151,9 +151,10 @@ Deno.serve(async (req) => {
       for (const { url, result } of checks) {
         urlResults.set(url, result);
         if (!result.ok) {
-          console.log(
-            `BROKEN: ${url} → ${result.status || result.error}`
-          );
+          const reason = result.domainChanged
+            ? `DOMAIN CHANGED → ${result.finalUrl}`
+            : `${result.status || result.error}`;
+          console.log(`BROKEN: ${url} → ${reason}`);
         }
       }
     }
