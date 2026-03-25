@@ -993,7 +993,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
           {/* Video player */}
           {activeYoutubeVideo && (
             <div className={`flex-1 flex items-center justify-center px-4 ${activeYoutubeVideo.isShort ? "" : "mb-4"}`}>
-              <div className={`w-full ${activeYoutubeVideo.isShort ? "aspect-[9/16] max-h-[55vh] max-w-[280px]" : "aspect-video max-w-full"}`}>
+              <div className={`w-full ${activeYoutubeVideo.isShort ? "aspect-[9/16] max-h-[45vh] max-w-[240px]" : "aspect-video max-w-full"}`}>
                 <iframe
                   src={`https://www.youtube-nocookie.com/embed/${activeYoutubeVideo.videoId}?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1`}
                   className="w-full h-full rounded-xl"
