@@ -496,6 +496,7 @@ const SearchPage = () => {
   const [showAiPopup, setShowAiPopup] = useState(false);
   const [warningDismissed, setWarningDismissed] = useState(false);
   const [mobileSearchOverlayOpen, setMobileSearchOverlayOpen] = useState(false);
+  const [businessLabelLogos, setBusinessLabelLogos] = useState<Record<string, string[]>>({});
 
   // Track when user has scrolled down to the tab bar — lock scroll above it from that point
   const [hasReachedTabBar, setHasReachedTabBar] = useState(false);
