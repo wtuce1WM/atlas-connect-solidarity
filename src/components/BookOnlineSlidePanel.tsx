@@ -310,7 +310,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
     fetchData();
   }, [businessId]);
 
-  const bookUrl = business?.reserve_now_url || business?.website || null;
+  const bookUrl = business?.reserve_now_url || null;
   // Collect videos from business_documents + legacy video_1_url
   const legacyVideo = business?.video_1_url;
   const allVideoUrls = [...videoDocUrls];
