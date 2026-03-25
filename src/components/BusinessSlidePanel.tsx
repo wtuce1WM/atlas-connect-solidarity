@@ -281,7 +281,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
   
   const [businessDocs, setBusinessDocs] = useState<{ id: string; type: string; url: string; name: string | null; icon: string | null; sort_order: number }[]>([]);
   const [menuSummaries, setMenuSummaries] = useState<any[]>([]);
-  const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook' | 'webpage' } | null>(null);
+  const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook' | 'webpage'; ts: number } | null>(null);
   const [showDirectionsOverlay, setShowDirectionsOverlay] = useState(false);
   const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
@@ -1218,7 +1218,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
               />
             ) : (
               <iframe
-                key={`${docOverlay.url}-gview`}
+                key={`${docOverlay.url}-gview-${docOverlay.ts}`}
                 src={`https://docs.google.com/gview?url=${encodeURIComponent(docOverlay.url)}&embedded=true`}
                 className="h-full w-full border-0"
                 title={docOverlay.name}
@@ -1756,7 +1756,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
               <div className="space-y-1.5">
                 {business.website && (
                   <button
-                    onClick={() => setDocOverlay({ url: business.website!.replace(/^http:\/\//i, 'https://'), name: 'Site web', type: 'webpage' })}
+                    onClick={() => setDocOverlay({ url: business.website!.replace(/^http:\/\//i, 'https://'), name: 'Site web', type: 'webpage', ts: Date.now() })}
                     className="text-sm hover:text-foreground transition-colors flex items-center gap-2 text-left"
                   >
                     <Globe className="h-4 w-4 shrink-0 text-foreground/60" />
@@ -1865,7 +1865,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
                         if (isInlineDoc) {
                           e.preventDefault();
                           const docType = isFlipbook ? 'flipbook' : isPdf ? 'pdf' : 'webpage';
-                          setDocOverlay({ url: doc.url, name: doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu"), type: docType });
+                          setDocOverlay({ url: doc.url, name: doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu"), type: docType, ts: Date.now() });
                         }
                       };
                       return (

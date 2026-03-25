@@ -137,6 +137,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const [showBookingOverlay, setShowBookingOverlay] = useState(false);
   const [bookingOverlayUrl, setBookingOverlayUrl] = useState<string | null>(null);
   const [bookingOverlayTitle, setBookingOverlayTitle] = useState<string | undefined>(undefined);
+  const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook'; ts: number } | null>(null);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
   const [reviewTexts, setReviewTexts] = useState<ReviewText[]>([]);
@@ -165,6 +166,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
     setSelectedDestinationId(null);
     setSelectedPoiBusinessId(null);
     setShowBookingOverlay(false);
+    setDocOverlay(null);
     setIsLightboxOpen(false);
     setShowMosaic(false);
     setShowHook(false);
@@ -753,9 +755,15 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     tallHeight={destinations.length === 0 && poiBusinesses.length === 0}
                     animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0)) * 120}ms`}
                     onOpenUrl={(url, title) => {
-                      setBookingOverlayUrl(url);
-                      setShowBookingOverlay(true);
-                      setBookingOverlayTitle(title);
+                      const isPdf = url?.toLowerCase().endsWith('.pdf') || url?.includes('/pdfs/');
+                      const isFlipbook = /issuu\.com|calameo\.com/i.test(url || '');
+                      if (isPdf || isFlipbook) {
+                        setDocOverlay({ url, name: title || 'Menu', type: isPdf ? 'pdf' : 'flipbook', ts: Date.now() });
+                      } else {
+                        setBookingOverlayUrl(url);
+                        setShowBookingOverlay(true);
+                        setBookingOverlayTitle(title);
+                      }
                     }}
                   />
                 )}
@@ -776,9 +784,15 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     links={externalLinks}
                     animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(menuDocs.length > 0) + Number(hasReviewsCard)) * 120}ms`}
                     onOpenUrl={(url, linkTitle) => {
-                      setBookingOverlayUrl(url);
-                      setShowBookingOverlay(true);
-                      setBookingOverlayTitle(linkTitle);
+                      const isPdf = url?.toLowerCase().endsWith('.pdf') || url?.includes('/pdfs/');
+                      const isFlipbook = /issuu\.com|calameo\.com/i.test(url || '');
+                      if (isPdf || isFlipbook) {
+                        setDocOverlay({ url, name: linkTitle || 'Document', type: isPdf ? 'pdf' : 'flipbook', ts: Date.now() });
+                      } else {
+                        setBookingOverlayUrl(url);
+                        setShowBookingOverlay(true);
+                        setBookingOverlayTitle(linkTitle);
+                      }
                     }}
                   />
                 )}
@@ -921,6 +935,41 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
           />
         );
       })()}
+
+      {/* Document Overlay (PDF / Flipbook) */}
+      {docOverlay && (
+        <div className="absolute inset-0 z-[60] bg-white flex flex-col animate-fade-in overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2 border-b bg-white">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setDocOverlay(null)}
+                className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-white/20 shadow-2xl hover:opacity-90 transition-opacity shrink-0"
+                title="Fermer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+              <span className="text-sm font-semibold truncate">{docOverlay.name}</span>
+            </div>
+          </div>
+          <div className="flex-1 flex items-center justify-center pb-16 bg-background">
+            {docOverlay.type === 'flipbook' ? (
+              <iframe
+                src={docOverlay.url}
+                className="h-full w-full border-0"
+                allow="clipboard-write; fullscreen"
+                title={docOverlay.name}
+              />
+            ) : (
+              <iframe
+                key={`${docOverlay.url}-gview-${docOverlay.ts}`}
+                src={`https://docs.google.com/gview?url=${encodeURIComponent(docOverlay.url)}&embedded=true`}
+                className="h-full w-full border-0"
+                title={docOverlay.name}
+              />
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Directions Overlay */}
       {showDirections && business && (
