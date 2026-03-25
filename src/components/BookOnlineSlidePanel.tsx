@@ -103,12 +103,7 @@ interface BookOnlineBusiness {
   menu_url: string | null;
   menu_name: string | null;
   menu_language: string | null;
-}
-
-interface WebOnlyData {
-  description: string | null;
-  videos: string[] | null;
-  images: string[] | null;
+  video_1_url: string | null;
 }
 
 interface Destination {

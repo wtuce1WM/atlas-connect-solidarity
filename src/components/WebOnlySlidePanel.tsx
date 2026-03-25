@@ -92,12 +92,7 @@ interface WebOnlyBusiness {
   linkedin_url: string | null;
   pinterest_url: string | null;
   vimeo_url: string | null;
-}
-
-interface WebOnlyData {
-  description: string | null;
-  videos: string[] | null;
-  images: string[] | null;
+  video_1_url: string | null;
 }
 
 type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
