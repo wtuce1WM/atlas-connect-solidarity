@@ -266,8 +266,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
       if (biz?.menu_url && !docs.some(d => d.url === biz.menu_url)) {
         docs.unshift({ id: 'legacy-menu', name: biz.menu_name, url: biz.menu_url, language: biz.menu_language });
       }
-      setMenuDocs(docs);
-
       // Filter out broken links from menu docs
       const filteredDocs = brokenLinksLoaded
         ? docs.filter(d => !brokenLinksSet.has(d.url))
@@ -275,8 +273,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
       setMenuDocs(filteredDocs);
 
       // Fetch destination details (depends on destLinksRes)
-      setMenuDocs(filteredDocs);
-
       const destIds = (destLinksRes.data || []).map(d => d.destination_id);
       let fetchedDests: Destination[] = [];
       if (destIds.length > 0) {
