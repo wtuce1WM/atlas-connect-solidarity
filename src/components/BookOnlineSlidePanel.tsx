@@ -198,7 +198,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
         iframeRef.current.src = iframeSrcRef.current;
       }
     }
-  }, [selectedDestinationId, selectedPoiBusinessId]);
+  }, [selectedDestinationId, selectedPoiBusinessId, docOverlay, showBookingOverlay]);
 
   // Fetch all data in a single Promise.all
   useEffect(() => {
