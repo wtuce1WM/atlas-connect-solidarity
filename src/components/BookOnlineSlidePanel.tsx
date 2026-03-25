@@ -155,6 +155,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const [youtubeVideoCount, setYoutubeVideoCount] = useState<number | null>(null);
   const [youtubeIsPlaying, setYoutubeIsPlaying] = useState(false);
   const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
+  const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
 
   // Unified drag logic via custom hook
   const {
