@@ -136,7 +136,11 @@ interface PoiBusiness {
 
 type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
 
-const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }: BookOnlineSlidePanelProps) => {
+const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand }: BookOnlineSlidePanelProps) => {
+  const [activeBusinessId, setActiveBusinessId] = useState(propBusinessId);
+  // Sync when parent changes the prop
+  useEffect(() => { setActiveBusinessId(propBusinessId); }, [propBusinessId]);
+  const businessId = activeBusinessId;
   const { language } = useLanguage();
   const navigate = useNavigate();
   const { brokenUrls: brokenLinksSet, loaded: brokenLinksLoaded } = useBrokenLinks();
