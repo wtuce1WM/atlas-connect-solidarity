@@ -27,7 +27,7 @@ import MenuUrlCard from "@/components/cards/MenuUrlCard";
 import type { MenuDoc } from "@/components/cards/MenuUrlCard";
 import DirectionsOverlay from "@/components/DirectionsOverlay";
 import MosaicOverlay from "@/components/MosaicOverlay";
-import YouTubeShortsCarousel from "@/components/YouTubeShortsCarousel";
+import YouTubeShortsCarousel, { type YouTubeVideo } from "@/components/YouTubeShortsCarousel";
 import { useDragToHide } from "@/hooks/useDragToHide";
 import { useBrokenLinks } from "@/hooks/useBrokenLinks";
 
@@ -154,6 +154,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
   const [showMosaic, setShowMosaic] = useState(false);
   const [youtubeVideoCount, setYoutubeVideoCount] = useState<number | null>(null);
   const [youtubeIsPlaying, setYoutubeIsPlaying] = useState(false);
+  const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
 
   // Unified drag logic via custom hook
   const {
@@ -176,6 +177,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
     setShowMosaic(false);
     setShowHook(false);
     setYoutubeVideoCount(null);
+    setActiveYoutubeVideo(null);
+    setYoutubeIsPlaying(false);
   }, [businessId, resetDrag]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -827,6 +830,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                 youtubeUrl={business.youtube_url}
                 onVideoCount={setYoutubeVideoCount}
                 onPlayingChange={setYoutubeIsPlaying}
+                onSelectVideo={setActiveYoutubeVideo}
+                activeVideoId={activeYoutubeVideo?.videoId ?? null}
               />
             </div>
           )}
@@ -939,7 +944,38 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
         </div>
       </div>
 
-      {/* Booking Overlay */}
+      {/* YouTube Video Overlay */}
+      {activeYoutubeVideo && (
+        <div className="absolute inset-0 z-[60] bg-black/80 backdrop-blur-sm flex flex-col animate-fade-in overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
+                <svg viewBox="0 0 24 24" className="w-4 h-4 text-white fill-white"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+              </div>
+              <p className="text-sm text-white font-medium truncate" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                {activeYoutubeVideo.title}
+              </p>
+            </div>
+            <button
+              onClick={() => { setActiveYoutubeVideo(null); setYoutubeIsPlaying(false); }}
+              className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors flex-shrink-0 ml-2"
+            >
+              <X className="h-4 w-4 text-white" />
+            </button>
+          </div>
+          <div className="flex-1 flex items-center justify-center px-4 pb-4">
+            <div className={`w-full ${activeYoutubeVideo.isShort ? "aspect-[9/16] max-h-[80vh] max-w-[320px]" : "aspect-video max-w-full"}`}>
+              <iframe
+                src={`https://www.youtube-nocookie.com/embed/${activeYoutubeVideo.videoId}?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1`}
+                className="w-full h-full rounded-xl"
+                allow="autoplay; encrypted-media"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {showBookingOverlay && (bookingOverlayUrl || bookUrl) && (() => {
         const overlayUrl = bookingOverlayUrl || bookUrl!;
         const finalUrl = overlayUrl.startsWith("http") ? overlayUrl : `https://${overlayUrl}`;
