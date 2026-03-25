@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN youtube_force_external boolean NOT NULL DEFAULT false;
