@@ -902,6 +902,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               />
             </div>
           )}
+          {/* Hidden YouTube count probe when YouTube doesn't win priority but is enabled */}
+          {activeBottomCarousel !== "youtube" && business?.youtube_url && (business as any)?.youtube_force_external && youtubeVideoCount === null && (
+            <div className="hidden">
+              <YouTubeShortsCarousel
+                youtubeUrl={business.youtube_url}
+                onVideoCount={setYoutubeVideoCount}
+                shortsOnly
+                hideLabel
+              />
+            </div>
+          )}
 
           {/* Destinations & POI — only when destpoi wins priority */}
           {activeBottomCarousel === "destpoi" && (
