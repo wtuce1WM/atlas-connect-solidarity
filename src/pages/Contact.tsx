@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin, MessageCircle } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 
 const Contact = () => {
@@ -45,7 +45,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground mb-1">Téléphone</h3>
-                    <p className="text-muted-foreground">+212 5XX-XXXXXX</p>
+                    <p className="text-muted-foreground">+212 661-439221</p>
                   </div>
                 </div>
                 
@@ -59,6 +59,16 @@ const Contact = () => {
                   </div>
                 </div>
               </div>
+
+              <a
+                href="https://wa.me/212661439221"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-3 w-full bg-[#25D366] hover:bg-[#1da851] text-white py-4 px-6 rounded-xl font-semibold text-lg transition-colors"
+              >
+                <MessageCircle className="h-6 w-6" />
+                WhatsApp
+              </a>
             </div>
             
             <div className="bg-card border rounded-lg p-6">
