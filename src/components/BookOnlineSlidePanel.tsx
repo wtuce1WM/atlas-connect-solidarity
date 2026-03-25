@@ -992,7 +992,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
 
           {/* Video player */}
           {activeYoutubeVideo && (
-            <div className="flex-1 flex items-center justify-center px-4">
+            <div className={`flex-1 flex items-center justify-center px-4 ${activeYoutubeVideo.isShort ? "" : "mb-4"}`}>
               <div className={`w-full ${activeYoutubeVideo.isShort ? "aspect-[9/16] max-h-[55vh] max-w-[280px]" : "aspect-video max-w-full"}`}>
                 <iframe
                   src={`https://www.youtube-nocookie.com/embed/${activeYoutubeVideo.videoId}?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1`}
@@ -1009,7 +1009,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
 
           {/* Carousel pinned at bottom */}
           {business?.youtube_url && (
-            <div className="flex-shrink-0 px-3 pb-3 pt-2 border-t border-white/10">
+            <div className="flex-shrink-0 px-3 pb-2 pt-2 border-t border-white/10">
               <YouTubeShortsCarousel
                 youtubeUrl={business.youtube_url}
                 onVideoCount={() => {}}
