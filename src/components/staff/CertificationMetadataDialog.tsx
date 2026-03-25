@@ -126,11 +126,17 @@ const CertificationMetadataDialog = ({ certificationName, onClose, onSaved }: Pr
   const charCount = plainTextLength(meta.description);
 
   return (
-    <Dialog open={!!certificationName} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>🏅 Certification : {certificationName}</DialogTitle>
-        </DialogHeader>
+    <>
+      {!!certificationName && (
+        <div className="fixed inset-0 z-50 bg-background/60 backdrop-blur-sm" onClick={onClose} />
+      )}
+      {!!certificationName && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+          <div className="pointer-events-auto w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-background border rounded-xl shadow-2xl p-6 space-y-1">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">🏅 Certification : {certificationName}</h2>
+              <Button variant="ghost" size="icon" onClick={onClose}><X className="h-4 w-4" /></Button>
+            </div>
 
         {loading ? (
           <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>
