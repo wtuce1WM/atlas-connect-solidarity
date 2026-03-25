@@ -175,7 +175,7 @@ const BrokenLinksManagement = () => {
           ) : brokenLinks.length === 0 ? (
             <p className="text-xs text-muted-foreground py-2">Aucun lien cassé détecté.</p>
           ) : (
-            <div className="overflow-auto border rounded-md max-h-80">
+            <div className="overflow-auto border rounded-md max-h-[600px]">
               <table className="w-full text-xs">
                 <thead className="bg-muted sticky top-0">
                   <tr>
