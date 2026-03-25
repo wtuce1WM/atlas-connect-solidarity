@@ -743,7 +743,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
               <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
               {/* Card 1: Texte Web only */}
               {woDescription && (
-                <div className={`snap-start shrink-0 w-[20rem] md:w-[30rem] ${destinations.length === 0 && poiBusinesses.length === 0 ? 'h-[21.6em] md:h-[28.8em]' : 'h-[18em] md:h-[24em]'} mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10`}
+                <div className={`snap-start shrink-0 w-[20rem] md:w-[30rem] ${noBottomCarousel ? 'h-[21.6em] md:h-[28.8em]' : 'h-[18em] md:h-[24em]'} mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10`}
                     style={{ animationFillMode: 'forwards' }}
                   >
                     <div
@@ -759,7 +759,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                     business={business}
                     language={language}
                     hasOpeningHours={!!hasOpeningHours}
-                    tallHeight={destinations.length === 0 && poiBusinesses.length === 0}
+                    tallHeight={noBottomCarousel}
                     animationDelay={woDescription ? "120ms" : "0ms"}
                   />
                 )}
@@ -768,7 +768,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                   <MenuSummaryCard
                     summaries={menuSummaries}
                     language={language}
-                    tallHeight={destinations.length === 0 && poiBusinesses.length === 0}
+                    tallHeight={noBottomCarousel}
                     animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
                   />
                 )}
@@ -777,7 +777,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                   <MenuUrlCard
                     menus={menuDocs}
                     language={language}
-                    tallHeight={destinations.length === 0 && poiBusinesses.length === 0}
+                    tallHeight={noBottomCarousel}
                     animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0)) * 120}ms`}
                     onOpenUrl={(url, title) => {
                       const isPdf = url?.toLowerCase().endsWith('.pdf') || url?.includes('/pdfs/');
@@ -922,7 +922,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
 
           {/* CTAs */}
           {(bookUrl || (business.latitude && business.longitude)) && (
-            <div className={`shrink-0 py-2 flex flex-col items-center gap-2 pointer-events-auto ${destinations.length === 0 && poiBusinesses.length === 0 ? 'mt-auto' : ''}`}>
+            <div className={`shrink-0 py-2 flex flex-col items-center gap-2 pointer-events-auto ${noBottomCarousel ? 'mt-auto' : ''}`}>
               {bookingCta && (
                 bookingCta.forceExternal ? (
                   <a
