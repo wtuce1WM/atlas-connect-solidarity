@@ -347,6 +347,12 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
           )}
         </DialogContent>
       </Dialog>
+
+      <CertificationMetadataDialog
+        certificationName={editingCert}
+        onClose={() => setEditingCert(null)}
+        onSaved={() => {}}
+      />
     </>
   );
 };
