@@ -30,6 +30,8 @@ import MosaicOverlay from "@/components/MosaicOverlay";
 import YouTubeShortsCarousel, { type YouTubeVideo } from "@/components/YouTubeShortsCarousel";
 import { useDragToHide } from "@/hooks/useDragToHide";
 import { useBrokenLinks } from "@/hooks/useBrokenLinks";
+import { useNavigate } from "react-router-dom";
+import { businessUrl } from "@/lib/businessUrl";
 
 interface BookOnlineSlidePanelProps {
   businessId: string;
