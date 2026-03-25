@@ -107,6 +107,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   const [showBookingOverlay, setShowBookingOverlay] = useState(false);
   const [bookingOverlayUrl, setBookingOverlayUrl] = useState<string | null>(null);
   const [bookingOverlayTitle, setBookingOverlayTitle] = useState<string | undefined>(undefined);
+  const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook'; ts: number } | null>(null);
   const [reviewTexts, setReviewTexts] = useState<ReviewText[]>([]);
   const [externalLinks, setExternalLinks] = useState<ExternalLinkItem[]>([]);
   const [videoDocUrls, setVideoDocUrls] = useState<string[]>([]);
