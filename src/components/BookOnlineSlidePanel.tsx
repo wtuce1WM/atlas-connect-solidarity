@@ -990,16 +990,18 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
             </button>
           </div>
 
-          {/* Video player — top half */}
-          <div className="flex-1 flex items-center justify-center px-4 min-h-0">
+          {/* Video player — top 40% */}
+          <div className="h-[38%] flex items-center justify-center px-4 shrink-0">
             {activeYoutubeVideo ? (
-              <div className={`w-full ${activeYoutubeVideo.isShort ? "aspect-[9/16] max-h-full max-w-[240px]" : "aspect-video max-w-full"}`}>
-                <iframe
-                  src={`https://www.youtube-nocookie.com/embed/${activeYoutubeVideo.videoId}?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1`}
-                  className="w-full h-full rounded-xl"
-                  allow="autoplay; encrypted-media"
-                  allowFullScreen
-                />
+              <div className={`w-full h-full flex items-center justify-center`}>
+                <div className={`${activeYoutubeVideo.isShort ? "aspect-[9/16] max-h-full max-w-[200px]" : "aspect-video max-w-full max-h-full"}`}>
+                  <iframe
+                    src={`https://www.youtube-nocookie.com/embed/${activeYoutubeVideo.videoId}?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1`}
+                    className="w-full h-full rounded-xl"
+                    allow="autoplay; encrypted-media"
+                    allowFullScreen
+                  />
+                </div>
               </div>
             ) : (
               <p className="text-sm text-white/50" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
@@ -1008,7 +1010,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
             )}
           </div>
 
-          {/* Carousel — bottom half */}
+          {/* Carousel — bottom 60% */}
           {business?.youtube_url && (
             <div className="flex-1 min-h-0 overflow-y-auto px-3 pb-3 pt-2 border-t border-white/10">
               <YouTubeShortsCarousel
