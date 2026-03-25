@@ -1216,6 +1216,13 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
                 title={docOverlay.name}
                 sandbox="allow-scripts allow-same-origin allow-popups"
               />
+            ) : /supabase\.co\/storage\/v1\/object\/public\//i.test(docOverlay.url) ? (
+              <iframe
+                key={`${docOverlay.url}-direct-${docOverlay.ts}`}
+                src={docOverlay.url}
+                className="h-full w-full border-0"
+                title={docOverlay.name}
+              />
             ) : (
               <iframe
                 key={`${docOverlay.url}-gview-${docOverlay.ts}`}

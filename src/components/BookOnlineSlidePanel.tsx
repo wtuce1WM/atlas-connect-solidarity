@@ -961,6 +961,13 @@ const BookOnlineSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand 
                 allow="clipboard-write; fullscreen"
                 title={docOverlay.name}
               />
+            ) : /supabase\.co\/storage\/v1\/object\/public\//i.test(docOverlay.url) ? (
+              <iframe
+                key={`${docOverlay.url}-direct-${docOverlay.ts}`}
+                src={docOverlay.url}
+                className="h-full w-full border-0"
+                title={docOverlay.name}
+              />
             ) : (
               <iframe
                 key={`${docOverlay.url}-gview-${docOverlay.ts}`}
