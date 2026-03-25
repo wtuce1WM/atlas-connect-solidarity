@@ -4053,7 +4053,7 @@ const SearchPage = () => {
                           {businessLabelLogos[business.id]?.length > 0 && (
                             <div className="flex gap-2">
                               {businessLabelLogos[business.id].map((logoUrl, li) => (
-                                <img key={li} src={logoUrl} alt="" className="h-10 w-auto object-contain drop-shadow-lg" />
+                                <img key={li} src={logoUrl} alt="" className="h-14 w-auto object-contain drop-shadow-lg" />
                               ))}
                             </div>
                           )}
