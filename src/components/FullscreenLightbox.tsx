@@ -52,7 +52,7 @@ const FullscreenLightbox = ({ items, currentIndex, onIndexChange, onClose }: Ful
         const isShort = /\/shorts\//.test(url);
         return (
           <div
-            className={`relative overflow-hidden ${isShort ? "h-[90vh] aspect-[9/16]" : "w-[90%] max-h-[90vh] aspect-video"}`}
+            className={`relative overflow-hidden ${isShort ? "h-[70vh] aspect-[9/16]" : "w-[90%] max-h-[90vh] aspect-video"}`}
             onClick={(e) => e.stopPropagation()}
           >
             <iframe
