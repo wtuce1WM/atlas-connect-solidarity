@@ -1,4 +1,5 @@
 import { UtensilsCrossed, ExternalLink } from "lucide-react";
+import DynamicIcon from "@/components/DynamicIcon";
 import { getLangFlag, getLangAlt } from "@/lib/languageFlags";
 
 const DOC_ICON_MAP: Record<string, string> = {
