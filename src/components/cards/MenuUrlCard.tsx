@@ -1,4 +1,5 @@
 import { UtensilsCrossed, ExternalLink } from "lucide-react";
+import DynamicIcon from "@/components/DynamicIcon";
 import { getLangFlag, getLangAlt } from "@/lib/languageFlags";
 
 const DOC_ICON_MAP: Record<string, string> = {
@@ -24,10 +25,11 @@ interface MenuUrlCardProps {
   language: string;
   animationDelay?: string;
   tallHeight?: boolean;
+  categoryIcon?: string | null;
   onOpenUrl: (url: string, title?: string) => void;
 }
 
-const MenuUrlCard = ({ menus, language, animationDelay = "0ms", tallHeight, onOpenUrl }: MenuUrlCardProps) => {
+const MenuUrlCard = ({ menus, language, animationDelay = "0ms", tallHeight, categoryIcon, onOpenUrl }: MenuUrlCardProps) => {
   if (menus.length === 0) return null;
 
   return (
@@ -36,7 +38,11 @@ const MenuUrlCard = ({ menus, language, animationDelay = "0ms", tallHeight, onOp
       style={{ animationDelay, animationFillMode: "forwards" }}
     >
       <div className="flex items-center gap-2 mb-3">
-        <UtensilsCrossed className="h-4 w-4 text-gold" />
+        {categoryIcon ? (
+          <DynamicIcon name={categoryIcon} className="h-4 w-4 text-gold" fallback={<UtensilsCrossed className="h-4 w-4 text-gold" />} />
+        ) : (
+          <UtensilsCrossed className="h-4 w-4 text-gold" />
+        )}
         <h3
           className="text-sm font-bold uppercase tracking-wide"
           style={{ fontFamily: "'Josefin Sans', sans-serif" }}
