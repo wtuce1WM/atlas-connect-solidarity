@@ -40,9 +40,9 @@ const MenuSummaryCard = ({ summaries, language, animationDelay = "0ms", tallHeig
       </div>
 
       <div className="space-y-4">
-        {summaries.map((s) => (
+        {summaries.map((s, idx) => (
           <div key={s.id} className="space-y-1.5">
-            {s.title && (
+            {idx > 0 && s.title && (
               <h4
                 className="text-sm font-bold uppercase tracking-wide text-white"
                 style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}
