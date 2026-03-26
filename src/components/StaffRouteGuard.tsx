@@ -2,6 +2,9 @@ import { useState, useEffect, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
+const hasBackofficeAccess = (roles: Array<{ role: string }> | null | undefined) =>
+  !!roles?.some((r) => r.role === "admin" || r.role === "staff");
+
 const StaffRouteGuard = ({ children }: { children: ReactNode }) => {
   const [authorized, setAuthorized] = useState<boolean | null>(null);
   const navigate = useNavigate();
@@ -14,7 +17,8 @@ const StaffRouteGuard = ({ children }: { children: ReactNode }) => {
         .from("user_roles")
         .select("role")
         .eq("user_id", session.user.id);
-      if (!roles || roles.length === 0) {
+      if (!hasBackofficeAccess(roles as Array<{ role: string }> | null | undefined)) {
+        await supabase.auth.signOut();
         navigate("/staff/login");
         return;
       }
