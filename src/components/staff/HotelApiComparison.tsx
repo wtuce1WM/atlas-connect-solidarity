@@ -518,6 +518,7 @@ const HotelApiComparison = () => {
       }
       setOwmMatches((prev) => { const next = { ...prev }; delete next[key]; return next; });
       setMappingIds((prev) => { const next = { ...prev }; delete next[key]; return next; });
+      setDismissedKeys((prev) => new Set(prev).add(key));
       toast.success("Association supprimée");
     }
   };
