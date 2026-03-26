@@ -636,12 +636,14 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   }, [business?.id]);
 
   const DOC_ICON_OPTIONS = [
+    { key: "", label: "⊘ Aucune", file: "" },
     { key: "icon_menu", label: "🍽️ Menu", file: "icon_menu.png" },
     { key: "icon_wine", label: "🍷 Vins", file: "icon_wine.png" },
     { key: "icon_cocktails", label: "🍸 Cocktails", file: "icon_cocktails.avif" },
     { key: "icon_cocktails2", label: "🍹 Cocktails 2", file: "icon_cocktails2.png" },
   ];
-  const getDocIconSrc = (icon: string) => {
+  const getDocIconSrc = (icon: string | null) => {
+    if (!icon) return "";
     const found = DOC_ICON_OPTIONS.find(o => o.key === icon);
     return `/images/doc-icons/${found?.file || "icon_menu.png"}`;
   };
