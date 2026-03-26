@@ -184,6 +184,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [menuSummaries, setMenuSummaries] = useState<MenuSummary[]>([]);
   const [menuDocs, setMenuDocs] = useState<MenuDoc[]>([]);
   const [videoDocUrls, setVideoDocUrls] = useState<string[]>([]);
+  const [socialPostEmbeds, setSocialPostEmbeds] = useState<{ url: string; embedUrl: string; platform: string }[]>([]);
   const [kpRelated, setKpRelated] = useState<KpRelatedBusiness[]>([]);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
