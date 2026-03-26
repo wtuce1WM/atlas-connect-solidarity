@@ -358,7 +358,42 @@ const HotelApiComparison = () => {
     }
     // Merge with existing (saved) matches — don't overwrite
     setOwmMatches(prev => ({ ...prev, ...matches }));
-  }, [cityOption.label]);
+
+    // Auto-save new matches to DB
+    const matchEntries = Object.entries(matches);
+    if (matchEntries.length > 0 && isStaffUser === true) {
+      const rows = matchEntries.map(([serpKey, biz]) => {
+        // Find original hotel name (preserving case) from the hotels array
+        const original = hotels.find(h => h.name.toLowerCase().trim() === serpKey);
+        return {
+          serp_hotel_name: original?.name || serpKey,
+          city: cityOption.label,
+          business_id: biz.id,
+          updated_at: new Date().toISOString(),
+        };
+      });
+      const { error } = await supabase
+        .from("hotel_mappings")
+        .upsert(rows, { onConflict: "serp_hotel_name,city" });
+      if (error) {
+        console.error("Auto-save error:", error);
+      } else {
+        // Fetch mapping IDs for the newly saved entries
+        const names = rows.map(r => r.serp_hotel_name);
+        const { data: saved } = await supabase
+          .from("hotel_mappings")
+          .select("id, serp_hotel_name")
+          .eq("city", cityOption.label)
+          .in("serp_hotel_name", names);
+        if (saved) {
+          const newIds: Record<string, string> = {};
+          for (const s of saved) newIds[s.serp_hotel_name.toLowerCase().trim()] = s.id;
+          setMappingIds(prev => ({ ...prev, ...newIds }));
+        }
+        toast.success(`${matchEntries.length} association(s) auto-sauvegardée(s)`);
+      }
+    }
+  }, [cityOption.label, isStaffUser]);
 
   const handleSearch = async () => {
     setLoading(true);
