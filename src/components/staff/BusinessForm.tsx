@@ -1684,11 +1684,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             <div className="flex items-center justify-between">
               <Label htmlFor="kp_regroupement">KP regroupement (max 20)</Label>
               <Switch
-                checked={!!formData.kp_regroupement}
-                onCheckedChange={(checked) => {
-                  if (!checked) handleChange("kp_regroupement", "");
-                }}
-                disabled={!formData.kp_regroupement}
+                checked={!!formData.kp_active}
+                onCheckedChange={(checked) => handleChange("kp_active", checked)}
               />
             </div>
             <Input
