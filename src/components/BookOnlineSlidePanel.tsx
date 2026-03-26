@@ -22,6 +22,8 @@ import type { ReviewText } from "@/components/cards/ReviewsFlipCard";
 import ExternalLinksFlipCard from "@/components/cards/ExternalLinksFlipCard";
 import type { ExternalLinkItem } from "@/components/cards/ExternalLinksFlipCard";
 import SocialLinksCard from "@/components/cards/SocialLinksCard";
+import SocialPostsCard from "@/components/cards/SocialPostsCard";
+import type { SocialPost } from "@/components/cards/SocialPostsCard";
 import MenuSummaryCard from "@/components/cards/MenuSummaryCard";
 import type { MenuSummary } from "@/components/cards/MenuSummaryCard";
 import MenuUrlCard from "@/components/cards/MenuUrlCard";
