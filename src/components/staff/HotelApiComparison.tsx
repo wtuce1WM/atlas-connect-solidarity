@@ -279,12 +279,14 @@ const HotelApiComparison = () => {
 
     if (!businesses || businesses.length === 0) return;
 
-    // Pre-compute normalized business names
-    const bizNorm = businesses.map((b) => ({
-      biz: b as OwmBusiness,
-      norm: normalizeName(b.name),
-      lower: b.name.toLowerCase().trim(),
-    }));
+    // Pre-compute normalized business names, excluding blacklisted ones
+    const bizNorm = businesses
+      .filter((b) => !AUTOMATCH_BLACKLIST.has(b.name.toLowerCase().trim()))
+      .map((b) => ({
+        biz: b as OwmBusiness,
+        norm: normalizeName(b.name),
+        lower: b.name.toLowerCase().trim(),
+      }));
 
     const matches: Record<string, OwmBusiness> = {};
     for (const hotel of hotels) {
