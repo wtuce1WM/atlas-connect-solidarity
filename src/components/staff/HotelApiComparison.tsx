@@ -211,8 +211,44 @@ const HotelApiComparison = () => {
 
   // Map: serpHotelName (lowercase) -> OwmBusiness
   const [owmMatches, setOwmMatches] = useState<Record<string, OwmBusiness>>({});
+  // Map: serpHotelName (lowercase) -> DB mapping id (for delete)
+  const [mappingIds, setMappingIds] = useState<Record<string, string>>({});
 
   const cityOption = CITY_OPTIONS.find((c) => c.value === city) || CITY_OPTIONS[0];
+
+  // Load saved mappings from DB for current city
+  const loadSavedMappings = useCallback(async (hotels: SerpApiHotel[]) => {
+    if (hotels.length === 0) return;
+    const names = hotels.map(h => h.name);
+    const { data } = await supabase
+      .from("hotel_mappings")
+      .select("id, serp_hotel_name, business_id")
+      .eq("city", cityOption.label)
+      .in("serp_hotel_name", names);
+    if (!data || data.length === 0) return;
+
+    const bizIds = [...new Set(data.map(m => m.business_id))];
+    const { data: businesses } = await supabase
+      .from("businesses")
+      .select("id, name, city, logo_url, images, google_rating, google_review_count, main_category")
+      .in("id", bizIds);
+
+    if (!businesses) return;
+    const bizMap: Record<string, OwmBusiness> = {};
+    for (const b of businesses) bizMap[b.id] = b as OwmBusiness;
+
+    const matches: Record<string, OwmBusiness> = {};
+    const ids: Record<string, string> = {};
+    for (const m of data) {
+      const key = m.serp_hotel_name.toLowerCase().trim();
+      if (bizMap[m.business_id]) {
+        matches[key] = bizMap[m.business_id];
+        ids[key] = m.id;
+      }
+    }
+    setOwmMatches(prev => ({ ...prev, ...matches }));
+    setMappingIds(prev => ({ ...prev, ...ids }));
+  }, [cityOption.label]);
 
   // Normalize hotel name for matching: lowercase, remove accents, common prefixes
   const normalizeName = (name: string) => {
@@ -293,7 +329,7 @@ const HotelApiComparison = () => {
     setLiteError(null);
     setSerpError(null);
     setSerpPages(0);
-    setOwmMatches({});
+    setMappingIds({});
 
     const litePromise = (async () => {
       const t0 = performance.now();
@@ -351,23 +387,47 @@ const HotelApiComparison = () => {
     await Promise.all([litePromise, serpPromise]);
     setLoading(false);
 
-    // Auto-match after results
+    // Load saved DB mappings first, then auto-match remaining
     if (serpData.length > 0) {
+      await loadSavedMappings(serpData);
       autoMatch(serpData);
     }
   };
 
-  const handleOwmMatch = (serpName: string, biz: OwmBusiness | null) => {
+  // Save or delete mapping in DB
+  const handleOwmMatch = async (serpName: string, biz: OwmBusiness | null) => {
     const key = serpName.toLowerCase().trim();
-    setOwmMatches((prev) => {
-      const next = { ...prev };
-      if (biz) {
-        next[key] = biz;
-      } else {
-        delete next[key];
+    if (biz) {
+      // Upsert into hotel_mappings
+      const { data, error } = await supabase
+        .from("hotel_mappings")
+        .upsert(
+          { serp_hotel_name: serpName, city: cityOption.label, business_id: biz.id, updated_at: new Date().toISOString() },
+          { onConflict: "serp_hotel_name,city" }
+        )
+        .select("id")
+        .single();
+      if (error) {
+        toast.error("Erreur sauvegarde : " + error.message);
+        return;
       }
-      return next;
-    });
+      setOwmMatches((prev) => ({ ...prev, [key]: biz }));
+      if (data) setMappingIds((prev) => ({ ...prev, [key]: data.id }));
+      toast.success("Association sauvegardée");
+    } else {
+      // Delete from hotel_mappings
+      const mappingId = mappingIds[key];
+      if (mappingId) {
+        const { error } = await supabase.from("hotel_mappings").delete().eq("id", mappingId);
+        if (error) {
+          toast.error("Erreur suppression : " + error.message);
+          return;
+        }
+      }
+      setOwmMatches((prev) => { const next = { ...prev }; delete next[key]; return next; });
+      setMappingIds((prev) => { const next = { ...prev }; delete next[key]; return next; });
+      toast.success("Association supprimée");
+    }
   };
 
   const owmMatchCount = Object.keys(owmMatches).length;

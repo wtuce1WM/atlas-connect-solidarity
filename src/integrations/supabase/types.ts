@@ -1729,6 +1729,33 @@ export type Database = {
           },
         ]
       }
+      hotel_mappings: {
+        Row: {
+          business_id: string
+          city: string
+          created_at: string
+          id: string
+          serp_hotel_name: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          city: string
+          created_at?: string
+          id?: string
+          serp_hotel_name: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          city?: string
+          created_at?: string
+          id?: string
+          serp_hotel_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       knowledge_entries: {
         Row: {
           business_id: string | null
