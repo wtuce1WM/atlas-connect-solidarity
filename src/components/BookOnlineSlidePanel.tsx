@@ -391,18 +391,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const hasContactCard = !!(business?.phone || business?.whatsapp || business?.email || business?.website || business?.address);
   const hasReviewsCard = avgOn20 !== null && avgOn20 > 0;
 
-  // Priority-based bottom carousel: KP > YouTube > Destinations > POI
-  const hasKpCarousel = kpRelated.length > 0;
+  // Priority-based bottom carousel: YouTube > KP > Destinations > POI
   const hasYoutubeBottomCarousel = !!(business?.youtube_url && (business as any)?.youtube_force_external && youtubeVideoCount !== 0);
   const hasYoutubeReady = !!(youtubeVideoCount && youtubeVideoCount > 0);
-  const hasDestPoiCarousel = destinations.length > 0 || poiBusinesses.length > 0;
+  const hasKpCarousel = kpRelated.length > 0;
+  const hasDestCarousel = destinations.length > 0;
+  const hasPoiCarousel = poiBusinesses.length > 0;
 
-  const activeBottomCarousel: "kp" | "youtube" | "destpoi" | "none" =
-    hasKpCarousel ? "kp" :
+  const activeBottomCarousel: "youtube" | "kp" | "dest" | "poi" | "none" =
     (hasYoutubeBottomCarousel && hasYoutubeReady) ? "youtube" :
-    // YouTube still loading (count not yet known) — reserve slot
     hasYoutubeBottomCarousel ? "youtube" :
-    hasDestPoiCarousel ? "destpoi" :
+    hasKpCarousel ? "kp" :
+    hasDestCarousel ? "dest" :
+    hasPoiCarousel ? "poi" :
     "none";
 
   const noBottomCarousel = activeBottomCarousel === "none";
