@@ -216,6 +216,8 @@ const HotelApiComparison = () => {
   const [owmMatches, setOwmMatches] = useState<Record<string, OwmBusiness>>({});
   // Map: serpHotelName (lowercase) -> DB mapping id (for delete)
   const [mappingIds, setMappingIds] = useState<Record<string, string>>({});
+  // Keys manually dismissed by the user — prevents auto-match from re-creating them
+  const [dismissedKeys, setDismissedKeys] = useState<Set<string>>(new Set());
 
   const cityOption = CITY_OPTIONS.find((c) => c.value === city) || CITY_OPTIONS[0];
 
@@ -314,8 +316,9 @@ const HotelApiComparison = () => {
     const matches: Record<string, OwmBusiness> = {};
     for (const hotel of hotels) {
       const hotelKey = hotel.name.toLowerCase().trim();
-      // Skip hotels already mapped from DB
+      // Skip hotels already mapped from DB or manually dismissed
       if (savedKeys.has(hotelKey)) continue;
+      if (dismissedKeys.has(hotelKey)) continue;
 
       const hotelNorm = normalizeName(hotel.name);
       // Skip very short normalized names (e.g. "villas" → "") to avoid false positives
@@ -393,7 +396,7 @@ const HotelApiComparison = () => {
         toast.success(`${matchEntries.length} association(s) auto-sauvegardée(s)`);
       }
     }
-  }, [cityOption.label, isStaffUser]);
+  }, [cityOption.label, isStaffUser, dismissedKeys]);
 
   const handleSearch = async () => {
     setLoading(true);
@@ -403,6 +406,7 @@ const HotelApiComparison = () => {
     setSerpError(null);
     setSerpPages(0);
     setMappingIds({});
+    setDismissedKeys(new Set());
 
     const litePromise = (async () => {
       const t0 = performance.now();
@@ -515,6 +519,7 @@ const HotelApiComparison = () => {
       }
       setOwmMatches((prev) => { const next = { ...prev }; delete next[key]; return next; });
       setMappingIds((prev) => { const next = { ...prev }; delete next[key]; return next; });
+      setDismissedKeys((prev) => new Set(prev).add(key));
       toast.success("Association supprimée");
     }
   };
