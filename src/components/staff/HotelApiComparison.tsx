@@ -198,7 +198,7 @@ const HotelApiComparison = () => {
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <h3 className="font-bold text-base">LiteAPI</h3>
-              <Badge variant="secondary">{Math.min(liteResults?.length ?? 0, 20)}/{liteResults?.length ?? 0} résultats</Badge>
+              <Badge variant="secondary">{liteResults?.length ?? 0} résultats</Badge>
               <span className="text-xs text-muted-foreground">{liteTime}ms</span>
             </div>
             {liteError && <p className="text-sm text-destructive">{liteError}</p>}
