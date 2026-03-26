@@ -38,7 +38,11 @@ const MenuUrlCard = ({ menus, language, animationDelay = "0ms", tallHeight, cate
       style={{ animationDelay, animationFillMode: "forwards" }}
     >
       <div className="flex items-center gap-2 mb-3">
-        <UtensilsCrossed className="h-4 w-4 text-gold" />
+        {categoryIcon ? (
+          <DynamicIcon name={categoryIcon} className="h-4 w-4 text-gold" fallback={<UtensilsCrossed className="h-4 w-4 text-gold" />} />
+        ) : (
+          <UtensilsCrossed className="h-4 w-4 text-gold" />
+        )}
         <h3
           className="text-sm font-bold uppercase tracking-wide"
           style={{ fontFamily: "'Josefin Sans', sans-serif" }}
