@@ -14,10 +14,52 @@ interface SerpApiRequest {
   currency?: string;
   language?: string;
   country?: string;
-  sort?: number; // 3=lowest price, 8=highest rating, 13=most reviewed
+  sort?: number;
   minPrice?: number;
   maxPrice?: number;
-  rating?: number; // min rating filter (e.g. 7, 8, 9)
+  rating?: number;
+  maxPages?: number; // max pages to fetch (default 5)
+}
+
+function mapProperty(p: Record<string, unknown>, idx: number, currency: string) {
+  const prices = p.rate_per_night as Record<string, unknown> | undefined;
+  const totalPrice = p.total_rate as Record<string, unknown> | undefined;
+  const gps = p.gps_coordinates as Record<string, number> | undefined;
+  const overallRating = p.overall_rating as number | undefined;
+  const reviews = p.reviews as number | undefined;
+  const images = (p.images as { thumbnail?: string; original_image?: string }[]) || [];
+  const nearbyPlaces = p.nearby_places as Record<string, unknown>[] | undefined;
+
+  return {
+    position: idx + 1,
+    name: p.name || "Unknown",
+    type: p.type || null,
+    hotelClass: p.hotel_class || null,
+    description: p.description || null,
+    link: p.link || null,
+    ratePerNight: prices ? {
+      amount: (prices.lowest as string) || (prices.extracted_lowest as string) || null,
+      currency,
+    } : null,
+    totalRate: totalPrice ? {
+      amount: (totalPrice.lowest as string) || (totalPrice.extracted_lowest as string) || null,
+      currency,
+    } : null,
+    priceBeforeDiscount: prices?.before_taxes_fees || null,
+    dealDescription: p.deal_description || p.deal || null,
+    checkIn: p.check_in_time || null,
+    checkOut: p.check_out_time || null,
+    overallRating: overallRating || null,
+    reviewCount: reviews || null,
+    locationRating: (p.location_rating as number) || null,
+    amenities: (p.amenities as string[]) || [],
+    latitude: gps?.latitude || null,
+    longitude: gps?.longitude || null,
+    images: images.slice(0, 10).map(img => img.original_image || img.thumbnail).filter(Boolean),
+    thumbnail: (p.images as { thumbnail?: string }[])?.[0]?.thumbnail || null,
+    nearbyPlaces: nearbyPlaces || [],
+    serpApiPropertyId: p.property_token || null,
+  };
 }
 
 Deno.serve(async (req) => {
@@ -34,88 +76,74 @@ Deno.serve(async (req) => {
     if (!params.checkIn) throw new Error("checkIn is required");
     if (!params.checkOut) throw new Error("checkOut is required");
 
-    const searchParams = new URLSearchParams({
-      engine: "google_hotels",
-      q: `Hotels in ${params.cityName}`,
-      check_in_date: params.checkIn,
-      check_out_date: params.checkOut,
-      adults: String(params.adults || 2),
-      currency: params.currency || "EUR",
-      hl: params.language || "fr",
-      gl: params.country || "ma",
-      api_key: apiKey,
-    });
+    const currency = params.currency || "EUR";
+    const maxPages = Math.min(params.maxPages || 5, 10); // cap at 10 pages
+    const allProperties: ReturnType<typeof mapProperty>[] = [];
+    let brands: unknown[] = [];
+    let nextPageToken: string | null = null;
+    let page = 0;
 
-    if (params.sort) searchParams.set("sort_by", String(params.sort));
-    if (params.minPrice) searchParams.set("min_price", String(params.minPrice));
-    if (params.maxPrice) searchParams.set("max_price", String(params.maxPrice));
-    if (params.rating) searchParams.set("rating", String(params.rating));
+    while (page < maxPages) {
+      const searchParams = new URLSearchParams({
+        engine: "google_hotels",
+        q: `Hotels in ${params.cityName}`,
+        check_in_date: params.checkIn,
+        check_out_date: params.checkOut,
+        adults: String(params.adults || 2),
+        currency,
+        hl: params.language || "fr",
+        gl: params.country || "ma",
+        api_key: apiKey,
+      });
 
-    const url = `${SERPAPI_BASE}?${searchParams}`;
-    console.log("SerpApi request:", url.replace(apiKey, "***"));
+      if (nextPageToken) {
+        searchParams.set("next_page_token", nextPageToken);
+      }
+      if (params.sort) searchParams.set("sort_by", String(params.sort));
+      if (params.minPrice) searchParams.set("min_price", String(params.minPrice));
+      if (params.maxPrice) searchParams.set("max_price", String(params.maxPrice));
+      if (params.rating) searchParams.set("rating", String(params.rating));
 
-    const res = await fetch(url);
-    const body = await res.json();
+      const url = `${SERPAPI_BASE}?${searchParams}`;
+      console.log(`SerpApi page ${page + 1} request:`, url.replace(apiKey, "***"));
 
-    if (!res.ok || body.error) {
-      console.error("SerpApi error:", JSON.stringify(body).slice(0, 1000));
-      throw new Error(body.error || `SerpApi error [${res.status}]`);
+      const res = await fetch(url);
+      const body = await res.json();
+
+      if (!res.ok || body.error) {
+        console.error("SerpApi error:", JSON.stringify(body).slice(0, 1000));
+        throw new Error(body.error || `SerpApi error [${res.status}]`);
+      }
+
+      const pageProperties = (body.properties || []).map(
+        (p: Record<string, unknown>, idx: number) => mapProperty(p, allProperties.length + idx, currency)
+      );
+      allProperties.push(...pageProperties);
+
+      if (page === 0) {
+        brands = body.brands || [];
+      }
+
+      // Check for next page
+      const pagination = body.serpapi_pagination;
+      if (pagination?.next_page_token) {
+        nextPageToken = pagination.next_page_token;
+        page++;
+      } else {
+        break;
+      }
     }
 
-    // Map properties to a normalized format
-    const properties = (body.properties || []).map((p: Record<string, unknown>, idx: number) => {
-      const prices = p.rate_per_night as Record<string, unknown> | undefined;
-      const totalPrice = p.total_rate as Record<string, unknown> | undefined;
-      const gps = p.gps_coordinates as Record<string, number> | undefined;
-      const overallRating = p.overall_rating as number | undefined;
-      const reviews = p.reviews as number | undefined;
-      const images = (p.images as { thumbnail?: string; original_image?: string }[]) || [];
-      const nearbyPlaces = p.nearby_places as Record<string, unknown>[] | undefined;
-
-      return {
-        position: idx + 1,
-        name: p.name || "Unknown",
-        type: p.type || null,
-        hotelClass: p.hotel_class || null,
-        description: p.description || null,
-        link: p.link || null,
-        ratePerNight: prices ? {
-          amount: (prices.lowest as string) || (prices.extracted_lowest as string) || null,
-          currency: params.currency || "EUR",
-        } : null,
-        totalRate: totalPrice ? {
-          amount: (totalPrice.lowest as string) || (totalPrice.extracted_lowest as string) || null,
-          currency: params.currency || "EUR",
-        } : null,
-        priceBeforeDiscount: prices?.before_taxes_fees || null,
-        dealDescription: p.deal_description || p.deal || null,
-        checkIn: p.check_in_time || null,
-        checkOut: p.check_out_time || null,
-        overallRating: overallRating || null,
-        reviewCount: reviews || null,
-        locationRating: (p.location_rating as number) || null,
-        amenities: (p.amenities as string[]) || [],
-        latitude: gps?.latitude || null,
-        longitude: gps?.longitude || null,
-        images: images.slice(0, 10).map(img => img.original_image || img.thumbnail).filter(Boolean),
-        thumbnail: (p.images as { thumbnail?: string }[])?.[0]?.thumbnail || null,
-        nearbyPlaces: nearbyPlaces || [],
-        serpApiPropertyId: p.property_token || null,
-      };
-    });
-
-    // Also return brands if available
-    const brands = body.brands || [];
-
-    console.log(`SerpApi: ${properties.length} hotels found for ${params.cityName}`);
+    console.log(`SerpApi: ${allProperties.length} hotels found for ${params.cityName} (${page + 1} page(s))`);
 
     return new Response(
       JSON.stringify({
-        data: properties,
-        count: properties.length,
+        data: allProperties,
+        count: allProperties.length,
+        pages: page + 1,
         brands,
         searchInfo: {
-          query: body.search_parameters?.q,
+          query: `Hotels in ${params.cityName}`,
           checkIn: params.checkIn,
           checkOut: params.checkOut,
         },
