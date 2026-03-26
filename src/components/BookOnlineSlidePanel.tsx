@@ -915,19 +915,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             </div>
           )}
 
-          {/* Destinations & POI — only when destpoi wins priority */}
-          {activeBottomCarousel === "destpoi" && (
+          {/* Destinations — only when dest wins priority */}
+          {activeBottomCarousel === "dest" && (
             <>
             <div className="flex justify-center mt-6 mb-1.5 pointer-events-auto">
               <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                {destinations.length > 0
-                  ? `${business.name} vous emmène à :`
-                  : language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité"}
+                {`${business.name} vous emmène à :`}
               </h3>
             </div>
             <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
               <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                {/* Spacer gauche */}
                 <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
                 {destinations.map((dest, index) => {
                   const destImg = dest.images?.filter(Boolean)?.[0] || dest.image_url;
@@ -951,14 +948,30 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     </div>
                   );
                 })}
-                {/* POI businesses */}
+                <div className="shrink-0 w-6" aria-hidden="true" />
+              </div>
+            </div>
+            </>
+          )}
+
+          {/* POI — only when poi wins priority */}
+          {activeBottomCarousel === "poi" && (
+            <>
+            <div className="flex justify-center mt-6 mb-1.5 pointer-events-auto">
+              <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                {language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité"}
+              </h3>
+            </div>
+            <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
+              <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
                 {poiBusinesses.map((poi, index) => {
                   const poiImg = poi.images?.filter(Boolean)?.[0] || poi.logo_url;
                   return (
                     <div
                       key={poi.id}
                       className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
-                      style={{ animationDelay: `${(destinations.length + index) * 120}ms`, animationFillMode: 'forwards' }}
+                      style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
                       onClick={() => setSelectedPoiBusinessId(poi.id)}
                     >
                       {poiImg ? (
@@ -974,7 +987,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     </div>
                   );
                 })}
-                {/* Spacer droit */}
                 <div className="shrink-0 w-6" aria-hidden="true" />
               </div>
             </div>
