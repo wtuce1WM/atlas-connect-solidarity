@@ -58,7 +58,9 @@ const MenuUrlCard = ({ menus, language, animationDelay = "0ms", tallHeight, cate
             onClick={() => onOpenUrl(m.url, m.name || (language === "en" ? "Menu" : "La Carte"))}
             className="flex flex-col items-center gap-1.5 rounded-xl bg-white/10 hover:bg-white/20 transition-colors px-4 py-3"
           >
-            <img src={getDocIconSrc(m.icon || "icon_menu")} alt="" className="w-auto h-auto max-h-16 object-contain" />
+            {m.icon ? (
+              <img src={getDocIconSrc(m.icon)} alt="" className="w-auto h-auto max-h-16 object-contain" />
+            ) : null}
             <span className="text-xs text-white/90 text-center normal-case" style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: '0.02em', textTransform: 'none' }}>
               {m.name || (language === "en" ? "View menu" : "Voir la carte")}
             </span>
