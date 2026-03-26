@@ -399,8 +399,8 @@ const HotelApiComparison = () => {
 
     // Load saved DB mappings first, then auto-match remaining
     if (serpData.length > 0) {
-      await loadSavedMappings(serpData);
-      autoMatch(serpData);
+      const savedKeys = await loadSavedMappings(serpData);
+      autoMatch(serpData, savedKeys);
     }
   };
 
