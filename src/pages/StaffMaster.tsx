@@ -155,6 +155,10 @@ const StaffMaster = () => {
               <ShieldAlert className="h-4 w-4" />
               Domaines bloqués
             </TabsTrigger>
+            <TabsTrigger value="hotel-compare" className="gap-2">
+              <Hotel className="h-4 w-4" />
+              Hôtels API
+            </TabsTrigger>
             {isAdmin && (
               <TabsTrigger value="users" className="gap-2">
                 <Users className="h-4 w-4" />
