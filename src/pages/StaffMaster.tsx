@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, Users, Search, ArrowLeft, BarChart3, FlaskConical, BookOpen, Egg, Sparkles, Brain, LayoutDashboard, Monitor, ChevronRight, ShieldAlert } from "lucide-react";
+import { LogOut, Users, Search, ArrowLeft, BarChart3, FlaskConical, BookOpen, Egg, Sparkles, Brain, LayoutDashboard, Monitor, ChevronRight, ShieldAlert, Hotel } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import SearchConfigManagement from "@/components/staff/SearchConfigManagement";
 import UserManagement from "@/components/staff/UserManagement";
@@ -21,6 +21,7 @@ import MasterDashboard from "@/components/staff/MasterDashboard";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import BlockedDomainsManagement from "@/components/staff/BlockedDomainsManagement";
 import BrokenLinksManagement from "@/components/staff/BrokenLinksManagement";
+import HotelApiComparison from "@/components/staff/HotelApiComparison";
 
 const DisplayParam = ({ label, value, preview }: { label: string; value: string; preview?: React.ReactNode }) => (
   <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 border">
@@ -154,6 +155,10 @@ const StaffMaster = () => {
               <ShieldAlert className="h-4 w-4" />
               Domaines bloqués
             </TabsTrigger>
+            <TabsTrigger value="hotel-compare" className="gap-2">
+              <Hotel className="h-4 w-4" />
+              Hôtels API
+            </TabsTrigger>
             {isAdmin && (
               <TabsTrigger value="users" className="gap-2">
                 <Users className="h-4 w-4" />
@@ -212,6 +217,10 @@ const StaffMaster = () => {
               <BlockedDomainsManagement />
               <BrokenLinksManagement />
             </div>
+          </TabsContent>
+
+          <TabsContent value="hotel-compare">
+            <HotelApiComparison />
           </TabsContent>
 
           <TabsContent value="display">
