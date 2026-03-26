@@ -135,7 +135,7 @@ interface PoiBusiness {
   logo_url: string | null;
 }
 
-type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string } | { kind: "social_embed"; url: string; embedUrl: string; platform: string };
+type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
 
 /** Convert a social post URL into an embeddable iframe URL */
 function getSocialEmbedUrl(postUrl: string, platform: string): string | null {
