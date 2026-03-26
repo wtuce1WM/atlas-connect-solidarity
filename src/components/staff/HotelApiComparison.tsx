@@ -409,20 +409,26 @@ const HotelApiComparison = () => {
     const key = serpName.toLowerCase().trim();
     if (biz) {
       // Upsert into hotel_mappings
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("hotel_mappings")
         .upsert(
           { serp_hotel_name: serpName, city: cityOption.label, business_id: biz.id, updated_at: new Date().toISOString() },
           { onConflict: "serp_hotel_name,city" }
-        )
-        .select("id")
-        .single();
+        );
       if (error) {
+        console.error("Upsert error:", error);
         toast.error("Erreur sauvegarde : " + error.message);
         return;
       }
+      // Fetch the mapping id
+      const { data: mapping } = await supabase
+        .from("hotel_mappings")
+        .select("id")
+        .eq("serp_hotel_name", serpName)
+        .eq("city", cityOption.label)
+        .maybeSingle();
       setOwmMatches((prev) => ({ ...prev, [key]: biz }));
-      if (data) setMappingIds((prev) => ({ ...prev, [key]: data.id }));
+      if (mapping) setMappingIds((prev) => ({ ...prev, [key]: mapping.id }));
       toast.success("Association sauvegardée");
     } else {
       // Delete from hotel_mappings
