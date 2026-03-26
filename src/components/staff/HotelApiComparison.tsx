@@ -213,7 +213,7 @@ const HotelApiComparison = () => {
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <h3 className="font-bold text-base">SerpApi (Google Hotels)</h3>
-              <Badge variant="secondary">{serpResults?.length ?? 0} résultats</Badge>
+              <Badge variant="secondary">{Math.min(serpResults?.length ?? 0, 20)}/{serpResults?.length ?? 0} résultats</Badge>
               <span className="text-xs text-muted-foreground">{serpTime}ms</span>
             </div>
             {serpError && <p className="text-sm text-destructive">{serpError}</p>}
