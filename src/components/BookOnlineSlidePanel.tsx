@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
 import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, CalendarCheck, Star, Minimize2, Loader2 } from "lucide-react";
+import { isCurrentlyOpen } from "@/lib/formatOpeningHours";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
@@ -402,6 +403,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
   const hasContactCard = !!(business?.phone || business?.whatsapp || business?.email || business?.website || business?.address);
   const hasReviewsCard = avgOn20 !== null && avgOn20 > 0;
+
+  const openNow = useMemo(() => {
+    if (!business) return false;
+    if (business.is_open_24h) return true;
+    const hours = business.opening_hours as Record<string, any> | null;
+    if (!hours) return false;
+    const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+    const todayKey = dayOrder[new Date().getDay()];
+    return isCurrentlyOpen(todayKey ? hours[todayKey] : null);
+  }, [business]);
 
   // Priority-based bottom carousel: YouTube > KP > Destinations > POI
   const hasYoutubeBottomCarousel = !!(business?.youtube_url && (business as any)?.youtube_force_external && youtubeVideoCount !== 0);
@@ -809,11 +820,24 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 <div className={`snap-start shrink-0 w-[20rem] md:w-[30rem] ${noBottomCarousel ? 'h-[21.6em] md:h-[28.8em]' : 'h-[18em] md:h-[24em]'} mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10`}
                     style={{ animationFillMode: 'forwards' }}
                   >
+                    {business?.show_opening_hours !== false && (
+                      <div className="flex justify-center mb-3">
+                        <div
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider ${
+                            openNow ? "bg-[#25D366] text-white" : "bg-black text-white"
+                          }`}
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
+                          {openNow
+                            ? language === "en" ? "Open" : language === "ar" ? "مفتوح" : "Ouvert"
+                            : language === "en" ? "Closed" : language === "ar" ? "مغلق" : "Fermé"}
+                        </div>
+                      </div>
+                    )}
                     <div
                       className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17] [&_h2]:!font-bold [&_h3]:!font-bold"
                       dangerouslySetInnerHTML={{ __html: woDescription }}
                     />
-                    
                   </div>
                 )}
                 {/* Card 2: Contact + Map Flip — fixed height */}
