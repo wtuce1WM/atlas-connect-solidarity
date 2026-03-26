@@ -291,6 +291,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       setMenuSummaries((menuSumRes.data || []) as MenuSummary[]);
       setVideoDocUrls((videoDocsRes.data || []).map((d: any) => d.url).filter(Boolean));
 
+      // Fetch category icon
+      const mainCat = (bizRes.data as any)?.main_category;
+      if (mainCat) {
+        const { data: catData } = await supabase
+          .from("categories")
+          .select("icon")
+          .eq("name_fr", mainCat)
+          .maybeSingle();
+        setCategoryIcon(catData?.icon || null);
+      } else {
+        setCategoryIcon(null);
+      }
+
 
       const docs = ((menuDocsRes.data || []) as MenuDoc[]);
       // Filter out broken links from menu docs
