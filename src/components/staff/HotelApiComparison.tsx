@@ -80,6 +80,7 @@ const HotelApiComparison = () => {
   const [serpResults, setSerpResults] = useState<SerpApiHotel[] | null>(null);
   const [liteTime, setLiteTime] = useState(0);
   const [serpTime, setSerpTime] = useState(0);
+  const [serpPages, setSerpPages] = useState(0);
   const [liteError, setLiteError] = useState<string | null>(null);
   const [serpError, setSerpError] = useState<string | null>(null);
 
