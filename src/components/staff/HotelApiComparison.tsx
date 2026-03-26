@@ -91,6 +91,7 @@ const HotelApiComparison = () => {
     setSerpResults(null);
     setLiteError(null);
     setSerpError(null);
+    setSerpPages(0);
 
     const litePromise = (async () => {
       const t0 = performance.now();
