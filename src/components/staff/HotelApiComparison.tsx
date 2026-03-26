@@ -261,8 +261,8 @@ const HotelApiComparison = () => {
       .trim();
   };
 
-  // Auto-match SerpApi hotels to DB businesses by name
-  const autoMatch = useCallback(async (hotels: SerpApiHotel[]) => {
+  // Auto-match SerpApi hotels to DB businesses by name (skips already-saved mappings)
+  const autoMatch = useCallback(async (hotels: SerpApiHotel[], savedKeys: Set<string>) => {
     if (hotels.length === 0) return;
     const { data: businesses } = await supabase
       .from("businesses")
@@ -283,7 +283,12 @@ const HotelApiComparison = () => {
     const matches: Record<string, OwmBusiness> = {};
     for (const hotel of hotels) {
       const hotelKey = hotel.name.toLowerCase().trim();
+      // Skip hotels already mapped from DB
+      if (savedKeys.has(hotelKey)) continue;
+
       const hotelNorm = normalizeName(hotel.name);
+      // Skip very short normalized names (e.g. "villas" → "") to avoid false positives
+      if (hotelNorm.length < 3) continue;
 
       // 1. Exact match
       const exact = bizNorm.find((b) => b.lower === hotelKey);
@@ -293,23 +298,24 @@ const HotelApiComparison = () => {
       const normExact = bizNorm.find((b) => b.norm === hotelNorm);
       if (normExact) { matches[hotelKey] = normExact.biz; continue; }
 
-      // 3. Partial: one contains the other (original)
+      // 3. Partial: one contains the other (original) — require min 4 chars to avoid generic matches
       const partial = bizNorm.find(
-        (b) => hotelKey.includes(b.lower) || b.lower.includes(hotelKey)
+        (b) => b.lower.length >= 4 && hotelKey.length >= 4 && (hotelKey.includes(b.lower) || b.lower.includes(hotelKey))
       );
       if (partial) { matches[hotelKey] = partial.biz; continue; }
 
-      // 4. Normalized partial
+      // 4. Normalized partial — require min 4 chars
       const normPartial = bizNorm.find(
-        (b) => hotelNorm.includes(b.norm) || b.norm.includes(hotelNorm)
+        (b) => b.norm.length >= 4 && hotelNorm.length >= 4 && (hotelNorm.includes(b.norm) || b.norm.includes(hotelNorm))
       );
       if (normPartial) { matches[hotelKey] = normPartial.biz; continue; }
 
-      // 5. Word overlap: if ≥60% of normalized words match
+      // 5. Word overlap: if ≥60% of normalized words match (min 2 words each)
       const hotelWords = hotelNorm.split(" ").filter(Boolean);
       if (hotelWords.length >= 2) {
         const best = bizNorm.reduce<{ biz: OwmBusiness | null; score: number }>((acc, b) => {
           const bizWords = b.norm.split(" ").filter(Boolean);
+          if (bizWords.length < 2) return acc;
           const common = hotelWords.filter((w) => bizWords.includes(w)).length;
           const score = common / Math.max(hotelWords.length, bizWords.length);
           return score > acc.score ? { biz: b.biz, score } : acc;
@@ -319,7 +325,8 @@ const HotelApiComparison = () => {
         }
       }
     }
-    setOwmMatches(matches);
+    // Merge with existing (saved) matches — don't overwrite
+    setOwmMatches(prev => ({ ...prev, ...matches }));
   }, [cityOption.label]);
 
   const handleSearch = async () => {
