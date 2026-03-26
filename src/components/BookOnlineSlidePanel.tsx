@@ -135,7 +135,26 @@ interface PoiBusiness {
   logo_url: string | null;
 }
 
-type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
+type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string } | { kind: "social_embed"; url: string; embedUrl: string; platform: string };
+
+/** Convert a social post URL into an embeddable iframe URL */
+function getSocialEmbedUrl(postUrl: string, platform: string): string | null {
+  if (platform === "instagram" || /instagram\.com/i.test(postUrl)) {
+    // Ensure trailing slash then append embed/
+    const clean = postUrl.replace(/\/+$/, "");
+    return clean + "/embed/";
+  }
+  if (platform === "tiktok" || /tiktok\.com/i.test(postUrl)) {
+    // Extract video ID from TikTok URL: /video/1234 or /@user/video/1234
+    const match = postUrl.match(/\/video\/(\d+)/);
+    if (match) return `https://www.tiktok.com/embed/v2/${match[1]}`;
+  }
+  if (platform === "pinterest" || /pinterest\.(com|fr)/i.test(postUrl)) {
+    // Pinterest doesn't have a simple iframe embed — skip for background
+    return null;
+  }
+  return null;
+}
 
 const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand }: BookOnlineSlidePanelProps) => {
   const [activeBusinessId, setActiveBusinessId] = useState(propBusinessId);
