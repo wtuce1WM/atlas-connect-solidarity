@@ -450,12 +450,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     return () => clearInterval(interval);
   }, [hookText, businessId]);
 
-  // Memoize mediaItems — social embeds go before videos, then videos, then images
   const mediaItems = useMemo<MediaItem[]>(() => [
-    ...socialPostEmbeds.map((s) => ({ kind: "social_embed" as const, url: s.url, embedUrl: s.embedUrl, platform: s.platform })),
     ...videos.map((v) => ({ kind: "video" as const, url: v })),
     ...images.map((i) => ({ kind: "image" as const, url: i })),
-  ], [socialPostEmbeds, videos, images]);
+  ], [videos, images]);
 
   const totalMedia = mediaItems.length;
   const safeIndex = totalMedia > 0 ? currentMediaIndex % totalMedia : 0;
