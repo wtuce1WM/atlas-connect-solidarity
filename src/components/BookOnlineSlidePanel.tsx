@@ -893,6 +893,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(menuDocs.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0)) * 120}ms`}
                   />
                 )}
+                {/* Card 8: Social Posts (Reels, TikToks) */}
+                {socialPosts.length > 0 && (
+                  <SocialPostsCard
+                    posts={socialPosts}
+                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(menuDocs.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0) + 1) * 120}ms`}
+                  />
+                )}
                 <div className="shrink-0 w-4" aria-hidden="true" />
             </div>
           </div>
