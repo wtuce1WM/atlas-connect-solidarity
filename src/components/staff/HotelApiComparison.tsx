@@ -217,7 +217,7 @@ const HotelApiComparison = () => {
               <span className="text-xs text-muted-foreground">{serpTime}ms</span>
             </div>
             {serpError && <p className="text-sm text-destructive">{serpError}</p>}
-            {serpResults?.map((h, i) => (
+            {serpResults?.slice(0, 20).map((h, i) => (
               <HotelCardSerp key={`${h.name}-${i}`} hotel={h} />
             ))}
             {serpResults?.length === 0 && !serpError && (
