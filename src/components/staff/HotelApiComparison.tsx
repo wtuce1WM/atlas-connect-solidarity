@@ -288,7 +288,7 @@ const HotelApiComparison = () => {
   };
 
   // Business names to exclude from auto-matching (too generic, cause false positives)
-  const AUTOMATCH_BLACKLIST = new Set(["la villa's", "l'hôtel marrakech"]);
+  const AUTOMATCH_BLACKLIST = new Set(["la villa's", "l'hôtel marrakech", "cruiser mogador essaouira", "hotel vents des iles"]);
 
   // Auto-match SerpApi hotels to DB businesses by name (skips already-saved mappings)
   const autoMatch = useCallback(async (hotels: SerpApiHotel[], savedKeys: Set<string>) => {
