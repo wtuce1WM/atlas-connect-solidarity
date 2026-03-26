@@ -25,6 +25,7 @@ interface MenuUrlCardProps {
   language: string;
   animationDelay?: string;
   tallHeight?: boolean;
+  categoryIcon?: string | null;
   onOpenUrl: (url: string, title?: string) => void;
 }
 
