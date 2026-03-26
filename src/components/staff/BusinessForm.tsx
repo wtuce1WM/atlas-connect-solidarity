@@ -491,6 +491,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     
     ice: (business as any)?.ice || "",
     kp_regroupement: (business as any)?.kp_regroupement || "",
+    kp_active: (business as any)?.kp_active ?? false,
     facebook_url: (business as any)?.facebook_url || "",
     instagram_url: (business as any)?.instagram_url || "",
     twitter_url: (business as any)?.twitter_url || "",
@@ -1088,6 +1089,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       
       ice: formData.ice || null,
       kp_regroupement: formData.kp_regroupement || null,
+      kp_active: formData.kp_active,
       facebook_url: formData.facebook_url || null,
       instagram_url: formData.instagram_url || null,
       twitter_url: formData.twitter_url || null,
@@ -1682,11 +1684,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             <div className="flex items-center justify-between">
               <Label htmlFor="kp_regroupement">KP regroupement (max 20)</Label>
               <Switch
-                checked={!!formData.kp_regroupement}
-                onCheckedChange={(checked) => {
-                  if (!checked) handleChange("kp_regroupement", "");
-                }}
-                disabled={!formData.kp_regroupement}
+                checked={!!formData.kp_active}
+                onCheckedChange={(checked) => handleChange("kp_active", checked)}
               />
             </div>
             <Input
