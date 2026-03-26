@@ -201,7 +201,7 @@ const HotelApiComparison = () => {
               <span className="text-xs text-muted-foreground">{liteTime}ms</span>
             </div>
             {liteError && <p className="text-sm text-destructive">{liteError}</p>}
-            {liteResults?.map((h) => (
+            {liteResults?.slice(0, 20).map((h) => (
               <HotelCardLite key={h.hotelId} hotel={h} />
             ))}
             {liteResults?.length === 0 && !liteError && (
