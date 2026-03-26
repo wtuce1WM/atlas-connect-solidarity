@@ -281,6 +281,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           .eq("business_id", businessId)
           .eq("type", "video")
           .order("sort_order"),
+        supabase
+          .from("business_social_posts" as any)
+          .select("platform, post_url, sort_order")
+          .eq("business_id", businessId)
+          .order("sort_order", { ascending: true }),
       ]);
 
       const biz = bizRes.data as BookOnlineBusiness | null;
