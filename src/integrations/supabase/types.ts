@@ -1756,6 +1756,63 @@ export type Database = {
         }
         Relationships: []
       }
+      hotel_price_cache: {
+        Row: {
+          business_id: string
+          check_in: string | null
+          check_out: string | null
+          city: string | null
+          created_at: string
+          currency: string
+          fetched_at: string
+          hotel_external_id: string | null
+          hotel_rating: string | null
+          id: string
+          price_per_night: number | null
+          raw_data: Json | null
+          review_count: number | null
+          room_type: string | null
+          source: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          check_in?: string | null
+          check_out?: string | null
+          city?: string | null
+          created_at?: string
+          currency?: string
+          fetched_at?: string
+          hotel_external_id?: string | null
+          hotel_rating?: string | null
+          id?: string
+          price_per_night?: number | null
+          raw_data?: Json | null
+          review_count?: number | null
+          room_type?: string | null
+          source: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          check_in?: string | null
+          check_out?: string | null
+          city?: string | null
+          created_at?: string
+          currency?: string
+          fetched_at?: string
+          hotel_external_id?: string | null
+          hotel_rating?: string | null
+          id?: string
+          price_per_night?: number | null
+          raw_data?: Json | null
+          review_count?: number | null
+          room_type?: string | null
+          source?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       knowledge_entries: {
         Row: {
           business_id: string | null
