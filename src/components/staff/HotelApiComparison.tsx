@@ -316,8 +316,9 @@ const HotelApiComparison = () => {
     const matches: Record<string, OwmBusiness> = {};
     for (const hotel of hotels) {
       const hotelKey = hotel.name.toLowerCase().trim();
-      // Skip hotels already mapped from DB
+      // Skip hotels already mapped from DB or manually dismissed
       if (savedKeys.has(hotelKey)) continue;
+      if (dismissedKeys.has(hotelKey)) continue;
 
       const hotelNorm = normalizeName(hotel.name);
       // Skip very short normalized names (e.g. "villas" → "") to avoid false positives
