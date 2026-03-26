@@ -35,7 +35,7 @@ const MenuSummaryCard = ({ summaries, language, animationDelay = "0ms", tallHeig
           className="text-sm font-bold uppercase tracking-wide"
           style={{ fontFamily: "'Josefin Sans', sans-serif" }}
         >
-          {language === "en" ? "Menu" : language === "ar" ? "القائمة" : "La Carte"}
+          {summaries[0]?.title || (language === "en" ? "Menu" : language === "ar" ? "القائمة" : "La Carte")}
         </h3>
       </div>
 
