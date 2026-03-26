@@ -109,7 +109,8 @@ const HotelApiComparison = () => {
         setLiteTime(Math.round(performance.now() - t0));
         if (error) throw new Error(String(error));
         if (data?.error) throw new Error(data.error);
-        setLiteResults(data?.data || []);
+        const sorted = (data?.data || []).slice().sort((a: LiteApiHotel, b: LiteApiHotel) => a.name.localeCompare(b.name, 'fr'));
+        setLiteResults(sorted);
       } catch (e: any) {
         setLiteTime(Math.round(performance.now() - t0));
         setLiteError(e.message);
