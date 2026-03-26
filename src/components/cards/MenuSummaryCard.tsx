@@ -1,4 +1,5 @@
 import { UtensilsCrossed } from "lucide-react";
+import DynamicIcon from "@/components/DynamicIcon";
 
 interface MenuSummary {
   id: string;
@@ -13,9 +14,10 @@ interface MenuSummaryCardProps {
   language: string;
   animationDelay?: string;
   tallHeight?: boolean;
+  categoryIcon?: string | null;
 }
 
-const MenuSummaryCard = ({ summaries, language, animationDelay = "0ms", tallHeight }: MenuSummaryCardProps) => {
+const MenuSummaryCard = ({ summaries, language, animationDelay = "0ms", tallHeight, categoryIcon }: MenuSummaryCardProps) => {
   if (summaries.length === 0) return null;
 
   return (
@@ -24,7 +26,11 @@ const MenuSummaryCard = ({ summaries, language, animationDelay = "0ms", tallHeig
       style={{ animationDelay, animationFillMode: "forwards" }}
     >
       <div className="flex items-center gap-2 mb-3">
-        <UtensilsCrossed className="h-4 w-4 text-gold" />
+        {categoryIcon ? (
+          <DynamicIcon name={categoryIcon} className="h-4 w-4 text-gold" fallback={<UtensilsCrossed className="h-4 w-4 text-gold" />} />
+        ) : (
+          <UtensilsCrossed className="h-4 w-4 text-gold" />
+        )}
         <h3
           className="text-sm font-bold uppercase tracking-wide"
           style={{ fontFamily: "'Josefin Sans', sans-serif" }}
