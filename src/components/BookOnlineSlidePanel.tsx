@@ -337,7 +337,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
       // Fetch KP related businesses
       const kpVal = (bizRes.data as any)?.kp_regroupement;
-      if (kpVal && kpVal.trim() !== "") {
+      if (kpVal && kpVal.trim() !== "" && (bizRes.data as any)?.kp_active) {
         const { data: kpData } = await supabase
           .from("businesses")
           .select("id, name, slug, logo_url, images, is_master")
