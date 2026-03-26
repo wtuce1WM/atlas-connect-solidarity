@@ -627,7 +627,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               <CalendarCheck className="h-16 w-16 text-muted-foreground/40" />
             </div>
           )}
-          {currentMedia?.kind !== "video" && currentMedia?.kind !== "social_embed" && (
+          {currentMedia?.kind !== "video" && (
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
           )}
         </div>
