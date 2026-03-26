@@ -29,7 +29,7 @@ interface MenuUrlCardProps {
   onOpenUrl: (url: string, title?: string) => void;
 }
 
-const MenuUrlCard = ({ menus, language, animationDelay = "0ms", tallHeight, onOpenUrl }: MenuUrlCardProps) => {
+const MenuUrlCard = ({ menus, language, animationDelay = "0ms", tallHeight, categoryIcon, onOpenUrl }: MenuUrlCardProps) => {
   if (menus.length === 0) return null;
 
   return (
