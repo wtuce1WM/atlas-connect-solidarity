@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Search, Star, MapPin, Hotel, Image, ExternalLink } from "lucide-react";
+import { Loader2, Search, Star, MapPin, Hotel, Image, ExternalLink, X, Pencil, Check, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface LiteApiHotel {
   hotelId: string;
@@ -48,6 +49,17 @@ interface SerpApiHotel {
   thumbnail?: string;
 }
 
+interface OwmBusiness {
+  id: string;
+  name: string;
+  city: string | null;
+  logo_url: string | null;
+  images: string[] | null;
+  google_rating: number | null;
+  google_review_count: number | null;
+  main_category: string | null;
+}
+
 const CITY_OPTIONS = [
   { label: "Essaouira", value: "Essaouira", code: "ESU" },
   { label: "Marrakech", value: "Marrakech", code: "RAK" },
@@ -70,6 +82,119 @@ const dayAfter = () => {
   return d.toISOString().split("T")[0];
 };
 
+// ── OWM Business matcher for a single SerpApi hotel ──
+const OwmMatcher = ({
+  serpHotelName,
+  matchedBusiness,
+  onMatch,
+}: {
+  serpHotelName: string;
+  matchedBusiness: OwmBusiness | null;
+  onMatch: (biz: OwmBusiness | null) => void;
+}) => {
+  const [editing, setEditing] = useState(false);
+  const [query, setQuery] = useState("");
+  const [options, setOptions] = useState<OwmBusiness[]>([]);
+  const [showDrop, setShowDrop] = useState(false);
+
+  useEffect(() => {
+    if (query.length < 2) { setOptions([]); return; }
+    const t = setTimeout(async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name, city, logo_url, images, google_rating, google_review_count, main_category")
+        .ilike("name", `%${query}%`)
+        .limit(8);
+      setOptions((data as OwmBusiness[]) || []);
+      setShowDrop(true);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [query]);
+
+  if (!editing && matchedBusiness) {
+    const img = (matchedBusiness.images && matchedBusiness.images.length > 0 ? matchedBusiness.images[0] : null) || matchedBusiness.logo_url;
+    const imgCount = matchedBusiness.images?.length || 0;
+    return (
+      <div className="space-y-1.5">
+        <div className="flex items-center gap-1.5">
+          <p className="font-semibold text-sm truncate flex-1">{matchedBusiness.name}</p>
+          <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={() => { setEditing(true); setQuery(""); }}>
+            <Pencil className="h-3 w-3" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0 text-destructive" onClick={() => onMatch(null)}>
+            <X className="h-3 w-3" />
+          </Button>
+        </div>
+        {img && <img src={img} alt="" className="w-full h-16 object-cover rounded" />}
+        <div className="flex items-center gap-2">
+          {matchedBusiness.google_rating != null && (
+            <span className="text-xs flex items-center gap-0.5">
+              <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+              {matchedBusiness.google_rating}
+              {matchedBusiness.google_review_count != null && (
+                <span className="text-muted-foreground">({matchedBusiness.google_review_count})</span>
+              )}
+            </span>
+          )}
+        </div>
+        {imgCount > 0 && (
+          <div className="flex items-center gap-1">
+            <Image className="h-3 w-3 text-muted-foreground" />
+            <span className="text-[10px] text-muted-foreground">{imgCount} photos</span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (!editing && !matchedBusiness) {
+    return (
+      <div className="flex flex-col items-center justify-center py-2 gap-1.5">
+        <Building2 className="h-5 w-5 text-muted-foreground/40" />
+        <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => { setEditing(true); setQuery(serpHotelName); }}>
+          Associer
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative space-y-1">
+      <div className="flex gap-1">
+        <Input
+          placeholder="Rechercher…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => options.length > 0 && setShowDrop(true)}
+          onBlur={() => setTimeout(() => setShowDrop(false), 200)}
+          className="h-7 text-xs"
+          autoFocus
+        />
+        <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => setEditing(false)}>
+          <X className="h-3 w-3" />
+        </Button>
+      </div>
+      {showDrop && options.length > 0 && (
+        <div className="absolute z-50 bg-popover border rounded-md shadow-md w-full mt-0.5 max-h-40 overflow-y-auto">
+          {options.map((b) => (
+            <button
+              key={b.id}
+              className="w-full text-left px-2 py-1.5 hover:bg-muted text-xs"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                onMatch(b);
+                setEditing(false);
+              }}
+            >
+              {b.name} {b.city && <span className="text-muted-foreground">— {b.city}</span>}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const HotelApiComparison = () => {
   const [city, setCity] = useState("Essaouira");
   const [checkIn, setCheckIn] = useState(tomorrow());
@@ -84,7 +209,45 @@ const HotelApiComparison = () => {
   const [liteError, setLiteError] = useState<string | null>(null);
   const [serpError, setSerpError] = useState<string | null>(null);
 
+  // Map: serpHotelName (lowercase) -> OwmBusiness
+  const [owmMatches, setOwmMatches] = useState<Record<string, OwmBusiness>>({});
+
   const cityOption = CITY_OPTIONS.find((c) => c.value === city) || CITY_OPTIONS[0];
+
+  // Auto-match SerpApi hotels to DB businesses by name
+  const autoMatch = useCallback(async (hotels: SerpApiHotel[]) => {
+    if (hotels.length === 0) return;
+    // Fetch all hotel-category businesses for this city
+    const { data: businesses } = await supabase
+      .from("businesses")
+      .select("id, name, city, logo_url, images, google_rating, google_review_count, main_category")
+      .eq("city", cityOption.label)
+      .eq("main_category", "Hôtellerie")
+      .eq("is_active", true);
+
+    if (!businesses || businesses.length === 0) return;
+
+    const matches: Record<string, OwmBusiness> = {};
+    for (const hotel of hotels) {
+      const hotelKey = hotel.name.toLowerCase().trim();
+      // Try exact match first, then fuzzy
+      const exact = businesses.find((b) => b.name.toLowerCase().trim() === hotelKey);
+      if (exact) {
+        matches[hotelKey] = exact as OwmBusiness;
+        continue;
+      }
+      // Partial: hotel name contains business name or vice versa
+      const partial = businesses.find(
+        (b) =>
+          hotelKey.includes(b.name.toLowerCase().trim()) ||
+          b.name.toLowerCase().trim().includes(hotelKey)
+      );
+      if (partial) {
+        matches[hotelKey] = partial as OwmBusiness;
+      }
+    }
+    setOwmMatches(matches);
+  }, [cityOption.label]);
 
   const handleSearch = async () => {
     setLoading(true);
@@ -93,6 +256,7 @@ const HotelApiComparison = () => {
     setLiteError(null);
     setSerpError(null);
     setSerpPages(0);
+    setOwmMatches({});
 
     const litePromise = (async () => {
       const t0 = performance.now();
@@ -120,6 +284,7 @@ const HotelApiComparison = () => {
       }
     })();
 
+    let serpData: SerpApiHotel[] = [];
     const serpPromise = (async () => {
       const t0 = performance.now();
       try {
@@ -138,6 +303,7 @@ const HotelApiComparison = () => {
         const sorted = (data?.data || []).slice().sort((a: SerpApiHotel, b: SerpApiHotel) => a.name.localeCompare(b.name, 'fr'));
         setSerpResults(sorted);
         setSerpPages(data?.pages || 1);
+        serpData = sorted;
       } catch (e: any) {
         setSerpTime(Math.round(performance.now() - t0));
         setSerpError(e.message);
@@ -147,7 +313,27 @@ const HotelApiComparison = () => {
 
     await Promise.all([litePromise, serpPromise]);
     setLoading(false);
+
+    // Auto-match after results
+    if (serpData.length > 0) {
+      autoMatch(serpData);
+    }
   };
+
+  const handleOwmMatch = (serpName: string, biz: OwmBusiness | null) => {
+    const key = serpName.toLowerCase().trim();
+    setOwmMatches((prev) => {
+      const next = { ...prev };
+      if (biz) {
+        next[key] = biz;
+      } else {
+        delete next[key];
+      }
+      return next;
+    });
+  };
+
+  const owmMatchCount = Object.keys(owmMatches).length;
 
   return (
     <div className="space-y-6">
@@ -156,7 +342,7 @@ const HotelApiComparison = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Hotel className="h-5 w-5" />
-            Comparaison API Hôtels — LiteAPI vs SerpApi (Google Hotels)
+            Comparaison API Hôtels — LiteAPI vs SerpApi vs OWM
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -193,14 +379,14 @@ const HotelApiComparison = () => {
         </CardContent>
       </Card>
 
-      {/* Results side by side */}
+      {/* Results: 3 columns */}
       {(liteResults !== null || serpResults !== null) && (
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid lg:grid-cols-3 gap-4">
           {/* LiteAPI column */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <h3 className="font-bold text-base">LiteAPI</h3>
-              <Badge variant="secondary">{liteResults?.length ?? 0} résultats</Badge>
+              <Badge variant="secondary">{liteResults?.length ?? 0}</Badge>
               <span className="text-xs text-muted-foreground">{liteTime}ms</span>
             </div>
             {liteError && <p className="text-sm text-destructive">{liteError}</p>}
@@ -215,9 +401,9 @@ const HotelApiComparison = () => {
           {/* SerpApi column */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <h3 className="font-bold text-base">SerpApi (Google Hotels)</h3>
-              <Badge variant="secondary">{serpResults?.length ?? 0} résultats</Badge>
-              {serpPages > 1 && <Badge variant="outline" className="text-[10px]">{serpPages} pages</Badge>}
+              <h3 className="font-bold text-base">Google Hotels</h3>
+              <Badge variant="secondary">{serpResults?.length ?? 0}</Badge>
+              {serpPages > 1 && <Badge variant="outline" className="text-[10px]">{serpPages} p.</Badge>}
               <span className="text-xs text-muted-foreground">{serpTime}ms</span>
             </div>
             {serpError && <p className="text-sm text-destructive">{serpError}</p>}
@@ -226,6 +412,33 @@ const HotelApiComparison = () => {
             ))}
             {serpResults?.length === 0 && !serpError && (
               <p className="text-sm text-muted-foreground">Aucun résultat</p>
+            )}
+          </div>
+
+          {/* OWM column */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <h3 className="font-bold text-base">ONE WORLD MOROCCO</h3>
+              <Badge variant="secondary">{owmMatchCount}/{serpResults?.length ?? 0}</Badge>
+            </div>
+            {serpResults?.map((h, i) => {
+              const key = h.name.toLowerCase().trim();
+              const matched = owmMatches[key] || null;
+              return (
+                <Card key={`owm-${h.name}-${i}`} className="overflow-hidden">
+                  <div className="p-3">
+                    <p className="text-[10px] text-muted-foreground mb-1.5 truncate">↔ {h.name}</p>
+                    <OwmMatcher
+                      serpHotelName={h.name}
+                      matchedBusiness={matched}
+                      onMatch={(biz) => handleOwmMatch(h.name, biz)}
+                    />
+                  </div>
+                </Card>
+              );
+            })}
+            {(!serpResults || serpResults.length === 0) && (
+              <p className="text-sm text-muted-foreground">Lancez une recherche pour voir les correspondances</p>
             )}
           </div>
         </div>
@@ -268,7 +481,7 @@ const HotelCardLite = ({ hotel }: { hotel: LiteApiHotel }) => {
             <span className="text-sm font-bold text-primary">{price}/nuit</span>
             <span className="text-[10px] text-muted-foreground">{hotel.offers.length} offre(s)</span>
           </div>
-          {hotel.amenities.length > 0 && (
+          {hotel.amenities && hotel.amenities.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-1.5">
               {hotel.amenities.slice(0, 5).map((a, i) => (
                 <Badge key={i} variant="secondary" className="text-[9px] py-0 px-1">{a}</Badge>
