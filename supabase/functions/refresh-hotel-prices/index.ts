@@ -7,13 +7,7 @@ const corsHeaders = {
 };
 
 const SERPAPI_BASE = "https://serpapi.com/search.json";
-
-interface MappedHotel {
-  business_id: string;
-  city: string;
-  source: "serpapi" | "liteapi";
-  external_id: string; // serp_hotel_name or liteapi_hotel_id
-}
+const LITEAPI_BASE = "https://api.liteapi.travel/v3.0";
 
 function tomorrow() {
   const d = new Date();
@@ -39,50 +33,26 @@ Deno.serve(async (req) => {
     const serpApiKey = Deno.env.get("SERPAPI_API_KEY");
     const liteApiKey = Deno.env.get("LITEAPI_API_KEY");
 
-    // 1. Get all SerpAPI mappings
-    const { data: serpMappings } = await supabase
-      .from("hotel_mappings")
-      .select("business_id, serp_hotel_name, city");
-
-    // 2. Get all LiteAPI mappings
-    const { data: liteRaw } = await supabase
-      .from("hotel_api_mappings")
-      .select("business_id, liteapi_hotel_id");
-
-    // Get cities for LiteAPI mapped businesses
-    const liteBusinessIds = (liteRaw || []).map((m) => m.business_id);
-    const { data: liteBizData } = liteBusinessIds.length
-      ? await supabase
-          .from("businesses")
-          .select("id, city")
-          .in("id", liteBusinessIds)
-      : { data: [] };
-
-    const bizCityMap = new Map(
-      (liteBizData || []).map((b: any) => [b.id, b.city])
-    );
-
-    // Group by city for SerpAPI batch fetching
-    const serpByCityMap = new Map<string, MappedHotel[]>();
-    for (const m of serpMappings || []) {
-      const city = m.city || "Unknown";
-      if (!serpByCityMap.has(city)) serpByCityMap.set(city, []);
-      serpByCityMap.get(city)!.push({
-        business_id: m.business_id,
-        city,
-        source: "serpapi",
-        external_id: m.serp_hotel_name,
-      });
-    }
-
     const checkIn = tomorrow();
     const checkOut = dayAfterTomorrow();
-    const results: any[] = [];
-    let errors: string[] = [];
+    const resultsMap = new Map<string, any>(); // key: business_id+source
+    const errors: string[] = [];
 
-    // ---- SERPAPI: fetch by city ----
+    // ---- SERPAPI ----
     if (serpApiKey) {
-      for (const [city, hotels] of serpByCityMap) {
+      const { data: serpMappings } = await supabase
+        .from("hotel_mappings")
+        .select("business_id, serp_hotel_name, city");
+
+      // Group by city
+      const byCity = new Map<string, typeof serpMappings>();
+      for (const m of serpMappings || []) {
+        const city = m.city || "Unknown";
+        if (!byCity.has(city)) byCity.set(city, []);
+        byCity.get(city)!.push(m);
+      }
+
+      for (const [city, hotels] of byCity) {
         try {
           const params = new URLSearchParams({
             engine: "google_hotels",
@@ -96,53 +66,46 @@ Deno.serve(async (req) => {
             api_key: serpApiKey,
           });
 
-          // Fetch up to 3 pages to find all mapped hotels
           let allProperties: any[] = [];
           let nextPageToken: string | null = null;
-          for (let page = 0; page < 3; page++) {
-            if (nextPageToken)
-              params.set("next_page_token", nextPageToken);
+          for (let page = 0; page < 5; page++) {
+            if (nextPageToken) params.set("next_page_token", nextPageToken);
             const res = await fetch(`${SERPAPI_BASE}?${params}`);
             const body = await res.json();
             if (!res.ok) break;
             allProperties = allProperties.concat(body.properties || []);
-            nextPageToken =
-              body.serpapi_pagination?.next_page_token || null;
+            nextPageToken = body.serpapi_pagination?.next_page_token || null;
             if (!nextPageToken) break;
           }
 
-          // Match each mapped hotel by name
-          for (const hotel of hotels) {
-            const normName = hotel.external_id
-              .toLowerCase()
-              .trim();
-            const found = allProperties.find((p: any) =>
-              (p.name || "").toLowerCase().trim() === normName
+          for (const hotel of hotels!) {
+            const key = `${hotel.business_id}:serpapi`;
+            if (resultsMap.has(key)) continue; // skip duplicates
+
+            const normName = hotel.serp_hotel_name.toLowerCase().trim();
+            const found = allProperties.find(
+              (p: any) => (p.name || "").toLowerCase().trim() === normName
             );
 
             const prices = found?.rate_per_night;
             const price =
               prices?.extracted_lowest || prices?.lowest
                 ? parseFloat(
-                    String(
-                      prices.extracted_lowest || prices.lowest
-                    ).replace(/[^0-9.]/g, "")
+                    String(prices.extracted_lowest || prices.lowest).replace(/[^0-9.]/g, "")
                   )
                 : null;
 
-            results.push({
+            resultsMap.set(key, {
               business_id: hotel.business_id,
               source: "serpapi",
-              hotel_external_id: hotel.external_id,
+              hotel_external_id: hotel.serp_hotel_name,
               city: hotel.city,
               price_per_night: price,
               currency: "EUR",
               check_in: checkIn,
               check_out: checkOut,
               room_type: found ? "standard" : null,
-              hotel_rating: found?.hotel_class
-                ? String(found.hotel_class)
-                : null,
+              hotel_rating: found?.hotel_class ? String(found.hotel_class) : null,
               review_count: found?.reviews || null,
               raw_data: found
                 ? {
@@ -162,86 +125,112 @@ Deno.serve(async (req) => {
       }
     }
 
-    // ---- LITEAPI: fetch per hotel ----
+    // ---- LITEAPI: batch by city ----
     if (liteApiKey) {
-      for (const mapping of liteRaw || []) {
+      const { data: liteRaw } = await supabase
+        .from("hotel_api_mappings")
+        .select("business_id, liteapi_hotel_id");
+
+      const liteBusinessIds = (liteRaw || []).map((m) => m.business_id);
+      const { data: liteBizData } = liteBusinessIds.length
+        ? await supabase.from("businesses").select("id, city").in("id", liteBusinessIds)
+        : { data: [] };
+
+      const bizCityMap = new Map((liteBizData || []).map((b: any) => [b.id, b.city]));
+
+      // Group by city for batch requests
+      const liteByCityMap = new Map<string, typeof liteRaw>();
+      for (const m of liteRaw || []) {
+        const city = bizCityMap.get(m.business_id) || "Unknown";
+        if (!liteByCityMap.has(city)) liteByCityMap.set(city, []);
+        liteByCityMap.get(city)!.push(m);
+      }
+
+      for (const [city, mappings] of liteByCityMap) {
         try {
-          const city = bizCityMap.get(mapping.business_id) || "Unknown";
-          const hotelId = mapping.liteapi_hotel_id;
+          const hotelIds = mappings!.map((m) => m.liteapi_hotel_id);
 
-          const res = await fetch(
-            `https://api.liteapi.travel/v3.0/data/rates?hotelIds=${hotelId}&checkin=${checkIn}&checkout=${checkOut}&adults=2&currency=EUR`,
-            {
-              headers: {
-                "X-API-Key": liteApiKey,
-                Accept: "application/json",
-              },
-            }
-          );
-          const body = await res.json();
-          const hotelData = body?.data?.[0];
-          const offer = hotelData?.roomTypes?.[0];
-          const price = offer?.rates?.[0]?.retailRate?.total?.[0]?.amount
-            ? parseFloat(offer.rates[0].retailRate.total[0].amount)
-            : null;
-
-          results.push({
-            business_id: mapping.business_id,
-            source: "liteapi",
-            hotel_external_id: hotelId,
-            city,
-            price_per_night: price,
+          const ratesBody = {
+            checkin: checkIn,
+            checkout: checkOut,
             currency: "EUR",
-            check_in: checkIn,
-            check_out: checkOut,
-            room_type: offer?.name || null,
-            hotel_rating: null,
-            review_count: null,
-            raw_data: hotelData
-              ? { roomType: offer?.name, rates: offer?.rates?.[0] }
-              : null,
-            fetched_at: new Date().toISOString(),
+            guestNationality: "FR",
+            occupancies: [{ adults: 2 }],
+            hotelIds,
+          };
+
+          const res = await fetch(`${LITEAPI_BASE}/hotels/rates`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-API-Key": liteApiKey,
+              Accept: "application/json",
+            },
+            body: JSON.stringify(ratesBody),
           });
+
+          const body = await res.json();
+          const hotelsData = body?.data || [];
+
+          for (const mapping of mappings!) {
+            const key = `${mapping.business_id}:liteapi`;
+            if (resultsMap.has(key)) continue;
+
+            const hotelData = hotelsData.find(
+              (h: any) => h.hotelId === mapping.liteapi_hotel_id
+            );
+            const offer = hotelData?.roomTypes?.[0];
+            const rateInfo = offer?.rates?.[0]?.retailRate;
+            const totalArr = rateInfo?.total || [];
+            const price = totalArr[0]?.amount ? parseFloat(totalArr[0].amount) : null;
+
+            resultsMap.set(key, {
+              business_id: mapping.business_id,
+              source: "liteapi",
+              hotel_external_id: mapping.liteapi_hotel_id,
+              city,
+              price_per_night: price,
+              currency: "EUR",
+              check_in: checkIn,
+              check_out: checkOut,
+              room_type: offer?.name || null,
+              hotel_rating: null,
+              review_count: null,
+              raw_data: hotelData
+                ? { hotelId: hotelData.hotelId, roomType: offer?.name, rate: rateInfo }
+                : null,
+              fetched_at: new Date().toISOString(),
+            });
+          }
         } catch (e: any) {
-          errors.push(`LiteAPI ${mapping.liteapi_hotel_id}: ${e.message}`);
+          errors.push(`LiteAPI ${city}: ${e.message}`);
         }
       }
     }
 
-    // ---- Upsert all results ----
+    // ---- Upsert all ----
+    const results = Array.from(resultsMap.values());
     if (results.length > 0) {
       const { error: upsertError } = await supabase
         .from("hotel_price_cache")
         .upsert(results, { onConflict: "business_id,source" });
 
       if (upsertError) {
-        errors.push(`Upsert error: ${upsertError.message}`);
+        errors.push(`Upsert: ${upsertError.message}`);
       }
     }
 
-    console.log(
-      `Refreshed ${results.length} hotel prices (${errors.length} errors)`
-    );
+    console.log(`Refreshed ${results.length} prices (${errors.length} errors)`);
 
     return new Response(
-      JSON.stringify({
-        refreshed: results.length,
-        errors,
-        checkIn,
-        checkOut,
-      }),
+      JSON.stringify({ refreshed: results.length, errors, checkIn, checkOut }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
     console.error("Error:", error);
     return new Response(
-      JSON.stringify({
-        error: error instanceof Error ? error.message : "Unknown error",
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
