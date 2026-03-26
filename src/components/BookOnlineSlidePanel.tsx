@@ -396,6 +396,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         setKpRelated([]);
       }
 
+      // Fetch LiteAPI hotel mapping for Hôtellerie businesses
+      const mainCatVal = (bizRes.data as any)?.main_category;
+      if (mainCatVal === "Hôtellerie") {
+        const { data: mapping } = await supabase
+          .from("hotel_api_mappings")
+          .select("liteapi_hotel_id")
+          .eq("business_id", businessId)
+          .maybeSingle();
+        setLiteApiHotelId(mapping?.liteapi_hotel_id || null);
+      } else {
+        setLiteApiHotelId(null);
+      }
+
       setIsLoading(false);
     };
     fetchData();
