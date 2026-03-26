@@ -627,7 +627,7 @@ const HotelCardSerp = ({ hotel }: { hotel: SerpApiHotel }) => {
   const price = hotel.ratePerNight?.amount || "—";
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden min-h-[120px]">
       <div className="flex gap-3 p-3">
         {hotel.thumbnail && (
           <img src={hotel.thumbnail} alt={hotel.name} className="w-20 h-20 rounded-md object-cover shrink-0" />
