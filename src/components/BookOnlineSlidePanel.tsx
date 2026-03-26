@@ -296,7 +296,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       setExternalLinks((extLinksRes.data || []) as ExternalLinkItem[]);
       setMenuSummaries((menuSumRes.data || []) as MenuSummary[]);
       setVideoDocUrls((videoDocsRes.data || []).map((d: any) => d.url).filter(Boolean));
-
+      setSocialPosts(((socialPostsRes as any).data || []).map((p: any) => ({ platform: p.platform, post_url: p.post_url, sort_order: p.sort_order })));
 
       const docs = ((menuDocsRes.data || []) as MenuDoc[]);
       // Filter out broken links from menu docs
