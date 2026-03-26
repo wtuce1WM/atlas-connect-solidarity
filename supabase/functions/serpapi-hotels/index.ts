@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
     if (!params.checkOut) throw new Error("checkOut is required");
 
     const currency = params.currency || "EUR";
-    const maxPages = Math.min(params.maxPages || 5, 10); // cap at 10 pages
+    const maxPages = Math.min(params.maxPages || 10, 10); // default & cap at 10 pages
     const allProperties: ReturnType<typeof mapProperty>[] = [];
     let brands: unknown[] = [];
     let nextPageToken: string | null = null;
