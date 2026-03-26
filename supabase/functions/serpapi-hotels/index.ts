@@ -118,7 +118,15 @@ Deno.serve(async (req) => {
       const pageProperties = (body.properties || []).map(
         (p: Record<string, unknown>, idx: number) => mapProperty(p, allProperties.length + idx, currency)
       );
-      allProperties.push(...pageProperties);
+      // Deduplicate by normalized hotel name
+      const seen = new Set(allProperties.map(h => (h.name as string).toLowerCase().trim()));
+      for (const h of pageProperties) {
+        const key = (h.name as string).toLowerCase().trim();
+        if (!seen.has(key)) {
+          seen.add(key);
+          allProperties.push(h);
+        }
+      }
 
       if (page === 0) {
         brands = body.brands || [];
