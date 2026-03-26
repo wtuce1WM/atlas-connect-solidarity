@@ -214,10 +214,20 @@ const HotelApiComparison = () => {
 
   const cityOption = CITY_OPTIONS.find((c) => c.value === city) || CITY_OPTIONS[0];
 
+  // Normalize hotel name for matching: lowercase, remove accents, common prefixes
+  const normalizeName = (name: string) => {
+    return name
+      .toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/\b(hotel|hôtel|riad|dar|villa|maison|residence|residences|resort|spa|boutique|& spa|by|le |la |les |l'|the )\b/gi, "")
+      .replace(/[^a-z0-9\s]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
+
   // Auto-match SerpApi hotels to DB businesses by name
   const autoMatch = useCallback(async (hotels: SerpApiHotel[]) => {
     if (hotels.length === 0) return;
-    // Fetch all hotel-category businesses for this city
     const { data: businesses } = await supabase
       .from("businesses")
       .select("id, name, city, logo_url, images, google_rating, google_review_count, main_category")
@@ -227,23 +237,50 @@ const HotelApiComparison = () => {
 
     if (!businesses || businesses.length === 0) return;
 
+    // Pre-compute normalized business names
+    const bizNorm = businesses.map((b) => ({
+      biz: b as OwmBusiness,
+      norm: normalizeName(b.name),
+      lower: b.name.toLowerCase().trim(),
+    }));
+
     const matches: Record<string, OwmBusiness> = {};
     for (const hotel of hotels) {
       const hotelKey = hotel.name.toLowerCase().trim();
-      // Try exact match first, then fuzzy
-      const exact = businesses.find((b) => b.name.toLowerCase().trim() === hotelKey);
-      if (exact) {
-        matches[hotelKey] = exact as OwmBusiness;
-        continue;
-      }
-      // Partial: hotel name contains business name or vice versa
-      const partial = businesses.find(
-        (b) =>
-          hotelKey.includes(b.name.toLowerCase().trim()) ||
-          b.name.toLowerCase().trim().includes(hotelKey)
+      const hotelNorm = normalizeName(hotel.name);
+
+      // 1. Exact match
+      const exact = bizNorm.find((b) => b.lower === hotelKey);
+      if (exact) { matches[hotelKey] = exact.biz; continue; }
+
+      // 2. Normalized exact match
+      const normExact = bizNorm.find((b) => b.norm === hotelNorm);
+      if (normExact) { matches[hotelKey] = normExact.biz; continue; }
+
+      // 3. Partial: one contains the other (original)
+      const partial = bizNorm.find(
+        (b) => hotelKey.includes(b.lower) || b.lower.includes(hotelKey)
       );
-      if (partial) {
-        matches[hotelKey] = partial as OwmBusiness;
+      if (partial) { matches[hotelKey] = partial.biz; continue; }
+
+      // 4. Normalized partial
+      const normPartial = bizNorm.find(
+        (b) => hotelNorm.includes(b.norm) || b.norm.includes(hotelNorm)
+      );
+      if (normPartial) { matches[hotelKey] = normPartial.biz; continue; }
+
+      // 5. Word overlap: if ≥60% of normalized words match
+      const hotelWords = hotelNorm.split(" ").filter(Boolean);
+      if (hotelWords.length >= 2) {
+        const best = bizNorm.reduce<{ biz: OwmBusiness | null; score: number }>((acc, b) => {
+          const bizWords = b.norm.split(" ").filter(Boolean);
+          const common = hotelWords.filter((w) => bizWords.includes(w)).length;
+          const score = common / Math.max(hotelWords.length, bizWords.length);
+          return score > acc.score ? { biz: b.biz, score } : acc;
+        }, { biz: null, score: 0 });
+        if (best.biz && best.score >= 0.6) {
+          matches[hotelKey] = best.biz;
+        }
       }
     }
     setOwmMatches(matches);
