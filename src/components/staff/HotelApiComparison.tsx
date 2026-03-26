@@ -133,7 +133,8 @@ const HotelApiComparison = () => {
         setSerpTime(Math.round(performance.now() - t0));
         if (error) throw new Error(String(error));
         if (data?.error) throw new Error(data.error);
-        setSerpResults(data?.data || []);
+        const sorted = (data?.data || []).slice().sort((a: SerpApiHotel, b: SerpApiHotel) => a.name.localeCompare(b.name, 'fr'));
+        setSerpResults(sorted);
       } catch (e: any) {
         setSerpTime(Math.round(performance.now() - t0));
         setSerpError(e.message);
