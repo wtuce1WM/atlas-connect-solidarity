@@ -1199,8 +1199,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             </button>
           </div>
 
-          {/* Video player area */}
-          <div className={`flex items-center justify-center px-4 shrink-0 ${activeYoutubeVideo?.isShort ? "h-[35%]" : "h-auto py-2"}`}>
+          {/* Video player area — takes available space */}
+          <div className="flex-1 flex items-center justify-center px-4 min-h-0">
             {activeYoutubeVideo ? (
               <div className={`flex items-center justify-center ${activeYoutubeVideo.isShort ? "h-full" : "w-full"}`}>
                 <div className={`${activeYoutubeVideo.isShort ? "h-full aspect-[9/16]" : "w-full aspect-video"}`}>
@@ -1219,9 +1219,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             )}
           </div>
 
-          {/* Carousel — bottom 60% */}
+          {/* Carousel — pinned to bottom */}
           {business?.youtube_url && (business as any)?.youtube_force_external && (
-            <div className="shrink-0 overflow-y-auto px-3 pb-4 pt-2 border-t border-white/10">
+            <div className="shrink-0 overflow-y-auto px-3 pb-4 pt-2 border-t border-white/10 max-h-[45%]">
               <YouTubeShortsCarousel
                 youtubeUrl={business.youtube_url}
                 onVideoCount={() => {}}
