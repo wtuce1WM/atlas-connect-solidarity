@@ -387,23 +387,47 @@ const HotelApiComparison = () => {
     await Promise.all([litePromise, serpPromise]);
     setLoading(false);
 
-    // Auto-match after results
+    // Load saved DB mappings first, then auto-match remaining
     if (serpData.length > 0) {
+      await loadSavedMappings(serpData);
       autoMatch(serpData);
     }
   };
 
-  const handleOwmMatch = (serpName: string, biz: OwmBusiness | null) => {
+  // Save or delete mapping in DB
+  const handleOwmMatch = async (serpName: string, biz: OwmBusiness | null) => {
     const key = serpName.toLowerCase().trim();
-    setOwmMatches((prev) => {
-      const next = { ...prev };
-      if (biz) {
-        next[key] = biz;
-      } else {
-        delete next[key];
+    if (biz) {
+      // Upsert into hotel_mappings
+      const { data, error } = await supabase
+        .from("hotel_mappings")
+        .upsert(
+          { serp_hotel_name: serpName, city: cityOption.label, business_id: biz.id, updated_at: new Date().toISOString() },
+          { onConflict: "serp_hotel_name,city" }
+        )
+        .select("id")
+        .single();
+      if (error) {
+        toast.error("Erreur sauvegarde : " + error.message);
+        return;
       }
-      return next;
-    });
+      setOwmMatches((prev) => ({ ...prev, [key]: biz }));
+      if (data) setMappingIds((prev) => ({ ...prev, [key]: data.id }));
+      toast.success("Association sauvegardée");
+    } else {
+      // Delete from hotel_mappings
+      const mappingId = mappingIds[key];
+      if (mappingId) {
+        const { error } = await supabase.from("hotel_mappings").delete().eq("id", mappingId);
+        if (error) {
+          toast.error("Erreur suppression : " + error.message);
+          return;
+        }
+      }
+      setOwmMatches((prev) => { const next = { ...prev }; delete next[key]; return next; });
+      setMappingIds((prev) => { const next = { ...prev }; delete next[key]; return next; });
+      toast.success("Association supprimée");
+    }
   };
 
   const owmMatchCount = Object.keys(owmMatches).length;
