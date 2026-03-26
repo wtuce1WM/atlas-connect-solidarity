@@ -406,6 +406,7 @@ const HotelApiComparison = () => {
     setSerpError(null);
     setSerpPages(0);
     setMappingIds({});
+    setDismissedKeys(new Set());
 
     const litePromise = (async () => {
       const t0 = performance.now();
