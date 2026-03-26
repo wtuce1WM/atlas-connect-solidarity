@@ -893,6 +893,18 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     hasOpeningHours={!!hasOpeningHours}
                     tallHeight={noBottomCarousel}
                     animationDelay={woDescription ? "120ms" : "0ms"}
+                    isHotel={business.main_category === "Hôtellerie"}
+                    hasLiteApiMapping={!!liteApiHotelId}
+                    onCheckAvailability={() => {
+                      if (liteApiHotelId) {
+                        setAvailabilityOverlayCtx({
+                          liteApiHotelId,
+                          businessName: business.name,
+                          businessCity: business.city || undefined,
+                          backgroundImage: business.images?.[0] || undefined,
+                        });
+                      }
+                    }}
                   />
                 )}
                 {/* Card 3: Menu Summary */}
