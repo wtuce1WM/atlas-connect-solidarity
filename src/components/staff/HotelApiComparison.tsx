@@ -329,7 +329,7 @@ const HotelApiComparison = () => {
     setLiteError(null);
     setSerpError(null);
     setSerpPages(0);
-    setOwmMatches({});
+    setMappingIds({});
 
     const litePromise = (async () => {
       const t0 = performance.now();
