@@ -396,7 +396,7 @@ const HotelApiComparison = () => {
         toast.success(`${matchEntries.length} association(s) auto-sauvegardée(s)`);
       }
     }
-  }, [cityOption.label, isStaffUser]);
+  }, [cityOption.label, isStaffUser, dismissedKeys]);
 
   const handleSearch = async () => {
     setLoading(true);
