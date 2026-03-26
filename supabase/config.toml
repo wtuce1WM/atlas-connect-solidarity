@@ -56,6 +56,8 @@ verify_jwt = false
 
 [functions.fetch-getyourguide]
 verify_jwt = false
-
 [functions.fetch-youtube-channel]
+verify_jwt = false
+
+[functions.serpapi-hotels]
 verify_jwt = false
