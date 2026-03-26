@@ -842,6 +842,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     menus={menuDocs}
                     language={language}
                     tallHeight={noBottomCarousel}
+                    categoryIcon={categoryIcon}
                     animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0)) * 120}ms`}
                     onOpenUrl={(url, title) => {
                       const isPdf = url?.toLowerCase().endsWith('.pdf') || url?.includes('/pdfs/');
