@@ -2868,16 +2868,20 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label className="text-base font-semibold">📖 Flipbook (Issuu, Calaméo…)</Label>
-            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setFlipbookDocs(prev => [...prev, { url: "", name: "", language: "", icon: "icon_menu" }])}>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setFlipbookDocs(prev => [...prev, { url: "", name: "", language: "", icon: "" }])}>
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
           {flipbookDocs.map((doc, idx) => (
             <div key={idx} className="flex items-center gap-2">
               <div className="relative shrink-0 group">
-                <img src={getDocIconSrc(doc.icon || "icon_menu")} alt="" className="h-9 w-9 object-contain rounded border border-input p-0.5 cursor-pointer" />
+                {doc.icon ? (
+                  <img src={getDocIconSrc(doc.icon)} alt="" className="h-9 w-9 object-contain rounded border border-input p-0.5 cursor-pointer" />
+                ) : (
+                  <div className="h-9 w-9 rounded border border-dashed border-input flex items-center justify-center text-muted-foreground text-xs cursor-pointer">⊘</div>
+                )}
                 <select
-                  value={doc.icon || "icon_menu"}
+                  value={doc.icon || ""}
                   onChange={(e) => setFlipbookDocs(prev => prev.map((d, i) => i === idx ? { ...d, icon: e.target.value } : d))}
                   className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                 >
