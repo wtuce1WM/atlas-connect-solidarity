@@ -216,6 +216,8 @@ const HotelApiComparison = () => {
   const [owmMatches, setOwmMatches] = useState<Record<string, OwmBusiness>>({});
   // Map: serpHotelName (lowercase) -> DB mapping id (for delete)
   const [mappingIds, setMappingIds] = useState<Record<string, string>>({});
+  // Keys manually dismissed by the user — prevents auto-match from re-creating them
+  const [dismissedKeys, setDismissedKeys] = useState<Set<string>>(new Set());
 
   const cityOption = CITY_OPTIONS.find((c) => c.value === city) || CITY_OPTIONS[0];
 
