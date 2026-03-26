@@ -115,41 +115,43 @@ const OwmMatcher = ({
     const img = (matchedBusiness.images && matchedBusiness.images.length > 0 ? matchedBusiness.images[0] : null) || matchedBusiness.logo_url;
     const imgCount = matchedBusiness.images?.length || 0;
     return (
-      <div className="space-y-1.5">
-        <div className="flex items-center gap-1.5">
-          <p className="font-semibold text-sm truncate flex-1">{matchedBusiness.name}</p>
-          <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={() => { setEditing(true); setQuery(""); }}>
-            <Pencil className="h-3 w-3" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0 text-destructive" onClick={() => onMatch(null)}>
-            <X className="h-3 w-3" />
-          </Button>
-        </div>
-        {img && <img src={img} alt="" className="w-full h-16 object-cover rounded" />}
-        <div className="flex items-center gap-2">
-          {matchedBusiness.google_rating != null && (
-            <span className="text-xs flex items-center gap-0.5">
-              <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-              {matchedBusiness.google_rating}
-              {matchedBusiness.google_review_count != null && (
-                <span className="text-muted-foreground">({matchedBusiness.google_review_count})</span>
-              )}
-            </span>
+      <div className="flex gap-3">
+        {img && <img src={img} alt="" className="w-20 h-20 rounded-md object-cover shrink-0" />}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1">
+            <p className="font-semibold text-sm truncate flex-1">{matchedBusiness.name}</p>
+            <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={() => { setEditing(true); setQuery(""); }}>
+              <Pencil className="h-3 w-3" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0 text-destructive" onClick={() => onMatch(null)}>
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+          <div className="flex items-center gap-2 mt-0.5">
+            {matchedBusiness.google_rating != null && (
+              <span className="text-xs flex items-center gap-0.5">
+                <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                {matchedBusiness.google_rating}
+                {matchedBusiness.google_review_count != null && (
+                  <span className="text-muted-foreground">({matchedBusiness.google_review_count})</span>
+                )}
+              </span>
+            )}
+          </div>
+          {imgCount > 0 && (
+            <div className="flex items-center gap-1 mt-1">
+              <Image className="h-3 w-3 text-muted-foreground" />
+              <span className="text-[10px] text-muted-foreground">{imgCount} photos</span>
+            </div>
           )}
         </div>
-        {imgCount > 0 && (
-          <div className="flex items-center gap-1">
-            <Image className="h-3 w-3 text-muted-foreground" />
-            <span className="text-[10px] text-muted-foreground">{imgCount} photos</span>
-          </div>
-        )}
       </div>
     );
   }
 
   if (!editing && !matchedBusiness) {
     return (
-      <div className="flex flex-col items-center justify-center py-2 gap-1.5">
+      <div className="flex items-center justify-center h-20 gap-1.5">
         <Building2 className="h-5 w-5 text-muted-foreground/40" />
         <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => { setEditing(true); setQuery(serpHotelName); }}>
           Associer
