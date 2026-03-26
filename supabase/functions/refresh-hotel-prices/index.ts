@@ -222,6 +222,29 @@ Deno.serve(async (req) => {
 
     console.log(`Refreshed ${results.length} prices (${errors.length} errors)`);
 
+    // Send email report
+    try {
+      const { error: emailError } = await supabase.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "hotel-price-report",
+          recipientEmail: "jf@oneworldmorocco.com",
+          idempotencyKey: `hotel-price-report-${checkIn}`,
+          templateData: {
+            refreshed: results.length,
+            errorsCount: errors.length,
+            errors,
+            checkIn,
+            checkOut,
+            date: new Date().toLocaleDateString("fr-FR"),
+          },
+        },
+      });
+      if (emailError) console.error("Email report error:", emailError);
+      else console.log("Email report sent to jf@oneworldmorocco.com");
+    } catch (e: any) {
+      console.error("Failed to send email report:", e.message);
+    }
+
     return new Response(
       JSON.stringify({ refreshed: results.length, errors, checkIn, checkOut }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }

@@ -131,6 +131,7 @@ const AppContent = () => {
               <Route path="/blog/icon-preview" element={<IconPreview />} />
               <Route path="/staff/presentation" element={<StaffRouteGuard><BlogPresentation /></StaffRouteGuard>} />
               <Route path="/staff/presentation-fr" element={<StaffRouteGuard><BlogPresentationFR /></StaffRouteGuard>} />
+              <Route path="/unsubscribe" element={<Unsubscribe />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
