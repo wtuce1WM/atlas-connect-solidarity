@@ -313,15 +313,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       setMenuSummaries((menuSumRes.data || []) as MenuSummary[]);
       setVideoDocUrls((videoDocsRes.data || []).map((d: any) => d.url).filter(Boolean));
 
-      // Process social posts into embeddable items
-      const rawPosts = ((socialPostsRes as any).data || []) as { platform: string; post_url: string; sort_order: number }[];
-      const embeds = rawPosts
-        .map(p => {
-          const embedUrl = getSocialEmbedUrl(p.post_url, p.platform);
-          return embedUrl ? { url: p.post_url, embedUrl, platform: p.platform } : null;
-        })
-        .filter(Boolean) as { url: string; embedUrl: string; platform: string }[];
-      setSocialPostEmbeds(embeds);
 
       const docs = ((menuDocsRes.data || []) as MenuDoc[]);
       // Filter out broken links from menu docs
