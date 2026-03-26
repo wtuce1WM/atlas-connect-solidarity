@@ -594,7 +594,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       <div className="relative w-full h-full">
         {/* Media background */}
         <div className="absolute inset-0">
-          {currentMedia?.kind === "video" && videoInfo && !showDirections ? (
+          {currentMedia?.kind === "social_embed" ? (
+            <div className="w-full h-full bg-black flex items-center justify-center">
+              <iframe
+                key={currentMedia.url}
+                src={currentMedia.embedUrl}
+                className="w-full h-full border-0"
+                allow="autoplay; encrypted-media"
+                allowFullScreen
+                frameBorder="0"
+                style={{ border: 0 }}
+              />
+            </div>
+          ) : currentMedia?.kind === "video" && videoInfo && !showDirections ? (
             videoInfo.type === "file" ? (
               <video
                 ref={videoRef}
@@ -641,7 +653,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               <CalendarCheck className="h-16 w-16 text-muted-foreground/40" />
             </div>
           )}
-          {currentMedia?.kind !== "video" && (
+          {currentMedia?.kind !== "video" && currentMedia?.kind !== "social_embed" && (
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
           )}
         </div>
