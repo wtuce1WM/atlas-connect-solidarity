@@ -22,6 +22,8 @@ import type { ReviewText } from "@/components/cards/ReviewsFlipCard";
 import ExternalLinksFlipCard from "@/components/cards/ExternalLinksFlipCard";
 import type { ExternalLinkItem } from "@/components/cards/ExternalLinksFlipCard";
 import SocialLinksCard from "@/components/cards/SocialLinksCard";
+import SocialPostsCard from "@/components/cards/SocialPostsCard";
+import type { SocialPost } from "@/components/cards/SocialPostsCard";
 import MenuSummaryCard from "@/components/cards/MenuSummaryCard";
 import type { MenuSummary } from "@/components/cards/MenuSummaryCard";
 import MenuUrlCard from "@/components/cards/MenuUrlCard";
@@ -166,7 +168,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [menuSummaries, setMenuSummaries] = useState<MenuSummary[]>([]);
   const [menuDocs, setMenuDocs] = useState<MenuDoc[]>([]);
   const [videoDocUrls, setVideoDocUrls] = useState<string[]>([]);
-  
+  const [socialPosts, setSocialPosts] = useState<SocialPost[]>([]);
   const [kpRelated, setKpRelated] = useState<KpRelatedBusiness[]>([]);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -233,7 +235,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      const [bizRes, woRes, destLinksRes, reviewsRes, extLinksRes, menuSumRes, menuDocsRes, videoDocsRes] = await Promise.all([
+      const [bizRes, woRes, destLinksRes, reviewsRes, extLinksRes, menuSumRes, menuDocsRes, videoDocsRes, socialPostsRes] = await Promise.all([
         supabase
           .from("businesses")
           .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, reserve_now_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, online_shop_force_external, website_force_external, reserve_now_force_external, hook_fr, hook_en, hook_ar, description, facebook_url, instagram_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, vimeo_url, menu_url, menu_name, menu_language, video_1_url, kp_regroupement")
@@ -279,6 +281,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           .eq("business_id", businessId)
           .eq("type", "video")
           .order("sort_order"),
+        supabase
+          .from("business_social_posts" as any)
+          .select("platform, post_url, sort_order")
+          .eq("business_id", businessId)
+          .order("sort_order", { ascending: true }),
       ]);
 
       const biz = bizRes.data as BookOnlineBusiness | null;
@@ -289,7 +296,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       setExternalLinks((extLinksRes.data || []) as ExternalLinkItem[]);
       setMenuSummaries((menuSumRes.data || []) as MenuSummary[]);
       setVideoDocUrls((videoDocsRes.data || []).map((d: any) => d.url).filter(Boolean));
-
+      setSocialPosts(((socialPostsRes as any).data || []).map((p: any) => ({ platform: p.platform, post_url: p.post_url, sort_order: p.sort_order })));
 
       const docs = ((menuDocsRes.data || []) as MenuDoc[]);
       // Filter out broken links from menu docs
@@ -884,6 +891,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     vimeo={business.vimeo_url}
                     whatsapp={business.whatsapp}
                     animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(menuDocs.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0)) * 120}ms`}
+                  />
+                )}
+                {/* Card 8: Social Posts (Reels, TikToks) */}
+                {socialPosts.length > 0 && (
+                  <SocialPostsCard
+                    posts={socialPosts}
+                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(menuDocs.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0) + 1) * 120}ms`}
                   />
                 )}
                 <div className="shrink-0 w-4" aria-hidden="true" />
