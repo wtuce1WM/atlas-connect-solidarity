@@ -109,7 +109,8 @@ const HotelApiComparison = () => {
         setLiteTime(Math.round(performance.now() - t0));
         if (error) throw new Error(String(error));
         if (data?.error) throw new Error(data.error);
-        setLiteResults(data?.data || []);
+        const sorted = (data?.data || []).slice().sort((a: LiteApiHotel, b: LiteApiHotel) => a.name.localeCompare(b.name, 'fr'));
+        setLiteResults(sorted);
       } catch (e: any) {
         setLiteTime(Math.round(performance.now() - t0));
         setLiteError(e.message);
@@ -132,7 +133,8 @@ const HotelApiComparison = () => {
         setSerpTime(Math.round(performance.now() - t0));
         if (error) throw new Error(String(error));
         if (data?.error) throw new Error(data.error);
-        setSerpResults(data?.data || []);
+        const sorted = (data?.data || []).slice().sort((a: SerpApiHotel, b: SerpApiHotel) => a.name.localeCompare(b.name, 'fr'));
+        setSerpResults(sorted);
       } catch (e: any) {
         setSerpTime(Math.round(performance.now() - t0));
         setSerpError(e.message);
@@ -195,11 +197,11 @@ const HotelApiComparison = () => {
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <h3 className="font-bold text-base">LiteAPI</h3>
-              <Badge variant="secondary">{liteResults?.length ?? 0} résultats</Badge>
+              <Badge variant="secondary">{Math.min(liteResults?.length ?? 0, 20)}/{liteResults?.length ?? 0} résultats</Badge>
               <span className="text-xs text-muted-foreground">{liteTime}ms</span>
             </div>
             {liteError && <p className="text-sm text-destructive">{liteError}</p>}
-            {liteResults?.map((h) => (
+            {liteResults?.slice(0, 20).map((h) => (
               <HotelCardLite key={h.hotelId} hotel={h} />
             ))}
             {liteResults?.length === 0 && !liteError && (
@@ -211,11 +213,11 @@ const HotelApiComparison = () => {
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <h3 className="font-bold text-base">SerpApi (Google Hotels)</h3>
-              <Badge variant="secondary">{serpResults?.length ?? 0} résultats</Badge>
+              <Badge variant="secondary">{Math.min(serpResults?.length ?? 0, 20)}/{serpResults?.length ?? 0} résultats</Badge>
               <span className="text-xs text-muted-foreground">{serpTime}ms</span>
             </div>
             {serpError && <p className="text-sm text-destructive">{serpError}</p>}
-            {serpResults?.map((h, i) => (
+            {serpResults?.slice(0, 20).map((h, i) => (
               <HotelCardSerp key={`${h.name}-${i}`} hotel={h} />
             ))}
             {serpResults?.length === 0 && !serpError && (
