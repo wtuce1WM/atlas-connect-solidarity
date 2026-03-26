@@ -1681,29 +1681,25 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="kp_regroupement">KP regroupement (max 20)</Label>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">{formData.kp_regroupement ? "Actif" : "Inactif"}</span>
-                <Switch
-                  checked={!!formData.kp_regroupement}
-                  onCheckedChange={(checked) => {
-                    if (!checked) handleChange("kp_regroupement", "");
-                  }}
-                />
-              </div>
-            </div>
-            {formData.kp_regroupement !== undefined && (
-              <Input
-                id="kp_regroupement"
-                value={formData.kp_regroupement}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/[^a-zA-Z0-9]/g, "").slice(0, 20);
-                  handleChange("kp_regroupement", value);
+              <Switch
+                checked={!!formData.kp_regroupement}
+                onCheckedChange={(checked) => {
+                  if (!checked) handleChange("kp_regroupement", "");
                 }}
-                placeholder="ABC123..."
-                maxLength={20}
-                pattern="[a-zA-Z0-9]*"
+                disabled={!formData.kp_regroupement}
               />
-            )}
+            </div>
+            <Input
+              id="kp_regroupement"
+              value={formData.kp_regroupement}
+              onChange={(e) => {
+                const value = e.target.value.replace(/[^a-zA-Z0-9]/g, "").slice(0, 20);
+                handleChange("kp_regroupement", value);
+              }}
+              placeholder="ABC123..."
+              maxLength={20}
+              pattern="[a-zA-Z0-9]*"
+            />
           </div>
 
           <div className="space-y-2">
