@@ -404,6 +404,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const hasContactCard = !!(business?.phone || business?.whatsapp || business?.email || business?.website || business?.address);
   const hasReviewsCard = avgOn20 !== null && avgOn20 > 0;
 
+  const openNow = useMemo(() => {
+    if (!business) return false;
+    if (business.is_open_24h) return true;
+    const hours = business.opening_hours as Record<string, any> | null;
+    if (!hours) return false;
+    const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+    const todayKey = dayOrder[new Date().getDay()];
+    return isCurrentlyOpen(todayKey ? hours[todayKey] : null);
+  }, [business]);
+
   // Priority-based bottom carousel: YouTube > KP > Destinations > POI
   const hasYoutubeBottomCarousel = !!(business?.youtube_url && (business as any)?.youtube_force_external && youtubeVideoCount !== 0);
   const hasYoutubeReady = !!(youtubeVideoCount && youtubeVideoCount > 0);
