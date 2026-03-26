@@ -545,8 +545,8 @@ const HotelApiComparison = () => {
               const key = h.name.toLowerCase().trim();
               const matched = owmMatches[key] || null;
               return (
-                <Card key={`owm-${h.name}-${i}`} className="overflow-hidden">
-                  <div className="p-3">
+                <Card key={`owm-${h.name}-${i}`} className="overflow-hidden min-h-[120px]">
+                  <div className="p-3 h-full">
                     <p className="text-[10px] text-muted-foreground mb-1.5 truncate">↔ {h.name}</p>
                     <OwmMatcher
                       serpHotelName={h.name}
