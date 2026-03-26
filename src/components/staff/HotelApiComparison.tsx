@@ -216,16 +216,16 @@ const HotelApiComparison = () => {
 
   const cityOption = CITY_OPTIONS.find((c) => c.value === city) || CITY_OPTIONS[0];
 
-  // Load saved mappings from DB for current city
-  const loadSavedMappings = useCallback(async (hotels: SerpApiHotel[]) => {
-    if (hotels.length === 0) return;
+  // Load saved mappings from DB for current city — returns set of saved keys
+  const loadSavedMappings = useCallback(async (hotels: SerpApiHotel[]): Promise<Set<string>> => {
+    if (hotels.length === 0) return new Set();
     const names = hotels.map(h => h.name);
     const { data } = await supabase
       .from("hotel_mappings")
       .select("id, serp_hotel_name, business_id")
       .eq("city", cityOption.label)
       .in("serp_hotel_name", names);
-    if (!data || data.length === 0) return;
+    if (!data || data.length === 0) return new Set();
 
     const bizIds = [...new Set(data.map(m => m.business_id))];
     const { data: businesses } = await supabase
@@ -233,21 +233,24 @@ const HotelApiComparison = () => {
       .select("id, name, city, logo_url, images, google_rating, google_review_count, main_category")
       .in("id", bizIds);
 
-    if (!businesses) return;
+    if (!businesses) return new Set();
     const bizMap: Record<string, OwmBusiness> = {};
     for (const b of businesses) bizMap[b.id] = b as OwmBusiness;
 
     const matches: Record<string, OwmBusiness> = {};
     const ids: Record<string, string> = {};
+    const savedKeys = new Set<string>();
     for (const m of data) {
       const key = m.serp_hotel_name.toLowerCase().trim();
       if (bizMap[m.business_id]) {
         matches[key] = bizMap[m.business_id];
         ids[key] = m.id;
+        savedKeys.add(key);
       }
     }
     setOwmMatches(prev => ({ ...prev, ...matches }));
     setMappingIds(prev => ({ ...prev, ...ids }));
+    return savedKeys;
   }, [cityOption.label]);
 
   // Normalize hotel name for matching: lowercase, remove accents, common prefixes
