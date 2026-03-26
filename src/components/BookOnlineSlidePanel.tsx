@@ -135,26 +135,8 @@ interface PoiBusiness {
   logo_url: string | null;
 }
 
-type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string } | { kind: "social_embed"; url: string; embedUrl: string; platform: string };
+type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
 
-/** Convert a social post URL into an embeddable iframe URL */
-function getSocialEmbedUrl(postUrl: string, platform: string): string | null {
-  if (platform === "instagram" || /instagram\.com/i.test(postUrl)) {
-    // Ensure trailing slash then append embed/
-    const clean = postUrl.replace(/\/+$/, "");
-    return clean + "/embed/";
-  }
-  if (platform === "tiktok" || /tiktok\.com/i.test(postUrl)) {
-    // Extract video ID from TikTok URL: /video/1234 or /@user/video/1234
-    const match = postUrl.match(/\/video\/(\d+)/);
-    if (match) return `https://www.tiktok.com/embed/v2/${match[1]}`;
-  }
-  if (platform === "pinterest" || /pinterest\.(com|fr)/i.test(postUrl)) {
-    // Pinterest doesn't have a simple iframe embed — skip for background
-    return null;
-  }
-  return null;
-}
 
 const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand }: BookOnlineSlidePanelProps) => {
   const [activeBusinessId, setActiveBusinessId] = useState(propBusinessId);
@@ -184,7 +166,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [menuSummaries, setMenuSummaries] = useState<MenuSummary[]>([]);
   const [menuDocs, setMenuDocs] = useState<MenuDoc[]>([]);
   const [videoDocUrls, setVideoDocUrls] = useState<string[]>([]);
-  const [socialPostEmbeds, setSocialPostEmbeds] = useState<{ url: string; embedUrl: string; platform: string }[]>([]);
+  
   const [kpRelated, setKpRelated] = useState<KpRelatedBusiness[]>([]);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -251,7 +233,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      const [bizRes, woRes, destLinksRes, reviewsRes, extLinksRes, menuSumRes, menuDocsRes, videoDocsRes, socialPostsRes] = await Promise.all([
+      const [bizRes, woRes, destLinksRes, reviewsRes, extLinksRes, menuSumRes, menuDocsRes, videoDocsRes] = await Promise.all([
         supabase
           .from("businesses")
           .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, reserve_now_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, online_shop_force_external, website_force_external, reserve_now_force_external, hook_fr, hook_en, hook_ar, description, facebook_url, instagram_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, vimeo_url, menu_url, menu_name, menu_language, video_1_url, kp_regroupement")
@@ -297,11 +279,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           .eq("business_id", businessId)
           .eq("type", "video")
           .order("sort_order"),
-        supabase
-          .from("business_social_posts" as any)
-          .select("platform, post_url, sort_order")
-          .eq("business_id", businessId)
-          .order("sort_order", { ascending: true }),
       ]);
 
       const biz = bizRes.data as BookOnlineBusiness | null;
@@ -313,15 +290,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       setMenuSummaries((menuSumRes.data || []) as MenuSummary[]);
       setVideoDocUrls((videoDocsRes.data || []).map((d: any) => d.url).filter(Boolean));
 
-      // Process social posts into embeddable items
-      const rawPosts = ((socialPostsRes as any).data || []) as { platform: string; post_url: string; sort_order: number }[];
-      const embeds = rawPosts
-        .map(p => {
-          const embedUrl = getSocialEmbedUrl(p.post_url, p.platform);
-          return embedUrl ? { url: p.post_url, embedUrl, platform: p.platform } : null;
-        })
-        .filter(Boolean) as { url: string; embedUrl: string; platform: string }[];
-      setSocialPostEmbeds(embeds);
 
       const docs = ((menuDocsRes.data || []) as MenuDoc[]);
       // Filter out broken links from menu docs
@@ -459,12 +427,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     return () => clearInterval(interval);
   }, [hookText, businessId]);
 
-  // Memoize mediaItems — social embeds go before videos, then videos, then images
   const mediaItems = useMemo<MediaItem[]>(() => [
-    ...socialPostEmbeds.map((s) => ({ kind: "social_embed" as const, url: s.url, embedUrl: s.embedUrl, platform: s.platform })),
     ...videos.map((v) => ({ kind: "video" as const, url: v })),
     ...images.map((i) => ({ kind: "image" as const, url: i })),
-  ], [socialPostEmbeds, videos, images]);
+  ], [videos, images]);
 
   const totalMedia = mediaItems.length;
   const safeIndex = totalMedia > 0 ? currentMediaIndex % totalMedia : 0;
@@ -502,15 +468,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     return () => { window.removeEventListener("message", onMessage); clearTimeout(timer); };
   }, [videoInfo, totalMedia, goMedia]);
 
-  // Lightbox items memoized (exclude social embeds — they can't be lightboxed)
   const lightboxItems = useMemo<LightboxMediaItem[]>(() =>
-    mediaItems
-      .filter(m => m.kind !== "social_embed")
-      .map((m) =>
-        m.kind === "video"
-          ? { type: "video" as const, src: m.url, alt: business?.name || "" }
-          : { type: "image" as const, src: m.url, alt: business?.name || "" }
-      ),
+    mediaItems.map((m) =>
+      m.kind === "video"
+        ? { type: "video" as const, src: m.url, alt: business?.name || "" }
+        : { type: "image" as const, src: m.url, alt: business?.name || "" }
+    ),
   [mediaItems, business?.name]);
 
   // Booking CTA computed values
@@ -594,19 +557,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       <div className="relative w-full h-full">
         {/* Media background */}
         <div className="absolute inset-0">
-          {currentMedia?.kind === "social_embed" ? (
-            <div className="w-full h-full bg-black flex items-center justify-center">
-              <iframe
-                key={currentMedia.url}
-                src={currentMedia.embedUrl}
-                className="w-full h-full border-0"
-                allow="autoplay; encrypted-media"
-                allowFullScreen
-                frameBorder="0"
-                style={{ border: 0 }}
-              />
-            </div>
-          ) : currentMedia?.kind === "video" && videoInfo && !showDirections ? (
+          {currentMedia?.kind === "video" && videoInfo && !showDirections ? (
             videoInfo.type === "file" ? (
               <video
                 ref={videoRef}
@@ -653,7 +604,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               <CalendarCheck className="h-16 w-16 text-muted-foreground/40" />
             </div>
           )}
-          {currentMedia?.kind !== "video" && currentMedia?.kind !== "social_embed" && (
+          {currentMedia?.kind !== "video" && (
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
           )}
         </div>
