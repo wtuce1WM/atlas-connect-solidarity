@@ -52,7 +52,8 @@ const MenuSummaryCard = ({ summaries, language, animationDelay = "0ms", tallHeig
             )}
             {s.content && (
               <div
-                className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] text-white/80 [&_*]:!text-white/80 [&_p]:mb-1.5 [&_ul]:list-disc [&_li::marker]:text-gold/60"
+                className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] text-white/80 [&_*]:!text-white/80 [&_p]:mb-1.5 [&_ul]:list-disc [&_li::marker]:text-gold/60 [&_h2]:font-['Josefin_Sans',sans-serif] [&_h2]:uppercase [&_h2]:tracking-[0.12em] [&_h2]:font-bold [&_h2]:text-white [&_h2]:!text-white [&_h3]:font-['Josefin_Sans',sans-serif] [&_h3]:tracking-[0.02em] [&_h3]:font-bold [&_h3]:text-white [&_h3]:!text-white"
+                style={{ WebkitTextStroke: undefined }}
                 dangerouslySetInnerHTML={{ __html: s.content }}
               />
             )}
