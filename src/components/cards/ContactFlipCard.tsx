@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MapPin, Phone, Mail, Globe, Clock, ExternalLink } from "lucide-react";
+import { MapPin, Phone, Mail, Globe, Clock, ExternalLink, Search } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { formatDayHours as formatDayHoursDisplay, isCurrentlyOpen } from "@/lib/formatOpeningHours";
 
@@ -23,6 +23,9 @@ interface ContactFlipCardProps {
   animationDelay?: string;
   tallHeight?: boolean;
   className?: string;
+  isHotel?: boolean;
+  hasLiteApiMapping?: boolean;
+  onCheckAvailability?: () => void;
 }
 
 const ContactFlipCard = ({
@@ -32,6 +35,9 @@ const ContactFlipCard = ({
   animationDelay = "0ms",
   tallHeight = false,
   className = "",
+  isHotel = false,
+  hasLiteApiMapping = false,
+  onCheckAvailability,
 }: ContactFlipCardProps) => {
   const [flipped, setFlipped] = useState(false);
 
@@ -112,6 +118,14 @@ const ContactFlipCard = ({
               </a>
             )}
             {hasOpeningHours && <OpeningHoursBlock business={business} language={language} />}
+
+            {/* Hotel availability widget */}
+            {isHotel && hasLiteApiMapping && (
+              <HotelAvailabilityWidget
+                language={language}
+                onCheckAvailability={onCheckAvailability}
+              />
+            )}
           </div>
         </div>
 
@@ -142,6 +156,64 @@ const ContactFlipCard = ({
     </div>
   );
 };
+
+/** Hotel availability widget — Airbnb-style */
+function HotelAvailabilityWidget({
+  language,
+  onCheckAvailability,
+}: {
+  language: string;
+  onCheckAvailability?: () => void;
+}) {
+  // Default dates: tomorrow → +4 days
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const checkout = new Date(tomorrow);
+  checkout.setDate(checkout.getDate() + 4);
+
+  const formatDate = (d: Date) => {
+    const months = language === "en"
+      ? ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+      : ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"];
+    return `${months[d.getMonth()]} ${d.getDate()}`;
+  };
+
+  return (
+    <div className="mt-3 pt-3 border-t border-white/20">
+      {/* Date selectors */}
+      <div className="rounded-xl border border-white/20 overflow-hidden">
+        <div className="grid grid-cols-2 divide-x divide-white/20">
+          <div className="px-3 py-2">
+            <p className="text-[10px] uppercase tracking-wider text-white/50 font-semibold">
+              {language === "en" ? "Check in" : "Arrivée"}
+            </p>
+            <p className="text-sm font-bold text-white">{formatDate(tomorrow)}</p>
+          </div>
+          <div className="px-3 py-2">
+            <p className="text-[10px] uppercase tracking-wider text-white/50 font-semibold">
+              {language === "en" ? "Check out" : "Départ"}
+            </p>
+            <p className="text-sm font-bold text-white">{formatDate(checkout)}</p>
+          </div>
+        </div>
+        <div className="border-t border-white/20 px-3 py-2">
+          <p className="text-white/80 text-xs">
+            {language === "en" ? "2 adults" : "2 adultes"}
+          </p>
+        </div>
+      </div>
+
+      {/* Check availability button */}
+      <button
+        onClick={onCheckAvailability}
+        className="mt-3 w-full py-2.5 rounded-full bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2"
+      >
+        <Search className="h-4 w-4" />
+        {language === "en" ? "Check availability" : "Vérifier la disponibilité"}
+      </button>
+    </div>
+  );
+}
 
 /** Inline opening hours display for contact card */
 function OpeningHoursBlock({

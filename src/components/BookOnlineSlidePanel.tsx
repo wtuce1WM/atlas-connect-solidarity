@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
 import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, CalendarCheck, Star, Minimize2, Loader2 } from "lucide-react";
+import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 import { isCurrentlyOpen } from "@/lib/formatOpeningHours";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
@@ -111,6 +112,7 @@ interface BookOnlineBusiness {
   menu_language: string | null;
   video_1_url: string | null;
   kp_regroupement: string | null;
+  main_category: string | null;
 }
 
 interface KpRelatedBusiness {
@@ -179,6 +181,32 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
   const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
 
+  // Hotel availability overlay (same pattern as BusinessSlidePanel)
+  const [liteApiHotelId, setLiteApiHotelId] = useState<string | null>(null);
+  const [availabilityOverlayCtx, setAvailabilityOverlayCtx] = useState<{
+    liteApiHotelId: string;
+    businessName: string;
+    businessCity?: string;
+    backgroundImage?: string;
+  } | null>(null);
+  const [fallbackPanelData, setFallbackPanelData] = useState<FallbackPanelData | null>(null);
+  const [selectedFallbackHotelId, setSelectedFallbackHotelId] = useState<string | null>(null);
+  const [fallbackHiddenOnMobile, setFallbackHiddenOnMobile] = useState(false);
+  const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
+  const fallbackDataRef = useRef<FallbackPanelData | null>(null);
+  useEffect(() => { fallbackDataRef.current = fallbackPanelData; }, [fallbackPanelData]);
+
+  // Keep transition overlay brief on mobile
+  useEffect(() => {
+    if (!showTransitionOverlay) return;
+    if (typeof window !== "undefined" && window.innerWidth >= 1024) {
+      setShowTransitionOverlay(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setShowTransitionOverlay(false), 300);
+    return () => clearTimeout(timer);
+  }, [showTransitionOverlay]);
+
   // Unified drag logic via custom hook
   const {
     cardsHidden, dragOffsetY, isDragging,
@@ -203,6 +231,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     setActiveYoutubeVideo(null);
     setYoutubeIsPlaying(false);
     setShowYoutubeOverlay(false);
+    setAvailabilityOverlayCtx(null);
+    setFallbackPanelData(null);
+    setSelectedFallbackHotelId(null);
+    setFallbackHiddenOnMobile(false);
   }, [businessId, resetDrag]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -362,6 +394,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         setKpRelated((kpData || []) as KpRelatedBusiness[]);
       } else {
         setKpRelated([]);
+      }
+
+      // Fetch LiteAPI hotel mapping for Hôtellerie businesses
+      const mainCatVal = (bizRes.data as any)?.main_category;
+      if (mainCatVal === "Hôtellerie") {
+        const { data: mapping } = await supabase
+          .from("hotel_api_mappings")
+          .select("liteapi_hotel_id")
+          .eq("business_id", businessId)
+          .maybeSingle();
+        setLiteApiHotelId(mapping?.liteapi_hotel_id || null);
+      } else {
+        setLiteApiHotelId(null);
       }
 
       setIsLoading(false);
@@ -848,6 +893,18 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     hasOpeningHours={!!hasOpeningHours}
                     tallHeight={noBottomCarousel}
                     animationDelay={woDescription ? "120ms" : "0ms"}
+                    isHotel={business.main_category === "Hôtellerie"}
+                    hasLiteApiMapping={!!liteApiHotelId}
+                    onCheckAvailability={() => {
+                      if (liteApiHotelId) {
+                        setAvailabilityOverlayCtx({
+                          liteApiHotelId,
+                          businessName: business.name,
+                          businessCity: business.city || undefined,
+                          backgroundImage: business.images?.[0] || undefined,
+                        });
+                      }
+                    }}
                   />
                 )}
                 {/* Card 3: Menu Summary */}
@@ -1282,6 +1339,112 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           onIndexChange={setLightboxIndex}
           onClose={() => setIsLightboxOpen(false)}
         />
+      )}
+
+      {/* Hotel Availability overlay */}
+      {availabilityOverlayCtx && (
+        <HotelAvailabilityOverlay
+          liteApiHotelId={availabilityOverlayCtx.liteApiHotelId}
+          businessName={availabilityOverlayCtx.businessName}
+          businessCity={availabilityOverlayCtx.businessCity}
+          backgroundImage={availabilityOverlayCtx.backgroundImage}
+          onClose={() => setAvailabilityOverlayCtx(null)}
+          onSelectBusiness={(id) => setActiveBusinessId(id)}
+          onOpenFallbackPanel={(data) => {
+            const isMobileOrTablet = typeof window !== "undefined" && window.innerWidth < 1024;
+            if (isMobileOrTablet) setShowTransitionOverlay(true);
+            setFallbackPanelData(data);
+            setSelectedFallbackHotelId(null);
+            setFallbackHiddenOnMobile(false);
+            setAvailabilityOverlayCtx(null);
+          }}
+        />
+      )}
+
+      {/* Mobile transition overlay */}
+      {showTransitionOverlay && createPortal(
+        <div className="fixed inset-0 z-[215] bg-black lg:hidden animate-fade-in" />,
+        document.body
+      )}
+
+      {/* Fallback hotels panel */}
+      {fallbackPanelData && !fallbackHiddenOnMobile && createPortal(
+        <div className="fixed inset-0 z-[220] lg:z-[200] flex flex-col lg:justify-start lg:right-auto lg:w-1/2 lg:top-[53px]">
+          <div className="hidden lg:block absolute inset-0 bg-black/40" onClick={() => setFallbackPanelData(null)} />
+          <div className="relative bg-black/90 backdrop-blur-md flex flex-col overflow-hidden w-full h-full lg:rounded-none animate-fade-in lg:animate-slide-in-left">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
+              <div>
+                <p className="text-sm font-bold text-white">
+                  {language === "en" ? `Hotels in ${fallbackPanelData.city}` : `Hôtels à ${fallbackPanelData.city}`}
+                </p>
+                <p className="text-xs text-white/60">
+                  {fallbackPanelData.checkIn} → {fallbackPanelData.checkOut} · {fallbackPanelData.adults} {language === "en" ? "adult(s)" : "adulte(s)"}
+                </p>
+              </div>
+              <button
+                onClick={() => setFallbackPanelData(null)}
+                className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+              >
+                <X className="h-4 w-4 text-white" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-3 pb-24">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[...fallbackPanelData.hotels.filter(h => h.hotelId !== selectedFallbackHotelId)].sort((a, b) => {
+                  const aV = a.wtuce_status === "verified" ? 1 : 0;
+                  const bV = b.wtuce_status === "verified" ? 1 : 0;
+                  if (bV !== aV) return bV - aV;
+                  const computeRating = (h: typeof a) => {
+                    const src: { rating: number; count: number }[] = [];
+                    if (h.dbGoogleRating && h.dbGoogleReviewCount) src.push({ rating: h.dbGoogleRating, count: h.dbGoogleReviewCount });
+                    if (h.dbTripadvisorRating && h.dbTripadvisorReviewCount) src.push({ rating: h.dbTripadvisorRating, count: h.dbTripadvisorReviewCount });
+                    const total = src.reduce((s, r) => s + r.count, 0);
+                    if (total === 0) return 0;
+                    return src.reduce((s, r) => s + (r.rating / 5) * 20 * r.count, 0) / total;
+                  };
+                  return computeRating(b) - computeRating(a);
+                }).map((hotel) => {
+                  const cheapest = hotel.offers.length > 0
+                    ? hotel.offers.reduce((a, b) => parseFloat(a.price.total) < parseFloat(b.price.total) ? a : b)
+                    : null;
+                  const img = hotel.dbImage || hotel.mainImage;
+                  return (
+                    <div
+                      key={hotel.hotelId}
+                      className="group overflow-hidden rounded-xl border border-white/15 shadow-sm hover:shadow-md transition-all cursor-pointer relative aspect-square"
+                      onClick={() => {
+                        if (hotel.businessId) {
+                          if (window.innerWidth < 1024) setShowTransitionOverlay(true);
+                          setSelectedFallbackHotelId(hotel.hotelId);
+                          setActiveBusinessId(hotel.businessId);
+                          if (window.innerWidth < 1024) setFallbackHiddenOnMobile(true);
+                        }
+                      }}
+                    >
+                      {img ? (
+                        <img src={img} alt={hotel.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-black/60 flex items-center justify-center">
+                          <span className="text-white/40 text-xs">No image</span>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 p-2.5">
+                        <p className="text-white text-xs font-bold leading-tight truncate">{hotel.name}</p>
+                        {cheapest && (
+                          <p className="text-white/80 text-[10px] mt-0.5">
+                            {language === "en" ? "from" : "à partir de"} {parseFloat(cheapest.price.total).toFixed(0)} {cheapest.price.currency}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );
