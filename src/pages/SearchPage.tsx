@@ -2939,6 +2939,16 @@ const SearchPage = () => {
 
       {/* Tab Bar — stickybar 1 (above cities) */}
       <section data-tab-bar className="sticky top-[60px] z-[20] bg-white border-b border-border relative">
+        {/* Dynamic image from ?img= URL param */}
+        {searchParams.get("img") && (
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10">
+            <img
+              src={searchParams.get("img")!}
+              alt=""
+              className="h-8 w-8 md:h-10 md:w-10 object-contain rounded-full"
+            />
+          </div>
+        )}
         {/* <span className="absolute top-0 left-1 z-[60] bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🔴 STICKY 1</span> */}
         <div className="container mx-auto px-4">
           <div ref={(el) => {
