@@ -210,6 +210,7 @@ const HotelApiComparison = () => {
   const [serpPages, setSerpPages] = useState(0);
   const [liteError, setLiteError] = useState<string | null>(null);
   const [serpError, setSerpError] = useState<string | null>(null);
+  const [isStaffUser, setIsStaffUser] = useState<boolean | null>(null);
 
   // Map: serpHotelName (lowercase) -> OwmBusiness
   const [owmMatches, setOwmMatches] = useState<Record<string, OwmBusiness>>({});
@@ -217,6 +218,26 @@ const HotelApiComparison = () => {
   const [mappingIds, setMappingIds] = useState<Record<string, string>>({});
 
   const cityOption = CITY_OPTIONS.find((c) => c.value === city) || CITY_OPTIONS[0];
+
+  useEffect(() => {
+    const checkStaffAccess = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setIsStaffUser(false);
+        return;
+      }
+
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id);
+
+      const hasStaffRole = !!roles?.some((r) => r.role === "admin" || r.role === "staff");
+      setIsStaffUser(hasStaffRole);
+    };
+
+    checkStaffAccess();
+  }, []);
 
   // Load saved mappings from DB for current city — returns set of saved keys
   const loadSavedMappings = useCallback(async (hotels: SerpApiHotel[]): Promise<Set<string>> => {
@@ -415,6 +436,11 @@ const HotelApiComparison = () => {
   const handleOwmMatch = async (serpName: string, biz: OwmBusiness | null) => {
     const key = serpName.toLowerCase().trim();
     if (biz) {
+      if (isStaffUser !== true) {
+        toast.error("Connexion staff/admin requise pour sauvegarder l'association");
+        return;
+      }
+
       // Upsert into hotel_mappings
       const { error } = await supabase
         .from("hotel_mappings")
@@ -441,6 +467,11 @@ const HotelApiComparison = () => {
       // Delete from hotel_mappings
       const mappingId = mappingIds[key];
       if (mappingId) {
+        if (isStaffUser !== true) {
+          toast.error("Connexion staff/admin requise pour supprimer l'association");
+          return;
+        }
+
         const { error } = await supabase.from("hotel_mappings").delete().eq("id", mappingId);
         if (error) {
           toast.error("Erreur suppression : " + error.message);
@@ -541,6 +572,9 @@ const HotelApiComparison = () => {
               <h3 className="font-bold text-base">ONE WORLD MOROCCO</h3>
               <Badge variant="secondary">{owmMatchCount}/{serpResults?.length ?? 0}</Badge>
             </div>
+            {isStaffUser === false && (
+              <p className="text-xs text-destructive">Connexion staff/admin requise pour persister les associations</p>
+            )}
             {serpResults?.map((h, i) => {
               const key = h.name.toLowerCase().trim();
               const matched = owmMatches[key] || null;
