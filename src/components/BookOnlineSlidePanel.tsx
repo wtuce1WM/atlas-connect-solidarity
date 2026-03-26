@@ -580,19 +580,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       <div className="relative w-full h-full">
         {/* Media background */}
         <div className="absolute inset-0">
-          {currentMedia?.kind === "social_embed" ? (
-            <div className="w-full h-full bg-black flex items-center justify-center">
-              <iframe
-                key={currentMedia.url}
-                src={currentMedia.embedUrl}
-                className="w-full h-full border-0"
-                allow="autoplay; encrypted-media"
-                allowFullScreen
-                frameBorder="0"
-                style={{ border: 0 }}
-              />
-            </div>
-          ) : currentMedia?.kind === "video" && videoInfo && !showDirections ? (
+          {currentMedia?.kind === "video" && videoInfo && !showDirections ? (
             videoInfo.type === "file" ? (
               <video
                 ref={videoRef}
