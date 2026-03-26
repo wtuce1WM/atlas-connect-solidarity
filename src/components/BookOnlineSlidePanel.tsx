@@ -833,6 +833,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     language={language}
                     tallHeight={noBottomCarousel}
                     animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
+                    categoryIcon={categoryIcon}
                   />
                 )}
                 {/* Card 4: Menu URL */}
