@@ -181,6 +181,32 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
   const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
 
+  // Hotel availability overlay (same pattern as BusinessSlidePanel)
+  const [liteApiHotelId, setLiteApiHotelId] = useState<string | null>(null);
+  const [availabilityOverlayCtx, setAvailabilityOverlayCtx] = useState<{
+    liteApiHotelId: string;
+    businessName: string;
+    businessCity?: string;
+    backgroundImage?: string;
+  } | null>(null);
+  const [fallbackPanelData, setFallbackPanelData] = useState<FallbackPanelData | null>(null);
+  const [selectedFallbackHotelId, setSelectedFallbackHotelId] = useState<string | null>(null);
+  const [fallbackHiddenOnMobile, setFallbackHiddenOnMobile] = useState(false);
+  const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
+  const fallbackDataRef = useRef<FallbackPanelData | null>(null);
+  useEffect(() => { fallbackDataRef.current = fallbackPanelData; }, [fallbackPanelData]);
+
+  // Keep transition overlay brief on mobile
+  useEffect(() => {
+    if (!showTransitionOverlay) return;
+    if (typeof window !== "undefined" && window.innerWidth >= 1024) {
+      setShowTransitionOverlay(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setShowTransitionOverlay(false), 300);
+    return () => clearTimeout(timer);
+  }, [showTransitionOverlay]);
+
   // Unified drag logic via custom hook
   const {
     cardsHidden, dragOffsetY, isDragging,
