@@ -491,15 +491,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     return () => { window.removeEventListener("message", onMessage); clearTimeout(timer); };
   }, [videoInfo, totalMedia, goMedia]);
 
-  // Lightbox items memoized (exclude social embeds — they can't be lightboxed)
   const lightboxItems = useMemo<LightboxMediaItem[]>(() =>
-    mediaItems
-      .filter(m => m.kind !== "social_embed")
-      .map((m) =>
-        m.kind === "video"
-          ? { type: "video" as const, src: m.url, alt: business?.name || "" }
-          : { type: "image" as const, src: m.url, alt: business?.name || "" }
-      ),
+    mediaItems.map((m) =>
+      m.kind === "video"
+        ? { type: "video" as const, src: m.url, alt: business?.name || "" }
+        : { type: "image" as const, src: m.url, alt: business?.name || "" }
+    ),
   [mediaItems, business?.name]);
 
   // Booking CTA computed values
