@@ -40,6 +40,9 @@ type Business = Tables<"businesses">;
 
 type Gamme = { id: string; name_fr: string; color_hex: string | null; text_color_hex: string | null };
 
+const hasBackofficeAccess = (roles: Array<{ role: string }> | null | undefined) =>
+  !!roles?.some((r) => r.role === "admin" || r.role === "staff");
+
 const StaffBackoffice = () => {
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -80,7 +83,7 @@ const StaffBackoffice = () => {
         .select("role")
         .eq("user_id", session.user.id);
 
-      if (!roles || roles.length === 0) {
+      if (!hasBackofficeAccess(roles as Array<{ role: string }> | null | undefined)) {
         await supabase.auth.signOut();
         navigate("/staff/login");
         return;

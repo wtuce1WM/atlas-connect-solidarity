@@ -8,6 +8,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Lock, Mail, ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 
+const hasBackofficeAccess = (roles: Array<{ role: string }> | null | undefined) =>
+  !!roles?.some((r) => r.role === "admin" || r.role === "staff");
+
 const StaffLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,8 +30,10 @@ const StaffLogin = () => {
           .select("role")
           .eq("user_id", session.user.id);
         
-        if (roles && roles.length > 0) {
+        if (hasBackofficeAccess(roles as Array<{ role: string }> | null | undefined)) {
           navigate("/staff/backoffice");
+        } else {
+          await supabase.auth.signOut();
         }
       }
     };
@@ -60,12 +65,12 @@ const StaffLogin = () => {
           throw rolesError;
         }
 
-        if (!roles || roles.length === 0) {
+        if (!hasBackofficeAccess(roles as Array<{ role: string }> | null | undefined)) {
           await supabase.auth.signOut();
           toast({
             variant: "destructive",
             title: "Accès refusé",
-            description: "Vous n'avez pas les droits d'accès au backoffice.",
+            description: "Vous n'avez pas les droits staff/admin pour accéder au backoffice.",
           });
           return;
         }
