@@ -314,8 +314,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       }
       setDestinations(fetchedDests);
 
-      // Fetch POI businesses when destinations ≤ 1
-      if (fetchedDests.length <= 1) {
+      // Fetch POI businesses
+      {
         const { data: poiLinks } = await supabase
           .from("business_poi_businesses")
           .select("poi_business_id")
@@ -331,8 +331,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         } else {
           setPoiBusinesses([]);
         }
-      } else {
-        setPoiBusinesses([]);
       }
 
       // Fetch KP related businesses
