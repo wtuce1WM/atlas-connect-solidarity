@@ -4715,6 +4715,7 @@ const SearchPage = () => {
                   onClose={closeCompactPanel}
                   isExpanded={isCompactPanelExpanded}
                   onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
+                  externalOverlayActive={showAiPopup}
                 />
               ) : isCompactPanelWebOnly ? (
                 <WebOnlySlidePanel
