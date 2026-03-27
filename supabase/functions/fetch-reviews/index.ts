@@ -138,7 +138,9 @@ function isStrongPlaceNameMatch(candidateName: string, expectedNames: string[]):
     if (candidateNormalized === expectedNormalized) return true;
 
     const minLength = Math.min(candidateNormalized.length, expectedNormalized.length);
-    if (minLength >= 8 && (candidateNormalized.includes(expectedNormalized) || expectedNormalized.includes(candidateNormalized))) {
+    // Only allow substring match if the shorter string is at least 70% of the longer one
+    const maxLength = Math.max(candidateNormalized.length, expectedNormalized.length);
+    if (minLength >= 8 && minLength / maxLength >= 0.7 && (candidateNormalized.includes(expectedNormalized) || expectedNormalized.includes(candidateNormalized))) {
       return true;
     }
 
