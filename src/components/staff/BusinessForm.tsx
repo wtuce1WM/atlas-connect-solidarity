@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import restaurantGuruLogo from "@/assets/restaurant-guru-logo.webp";
 import glovoLogo from "@/assets/glovo-logo.png";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
+import { whatsappUrl } from "@/lib/phoneUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAllRows } from "@/lib/fetchAllRows";
 import { Button } from "@/components/ui/button";

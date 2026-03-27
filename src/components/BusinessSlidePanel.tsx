@@ -5,6 +5,7 @@ import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem } from "@/components/FullscreenLightbox";
 import { supabase } from "@/integrations/supabase/client";
+import { cleanPhone, whatsappUrl } from "@/lib/phoneUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link, useNavigate } from "react-router-dom";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";

@@ -8,6 +8,7 @@ import { MapPin, Phone, ShieldCheck, Star, Globe, Clock, Headphones, Loader2, Le
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount as getTotalReviews } from "@/lib/ratingUtils";
+import { cleanPhone, whatsappUrl } from "@/lib/phoneUtils";
 import { isOpenDuringSlot, getOpeningTimeForSlot, type TimeSlot } from "@/lib/timeSlots";
 import { isCurrentlyOpen, type DayHoursData } from "@/lib/formatOpeningHours";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";

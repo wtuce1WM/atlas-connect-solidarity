@@ -5,6 +5,7 @@ import {
   Wheat, Factory, GraduationCap, Heart, Dumbbell, Sparkles, Theater, Cpu, LayoutGrid
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { cleanPhone } from "@/lib/phoneUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
