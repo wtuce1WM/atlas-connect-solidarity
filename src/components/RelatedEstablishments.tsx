@@ -6,10 +6,11 @@ import BusinessCard, { BusinessCardData, Gamme, Badge, SubcategoryRef, BadgeSubc
 interface RelatedEstablishmentsProps {
   currentBusinessId: string;
   kpRegroupement: string;
+  kpRegroupement2?: string;
   isVerified?: boolean;
 }
 
-const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified = false }: RelatedEstablishmentsProps) => {
+const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, kpRegroupement2, isVerified = false }: RelatedEstablishmentsProps) => {
   const [relatedBusinesses, setRelatedBusinesses] = useState<BusinessCardData[]>([]);
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
@@ -20,37 +21,47 @@ const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified =
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!kpRegroupement || kpRegroupement.trim() === "") {
+      if ((!kpRegroupement || kpRegroupement.trim() === "") && (!kpRegroupement2 || kpRegroupement2.trim() === "")) {
         setIsLoading(false);
         return;
       }
 
-      const [businessesRes, gammesRes, badgesRes, subcatsRes, badgeSubcatsRes] = await Promise.all([
-        supabase
+      // Try KP1 first
+      let businessData: any[] = [];
+      if (kpRegroupement && kpRegroupement.trim() !== "") {
+        const res = await supabase
           .from("businesses")
           .select("id, name, city, region, address, phone, whatsapp, skype, logo_url, images, categories, default_service, wtuce_status, latitude, longitude, google_maps_url, rating, gamme_id, badge_id, neighborhood, is_master")
           .eq("kp_regroupement", kpRegroupement)
           .eq("is_active", true)
           .neq("id", currentBusinessId)
           .order("wtuce_status", { ascending: false })
-          .order("priority_score", { ascending: false }),
-        supabase
-          .from("gammes")
-          .select("id, name_fr, color_hex, text_color_hex"),
-        supabase
-          .from("badges")
-          .select("id, name_fr, color_hex, text_color_hex"),
-        supabase
-          .from("subcategories")
-          .select("id, name_fr"),
-        supabase
-          .from("badge_subcategories")
-          .select("badge_id, subcategory_id")
+          .order("priority_score", { ascending: false });
+        businessData = res.data || [];
+      }
+
+      // Fallback to KP2 if KP1 has no results
+      if (businessData.length === 0 && kpRegroupement2 && kpRegroupement2.trim() !== "") {
+        const res = await supabase
+          .from("businesses")
+          .select("id, name, city, region, address, phone, whatsapp, skype, logo_url, images, categories, default_service, wtuce_status, latitude, longitude, google_maps_url, rating, gamme_id, badge_id, neighborhood, is_master")
+          .eq("kp_regroupement_2", kpRegroupement2)
+          .eq("is_active", true)
+          .neq("id", currentBusinessId)
+          .order("wtuce_status", { ascending: false })
+          .order("priority_score", { ascending: false });
+        businessData = res.data || [];
+      }
+
+      const [gammesRes, badgesRes, subcatsRes, badgeSubcatsRes] = await Promise.all([
+        supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex"),
+        supabase.from("badges").select("id, name_fr, color_hex, text_color_hex"),
+        supabase.from("subcategories").select("id, name_fr"),
+        supabase.from("badge_subcategories").select("badge_id, subcategory_id")
       ]);
 
-      if (businessesRes.data && businessesRes.data.length > 0) {
-        // Sort: master first, then by status/priority
-        const sorted = [...businessesRes.data].sort((a: any, b: any) => {
+      if (businessData.length > 0) {
+        const sorted = [...businessData].sort((a: any, b: any) => {
           if (a.is_master && !b.is_master) return -1;
           if (!a.is_master && b.is_master) return 1;
           return 0;
@@ -73,7 +84,7 @@ const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified =
     };
 
     fetchData();
-  }, [currentBusinessId, kpRegroupement]);
+  }, [currentBusinessId, kpRegroupement, kpRegroupement2]);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {

@@ -1599,9 +1599,9 @@ const BusinessDetail = () => {
       </main>
 
       {/* Related Establishments - full width above footer */}
-      {business.kp_regroupement && (
+      {(business.kp_regroupement || (business as any).kp_regroupement_2) && (
         <div className="container mx-auto px-4 lg:px-8 pb-12 max-w-5xl">
-          <RelatedEstablishments currentBusinessId={business.id} kpRegroupement={business.kp_regroupement} isVerified={isVerified} />
+          <RelatedEstablishments currentBusinessId={business.id} kpRegroupement={business.kp_regroupement || ''} kpRegroupement2={(business as any).kp_regroupement_2 || ''} isVerified={isVerified} />
         </div>
       )}
 
