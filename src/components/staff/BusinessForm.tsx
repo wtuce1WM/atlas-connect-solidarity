@@ -492,6 +492,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     
     ice: (business as any)?.ice || "",
     kp_regroupement: (business as any)?.kp_regroupement || "",
+    kp_regroupement_2: (business as any)?.kp_regroupement_2 || "",
     kp_active: (business as any)?.kp_active ?? false,
     facebook_url: (business as any)?.facebook_url || "",
     instagram_url: (business as any)?.instagram_url || "",
@@ -1092,6 +1093,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       
       ice: formData.ice || null,
       kp_regroupement: formData.kp_regroupement || null,
+      kp_regroupement_2: formData.kp_regroupement_2 || null,
       kp_active: formData.kp_active,
       facebook_url: formData.facebook_url || null,
       instagram_url: formData.instagram_url || null,
@@ -1705,12 +1707,18 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="liteapi_id">ID LiteAPI (max 20)</Label>
-            {business?.id ? (
-              <LiteApiMappingField businessId={business.id} />
-            ) : (
-              <Input disabled placeholder="Enregistrez d'abord" />
-            )}
+            <Label htmlFor="kp_regroupement_2">KP regroupement 2 (max 20)</Label>
+            <Input
+              id="kp_regroupement_2"
+              value={formData.kp_regroupement_2}
+              onChange={(e) => {
+                const value = e.target.value.replace(/[^a-zA-Z0-9]/g, "").slice(0, 20);
+                handleChange("kp_regroupement_2", value);
+              }}
+              placeholder="ABC123..."
+              maxLength={20}
+              pattern="[a-zA-Z0-9]*"
+            />
           </div>
         </div>
 
