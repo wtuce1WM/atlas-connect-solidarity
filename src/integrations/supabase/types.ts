@@ -867,6 +867,7 @@ export type Database = {
           keywords: string[] | null
           kp_active: boolean
           kp_regroupement: string | null
+          kp_regroupement_2: string | null
           label1_link_url: string | null
           label1_url: string | null
           languages: string[] | null
@@ -1001,6 +1002,7 @@ export type Database = {
           keywords?: string[] | null
           kp_active?: boolean
           kp_regroupement?: string | null
+          kp_regroupement_2?: string | null
           label1_link_url?: string | null
           label1_url?: string | null
           languages?: string[] | null
@@ -1135,6 +1137,7 @@ export type Database = {
           keywords?: string[] | null
           kp_active?: boolean
           kp_regroupement?: string | null
+          kp_regroupement_2?: string | null
           label1_link_url?: string | null
           label1_url?: string | null
           languages?: string[] | null
@@ -3763,6 +3766,7 @@ export type Database = {
               keywords: string[] | null
               kp_active: boolean
               kp_regroupement: string | null
+              kp_regroupement_2: string | null
               label1_link_url: string | null
               label1_url: string | null
               languages: string[] | null
@@ -3913,6 +3917,7 @@ export type Database = {
               keywords: string[] | null
               kp_active: boolean
               kp_regroupement: string | null
+              kp_regroupement_2: string | null
               label1_link_url: string | null
               label1_url: string | null
               languages: string[] | null

@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN kp_regroupement_2 character varying DEFAULT NULL;
