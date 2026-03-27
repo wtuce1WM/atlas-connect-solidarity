@@ -1093,6 +1093,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       
       ice: formData.ice || null,
       kp_regroupement: formData.kp_regroupement || null,
+      kp_regroupement_2: formData.kp_regroupement_2 || null,
       kp_active: formData.kp_active,
       facebook_url: formData.facebook_url || null,
       instagram_url: formData.instagram_url || null,
