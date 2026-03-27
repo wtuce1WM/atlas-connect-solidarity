@@ -338,6 +338,7 @@ const BecomeAffiliate = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-5">
+                <p className="text-sm text-muted-foreground italic">{t.requiredNote}</p>
                 <div>
                   <label className="block text-muted-foreground text-sm mb-1.5">{t.labelName}</label>
                   <Input
