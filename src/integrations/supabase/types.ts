@@ -491,10 +491,12 @@ export type Database = {
         Row: {
           business_id: string
           created_at: string
+          destination_id: string | null
           icon: string | null
           id: string
           language: string | null
           name: string | null
+          poi_id: string | null
           sort_order: number
           type: string
           url: string
@@ -502,10 +504,12 @@ export type Database = {
         Insert: {
           business_id: string
           created_at?: string
+          destination_id?: string | null
           icon?: string | null
           id?: string
           language?: string | null
           name?: string | null
+          poi_id?: string | null
           sort_order?: number
           type: string
           url: string
@@ -513,10 +517,12 @@ export type Database = {
         Update: {
           business_id?: string
           created_at?: string
+          destination_id?: string | null
           icon?: string | null
           id?: string
           language?: string | null
           name?: string | null
+          poi_id?: string | null
           sort_order?: number
           type?: string
           url?: string
@@ -534,6 +540,20 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_documents_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_documents_poi_id_fkey"
+            columns: ["poi_id"]
+            isOneToOne: false
+            referencedRelation: "points_of_interest"
             referencedColumns: ["id"]
           },
         ]
