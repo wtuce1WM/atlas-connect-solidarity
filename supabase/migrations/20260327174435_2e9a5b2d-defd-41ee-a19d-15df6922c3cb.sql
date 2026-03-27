@@ -1,0 +1,1 @@
+DELETE FROM reviews WHERE business_id = '6153bd92-df99-40c7-b3af-64e1cfd17818';
