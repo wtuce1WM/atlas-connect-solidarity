@@ -78,7 +78,7 @@ const ContactFlipCard = ({
             )}
             {business.phone && (
               <a
-                href={`tel:${business.phone}`}
+                href={`tel:${cleanPhone(business.phone)}`}
                 className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
               >
                 <Phone className="h-4 w-4 shrink-0 text-white/60" />
