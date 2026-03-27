@@ -3169,7 +3169,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                       <SelectTrigger className="h-6 text-[10px]"><SelectValue placeholder="—" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="__none__">— Aucun</SelectItem>
-                        {dbPOIs.map(p => <SelectItem key={p.id} value={p.id}>{p.name_fr}</SelectItem>)}
+                        {poiBusinessesForCity.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>

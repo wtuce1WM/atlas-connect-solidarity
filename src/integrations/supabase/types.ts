@@ -553,7 +553,14 @@ export type Database = {
             foreignKeyName: "business_documents_poi_id_fkey"
             columns: ["poi_id"]
             isOneToOne: false
-            referencedRelation: "points_of_interest"
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_documents_poi_id_fkey"
+            columns: ["poi_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
         ]
