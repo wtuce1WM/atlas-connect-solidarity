@@ -188,7 +188,7 @@ const BecomeAffiliate = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.businessName.trim() || !form.contactName.trim() || !form.phone.trim() || !form.city.trim()) {
+    if (!form.businessName.trim() || !form.firstName.trim() || !form.lastName.trim() || !form.phone.trim() || !form.city.trim()) {
       toast({ variant: "destructive", title: "Erreur", description: "Veuillez remplir les champs obligatoires." });
       return;
     }
