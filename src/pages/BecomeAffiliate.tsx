@@ -189,17 +189,38 @@ const BecomeAffiliate = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.businessName.trim() || !form.firstName.trim() || !form.lastName.trim() || !form.phone.trim() || !form.city.trim()) {
+    if (!form.businessName.trim() || !form.firstName.trim() || !form.lastName.trim() || !form.phone.trim() || !form.city.trim() || !form.email.trim()) {
       toast({ variant: "destructive", title: "Erreur", description: "Veuillez remplir les champs obligatoires." });
       return;
     }
     setFormLoading(true);
-    // For now just show success — could insert into a table later
-    setTimeout(() => {
-      setFormLoading(false);
+    try {
+      await supabase.functions.invoke('send-transactional-email', {
+        body: {
+          templateName: 'affiliate-request',
+          recipientEmail: 'jf@oneworldmorocco.com',
+          idempotencyKey: `affiliate-req-${Date.now()}`,
+          templateData: {
+            businessName: form.businessName,
+            firstName: form.firstName,
+            lastName: form.lastName,
+            phone: form.phone,
+            email: form.email,
+            city: form.city,
+            website: form.website,
+            multipleListings: form.multipleListings,
+            contentReady: form.contentReady,
+            message: form.message,
+          },
+        },
+      });
       toast({ title: "✅", description: t.successMsg });
       setForm({ businessName: "", firstName: "", lastName: "", phone: "", email: "", city: "", projectName: "", website: "", paymentMethod: "", multipleListings: "", contentReady: "", paymentPlan: "", message: "" });
-    }, 800);
+    } catch {
+      toast({ variant: "destructive", title: "Erreur", description: "Une erreur est survenue." });
+    } finally {
+      setFormLoading(false);
+    }
   };
 
   return (
@@ -294,15 +315,15 @@ const BecomeAffiliate = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-5">
+            <div>
+              <label className="block text-muted-foreground text-sm mb-1.5">{t.labelName}</label>
+              <Input
+                value={form.businessName}
+                onChange={(e) => setForm({ ...form, businessName: e.target.value })}
+                className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
+              />
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelName}</label>
-                <Input
-                  value={form.businessName}
-                  onChange={(e) => setForm({ ...form, businessName: e.target.value })}
-                  className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
-                />
-              </div>
               <div>
                 <label className="block text-muted-foreground text-sm mb-1.5">{t.labelFirstName}</label>
                 <Input
@@ -331,12 +352,13 @@ const BecomeAffiliate = () => {
                 />
               </div>
               <div>
-                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelEmail}</label>
+                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelEmail} *</label>
                 <Input
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
                   type="email"
+                  required
                 />
               </div>
             </div>
