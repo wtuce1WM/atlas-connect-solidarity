@@ -881,7 +881,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                         >
                           <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
                           {openNow
-                            ? language === "en" ? "Open" : language === "ar" ? "مفتوح" : "Ouvert"
+                            ? (business?.is_open_24h
+                              ? (language === "en" ? "Open 24/7" : language === "ar" ? "مفتوح 24/24" : "Ouvert 24h/24")
+                              : (language === "en" ? "Open" : language === "ar" ? "مفتوح" : "Ouvert"))
                             : language === "en" ? "Closed" : language === "ar" ? "مغلق" : "Fermé"}
                         </div>
                       </div>
