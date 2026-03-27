@@ -42,6 +42,7 @@ interface BookOnlineSlidePanelProps {
   onClose: () => void;
   isExpanded?: boolean;
   onToggleExpand?: () => void;
+  externalOverlayActive?: boolean;
 }
 
 interface BookOnlineBusiness {
