@@ -52,6 +52,7 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange, onSe
         const items = data?.videos || [];
         setVideos(items);
         onVideoCount?.(items.length);
+        onVideosLoaded?.(items);
       } catch (err: any) {
         console.error("YouTube fetch error:", err);
         setError(err.message || "Erreur");
