@@ -408,7 +408,7 @@ const BecomeAffiliate = () => {
                 </Select>
               </div>
             </div>
-            <div>
+            {/* <div>
               <label className="block text-muted-foreground text-sm mb-1.5">{t.labelPaymentPlan}</label>
               <Select value={form.paymentPlan} onValueChange={(val) => setForm({ ...form, paymentPlan: val })}>
                 <SelectTrigger className="bg-black/[0.04] border-black/10 text-foreground h-11">
@@ -419,7 +419,7 @@ const BecomeAffiliate = () => {
                   <SelectItem value="split">{t.paymentPlanSplit}</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
             <div>
               <label className="block text-muted-foreground text-sm mb-1.5">{t.labelMessage}</label>
               <Textarea
