@@ -3161,6 +3161,29 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     </div>
                   </div>
                 )}
+                {/* POI & Destination selectors */}
+                <div className="grid grid-cols-2 gap-1.5">
+                  <div>
+                    <label className="text-[10px] text-muted-foreground">POI</label>
+                    <Select value={doc.poi_id || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, poi_id: v === "__none__" ? null : v } : d))}>
+                      <SelectTrigger className="h-6 text-[10px]"><SelectValue placeholder="—" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">— Aucun</SelectItem>
+                        {dbPOIs.map(p => <SelectItem key={p.id} value={p.id}>{p.name_fr}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-muted-foreground">Destination</label>
+                    <Select value={doc.destination_id || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, destination_id: v === "__none__" ? null : v } : d))}>
+                      <SelectTrigger className="h-6 text-[10px]"><SelectValue placeholder="—" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">— Aucune</SelectItem>
+                        {dbDestinations.map(d => <SelectItem key={d.id} value={d.id}>{d.name_fr}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
