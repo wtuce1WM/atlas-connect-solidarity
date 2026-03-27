@@ -594,7 +594,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           )}
           {youtubeVideoCount && youtubeVideoCount > 0 && (
             <button
-              onClick={() => { setShowYoutubeOverlay(true); setYoutubeIsPlaying(true); }}
+              onClick={() => {
+                const firstShort = allYoutubeVideos.find(v => v.isShort) || allYoutubeVideos[0] || null;
+                if (firstShort) setActiveYoutubeVideo(firstShort);
+                setShowYoutubeOverlay(true);
+                setYoutubeIsPlaying(true);
+              }}
               className="h-9 w-9 flex items-center justify-center rounded-full bg-red-600 text-white shadow-md hover:bg-red-700 transition-colors"
               title="Vidéos YouTube"
             >
