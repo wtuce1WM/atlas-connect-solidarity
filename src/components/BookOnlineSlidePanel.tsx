@@ -181,6 +181,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [youtubeIsPlaying, setYoutubeIsPlaying] = useState(false);
   const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
   const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
+  const [allYoutubeVideos, setAllYoutubeVideos] = useState<YouTubeVideo[]>([]);
 
   // Hotel availability overlay (same pattern as BusinessSlidePanel)
   const [liteApiHotelId, setLiteApiHotelId] = useState<string | null>(null);
