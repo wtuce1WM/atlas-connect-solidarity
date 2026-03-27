@@ -1733,7 +1733,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
               <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2.5">
                 <div className="space-y-2">
                   {business.phone && (
-                    <a href={`tel:${business.phone}`} className="flex items-center gap-2.5 text-sm hover:text-foreground transition-colors group">
+                    <a href={`tel:${cleanPhone(business.phone)}`} className="flex items-center gap-2.5 text-sm hover:text-foreground transition-colors group">
                       <Phone className="h-4 w-4 shrink-0 text-foreground" />
                       <span className="text-muted-foreground group-hover:text-foreground">{business.phone}</span>
                     </a>
