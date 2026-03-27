@@ -6,10 +6,11 @@ import BusinessCard, { BusinessCardData, Gamme, Badge, SubcategoryRef, BadgeSubc
 interface RelatedEstablishmentsProps {
   currentBusinessId: string;
   kpRegroupement: string;
+  kpRegroupement2?: string;
   isVerified?: boolean;
 }
 
-const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified = false }: RelatedEstablishmentsProps) => {
+const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, kpRegroupement2, isVerified = false }: RelatedEstablishmentsProps) => {
   const [relatedBusinesses, setRelatedBusinesses] = useState<BusinessCardData[]>([]);
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
