@@ -435,6 +435,8 @@ const BecomeAffiliate = () => {
                       <SelectContent>
                         <SelectItem value="single">{t.optionSingle}</SelectItem>
                         <SelectItem value="multiple">{t.optionMultiple}</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <label className="block text-muted-foreground text-sm mb-1.5">{t.labelContentReady}</label>
