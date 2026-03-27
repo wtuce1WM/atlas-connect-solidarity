@@ -932,19 +932,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 <div className={`snap-start shrink-0 w-[20rem] md:w-[30rem] ${noBottomCarousel ? 'h-[21.6em] md:h-[28.8em]' : 'h-[18em] md:h-[24em]'} mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10`}
                     style={{ animationFillMode: 'forwards' }}
                   >
-                    {business?.show_opening_hours !== false && (
+                    {openBadgeInfo.text && (
                       <div className="flex justify-center mb-3">
                         <div
                           className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider ${
-                            openNow ? "bg-[#25D366] text-white" : "bg-black text-white"
+                            openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-black text-white"
                           }`}
                         >
                           <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
-                          {openNow
-                            ? (business?.is_open_24h
-                              ? (language === "en" ? "Open 24/7" : language === "ar" ? "مفتوح 24/24" : "Ouvert 24h/24")
-                              : (language === "en" ? "Open" : language === "ar" ? "مفتوح" : "Ouvert"))
-                            : language === "en" ? "Closed" : language === "ar" ? "مغلق" : "Fermé"}
+                          {openBadgeInfo.text}
                         </div>
                       </div>
                     )}
