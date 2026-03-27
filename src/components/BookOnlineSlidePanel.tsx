@@ -451,15 +451,75 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const hasContactCard = !!(business?.phone || business?.whatsapp || business?.email || business?.website || business?.address);
   const hasReviewsCard = avgOn20 !== null && avgOn20 > 0;
 
-  const openNow = useMemo(() => {
-    if (!business) return false;
-    if (business.is_open_24h) return true;
-    const hours = business.opening_hours as Record<string, any> | null;
-    if (!hours) return false;
-    const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-    const todayKey = dayOrder[new Date().getDay()];
-    return isCurrentlyOpen(todayKey ? hours[todayKey] : null);
-  }, [business]);
+  const openBadgeInfo = useMemo(() => {
+    if (!business) return { text: null, isOpen: false };
+    const canShow = !!business.show_opening_hours || !!business.is_open_24h;
+    if (!canShow) return { text: null, isOpen: false };
+
+    if (business.is_open_24h) {
+      const label = language === "en" ? "Open 24/7" : language === "ar" ? "مفتوح 24/24" : "Ouvert 24h/24";
+      return { text: label, isOpen: true };
+    }
+
+    const hours = business.opening_hours as Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }> | null;
+    if (!hours) return { text: null, isOpen: false };
+
+    const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+    const now = new Date();
+    const todayKey = days[now.getDay()];
+    const currentlyOpen = isCurrentlyOpen(todayKey ? hours[todayKey] : null);
+
+    if (currentlyOpen) {
+      const label = language === "en" ? "Open" : language === "ar" ? "مفتوح" : "Ouvert";
+      return { text: label, isOpen: true };
+    }
+
+    // Find next opening time
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    const dh = hours[todayKey];
+    let foundToday = false;
+    let badgeText: string | null = null;
+
+    if (dh && !dh.closed && dh.open) {
+      const [oh, om] = dh.open.split(":").map(Number);
+      const openMin = oh * 60 + (om || 0);
+      if (openMin > nowMin) {
+        const prefix = language === "en" ? "Opens at" : language === "ar" ? "يفتح في" : "Ouvre à";
+        badgeText = `${prefix} ${dh.open}`;
+        foundToday = true;
+      } else if (dh.open2 && dh.close2 && !dh.continuous) {
+        const [oh2, om2] = dh.open2.split(":").map(Number);
+        const open2Min = oh2 * 60 + (om2 || 0);
+        if (open2Min > nowMin) {
+          const prefix = language === "en" ? "Opens at" : language === "ar" ? "يفتح في" : "Ouvre à";
+          badgeText = `${prefix} ${dh.open2}`;
+          foundToday = true;
+        }
+      }
+    }
+
+    if (!foundToday) {
+      const dayLabels = language === "en"
+        ? ["Sun.", "Mon.", "Tue.", "Wed.", "Thu.", "Fri.", "Sat."]
+        : language === "ar"
+          ? ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"]
+          : ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."];
+      for (let i = 1; i <= 7; i++) {
+        const idx = (now.getDay() + i) % 7;
+        const nextDh = hours[days[idx]];
+        if (nextDh && !nextDh.closed && nextDh.open) {
+          const prefix = language === "en" ? "Opens" : language === "ar" ? "يفتح" : "Ouvre";
+          badgeText = `${prefix} ${dayLabels[idx]} ${language === "ar" ? "" : "à "}${nextDh.open}`;
+          break;
+        }
+      }
+    }
+
+    if (badgeText) return { text: badgeText, isOpen: false };
+
+    const closedLabel = language === "en" ? "Closed" : language === "ar" ? "مغلق" : "Fermé";
+    return { text: closedLabel, isOpen: false };
+  }, [business, language]);
 
   // Priority-based bottom carousel: YouTube > KP > Destinations > POI
   const hasYoutubeBottomCarousel = !!(business?.youtube_url && (business as any)?.youtube_force_external && youtubeVideoCount !== 0);
