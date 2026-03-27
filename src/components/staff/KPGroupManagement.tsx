@@ -41,6 +41,7 @@ const computeRating20 = (b: GroupBusiness): number | null => {
 
 interface KPGroup {
   kp: string;
+  kpType: 'kp1' | 'kp2';
   businesses: GroupBusiness[];
 }
 
