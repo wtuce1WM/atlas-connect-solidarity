@@ -1,0 +1,1 @@
+UPDATE businesses SET presentation_mode = 'reserver' WHERE main_category = 'Sport & Loisirs' AND presentation_mode IS DISTINCT FROM 'reserver';
