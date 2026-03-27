@@ -315,15 +315,6 @@ const BecomeAffiliate = () => {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelLastName}</label>
-                <Input
-                  value={form.lastName}
-                  onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-                  className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
-                />
-              </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
                 <label className="block text-muted-foreground text-sm mb-1.5">{t.labelPhone}</label>
                 <Input
                   value={form.phone}
