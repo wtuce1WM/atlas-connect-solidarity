@@ -42,6 +42,7 @@ interface BookOnlineSlidePanelProps {
   onClose: () => void;
   isExpanded?: boolean;
   onToggleExpand?: () => void;
+  externalOverlayActive?: boolean;
 }
 
 interface BookOnlineBusiness {
@@ -142,7 +143,7 @@ interface PoiBusiness {
 type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
 
 
-const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand }: BookOnlineSlidePanelProps) => {
+const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand, externalOverlayActive }: BookOnlineSlidePanelProps) => {
   const [activeBusinessId, setActiveBusinessId] = useState(propBusinessId);
   // Sync when parent changes the prop
   useEffect(() => { setActiveBusinessId(propBusinessId); }, [propBusinessId]);
@@ -244,7 +245,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const iframeSrcRef = useRef<string>("");
 
   useEffect(() => {
-    const overlayOpen = !!selectedDestinationId || !!selectedPoiBusinessId || !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic;
+    const overlayOpen = !!selectedDestinationId || !!selectedPoiBusinessId || !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic || !!externalOverlayActive;
     if (overlayOpen) {
       if (videoRef.current) {
         videoRef.current.pause();
@@ -263,7 +264,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         iframeRef.current.src = iframeSrcRef.current;
       }
     }
-  }, [selectedDestinationId, selectedPoiBusinessId, docOverlay, showBookingOverlay, showYoutubeOverlay, showMosaic]);
+  }, [selectedDestinationId, selectedPoiBusinessId, docOverlay, showBookingOverlay, showYoutubeOverlay, showMosaic, externalOverlayActive]);
 
   // Fetch all data in a single Promise.all
   useEffect(() => {
