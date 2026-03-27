@@ -858,14 +858,13 @@ const SearchPage = () => {
    const hasAutoOpenedFirstRef = useRef(false);
    useEffect(() => {
      if (hasAutoOpenedFirstRef.current) return;
-     if (isLoading || filteredBusinesses.length === 0) return;
+     if (isLoading || allBusinesses.length === 0) return;
      if (!searchQuery) return;
-     // Only auto-open if user hasn't interacted yet
      if (hasInteractedWithCompactPanelRef.current) return;
      hasAutoOpenedFirstRef.current = true;
-     const first = filteredBusinesses[0];
+     const first = allBusinesses[0];
      openCompactPanel({ id: first.id, name: first.name } as AIBusinessData);
-   }, [isLoading, filteredBusinesses, searchQuery, openCompactPanel]);
+   }, [isLoading, allBusinesses, searchQuery, openCompactPanel]);
 
    // Reset auto-open flag when query changes
    useEffect(() => {
