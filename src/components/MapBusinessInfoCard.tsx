@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { MapPin, Phone, Star, Clock, Navigation, X } from "lucide-react";
+import { cleanPhone, whatsappUrl } from "@/lib/phoneUtils";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 
 export interface MapBusinessInfo {
