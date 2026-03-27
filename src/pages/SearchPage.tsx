@@ -4338,9 +4338,6 @@ const SearchPage = () => {
             className="w-full flex items-center gap-3 px-4 py-3.5 bg-white/90 backdrop-blur-sm border border-border rounded-xl shadow-lg text-left"
           >
             <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="text-sm text-muted-foreground">
-              {language === "fr" ? "Rechercher un établissement..." : language === "ar" ? "ابحث عن مؤسسة..." : "Search for a business..."}
-            </span>
           </button>
         </div>
       </div>
