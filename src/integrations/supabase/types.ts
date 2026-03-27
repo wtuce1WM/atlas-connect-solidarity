@@ -941,6 +941,7 @@ export type Database = {
           search_vector: unknown
           services: string[] | null
           show_opening_hours: boolean | null
+          show_videos: boolean
           skype: string | null
           slug: string
           telegram: string | null
@@ -1076,6 +1077,7 @@ export type Database = {
           search_vector?: unknown
           services?: string[] | null
           show_opening_hours?: boolean | null
+          show_videos?: boolean
           skype?: string | null
           slug: string
           telegram?: string | null
@@ -1211,6 +1213,7 @@ export type Database = {
           search_vector?: unknown
           services?: string[] | null
           show_opening_hours?: boolean | null
+          show_videos?: boolean
           skype?: string | null
           slug?: string
           telegram?: string | null
@@ -3840,6 +3843,7 @@ export type Database = {
               search_vector: unknown
               services: string[] | null
               show_opening_hours: boolean | null
+              show_videos: boolean
               skype: string | null
               slug: string
               telegram: string | null
@@ -3991,6 +3995,7 @@ export type Database = {
               search_vector: unknown
               services: string[] | null
               show_opening_hours: boolean | null
+              show_videos: boolean
               skype: string | null
               slug: string
               telegram: string | null

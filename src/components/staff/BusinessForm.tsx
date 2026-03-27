@@ -534,6 +534,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     rating: (business as any)?.rating?.toString() || "",
     reserve_now_url: (business as any)?.reserve_now_url || "",
     show_opening_hours: (business as any)?.show_opening_hours ?? false,
+    show_videos: (business as any)?.show_videos ?? false,
     is_open_24h: (business as any)?.is_open_24h ?? false,
     vacation_dates: ((business as any)?.vacation_dates || []) as VacationPeriod[],
     hotels_com_url: (business as any)?.hotels_com_url || "",
@@ -1135,6 +1136,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       rating: formData.rating ? parseFloat(formData.rating) : null,
       reserve_now_url: formData.reserve_now_url || null,
       show_opening_hours: formData.show_opening_hours,
+      show_videos: formData.show_videos,
       is_open_24h: formData.is_open_24h,
       vacation_dates: formData.vacation_dates.length > 0 ? JSON.parse(JSON.stringify(formData.vacation_dates)) : [],
       hotels_com_url: formData.hotels_com_url || null,
@@ -3016,8 +3018,14 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
         {/* Videos (multiple) */}
         <div id="section-images" className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '160px' }}>
-          <div className="flex items-center justify-between">
-            <Label className="text-base font-semibold">🎬 Vidéos</Label>
+           <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Label className="text-base font-semibold">🎬 Vidéos</Label>
+              <div className="flex items-center gap-2">
+                <Switch checked={formData.show_videos} onCheckedChange={(checked) => handleChange("show_videos", checked)} />
+                <span className="text-xs text-muted-foreground">{formData.show_videos ? "Activé" : "Désactivé"}</span>
+              </div>
+            </div>
             <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => [...prev, { url: "", name: "", poi_id: null, destination_id: null }])}>
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
