@@ -189,17 +189,38 @@ const BecomeAffiliate = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.businessName.trim() || !form.firstName.trim() || !form.lastName.trim() || !form.phone.trim() || !form.city.trim()) {
+    if (!form.businessName.trim() || !form.firstName.trim() || !form.lastName.trim() || !form.phone.trim() || !form.city.trim() || !form.email.trim()) {
       toast({ variant: "destructive", title: "Erreur", description: "Veuillez remplir les champs obligatoires." });
       return;
     }
     setFormLoading(true);
-    // For now just show success — could insert into a table later
-    setTimeout(() => {
-      setFormLoading(false);
+    try {
+      await supabase.functions.invoke('send-transactional-email', {
+        body: {
+          templateName: 'affiliate-request',
+          recipientEmail: 'jf@oneworldmorocco.com',
+          idempotencyKey: `affiliate-req-${Date.now()}`,
+          templateData: {
+            businessName: form.businessName,
+            firstName: form.firstName,
+            lastName: form.lastName,
+            phone: form.phone,
+            email: form.email,
+            city: form.city,
+            website: form.website,
+            multipleListings: form.multipleListings,
+            contentReady: form.contentReady,
+            message: form.message,
+          },
+        },
+      });
       toast({ title: "✅", description: t.successMsg });
       setForm({ businessName: "", firstName: "", lastName: "", phone: "", email: "", city: "", projectName: "", website: "", paymentMethod: "", multipleListings: "", contentReady: "", paymentPlan: "", message: "" });
-    }, 800);
+    } catch {
+      toast({ variant: "destructive", title: "Erreur", description: "Une erreur est survenue." });
+    } finally {
+      setFormLoading(false);
+    }
   };
 
   return (
