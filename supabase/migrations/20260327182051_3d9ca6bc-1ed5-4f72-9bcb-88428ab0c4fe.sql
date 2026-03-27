@@ -1,0 +1,1 @@
+UPDATE businesses SET google_rating = 5.0, google_review_count = 8 WHERE id = '6153bd92-df99-40c7-b3af-64e1cfd17818';

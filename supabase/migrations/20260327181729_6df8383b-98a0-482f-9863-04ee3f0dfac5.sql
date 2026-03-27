@@ -1,0 +1,2 @@
+DELETE FROM reviews WHERE business_id = '6153bd92-df99-40c7-b3af-64e1cfd17818';
+UPDATE businesses SET google_rating = NULL, google_review_count = NULL WHERE id = '6153bd92-df99-40c7-b3af-64e1cfd17818';
