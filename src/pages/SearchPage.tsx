@@ -854,6 +854,23 @@ const SearchPage = () => {
      setIsCompactPanelExpanded(false);
    }, [searchQuery, urlT]);
 
+   // Auto-open first result's slide panel when arriving from external link
+   const hasAutoOpenedFirstRef = useRef(false);
+   useEffect(() => {
+     if (hasAutoOpenedFirstRef.current) return;
+     if (isLoading || allBusinesses.length === 0) return;
+     if (!searchQuery) return;
+     if (hasInteractedWithCompactPanelRef.current) return;
+     hasAutoOpenedFirstRef.current = true;
+     const first = allBusinesses[0];
+     openCompactPanel({ id: first.id, name: first.name } as AIBusinessData);
+   }, [isLoading, allBusinesses, searchQuery, openCompactPanel]);
+
+   // Reset auto-open flag when query changes
+   useEffect(() => {
+     hasAutoOpenedFirstRef.current = false;
+   }, [searchQuery]);
+
    // Track when the hero AI card scrolls out of view — once past, stays hidden
    useEffect(() => {
      const el = heroAiRef.current;
