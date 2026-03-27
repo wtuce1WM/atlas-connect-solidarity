@@ -267,7 +267,7 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
           console.log('Strategy 0 found candidates but none matched expected place name');
           throw new Error('No strong name match in strategy 0');
         }
-        console.log(`Found via place ref: "${place.displayName?.text}" - rating=${place.rating}, count=${place.userRatingCount}`);
+        console.log(`Found via place ref: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
         const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
         if (reviews.length > 0) console.log(`Got ${reviews.length} Google review texts`);
         return { rating: place.rating ?? null, count: place.count ?? null, reviews };
