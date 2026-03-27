@@ -1,0 +1,1 @@
+UPDATE businesses SET matterport_url = 'https://www.google.com/maps/@31.5129904,-9.769126,0a,82.2y,207.69h,58.46t/data=!3m4!1e1!3m2!1sAF1QipPGOSNyTkgVmNeg6cSMzyI5WX2xMZZIVeqb73Om!2e10' WHERE id IN ('a2f63499-bfab-428a-999e-baf049d03dbf', 'f893f656-43da-4269-82c2-159f29f151cb');
