@@ -79,7 +79,7 @@ const MapBusinessInfoCard = ({ business, onClose, hideDirections, hideClose }: M
           </div>
         )}
         {business.phone && (
-          <a href={`tel:${business.phone}`} className="flex items-center gap-1 hover:text-primary">
+          <a href={`tel:${cleanPhone(business.phone)}`} className="flex items-center gap-1 hover:text-primary">
             <Phone className="h-3 w-3 flex-shrink-0" />
             {business.phone}
           </a>
