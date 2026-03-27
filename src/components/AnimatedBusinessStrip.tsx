@@ -213,7 +213,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                       </a>
                     ) : biz.phone ? (
                       <a
-                        href={`tel:${biz.phone}`}
+                        href={`tel:${cleanPhone(biz.phone)}`}
                         onClick={(e) => e.stopPropagation()}
                         className={`text-sm flex items-center gap-1.5 mt-2 hover:underline ${lightMode ? "text-gray-500" : "text-white/50"}`}
                       >

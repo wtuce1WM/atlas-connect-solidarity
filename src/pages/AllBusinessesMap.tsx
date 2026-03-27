@@ -175,7 +175,7 @@ const AllBusinessesMap = () => {
                     </div>
                   )}
                   {selectedBusiness.phone && (
-                    <a href={`tel:${selectedBusiness.phone}`} className="flex items-center gap-1 hover:text-primary">
+                    <a href={`tel:${cleanPhone(selectedBusiness.phone)}`} className="flex items-center gap-1 hover:text-primary">
                       <Phone className="h-3 w-3 flex-shrink-0" />
                       {selectedBusiness.phone}
                     </a>

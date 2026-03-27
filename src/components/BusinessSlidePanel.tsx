@@ -1739,7 +1739,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
                     </a>
                   )}
                   {business.whatsapp && (
-                    <a href={`https://wa.me/${business.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-sm hover:text-foreground transition-colors group">
+                    <a href={whatsappUrl(business.whatsapp)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-sm hover:text-foreground transition-colors group">
                       <WhatsAppIcon className="h-4 w-4 shrink-0 text-[#25D366]" />
                       <span className="text-muted-foreground group-hover:text-foreground">{business.whatsapp}</span>
                     </a>

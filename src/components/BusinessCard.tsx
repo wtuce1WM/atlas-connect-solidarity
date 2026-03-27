@@ -450,7 +450,7 @@ const BusinessCard = ({
             )}
             {business.whatsapp && (
               <a
-                href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, '')}`}
+                href={whatsappUrl(business.whatsapp)}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}

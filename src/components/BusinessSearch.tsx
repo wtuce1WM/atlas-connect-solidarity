@@ -431,7 +431,7 @@ const BusinessSearch = () => {
                       <div className="mt-4 flex items-center gap-3 pt-3 border-t border-border">
                         {business.phone && (
                           <a
-                            href={`tel:${business.phone}`}
+                            href={`tel:${cleanPhone(business.phone)}`}
                             className="text-sm text-primary hover:underline"
                           >
                             {business.phone}

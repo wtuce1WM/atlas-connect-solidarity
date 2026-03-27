@@ -933,7 +933,7 @@ const BusinessDetail = () => {
                     </a>
                   )}
                   {business.whatsapp && (
-                    <a href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, "")}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 font-bold hover:opacity-80 transition-opacity" style={{ color: "#25D366" }}>
+                    <a href={whatsappUrl(business.whatsapp)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 font-bold hover:opacity-80 transition-opacity" style={{ color: "#25D366" }}>
                       <MessageCircle className="h-5 w-5" />
                       WhatsApp
                     </a>

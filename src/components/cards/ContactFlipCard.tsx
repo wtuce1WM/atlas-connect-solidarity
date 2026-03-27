@@ -87,7 +87,7 @@ const ContactFlipCard = ({
             )}
             {business.whatsapp && (
               <a
-                href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, "")}`}
+                href={whatsappUrl(business.whatsapp)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-[#25D366] hover:text-[#20bd5a] transition-colors"

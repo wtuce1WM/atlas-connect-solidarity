@@ -86,7 +86,7 @@ const MapBusinessInfoCard = ({ business, onClose, hideDirections, hideClose }: M
         )}
         {business.whatsapp && (
           <a
-            href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, "")}`}
+            href={whatsappUrl(business.whatsapp)}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1 text-green-600 hover:text-green-700 font-bold"
