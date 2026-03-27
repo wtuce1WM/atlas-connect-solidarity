@@ -84,7 +84,7 @@ const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, kpRegroupeme
     };
 
     fetchData();
-  }, [currentBusinessId, kpRegroupement]);
+  }, [currentBusinessId, kpRegroupement, kpRegroupement2]);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
