@@ -382,21 +382,39 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         }
       }
 
-      // Fetch KP related businesses
-      const kpVal = (bizRes.data as any)?.kp_regroupement;
-      if (kpVal && kpVal.trim() !== "" && (bizRes.data as any)?.kp_active) {
-        const { data: kpData } = await supabase
-          .from("businesses")
-          .select("id, name, slug, logo_url, images, is_master")
-          .eq("kp_regroupement", kpVal)
-          .eq("is_active", true)
-          .neq("id", businessId)
-          .order("is_master", { ascending: false })
-          .order("priority_score", { ascending: false });
-        setKpRelated((kpData || []) as KpRelatedBusiness[]);
-      } else {
-        setKpRelated([]);
+      // Fetch KP related businesses (priority: KP1, fallback KP2)
+      const kp1Val = (bizRes.data as any)?.kp_regroupement;
+      const kp2Val = (bizRes.data as any)?.kp_regroupement_2;
+      const isKpActive = (bizRes.data as any)?.kp_active;
+
+      let kpResults: KpRelatedBusiness[] = [];
+      if (isKpActive) {
+        // Try KP1 first
+        if (kp1Val && kp1Val.trim() !== "") {
+          const { data: kpData } = await supabase
+            .from("businesses")
+            .select("id, name, slug, logo_url, images, is_master")
+            .eq("kp_regroupement", kp1Val)
+            .eq("is_active", true)
+            .neq("id", businessId)
+            .order("is_master", { ascending: false })
+            .order("priority_score", { ascending: false });
+          kpResults = (kpData || []) as KpRelatedBusiness[];
+        }
+        // Fallback to KP2 if KP1 has no results
+        if (kpResults.length === 0 && kp2Val && kp2Val.trim() !== "") {
+          const { data: kp2Data } = await supabase
+            .from("businesses")
+            .select("id, name, slug, logo_url, images, is_master")
+            .eq("kp_regroupement_2", kp2Val)
+            .eq("is_active", true)
+            .neq("id", businessId)
+            .order("is_master", { ascending: false })
+            .order("priority_score", { ascending: false });
+          kpResults = (kp2Data || []) as KpRelatedBusiness[];
+        }
       }
+      setKpRelated(kpResults);
 
       // Fetch LiteAPI hotel mapping for Hôtellerie businesses
       const mainCatVal = (bizRes.data as any)?.main_category;
