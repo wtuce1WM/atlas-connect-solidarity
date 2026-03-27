@@ -315,15 +315,15 @@ const BecomeAffiliate = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-5">
+            <div>
+              <label className="block text-muted-foreground text-sm mb-1.5">{t.labelName}</label>
+              <Input
+                value={form.businessName}
+                onChange={(e) => setForm({ ...form, businessName: e.target.value })}
+                className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
+              />
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelName}</label>
-                <Input
-                  value={form.businessName}
-                  onChange={(e) => setForm({ ...form, businessName: e.target.value })}
-                  className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
-                />
-              </div>
               <div>
                 <label className="block text-muted-foreground text-sm mb-1.5">{t.labelFirstName}</label>
                 <Input
@@ -352,12 +352,13 @@ const BecomeAffiliate = () => {
                 />
               </div>
               <div>
-                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelEmail}</label>
+                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelEmail} *</label>
                 <Input
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
                   type="email"
+                  required
                 />
               </div>
             </div>
