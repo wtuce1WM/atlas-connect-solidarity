@@ -55,9 +55,8 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
     setLoading(true);
     const { data, error } = await supabase
       .from("businesses")
-      .select("id, name, city, neighborhood, is_master, wtuce_status, is_active, kp_regroupement, website, rating, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count")
-      .not("kp_regroupement", "is", null)
-      .neq("kp_regroupement", "")
+      .select("id, name, city, neighborhood, is_master, wtuce_status, is_active, kp_regroupement, kp_regroupement_2, website, rating, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count")
+      .or("kp_regroupement.neq.,kp_regroupement_2.neq.")
       .order("name");
 
     if (error) {
@@ -66,34 +65,49 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
       return;
     }
 
-    const map = new Map<string, GroupBusiness[]>();
+    const buildBusiness = (b: any): GroupBusiness => ({
+      id: b.id,
+      name: b.name,
+      city: b.city,
+      neighborhood: b.neighborhood,
+      is_master: b.is_master,
+      wtuce_status: b.wtuce_status,
+      is_active: b.is_active,
+      website: b.website,
+      rating: b.rating,
+      google_rating: b.google_rating,
+      google_review_count: b.google_review_count,
+      tripadvisor_rating: b.tripadvisor_rating,
+      tripadvisor_review_count: b.tripadvisor_review_count,
+      restaurant_guru_rating: b.restaurant_guru_rating,
+      restaurant_guru_review_count: b.restaurant_guru_review_count,
+    });
+
+    // key = "kp1:CODE" or "kp2:CODE"
+    const map = new Map<string, { kpType: 'kp1' | 'kp2'; businesses: GroupBusiness[] }>();
+
     (data || []).forEach((b: any) => {
-      const kp = b.kp_regroupement as string;
-      if (!map.has(kp)) map.set(kp, []);
-      map.get(kp)!.push({
-        id: b.id,
-        name: b.name,
-        city: b.city,
-        neighborhood: b.neighborhood,
-        is_master: b.is_master,
-        wtuce_status: b.wtuce_status,
-        is_active: b.is_active,
-        website: b.website,
-        rating: b.rating,
-        google_rating: b.google_rating,
-        google_review_count: b.google_review_count,
-        tripadvisor_rating: b.tripadvisor_rating,
-        tripadvisor_review_count: b.tripadvisor_review_count,
-        restaurant_guru_rating: b.restaurant_guru_rating,
-        restaurant_guru_review_count: b.restaurant_guru_review_count,
-      });
+      const kp1 = b.kp_regroupement as string | null;
+      const kp2 = b.kp_regroupement_2 as string | null;
+
+      if (kp1 && kp1.trim() !== "") {
+        const key = `kp1:${kp1}`;
+        if (!map.has(key)) map.set(key, { kpType: 'kp1', businesses: [] });
+        map.get(key)!.businesses.push(buildBusiness(b));
+      }
+      if (kp2 && kp2.trim() !== "") {
+        const key = `kp2:${kp2}`;
+        if (!map.has(key)) map.set(key, { kpType: 'kp2', businesses: [] });
+        map.get(key)!.businesses.push(buildBusiness(b));
+      }
     });
 
     const grouped: KPGroup[] = [];
-    map.forEach((businesses, kp) => {
-      if (businesses.length >= 1) {
-        businesses.sort((a, b) => (a.is_master === b.is_master ? a.name.localeCompare(b.name) : a.is_master ? -1 : 1));
-        grouped.push({ kp, businesses });
+    map.forEach((val, key) => {
+      if (val.businesses.length >= 1) {
+        val.businesses.sort((a, b) => (a.is_master === b.is_master ? a.name.localeCompare(b.name) : a.is_master ? -1 : 1));
+        const kp = key.replace(/^kp[12]:/, '');
+        grouped.push({ kp, kpType: val.kpType, businesses: val.businesses });
       }
     });
 
