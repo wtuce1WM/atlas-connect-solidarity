@@ -440,7 +440,7 @@ const BusinessCard = ({
           <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
             {business.phone && (
               <a
-                href={`tel:${business.phone}`}
+                href={`tel:${cleanPhone(business.phone)}`}
                 onClick={(e) => e.stopPropagation()}
                 className="flex items-center gap-1 hover:text-primary transition-colors"
               >
