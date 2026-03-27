@@ -233,12 +233,12 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
 
       <div className="space-y-4">
         {groups.map(group => (
-          <Card key={group.kp}>
+          <Card key={`${group.kpType}:${group.kp}`}>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Badge variant="outline" className="font-mono text-xs">
-                    {group.kp}
+                  <Badge variant={group.kpType === 'kp1' ? 'outline' : 'secondary'} className="font-mono text-xs">
+                    {group.kpType === 'kp1' ? 'KP1' : 'KP2'} · {group.kp}
                   </Badge>
                   <span className="text-muted-foreground text-sm">
                     {group.businesses.length} établissements
