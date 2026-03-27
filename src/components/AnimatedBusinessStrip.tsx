@@ -202,7 +202,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
 
                     {biz.whatsapp ? (
                       <a
-                        href={`https://wa.me/${biz.whatsapp.replace(/[^0-9]/g, "")}`}
+                        href={whatsappUrl(biz.whatsapp)}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
