@@ -185,8 +185,7 @@ const BecomeAffiliate = () => {
     contentReady: "",
     paymentPlan: "",
     message: "",
-
-
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
