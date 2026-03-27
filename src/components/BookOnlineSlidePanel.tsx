@@ -936,7 +936,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       <div className="flex justify-center mb-3">
                         <div
                           className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider ${
-                            openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-black text-white"
+                            openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"
                           }`}
                         >
                           <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
