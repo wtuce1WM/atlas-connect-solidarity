@@ -15,6 +15,7 @@ const BecomeAffiliate = () => {
   const { language } = useLanguage();
   const { toast } = useToast();
   const [formLoading, setFormLoading] = useState(false);
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   useSEO({
     title: "Devenir affilié",
