@@ -433,10 +433,8 @@ const BecomeAffiliate = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="yes">{t.optionYes}</SelectItem>
-                        <SelectItem value="no">{t.optionNo}</SelectItem>
-                      </SelectContent>
-                    </Select>
+                        <SelectItem value="single">{t.optionSingle}</SelectItem>
+                        <SelectItem value="multiple">{t.optionMultiple}</SelectItem>
                   </div>
                   <div>
                     <label className="block text-muted-foreground text-sm mb-1.5">{t.labelContentReady}</label>
