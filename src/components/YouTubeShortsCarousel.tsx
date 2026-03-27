@@ -18,6 +18,7 @@ interface YouTubeShortsCarouselProps {
   onVideoCount?: (count: number) => void;
   onPlayingChange?: (isPlaying: boolean) => void;
   onSelectVideo?: (video: YouTubeVideo | null) => void;
+  onVideosLoaded?: (videos: YouTubeVideo[]) => void;
   activeVideoId?: string | null;
   shortsOnly?: boolean;
   hideLabel?: boolean;
