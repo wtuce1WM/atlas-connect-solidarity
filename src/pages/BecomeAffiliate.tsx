@@ -197,7 +197,7 @@ const BecomeAffiliate = () => {
     setTimeout(() => {
       setFormLoading(false);
       toast({ title: "✅", description: t.successMsg });
-      setForm({ businessName: "", contactName: "", phone: "", email: "", city: "", projectName: "", website: "", paymentMethod: "", multipleListings: "", contentReady: "", paymentPlan: "", message: "" });
+      setForm({ businessName: "", firstName: "", lastName: "", phone: "", email: "", city: "", projectName: "", website: "", paymentMethod: "", multipleListings: "", contentReady: "", paymentPlan: "", message: "" });
     }, 800);
   };
 
