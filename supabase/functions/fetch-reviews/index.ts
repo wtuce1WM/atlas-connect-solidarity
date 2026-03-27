@@ -101,7 +101,89 @@ async function fetchReviewsFromPlaceId(placeId: string, apiKey: string): Promise
   return reviewTexts;
 }
 
-async function searchGooglePlace(query: string, coords: { lat: number; lng: number } | null, radius: number, apiKey: string, useRestriction = false): Promise<{ id: string; rating: number | null; count: number | null; displayName: string } | null> {
+function normalizePlaceName(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function tokenizePlaceName(value: string): string[] {
+  const stopWords = new Set([
+    'the', 'a', 'an', 'by', 'de', 'du', 'des', 'la', 'le', 'les', 'et', 'and', 'of', 'in',
+    'morocco', 'marrakech', 'essaouira', 'centre', 'center', 'official',
+  ]);
+
+  return normalizePlaceName(value)
+    .split(' ')
+    .filter((token) => token.length > 2 && !stopWords.has(token));
+}
+
+function isStrongPlaceNameMatch(candidateName: string, expectedNames: string[]): boolean {
+  if (!candidateName || expectedNames.length === 0) return true;
+
+  const candidateNormalized = normalizePlaceName(candidateName);
+  const candidateTokens = tokenizePlaceName(candidateName);
+
+  for (const expectedName of expectedNames) {
+    if (!expectedName) continue;
+
+    const expectedNormalized = normalizePlaceName(expectedName);
+    const expectedTokens = tokenizePlaceName(expectedName);
+
+    if (!expectedNormalized) continue;
+    if (candidateNormalized === expectedNormalized) return true;
+
+    const minLength = Math.min(candidateNormalized.length, expectedNormalized.length);
+    if (minLength >= 8 && (candidateNormalized.includes(expectedNormalized) || expectedNormalized.includes(candidateNormalized))) {
+      return true;
+    }
+
+    if (candidateTokens.length > 0 && expectedTokens.length > 0) {
+      const expectedSet = new Set(expectedTokens);
+      const overlapCount = candidateTokens.filter((token) => expectedSet.has(token)).length;
+      const overlapRatio = overlapCount / expectedTokens.length;
+
+      if (overlapCount >= Math.min(2, expectedTokens.length) && overlapRatio >= 0.6) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+function pickMatchingPlace(
+  places: any[] | undefined,
+  expectedNames: string[],
+): { id: string; rating: number | null; count: number | null; displayName: string } | null {
+  if (!places || places.length === 0) return null;
+
+  const selected = expectedNames.length > 0
+    ? places.find((place) => isStrongPlaceNameMatch(place.displayName?.text || '', expectedNames))
+    : places[0];
+
+  if (!selected) return null;
+
+  return {
+    id: selected.id,
+    rating: selected.rating ?? null,
+    count: selected.userRatingCount ?? null,
+    displayName: selected.displayName?.text || '?',
+  };
+}
+
+async function searchGooglePlace(
+  query: string,
+  coords: { lat: number; lng: number } | null,
+  radius: number,
+  apiKey: string,
+  useRestriction = false,
+  expectedNames: string[] = [],
+): Promise<{ id: string; rating: number | null; count: number | null; displayName: string } | null> {
   const requestBody: Record<string, any> = { textQuery: query };
   if (coords) {
     if (useRestriction) {
@@ -134,13 +216,17 @@ async function searchGooglePlace(query: string, coords: { lat: number; lng: numb
   const searchData = await searchRes.json();
 
   if (searchData.places && searchData.places.length > 0) {
-    const place = searchData.places[0];
-    return {
-      id: place.id,
-      rating: place.rating ?? null,
-      count: place.userRatingCount ?? null,
-      displayName: place.displayName?.text || '?',
-    };
+    const selected = pickMatchingPlace(searchData.places, expectedNames);
+    if (selected) return selected;
+
+    if (expectedNames.length > 0) {
+      const candidates = searchData.places
+        .map((p: any) => p.displayName?.text)
+        .filter(Boolean)
+        .slice(0, 3)
+        .join(' | ');
+      console.log(`No strong place-name match for "${query}". Candidates: ${candidates || 'none'}`);
+    }
   }
   return null;
 }
@@ -158,6 +244,7 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
 
   const cityStr = city || '';
   const cityQuerySuffix = cityStr ? ` ${cityStr}` : '';
+  const expectedNames = [urlPlaceName, businessName].filter(Boolean) as string[];
 
   // Strategy 0: Direct Place ID from URL (/g/XXXXX)
   if (placeRef) {
@@ -175,11 +262,15 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
       });
       const searchData = await searchRes.json();
       if (searchData.places && searchData.places.length > 0) {
-        const place = searchData.places[0];
+        const place = pickMatchingPlace(searchData.places, expectedNames);
+        if (!place) {
+          console.log('Strategy 0 found candidates but none matched expected place name');
+          throw new Error('No strong name match in strategy 0');
+        }
         console.log(`Found via place ref: "${place.displayName?.text}" - rating=${place.rating}, count=${place.userRatingCount}`);
         const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
         if (reviews.length > 0) console.log(`Got ${reviews.length} Google review texts`);
-        return { rating: place.rating ?? null, count: place.userRatingCount ?? null, reviews };
+        return { rating: place.rating ?? null, count: place.count ?? null, reviews };
       }
     } catch (e) {
       console.log(`Strategy 0 failed: ${e}`);
@@ -189,7 +280,7 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
   if (urlPlaceName && exactCoords) {
     const q1 = `${urlPlaceName}${cityQuerySuffix}`;
     console.log(`Strategy 1: URL place name "${q1}" with restriction @${exactCoords.lat},${exactCoords.lng} (200m)`);
-    const place = await searchGooglePlace(q1, exactCoords, 200.0, apiKey, true);
+    const place = await searchGooglePlace(q1, exactCoords, 200.0, apiKey, true, expectedNames);
     if (place) {
       console.log(`Found: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
       const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
@@ -202,7 +293,7 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
   if (exactCoords) {
     const q2 = `${businessName}${cityQuerySuffix}`;
     console.log(`Strategy 2: DB name "${businessName}" with exact coords @${exactCoords.lat},${exactCoords.lng} (100m radius)`);
-    const place = await searchGooglePlace(q2, exactCoords, 100.0, apiKey);
+    const place = await searchGooglePlace(q2, exactCoords, 100.0, apiKey, false, expectedNames);
     if (place) {
       console.log(`Found: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
       const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
@@ -220,7 +311,7 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
 
   for (const q of queries) {
     console.log(`Strategy 3 [Fallback]: "${q}"`);
-    const place = await searchGooglePlace(q, exactCoords, 500.0, apiKey);
+    const place = await searchGooglePlace(q, exactCoords, 500.0, apiKey, false, expectedNames);
     if (place) {
       console.log(`[Fallback] Found: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
       const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
@@ -232,7 +323,7 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
   // Strategy 4: Search without any location constraint
   if (urlPlaceName) {
     console.log(`Strategy 4 [No-location]: "${urlPlaceName}"`);
-    const place = await searchGooglePlace(urlPlaceName, null, 0, apiKey);
+    const place = await searchGooglePlace(urlPlaceName, null, 0, apiKey, false, expectedNames);
     if (place) {
       console.log(`[No-location] Found: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
       const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
