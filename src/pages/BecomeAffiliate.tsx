@@ -296,166 +296,182 @@ const BecomeAffiliate = () => {
 
         {/* Form Section */}
         <section id="affiliate-form" className="container mx-auto px-4 mb-16">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
-              {t.formTitle}
-            </h2>
-            <div className="flex flex-wrap justify-center gap-4">
-              {[
-                { icon: Zap, label: t.formBadge1 },
-                { icon: Shield, label: t.formBadge2 },
-                { icon: Headphones, label: t.formBadge3 },
-              ].map(({ icon: Icon, label }) => (
-                <span key={label} className="inline-flex items-center gap-2 text-muted-foreground text-sm bg-black/[0.04] border border-black/10 rounded-full px-4 py-2">
-                  <Icon className="h-4 w-4 text-gold" />
-                  {label}
-                </span>
-              ))}
+          {formSubmitted ? (
+            <div className="max-w-lg mx-auto text-center py-20">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Check className="h-8 w-8 text-green-600" />
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+                {language === 'ar' ? 'شكراً لتواصلكم' : language === 'en' ? 'Thank you for reaching out' : 'Merci de votre prise de contact'}
+              </h2>
+              <p className="text-muted-foreground text-lg">
+                {language === 'ar' ? 'سنتواصل معكم في أقرب وقت.' : language === 'en' ? 'We will contact you as soon as possible.' : 'Nous vous contacterons au plus vite.'}
+              </p>
             </div>
-          </div>
+          ) : (
+            <>
+              <div className="text-center mb-10">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
+                  {t.formTitle}
+                </h2>
+                <div className="flex flex-wrap justify-center gap-4">
+                  {[
+                    { icon: Zap, label: t.formBadge1 },
+                    { icon: Shield, label: t.formBadge2 },
+                    { icon: Headphones, label: t.formBadge3 },
+                  ].map(({ icon: Icon, label }) => (
+                    <span key={label} className="inline-flex items-center gap-2 text-muted-foreground text-sm bg-black/[0.04] border border-black/10 rounded-full px-4 py-2">
+                      <Icon className="h-4 w-4 text-gold" />
+                      {label}
+                    </span>
+                  ))}
+                </div>
+              </div>
 
-          <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-5">
-            <div>
-              <label className="block text-muted-foreground text-sm mb-1.5">{t.labelName}</label>
-              <Input
-                value={form.businessName}
-                onChange={(e) => setForm({ ...form, businessName: e.target.value })}
-                className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
-              />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelFirstName}</label>
-                <Input
-                  value={form.firstName}
-                  onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-                  className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
-                />
-              </div>
-              <div>
-                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelLastName}</label>
-                <Input
-                  value={form.lastName}
-                  onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-                  className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelPhone}</label>
-                <Input
-                  value={form.phone}
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
-                  type="tel"
-                />
-              </div>
-              <div>
-                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelEmail} *</label>
-                <Input
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
-                  type="email"
-                  required
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-muted-foreground text-sm mb-1.5">{t.labelCity}</label>
-              <Input
-                value={form.city}
-                onChange={(e) => setForm({ ...form, city: e.target.value })}
-                className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
-              />
-            </div>
-            {/* <div>
-              <label className="block text-muted-foreground text-sm mb-1.5">{t.labelProjectName}</label>
-              <Input
-                value={form.projectName}
-                onChange={(e) => setForm({ ...form, projectName: e.target.value })}
-                className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
-              />
-            </div> */}
-            <div>
-              <label className="block text-muted-foreground text-sm mb-1.5">{t.labelWebsite}</label>
-              <Input
-                value={form.website}
-                onChange={(e) => setForm({ ...form, website: e.target.value })}
-                className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
-                type="url"
-              />
-            </div>
-            {/* <div>
-              <label className="block text-muted-foreground text-sm mb-1.5">{t.labelPaymentMethod}</label>
-              <Select value={form.paymentMethod} onValueChange={(val) => setForm({ ...form, paymentMethod: val })}>
-                <SelectTrigger className="bg-black/[0.04] border-black/10 text-foreground h-11">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="online">{t.paymentOnline}</SelectItem>
-                  <SelectItem value="check">{t.paymentCheck}</SelectItem>
-                  <SelectItem value="transfer">{t.paymentTransfer}</SelectItem>
-                  <SelectItem value="cash">{t.paymentCash}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div> */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelMultipleListings}</label>
-                <Select value={form.multipleListings} onValueChange={(val) => setForm({ ...form, multipleListings: val })}>
-                  <SelectTrigger className="bg-black/[0.04] border-black/10 text-foreground h-11">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="yes">{t.optionYes}</SelectItem>
-                    <SelectItem value="no">{t.optionNo}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelContentReady}</label>
-                <Select value={form.contentReady} onValueChange={(val) => setForm({ ...form, contentReady: val })}>
-                  <SelectTrigger className="bg-black/[0.04] border-black/10 text-foreground h-11">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="yes">{t.optionYes}</SelectItem>
-                    <SelectItem value="no">{t.optionNo}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            {/* <div>
-              <label className="block text-muted-foreground text-sm mb-1.5">{t.labelPaymentPlan}</label>
-              <Select value={form.paymentPlan} onValueChange={(val) => setForm({ ...form, paymentPlan: val })}>
-                <SelectTrigger className="bg-black/[0.04] border-black/10 text-foreground h-11">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="full">{t.paymentPlanFull}</SelectItem>
-                  <SelectItem value="split">{t.paymentPlanSplit}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div> */}
-            <div>
-              <label className="block text-muted-foreground text-sm mb-1.5">{t.labelMessage}</label>
-              <Textarea
-                value={form.message}
-                onChange={(e) => setForm({ ...form, message: e.target.value })}
-                className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground min-h-[100px]"
-              />
-            </div>
-            <Button
-              type="submit"
-              disabled={formLoading}
-              className="w-full h-12 text-base font-bold bg-gold hover:bg-gold/90 text-black rounded-xl shadow-lg shadow-gold/20 transition-all hover:shadow-gold/40"
-            >
-              {formLoading ? "..." : t.submitBtn}
-              {!formLoading && <ArrowRight className="ml-2 h-5 w-5" />}
-            </Button>
-          </form>
+              <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-5">
+                <div>
+                  <label className="block text-muted-foreground text-sm mb-1.5">{t.labelName}</label>
+                  <Input
+                    value={form.businessName}
+                    onChange={(e) => setForm({ ...form, businessName: e.target.value })}
+                    className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-muted-foreground text-sm mb-1.5">{t.labelFirstName}</label>
+                    <Input
+                      value={form.firstName}
+                      onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                      className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-muted-foreground text-sm mb-1.5">{t.labelLastName}</label>
+                    <Input
+                      value={form.lastName}
+                      onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                      className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-muted-foreground text-sm mb-1.5">{t.labelPhone}</label>
+                    <Input
+                      value={form.phone}
+                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                      className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
+                      type="tel"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-muted-foreground text-sm mb-1.5">{t.labelEmail} *</label>
+                    <Input
+                      value={form.email}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
+                      type="email"
+                      required
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-muted-foreground text-sm mb-1.5">{t.labelCity}</label>
+                  <Input
+                    value={form.city}
+                    onChange={(e) => setForm({ ...form, city: e.target.value })}
+                    className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
+                  />
+                </div>
+                {/* <div>
+                  <label className="block text-muted-foreground text-sm mb-1.5">{t.labelProjectName}</label>
+                  <Input
+                    value={form.projectName}
+                    onChange={(e) => setForm({ ...form, projectName: e.target.value })}
+                    className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
+                  />
+                </div> */}
+                <div>
+                  <label className="block text-muted-foreground text-sm mb-1.5">{t.labelWebsite}</label>
+                  <Input
+                    value={form.website}
+                    onChange={(e) => setForm({ ...form, website: e.target.value })}
+                    className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
+                    type="url"
+                  />
+                </div>
+                {/* <div>
+                  <label className="block text-muted-foreground text-sm mb-1.5">{t.labelPaymentMethod}</label>
+                  <Select value={form.paymentMethod} onValueChange={(val) => setForm({ ...form, paymentMethod: val })}>
+                    <SelectTrigger className="bg-black/[0.04] border-black/10 text-foreground h-11">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="online">{t.paymentOnline}</SelectItem>
+                      <SelectItem value="check">{t.paymentCheck}</SelectItem>
+                      <SelectItem value="transfer">{t.paymentTransfer}</SelectItem>
+                      <SelectItem value="cash">{t.paymentCash}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div> */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-muted-foreground text-sm mb-1.5">{t.labelMultipleListings}</label>
+                    <Select value={form.multipleListings} onValueChange={(val) => setForm({ ...form, multipleListings: val })}>
+                      <SelectTrigger className="bg-black/[0.04] border-black/10 text-foreground h-11">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="yes">{t.optionYes}</SelectItem>
+                        <SelectItem value="no">{t.optionNo}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="block text-muted-foreground text-sm mb-1.5">{t.labelContentReady}</label>
+                    <Select value={form.contentReady} onValueChange={(val) => setForm({ ...form, contentReady: val })}>
+                      <SelectTrigger className="bg-black/[0.04] border-black/10 text-foreground h-11">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="yes">{t.optionYes}</SelectItem>
+                        <SelectItem value="no">{t.optionNo}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                {/* <div>
+                  <label className="block text-muted-foreground text-sm mb-1.5">{t.labelPaymentPlan}</label>
+                  <Select value={form.paymentPlan} onValueChange={(val) => setForm({ ...form, paymentPlan: val })}>
+                    <SelectTrigger className="bg-black/[0.04] border-black/10 text-foreground h-11">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="full">{t.paymentPlanFull}</SelectItem>
+                      <SelectItem value="split">{t.paymentPlanSplit}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div> */}
+                <div>
+                  <label className="block text-muted-foreground text-sm mb-1.5">{t.labelMessage}</label>
+                  <Textarea
+                    value={form.message}
+                    onChange={(e) => setForm({ ...form, message: e.target.value })}
+                    className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground min-h-[100px]"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  disabled={formLoading}
+                  className="w-full h-12 text-base font-bold bg-gold hover:bg-gold/90 text-black rounded-xl shadow-lg shadow-gold/20 transition-all hover:shadow-gold/40"
+                >
+                  {formLoading ? "..." : t.submitBtn}
+                  {!formLoading && <ArrowRight className="ml-2 h-5 w-5" />}
+                </Button>
+              </form>
+            </>
+          )}
         </section>
       </main>
       <Footer variant="verified" />
