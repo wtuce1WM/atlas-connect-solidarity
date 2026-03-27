@@ -154,7 +154,7 @@ const translations = {
     "nav.about": "À propos",
     "nav.contact": "Contact",
     "nav.signIn": "Connexion",
-    "nav.joinNow": "Listez votre entreprise",
+    "nav.joinNow": "Ajoutez votre entreprise",
     
     // Hero
     "hero.title": "ONE WORLD",
