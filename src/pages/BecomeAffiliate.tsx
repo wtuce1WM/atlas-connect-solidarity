@@ -62,9 +62,12 @@ const BecomeAffiliate = () => {
       paymentTransfer: "Virement",
       paymentCash: "Espèces",
       labelMultipleListings: "Avez-vous besoin d'une seule fiche ou de publier plusieurs offres ?",
+      optionSingle: "Une seule",
+      optionMultiple: "Plusieurs",
       labelContentReady: "Votre texte et photos sont prêts pour commencer ?",
       optionYes: "Oui",
       optionNo: "Non",
+      requiredNote: "* obligatoire",
       labelPaymentPlan: "Plan de paiement",
       paymentPlanFull: "Paiement complet",
       paymentPlanSplit: "Paiement en 2 fois",
@@ -110,9 +113,12 @@ const BecomeAffiliate = () => {
       paymentTransfer: "Bank transfer",
       paymentCash: "Cash",
       labelMultipleListings: "Do you need a single listing or do you want to publish multiple offers?",
+      optionSingle: "Single",
+      optionMultiple: "Multiple",
       labelContentReady: "Are your text and photos ready to start?",
       optionYes: "Yes",
       optionNo: "No",
+      requiredNote: "* required",
       labelPaymentPlan: "Payment plan",
       paymentPlanFull: "Full payment",
       paymentPlanSplit: "Payment in 2 installments",
@@ -158,9 +164,12 @@ const BecomeAffiliate = () => {
       paymentTransfer: "تحويل بنكي",
       paymentCash: "نقداً",
       labelMultipleListings: "هل تحتاج إلى بطاقة واحدة أم تريد نشر عروض متعددة؟",
+      optionSingle: "واحدة",
+      optionMultiple: "عدة",
       labelContentReady: "هل النصوص والصور جاهزة للبدء؟",
       optionYes: "نعم",
       optionNo: "لا",
+      requiredNote: "* مطلوب",
       labelPaymentPlan: "خطة الدفع",
       paymentPlanFull: "دفع كامل",
       paymentPlanSplit: "دفع على مرتين",
@@ -329,6 +338,7 @@ const BecomeAffiliate = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-5">
+                <p className="text-sm text-muted-foreground italic">{t.requiredNote}</p>
                 <div>
                   <label className="block text-muted-foreground text-sm mb-1.5">{t.labelName}</label>
                   <Input
@@ -423,8 +433,8 @@ const BecomeAffiliate = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="yes">{t.optionYes}</SelectItem>
-                        <SelectItem value="no">{t.optionNo}</SelectItem>
+                        <SelectItem value="single">{t.optionSingle}</SelectItem>
+                        <SelectItem value="multiple">{t.optionMultiple}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
