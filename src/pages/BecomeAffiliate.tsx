@@ -368,7 +368,7 @@ const BecomeAffiliate = () => {
                 type="url"
               />
             </div>
-            <div>
+            {/* <div>
               <label className="block text-muted-foreground text-sm mb-1.5">{t.labelPaymentMethod}</label>
               <Select value={form.paymentMethod} onValueChange={(val) => setForm({ ...form, paymentMethod: val })}>
                 <SelectTrigger className="bg-black/[0.04] border-black/10 text-foreground h-11">
@@ -381,7 +381,7 @@ const BecomeAffiliate = () => {
                   <SelectItem value="cash">{t.paymentCash}</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-muted-foreground text-sm mb-1.5">{t.labelMultipleListings}</label>
