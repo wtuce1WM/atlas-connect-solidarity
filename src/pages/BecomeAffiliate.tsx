@@ -173,7 +173,8 @@ const BecomeAffiliate = () => {
 
   const [form, setForm] = useState({
     businessName: "",
-    contactName: "",
+    firstName: "",
+    lastName: "",
     phone: "",
     email: "",
     city: "",
@@ -183,6 +184,8 @@ const BecomeAffiliate = () => {
     multipleListings: "",
     contentReady: "",
     paymentPlan: "",
+    message: "",
+  });
     message: "",
   });
 
