@@ -3018,7 +3018,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         <div id="section-images" className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '160px' }}>
           <div className="flex items-center justify-between">
             <Label className="text-base font-semibold">🎬 Vidéos</Label>
-            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => [...prev, { url: "", name: "" }])}>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => [...prev, { url: "", name: "", poi_id: null, destination_id: null }])}>
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
