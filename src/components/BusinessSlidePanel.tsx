@@ -5,6 +5,7 @@ import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem } from "@/components/FullscreenLightbox";
 import { supabase } from "@/integrations/supabase/client";
+import { cleanPhone, whatsappUrl } from "@/lib/phoneUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link, useNavigate } from "react-router-dom";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
@@ -1234,7 +1235,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
       {toolbarCenterPortal && createPortal(
         <div className="flex items-center gap-6">
           {business.whatsapp && (
-            <a href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="relative flex items-center justify-center hover:opacity-70 transition-opacity" style={{ color: "#25D366" }}>
+            <a href={whatsappUrl(business.whatsapp)} target="_blank" rel="noopener noreferrer" className="relative flex items-center justify-center hover:opacity-70 transition-opacity" style={{ color: "#25D366" }}>
               <span className="absolute w-10 h-10 rounded-full border pointer-events-none animate-[ripple_2.4s_ease-out_infinite]" style={{ borderColor: "rgba(37,211,102,0.35)" }} />
               <span className="absolute w-14 h-14 rounded-full border pointer-events-none animate-[ripple_2.4s_ease-out_0.6s_infinite]" style={{ borderColor: "rgba(37,211,102,0.2)" }} />
               <span className="absolute w-[4.5rem] h-[4.5rem] rounded-full border pointer-events-none animate-[ripple_2.4s_ease-out_1.2s_infinite]" style={{ borderColor: "rgba(37,211,102,0.1)" }} />
@@ -1733,13 +1734,13 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
               <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2.5">
                 <div className="space-y-2">
                   {business.phone && (
-                    <a href={`tel:${business.phone}`} className="flex items-center gap-2.5 text-sm hover:text-foreground transition-colors group">
+                    <a href={`tel:${cleanPhone(business.phone)}`} className="flex items-center gap-2.5 text-sm hover:text-foreground transition-colors group">
                       <Phone className="h-4 w-4 shrink-0 text-foreground" />
                       <span className="text-muted-foreground group-hover:text-foreground">{business.phone}</span>
                     </a>
                   )}
                   {business.whatsapp && (
-                    <a href={`https://wa.me/${business.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-sm hover:text-foreground transition-colors group">
+                    <a href={whatsappUrl(business.whatsapp)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-sm hover:text-foreground transition-colors group">
                       <WhatsAppIcon className="h-4 w-4 shrink-0 text-[#25D366]" />
                       <span className="text-muted-foreground group-hover:text-foreground">{business.whatsapp}</span>
                     </a>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { MapPin, Phone, Mail, Globe, Clock, ExternalLink, Search } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { formatDayHours as formatDayHoursDisplay, isCurrentlyOpen } from "@/lib/formatOpeningHours";
+import { cleanPhone, whatsappUrl } from "@/lib/phoneUtils";
 
 interface ContactFlipCardProps {
   business: {
@@ -78,7 +79,7 @@ const ContactFlipCard = ({
             )}
             {business.phone && (
               <a
-                href={`tel:${business.phone}`}
+                href={`tel:${cleanPhone(business.phone)}`}
                 className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
               >
                 <Phone className="h-4 w-4 shrink-0 text-white/60" />
@@ -87,7 +88,7 @@ const ContactFlipCard = ({
             )}
             {business.whatsapp && (
               <a
-                href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, "")}`}
+                href={whatsappUrl(business.whatsapp)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-[#25D366] hover:text-[#20bd5a] transition-colors"

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { MapPin, Phone, Star, Clock, Navigation, X } from "lucide-react";
+import { cleanPhone, whatsappUrl } from "@/lib/phoneUtils";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 
 export interface MapBusinessInfo {
@@ -78,14 +79,14 @@ const MapBusinessInfoCard = ({ business, onClose, hideDirections, hideClose }: M
           </div>
         )}
         {business.phone && (
-          <a href={`tel:${business.phone}`} className="flex items-center gap-1 hover:text-primary">
+          <a href={`tel:${cleanPhone(business.phone)}`} className="flex items-center gap-1 hover:text-primary">
             <Phone className="h-3 w-3 flex-shrink-0" />
             {business.phone}
           </a>
         )}
         {business.whatsapp && (
           <a
-            href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, "")}`}
+            href={whatsappUrl(business.whatsapp)}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1 text-green-600 hover:text-green-700 font-bold"

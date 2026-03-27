@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { collectRatingSources, computeWeightedRatingOn20, computeWeightedRatingOn5 } from "@/lib/ratingUtils";
+import { cleanPhone, whatsappUrl } from "@/lib/phoneUtils";
 import { DescriptionExpander } from "@/components/DescriptionExpander";
 import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
 import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag, Facebook, Instagram, Linkedin, Youtube, MessageCircle, Clock, AlertTriangle, ChevronDown, Play, CalendarCheck, Star, Camera, Volume2, VolumeX, Loader } from "lucide-react";
@@ -927,13 +928,13 @@ const BusinessDetail = () => {
                 <CardContent className="p-5 space-y-4">
                   {/* Contact links */}
                   {business.phone && (
-                    <a href={`tel:${business.phone}`} className={`flex items-center gap-3 font-semibold transition-colors ${isVerified ? "text-gold hover:text-gold/80" : "text-foreground hover:text-primary"}`}>
+                    <a href={`tel:${cleanPhone(business.phone)}`} className={`flex items-center gap-3 font-semibold transition-colors ${isVerified ? "text-gold hover:text-gold/80" : "text-foreground hover:text-primary"}`}>
                       <Phone className="h-5 w-5" />
                       {business.phone}
                     </a>
                   )}
                   {business.whatsapp && (
-                    <a href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, "")}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 font-bold hover:opacity-80 transition-opacity" style={{ color: "#25D366" }}>
+                    <a href={whatsappUrl(business.whatsapp)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 font-bold hover:opacity-80 transition-opacity" style={{ color: "#25D366" }}>
                       <MessageCircle className="h-5 w-5" />
                       WhatsApp
                     </a>

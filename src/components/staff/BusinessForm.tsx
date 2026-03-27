@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import restaurantGuruLogo from "@/assets/restaurant-guru-logo.webp";
 import glovoLogo from "@/assets/glovo-logo.png";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
+import { whatsappUrl } from "@/lib/phoneUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAllRows } from "@/lib/fetchAllRows";
 import { Button } from "@/components/ui/button";
@@ -1515,7 +1516,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 </a>
               )}
               {(formData as any).whatsapp && (
-                <a href={`https://wa.me/${(formData as any).whatsapp.replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer" title="WhatsApp" className="text-muted-foreground hover:text-green-600 transition-colors">
+                <a href={whatsappUrl((formData as any).whatsapp)} target="_blank" rel="noopener noreferrer" title="WhatsApp" className="text-muted-foreground hover:text-green-600 transition-colors">
                   <WhatsAppIcon className="h-3.5 w-3.5" />
                 </a>
               )}

@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { businessUrl } from "@/lib/businessUrl";
+import { cleanPhone } from "@/lib/phoneUtils";
 import { Link } from "react-router-dom";
 import { Loader2, MapPin, X, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -175,7 +176,7 @@ const AllBusinessesMap = () => {
                     </div>
                   )}
                   {selectedBusiness.phone && (
-                    <a href={`tel:${selectedBusiness.phone}`} className="flex items-center gap-1 hover:text-primary">
+                    <a href={`tel:${cleanPhone(selectedBusiness.phone)}`} className="flex items-center gap-1 hover:text-primary">
                       <Phone className="h-3 w-3 flex-shrink-0" />
                       {selectedBusiness.phone}
                     </a>

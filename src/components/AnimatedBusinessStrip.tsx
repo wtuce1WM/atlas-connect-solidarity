@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Phone, Globe, MapPin, Map, Crown, Star, MessageCircle } from "lucide-react";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
+import { cleanPhone, whatsappUrl } from "@/lib/phoneUtils";
 
 interface StripBusiness {
   id: string;
@@ -202,7 +203,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
 
                     {biz.whatsapp ? (
                       <a
-                        href={`https://wa.me/${biz.whatsapp.replace(/[^0-9]/g, "")}`}
+                        href={whatsappUrl(biz.whatsapp)}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
@@ -213,7 +214,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                       </a>
                     ) : biz.phone ? (
                       <a
-                        href={`tel:${biz.phone}`}
+                        href={`tel:${cleanPhone(biz.phone)}`}
                         onClick={(e) => e.stopPropagation()}
                         className={`text-sm flex items-center gap-1.5 mt-2 hover:underline ${lightMode ? "text-gray-500" : "text-white/50"}`}
                       >
