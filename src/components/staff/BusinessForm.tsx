@@ -1136,6 +1136,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       rating: formData.rating ? parseFloat(formData.rating) : null,
       reserve_now_url: formData.reserve_now_url || null,
       show_opening_hours: formData.show_opening_hours,
+      show_videos: formData.show_videos,
       is_open_24h: formData.is_open_24h,
       vacation_dates: formData.vacation_dates.length > 0 ? JSON.parse(JSON.stringify(formData.vacation_dates)) : [],
       hotels_com_url: formData.hotels_com_url || null,
