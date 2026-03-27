@@ -3018,8 +3018,14 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
         {/* Videos (multiple) */}
         <div id="section-images" className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '160px' }}>
-          <div className="flex items-center justify-between">
-            <Label className="text-base font-semibold">🎬 Vidéos</Label>
+           <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Label className="text-base font-semibold">🎬 Vidéos</Label>
+              <div className="flex items-center gap-2">
+                <Switch checked={formData.show_videos} onCheckedChange={(checked) => handleChange("show_videos", checked)} />
+                <span className="text-xs text-muted-foreground">{formData.show_videos ? "Activé" : "Désactivé"}</span>
+              </div>
+            </div>
             <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => [...prev, { url: "", name: "", poi_id: null, destination_id: null }])}>
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
