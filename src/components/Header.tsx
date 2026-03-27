@@ -118,7 +118,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
           <li><Link to="/conditions-generales" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>Conditions Générales</Link></li>
           <li><a href="/affiliates" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>{t("footer.affiliates")}</a></li>
           <li><Link to="/blog" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>{t("footer.blog")}</Link></li>
-          <li><Link to="/devenir-affilie" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>{language === "ar" ? "أدرج شركتك" : language === "en" ? "List your business" : "<li><Link to="/devenir-affilie" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>{language === "ar" ? "أدرج شركتك" : language === "en" ? "Add your business" : "Ajoutez votre entreprise"}</Link></li>"}</Link></li>
+          <li><Link to="/devenir-affilie" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>{language === "ar" ? "أدرج شركتك" : language === "en" ? "Add your business" : "Ajoutez votre entreprise"}</Link></li>
         </ul>
         <a
           href="https://wa.me/212661439221"
