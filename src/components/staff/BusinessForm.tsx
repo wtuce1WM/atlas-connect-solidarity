@@ -1707,12 +1707,18 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="liteapi_id">ID LiteAPI (max 20)</Label>
-            {business?.id ? (
-              <LiteApiMappingField businessId={business.id} />
-            ) : (
-              <Input disabled placeholder="Enregistrez d'abord" />
-            )}
+            <Label htmlFor="kp_regroupement_2">KP regroupement 2 (max 20)</Label>
+            <Input
+              id="kp_regroupement_2"
+              value={formData.kp_regroupement_2}
+              onChange={(e) => {
+                const value = e.target.value.replace(/[^a-zA-Z0-9]/g, "").slice(0, 20);
+                handleChange("kp_regroupement_2", value);
+              }}
+              placeholder="ABC123..."
+              maxLength={20}
+              pattern="[a-zA-Z0-9]*"
+            />
           </div>
         </div>
 
