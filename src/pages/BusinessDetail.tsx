@@ -927,7 +927,7 @@ const BusinessDetail = () => {
                 <CardContent className="p-5 space-y-4">
                   {/* Contact links */}
                   {business.phone && (
-                    <a href={`tel:${business.phone}`} className={`flex items-center gap-3 font-semibold transition-colors ${isVerified ? "text-gold hover:text-gold/80" : "text-foreground hover:text-primary"}`}>
+                    <a href={`tel:${cleanPhone(business.phone)}`} className={`flex items-center gap-3 font-semibold transition-colors ${isVerified ? "text-gold hover:text-gold/80" : "text-foreground hover:text-primary"}`}>
                       <Phone className="h-5 w-5" />
                       {business.phone}
                     </a>
