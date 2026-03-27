@@ -215,8 +215,7 @@ const BecomeAffiliate = () => {
           },
         },
       });
-      toast({ title: "✅", description: t.successMsg });
-      setForm({ businessName: "", firstName: "", lastName: "", phone: "", email: "", city: "", projectName: "", website: "", paymentMethod: "", multipleListings: "", contentReady: "", paymentPlan: "", message: "" });
+      setFormSubmitted(true);
     } catch {
       toast({ variant: "destructive", title: "Erreur", description: "Une erreur est survenue." });
     } finally {
