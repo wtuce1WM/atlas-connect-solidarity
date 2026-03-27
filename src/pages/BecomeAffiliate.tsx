@@ -48,7 +48,8 @@ const BecomeAffiliate = () => {
       formBadge2: "Sans engagement",
       formBadge3: "Support",
       labelName: "Nom de l'établissement *",
-      labelContact: "Nom du contact *",
+      labelFirstName: "Prénom *",
+      labelLastName: "Nom *",
       labelPhone: "Téléphone *",
       labelEmail: "Email",
       labelCity: "Ville *",
@@ -95,7 +96,8 @@ const BecomeAffiliate = () => {
       formBadge2: "No commitment",
       formBadge3: "Support",
       labelName: "Business name *",
-      labelContact: "Contact name *",
+      labelFirstName: "First name *",
+      labelLastName: "Last name *",
       labelPhone: "Phone *",
       labelEmail: "Email",
       labelCity: "City *",
@@ -142,7 +144,8 @@ const BecomeAffiliate = () => {
       formBadge2: "بدون التزام",
       formBadge3: "دعم",
       labelName: "اسم المؤسسة *",
-      labelContact: "اسم جهة الاتصال *",
+      labelFirstName: "الاسم الأول *",
+      labelLastName: "اللقب *",
       labelPhone: "الهاتف *",
       labelEmail: "البريد الإلكتروني",
       labelCity: "المدينة *",
@@ -170,7 +173,8 @@ const BecomeAffiliate = () => {
 
   const [form, setForm] = useState({
     businessName: "",
-    contactName: "",
+    firstName: "",
+    lastName: "",
     phone: "",
     email: "",
     city: "",
@@ -185,7 +189,7 @@ const BecomeAffiliate = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.businessName.trim() || !form.contactName.trim() || !form.phone.trim() || !form.city.trim()) {
+    if (!form.businessName.trim() || !form.firstName.trim() || !form.lastName.trim() || !form.phone.trim() || !form.city.trim()) {
       toast({ variant: "destructive", title: "Erreur", description: "Veuillez remplir les champs obligatoires." });
       return;
     }
@@ -194,7 +198,7 @@ const BecomeAffiliate = () => {
     setTimeout(() => {
       setFormLoading(false);
       toast({ title: "✅", description: t.successMsg });
-      setForm({ businessName: "", contactName: "", phone: "", email: "", city: "", projectName: "", website: "", paymentMethod: "", multipleListings: "", contentReady: "", paymentPlan: "", message: "" });
+      setForm({ businessName: "", firstName: "", lastName: "", phone: "", email: "", city: "", projectName: "", website: "", paymentMethod: "", multipleListings: "", contentReady: "", paymentPlan: "", message: "" });
     }, 800);
   };
 
@@ -300,10 +304,18 @@ const BecomeAffiliate = () => {
                 />
               </div>
               <div>
-                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelContact}</label>
+                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelFirstName}</label>
                 <Input
-                  value={form.contactName}
-                  onChange={(e) => setForm({ ...form, contactName: e.target.value })}
+                  value={form.firstName}
+                  onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                  className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
+                />
+              </div>
+              <div>
+                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelLastName}</label>
+                <Input
+                  value={form.lastName}
+                  onChange={(e) => setForm({ ...form, lastName: e.target.value })}
                   className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
                 />
               </div>
@@ -336,14 +348,14 @@ const BecomeAffiliate = () => {
                 className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
               />
             </div>
-            <div>
+            {/* <div>
               <label className="block text-muted-foreground text-sm mb-1.5">{t.labelProjectName}</label>
               <Input
                 value={form.projectName}
                 onChange={(e) => setForm({ ...form, projectName: e.target.value })}
                 className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
               />
-            </div>
+            </div> */}
             <div>
               <label className="block text-muted-foreground text-sm mb-1.5">{t.labelWebsite}</label>
               <Input
@@ -353,7 +365,7 @@ const BecomeAffiliate = () => {
                 type="url"
               />
             </div>
-            <div>
+            {/* <div>
               <label className="block text-muted-foreground text-sm mb-1.5">{t.labelPaymentMethod}</label>
               <Select value={form.paymentMethod} onValueChange={(val) => setForm({ ...form, paymentMethod: val })}>
                 <SelectTrigger className="bg-black/[0.04] border-black/10 text-foreground h-11">
@@ -366,7 +378,7 @@ const BecomeAffiliate = () => {
                   <SelectItem value="cash">{t.paymentCash}</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-muted-foreground text-sm mb-1.5">{t.labelMultipleListings}</label>
@@ -393,7 +405,7 @@ const BecomeAffiliate = () => {
                 </Select>
               </div>
             </div>
-            <div>
+            {/* <div>
               <label className="block text-muted-foreground text-sm mb-1.5">{t.labelPaymentPlan}</label>
               <Select value={form.paymentPlan} onValueChange={(val) => setForm({ ...form, paymentPlan: val })}>
                 <SelectTrigger className="bg-black/[0.04] border-black/10 text-foreground h-11">
@@ -404,7 +416,7 @@ const BecomeAffiliate = () => {
                   <SelectItem value="split">{t.paymentPlanSplit}</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
             <div>
               <label className="block text-muted-foreground text-sm mb-1.5">{t.labelMessage}</label>
               <Textarea
