@@ -238,9 +238,11 @@ const StaffBackoffice = () => {
     } else {
       // Duplicate business_web_only and business_documents if exists
       if (data) {
-        const [{ data: webOnly }, { data: docs }] = await Promise.all([
+        const [{ data: webOnly }, { data: docs }, { data: destinations }, { data: poiLinks }] = await Promise.all([
           supabase.from("business_web_only").select("description").eq("business_id", id).maybeSingle(),
-          supabase.from("business_documents" as any).select("type, url, name, language, icon, sort_order").eq("business_id", id),
+          supabase.from("business_documents" as any).select("type, url, name, language, icon, sort_order, poi_id, destination_id").eq("business_id", id),
+          supabase.from("business_destinations").select("destination_id").eq("business_id", id),
+          supabase.from("business_poi_businesses").select("poi_business_id").eq("business_id", id),
         ]);
         if (webOnly) {
           await supabase.from("business_web_only").insert({
@@ -250,7 +252,17 @@ const StaffBackoffice = () => {
         }
         if (docs && (docs as any[]).length > 0) {
           await supabase.from("business_documents" as any).insert(
-            (docs as any[]).map((d: any) => ({ business_id: data.id, type: d.type, url: d.url, name: d.name, language: d.language, icon: d.icon, sort_order: d.sort_order }))
+            (docs as any[]).map((d: any) => ({ business_id: data.id, type: d.type, url: d.url, name: d.name, language: d.language, icon: d.icon, sort_order: d.sort_order, poi_id: d.poi_id, destination_id: d.destination_id }))
+          );
+        }
+        if (destinations && destinations.length > 0) {
+          await supabase.from("business_destinations").insert(
+            destinations.map((d: any) => ({ business_id: data.id, destination_id: d.destination_id }))
+          );
+        }
+        if (poiLinks && poiLinks.length > 0) {
+          await supabase.from("business_poi_businesses").insert(
+            poiLinks.map((p: any) => ({ business_id: data.id, poi_business_id: p.poi_business_id }))
           );
         }
       }
