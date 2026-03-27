@@ -181,6 +181,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [youtubeIsPlaying, setYoutubeIsPlaying] = useState(false);
   const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
   const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
+  const [allYoutubeVideos, setAllYoutubeVideos] = useState<YouTubeVideo[]>([]);
 
   // Hotel availability overlay (same pattern as BusinessSlidePanel)
   const [liteApiHotelId, setLiteApiHotelId] = useState<string | null>(null);
@@ -593,7 +594,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           )}
           {youtubeVideoCount && youtubeVideoCount > 0 && (
             <button
-              onClick={() => { setShowYoutubeOverlay(true); setYoutubeIsPlaying(true); }}
+              onClick={() => {
+                const firstShort = allYoutubeVideos.find(v => v.isShort) || allYoutubeVideos[0] || null;
+                if (firstShort) setActiveYoutubeVideo(firstShort);
+                setShowYoutubeOverlay(true);
+                setYoutubeIsPlaying(true);
+              }}
               className="h-9 w-9 flex items-center justify-center rounded-full bg-red-600 text-white shadow-md hover:bg-red-700 transition-colors"
               title="Vidéos YouTube"
             >
@@ -993,6 +999,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               <YouTubeShortsCarousel
                 youtubeUrl={business.youtube_url}
                 onVideoCount={setYoutubeVideoCount}
+                onVideosLoaded={setAllYoutubeVideos}
                 onPlayingChange={setYoutubeIsPlaying}
                 onSelectVideo={(v) => { setActiveYoutubeVideo(v); if (v) setShowYoutubeOverlay(true); }}
                 activeVideoId={activeYoutubeVideo?.videoId ?? null}

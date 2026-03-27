@@ -18,13 +18,14 @@ interface YouTubeShortsCarouselProps {
   onVideoCount?: (count: number) => void;
   onPlayingChange?: (isPlaying: boolean) => void;
   onSelectVideo?: (video: YouTubeVideo | null) => void;
+  onVideosLoaded?: (videos: YouTubeVideo[]) => void;
   activeVideoId?: string | null;
   shortsOnly?: boolean;
   hideLabel?: boolean;
   size?: "default" | "large";
 }
 
-const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange, onSelectVideo, activeVideoId, shortsOnly, hideLabel, size = "default" }: YouTubeShortsCarouselProps) => {
+const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange, onSelectVideo, onVideosLoaded, activeVideoId, shortsOnly, hideLabel, size = "default" }: YouTubeShortsCarouselProps) => {
   const { language } = useLanguage();
   const [videos, setVideos] = useState<YouTubeVideo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,6 +52,7 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange, onSe
         const items = data?.videos || [];
         setVideos(items);
         onVideoCount?.(items.length);
+        onVideosLoaded?.(items);
       } catch (err: any) {
         console.error("YouTube fetch error:", err);
         setError(err.message || "Erreur");
