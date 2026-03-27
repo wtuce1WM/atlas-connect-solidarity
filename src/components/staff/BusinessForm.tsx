@@ -492,6 +492,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     
     ice: (business as any)?.ice || "",
     kp_regroupement: (business as any)?.kp_regroupement || "",
+    kp_regroupement_2: (business as any)?.kp_regroupement_2 || "",
     kp_active: (business as any)?.kp_active ?? false,
     facebook_url: (business as any)?.facebook_url || "",
     instagram_url: (business as any)?.instagram_url || "",
