@@ -252,7 +252,6 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
   if (placeRef) {
     console.log(`Strategy 0: Direct place ref "${placeRef}" from URL`);
     try {
-      // Use findplacefromtext with the place ref as input
       const searchRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
         method: 'POST',
         headers: {
@@ -264,11 +263,14 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
       });
       const searchData = await searchRes.json();
       if (searchData.places && searchData.places.length > 0) {
-        const place = pickMatchingPlace(searchData.places, expectedNames);
-        if (!place) {
-          console.log('Strategy 0 found candidates but none matched expected place name');
-          throw new Error('No strong name match in strategy 0');
-        }
+        // Trust the first result from a direct KG ID lookup — no name filtering
+        const p = searchData.places[0];
+        const place = {
+          id: p.id,
+          rating: p.rating ?? null,
+          count: p.userRatingCount ?? null,
+          displayName: p.displayName?.text || '?',
+        };
         console.log(`Found via place ref: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
         const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
         if (reviews.length > 0) console.log(`Got ${reviews.length} Google review texts`);
