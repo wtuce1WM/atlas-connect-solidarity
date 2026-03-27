@@ -118,7 +118,7 @@ const ContactFlipCard = ({
                 <ExternalLink className="h-3 w-3" />
               </a>
             )}
-            {hasOpeningHours && <OpeningHoursBlock business={business} language={language} />}
+            {hasOpeningHours && !business.is_open_24h && <OpeningHoursBlock business={business} language={language} />}
 
             {/* Hotel availability widget */}
             {isHotel && hasLiteApiMapping && (
