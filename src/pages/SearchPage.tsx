@@ -1516,6 +1516,17 @@ const SearchPage = () => {
       }));
   }, [isSubDesktop, filteredBusinesses, mapCenterForResults, neighborhoodCoords]);
 
+    // Auto-open first result's slide panel when arriving from external link
+    useEffect(() => {
+      if (hasAutoOpenedFirstRef.current) return;
+      if (isLoading || filteredBusinesses.length === 0) return;
+      if (!searchQuery) return;
+      if (hasInteractedWithCompactPanelRef.current) return;
+      hasAutoOpenedFirstRef.current = true;
+      const first = filteredBusinesses[0];
+      openCompactPanel({ id: first.id, name: first.name } as AIBusinessData);
+    }, [isLoading, filteredBusinesses, searchQuery, openCompactPanel]);
+
 
   useEffect(() => {
     if (isLoading) return;
