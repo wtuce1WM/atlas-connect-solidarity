@@ -147,6 +147,16 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showHook, setShowHook] = useState(false);
   const [showMosaic, setShowMosaic] = useState(false);
+  const [destinations, setDestinations] = useState<Destination[]>([]);
+  const [poiBusinesses, setPoiBusinesses] = useState<PoiBusiness[]>([]);
+  const [kpRelated, setKpRelated] = useState<KpRelatedBusiness[]>([]);
+  const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
+  const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
+  const [youtubeVideoCount, setYoutubeVideoCount] = useState<number | null>(null);
+  const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
+  const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
+  const [allYoutubeVideos, setAllYoutubeVideos] = useState<YouTubeVideo[]>([]);
+  const [youtubeIsPlaying, setYoutubeIsPlaying] = useState(false);
 
   const {
     cardsHidden, dragOffsetY, isDragging,
