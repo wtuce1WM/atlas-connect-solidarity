@@ -2,6 +2,9 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
 import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, ShoppingBag, Star, Minimize2, X } from "lucide-react";
+import DestinationSlidePanel from "@/components/DestinationSlidePanel";
+import PoiSlidePanel from "@/components/PoiSlidePanel";
+import YouTubeShortsCarousel, { type YouTubeVideo } from "@/components/YouTubeShortsCarousel";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
@@ -95,6 +98,33 @@ interface WebOnlyBusiness {
   pinterest_url: string | null;
   vimeo_url: string | null;
   video_1_url: string | null;
+  kp_regroupement: string | null;
+  kp_regroupement_2: string | null;
+  kp_active: boolean;
+  youtube_force_external: boolean;
+  main_category: string | null;
+}
+
+interface KpRelatedBusiness {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url: string | null;
+  images: string[] | null;
+  is_master: boolean;
+}
+interface Destination {
+  id: string;
+  name_fr: string;
+  name_en: string | null;
+  image_url: string | null;
+  images: string[] | null;
+}
+interface PoiBusiness {
+  id: string;
+  name: string;
+  images: string[] | null;
+  logo_url: string | null;
 }
 
 type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
@@ -117,6 +147,16 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showHook, setShowHook] = useState(false);
   const [showMosaic, setShowMosaic] = useState(false);
+  const [destinations, setDestinations] = useState<Destination[]>([]);
+  const [poiBusinesses, setPoiBusinesses] = useState<PoiBusiness[]>([]);
+  const [kpRelated, setKpRelated] = useState<KpRelatedBusiness[]>([]);
+  const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
+  const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
+  const [youtubeVideoCount, setYoutubeVideoCount] = useState<number | null>(null);
+  const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
+  const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
+  const [allYoutubeVideos, setAllYoutubeVideos] = useState<YouTubeVideo[]>([]);
+  const [youtubeIsPlaying, setYoutubeIsPlaying] = useState(false);
 
   const {
     cardsHidden, dragOffsetY, isDragging,
@@ -134,6 +174,12 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
     setIsLightboxOpen(false);
     setShowMosaic(false);
     setShowHook(false);
+    setSelectedDestinationId(null);
+    setSelectedPoiBusinessId(null);
+    setYoutubeVideoCount(null);
+    setActiveYoutubeVideo(null);
+    setYoutubeIsPlaying(false);
+    setShowYoutubeOverlay(false);
   }, [businessId, resetDrag]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -144,10 +190,10 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      const [bizRes, woRes, reviewsRes, extLinksRes, videoDocsRes] = await Promise.all([
+      const [bizRes, woRes, destLinksRes, reviewsRes, extLinksRes, videoDocsRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, online_shop_force_external, website_force_external, hook_fr, hook_en, hook_ar, description, facebook_url, instagram_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, vimeo_url, video_1_url")
+          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, online_shop_force_external, website_force_external, youtube_force_external, hook_fr, hook_en, hook_ar, description, facebook_url, instagram_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, vimeo_url, video_1_url, kp_regroupement, kp_regroupement_2, kp_active, main_category")
           .eq("id", businessId)
           .eq("is_active", true)
           .maybeSingle(),
@@ -156,6 +202,10 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
           .select("description")
           .eq("business_id", businessId)
           .maybeSingle(),
+        supabase
+          .from("business_destinations")
+          .select("destination_id")
+          .eq("business_id", businessId),
         supabase
           .from("reviews" as any)
           .select("source, author_name, rating, text, language")
@@ -183,6 +233,74 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
       setReviewTexts(reviewsRes.data ? (reviewsRes.data as any[]) : []);
       setExternalLinks((extLinksRes.data || []) as ExternalLinkItem[]);
       setVideoDocUrls((videoDocsRes.data || []).map((d: any) => d.url).filter(Boolean));
+
+      // Fetch destination details
+      const destIds = (destLinksRes.data || []).map(d => d.destination_id);
+      let fetchedDests: Destination[] = [];
+      if (destIds.length > 0) {
+        const { data: destData } = await supabase
+          .from("destinations")
+          .select("id, name_fr, name_en, image_url, images")
+          .in("id", destIds);
+        fetchedDests = ((destData || []) as Destination[]).sort((a, b) => {
+          const nameA = (language === "en" && a.name_en ? a.name_en : a.name_fr).toLowerCase();
+          const nameB = (language === "en" && b.name_en ? b.name_en : b.name_fr).toLowerCase();
+          return nameA.localeCompare(nameB);
+        });
+      }
+      setDestinations(fetchedDests);
+
+      // Fetch POI businesses
+      {
+        const { data: poiLinks } = await supabase
+          .from("business_poi_businesses")
+          .select("poi_business_id")
+          .eq("business_id", businessId);
+        const poiIds = (poiLinks || []).map(p => p.poi_business_id);
+        if (poiIds.length > 0) {
+          const { data: poiData } = await supabase
+            .from("businesses")
+            .select("id, name, images, logo_url")
+            .in("id", poiIds)
+            .eq("is_active", true);
+          setPoiBusinesses((poiData || []) as PoiBusiness[]);
+        } else {
+          setPoiBusinesses([]);
+        }
+      }
+
+      // Fetch KP related businesses
+      const kp1Val = (bizRes.data as any)?.kp_regroupement;
+      const kp2Val = (bizRes.data as any)?.kp_regroupement_2;
+      const isKpActive = (bizRes.data as any)?.kp_active;
+
+      let kpResults: KpRelatedBusiness[] = [];
+      if (isKpActive) {
+        if (kp1Val && kp1Val.trim() !== "") {
+          const { data: kpData } = await supabase
+            .from("businesses")
+            .select("id, name, slug, logo_url, images, is_master")
+            .eq("kp_regroupement", kp1Val)
+            .eq("is_active", true)
+            .neq("id", businessId)
+            .order("is_master", { ascending: false })
+            .order("priority_score", { ascending: false });
+          kpResults = (kpData || []) as KpRelatedBusiness[];
+        }
+        if (kpResults.length === 0 && kp2Val && kp2Val.trim() !== "") {
+          const { data: kp2Data } = await supabase
+            .from("businesses")
+            .select("id, name, slug, logo_url, images, is_master")
+            .eq("kp_regroupement_2", kp2Val)
+            .eq("is_active", true)
+            .neq("id", businessId)
+            .order("is_master", { ascending: false })
+            .order("priority_score", { ascending: false });
+          kpResults = (kp2Data || []) as KpRelatedBusiness[];
+        }
+      }
+      setKpRelated(kpResults);
+
       setIsLoading(false);
     };
     fetchData();
@@ -220,6 +338,25 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
 
   const hasContactCard = !!(business?.phone || business?.whatsapp || business?.email || business?.website || business?.address);
   const hasReviewsCard = avgOn20 !== null && avgOn20 > 0;
+
+  // Bottom carousel priority: YouTube > KP > Destinations > POI
+  const hasYoutubeBottomCarousel = !!(business?.youtube_url && business?.youtube_force_external && youtubeVideoCount !== 0);
+  const hasYoutubeReady = !!(youtubeVideoCount && youtubeVideoCount > 0);
+  const hasKpCarousel = kpRelated.length > 0;
+  const hasDestCarousel = destinations.length > 0;
+  const hasPoiCarousel = poiBusinesses.length > 0;
+
+  const activeBottomCarousel: "youtube" | "kp" | "dest" | "poi" | "none" =
+    (hasYoutubeBottomCarousel && hasYoutubeReady) ? "youtube" :
+    hasYoutubeBottomCarousel ? "youtube" :
+    hasKpCarousel ? "kp" :
+    hasDestCarousel ? "dest" :
+    hasPoiCarousel ? "poi" :
+    "none";
+
+  const noBottomCarousel = activeBottomCarousel === "none";
+
+  const destName = useCallback((d: Destination) => language === "en" && d.name_en ? d.name_en : d.name_fr, [language]);
 
   // Hook text for current language
   const hookText = useMemo(() => {
@@ -579,7 +716,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
               <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
               {/* Card 1: Web Only text */}
               {woDescription && (
-                <div className="snap-start shrink-0 w-[20rem] md:w-[30rem] h-[21.6em] md:h-[28.8em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10"
+                <div className={`snap-start shrink-0 w-[20rem] md:w-[30rem] ${noBottomCarousel ? 'h-[21.6em] md:h-[28.8em]' : 'h-[18em] md:h-[24em]'} mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10`}
                   style={{ animationFillMode: 'forwards' }}
                 >
                   <div
@@ -594,7 +731,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                   business={business}
                   language={language}
                   hasOpeningHours={!!(business?.show_opening_hours !== false && (business?.is_open_24h || business?.opening_hours))}
-                  tallHeight
+                  tallHeight={noBottomCarousel}
                   animationDelay={woDescription ? "120ms" : "0ms"}
                 />
               )}
@@ -646,9 +783,153 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
             </div>
           </div>
 
+          {/* YouTube Shorts strip — only when YouTube wins priority */}
+          {activeBottomCarousel === "youtube" && business?.youtube_url && business?.youtube_force_external && youtubeVideoCount !== 0 && (
+            <div className="pointer-events-auto -mr-4 md:-mr-6">
+              <YouTubeShortsCarousel
+                youtubeUrl={business.youtube_url}
+                onVideoCount={setYoutubeVideoCount}
+                onVideosLoaded={setAllYoutubeVideos}
+                onPlayingChange={setYoutubeIsPlaying}
+                onSelectVideo={(v) => { setActiveYoutubeVideo(v); if (v) setShowYoutubeOverlay(true); }}
+                activeVideoId={activeYoutubeVideo?.videoId ?? null}
+                shortsOnly
+                hideLabel
+              />
+            </div>
+          )}
+          {/* Hidden YouTube count probe */}
+          {activeBottomCarousel !== "youtube" && business?.youtube_url && business?.youtube_force_external && youtubeVideoCount === null && (
+            <div className="hidden">
+              <YouTubeShortsCarousel
+                youtubeUrl={business.youtube_url}
+                onVideoCount={setYoutubeVideoCount}
+                shortsOnly
+                hideLabel
+              />
+            </div>
+          )}
+
+          {/* Destinations carousel */}
+          {activeBottomCarousel === "dest" && (
+            <>
+            <div className="flex justify-center mt-6 mb-1.5 pointer-events-auto">
+              <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                {`${business.name} vous emmène à :`}
+              </h3>
+            </div>
+            <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
+              <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
+                {destinations.map((dest, index) => {
+                  const destImg = dest.images?.filter(Boolean)?.[0] || dest.image_url;
+                  return (
+                    <div
+                      key={dest.id}
+                      className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                      style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
+                      onClick={() => setSelectedDestinationId(dest.id)}
+                    >
+                      {destImg ? (
+                        <img src={destImg} alt={destName(dest)} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                      ) : (
+                        <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
+                          <MapPin className="h-5 w-5 text-white/40" />
+                        </div>
+                      )}
+                      <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
+                        {destName(dest)}
+                      </p>
+                    </div>
+                  );
+                })}
+                <div className="shrink-0 w-6" aria-hidden="true" />
+              </div>
+            </div>
+            </>
+          )}
+
+          {/* POI carousel */}
+          {activeBottomCarousel === "poi" && (
+            <>
+            <div className="flex justify-center mt-6 mb-1.5 pointer-events-auto">
+              <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                {language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité"}
+              </h3>
+            </div>
+            <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
+              <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
+                {poiBusinesses.map((poi, index) => {
+                  const poiImg = poi.images?.filter(Boolean)?.[0] || poi.logo_url;
+                  return (
+                    <div
+                      key={poi.id}
+                      className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                      style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
+                      onClick={() => setSelectedPoiBusinessId(poi.id)}
+                    >
+                      {poiImg ? (
+                        <img src={poiImg} alt={poi.name} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                      ) : (
+                        <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
+                          <MapPin className="h-5 w-5 text-white/40" />
+                        </div>
+                      )}
+                      <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
+                        {poi.name}
+                      </p>
+                    </div>
+                  );
+                })}
+                <div className="shrink-0 w-6" aria-hidden="true" />
+              </div>
+            </div>
+            </>
+          )}
+
+          {/* KP Related carousel */}
+          {activeBottomCarousel === "kp" && (
+            <>
+            <div className="flex justify-center mt-4 mb-1.5 pointer-events-auto">
+              <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                {language === "en" ? "Other establishments" : "Autres établissements"}
+              </h3>
+            </div>
+            <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
+              <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
+                {kpRelated.map((rel, index) => {
+                  const relImg = rel.images?.filter(Boolean)?.[0] || rel.logo_url;
+                  return (
+                    <div
+                      key={rel.id}
+                      className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                      style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
+                    >
+                      {relImg ? (
+                        <img src={relImg} alt={rel.name} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                      ) : (
+                        <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
+                          <MapPin className="h-5 w-5 text-white/40" />
+                        </div>
+                      )}
+                      <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
+                        {rel.is_master && <span className="text-gold mr-1">★</span>}
+                        {rel.name}
+                      </p>
+                    </div>
+                  );
+                })}
+                <div className="shrink-0 w-6" aria-hidden="true" />
+              </div>
+            </div>
+            </>
+          )}
+
           {/* CTAs */}
           {(shopUrl || (business.latitude && business.longitude)) && (
-            <div className="shrink-0 py-2 flex flex-col items-center gap-2 pointer-events-auto mt-auto">
+            <div className={`shrink-0 py-2 flex flex-col items-center gap-2 pointer-events-auto ${noBottomCarousel ? 'mt-auto' : ''}`}>
               {shopCta && (
                 shopCta.forceExternal ? (
                   <a
@@ -741,6 +1022,24 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
         <DirectionsOverlay
           business={business}
           onClose={() => setShowDirections(false)}
+        />
+      )}
+
+      {/* Destination detail overlay */}
+      {selectedDestinationId && (
+        <DestinationSlidePanel
+          destinationId={selectedDestinationId}
+          onClose={() => setSelectedDestinationId(null)}
+          slideFrom="bottom"
+        />
+      )}
+
+      {/* POI business detail overlay */}
+      {selectedPoiBusinessId && (
+        <PoiSlidePanel
+          businessId={selectedPoiBusinessId}
+          onClose={() => setSelectedPoiBusinessId(null)}
+          slideFrom="bottom"
         />
       )}
 
