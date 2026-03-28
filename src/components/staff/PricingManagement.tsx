@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Hotel, UtensilsCrossed } from "lucide-react";
+import { toast } from "sonner";
 
 const PRICE_RANGES = [
   { label: "- 50€", min: 0, max: 50, color: "bg-emerald-100 text-emerald-700 border-emerald-300" },
@@ -19,83 +21,153 @@ const getPriceRange = (price: number | null) => {
   return PRICE_RANGES.find((r) => price >= r.min && price < r.max) || PRICE_RANGES[PRICE_RANGES.length - 1];
 };
 
+const getPriceRangeByLabel = (label: string | null) => {
+  if (!label) return null;
+  return PRICE_RANGES.find((r) => r.label === label) || null;
+};
+
 interface PriceRow {
+  id: string;
   name: string;
   city: string;
   liteapi_price: number | null;
   serpapi_price: number | null;
   liteapi_currency: string | null;
   serpapi_currency: string | null;
+  manual_price_range: string | null;
+  hasApiPrice: boolean;
 }
 
 const PricingManagement = () => {
   const [loading, setLoading] = useState(true);
   const [hotelPrices, setHotelPrices] = useState<PriceRow[]>([]);
+  const [noPriceHotels, setNoPriceHotels] = useState<PriceRow[]>([]);
 
-  useEffect(() => {
-    const fetch = async () => {
-      setLoading(true);
+  const fetchData = useCallback(async () => {
+    setLoading(true);
 
-      // Get all price cache entries
-      const { data: cache } = await supabase
-        .from("hotel_price_cache")
-        .select("business_id, price_per_night, currency, source");
+    // Get all price cache entries
+    const { data: cache } = await supabase
+      .from("hotel_price_cache")
+      .select("business_id, price_per_night, currency, source");
 
-      // Get business names + cities for those
-      const ids = [...new Set((cache || []).map((r) => r.business_id))];
-      if (ids.length === 0) { setLoading(false); return; }
+    const priceBusinessIds = new Set((cache || []).filter(r => r.price_per_night != null).map((r) => r.business_id));
 
-      const { data: businesses } = await supabase
-        .from("businesses")
-        .select("id, name, city")
-        .in("id", ids);
+    // Get all mapped hotel IDs (both sources)
+    const [{ data: liteMap }, { data: serpMap }] = await Promise.all([
+      supabase.from("hotel_api_mappings").select("business_id"),
+      supabase.from("hotel_mappings").select("business_id"),
+    ]);
 
-      const bizMap = Object.fromEntries((businesses || []).map((b) => [b.id, b]));
+    const allMappedIds = [...new Set([
+      ...(liteMap || []).map(r => r.business_id),
+      ...(serpMap || []).map(r => r.business_id),
+    ])];
 
-      // Group by business_id
-      const grouped: Record<string, PriceRow> = {};
-      for (const row of cache || []) {
-        const biz = bizMap[row.business_id];
-        if (!biz) continue;
-        if (!grouped[row.business_id]) {
-          grouped[row.business_id] = {
-            name: biz.name,
-            city: biz.city || "—",
-            liteapi_price: null,
-            serpapi_price: null,
-            liteapi_currency: null,
-            serpapi_currency: null,
-          };
-        }
-        if (row.source === "liteapi") {
-          grouped[row.business_id].liteapi_price = row.price_per_night;
-          grouped[row.business_id].liteapi_currency = row.currency;
-        } else if (row.source === "serpapi") {
-          grouped[row.business_id].serpapi_price = row.price_per_night;
-          grouped[row.business_id].serpapi_currency = row.currency;
-        }
+    // Get business info for all mapped hotels
+    const { data: businesses } = await supabase
+      .from("businesses")
+      .select("id, name, city, manual_price_range")
+      .in("id", allMappedIds);
+
+    const bizMap = Object.fromEntries((businesses || []).map((b) => [b.id, b]));
+
+    // Group price cache by business_id
+    const grouped: Record<string, PriceRow> = {};
+    for (const row of cache || []) {
+      const biz = bizMap[row.business_id];
+      if (!biz) continue;
+      if (!grouped[row.business_id]) {
+        grouped[row.business_id] = {
+          id: row.business_id,
+          name: biz.name,
+          city: biz.city || "—",
+          liteapi_price: null,
+          serpapi_price: null,
+          liteapi_currency: null,
+          serpapi_currency: null,
+          manual_price_range: biz.manual_price_range,
+          hasApiPrice: false,
+        };
       }
+      if (row.source === "liteapi" && row.price_per_night != null) {
+        grouped[row.business_id].liteapi_price = row.price_per_night;
+        grouped[row.business_id].liteapi_currency = row.currency;
+        grouped[row.business_id].hasApiPrice = true;
+      } else if (row.source === "serpapi" && row.price_per_night != null) {
+        grouped[row.business_id].serpapi_price = row.price_per_night;
+        grouped[row.business_id].serpapi_currency = row.currency;
+        grouped[row.business_id].hasApiPrice = true;
+      }
+    }
 
-      // Sort by lowest price first
-      const sorted = Object.values(grouped).sort((a, b) => {
-        const minA = Math.min(a.liteapi_price ?? Infinity, a.serpapi_price ?? Infinity);
-        const minB = Math.min(b.liteapi_price ?? Infinity, b.serpapi_price ?? Infinity);
-        return minA - minB;
-      });
+    // Hotels with prices
+    const withPrices = Object.values(grouped).filter(r => r.hasApiPrice).sort((a, b) => {
+      const minA = Math.min(a.liteapi_price ?? Infinity, a.serpapi_price ?? Infinity);
+      const minB = Math.min(b.liteapi_price ?? Infinity, b.serpapi_price ?? Infinity);
+      return minA - minB;
+    });
 
-      setHotelPrices(sorted);
-      setLoading(false);
-    };
-    fetch();
+    // Hotels mapped but without prices
+    const withoutPrices: PriceRow[] = allMappedIds
+      .filter(id => !priceBusinessIds.has(id) && bizMap[id])
+      .map(id => {
+        const biz = bizMap[id];
+        return {
+          id,
+          name: biz.name,
+          city: biz.city || "—",
+          liteapi_price: null,
+          serpapi_price: null,
+          liteapi_currency: null,
+          serpapi_currency: null,
+          manual_price_range: biz.manual_price_range,
+          hasApiPrice: false,
+        };
+      })
+      .sort((a, b) => a.city.localeCompare(b.city) || a.name.localeCompare(b.name));
+
+    setHotelPrices(withPrices);
+    setNoPriceHotels(withoutPrices);
+    setLoading(false);
   }, []);
 
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  const handleManualRangeChange = async (businessId: string, value: string) => {
+    const rangeValue = value === "__clear__" ? null : value;
+    const { error } = await supabase
+      .from("businesses")
+      .update({ manual_price_range: rangeValue } as any)
+      .eq("id", businessId);
+
+    if (error) {
+      toast.error("Erreur lors de la mise à jour");
+      return;
+    }
+    toast.success("Gamme de prix mise à jour");
+
+    // Update local state
+    const updater = (rows: PriceRow[]) =>
+      rows.map(r => r.id === businessId ? { ...r, manual_price_range: rangeValue } : r);
+    setHotelPrices(updater);
+    setNoPriceHotels(updater);
+  };
+
   // Group by city
-  const citiesMap: Record<string, PriceRow[]> = {};
-  for (const row of hotelPrices) {
-    if (!citiesMap[row.city]) citiesMap[row.city] = [];
-    citiesMap[row.city].push(row);
-  }
+  const groupByCity = (rows: PriceRow[]) => {
+    const map: Record<string, PriceRow[]> = {};
+    for (const row of rows) {
+      if (!map[row.city]) map[row.city] = [];
+      map[row.city].push(row);
+    }
+    return map;
+  };
+
+  const citiesMap = groupByCity(hotelPrices);
   const sortedCities = Object.keys(citiesMap).sort();
+  const noPriceCitiesMap = groupByCity(noPriceHotels);
+  const noPriceSortedCities = Object.keys(noPriceCitiesMap).sort();
 
   if (loading) {
     return (
@@ -104,6 +176,38 @@ const PricingManagement = () => {
       </div>
     );
   }
+
+  const PriceRangeSelect = ({ row }: { row: PriceRow }) => {
+    const currentRange = row.manual_price_range;
+    return (
+      <Select
+        value={currentRange || "__none__"}
+        onValueChange={(v) => handleManualRangeChange(row.id, v === "__none__" ? "__clear__" : v)}
+      >
+        <SelectTrigger className="h-7 w-[130px] text-xs">
+          <SelectValue>
+            {currentRange ? (
+              <Badge variant="outline" className={`${getPriceRangeByLabel(currentRange)?.color || ""} text-xs`}>
+                {currentRange}
+              </Badge>
+            ) : (
+              <span className="text-muted-foreground">Choisir…</span>
+            )}
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="__none__">
+            <span className="text-muted-foreground">Aucune</span>
+          </SelectItem>
+          {PRICE_RANGES.map((r) => (
+            <SelectItem key={r.label} value={r.label}>
+              <Badge variant="outline" className={`${r.color} text-xs`}>{r.label}</Badge>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    );
+  };
 
   return (
     <Tabs defaultValue="hotels">
@@ -120,8 +224,9 @@ const PricingManagement = () => {
 
       <TabsContent value="hotels">
         <div className="space-y-6">
+          {/* Hotels with API prices */}
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <span>{hotelPrices.length} hôtels avec prix</span>
+            <span>{hotelPrices.length} hôtels avec prix API</span>
             <Badge variant="outline" className="bg-violet-100 text-violet-700 border-violet-300">LiteAPI</Badge>
             <Badge variant="outline" className="bg-teal-100 text-teal-700 border-teal-300">SerpAPI</Badge>
           </div>
@@ -153,10 +258,11 @@ const PricingManagement = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y">
-                      {citiesMap[city].map((row, i) => {
+                      {citiesMap[city].map((row) => {
                         const minPrice = Math.min(row.liteapi_price ?? Infinity, row.serpapi_price ?? Infinity);
+                        const autoRange = getPriceRange(minPrice === Infinity ? null : minPrice);
                         return (
-                          <tr key={i} className="hover:bg-muted/50">
+                          <tr key={row.id} className="hover:bg-muted/50">
                             <td className="py-2 pr-4 font-medium">{row.name}</td>
                             <td className="py-2 px-4 text-right">
                               {row.liteapi_price != null ? (
@@ -177,14 +283,11 @@ const PricingManagement = () => {
                               )}
                             </td>
                             <td className="py-2 pl-4 text-center">
-                              {(() => {
-                                const range = getPriceRange(minPrice === Infinity ? null : minPrice);
-                                return range ? (
-                                  <Badge variant="outline" className={`${range.color} text-xs`}>{range.label}</Badge>
-                                ) : (
-                                  <span className="text-muted-foreground/40">—</span>
-                                );
-                              })()}
+                              {autoRange ? (
+                                <Badge variant="outline" className={`${autoRange.color} text-xs`}>{autoRange.label}</Badge>
+                              ) : (
+                                <span className="text-muted-foreground/40">—</span>
+                              )}
                             </td>
                           </tr>
                         );
@@ -195,6 +298,46 @@ const PricingManagement = () => {
               </CardContent>
             </Card>
           ))}
+
+          {/* Hotels without prices - manual assignment */}
+          {noPriceHotels.length > 0 && (
+            <>
+              <div className="flex items-center gap-3 text-sm text-muted-foreground mt-8 pt-6 border-t">
+                <span className="font-medium text-foreground">{noPriceHotels.length} hôtels sans prix API</span>
+                <span>— assignez une gamme manuellement</span>
+              </div>
+
+              {noPriceSortedCities.map((city) => (
+                <Card key={`no-price-${city}`}>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base">{city} ({noPriceCitiesMap[city].length})</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Établissement</th>
+                            <th className="text-center py-2 pl-4 font-medium text-muted-foreground">Gamme de prix</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y">
+                          {noPriceCitiesMap[city].map((row) => (
+                            <tr key={row.id} className="hover:bg-muted/50">
+                              <td className="py-2 pr-4 font-medium">{row.name}</td>
+                              <td className="py-2 pl-4 text-center">
+                                <PriceRangeSelect row={row} />
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </>
+          )}
         </div>
       </TabsContent>
 

@@ -933,6 +933,7 @@ export type Database = {
           logo_url: string | null
           longitude: number | null
           main_category: string | null
+          manual_price_range: string | null
           matterport_url: string | null
           menu_language: string | null
           menu_name: string | null
@@ -1071,6 +1072,7 @@ export type Database = {
           logo_url?: string | null
           longitude?: number | null
           main_category?: string | null
+          manual_price_range?: string | null
           matterport_url?: string | null
           menu_language?: string | null
           menu_name?: string | null
@@ -1209,6 +1211,7 @@ export type Database = {
           logo_url?: string | null
           longitude?: number | null
           main_category?: string | null
+          manual_price_range?: string | null
           matterport_url?: string | null
           menu_language?: string | null
           menu_name?: string | null
@@ -3841,6 +3844,7 @@ export type Database = {
               logo_url: string | null
               longitude: number | null
               main_category: string | null
+              manual_price_range: string | null
               matterport_url: string | null
               menu_language: string | null
               menu_name: string | null
@@ -3995,6 +3999,7 @@ export type Database = {
               logo_url: string | null
               longitude: number | null
               main_category: string | null
+              manual_price_range: string | null
               matterport_url: string | null
               menu_language: string | null
               menu_name: string | null
