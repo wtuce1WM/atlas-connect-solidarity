@@ -218,6 +218,8 @@ const HotelApiComparison = () => {
   const [mappingIds, setMappingIds] = useState<Record<string, string>>({});
   // Keys manually dismissed by the user — prevents auto-match from re-creating them
   const [dismissedKeys, setDismissedKeys] = useState<Set<string>>(new Set());
+  // Set of LiteAPI hotel IDs that are mapped to a business in hotel_api_mappings
+  const [mappedLiteIds, setMappedLiteIds] = useState<Set<string>>(new Set());
 
   const cityOption = CITY_OPTIONS.find((c) => c.value === city) || CITY_OPTIONS[0];
 
@@ -427,10 +429,22 @@ const HotelApiComparison = () => {
         if (data?.error) throw new Error(data.error);
         const sorted = (data?.data || []).slice().sort((a: LiteApiHotel, b: LiteApiHotel) => a.name.localeCompare(b.name, 'fr'));
         setLiteResults(sorted);
+        // Load mapped LiteAPI hotel IDs
+        const hotelIds = sorted.map((h: LiteApiHotel) => h.hotelId);
+        if (hotelIds.length > 0) {
+          const { data: mappings } = await supabase
+            .from("hotel_api_mappings")
+            .select("liteapi_hotel_id")
+            .in("liteapi_hotel_id", hotelIds);
+          setMappedLiteIds(new Set((mappings || []).map(m => m.liteapi_hotel_id)));
+        } else {
+          setMappedLiteIds(new Set());
+        }
       } catch (e: any) {
         setLiteTime(Math.round(performance.now() - t0));
         setLiteError(e.message);
         setLiteResults([]);
+        setMappedLiteIds(new Set());
       }
     })();
 
@@ -585,7 +599,7 @@ const HotelApiComparison = () => {
             </div>
             {liteError && <p className="text-sm text-destructive">{liteError}</p>}
             {liteResults?.map((h) => (
-              <HotelCardLite key={h.hotelId} hotel={h} />
+              <HotelCardLite key={h.hotelId} hotel={h} isMapped={mappedLiteIds.has(h.hotelId)} />
             ))}
             {liteResults?.length === 0 && !liteError && (
               <p className="text-sm text-muted-foreground">Aucun résultat</p>
@@ -644,7 +658,7 @@ const HotelApiComparison = () => {
   );
 };
 
-const HotelCardLite = ({ hotel }: { hotel: LiteApiHotel }) => {
+const HotelCardLite = ({ hotel, isMapped }: { hotel: LiteApiHotel; isMapped?: boolean }) => {
   const bestOffer = hotel.offers[0];
   const price = bestOffer?.price?.total ? `${bestOffer.price.total} ${bestOffer.price.currency}` : "—";
 
@@ -655,7 +669,10 @@ const HotelCardLite = ({ hotel }: { hotel: LiteApiHotel }) => {
           <img src={hotel.mainImage} alt={hotel.name} className="w-20 h-20 rounded-md object-cover shrink-0" />
         )}
         <div className="min-w-0 flex-1">
-          <h4 className="font-semibold text-sm truncate">{hotel.name}</h4>
+          <div className="flex items-center gap-1.5">
+            <h4 className="font-semibold text-sm truncate">{hotel.name}</h4>
+            {isMapped && <Badge className="bg-emerald-600 text-white text-[9px] py-0 px-1.5 shrink-0">OWM</Badge>}
+          </div>
           <div className="flex items-center gap-2 mt-0.5">
             {hotel.rating && (
               <Badge variant="outline" className="text-[10px] py-0">
