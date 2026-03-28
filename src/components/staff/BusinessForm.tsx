@@ -3184,8 +3184,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     </div>
                   </div>
                 )}
-                {/* POI, Destination & Business selectors */}
-                <div className="grid grid-cols-3 gap-1.5">
+                {/* POI, Destination, Business & Subcategory selectors */}
+                <div className="grid grid-cols-4 gap-1.5">
                   <div>
                     <label className="text-[10px] text-muted-foreground">POI</label>
                     <Select value={doc.poi_id || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, poi_id: v === "__none__" ? null : v } : d))}>
