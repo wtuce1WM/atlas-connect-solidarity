@@ -160,6 +160,10 @@ const StaffMaster = () => {
               <Hotel className="h-4 w-4" />
               Hôtels API
             </TabsTrigger>
+            <TabsTrigger value="pricing" className="gap-2">
+              <DollarSign className="h-4 w-4" />
+              Prix
+            </TabsTrigger>
             {isAdmin && (
               <TabsTrigger value="users" className="gap-2">
                 <Users className="h-4 w-4" />
