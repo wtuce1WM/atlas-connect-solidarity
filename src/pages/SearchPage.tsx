@@ -115,6 +115,7 @@ interface SearchResult {
   disambiguationType?: "needs_category" | "needs_city" | null;
   synonymUsed?: boolean;
   preciseMatch?: boolean;
+  exactNameMatchIsolation?: boolean;
 }
 
 const ITEMS_PER_PAGE = 20;
