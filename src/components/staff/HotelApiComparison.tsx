@@ -525,17 +525,20 @@ const HotelApiComparison = () => {
       }
     }
 
-    // Load cached SerpAPI prices from hotel_price_cache
+    // Load cached prices from hotel_price_cache (both sources)
     const { data: priceData } = await supabase
       .from("hotel_price_cache")
-      .select("business_id, price_per_night, currency, source")
-      .eq("source", "serpapi");
+      .select("business_id, price_per_night, currency, source");
     if (priceData) {
-      const priceMap: Record<string, CachedPrice> = {};
+      const serpMap: Record<string, CachedPrice> = {};
+      const liteMap: Record<string, CachedPrice> = {};
       for (const p of priceData) {
-        priceMap[p.business_id] = { price_per_night: p.price_per_night, currency: p.currency, source: p.source };
+        const entry = { price_per_night: p.price_per_night, currency: p.currency, source: p.source };
+        if (p.source === "serpapi") serpMap[p.business_id] = entry;
+        else if (p.source === "liteapi") liteMap[p.business_id] = entry;
       }
-      setCachedPrices(priceMap);
+      setCachedPrices(serpMap);
+      setCachedPricesLite(liteMap);
     }
   };
 
