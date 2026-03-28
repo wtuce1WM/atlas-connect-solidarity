@@ -15,7 +15,7 @@ import { ChevronLeft, ChevronRight, Grid3X3, List, Star, MapPin, Phone, Clock } 
 import { Button } from "@/components/ui/button";
 import { Badge as UiBadge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { formatRating } from "@/lib/ratingUtils";
+
 import { isCurrentlyOpen, type DayHoursData } from "@/lib/formatOpeningHours";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 
