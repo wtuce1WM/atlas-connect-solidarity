@@ -27,15 +27,22 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Edit, Trash2, ExternalLink, Copy, AlertTriangle, Link2, Star, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Edit, Trash2, ExternalLink, Copy, AlertTriangle, Link2, Star, ArrowUp, ArrowDown, ArrowUpDown, MapPin } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import { useBusinessBrokenFiles } from "@/hooks/useBusinessBrokenFiles";
 
-type SortKey = "name" | "city" | "main_category" | "gamme" | "rating" | "status" | "active" | "contact";
+type SortKey = "name" | "city" | "main_category" | "gamme" | "rating" | "status" | "active" | "contact" | "price";
 type SortDir = "asc" | "desc";
 
 type Business = Tables<"businesses">;
 type Gamme = { id: string; name_fr: string; color_hex: string | null; text_color_hex: string | null };
+
+export type PriceCacheEntry = {
+  business_id: string;
+  source: string;
+  price_per_night: number | null;
+  currency: string | null;
+};
 
 interface BusinessTableProps {
   businesses: Business[];
@@ -44,6 +51,7 @@ interface BusinessTableProps {
   onEdit: (business: Business) => void;
   onDelete: (id: string) => void;
   onDuplicate: (business: Business) => void;
+  priceCache?: PriceCacheEntry[];
 }
 
 const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplicate }: BusinessTableProps) => {
