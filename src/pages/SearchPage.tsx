@@ -3485,7 +3485,23 @@ const SearchPage = () => {
                 destination={selectedDestination}
                 language={language}
                 onClose={() => setSelectedDestination(null)}
-                onBusinessClick={(bizId) => {
+                onBusinessClick={async (bizId) => {
+                  // Detect presentation_mode to open the right panel
+                  try {
+                    const { data } = await supabase
+                      .from("businesses")
+                      .select("presentation_mode")
+                      .eq("id", bizId)
+                      .single();
+                    const mode = data?.presentation_mode || "acheter";
+                    if (mode === "reserver") {
+                      setDestPanelMode("bookonline");
+                    } else {
+                      setDestPanelMode("webonly");
+                    }
+                  } catch {
+                    setDestPanelMode("webonly");
+                  }
                   setDestSelectedBusinessId(bizId);
                 }}
               />
