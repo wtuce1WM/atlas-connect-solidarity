@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { LogOut, Plus, Search, Edit, Trash2, Eye, EyeOff, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle, LayoutDashboard, Crown, CheckCircle, Settings2, ArrowLeft, ClipboardList, Wrench, Key, Hotel } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import BusinessForm from "@/components/staff/BusinessForm";
-import BusinessTable from "@/components/staff/BusinessTable";
+import BusinessTable, { type PriceCacheEntry } from "@/components/staff/BusinessTable";
 import UserManagement from "@/components/staff/UserManagement";
 import CategoryManagement from "@/components/staff/CategoryManagement";
 import LocationManagement from "@/components/staff/LocationManagement";
