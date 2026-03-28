@@ -648,6 +648,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     return { fullUrl, forceExternal };
   }, [bookUrl, business?.reserve_now_url, business?.reserve_now_force_external, business?.website_force_external]);
 
+  // Shop CTA computed values
+  const shopCta = useMemo(() => {
+    if (!shopUrl) return null;
+    const fullUrl = shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`;
+    const forceExternal = business?.online_shop_force_external;
+    return { fullUrl, forceExternal };
+  }, [shopUrl, business?.online_shop_force_external]);
+
   if (isLoading) {
     return (
       <div className="h-full overflow-y-auto bg-background p-6 space-y-6">
