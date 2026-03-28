@@ -402,6 +402,18 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             .order("priority_score", { ascending: false });
           kpResults = (kpData || []) as KpRelatedBusiness[];
         }
+        // If KP1 found results AND KP2 exists, append master(s) from KP2 group at the end
+        if (kpResults.length > 0 && kp2Val && kp2Val.trim() !== "") {
+          const existingIds = new Set([businessId, ...kpResults.map(r => r.id)]);
+          const { data: kp2Masters } = await supabase
+            .from("businesses")
+            .select("id, name, slug, logo_url, images, is_master")
+            .eq("kp_regroupement", kp2Val)
+            .eq("is_master", true)
+            .eq("is_active", true);
+          const newMasters = ((kp2Masters || []) as KpRelatedBusiness[]).filter(m => !existingIds.has(m.id));
+          if (newMasters.length > 0) kpResults = [...kpResults, ...newMasters];
+        }
         // Fallback to KP2 if KP1 has no results
         if (kpResults.length === 0 && kp2Val && kp2Val.trim() !== "") {
           const { data: kp2Data } = await supabase
