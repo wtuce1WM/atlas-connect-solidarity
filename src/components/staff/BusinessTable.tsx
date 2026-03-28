@@ -383,6 +383,24 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
                     )}
                   </div>
                 </TableCell>
+                <TableCell>
+                  {(() => {
+                    const priceEntry = priceMap.get(business.id);
+                    if (!priceEntry || priceEntry.price_per_night == null) {
+                      return <span className="text-muted-foreground text-sm">-</span>;
+                    }
+                    const sourceLabel = priceEntry.source === "liteapi" ? "LiteAPI" : priceEntry.source === "serpapi" ? "SerpAPI" : priceEntry.source;
+                    const sourceColor = priceEntry.source === "liteapi" ? "bg-purple-500/10 text-purple-600" : "bg-teal-500/10 text-teal-600";
+                    return (
+                      <div className="flex flex-col gap-1">
+                        <span className="font-medium text-sm">{priceEntry.price_per_night}€</span>
+                        <Badge variant="outline" className={`text-[9px] px-1 py-0 w-fit ${sourceColor}`}>
+                          {sourceLabel}
+                        </Badge>
+                      </div>
+                    );
+                  })()}
+                </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button
