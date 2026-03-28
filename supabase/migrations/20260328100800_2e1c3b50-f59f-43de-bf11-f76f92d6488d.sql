@@ -1,0 +1,1 @@
+ALTER TABLE public.business_documents ADD COLUMN linked_business_id uuid REFERENCES public.businesses(id) ON DELETE SET NULL DEFAULT NULL;
