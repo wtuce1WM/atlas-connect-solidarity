@@ -176,6 +176,16 @@ const PricingManagement = () => {
                                 <span className="text-muted-foreground/40">—</span>
                               )}
                             </td>
+                            <td className="py-2 pl-4 text-center">
+                              {(() => {
+                                const range = getPriceRange(minPrice === Infinity ? null : minPrice);
+                                return range ? (
+                                  <Badge variant="outline" className={`${range.color} text-xs`}>{range.label}</Badge>
+                                ) : (
+                                  <span className="text-muted-foreground/40">—</span>
+                                );
+                              })()}
+                            </td>
                           </tr>
                         );
                       })}
