@@ -22,6 +22,7 @@ import PopularSearchesManagement from "@/components/staff/PopularSearchesManagem
 import BlockedDomainsManagement from "@/components/staff/BlockedDomainsManagement";
 import BrokenLinksManagement from "@/components/staff/BrokenLinksManagement";
 import HotelApiComparison from "@/components/staff/HotelApiComparison";
+import PricingManagement from "@/components/staff/PricingManagement";
 
 const DisplayParam = ({ label, value, preview }: { label: string; value: string; preview?: React.ReactNode }) => (
   <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 border">
