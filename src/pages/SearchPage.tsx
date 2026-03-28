@@ -3511,30 +3511,19 @@ const SearchPage = () => {
             )}
             {destSelectedBusinessId && (
               <div className={`fixed top-0 left-0 right-0 z-40 bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:top-[54px] lg:left-auto lg:border-l lg:border-border lg:transition-[width] lg:duration-300 lg:ease-out ${destPanelExpanded ? "lg:w-full" : "lg:w-1/2"}`} style={{ height: isSubDesktop ? "100vh" : "calc(100vh - 54px)" }}>
-                {destPanelMode === "bookonline" ? (
-                  <BookOnlineSlidePanel
+                <SlidePanelHeader
+                  onClose={() => { setDestSelectedBusinessId(null); setDestPanelExpanded(false); }}
+                  isExpanded={destPanelExpanded}
+                  onToggleExpand={() => setDestPanelExpanded(prev => !prev)}
+                />
+                <div className="flex-1 min-h-0">
+                  <BusinessSlidePanel
                     businessId={destSelectedBusinessId}
                     onClose={() => { setDestSelectedBusinessId(null); setDestPanelExpanded(false); }}
                     isExpanded={destPanelExpanded}
                     onToggleExpand={() => setDestPanelExpanded(prev => !prev)}
                   />
-                ) : (
-                  <>
-                    <SlidePanelHeader
-                      onClose={() => { setDestSelectedBusinessId(null); setDestPanelExpanded(false); }}
-                      isExpanded={destPanelExpanded}
-                      onToggleExpand={() => setDestPanelExpanded(prev => !prev)}
-                    />
-                    <div className="flex-1 min-h-0">
-                      <BusinessSlidePanel
-                        businessId={destSelectedBusinessId}
-                        onClose={() => { setDestSelectedBusinessId(null); setDestPanelExpanded(false); }}
-                        isExpanded={destPanelExpanded}
-                        onToggleExpand={() => setDestPanelExpanded(prev => !prev)}
-                      />
-                    </div>
-                  </>
-                )}
+                </div>
               </div>
             )}
             {destMapItem && !selectedDestination && (
