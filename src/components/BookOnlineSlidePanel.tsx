@@ -124,6 +124,7 @@ interface KpRelatedBusiness {
   logo_url: string | null;
   images: string[] | null;
   is_master: boolean;
+  computed_rating: number | null;
 }
 interface Destination {
   id: string;
