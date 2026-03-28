@@ -7,7 +7,7 @@ import { isCurrentlyOpen } from "@/lib/formatOpeningHours";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
-import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
+
 import { whatsappUrl } from "@/lib/phoneUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -474,10 +474,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
   const { avgOn20, totalReviewCount } = useMemo(() => {
     if (!business) return { avgOn20: null, totalReviewCount: 0 };
-    const sources = collectRatingSources(business);
-    const total = sources.reduce((s, r) => s + r.count, 0);
-    const computed = computeWeightedRatingOn20(sources);
-    return { avgOn20: computed, totalReviewCount: total };
+    return {
+      avgOn20: (business as any).computed_rating ?? null,
+      totalReviewCount: (business as any).total_review_count ?? 0,
+    };
   }, [business]);
 
   const hasContactCard = !!(business?.phone || business?.whatsapp || business?.email || business?.website || business?.address);

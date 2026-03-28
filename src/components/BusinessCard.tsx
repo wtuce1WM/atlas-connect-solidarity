@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { MapPin, Phone, ShieldCheck, Star, Globe, Clock, Headphones, Loader2, Leaf, Truck, Accessibility, Award } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import logoGold from "@/assets/logoGOLDsimple.webp";
-import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount as getTotalReviews } from "@/lib/ratingUtils";
+
 import { cleanPhone, whatsappUrl } from "@/lib/phoneUtils";
 import { isOpenDuringSlot, getOpeningTimeForSlot, type TimeSlot } from "@/lib/timeSlots";
 import { isCurrentlyOpen, type DayHoursData } from "@/lib/formatOpeningHours";
@@ -35,22 +35,8 @@ export interface BusinessCardData {
   longitude: number | null;
   google_maps_url: string | null;
   rating: number | null;
-  google_rating?: number | null;
-  tripadvisor_rating?: number | null;
-  restaurant_guru_rating?: number | null;
-  trustpilot_rating?: number | null;
-  getyourguide_rating?: number | null;
-  viator_rating?: number | null;
-  avis_verifies_rating?: number | null;
-  tourradar_rating?: number | null;
-  google_review_count?: number | null;
-  tripadvisor_review_count?: number | null;
-  restaurant_guru_review_count?: number | null;
-  trustpilot_review_count?: number | null;
-  getyourguide_review_count?: number | null;
-  viator_review_count?: number | null;
-  avis_verifies_review_count?: number | null;
-  tourradar_review_count?: number | null;
+  computed_rating?: number | null;
+  total_review_count?: number | null;
   gamme_id: string | null;
   badge_id?: string | null;
   opening_hours?: Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }> | unknown;
@@ -155,12 +141,12 @@ const getBusinessBadge = (
   return null;
 };
 
-const getCalculatedRating = (business: BusinessCardData): number | null => {
-  return computeWeightedRatingOn20(collectRatingSources(business));
+const getDisplayRating = (business: BusinessCardData): number | null => {
+  return business.computed_rating ?? business.rating ?? null;
 };
 
-const getCardTotalReviewCount = (business: BusinessCardData): number => {
-  return getTotalReviews(business);
+const getDisplayReviewCount = (business: BusinessCardData): number => {
+  return business.total_review_count ?? 0;
 };
 
 const BusinessCard = ({
@@ -183,9 +169,8 @@ const BusinessCard = ({
   const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
   const gamme = getBusinessGamme(business, gammes);
   const badge = getBusinessBadge(business, badges, subcategories, badgeSubcategories);
-  const calculatedRating = getCalculatedRating(business);
-  const displayRating = calculatedRating ?? business.rating;
-  const totalReviews = getCardTotalReviewCount(business);
+  const displayRating = getDisplayRating(business);
+  const totalReviews = getDisplayReviewCount(business);
   const isSelected = selectedBusinessId === business.id;
   const hasMapData = business.google_maps_url || (business.latitude && business.longitude);
   const hasEngagement = (target: string) =>
