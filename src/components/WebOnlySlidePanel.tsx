@@ -731,7 +731,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                   business={business}
                   language={language}
                   hasOpeningHours={!!(business?.show_opening_hours !== false && (business?.is_open_24h || business?.opening_hours))}
-                  tallHeight
+                  tallHeight={noBottomCarousel}
                   animationDelay={woDescription ? "120ms" : "0ms"}
                 />
               )}
