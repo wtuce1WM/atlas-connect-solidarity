@@ -92,10 +92,12 @@ const dayAfter = () => {
 const OwmMatcher = ({
   serpHotelName,
   matchedBusiness,
+  cachedPrice,
   onMatch,
 }: {
   serpHotelName: string;
   matchedBusiness: OwmBusiness | null;
+  cachedPrice?: CachedPrice | null;
   onMatch: (biz: OwmBusiness | null) => void;
 }) => {
   const [editing, setEditing] = useState(false);
