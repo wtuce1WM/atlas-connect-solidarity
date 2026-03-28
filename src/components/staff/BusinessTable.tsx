@@ -27,15 +27,22 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Edit, Trash2, ExternalLink, Copy, AlertTriangle, Link2, Star, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Edit, Trash2, ExternalLink, Copy, AlertTriangle, Link2, Star, ArrowUp, ArrowDown, ArrowUpDown, MapPin } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import { useBusinessBrokenFiles } from "@/hooks/useBusinessBrokenFiles";
 
-type SortKey = "name" | "city" | "main_category" | "gamme" | "rating" | "status" | "active" | "contact";
+type SortKey = "name" | "city" | "main_category" | "gamme" | "rating" | "status" | "active" | "contact" | "price";
 type SortDir = "asc" | "desc";
 
 type Business = Tables<"businesses">;
 type Gamme = { id: string; name_fr: string; color_hex: string | null; text_color_hex: string | null };
+
+export type PriceCacheEntry = {
+  business_id: string;
+  source: string;
+  price_per_night: number | null;
+  currency: string | null;
+};
 
 interface BusinessTableProps {
   businesses: Business[];
@@ -44,9 +51,10 @@ interface BusinessTableProps {
   onEdit: (business: Business) => void;
   onDelete: (id: string) => void;
   onDuplicate: (business: Business) => void;
+  priceCache?: PriceCacheEntry[];
 }
 
-const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplicate }: BusinessTableProps) => {
+const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplicate, priceCache = [] }: BusinessTableProps) => {
   const [duplicateDialogOpen, setDuplicateDialogOpen] = useState(false);
   const [businessToDuplicate, setBusinessToDuplicate] = useState<Business | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -59,6 +67,18 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
     if (b.rating != null) return Number(b.rating);
     return computeWeightedRatingOn20(collectRatingSources(b));
   };
+
+  // Build price lookup: business_id -> best price entry (prefer lowest price)
+  const priceMap = useMemo(() => {
+    const map = new Map<string, PriceCacheEntry>();
+    for (const entry of priceCache) {
+      const existing = map.get(entry.business_id);
+      if (!existing || (entry.price_per_night != null && (existing.price_per_night == null || entry.price_per_night < existing.price_per_night))) {
+        map.set(entry.business_id, entry);
+      }
+    }
+    return map;
+  }, [priceCache]);
 
   const sortedBusinesses = useMemo(() => {
     if (!sortKey) return businesses;
@@ -95,6 +115,12 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
         case "contact":
           cmp = (a.phone || a.email || "").localeCompare(b.phone || b.email || "", "fr");
           break;
+        case "price": {
+          const pA = priceMap.get(a.id)?.price_per_night ?? -1;
+          const pB = priceMap.get(b.id)?.price_per_night ?? -1;
+          cmp = pA - pB;
+          break;
+        }
       }
       return sortDir === "asc" ? cmp : -cmp;
     });
@@ -179,6 +205,9 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
               <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("contact")}>
                 <span className="inline-flex items-center">Contact<SortIcon column="contact" /></span>
               </TableHead>
+              <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("price")}>
+                <span className="inline-flex items-center">Prix/nuit<SortIcon column="price" /></span>
+              </TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -223,6 +252,11 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{business.name}</span>
+                    {business.is_poi && (
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-blue-400 text-blue-600 bg-blue-50">
+                        <MapPin className="h-2.5 w-2.5 mr-0.5" />POI
+                      </Badge>
+                    )}
                     {business.kp_regroupement && (
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -348,6 +382,24 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
                       <div className="text-muted-foreground">{business.email}</div>
                     )}
                   </div>
+                </TableCell>
+                <TableCell>
+                  {(() => {
+                    const priceEntry = priceMap.get(business.id);
+                    if (!priceEntry || priceEntry.price_per_night == null) {
+                      return <span className="text-muted-foreground text-sm">-</span>;
+                    }
+                    const sourceLabel = priceEntry.source === "liteapi" ? "LiteAPI" : priceEntry.source === "serpapi" ? "SerpAPI" : priceEntry.source;
+                    const sourceColor = priceEntry.source === "liteapi" ? "bg-purple-500/10 text-purple-600" : "bg-teal-500/10 text-teal-600";
+                    return (
+                      <div className="flex flex-col gap-1">
+                        <span className="font-medium text-sm">{priceEntry.price_per_night}€</span>
+                        <Badge variant="outline" className={`text-[9px] px-1 py-0 w-fit ${sourceColor}`}>
+                          {sourceLabel}
+                        </Badge>
+                      </div>
+                    );
+                  })()}
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">

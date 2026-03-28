@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { LogOut, Plus, Search, Edit, Trash2, Eye, EyeOff, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle, LayoutDashboard, Crown, CheckCircle, Settings2, ArrowLeft, ClipboardList, Wrench, Key, Hotel } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import BusinessForm from "@/components/staff/BusinessForm";
-import BusinessTable from "@/components/staff/BusinessTable";
+import BusinessTable, { type PriceCacheEntry } from "@/components/staff/BusinessTable";
 import UserManagement from "@/components/staff/UserManagement";
 import CategoryManagement from "@/components/staff/CategoryManagement";
 import LocationManagement from "@/components/staff/LocationManagement";
@@ -48,6 +48,7 @@ const StaffBackoffice = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [gammes, setGammes] = useState<Gamme[]>([]);
+  const [priceCache, setPriceCache] = useState<PriceCacheEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [cityFilter, setCityFilter] = useState<string>("all");
@@ -95,6 +96,7 @@ const StaffBackoffice = () => {
       setUser(session.user);
       fetchBusinesses();
       fetchGammes();
+      fetchPriceCache();
     };
 
     checkAuth();
@@ -154,6 +156,13 @@ const StaffBackoffice = () => {
   const fetchGammes = async () => {
     const { data } = await supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex").order("name_fr");
     if (data) setGammes(data);
+  };
+
+  const fetchPriceCache = async () => {
+    const { data } = await supabase
+      .from("hotel_price_cache")
+      .select("business_id, source, price_per_night, currency");
+    if (data) setPriceCache(data as PriceCacheEntry[]);
   };
 
   // Fetch subcategories when category filter changes
@@ -643,6 +652,7 @@ const StaffBackoffice = () => {
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 onDuplicate={handleDuplicate}
+                priceCache={priceCache}
               />
 
               {/* Pagination */}
