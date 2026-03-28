@@ -1526,7 +1526,7 @@ const SearchPage = () => {
       hasAutoOpenedFirstRef.current = true;
       const first = filteredBusinesses[0];
       openCompactPanel({ id: first.id, name: first.name } as AIBusinessData);
-    }, [isLoading, filteredBusinesses, searchQuery, openCompactPanel]);
+    }, [isLoading, filteredBusinesses, searchQuery, urlT, openCompactPanel]);
 
 
   useEffect(() => {
