@@ -93,11 +93,13 @@ const OwmMatcher = ({
   serpHotelName,
   matchedBusiness,
   cachedPrice,
+  cachedPriceLite,
   onMatch,
 }: {
   serpHotelName: string;
   matchedBusiness: OwmBusiness | null;
   cachedPrice?: CachedPrice | null;
+  cachedPriceLite?: CachedPrice | null;
   onMatch: (biz: OwmBusiness | null) => void;
 }) => {
   const [editing, setEditing] = useState(false);
@@ -152,18 +154,22 @@ const OwmMatcher = ({
               <span className="text-[10px] text-muted-foreground">{imgCount} photos</span>
             </div>
           )}
-          {cachedPrice?.price_per_night != null && (
-            <div className="flex items-center gap-1 mt-1">
+          <div className="flex items-center gap-1 mt-1 flex-wrap">
+            {cachedPrice?.price_per_night != null ? (
               <Badge variant="outline" className="text-[10px] py-0 px-1.5 border-teal-500 text-teal-700">
                 SerpAPI: {cachedPrice.price_per_night}€/nuit
               </Badge>
-            </div>
-          )}
-          {cachedPrice && cachedPrice.price_per_night == null && (
-            <div className="flex items-center gap-1 mt-1">
-              <span className="text-[10px] text-muted-foreground italic">SerpAPI: pas de prix</span>
-            </div>
-          )}
+            ) : cachedPrice ? (
+              <span className="text-[10px] text-muted-foreground italic">SerpAPI: —</span>
+            ) : null}
+            {cachedPriceLite?.price_per_night != null ? (
+              <Badge variant="outline" className="text-[10px] py-0 px-1.5 border-violet-500 text-violet-700">
+                LiteAPI: {cachedPriceLite.price_per_night}€/nuit
+              </Badge>
+            ) : cachedPriceLite ? (
+              <span className="text-[10px] text-muted-foreground italic">LiteAPI: —</span>
+            ) : null}
+          </div>
         </div>
       </div>
     );
@@ -243,6 +249,8 @@ const HotelApiComparison = () => {
 
   // Map: business_id -> cached SerpAPI price
   const [cachedPrices, setCachedPrices] = useState<Record<string, CachedPrice>>({});
+  // Map: business_id -> cached LiteAPI price
+  const [cachedPricesLite, setCachedPricesLite] = useState<Record<string, CachedPrice>>({});
 
   const cityOption = CITY_OPTIONS.find((c) => c.value === city) || CITY_OPTIONS[0];
 
@@ -517,17 +525,20 @@ const HotelApiComparison = () => {
       }
     }
 
-    // Load cached SerpAPI prices from hotel_price_cache
+    // Load cached prices from hotel_price_cache (both sources)
     const { data: priceData } = await supabase
       .from("hotel_price_cache")
-      .select("business_id, price_per_night, currency, source")
-      .eq("source", "serpapi");
+      .select("business_id, price_per_night, currency, source");
     if (priceData) {
-      const priceMap: Record<string, CachedPrice> = {};
+      const serpMap: Record<string, CachedPrice> = {};
+      const liteMap: Record<string, CachedPrice> = {};
       for (const p of priceData) {
-        priceMap[p.business_id] = { price_per_night: p.price_per_night, currency: p.currency, source: p.source };
+        const entry = { price_per_night: p.price_per_night, currency: p.currency, source: p.source };
+        if (p.source === "serpapi") serpMap[p.business_id] = entry;
+        else if (p.source === "liteapi") liteMap[p.business_id] = entry;
       }
-      setCachedPrices(priceMap);
+      setCachedPrices(serpMap);
+      setCachedPricesLite(liteMap);
     }
   };
 
@@ -687,6 +698,7 @@ const HotelApiComparison = () => {
               const key = h.name.toLowerCase().trim();
               const matched = owmMatches[key] || null;
               const cachedPrice = matched ? cachedPrices[matched.id] : null;
+              const cachedLite = matched ? cachedPricesLite[matched.id] : null;
               return (
                 <Card key={`owm-${h.name}-${i}`} className="overflow-hidden min-h-[120px]">
                   <div className="p-3 h-full">
@@ -695,6 +707,7 @@ const HotelApiComparison = () => {
                       serpHotelName={h.name}
                       matchedBusiness={matched}
                       cachedPrice={cachedPrice}
+                      cachedPriceLite={cachedLite}
                       onMatch={(biz) => handleOwmMatch(h.name, biz)}
                     />
                   </div>
