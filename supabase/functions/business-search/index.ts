@@ -4878,6 +4878,7 @@ serve(async (req) => {
         if (!isCityName && !isJustACity) {
           const beforeIso = businesses.length;
           businesses = [exactBusiness];
+          exactNameMatchIsolation = true;
           console.log(`🎯 Exact name match isolation: "${query}" → keeping only "${exactBusiness.name}" (was ${beforeIso} results)`);
         }
       }
