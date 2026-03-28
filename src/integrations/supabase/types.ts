@@ -495,6 +495,7 @@ export type Database = {
           icon: string | null
           id: string
           language: string | null
+          linked_business_id: string | null
           name: string | null
           poi_id: string | null
           sort_order: number
@@ -508,6 +509,7 @@ export type Database = {
           icon?: string | null
           id?: string
           language?: string | null
+          linked_business_id?: string | null
           name?: string | null
           poi_id?: string | null
           sort_order?: number
@@ -521,6 +523,7 @@ export type Database = {
           icon?: string | null
           id?: string
           language?: string | null
+          linked_business_id?: string | null
           name?: string | null
           poi_id?: string | null
           sort_order?: number
@@ -547,6 +550,20 @@ export type Database = {
             columns: ["destination_id"]
             isOneToOne: false
             referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_documents_linked_business_id_fkey"
+            columns: ["linked_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_documents_linked_business_id_fkey"
+            columns: ["linked_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
           {

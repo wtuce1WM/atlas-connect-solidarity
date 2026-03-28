@@ -321,6 +321,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [selectedPOIIds, setSelectedPOIIds] = useState<string[]>([]);
   const [selectedPoiBusinessIds, setSelectedPoiBusinessIds] = useState<string[]>([]);
   const [poiBusinessesForCity, setPoiBusinessesForCity] = useState<Array<{ id: string; name: string }>>([]);
+  const [allBusinessesForVideo, setAllBusinessesForVideo] = useState<Array<{ id: string; name: string }>>([]);
+  const [videoBusinessSearch, setVideoBusinessSearch] = useState<Record<number, string>>({});
   const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>([]);
   const [defaultBadgeId, setDefaultBadgeId] = useState<string | null>(null);
   const [intentWords, setIntentWords] = useState<Array<{ id: string; word: string; category_name: string; merge_on_conflict: boolean; is_active: boolean }>>([]);
@@ -596,7 +598,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   const [flipbookDocs, setFlipbookDocs] = useState<DocEntry[]>([]);
   type ExternalLinkEntry = { id?: string; url: string; name: string; language: string; image_url: string };
   const [externalLinkDocs, setExternalLinkDocs] = useState<ExternalLinkEntry[]>([]);
-  type VideoDocEntry = { id?: string; url: string; name: string; poi_id: string | null; destination_id: string | null };
+  type VideoDocEntry = { id?: string; url: string; name: string; poi_id: string | null; destination_id: string | null; linked_business_id: string | null };
   const [videoDocs, setVideoDocs] = useState<VideoDocEntry[]>([]);
 
   // --- Menu summaries (multiple per business) ---
@@ -615,7 +617,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         setMenuDocs((data as any[]).filter((d: any) => d.type === "menu").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "" })));
         setFlipbookDocs((data as any[]).filter((d: any) => d.type === "flipbook").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "" })));
         setExternalLinkDocs((data as any[]).filter((d: any) => d.type === "external_link").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", image_url: d.icon || "" })));
-        setVideoDocs((data as any[]).filter((d: any) => d.type === "video").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", poi_id: d.poi_id || null, destination_id: d.destination_id || null })));
+        setVideoDocs((data as any[]).filter((d: any) => d.type === "video").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null })));
       }
     };
     const fetchSummaries = async () => {
@@ -851,6 +853,19 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     };
     fetchPoiBusinesses();
   }, [formData.city, business?.id]);
+
+  // Fetch all businesses for video linking
+  useEffect(() => {
+    const fetchAll = async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name")
+        .eq("is_active", true)
+        .order("name");
+      setAllBusinessesForVideo((data || []).filter(b => b.id !== business?.id));
+    };
+    fetchAll();
+  }, [business?.id]);
 
   const handleChange = (field: string, value: string | boolean | string[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -1255,7 +1270,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           ...externalLinkDocs
             .filter((d) => d.name.trim() && d.url.trim())
             .map((d, i) => ({ business_id: businessId, type: "external_link" as const, url: d.url.trim(), name: d.name.trim(), language: d.language || null, icon: d.image_url || null, sort_order: i })),
-          ...videoDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "video" as const, url: d.url.trim(), name: d.name || null, language: null, icon: null, sort_order: i, poi_id: d.poi_id || null, destination_id: d.destination_id || null })),
+          ...videoDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "video" as const, url: d.url.trim(), name: d.name || null, language: null, icon: null, sort_order: i, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null })),
         ];
         if (allDocs.length > 0) {
           const { error: docsError } = await supabase.from("business_documents" as any).insert(allDocs);
@@ -3026,7 +3041,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 <span className="text-xs text-muted-foreground">{formData.show_videos ? "Activé" : "Désactivé"}</span>
               </div>
             </div>
-            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => [...prev, { url: "", name: "", poi_id: null, destination_id: null }])}>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => [...prev, { url: "", name: "", poi_id: null, destination_id: null, linked_business_id: null }])}>
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
@@ -3048,7 +3063,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 if (error) { toast({ variant: "destructive", title: "Erreur", description: `${file.name}: ${error.message}` }); continue; }
                 const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
                 if (urlData?.publicUrl) {
-                  setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: file.name.replace(/\.[^.]+$/, ""), poi_id: null, destination_id: null }]);
+                  setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: file.name.replace(/\.[^.]+$/, ""), poi_id: null, destination_id: null, linked_business_id: null }]);
                 }
               }
               toast({ title: `${files.length} vidéo(s) uploadée(s) ✓` });
@@ -3068,7 +3083,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   if (error) { toast({ variant: "destructive", title: "Erreur", description: `${file.name}: ${error.message}` }); continue; }
                   const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
                   if (urlData?.publicUrl) {
-                    setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: file.name.replace(/\.[^.]+$/, ""), poi_id: null, destination_id: null }]);
+                    setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: file.name.replace(/\.[^.]+$/, ""), poi_id: null, destination_id: null, linked_business_id: null }]);
                   }
                 }
                 toast({ title: `${files.length} vidéo(s) uploadée(s) ✓` });
@@ -3169,8 +3184,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     </div>
                   </div>
                 )}
-                {/* POI & Destination selectors */}
-                <div className="grid grid-cols-2 gap-1.5">
+                {/* POI, Destination & Business selectors */}
+                <div className="grid grid-cols-3 gap-1.5">
                   <div>
                     <label className="text-[10px] text-muted-foreground">POI</label>
                     <Select value={doc.poi_id || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, poi_id: v === "__none__" ? null : v } : d))}>
@@ -3190,6 +3205,49 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                         {dbDestinations.map(d => <SelectItem key={d.id} value={d.id}>{d.name_fr}</SelectItem>)}
                       </SelectContent>
                     </Select>
+                  </div>
+                  <div className="relative">
+                    <label className="text-[10px] text-muted-foreground">Établissement</label>
+                    {doc.linked_business_id ? (
+                      <div className="flex items-center gap-1 h-6 px-1.5 border rounded-md bg-background">
+                        <span className="text-[10px] truncate flex-1">{allBusinessesForVideo.find(b => b.id === doc.linked_business_id)?.name || "…"}</span>
+                        <button type="button" className="shrink-0" onClick={() => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, linked_business_id: null } : d))}>
+                          <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div>
+                        <Input
+                          value={videoBusinessSearch[idx] || ""}
+                          onChange={(e) => setVideoBusinessSearch(prev => ({ ...prev, [idx]: e.target.value }))}
+                          placeholder="Rechercher…"
+                          className="h-6 text-[10px]"
+                        />
+                        {(videoBusinessSearch[idx] || "").length >= 2 && (
+                          <div className="absolute z-50 mt-0.5 w-full max-h-32 overflow-y-auto bg-popover border rounded-md shadow-md">
+                            {allBusinessesForVideo
+                              .filter(b => b.name.toLowerCase().includes((videoBusinessSearch[idx] || "").toLowerCase()))
+                              .slice(0, 8)
+                              .map(b => (
+                                <button
+                                  key={b.id}
+                                  type="button"
+                                  className="w-full text-left px-2 py-1 text-[10px] hover:bg-accent truncate"
+                                  onClick={() => {
+                                    setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, linked_business_id: b.id } : d));
+                                    setVideoBusinessSearch(prev => ({ ...prev, [idx]: "" }));
+                                  }}
+                                >
+                                  {b.name}
+                                </button>
+                              ))}
+                            {allBusinessesForVideo.filter(b => b.name.toLowerCase().includes((videoBusinessSearch[idx] || "").toLowerCase())).length === 0 && (
+                              <p className="px-2 py-1 text-[10px] text-muted-foreground">Aucun résultat</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
