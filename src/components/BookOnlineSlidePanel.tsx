@@ -383,77 +383,48 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         }
       }
 
-      // Fetch KP related businesses (priority: KP1, fallback KP2)
-      const kp1Val = (bizRes.data as any)?.kp_regroupement;
-      const kp2Val = (bizRes.data as any)?.kp_regroupement_2;
+      // Fetch KP related businesses
+      const kp1Val = (bizRes.data as any)?.kp_regroupement?.trim() || "";
+      const kp2Val = (bizRes.data as any)?.kp_regroupement_2?.trim() || "";
       const isKpActive = (bizRes.data as any)?.kp_active;
+      const isMaster = (bizRes.data as any)?.is_master === true;
 
       let kpResults: KpRelatedBusiness[] = [];
-      const isMaster = (bizRes.data as any)?.is_master === true;
       if (isKpActive) {
-        if (isMaster && kp1Val && kp1Val.trim() !== "") {
-          // Principal: show ALL members from KP1 + all businesses referencing this code in KP2
-          const [{ data: kp1Data }, { data: kp2Data }] = await Promise.all([
-            supabase
-              .from("businesses")
-              .select("id, name, slug, logo_url, images, is_master")
-              .eq("kp_regroupement", kp1Val)
-              .eq("is_active", true)
-              .neq("id", businessId)
-              .order("is_master", { ascending: false })
-              .order("priority_score", { ascending: false }),
-            supabase
-              .from("businesses")
-              .select("id, name, slug, logo_url, images, is_master")
-              .eq("kp_regroupement_2", kp1Val)
-              .eq("is_active", true)
-              .neq("id", businessId)
-              .order("is_master", { ascending: false })
-              .order("priority_score", { ascending: false }),
-          ]);
-          const merged = [...(kp1Data || [])];
-          const existingIds = new Set([businessId, ...merged.map(r => r.id)]);
-          for (const b of (kp2Data || [])) {
-            if (!existingIds.has(b.id)) { merged.push(b); existingIds.add(b.id); }
-          }
-          kpResults = merged as KpRelatedBusiness[];
-        } else {
-          // Non-principal: KP1 first
-          if (kp1Val && kp1Val.trim() !== "") {
-            const { data: kpData } = await supabase
-              .from("businesses")
-              .select("id, name, slug, logo_url, images, is_master")
-              .eq("kp_regroupement", kp1Val)
-              .eq("is_active", true)
-              .neq("id", businessId)
-              .order("is_master", { ascending: false })
-              .order("priority_score", { ascending: false });
-            kpResults = (kpData || []) as KpRelatedBusiness[];
-          }
-          // If KP1 found results AND KP2 exists, append master(s) from KP2 group at the end
-          if (kpResults.length > 0 && kp2Val && kp2Val.trim() !== "") {
+        if (kp1Val) {
+          // Case 1 & 2: has KP1 — fetch all KP1 members
+          const { data: kp1Data } = await supabase
+            .from("businesses")
+            .select("id, name, slug, logo_url, images, is_master")
+            .eq("kp_regroupement", kp1Val)
+            .eq("is_active", true)
+            .neq("id", businessId)
+            .order("name");
+          kpResults = (kp1Data || []) as KpRelatedBusiness[];
+
+          // Case 2: has KP1 AND KP2 — append KP2 master at end
+          if (kp2Val) {
             const existingIds = new Set([businessId, ...kpResults.map(r => r.id)]);
             const { data: kp2Masters } = await supabase
               .from("businesses")
               .select("id, name, slug, logo_url, images, is_master")
-              .eq("kp_regroupement", kp2Val)
+              .eq("kp_regroupement_2", kp2Val)
               .eq("is_master", true)
               .eq("is_active", true);
-            const newMasters = ((kp2Masters || []) as KpRelatedBusiness[]).filter(m => !existingIds.has(m.id));
-            if (newMasters.length > 0) kpResults = [...kpResults, ...newMasters];
+            for (const m of (kp2Masters || []) as KpRelatedBusiness[]) {
+              if (!existingIds.has(m.id)) { kpResults.push(m); existingIds.add(m.id); }
+            }
           }
-          // Fallback to KP2 if KP1 has no results
-          if (kpResults.length === 0 && kp2Val && kp2Val.trim() !== "") {
-            const { data: kp2FallbackData } = await supabase
-              .from("businesses")
-              .select("id, name, slug, logo_url, images, is_master")
-              .eq("kp_regroupement_2", kp2Val)
-              .eq("is_active", true)
-              .neq("id", businessId)
-              .order("is_master", { ascending: false })
-              .order("priority_score", { ascending: false });
-            kpResults = (kp2FallbackData || []) as KpRelatedBusiness[];
-          }
+        } else if (kp2Val && isMaster) {
+          // Case 3: KP2 only + is master — show all KP2 slaves alphabetically
+          const { data: kp2Data } = await supabase
+            .from("businesses")
+            .select("id, name, slug, logo_url, images, is_master")
+            .eq("kp_regroupement_2", kp2Val)
+            .eq("is_active", true)
+            .neq("id", businessId)
+            .order("name");
+          kpResults = (kp2Data || []) as KpRelatedBusiness[];
         }
       }
       setKpRelated(kpResults);
