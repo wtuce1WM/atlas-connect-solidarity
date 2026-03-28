@@ -401,6 +401,10 @@ const HotelApiComparison = () => {
   }, [cityOption.label, isStaffUser, dismissedKeys]);
 
   const handleSearch = async () => {
+    if (checkOut <= checkIn) {
+      toast.error("La date de check-out doit être postérieure au check-in");
+      return;
+    }
     setLoading(true);
     setLiteResults(null);
     setSerpResults(null);
@@ -462,7 +466,10 @@ const HotelApiComparison = () => {
           },
         });
         setSerpTime(Math.round(performance.now() - t0));
-        if (error) throw new Error(String(error));
+        if (error) {
+          const msg = error instanceof Error ? error.message : typeof error === 'object' && error?.context?.body ? await error.context.body.text().catch(() => String(error)) : String(error);
+          throw new Error(msg);
+        }
         if (data?.error) throw new Error(data.error);
         const sorted = (data?.data || []).slice().sort((a: SerpApiHotel, b: SerpApiHotel) => a.name.localeCompare(b.name, 'fr'));
         setSerpResults(sorted);
@@ -569,11 +576,19 @@ const HotelApiComparison = () => {
             </div>
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">Check-in</label>
-              <Input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="w-40" />
+              <Input type="date" value={checkIn} onChange={(e) => {
+                const newCheckIn = e.target.value;
+                setCheckIn(newCheckIn);
+                if (checkOut <= newCheckIn) {
+                  const next = new Date(newCheckIn);
+                  next.setDate(next.getDate() + 1);
+                  setCheckOut(next.toISOString().split("T")[0]);
+                }
+              }} className="w-40" />
             </div>
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">Check-out</label>
-              <Input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="w-40" />
+              <Input type="date" value={checkOut} min={checkIn} onChange={(e) => setCheckOut(e.target.value)} className="w-40" />
             </div>
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">Adultes</label>
