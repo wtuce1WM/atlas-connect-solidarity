@@ -141,12 +141,12 @@ const getBusinessBadge = (
   return null;
 };
 
-const getCalculatedRating = (business: BusinessCardData): number | null => {
-  return computeWeightedRatingOn20(collectRatingSources(business));
+const getDisplayRating = (business: BusinessCardData): number | null => {
+  return business.computed_rating ?? business.rating ?? null;
 };
 
-const getCardTotalReviewCount = (business: BusinessCardData): number => {
-  return getTotalReviews(business);
+const getDisplayReviewCount = (business: BusinessCardData): number => {
+  return business.total_review_count ?? 0;
 };
 
 const BusinessCard = ({
