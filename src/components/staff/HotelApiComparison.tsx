@@ -429,10 +429,22 @@ const HotelApiComparison = () => {
         if (data?.error) throw new Error(data.error);
         const sorted = (data?.data || []).slice().sort((a: LiteApiHotel, b: LiteApiHotel) => a.name.localeCompare(b.name, 'fr'));
         setLiteResults(sorted);
+        // Load mapped LiteAPI hotel IDs
+        const hotelIds = sorted.map((h: LiteApiHotel) => h.hotelId);
+        if (hotelIds.length > 0) {
+          const { data: mappings } = await supabase
+            .from("hotel_api_mappings")
+            .select("liteapi_hotel_id")
+            .in("liteapi_hotel_id", hotelIds);
+          setMappedLiteIds(new Set((mappings || []).map(m => m.liteapi_hotel_id)));
+        } else {
+          setMappedLiteIds(new Set());
+        }
       } catch (e: any) {
         setLiteTime(Math.round(performance.now() - t0));
         setLiteError(e.message);
         setLiteResults([]);
+        setMappedLiteIds(new Set());
       }
     })();
 
