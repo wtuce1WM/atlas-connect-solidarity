@@ -60,6 +60,12 @@ interface OwmBusiness {
   main_category: string | null;
 }
 
+interface CachedPrice {
+  price_per_night: number | null;
+  currency: string;
+  source: string;
+}
+
 const CITY_OPTIONS = [
   { label: "Essaouira", value: "Essaouira", code: "ESU" },
   { label: "Marrakech", value: "Marrakech", code: "RAK" },
@@ -86,10 +92,12 @@ const dayAfter = () => {
 const OwmMatcher = ({
   serpHotelName,
   matchedBusiness,
+  cachedPrice,
   onMatch,
 }: {
   serpHotelName: string;
   matchedBusiness: OwmBusiness | null;
+  cachedPrice?: CachedPrice | null;
   onMatch: (biz: OwmBusiness | null) => void;
 }) => {
   const [editing, setEditing] = useState(false);
@@ -142,6 +150,18 @@ const OwmMatcher = ({
             <div className="flex items-center gap-1 mt-1">
               <Image className="h-3 w-3 text-muted-foreground" />
               <span className="text-[10px] text-muted-foreground">{imgCount} photos</span>
+            </div>
+          )}
+          {cachedPrice?.price_per_night != null && (
+            <div className="flex items-center gap-1 mt-1">
+              <Badge variant="outline" className="text-[10px] py-0 px-1.5 border-teal-500 text-teal-700">
+                SerpAPI: {cachedPrice.price_per_night}€/nuit
+              </Badge>
+            </div>
+          )}
+          {cachedPrice && cachedPrice.price_per_night == null && (
+            <div className="flex items-center gap-1 mt-1">
+              <span className="text-[10px] text-muted-foreground italic">SerpAPI: pas de prix</span>
             </div>
           )}
         </div>
@@ -220,6 +240,9 @@ const HotelApiComparison = () => {
   const [dismissedKeys, setDismissedKeys] = useState<Set<string>>(new Set());
   // Set of LiteAPI hotel IDs that are mapped to a business in hotel_api_mappings
   const [mappedLiteIds, setMappedLiteIds] = useState<Set<string>>(new Set());
+
+  // Map: business_id -> cached SerpAPI price
+  const [cachedPrices, setCachedPrices] = useState<Record<string, CachedPrice>>({});
 
   const cityOption = CITY_OPTIONS.find((c) => c.value === city) || CITY_OPTIONS[0];
 
@@ -493,6 +516,19 @@ const HotelApiComparison = () => {
         autoMatch(serpData, savedKeys);
       }
     }
+
+    // Load cached SerpAPI prices from hotel_price_cache
+    const { data: priceData } = await supabase
+      .from("hotel_price_cache")
+      .select("business_id, price_per_night, currency, source")
+      .eq("source", "serpapi");
+    if (priceData) {
+      const priceMap: Record<string, CachedPrice> = {};
+      for (const p of priceData) {
+        priceMap[p.business_id] = { price_per_night: p.price_per_night, currency: p.currency, source: p.source };
+      }
+      setCachedPrices(priceMap);
+    }
   };
 
   // Save or delete mapping in DB
@@ -650,6 +686,7 @@ const HotelApiComparison = () => {
             {serpResults?.map((h, i) => {
               const key = h.name.toLowerCase().trim();
               const matched = owmMatches[key] || null;
+              const cachedPrice = matched ? cachedPrices[matched.id] : null;
               return (
                 <Card key={`owm-${h.name}-${i}`} className="overflow-hidden min-h-[120px]">
                   <div className="p-3 h-full">
@@ -657,6 +694,7 @@ const HotelApiComparison = () => {
                     <OwmMatcher
                       serpHotelName={h.name}
                       matchedBusiness={matched}
+                      cachedPrice={cachedPrice}
                       onMatch={(biz) => handleOwmMatch(h.name, biz)}
                     />
                   </div>
