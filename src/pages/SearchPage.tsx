@@ -793,7 +793,8 @@ const SearchPage = () => {
      const [allDests, setAllDests] = useState<PoiMapItem[]>([]);
       const [selectedDestination, setSelectedDestination] = useState<DestinationItem | null>(null);
       const [destSelectedBusinessId, setDestSelectedBusinessId] = useState<string | null>(null);
-      const [destPanelExpanded, setDestPanelExpanded] = useState(false);
+       const [destPanelExpanded, setDestPanelExpanded] = useState(false);
+       const [destPanelMode, setDestPanelMode] = useState<"business" | "bookonline" | "webonly">("business");
      const [allDestItems, setAllDestItems] = useState<DestinationItem[]>([]);
    const resetPanelStates = () => {
      setPoiSelectedBusinessId(null);
@@ -3484,7 +3485,23 @@ const SearchPage = () => {
                 destination={selectedDestination}
                 language={language}
                 onClose={() => setSelectedDestination(null)}
-                onBusinessClick={(bizId) => {
+                onBusinessClick={async (bizId) => {
+                  // Detect presentation_mode to open the right panel
+                  try {
+                    const { data } = await supabase
+                      .from("businesses")
+                      .select("presentation_mode")
+                      .eq("id", bizId)
+                      .single();
+                    const mode = data?.presentation_mode || "acheter";
+                    if (mode === "reserver") {
+                      setDestPanelMode("bookonline");
+                    } else {
+                      setDestPanelMode("webonly");
+                    }
+                  } catch {
+                    setDestPanelMode("webonly");
+                  }
                   setDestSelectedBusinessId(bizId);
                 }}
               />
@@ -3494,19 +3511,30 @@ const SearchPage = () => {
             )}
             {destSelectedBusinessId && (
               <div className={`fixed top-0 left-0 right-0 z-40 bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:top-[54px] lg:left-auto lg:border-l lg:border-border lg:transition-[width] lg:duration-300 lg:ease-out ${destPanelExpanded ? "lg:w-full" : "lg:w-1/2"}`} style={{ height: isSubDesktop ? "100vh" : "calc(100vh - 54px)" }}>
-                <SlidePanelHeader
-                  onClose={() => { setDestSelectedBusinessId(null); setDestPanelExpanded(false); }}
-                  isExpanded={destPanelExpanded}
-                  onToggleExpand={() => setDestPanelExpanded(prev => !prev)}
-                />
-                <div className="flex-1 min-h-0">
-                  <BusinessSlidePanel
+                {destPanelMode === "bookonline" ? (
+                  <BookOnlineSlidePanel
                     businessId={destSelectedBusinessId}
                     onClose={() => { setDestSelectedBusinessId(null); setDestPanelExpanded(false); }}
                     isExpanded={destPanelExpanded}
                     onToggleExpand={() => setDestPanelExpanded(prev => !prev)}
                   />
-                </div>
+                ) : (
+                  <>
+                    <SlidePanelHeader
+                      onClose={() => { setDestSelectedBusinessId(null); setDestPanelExpanded(false); }}
+                      isExpanded={destPanelExpanded}
+                      onToggleExpand={() => setDestPanelExpanded(prev => !prev)}
+                    />
+                    <div className="flex-1 min-h-0">
+                      <BusinessSlidePanel
+                        businessId={destSelectedBusinessId}
+                        onClose={() => { setDestSelectedBusinessId(null); setDestPanelExpanded(false); }}
+                        isExpanded={destPanelExpanded}
+                        onToggleExpand={() => setDestPanelExpanded(prev => !prev)}
+                      />
+                    </div>
+                  </>
+                )}
               </div>
             )}
             {destMapItem && !selectedDestination && (
