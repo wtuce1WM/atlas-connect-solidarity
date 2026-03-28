@@ -464,10 +464,13 @@ const HotelApiComparison = () => {
     await Promise.all([litePromise, serpPromise]);
     setLoading(false);
 
-    // Load saved DB mappings first, then auto-match remaining
+    // Load saved DB mappings first, then auto-match only if there are unmapped hotels
     if (serpData.length > 0) {
       const savedKeys = await loadSavedMappings(serpData);
-      autoMatch(serpData, savedKeys);
+      const hasUnmapped = serpData.some(h => !savedKeys.has(h.name.toLowerCase().trim()));
+      if (hasUnmapped) {
+        autoMatch(serpData, savedKeys);
+      }
     }
   };
 
