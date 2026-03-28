@@ -169,9 +169,8 @@ const BusinessCard = ({
   const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
   const gamme = getBusinessGamme(business, gammes);
   const badge = getBusinessBadge(business, badges, subcategories, badgeSubcategories);
-  const calculatedRating = getCalculatedRating(business);
-  const displayRating = calculatedRating ?? business.rating;
-  const totalReviews = getCardTotalReviewCount(business);
+  const displayRating = getDisplayRating(business);
+  const totalReviews = getDisplayReviewCount(business);
   const isSelected = selectedBusinessId === business.id;
   const hasMapData = business.google_maps_url || (business.latitude && business.longitude);
   const hasEngagement = (target: string) =>
