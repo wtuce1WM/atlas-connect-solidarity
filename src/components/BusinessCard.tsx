@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { MapPin, Phone, ShieldCheck, Star, Globe, Clock, Headphones, Loader2, Leaf, Truck, Accessibility, Award } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import logoGold from "@/assets/logoGOLDsimple.webp";
-import { formatRating } from "@/lib/ratingUtils";
+
 import { cleanPhone, whatsappUrl } from "@/lib/phoneUtils";
 import { isOpenDuringSlot, getOpeningTimeForSlot, type TimeSlot } from "@/lib/timeSlots";
 import { isCurrentlyOpen, type DayHoursData } from "@/lib/formatOpeningHours";
