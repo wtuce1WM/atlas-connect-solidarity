@@ -599,7 +599,7 @@ const HotelApiComparison = () => {
             </div>
             {liteError && <p className="text-sm text-destructive">{liteError}</p>}
             {liteResults?.map((h) => (
-              <HotelCardLite key={h.hotelId} hotel={h} />
+              <HotelCardLite key={h.hotelId} hotel={h} isMapped={mappedLiteIds.has(h.hotelId)} />
             ))}
             {liteResults?.length === 0 && !liteError && (
               <p className="text-sm text-muted-foreground">Aucun résultat</p>
