@@ -290,7 +290,7 @@ const HotelApiComparison = () => {
   };
 
   // Business names to exclude from auto-matching (too generic, cause false positives)
-  const AUTOMATCH_BLACKLIST = new Set(["la villa's", "l'hôtel marrakech", "cruiser mogador essaouira", "hotel vents des iles"]);
+  const AUTOMATCH_BLACKLIST = new Set(["la villa's", "l'hôtel marrakech", "cruiser mogador essaouira", "hotel vents des iles", "moro boutique hotel", "mont gueliz"]);
 
   // Auto-match SerpApi hotels to DB businesses by name (skips already-saved mappings)
   const autoMatch = useCallback(async (hotels: SerpApiHotel[], savedKeys: Set<string>) => {
@@ -464,10 +464,13 @@ const HotelApiComparison = () => {
     await Promise.all([litePromise, serpPromise]);
     setLoading(false);
 
-    // Load saved DB mappings first, then auto-match remaining
+    // Load saved DB mappings first, then auto-match only if there are unmapped hotels
     if (serpData.length > 0) {
       const savedKeys = await loadSavedMappings(serpData);
-      autoMatch(serpData, savedKeys);
+      const hasUnmapped = serpData.some(h => !savedKeys.has(h.name.toLowerCase().trim()));
+      if (hasUnmapped) {
+        autoMatch(serpData, savedKeys);
+      }
     }
   };
 
