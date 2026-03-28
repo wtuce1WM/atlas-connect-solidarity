@@ -60,6 +60,12 @@ interface OwmBusiness {
   main_category: string | null;
 }
 
+interface CachedPrice {
+  price_per_night: number | null;
+  currency: string;
+  source: string;
+}
+
 const CITY_OPTIONS = [
   { label: "Essaouira", value: "Essaouira", code: "ESU" },
   { label: "Marrakech", value: "Marrakech", code: "RAK" },
