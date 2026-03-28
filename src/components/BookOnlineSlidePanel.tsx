@@ -396,11 +396,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           // Case 1 & 2: has KP1 — fetch all KP1 members
           const { data: kp1Data } = await supabase
             .from("businesses")
-            .select("id, name, slug, logo_url, images, is_master")
+            .select("id, name, slug, logo_url, images, is_master, computed_rating")
             .eq("kp_regroupement", kp1Val)
             .eq("is_active", true)
-            .neq("id", businessId)
-            .order("name");
+            .neq("id", businessId);
           kpResults = (kp1Data || []) as KpRelatedBusiness[];
 
           // Case 2: has KP1 AND KP2 — append KP2 master at end
@@ -408,7 +407,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             const existingIds = new Set([businessId, ...kpResults.map(r => r.id)]);
             const { data: kp2Masters } = await supabase
               .from("businesses")
-              .select("id, name, slug, logo_url, images, is_master")
+              .select("id, name, slug, logo_url, images, is_master, computed_rating")
               .eq("kp_regroupement_2", kp2Val)
               .eq("is_master", true)
               .eq("is_active", true);
@@ -417,16 +416,20 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             }
           }
         } else if (kp2Val && isMaster) {
-          // Case 3: KP2 only + is master — show all KP2 slaves alphabetically
+          // Case 3: KP2 only + is master — show all KP2 slaves
           const { data: kp2Data } = await supabase
             .from("businesses")
-            .select("id, name, slug, logo_url, images, is_master")
+            .select("id, name, slug, logo_url, images, is_master, computed_rating")
             .eq("kp_regroupement_2", kp2Val)
             .eq("is_active", true)
-            .neq("id", businessId)
-            .order("name");
+            .neq("id", businessId);
           kpResults = (kp2Data || []) as KpRelatedBusiness[];
         }
+        // Sort: masters first, then by computed_rating descending
+        kpResults.sort((a, b) => {
+          if (a.is_master !== b.is_master) return a.is_master ? -1 : 1;
+          return (b.computed_rating ?? 0) - (a.computed_rating ?? 0);
+        });
       }
       setKpRelated(kpResults);
 
