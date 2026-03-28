@@ -502,6 +502,19 @@ const HotelApiComparison = () => {
         autoMatch(serpData, savedKeys);
       }
     }
+
+    // Load cached SerpAPI prices from hotel_price_cache
+    const { data: priceData } = await supabase
+      .from("hotel_price_cache")
+      .select("business_id, price_per_night, currency, source")
+      .eq("source", "serpapi");
+    if (priceData) {
+      const priceMap: Record<string, CachedPrice> = {};
+      for (const p of priceData) {
+        priceMap[p.business_id] = { price_per_night: p.price_per_night, currency: p.currency, source: p.source };
+      }
+      setCachedPrices(priceMap);
+    }
   };
 
   // Save or delete mapping in DB
