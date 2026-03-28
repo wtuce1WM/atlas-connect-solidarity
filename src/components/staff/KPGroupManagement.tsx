@@ -122,10 +122,10 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
 
   const resetMaster = async (kp: string) => {
     setSaving("reset-" + kp);
-    const group = groups.find(g => g.kp === kp);
-    if (!group) return;
+    const matchingGroups = groups.filter(g => g.kp === kp);
+    if (matchingGroups.length === 0) return;
 
-    const ids = group.businesses.map(b => b.id);
+    const ids = [...new Set(matchingGroups.flatMap(g => g.businesses.map(b => b.id)))];
     const { error } = await supabase
       .from("businesses")
       .update({ is_master: false } as any)
