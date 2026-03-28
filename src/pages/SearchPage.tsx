@@ -81,9 +81,19 @@ interface Business {
   google_rating?: number | null;
   tripadvisor_rating?: number | null;
   restaurant_guru_rating?: number | null;
+  trustpilot_rating?: number | null;
+  getyourguide_rating?: number | null;
+  viator_rating?: number | null;
+  avis_verifies_rating?: number | null;
+  tourradar_rating?: number | null;
   google_review_count?: number | null;
   tripadvisor_review_count?: number | null;
   restaurant_guru_review_count?: number | null;
+  trustpilot_review_count?: number | null;
+  getyourguide_review_count?: number | null;
+  viator_review_count?: number | null;
+  avis_verifies_review_count?: number | null;
+  tourradar_review_count?: number | null;
   opening_hours?: Record<string, { open?: string; close?: string; closed?: boolean; continuous?: boolean }> | null;
   is_open_24h?: boolean | null;
   vacation_dates?: unknown;
@@ -598,47 +608,13 @@ const SearchPage = () => {
     const fetchSubcategoryBusinesses = async () => {
       let query = supabase
         .from("businesses")
-        .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, engagements, online_shop_url, presentation_mode, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, rating, gamme_id, badge_id, hook_fr, hook_en, hook_ar, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids, default_service, neighborhood, priority_score")
+        .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, engagements, online_shop_url, presentation_mode, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, rating, gamme_id, badge_id, hook_fr, hook_en, hook_ar, google_rating, tripadvisor_rating, restaurant_guru_rating, trustpilot_rating, getyourguide_rating, viator_rating, avis_verifies_rating, tourradar_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, trustpilot_review_count, getyourguide_review_count, viator_review_count, avis_verifies_review_count, tourradar_review_count, opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids, default_service, neighborhood, priority_score")
         .eq("is_active", true)
         .contains("categories", [selectedSubcategoryFilter]);
-
-      if (selectedCategoryFilter) {
-        query = query.eq("main_category", selectedCategoryFilter);
-      }
-      // Filter by city: include businesses physically in the city OR covering it via zone_city_ids
-      if (effectiveCity) {
-        const cityId = citiesWithPriority.find(c => c.name === effectiveCity)?.id;
-        if (cityId) {
-          query = query.or(`city.ilike.${effectiveCity},and(zone_city_ids.cs.{"${cityId}"},is_visible_locale.eq.true)`);
-        } else {
-          query = query.ilike("city", effectiveCity);
-        }
-      }
-      // Filter by neighborhood if detected from search query
-      if (detectedNeighborhood) {
-        query = query.or(`neighborhood.ilike.%${detectedNeighborhood}%,neighborhood.ilike.%toute la ville%`);
-      }
-
-      const { data } = await query.order("priority_score", { ascending: false }).limit(200);
-      if (data) {
-        setSubcategoryFilterBusinesses(data.map((b: any) => ({ ...b, distance_km: null })) as Business[]);
-      }
-    };
-    fetchSubcategoryBusinesses();
-  }, [selectedSubcategoryFilter, selectedCategoryFilter, selectedCity, detectedCity, detectedNeighborhood, citiesWithPriority]);
-
-  useEffect(() => {
-    if (!selectedServiceFilter) {
-      setServiceFilterBusinesses([]);
-      return;
-    }
-    const fetchServiceBusinesses = async () => {
-      const effectiveCity = (selectedCity && selectedCity !== "all") ? selectedCity : detectedCity;
-      const effectiveSubcategory = selectedSubcategoryFilter || detectedSubcategory;
-      
+...
       let query = supabase
         .from("businesses")
-        .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, engagements, online_shop_url, presentation_mode, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, rating, gamme_id, badge_id, hook_fr, hook_en, hook_ar, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids, default_service, neighborhood")
+        .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, engagements, online_shop_url, presentation_mode, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, rating, gamme_id, badge_id, hook_fr, hook_en, hook_ar, google_rating, tripadvisor_rating, restaurant_guru_rating, trustpilot_rating, getyourguide_rating, viator_rating, avis_verifies_rating, tourradar_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, trustpilot_review_count, getyourguide_review_count, viator_review_count, avis_verifies_review_count, tourradar_review_count, opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids, default_service, neighborhood")
         .eq("is_active", true)
         .contains("services", [selectedServiceFilter]);
 
