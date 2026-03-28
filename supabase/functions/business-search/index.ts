@@ -4878,13 +4878,21 @@ serve(async (req) => {
         
         if (!isCityName && !isJustACity) {
           const beforeIso = businesses.length;
-          // Keep the exact match + any business whose keywords match a query word
-          const queryWords = qNormIso.split(/\s+/).filter(w => w.length >= 3);
-          const keywordMatches = businesses.filter(b => {
+          // Keep the exact match + any business whose keywords match a DISTINCTIVE query word
+          // Exclude generic words that are also common subcategory/category names (hotel, restaurant, etc.)
+          const genericTerms = new Set([
+            'hotel', 'hotels', 'riad', 'riads', 'restaurant', 'restaurants', 'cafe', 'spa',
+            'club', 'maison', 'villa', 'boutique', 'bar', 'palais', 'palace', 'kasbah',
+            'auberge', 'lodge', 'resort', 'camping', 'gite', 'ferme', 'domaine',
+            'agence', 'garage', 'pharmacie', 'clinique', 'ecole', 'institut',
+            'salon', 'atelier', 'galerie', 'musee', 'theatre', 'cinema',
+          ]);
+          const queryWords = qNormIso.split(/\s+/).filter(w => w.length >= 3 && !genericTerms.has(w));
+          const keywordMatches = queryWords.length > 0 ? businesses.filter(b => {
             if (b.id === exactBusiness.id) return false;
             const bKeywords = (b.keywords ?? []).map((k: string) => stripAccentsGlobal(k.toLowerCase().trim()));
             return bKeywords.some((kw: string) => queryWords.some(qw => kw.includes(qw) || qw.includes(kw)));
-          });
+          }) : [];
           businesses = [exactBusiness, ...keywordMatches];
           exactNameMatchIsolation = true;
           console.log(`🎯 Exact name match isolation: "${query}" → keeping ${businesses.length} results (exact + ${keywordMatches.length} keyword matches, was ${beforeIso})`);
