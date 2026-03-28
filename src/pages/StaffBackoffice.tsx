@@ -96,6 +96,7 @@ const StaffBackoffice = () => {
       setUser(session.user);
       fetchBusinesses();
       fetchGammes();
+      fetchPriceCache();
     };
 
     checkAuth();
