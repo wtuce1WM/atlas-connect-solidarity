@@ -881,6 +881,7 @@ export type Database = {
           business_type: string | null
           categories: string[] | null
           city: string | null
+          computed_rating: number | null
           country: string | null
           created_at: string
           default_service: string | null
@@ -973,6 +974,7 @@ export type Database = {
           slug: string
           telegram: string | null
           tiktok_url: string | null
+          total_review_count: number | null
           tourradar_rating: number | null
           tourradar_review_count: number | null
           tourradar_url: string | null
@@ -1017,6 +1019,7 @@ export type Database = {
           business_type?: string | null
           categories?: string[] | null
           city?: string | null
+          computed_rating?: number | null
           country?: string | null
           created_at?: string
           default_service?: string | null
@@ -1109,6 +1112,7 @@ export type Database = {
           slug: string
           telegram?: string | null
           tiktok_url?: string | null
+          total_review_count?: number | null
           tourradar_rating?: number | null
           tourradar_review_count?: number | null
           tourradar_url?: string | null
@@ -1153,6 +1157,7 @@ export type Database = {
           business_type?: string | null
           categories?: string[] | null
           city?: string | null
+          computed_rating?: number | null
           country?: string | null
           created_at?: string
           default_service?: string | null
@@ -1245,6 +1250,7 @@ export type Database = {
           slug?: string
           telegram?: string | null
           tiktok_url?: string | null
+          total_review_count?: number | null
           tourradar_rating?: number | null
           tourradar_review_count?: number | null
           tourradar_url?: string | null
@@ -3783,6 +3789,7 @@ export type Database = {
               business_type: string | null
               categories: string[] | null
               city: string | null
+              computed_rating: number | null
               country: string | null
               created_at: string
               default_service: string | null
@@ -3875,6 +3882,7 @@ export type Database = {
               slug: string
               telegram: string | null
               tiktok_url: string | null
+              total_review_count: number | null
               tourradar_rating: number | null
               tourradar_review_count: number | null
               tourradar_url: string | null
@@ -3935,6 +3943,7 @@ export type Database = {
               business_type: string | null
               categories: string[] | null
               city: string | null
+              computed_rating: number | null
               country: string | null
               created_at: string
               default_service: string | null
@@ -4027,6 +4036,7 @@ export type Database = {
               slug: string
               telegram: string | null
               tiktok_url: string | null
+              total_review_count: number | null
               tourradar_rating: number | null
               tourradar_review_count: number | null
               tourradar_url: string | null
