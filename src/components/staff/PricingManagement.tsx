@@ -5,6 +5,20 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Hotel, UtensilsCrossed } from "lucide-react";
 
+const PRICE_RANGES = [
+  { label: "- 50€", min: 0, max: 50, color: "bg-emerald-100 text-emerald-700 border-emerald-300" },
+  { label: "50 à 100€", min: 50, max: 100, color: "bg-blue-100 text-blue-700 border-blue-300" },
+  { label: "100 à 200€", min: 100, max: 200, color: "bg-amber-100 text-amber-700 border-amber-300" },
+  { label: "200 à 500€", min: 200, max: 500, color: "bg-orange-100 text-orange-700 border-orange-300" },
+  { label: "500 à 1000€", min: 500, max: 1000, color: "bg-rose-100 text-rose-700 border-rose-300" },
+  { label: "+1000€", min: 1000, max: Infinity, color: "bg-purple-100 text-purple-700 border-purple-300" },
+];
+
+const getPriceRange = (price: number | null) => {
+  if (price == null) return null;
+  return PRICE_RANGES.find((r) => price >= r.min && price < r.max) || PRICE_RANGES[PRICE_RANGES.length - 1];
+};
+
 interface PriceRow {
   name: string;
   city: string;
