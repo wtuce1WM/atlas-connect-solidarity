@@ -45,8 +45,8 @@ const CompactListItem = ({
   gammes: Gamme[];
 }) => {
   const gamme = business.gamme_id ? gammes.find((g) => g.id === business.gamme_id) : null;
-  const rating = business.rating ?? computeWeightedRatingOn20(collectRatingSources(business));
-  const totalReviews = getTotalReviewCount(business);
+  const rating = (business as any).computed_rating ?? business.rating ?? null;
+  const totalReviews = (business as any).total_review_count ?? 0;
   const imgSrc = business.images?.[0] || business.logo_url || "/placeholder.svg";
   const isLogo = !business.images?.length && !!business.logo_url;
 
