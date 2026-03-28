@@ -179,6 +179,8 @@ interface Business {
   viator_review_count: number | null;
   avis_verifies_review_count: number | null;
   tourradar_review_count: number | null;
+  computed_rating: number | null;
+  total_review_count: number | null;
   main_category: string | null;
 }
 ...
