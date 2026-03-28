@@ -3272,8 +3272,8 @@ const SearchPage = () => {
                      setPoiMapBusiness(null);
                      try {
                        const { data } = await supabase.from("businesses").select("presentation_mode").eq("id", bizId).single();
-                       setPoiPanelMode(data?.presentation_mode === "reserver" ? "bookonline" : "business");
-                     } catch { setPoiPanelMode("business"); }
+                        setPoiPanelMode(data?.presentation_mode === "reserver" ? "bookonline" : "webonly");
+                      } catch { setPoiPanelMode("webonly"); }
                      setPoiSelectedBusinessId(bizId);
                    }}
                   columns={hasKnownLocation ? 2 : undefined}
