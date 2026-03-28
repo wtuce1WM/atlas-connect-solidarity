@@ -855,13 +855,13 @@ const SearchPage = () => {
      setIsCompactPanelExpanded(false);
    }, [searchQuery, urlT]);
 
-    // Auto-open first result's slide panel when arriving from external link
-    // (moved to after filteredBusinesses is defined — see below)
+    // Auto-open first result — ref declared here, effect after filteredBusinesses
+    const hasAutoOpenedFirstRef = useRef(false);
 
-   // Reset auto-open flag when query changes
-   useEffect(() => {
-     hasAutoOpenedFirstRef.current = false;
-   }, [searchQuery]);
+    // Reset auto-open flag when query changes
+    useEffect(() => {
+      hasAutoOpenedFirstRef.current = false;
+    }, [searchQuery]);
 
    // Track when the hero AI card scrolls out of view — once past, stays hidden
    useEffect(() => {
