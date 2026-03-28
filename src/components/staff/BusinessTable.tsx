@@ -68,6 +68,18 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
     return computeWeightedRatingOn20(collectRatingSources(b));
   };
 
+  // Build price lookup: business_id -> best price entry (prefer lowest price)
+  const priceMap = useMemo(() => {
+    const map = new Map<string, PriceCacheEntry>();
+    for (const entry of priceCache) {
+      const existing = map.get(entry.business_id);
+      if (!existing || (entry.price_per_night != null && (existing.price_per_night == null || entry.price_per_night < existing.price_per_night))) {
+        map.set(entry.business_id, entry);
+      }
+    }
+    return map;
+  }, [priceCache]);
+
   const sortedBusinesses = useMemo(() => {
     if (!sortKey) return businesses;
     const sorted = [...businesses].sort((a, b) => {
