@@ -252,6 +252,11 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{business.name}</span>
+                    {business.is_poi && (
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-blue-400 text-blue-600 bg-blue-50">
+                        <MapPin className="h-2.5 w-2.5 mr-0.5" />POI
+                      </Badge>
+                    )}
                     {business.kp_regroupement && (
                       <Tooltip>
                         <TooltipTrigger asChild>
