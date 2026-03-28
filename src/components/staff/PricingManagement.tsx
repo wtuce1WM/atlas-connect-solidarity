@@ -135,6 +135,7 @@ const PricingManagement = () => {
                             SerpAPI
                           </span>
                         </th>
+                        <th className="text-center py-2 pl-4 font-medium text-muted-foreground">Gamme de prix</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
