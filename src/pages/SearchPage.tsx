@@ -3268,7 +3268,14 @@ const SearchPage = () => {
                 <PoiSection
                   city={poiCity}
                   language={language}
-                  onBusinessClick={(bizId) => { setPoiMapBusiness(null); setPoiSelectedBusinessId(bizId); }}
+                   onBusinessClick={async (bizId) => {
+                     setPoiMapBusiness(null);
+                     try {
+                       const { data } = await supabase.from("businesses").select("presentation_mode").eq("id", bizId).single();
+                       setPoiPanelMode(data?.presentation_mode === "reserver" ? "bookonline" : "business");
+                     } catch { setPoiPanelMode("business"); }
+                     setPoiSelectedBusinessId(bizId);
+                   }}
                   columns={hasKnownLocation ? 2 : undefined}
                   onMapClick={hasKnownLocation ? (biz) => { setHoveredPoiId(biz.id); } : (biz) => { setPoiSelectedBusinessId(null); setPoiMapBusiness({ id: biz.id, name: biz.name, latitude: biz.latitude, longitude: biz.longitude, address: biz.address, google_maps_url: biz.google_maps_url }); }}
                   onPoisLoaded={(loadedPois) => setAllPois(loadedPois.map(p => {
