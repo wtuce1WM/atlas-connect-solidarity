@@ -112,6 +112,7 @@ interface KpRelatedBusiness {
   logo_url: string | null;
   images: string[] | null;
   is_master: boolean;
+  computed_rating: number | null;
 }
 interface Destination {
   id: string;
@@ -280,18 +281,17 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
         if (kp1Val) {
           const { data: kp1Data } = await supabase
             .from("businesses")
-            .select("id, name, slug, logo_url, images, is_master")
+            .select("id, name, slug, logo_url, images, is_master, computed_rating")
             .eq("kp_regroupement", kp1Val)
             .eq("is_active", true)
-            .neq("id", businessId)
-            .order("name");
+            .neq("id", businessId);
           kpResults = (kp1Data || []) as KpRelatedBusiness[];
 
           if (kp2Val) {
             const existingIds = new Set([businessId, ...kpResults.map(r => r.id)]);
             const { data: kp2Masters } = await supabase
               .from("businesses")
-              .select("id, name, slug, logo_url, images, is_master")
+              .select("id, name, slug, logo_url, images, is_master, computed_rating")
               .eq("kp_regroupement_2", kp2Val)
               .eq("is_master", true)
               .eq("is_active", true);
@@ -302,13 +302,17 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
         } else if (kp2Val && isMaster) {
           const { data: kp2Data } = await supabase
             .from("businesses")
-            .select("id, name, slug, logo_url, images, is_master")
+            .select("id, name, slug, logo_url, images, is_master, computed_rating")
             .eq("kp_regroupement_2", kp2Val)
             .eq("is_active", true)
-            .neq("id", businessId)
-            .order("name");
+            .neq("id", businessId);
           kpResults = (kp2Data || []) as KpRelatedBusiness[];
         }
+        // Sort: masters first, then by computed_rating descending
+        kpResults.sort((a, b) => {
+          if (a.is_master !== b.is_master) return a.is_master ? -1 : 1;
+          return (b.computed_rating ?? 0) - (a.computed_rating ?? 0);
+        });
       }
       setKpRelated(kpResults);
 
