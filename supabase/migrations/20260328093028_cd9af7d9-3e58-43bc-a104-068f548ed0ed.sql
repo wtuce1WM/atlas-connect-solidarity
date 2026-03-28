@@ -1,0 +1,1 @@
+UPDATE businesses SET kp_active = true WHERE id = 'fe0ab0ca-e324-4f26-87c5-23ae6a867c3f';
