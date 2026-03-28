@@ -4888,12 +4888,19 @@ serve(async (req) => {
             'salon', 'atelier', 'galerie', 'musee', 'theatre', 'cinema',
           ]);
           const queryWords = qNormIso.split(/\s+/).filter(w => w.length >= 3 && !genericTerms.has(w));
-          const keywordMatches = queryWords.length > 0 ? businesses.filter(b => {
+          // Keep businesses whose name contains the query (or vice-versa)
+          const nameContainMatches = businesses.filter(b => {
             if (b.id === exactBusiness.id) return false;
+            const bNameNorm = stripAccentsGlobal(b.name.toLowerCase().trim());
+            return bNameNorm.includes(qNormIso) || qNormIso.includes(bNameNorm);
+          });
+          const nameContainIds = new Set(nameContainMatches.map(b => b.id));
+          const keywordMatches = queryWords.length > 0 ? businesses.filter(b => {
+            if (b.id === exactBusiness.id || nameContainIds.has(b.id)) return false;
             const bKeywords = (b.keywords ?? []).map((k: string) => stripAccentsGlobal(k.toLowerCase().trim()));
             return bKeywords.some((kw: string) => queryWords.some(qw => kw.includes(qw) || qw.includes(kw)));
           }) : [];
-          businesses = [exactBusiness, ...keywordMatches];
+          businesses = [exactBusiness, ...nameContainMatches, ...keywordMatches];
           exactNameMatchIsolation = true;
           console.log(`🎯 Exact name match isolation: "${query}" → keeping ${businesses.length} results (exact + ${keywordMatches.length} keyword matches, was ${beforeIso})`);
         }
