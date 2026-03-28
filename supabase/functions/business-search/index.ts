@@ -4960,6 +4960,7 @@ serve(async (req) => {
       disambiguationType,
       synonymUsed: synonymWasUsed || undefined,
       preciseMatch: preciseMatch || undefined,
+      exactNameMatchIsolation: exactNameMatchIsolation || undefined,
     };
 
     // Async log to search_logs table (fire-and-forget, don't block response)
