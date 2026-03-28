@@ -4878,9 +4878,16 @@ serve(async (req) => {
         
         if (!isCityName && !isJustACity) {
           const beforeIso = businesses.length;
-          businesses = [exactBusiness];
+          // Keep the exact match + any business whose keywords match a query word
+          const queryWords = qNormIso.split(/\s+/).filter(w => w.length >= 3);
+          const keywordMatches = businesses.filter(b => {
+            if (b.id === exactBusiness.id) return false;
+            const bKeywords = (b.keywords ?? []).map((k: string) => stripAccentsGlobal(k.toLowerCase().trim()));
+            return bKeywords.some((kw: string) => queryWords.some(qw => kw.includes(qw) || qw.includes(kw)));
+          });
+          businesses = [exactBusiness, ...keywordMatches];
           exactNameMatchIsolation = true;
-          console.log(`🎯 Exact name match isolation: "${query}" → keeping only "${exactBusiness.name}" (was ${beforeIso} results)`);
+          console.log(`🎯 Exact name match isolation: "${query}" → keeping ${businesses.length} results (exact + ${keywordMatches.length} keyword matches, was ${beforeIso})`);
         }
       }
     }
