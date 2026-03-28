@@ -3249,6 +3249,16 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                       </div>
                     )}
                   </div>
+                  <div>
+                    <label className="text-[10px] text-muted-foreground">Sous-catégorie</label>
+                    <Select value={doc.subcategory_id || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, subcategory_id: v === "__none__" ? null : v } : d))}>
+                      <SelectTrigger className="h-6 text-[10px]"><SelectValue placeholder="—" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">— Aucune</SelectItem>
+                        {dbSubcategories.slice().sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr')).map(s => <SelectItem key={s.id} value={s.id}>{s.name_fr}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
             ))}
