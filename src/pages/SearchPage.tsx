@@ -3511,19 +3511,31 @@ const SearchPage = () => {
             )}
             {destSelectedBusinessId && (
               <div className={`fixed top-0 left-0 right-0 z-40 bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:top-[54px] lg:left-auto lg:border-l lg:border-border lg:transition-[width] lg:duration-300 lg:ease-out ${destPanelExpanded ? "lg:w-full" : "lg:w-1/2"}`} style={{ height: isSubDesktop ? "100vh" : "calc(100vh - 54px)" }}>
-                <SlidePanelHeader
-                  onClose={() => { setDestSelectedBusinessId(null); setDestPanelExpanded(false); }}
-                  isExpanded={destPanelExpanded}
-                  onToggleExpand={() => setDestPanelExpanded(prev => !prev)}
-                />
-                <div className="flex-1 min-h-0">
-                  <BusinessSlidePanel
+                {destPanelMode === "bookonline" ? (
+                  <BookOnlineSlidePanel
                     businessId={destSelectedBusinessId}
                     onClose={() => { setDestSelectedBusinessId(null); setDestPanelExpanded(false); }}
                     isExpanded={destPanelExpanded}
                     onToggleExpand={() => setDestPanelExpanded(prev => !prev)}
+                    language={language}
                   />
-                </div>
+                ) : (
+                  <>
+                    <SlidePanelHeader
+                      onClose={() => { setDestSelectedBusinessId(null); setDestPanelExpanded(false); }}
+                      isExpanded={destPanelExpanded}
+                      onToggleExpand={() => setDestPanelExpanded(prev => !prev)}
+                    />
+                    <div className="flex-1 min-h-0">
+                      <BusinessSlidePanel
+                        businessId={destSelectedBusinessId}
+                        onClose={() => { setDestSelectedBusinessId(null); setDestPanelExpanded(false); }}
+                        isExpanded={destPanelExpanded}
+                        onToggleExpand={() => setDestPanelExpanded(prev => !prev)}
+                      />
+                    </div>
+                  </>
+                )}
               </div>
             )}
             {destMapItem && !selectedDestination && (
