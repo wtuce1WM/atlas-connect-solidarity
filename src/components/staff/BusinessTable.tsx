@@ -54,7 +54,7 @@ interface BusinessTableProps {
   priceCache?: PriceCacheEntry[];
 }
 
-const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplicate }: BusinessTableProps) => {
+const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplicate, priceCache = [] }: BusinessTableProps) => {
   const [duplicateDialogOpen, setDuplicateDialogOpen] = useState(false);
   const [businessToDuplicate, setBusinessToDuplicate] = useState<Business | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
