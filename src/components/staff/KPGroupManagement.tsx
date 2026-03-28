@@ -154,15 +154,17 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
 
   const setMaster = async (kp: string, masterId: string) => {
     setSaving(masterId);
-    const group = groups.find(g => g.kp === kp);
-    if (!group) return;
+    // Collect ALL businesses across all groups sharing this kp code (kp1 + kp2)
+    const matchingGroups = groups.filter(g => g.kp === kp);
+    if (matchingGroups.length === 0) return;
 
-    const ids = group.businesses.map(b => b.id);
+    const ids = matchingGroups.flatMap(g => g.businesses.map(b => b.id));
+    const uniqueIds = [...new Set(ids)];
 
     const { error: resetError } = await supabase
       .from("businesses")
       .update({ is_master: false } as any)
-      .in("id", ids);
+      .in("id", uniqueIds);
 
     if (resetError) {
       toast({ variant: "destructive", title: "Erreur", description: "Impossible de mettre à jour." });
