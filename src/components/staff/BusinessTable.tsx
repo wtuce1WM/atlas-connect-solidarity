@@ -205,6 +205,9 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
               <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("contact")}>
                 <span className="inline-flex items-center">Contact<SortIcon column="contact" /></span>
               </TableHead>
+              <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("price")}>
+                <span className="inline-flex items-center">Prix/nuit<SortIcon column="price" /></span>
+              </TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
