@@ -154,18 +154,22 @@ const OwmMatcher = ({
               <span className="text-[10px] text-muted-foreground">{imgCount} photos</span>
             </div>
           )}
-          {cachedPrice?.price_per_night != null && (
-            <div className="flex items-center gap-1 mt-1">
+          <div className="flex items-center gap-1 mt-1 flex-wrap">
+            {cachedPrice?.price_per_night != null ? (
               <Badge variant="outline" className="text-[10px] py-0 px-1.5 border-teal-500 text-teal-700">
                 SerpAPI: {cachedPrice.price_per_night}€/nuit
               </Badge>
-            </div>
-          )}
-          {cachedPrice && cachedPrice.price_per_night == null && (
-            <div className="flex items-center gap-1 mt-1">
-              <span className="text-[10px] text-muted-foreground italic">SerpAPI: pas de prix</span>
-            </div>
-          )}
+            ) : cachedPrice ? (
+              <span className="text-[10px] text-muted-foreground italic">SerpAPI: —</span>
+            ) : null}
+            {cachedPriceLite?.price_per_night != null ? (
+              <Badge variant="outline" className="text-[10px] py-0 px-1.5 border-violet-500 text-violet-700">
+                LiteAPI: {cachedPriceLite.price_per_night}€/nuit
+              </Badge>
+            ) : cachedPriceLite ? (
+              <span className="text-[10px] text-muted-foreground italic">LiteAPI: —</span>
+            ) : null}
+          </div>
         </div>
       </div>
     );
