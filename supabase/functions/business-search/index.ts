@@ -4866,6 +4866,7 @@ serve(async (req) => {
     // ── Exact name match isolation: if query IS a business name, return only that business ──
     // This prevents "Baberrih Hotel" from returning all hotels just because "Hotel" is in search_vector
     // Excluded: city names and other generic terms that aren't business names
+    let exactNameMatchIsolation = false;
     if (query && businesses.length > 1) {
       const qNormIso = stripAccentsGlobal(query.trim().toLowerCase());
       const exactBusiness = businesses.find(b => stripAccentsGlobal(b.name.toLowerCase().trim()) === qNormIso);
