@@ -1025,6 +1025,24 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
         />
       )}
 
+      {/* Destination detail overlay */}
+      {selectedDestinationId && (
+        <DestinationSlidePanel
+          destinationId={selectedDestinationId}
+          onClose={() => setSelectedDestinationId(null)}
+          slideFrom="bottom"
+        />
+      )}
+
+      {/* POI business detail overlay */}
+      {selectedPoiBusinessId && (
+        <PoiSlidePanel
+          businessId={selectedPoiBusinessId}
+          onClose={() => setSelectedPoiBusinessId(null)}
+          slideFrom="bottom"
+        />
+      )}
+
       {/* Mosaic overlay */}
       {showMosaic && (
         <MosaicOverlay
