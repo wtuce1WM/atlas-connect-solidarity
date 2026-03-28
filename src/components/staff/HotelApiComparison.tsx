@@ -573,11 +573,19 @@ const HotelApiComparison = () => {
             </div>
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">Check-in</label>
-              <Input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="w-40" />
+              <Input type="date" value={checkIn} onChange={(e) => {
+                const newCheckIn = e.target.value;
+                setCheckIn(newCheckIn);
+                if (checkOut <= newCheckIn) {
+                  const next = new Date(newCheckIn);
+                  next.setDate(next.getDate() + 1);
+                  setCheckOut(next.toISOString().split("T")[0]);
+                }
+              }} className="w-40" />
             </div>
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">Check-out</label>
-              <Input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="w-40" />
+              <Input type="date" value={checkOut} min={checkIn} onChange={(e) => setCheckOut(e.target.value)} className="w-40" />
             </div>
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">Adultes</label>
