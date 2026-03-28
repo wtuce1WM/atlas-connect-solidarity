@@ -448,6 +448,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   }, [businessId]);
 
   const bookUrl = business?.reserve_now_url || null;
+  const shopUrl = business?.online_shop_url || null;
   // Collect videos from business_documents + legacy video_1_url
   const legacyVideo = business?.video_1_url;
   const allVideoUrls = [...videoDocUrls];
