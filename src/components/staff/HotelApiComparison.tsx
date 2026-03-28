@@ -249,6 +249,8 @@ const HotelApiComparison = () => {
 
   // Map: business_id -> cached SerpAPI price
   const [cachedPrices, setCachedPrices] = useState<Record<string, CachedPrice>>({});
+  // Map: business_id -> cached LiteAPI price
+  const [cachedPricesLite, setCachedPricesLite] = useState<Record<string, CachedPrice>>({});
 
   const cityOption = CITY_OPTIONS.find((c) => c.value === city) || CITY_OPTIONS[0];
 
