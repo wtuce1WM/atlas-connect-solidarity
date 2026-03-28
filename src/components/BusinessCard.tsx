@@ -184,7 +184,7 @@ const BusinessCard = ({
   const gamme = getBusinessGamme(business, gammes);
   const badge = getBusinessBadge(business, badges, subcategories, badgeSubcategories);
   const calculatedRating = getCalculatedRating(business);
-  const displayRating = business.rating ?? calculatedRating;
+  const displayRating = calculatedRating ?? business.rating;
   const totalReviews = getCardTotalReviewCount(business);
   const isSelected = selectedBusinessId === business.id;
   const hasMapData = business.google_maps_url || (business.latitude && business.longitude);
