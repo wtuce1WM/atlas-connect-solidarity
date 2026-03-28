@@ -794,7 +794,7 @@ const SearchPage = () => {
       const [selectedDestination, setSelectedDestination] = useState<DestinationItem | null>(null);
       const [destSelectedBusinessId, setDestSelectedBusinessId] = useState<string | null>(null);
        const [destPanelExpanded, setDestPanelExpanded] = useState(false);
-       const [poiPanelMode, setPoiPanelMode] = useState<"bookonline" | "business">("business");
+       const [poiPanelMode, setPoiPanelMode] = useState<"bookonline" | "webonly">("webonly");
      const [allDestItems, setAllDestItems] = useState<DestinationItem[]>([]);
    const resetPanelStates = () => {
      setPoiSelectedBusinessId(null);
@@ -3272,8 +3272,8 @@ const SearchPage = () => {
                      setPoiMapBusiness(null);
                      try {
                        const { data } = await supabase.from("businesses").select("presentation_mode").eq("id", bizId).single();
-                       setPoiPanelMode(data?.presentation_mode === "reserver" ? "bookonline" : "business");
-                     } catch { setPoiPanelMode("business"); }
+                        setPoiPanelMode(data?.presentation_mode === "reserver" ? "bookonline" : "webonly");
+                      } catch { setPoiPanelMode("webonly"); }
                      setPoiSelectedBusinessId(bizId);
                    }}
                   columns={hasKnownLocation ? 2 : undefined}
@@ -3325,22 +3325,12 @@ const SearchPage = () => {
                     onToggleExpand={() => setPoiPanelExpanded(v => !v)}
                   />
                 ) : (
-                  <>
-                    <SlidePanelHeader
-                      onClose={() => { setPoiSelectedBusinessId(null); setPoiPanelExpanded(false); }}
-                      isExpanded={poiPanelExpanded}
-                      onToggleExpand={poiBusinessImageCount > 1 ? () => setPoiPanelExpanded(v => !v) : undefined}
-                    />
-                    <div className="flex-1 min-h-0">
-                      <BusinessSlidePanel
-                        businessId={poiSelectedBusinessId}
-                        onClose={() => { setPoiSelectedBusinessId(null); setPoiPanelExpanded(false); }}
-                        isExpanded={poiPanelExpanded}
-                        onToggleExpand={poiBusinessImageCount > 1 ? () => setPoiPanelExpanded(v => !v) : undefined}
-                        onImageCount={setPoiBusinessImageCount}
-                      />
-                    </div>
-                  </>
+                  <WebOnlySlidePanel
+                    businessId={poiSelectedBusinessId}
+                    onClose={() => { setPoiSelectedBusinessId(null); setPoiPanelExpanded(false); }}
+                    isExpanded={poiPanelExpanded}
+                    onToggleExpand={() => setPoiPanelExpanded(v => !v)}
+                  />
                 )}
               </div>
             )}
