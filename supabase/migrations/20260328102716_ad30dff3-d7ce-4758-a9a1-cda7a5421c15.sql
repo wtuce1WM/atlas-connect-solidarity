@@ -1,0 +1,1 @@
+ALTER TABLE public.business_documents ADD COLUMN subcategory_id uuid REFERENCES public.subcategories(id) ON DELETE SET NULL;

@@ -499,6 +499,7 @@ export type Database = {
           name: string | null
           poi_id: string | null
           sort_order: number
+          subcategory_id: string | null
           type: string
           url: string
         }
@@ -513,6 +514,7 @@ export type Database = {
           name?: string | null
           poi_id?: string | null
           sort_order?: number
+          subcategory_id?: string | null
           type: string
           url: string
         }
@@ -527,6 +529,7 @@ export type Database = {
           name?: string | null
           poi_id?: string | null
           sort_order?: number
+          subcategory_id?: string | null
           type?: string
           url?: string
         }
@@ -578,6 +581,13 @@ export type Database = {
             columns: ["poi_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_documents_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "subcategories"
             referencedColumns: ["id"]
           },
         ]
