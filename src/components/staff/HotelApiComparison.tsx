@@ -658,7 +658,7 @@ const HotelApiComparison = () => {
   );
 };
 
-const HotelCardLite = ({ hotel }: { hotel: LiteApiHotel }) => {
+const HotelCardLite = ({ hotel, isMapped }: { hotel: LiteApiHotel; isMapped?: boolean }) => {
   const bestOffer = hotel.offers[0];
   const price = bestOffer?.price?.total ? `${bestOffer.price.total} ${bestOffer.price.currency}` : "—";
 
@@ -669,7 +669,10 @@ const HotelCardLite = ({ hotel }: { hotel: LiteApiHotel }) => {
           <img src={hotel.mainImage} alt={hotel.name} className="w-20 h-20 rounded-md object-cover shrink-0" />
         )}
         <div className="min-w-0 flex-1">
-          <h4 className="font-semibold text-sm truncate">{hotel.name}</h4>
+          <div className="flex items-center gap-1.5">
+            <h4 className="font-semibold text-sm truncate">{hotel.name}</h4>
+            {isMapped && <Badge className="bg-emerald-600 text-white text-[9px] py-0 px-1.5 shrink-0">OWM</Badge>}
+          </div>
           <div className="flex items-center gap-2 mt-0.5">
             {hotel.rating && (
               <Badge variant="outline" className="text-[10px] py-0">
