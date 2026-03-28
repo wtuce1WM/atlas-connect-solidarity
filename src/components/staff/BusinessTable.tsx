@@ -115,6 +115,12 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
         case "contact":
           cmp = (a.phone || a.email || "").localeCompare(b.phone || b.email || "", "fr");
           break;
+        case "price": {
+          const pA = priceMap.get(a.id)?.price_per_night ?? -1;
+          const pB = priceMap.get(b.id)?.price_per_night ?? -1;
+          cmp = pA - pB;
+          break;
+        }
       }
       return sortDir === "asc" ? cmp : -cmp;
     });
