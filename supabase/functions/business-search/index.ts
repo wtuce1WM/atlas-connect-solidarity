@@ -4863,6 +4863,26 @@ serve(async (req) => {
     }
 
 
+    // ── Exact name match isolation: if query IS a business name, return only that business ──
+    // This prevents "Baberrih Hotel" from returning all hotels just because "Hotel" is in search_vector
+    // Excluded: city names and other generic terms that aren't business names
+    if (query && businesses.length > 1) {
+      const qNormIso = stripAccentsGlobal(query.trim().toLowerCase());
+      const exactBusiness = businesses.find(b => stripAccentsGlobal(b.name.toLowerCase().trim()) === qNormIso);
+      if (exactBusiness) {
+        // Check the query is NOT just a city name
+        const isCityName = !!detectedCity && stripAccentsGlobal(detectedCity.toLowerCase()) === qNormIso;
+        const cityDetResult2 = await detectCityInQueryDynamic(query, supabase);
+        const isJustACity = !!cityDetResult2 && stripAccentsGlobal(cityDetResult2.matchedTerm.toLowerCase().trim()) === qNormIso;
+        
+        if (!isCityName && !isJustACity) {
+          const beforeIso = businesses.length;
+          businesses = [exactBusiness];
+          console.log(`🎯 Exact name match isolation: "${query}" → keeping only "${exactBusiness.name}" (was ${beforeIso} results)`);
+        }
+      }
+    }
+
     // If results hit the limit, do a count query to get the true total
     // (works for city-scoped and national queries like "maroc")
     let totalCount: number | undefined;
