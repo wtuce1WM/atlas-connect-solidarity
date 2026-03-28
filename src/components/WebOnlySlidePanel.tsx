@@ -174,6 +174,12 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
     setIsLightboxOpen(false);
     setShowMosaic(false);
     setShowHook(false);
+    setSelectedDestinationId(null);
+    setSelectedPoiBusinessId(null);
+    setYoutubeVideoCount(null);
+    setActiveYoutubeVideo(null);
+    setYoutubeIsPlaying(false);
+    setShowYoutubeOverlay(false);
   }, [businessId, resetDrag]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -184,10 +190,10 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      const [bizRes, woRes, reviewsRes, extLinksRes, videoDocsRes] = await Promise.all([
+      const [bizRes, woRes, destLinksRes, reviewsRes, extLinksRes, videoDocsRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, online_shop_force_external, website_force_external, hook_fr, hook_en, hook_ar, description, facebook_url, instagram_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, vimeo_url, video_1_url")
+          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, online_shop_force_external, website_force_external, youtube_force_external, hook_fr, hook_en, hook_ar, description, facebook_url, instagram_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, vimeo_url, video_1_url, kp_regroupement, kp_regroupement_2, kp_active, main_category")
           .eq("id", businessId)
           .eq("is_active", true)
           .maybeSingle(),
@@ -196,6 +202,10 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
           .select("description")
           .eq("business_id", businessId)
           .maybeSingle(),
+        supabase
+          .from("business_destinations")
+          .select("destination_id")
+          .eq("business_id", businessId),
         supabase
           .from("reviews" as any)
           .select("source, author_name, rating, text, language")
@@ -223,6 +233,74 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
       setReviewTexts(reviewsRes.data ? (reviewsRes.data as any[]) : []);
       setExternalLinks((extLinksRes.data || []) as ExternalLinkItem[]);
       setVideoDocUrls((videoDocsRes.data || []).map((d: any) => d.url).filter(Boolean));
+
+      // Fetch destination details
+      const destIds = (destLinksRes.data || []).map(d => d.destination_id);
+      let fetchedDests: Destination[] = [];
+      if (destIds.length > 0) {
+        const { data: destData } = await supabase
+          .from("destinations")
+          .select("id, name_fr, name_en, image_url, images")
+          .in("id", destIds);
+        fetchedDests = ((destData || []) as Destination[]).sort((a, b) => {
+          const nameA = (language === "en" && a.name_en ? a.name_en : a.name_fr).toLowerCase();
+          const nameB = (language === "en" && b.name_en ? b.name_en : b.name_fr).toLowerCase();
+          return nameA.localeCompare(nameB);
+        });
+      }
+      setDestinations(fetchedDests);
+
+      // Fetch POI businesses
+      {
+        const { data: poiLinks } = await supabase
+          .from("business_poi_businesses")
+          .select("poi_business_id")
+          .eq("business_id", businessId);
+        const poiIds = (poiLinks || []).map(p => p.poi_business_id);
+        if (poiIds.length > 0) {
+          const { data: poiData } = await supabase
+            .from("businesses")
+            .select("id, name, images, logo_url")
+            .in("id", poiIds)
+            .eq("is_active", true);
+          setPoiBusinesses((poiData || []) as PoiBusiness[]);
+        } else {
+          setPoiBusinesses([]);
+        }
+      }
+
+      // Fetch KP related businesses
+      const kp1Val = (bizRes.data as any)?.kp_regroupement;
+      const kp2Val = (bizRes.data as any)?.kp_regroupement_2;
+      const isKpActive = (bizRes.data as any)?.kp_active;
+
+      let kpResults: KpRelatedBusiness[] = [];
+      if (isKpActive) {
+        if (kp1Val && kp1Val.trim() !== "") {
+          const { data: kpData } = await supabase
+            .from("businesses")
+            .select("id, name, slug, logo_url, images, is_master")
+            .eq("kp_regroupement", kp1Val)
+            .eq("is_active", true)
+            .neq("id", businessId)
+            .order("is_master", { ascending: false })
+            .order("priority_score", { ascending: false });
+          kpResults = (kpData || []) as KpRelatedBusiness[];
+        }
+        if (kpResults.length === 0 && kp2Val && kp2Val.trim() !== "") {
+          const { data: kp2Data } = await supabase
+            .from("businesses")
+            .select("id, name, slug, logo_url, images, is_master")
+            .eq("kp_regroupement_2", kp2Val)
+            .eq("is_active", true)
+            .neq("id", businessId)
+            .order("is_master", { ascending: false })
+            .order("priority_score", { ascending: false });
+          kpResults = (kp2Data || []) as KpRelatedBusiness[];
+        }
+      }
+      setKpRelated(kpResults);
+
       setIsLoading(false);
     };
     fetchData();
