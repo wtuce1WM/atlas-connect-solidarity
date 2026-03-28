@@ -11,8 +11,10 @@ export interface TemplateEntry {
 
 import { template as hotelPriceReport } from './hotel-price-report.tsx'
 import { template as affiliateRequest } from './affiliate-request.tsx'
+import { template as hotelPriceList } from './hotel-price-list.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'hotel-price-report': hotelPriceReport,
   'affiliate-request': affiliateRequest,
+  'hotel-price-list': hotelPriceList,
 }
