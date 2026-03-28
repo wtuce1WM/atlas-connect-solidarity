@@ -698,6 +698,7 @@ const HotelApiComparison = () => {
               const key = h.name.toLowerCase().trim();
               const matched = owmMatches[key] || null;
               const cachedPrice = matched ? cachedPrices[matched.id] : null;
+              const cachedLite = matched ? cachedPricesLite[matched.id] : null;
               return (
                 <Card key={`owm-${h.name}-${i}`} className="overflow-hidden min-h-[120px]">
                   <div className="p-3 h-full">
@@ -706,6 +707,7 @@ const HotelApiComparison = () => {
                       serpHotelName={h.name}
                       matchedBusiness={matched}
                       cachedPrice={cachedPrice}
+                      cachedPriceLite={cachedLite}
                       onMatch={(biz) => handleOwmMatch(h.name, biz)}
                     />
                   </div>
