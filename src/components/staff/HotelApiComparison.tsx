@@ -152,6 +152,18 @@ const OwmMatcher = ({
               <span className="text-[10px] text-muted-foreground">{imgCount} photos</span>
             </div>
           )}
+          {cachedPrice?.price_per_night != null && (
+            <div className="flex items-center gap-1 mt-1">
+              <Badge variant="outline" className="text-[10px] py-0 px-1.5 border-teal-500 text-teal-700">
+                SerpAPI: {cachedPrice.price_per_night}€/nuit
+              </Badge>
+            </div>
+          )}
+          {cachedPrice && cachedPrice.price_per_night == null && (
+            <div className="flex items-center gap-1 mt-1">
+              <span className="text-[10px] text-muted-foreground italic">SerpAPI: pas de prix</span>
+            </div>
+          )}
         </div>
       </div>
     );
