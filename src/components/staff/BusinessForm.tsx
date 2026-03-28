@@ -854,6 +854,19 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     fetchPoiBusinesses();
   }, [formData.city, business?.id]);
 
+  // Fetch all businesses for video linking
+  useEffect(() => {
+    const fetchAll = async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name")
+        .eq("is_active", true)
+        .order("name");
+      setAllBusinessesForVideo((data || []).filter(b => b.id !== business?.id));
+    };
+    fetchAll();
+  }, [business?.id]);
+
   const handleChange = (field: string, value: string | boolean | string[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setIsDirty(true);
