@@ -855,17 +855,8 @@ const SearchPage = () => {
      setIsCompactPanelExpanded(false);
    }, [searchQuery, urlT]);
 
-   // Auto-open first result's slide panel when arriving from external link
-   const hasAutoOpenedFirstRef = useRef(false);
-   useEffect(() => {
-    if (hasAutoOpenedFirstRef.current) return;
-      if (isLoading || filteredBusinesses.length === 0) return;
-      if (!searchQuery) return;
-      if (hasInteractedWithCompactPanelRef.current) return;
-      hasAutoOpenedFirstRef.current = true;
-      const first = filteredBusinesses[0];
-      openCompactPanel({ id: first.id, name: first.name } as AIBusinessData);
-    }, [isLoading, filteredBusinesses, searchQuery, openCompactPanel]);
+    // Auto-open first result's slide panel when arriving from external link
+    // (moved to after filteredBusinesses is defined — see below)
 
    // Reset auto-open flag when query changes
    useEffect(() => {
