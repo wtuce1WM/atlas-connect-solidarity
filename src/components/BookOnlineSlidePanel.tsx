@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
-import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, CalendarCheck, Star, Minimize2, Loader2 } from "lucide-react";
+import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, CalendarCheck, ShoppingBag, Star, Minimize2, Loader2 } from "lucide-react";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 import { isCurrentlyOpen } from "@/lib/formatOpeningHours";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
@@ -448,6 +448,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   }, [businessId]);
 
   const bookUrl = business?.reserve_now_url || null;
+  const shopUrl = business?.online_shop_url || null;
   // Collect videos from business_documents + legacy video_1_url
   const legacyVideo = business?.video_1_url;
   const allVideoUrls = [...videoDocUrls];
@@ -646,6 +647,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     const forceExternal = isReserveUrl ? business?.reserve_now_force_external : business?.website_force_external;
     return { fullUrl, forceExternal };
   }, [bookUrl, business?.reserve_now_url, business?.reserve_now_force_external, business?.website_force_external]);
+
+  // Shop CTA computed values
+  const shopCta = useMemo(() => {
+    if (!shopUrl) return null;
+    const fullUrl = shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`;
+    const forceExternal = business?.online_shop_force_external;
+    return { fullUrl, forceExternal };
+  }, [shopUrl, business?.online_shop_force_external]);
 
   if (isLoading) {
     return (
@@ -1228,7 +1237,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           )}
 
           {/* CTAs */}
-          {(bookUrl || (business.latitude && business.longitude)) && (
+          {(bookUrl || shopUrl || (business.latitude && business.longitude)) && (
             <div className={`shrink-0 py-2 flex flex-col items-center gap-2 pointer-events-auto ${noBottomCarousel ? 'mt-auto' : ''}`}>
               {bookingCta && (
                 bookingCta.forceExternal ? (
@@ -1251,6 +1260,30 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   >
                     <CalendarCheck className="h-4 w-4" />
                     {language === "en" ? "Book Online" : "Réservez en ligne"}
+                  </button>
+                )
+              )}
+              {shopCta && (
+                shopCta.forceExternal ? (
+                  <a
+                    href={shopCta.fullUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-right"
+                    style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                  >
+                    <ShoppingBag className="h-4 w-4" />
+                    {language === "en" ? "Shop Online" : "Achetez en ligne"}
+                    <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
+                  </a>
+                ) : (
+                  <button
+                    onClick={() => { setBookingOverlayUrl(shopCta.fullUrl); setBookingOverlayTitle(language === "en" ? "Shop Online" : "Achetez en ligne"); setShowBookingOverlay(true); }}
+                    className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-right"
+                    style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366' }}
+                  >
+                    <ShoppingBag className="h-4 w-4" />
+                    {language === "en" ? "Shop Online" : "Achetez en ligne"}
                   </button>
                 )
               )}
