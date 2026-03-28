@@ -157,6 +157,13 @@ const StaffBackoffice = () => {
     if (data) setGammes(data);
   };
 
+  const fetchPriceCache = async () => {
+    const { data } = await supabase
+      .from("hotel_price_cache")
+      .select("business_id, source, price_per_night, currency");
+    if (data) setPriceCache(data as PriceCacheEntry[]);
+  };
+
   // Fetch subcategories when category filter changes
   useEffect(() => {
     setSubcategoryFilter("all");
