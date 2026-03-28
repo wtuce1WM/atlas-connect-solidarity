@@ -401,6 +401,10 @@ const HotelApiComparison = () => {
   }, [cityOption.label, isStaffUser, dismissedKeys]);
 
   const handleSearch = async () => {
+    if (checkOut <= checkIn) {
+      toast.error("La date de check-out doit être postérieure au check-in");
+      return;
+    }
     setLoading(true);
     setLiteResults(null);
     setSerpResults(null);
