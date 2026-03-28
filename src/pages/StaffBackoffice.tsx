@@ -651,6 +651,7 @@ const StaffBackoffice = () => {
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 onDuplicate={handleDuplicate}
+                priceCache={priceCache}
               />
 
               {/* Pagination */}
