@@ -863,10 +863,21 @@ const SearchPage = () => {
     // Auto-open first result — ref declared here, effect after filteredBusinesses
     const hasAutoOpenedFirstRef = useRef(false);
 
-     // Reset auto-open flag when query changes
+      // Reset auto-open flag only when NEW data finishes loading (not on stale data)
+    const prevUrlTRef = useRef(urlT);
     useEffect(() => {
-      hasAutoOpenedFirstRef.current = false;
-    }, [searchQuery, urlT]);
+      if (prevUrlTRef.current !== urlT) {
+        // Query changed — block auto-open until new data arrives
+        hasAutoOpenedFirstRef.current = true;
+        prevUrlTRef.current = urlT;
+      }
+    }, [urlT]);
+    useEffect(() => {
+      // Once loading finishes after a query change, allow auto-open
+      if (!isLoading) {
+        hasAutoOpenedFirstRef.current = false;
+      }
+    }, [isLoading]);
 
    // Track when the hero AI card scrolls out of view — once past, stays hidden
    useEffect(() => {
