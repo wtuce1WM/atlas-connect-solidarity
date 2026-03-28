@@ -98,6 +98,33 @@ interface WebOnlyBusiness {
   pinterest_url: string | null;
   vimeo_url: string | null;
   video_1_url: string | null;
+  kp_regroupement: string | null;
+  kp_regroupement_2: string | null;
+  kp_active: boolean;
+  youtube_force_external: boolean;
+  main_category: string | null;
+}
+
+interface KpRelatedBusiness {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url: string | null;
+  images: string[] | null;
+  is_master: boolean;
+}
+interface Destination {
+  id: string;
+  name_fr: string;
+  name_en: string | null;
+  image_url: string | null;
+  images: string[] | null;
+}
+interface PoiBusiness {
+  id: string;
+  name: string;
+  images: string[] | null;
+  logo_url: string | null;
 }
 
 type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
