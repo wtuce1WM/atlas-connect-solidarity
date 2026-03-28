@@ -596,7 +596,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   const [flipbookDocs, setFlipbookDocs] = useState<DocEntry[]>([]);
   type ExternalLinkEntry = { id?: string; url: string; name: string; language: string; image_url: string };
   const [externalLinkDocs, setExternalLinkDocs] = useState<ExternalLinkEntry[]>([]);
-  type VideoDocEntry = { id?: string; url: string; name: string; poi_id: string | null; destination_id: string | null };
+  type VideoDocEntry = { id?: string; url: string; name: string; poi_id: string | null; destination_id: string | null; linked_business_id: string | null };
   const [videoDocs, setVideoDocs] = useState<VideoDocEntry[]>([]);
 
   // --- Menu summaries (multiple per business) ---
