@@ -339,6 +339,25 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   const hasContactCard = !!(business?.phone || business?.whatsapp || business?.email || business?.website || business?.address);
   const hasReviewsCard = avgOn20 !== null && avgOn20 > 0;
 
+  // Bottom carousel priority: YouTube > KP > Destinations > POI
+  const hasYoutubeBottomCarousel = !!(business?.youtube_url && business?.youtube_force_external && youtubeVideoCount !== 0);
+  const hasYoutubeReady = !!(youtubeVideoCount && youtubeVideoCount > 0);
+  const hasKpCarousel = kpRelated.length > 0;
+  const hasDestCarousel = destinations.length > 0;
+  const hasPoiCarousel = poiBusinesses.length > 0;
+
+  const activeBottomCarousel: "youtube" | "kp" | "dest" | "poi" | "none" =
+    (hasYoutubeBottomCarousel && hasYoutubeReady) ? "youtube" :
+    hasYoutubeBottomCarousel ? "youtube" :
+    hasKpCarousel ? "kp" :
+    hasDestCarousel ? "dest" :
+    hasPoiCarousel ? "poi" :
+    "none";
+
+  const noBottomCarousel = activeBottomCarousel === "none";
+
+  const destName = useCallback((d: Destination) => language === "en" && d.name_en ? d.name_en : d.name_fr, [language]);
+
   // Hook text for current language
   const hookText = useMemo(() => {
     if (!business) return null;
