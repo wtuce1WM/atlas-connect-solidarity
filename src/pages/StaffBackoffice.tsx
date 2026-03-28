@@ -48,6 +48,7 @@ const StaffBackoffice = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [gammes, setGammes] = useState<Gamme[]>([]);
+  const [priceCache, setPriceCache] = useState<PriceCacheEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [cityFilter, setCityFilter] = useState<string>("all");
