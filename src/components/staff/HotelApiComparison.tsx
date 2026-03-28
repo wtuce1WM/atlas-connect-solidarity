@@ -93,11 +93,13 @@ const OwmMatcher = ({
   serpHotelName,
   matchedBusiness,
   cachedPrice,
+  cachedPriceLite,
   onMatch,
 }: {
   serpHotelName: string;
   matchedBusiness: OwmBusiness | null;
   cachedPrice?: CachedPrice | null;
+  cachedPriceLite?: CachedPrice | null;
   onMatch: (biz: OwmBusiness | null) => void;
 }) => {
   const [editing, setEditing] = useState(false);
