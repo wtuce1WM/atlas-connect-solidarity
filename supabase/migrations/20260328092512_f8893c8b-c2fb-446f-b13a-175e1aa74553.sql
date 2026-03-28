@@ -1,0 +1,1 @@
+UPDATE businesses SET presentation_mode = 'reserver';
