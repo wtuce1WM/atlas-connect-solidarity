@@ -4907,6 +4907,16 @@ serve(async (req) => {
       }
     }
 
+    // ── Post-search city inference: if no city was detected but all results share the same city, infer it ──
+    if (!effectiveCity && businesses.length > 0 && businesses.length <= 50) {
+      const citiesInResults = new Set(businesses.map(b => b.city).filter(Boolean));
+      if (citiesInResults.size === 1) {
+        const inferredCity = [...citiesInResults][0]!;
+        effectiveCity = inferredCity;
+        console.log(`Post-search city inference: all ${businesses.length} results are in "${inferredCity}"`);
+      }
+    }
+
     const synonymWasUsed = matchedSynonymFilters.length > 0 || !!matchedSynonymBadgeId;
     // preciseMatch: true when the search was driven by a synonym or a detected service/keyword
     // This tells the frontend NOT to run the extra category fetch that would dilute precise results
