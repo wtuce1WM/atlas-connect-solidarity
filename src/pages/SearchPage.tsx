@@ -115,6 +115,7 @@ interface SearchResult {
   disambiguationType?: "needs_category" | "needs_city" | null;
   synonymUsed?: boolean;
   preciseMatch?: boolean;
+  exactNameMatchIsolation?: boolean;
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -1821,7 +1822,7 @@ const SearchPage = () => {
             // Also skip when results span multiple main_categories (cross-category service matches, e.g. "Céramique")
             const resultMainCategories = new Set(businesses.map(b => b.main_category).filter(Boolean));
             const isMultiCategoryResult = resultMainCategories.size > 1;
-            const shouldSkipAutoFilter = data.synonymUsed || data.intentSubcategoryConflict || isHeuristicFallbackWithPrecise || isHeuristicFallback || (data.preciseMatch && !safeDetectedSubcategory) || isMultiCategoryResult;
+            const shouldSkipAutoFilter = data.exactNameMatchIsolation || data.synonymUsed || data.intentSubcategoryConflict || isHeuristicFallbackWithPrecise || isHeuristicFallback || (data.preciseMatch && !safeDetectedSubcategory) || isMultiCategoryResult;
             setSelectedCategoryFilter(shouldSkipAutoFilter ? null : parentCategory);
             setSelectedSubcategoryFilter(shouldSkipAutoFilter ? null : finalDetectedSubcategory);
             // Auto-select detected service filter so the direct DB subcategory fetch

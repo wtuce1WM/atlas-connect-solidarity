@@ -4866,6 +4866,7 @@ serve(async (req) => {
     // ── Exact name match isolation: if query IS a business name, return only that business ──
     // This prevents "Baberrih Hotel" from returning all hotels just because "Hotel" is in search_vector
     // Excluded: city names and other generic terms that aren't business names
+    let exactNameMatchIsolation = false;
     if (query && businesses.length > 1) {
       const qNormIso = stripAccentsGlobal(query.trim().toLowerCase());
       const exactBusiness = businesses.find(b => stripAccentsGlobal(b.name.toLowerCase().trim()) === qNormIso);
@@ -4878,6 +4879,7 @@ serve(async (req) => {
         if (!isCityName && !isJustACity) {
           const beforeIso = businesses.length;
           businesses = [exactBusiness];
+          exactNameMatchIsolation = true;
           console.log(`🎯 Exact name match isolation: "${query}" → keeping only "${exactBusiness.name}" (was ${beforeIso} results)`);
         }
       }
@@ -4958,6 +4960,7 @@ serve(async (req) => {
       disambiguationType,
       synonymUsed: synonymWasUsed || undefined,
       preciseMatch: preciseMatch || undefined,
+      exactNameMatchIsolation: exactNameMatchIsolation || undefined,
     };
 
     // Async log to search_logs table (fire-and-forget, don't block response)
