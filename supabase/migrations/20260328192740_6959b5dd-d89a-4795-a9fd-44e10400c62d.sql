@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN manual_price_range text DEFAULT NULL;
