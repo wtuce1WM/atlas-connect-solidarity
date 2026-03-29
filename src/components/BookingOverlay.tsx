@@ -1,14 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useRef } from "react";
 import { X } from "lucide-react";
-import { useBlockedDomains, isDomainInSet } from "@/hooks/useBlockedDomains";
 
 interface BookingOverlayProps {
   bookingUrl: string;
   title?: string;
   onClose: () => void;
 }
-
-const IFRAME_LOAD_TIMEOUT_MS = 5000;
 
 const BookingOverlay = ({ bookingUrl, title, onClose }: BookingOverlayProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -36,7 +33,6 @@ const BookingOverlay = ({ bookingUrl, title, onClose }: BookingOverlayProps) => 
         sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
         allow="payment"
         title="Réservation"
-        onLoad={handleIframeLoad}
       />
     </div>
   );
