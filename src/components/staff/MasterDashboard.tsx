@@ -6,6 +6,7 @@ import {
   Search, BookOpen, Egg, Star, UserCheck, BarChart3, FlaskConical, Sparkles, Brain,
   AlertTriangle, CheckCircle2, XCircle, Loader2, ArrowRight,
 } from "lucide-react";
+import BatchThumbnailGenerator from "./BatchThumbnailGenerator";
 import { supabase } from "@/integrations/supabase/client";
 
 interface MasterDashboardProps {
@@ -207,6 +208,8 @@ const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
           </div>
         </CardContent>
       </Card>
+
+      <BatchThumbnailGenerator />
     </div>
   );
 };
