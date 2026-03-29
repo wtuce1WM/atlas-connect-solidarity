@@ -251,6 +251,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     setYoutubeIsPlaying(false);
     setShowYoutubeOverlay(false);
     setActiveVideoOverlay(null);
+    setVideoOverlayClosing(false);
     setShowPoiMapOverlay(false);
     setAvailabilityOverlayCtx(null);
     setFallbackPanelData(null);
