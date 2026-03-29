@@ -873,7 +873,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
         {/* Overlaid content — swipeable */}
         <div
-          className={`relative z-10 flex flex-col ${currentMedia?.kind === "video" ? "h-[calc(100%-3.5rem)] pointer-events-none" : "h-full"} p-4 pt-14 md:p-6 md:pt-16 lg:pt-6 ${cardsHidden ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+          className={`relative z-10 flex flex-col ${currentMedia?.kind === "video" ? "h-[calc(100%-3.5rem)] pointer-events-none" : "h-full"} p-4 pt-12 md:p-6 md:pt-16 lg:pt-6 ${cardsHidden ? "opacity-0 pointer-events-none" : "opacity-100"}`}
           style={{
             transform: isDragging
               ? `translateY(${dragOffsetY}px)`
@@ -1147,7 +1147,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           {/* Videos carousel — only when videos wins priority */}
           {activeBottomCarousel === "videos" && (
             <>
-            <div className="flex justify-center mt-6 mb-1.5 pointer-events-auto">
+            <div className="flex justify-center mt-3 md:mt-6 mb-1.5 pointer-events-auto">
               <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                 {language === "en" ? "Our offers" : "Nos offres"}
               </h3>
@@ -1240,7 +1240,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           {/* Destinations — only when dest wins priority */}
           {activeBottomCarousel === "dest" && (
             <>
-            <div className="flex justify-center mt-6 mb-1.5 pointer-events-auto">
+            <div className="flex justify-center mt-3 md:mt-6 mb-1.5 pointer-events-auto">
               <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                 {`${business.name} vous emmène à :`}
               </h3>
@@ -1279,7 +1279,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           {/* POI — only when poi wins priority */}
           {activeBottomCarousel === "poi" && (
             <>
-            <div className="flex justify-center mt-6 mb-1.5 pointer-events-auto">
+            <div className="flex justify-center mt-3 md:mt-6 mb-1.5 pointer-events-auto">
               <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                 {language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité"}
               </h3>
@@ -1318,7 +1318,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           {/* KP Related Establishments carousel — highest priority */}
           {activeBottomCarousel === "kp" && (
             <>
-            <div className="flex justify-center mt-4 mb-1.5 pointer-events-auto">
+            <div className="flex justify-center mt-3 md:mt-4 mb-1.5 pointer-events-auto">
               <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                 {language === "en" ? "Other establishments" : "Autres établissements"}
               </h3>
