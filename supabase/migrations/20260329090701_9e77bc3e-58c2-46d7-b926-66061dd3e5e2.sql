@@ -1,0 +1,1 @@
+ALTER TABLE public.business_documents ADD COLUMN IF NOT EXISTS price text;
