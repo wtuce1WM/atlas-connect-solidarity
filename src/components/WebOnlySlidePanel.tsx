@@ -197,6 +197,18 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const iframeSrcRef = useRef<string>("");
 
+  // Neutralize background media when overlays are open
+  useEffect(() => {
+    const overlayOpen = !!selectedDestinationId || !!selectedPoiBusinessId || !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic || showPoiMapOverlay;
+    if (overlayOpen) {
+      if (videoRef.current) { videoRef.current.pause(); videoRef.current.muted = true; }
+      if (iframeRef.current) { iframeSrcRef.current = iframeRef.current.src; iframeRef.current.src = ""; }
+    } else {
+      if (videoRef.current) { videoRef.current.muted = false; videoRef.current.play().catch(() => {}); }
+      if (iframeRef.current && iframeSrcRef.current) { iframeRef.current.src = iframeSrcRef.current; }
+    }
+  }, [selectedDestinationId, selectedPoiBusinessId, docOverlay, showBookingOverlay, showYoutubeOverlay, showMosaic, showPoiMapOverlay]);
+
   // Fetch all data in parallel
   useEffect(() => {
     const fetchData = async () => {
