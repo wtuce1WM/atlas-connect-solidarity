@@ -357,7 +357,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [totalMedia]);
 
-  const videoInfo = currentMedia?.kind === "video" ? getVideoEmbed(currentMedia.url, window.location.origin, { background: true }) : null;
+  const videoInfo = currentMedia?.kind === "video" ? getVideoEmbed(currentMedia.url, window.location.origin, { background: false }) : null;
 
   const [isFileVideoVertical, setIsFileVideoVertical] = useState(false);
   const isVerticalVideo = videoInfo ? (videoInfo.type === "file" ? isFileVideoVertical : videoInfo.isVertical) : false;
@@ -508,7 +508,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       <div className="absolute inset-0 z-0">
         {currentMedia?.kind === "video" ? (
           videoInfo?.type === "file" ? (
-            <video
+             <video
               ref={videoRef}
               key={currentMedia.url}
               src={currentMedia.url}
@@ -517,6 +517,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               loop
               playsInline
               muted
+              controls
               onPlay={() => {
                 if (videoRef.current) {
                   const currentSrc = videoRef.current.currentSrc || videoRef.current.src || null;
@@ -541,8 +542,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               {videoInfo?.type === "youtube" && !isVerticalVideo && (
                 <>
                   <div className="absolute inset-x-0 top-0 h-16 bg-black z-10" />
-                  <div className="absolute right-0 bottom-[36px] w-[280px] h-[54px] bg-gradient-to-l from-black via-black to-transparent z-10 pointer-events-none" />
-                  <div className="absolute left-0 bottom-[44px] w-[8px] h-[24px] bg-black z-10 pointer-events-none" />
                 </>
               )}
               <iframe
@@ -551,9 +550,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 src={videoInfo?.embedUrl}
                 className={videoInfo?.type === "youtube"
                   ? isVerticalVideo
-                    ? "w-full h-full pointer-events-none"
-                    : "w-full h-[calc(100%+80px)] -mt-16 -mb-[46px] pointer-events-none"
-                  : "w-full h-full pointer-events-none"}
+                    ? "w-full h-full"
+                    : "w-full h-[calc(100%+40px)] -mt-16"
+                  : "w-full h-full"}
                 allow="autoplay; encrypted-media"
                 allowFullScreen
                 frameBorder="0"
