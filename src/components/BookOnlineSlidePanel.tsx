@@ -382,7 +382,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         if (poiIds.length > 0) {
           const { data: poiData } = await supabase
             .from("businesses")
-            .select("id, name, images, logo_url")
+            .select("id, name, images, logo_url, latitude, longitude, city, neighborhood")
             .in("id", poiIds)
             .eq("is_active", true);
           setPoiBusinesses((poiData || []) as PoiBusiness[]);
