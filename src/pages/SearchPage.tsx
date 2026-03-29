@@ -3972,16 +3972,12 @@ const SearchPage = () => {
                   const avgOn20 = computeWeightedRatingOn20(sources);
                   const totalReviews = sources.reduce((s, r) => s + r.count, 0);
                   const subcat = business.categories?.[0] || null;
-                   const mode = (business as any).presentation_mode || "standard";
-                   const isWebOnly = mode === "acheter";
-                   const isBookOnline = mode === "reserver";
-                   const forceFlag = isBookOnline ? undefined : (isWebOnly ? true : undefined);
 
                    const card = (
                      <div
                        key={business.id}
                        data-result-card={index === 0 ? "true" : undefined}
-                       onClick={() => openCompactPanel({ id: business.id, name: business.name } as AIBusinessData, forceFlag)}
+                       onClick={() => openCompactPanel({ id: business.id, name: business.name } as AIBusinessData)}
                       onMouseEnter={() => setHoveredResultId(business.id)}
                       onMouseLeave={() => setHoveredResultId(null)}
                       className="group overflow-hidden rounded-xl border border-border shadow-sm hover:shadow-md transition-all cursor-pointer relative aspect-square bg-muted"
