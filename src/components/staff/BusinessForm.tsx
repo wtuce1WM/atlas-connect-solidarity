@@ -3386,12 +3386,12 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                         onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === videoDescDialogIdx ? { ...d, price: e.target.value || null } : d))}
                         className="h-8 text-sm w-[260px]"
                       />
-                      <Select value={videoDocs[videoDescDialogIdx]?.price_type || ""} onValueChange={(val) => setVideoDocs(prev => prev.map((d, i) => i === videoDescDialogIdx ? { ...d, price_type: val || null } : d))}>
+                      <Select value={videoDocs[videoDescDialogIdx]?.price_type || "__empty__"} onValueChange={(val) => setVideoDocs(prev => prev.map((d, i) => i === videoDescDialogIdx ? { ...d, price_type: val === "__empty__" ? null : val } : d))}>
                         <SelectTrigger className="h-8 text-sm w-[140px]">
                           <SelectValue placeholder="Type" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">—</SelectItem>
+                          <SelectItem value="__empty__">—</SelectItem>
                           <SelectItem value="location">Location</SelectItem>
                           <SelectItem value="vente">Vente</SelectItem>
                         </SelectContent>
