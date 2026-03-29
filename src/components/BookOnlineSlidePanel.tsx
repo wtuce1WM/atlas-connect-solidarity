@@ -1525,6 +1525,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   className="w-full h-full object-contain"
                   autoPlay
                   controls
+                  loop
                   playsInline
                 />
               ) : null}
