@@ -1166,7 +1166,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       ) : vimeoThumb ? (
                         <img src={vimeoThumb} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
                       ) : isFile ? (
-                        <video src={vid.url} muted preload="metadata" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover pointer-events-none" />
+                        <VideoThumbnail src={vid.url} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
                       ) : (
                         <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
                           <span className="text-2xl">▶</span>
