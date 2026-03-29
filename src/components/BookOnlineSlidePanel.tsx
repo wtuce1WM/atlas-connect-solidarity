@@ -1491,9 +1491,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         const vimeoMatch = vidUrl.match(/vimeo\.com\/(\d+)/);
         const isVerticalHint = /shorts\//.test(vidUrl);
         const embedUrl = ytMatch
-          ? `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1`
+          ? `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&mute=0&loop=1&playlist=${ytMatch[1]}&rel=0&modestbranding=1&playsinline=1`
           : vimeoMatch
-            ? `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=0`
+            ? `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=0&loop=1`
             : null;
         const isFile = !ytMatch && !vimeoMatch;
         return (
@@ -1525,6 +1525,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   className="w-full h-full object-contain"
                   autoPlay
                   controls
+                  loop
                   playsInline
                 />
               ) : null}
@@ -1532,9 +1533,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               {/* Description overlay on video */}
               {activeVideoOverlay.description && (
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 pt-10">
-                  <p className="text-sm text-white leading-relaxed" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                    {activeVideoOverlay.description}
-                  </p>
+                  <div className="text-sm text-white leading-relaxed" style={{ fontFamily: "'Josefin Sans', sans-serif" }} dangerouslySetInnerHTML={{ __html: activeVideoOverlay.description }} />
                 </div>
               )}
             </div>
