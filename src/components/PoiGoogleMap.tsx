@@ -1,5 +1,5 @@
 /// <reference types="@types/google.maps" />
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { Loader2, Maximize2, Minimize2 } from "lucide-react";
 
 export interface PoiMapItem {
