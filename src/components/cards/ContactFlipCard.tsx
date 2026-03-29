@@ -12,6 +12,7 @@ interface ContactFlipCardProps {
     whatsapp: string | null;
     email: string | null;
     website: string | null;
+    website_force_external?: boolean;
     latitude: number | null;
     longitude: number | null;
     is_open_24h: boolean;
@@ -27,6 +28,7 @@ interface ContactFlipCardProps {
   isHotel?: boolean;
   hasLiteApiMapping?: boolean;
   onCheckAvailability?: () => void;
+  onOpenWebsite?: (url: string) => void;
 }
 
 const ContactFlipCard = ({
