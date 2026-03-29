@@ -4166,8 +4166,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </div>
         </div>
 
-        {/* Web Only section — visible when presentation_mode is "acheter" or "reserver" */}
-        {((formData as any).presentation_mode === "acheter" || (formData as any).presentation_mode === "reserver") && business?.id ? (
+        {/* Web Only section — visible when presentation_mode is "acheter_en_ligne" or "reserver_en_ligne" */}
+        {((formData as any).presentation_mode === "acheter_en_ligne" || (formData as any).presentation_mode === "reserver_en_ligne") && business?.id ? (
           <WebOnlyEditor businessId={business.id} />
         ) : null}
 
