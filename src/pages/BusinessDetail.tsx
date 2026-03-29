@@ -485,11 +485,11 @@ const BusinessDetail = () => {
   if (business.google_rating && business.google_review_count) reviews.push({ rating: business.google_rating, count: business.google_review_count, url: business.google_reviews_url, label: 'Google' });
   if (business.tripadvisor_rating && business.tripadvisor_review_count) reviews.push({ rating: business.tripadvisor_rating, count: business.tripadvisor_review_count, url: business.tripadvisor_review_url || business.tripadvisor_url, label: 'TripAdvisor' });
   if (business.restaurant_guru_rating && business.restaurant_guru_review_count) reviews.push({ rating: business.restaurant_guru_rating, count: business.restaurant_guru_review_count, url: business.restaurant_guru_url, label: 'Restaurant Guru' });
-  const totalReviewCount = reviews.reduce((s, r) => s + r.count, 0);
+  const totalReviewCount = (business as any).total_review_count ?? reviews.reduce((s, r) => s + r.count, 0);
   const ratingSourcesForCalc = collectRatingSources(business);
   const computedOn20 = computeWeightedRatingOn20(ratingSourcesForCalc);
   const computedOn5 = computeWeightedRatingOn5(ratingSourcesForCalc);
-  const avgOn20 = business.rating ?? computedOn20;
+  const avgOn20 = (business as any).computed_rating ?? business.rating ?? computedOn20;
   const avgOn5 = business.rating ? Math.round(business.rating / 4 * 100) / 100 : computedOn5;
 
   const hasReviews = business.tripadvisor_review_url || business.restaurant_guru_url || business.google_reviews_url;
