@@ -1498,7 +1498,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             : null;
         const isFile = !ytMatch && !vimeoMatch;
         return (
-          <div className="absolute inset-0 z-[70] bg-black flex flex-col animate-slide-up-from-bottom overflow-hidden">
+          <div className="absolute inset-0 z-[70] bg-black animate-slide-up-from-bottom overflow-hidden">
             {/* Close button */}
             <div className="absolute top-3 right-3 z-20">
               <button
@@ -1509,8 +1509,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               </button>
             </div>
 
-            {/* Video area */}
-            <div className="flex-1 flex items-center justify-center relative min-h-0">
+            {/* Video — full overlay */}
+            <div className="absolute inset-0 flex items-center justify-center">
               {embedUrl ? (
                 <div className={`${isVerticalHint ? "h-full aspect-[9/16]" : "w-full h-full"}`}>
                   <iframe
@@ -1532,9 +1532,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               ) : null}
             </div>
 
-            {/* Description card — POI style, below video */}
+            {/* Description card — POI style, centered over video */}
             {(activeVideoOverlay.description || activeVideoOverlay.name) && (
-              <div className="shrink-0 p-3">
+              <div className="absolute left-3 right-3 top-1/2 -translate-y-1/2 z-10 pointer-events-auto">
                 <div className="rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white">
                   <div className="flex items-center gap-3">
                     <div className="min-w-0 flex-1">
