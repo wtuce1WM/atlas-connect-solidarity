@@ -3170,6 +3170,7 @@ const SearchPage = () => {
                     onClose={() => { setDestSelectedBusinessId(null); setDestPanelExpanded(false); }}
                     isExpanded={destPanelExpanded}
                     onToggleExpand={() => setDestPanelExpanded(prev => !prev)}
+                    forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
                   />
                 </div>
               </div>
