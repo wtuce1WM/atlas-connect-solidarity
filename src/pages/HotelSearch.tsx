@@ -61,7 +61,7 @@ const HotelSearch = () => {
   const [results, setResults] = useState<HotelResult[]>([]);
   const [searchDone, setSearchDone] = useState(false);
   const [selectedHotel, setSelectedHotel] = useState<HotelResult | null>(null);
-  const [slidePanelBusiness, setSlidePanelBusiness] = useState<{ id: string; liteApiData: LiteApiData } | null>(null);
+  const [slidePanelBusiness, setSlidePanelBusiness] = useState<{ id: string } | null>(null);
 
   // Default dates: tomorrow + day after
   const getDefaultDates = () => {
