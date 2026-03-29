@@ -128,6 +128,7 @@ const CategoryManagement = () => {
   
   const [businessesPopup, setBusinessesPopup] = useState<BusinessesPopup | null>(null);
   const [popupCityFilter, setPopupCityFilter] = useState<string>("all");
+  const [frontStructureOpen, setFrontStructureOpen] = useState(false);
 
   const openCategoryBusinesses = async (e: React.MouseEvent, categoryId: string, categoryName: string) => {
     e.stopPropagation();
