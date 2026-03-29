@@ -174,6 +174,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
   const [showPoiMapOverlay, setShowPoiMapOverlay] = useState(false);
+  const poiOpenedFromMapRef = useRef(false);
   const [reviewTexts, setReviewTexts] = useState<ReviewText[]>([]);
   const [externalLinks, setExternalLinks] = useState<ExternalLinkItem[]>([]);
   const [menuSummaries, setMenuSummaries] = useState<MenuSummary[]>([]);
