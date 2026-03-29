@@ -2860,44 +2860,8 @@ const SearchPage = () => {
         </div>
       </section>
 
-      {/* 🟠 STICKY 2 (City Bar) — COMMENTÉ */}
-      {false && availableCities.length > 1 && !queryHasExplicitCity && activeTab === "suggestions" && (
-        <div data-city-bar className="sticky z-[6] bg-white border-b border-border py-2 relative" style={{ top: `${stickyTops.cityBar}px` }}>
-          {/* <span className="absolute top-0 left-1 z-[60] bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🟠 STICKY 2</span> */}
-          <div className="mx-auto px-4 max-w-[80%]">
-            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-              <button
-                onClick={() => handleCityChange("all")}
-                className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold whitespace-nowrap transition-all ${
-                   selectedCity === "all"
-                     ? "bg-primary/20 border-primary text-primary shadow-sm"
-                     : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                 }`}
-               >
-                 <MapPin size={14} className={selectedCity === "all" ? "text-primary" : "text-muted-foreground"} />
-                 <span>{t.allCities}</span>
-              </button>
-              {availableCities.map((city) => {
-                const isSelected = selectedCity === city;
-                return (
-                  <button
-                    key={city}
-                    onClick={() => handleCityChange(isSelected ? "all" : city)}
-                    className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold whitespace-nowrap transition-all ${
-                       isSelected
-                         ? "bg-primary/20 border-primary text-primary shadow-sm"
-                         : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                     }`}
-                   >
-                     <MapPin size={14} className={isSelected ? "text-primary" : "text-muted-foreground"} />
-                     <span>{city}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
+
+
 
       {/* CityCategoryFilter (3b/3c) — DISABLED */}
       {false && activeTab === "suggestions" && allBusinesses.length > 0 && !isLoading && !detectedSubcategory && (
