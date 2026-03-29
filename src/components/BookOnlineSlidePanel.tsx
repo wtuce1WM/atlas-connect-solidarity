@@ -672,6 +672,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     return { fullUrl, forceExternal };
   }, [shopUrl, business?.online_shop_force_external]);
 
+  // CTA label based on presentation_mode
+  const ctaLabel = useMemo(() => {
+    const mode = business?.presentation_mode || 'acheter_en_ligne';
+    const labels: Record<string, { fr: string; en: string }> = {
+      acheter_en_ligne: { fr: 'Achetez en ligne', en: 'Shop Online' },
+      reserver_en_ligne: { fr: 'Réservez en ligne', en: 'Book Online' },
+      consulter_offre: { fr: 'Consultez notre offre', en: 'View Our Offer' },
+      plus_informations: { fr: "Plus d'informations", en: 'More Information' },
+    };
+    const pair = labels[mode] || labels.acheter_en_ligne;
+    return language === 'en' ? pair.en : pair.fr;
+  }, [business?.presentation_mode, language]);
+
   if (isLoading) {
     return (
       <div className="h-full overflow-y-auto bg-background p-6 space-y-6">
