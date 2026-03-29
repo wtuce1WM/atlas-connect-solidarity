@@ -237,7 +237,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
           {/* Flip card container */}
           <div className="flex-1 flex items-start justify-center overflow-hidden min-h-0" style={{ perspective: "1200px" }}>
             <div
-              className={`w-[95%] md:w-[90%] lg:w-[70%] relative ${flipped ? "h-[calc(100%-2rem)]" : "max-h-full"}`}
+              className={`w-[95%] md:w-[90%] lg:w-[85%] relative ${flipped ? "h-[calc(100%-2rem)]" : "max-h-full"}`}
               style={{
                 transformStyle: "preserve-3d",
                 transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
