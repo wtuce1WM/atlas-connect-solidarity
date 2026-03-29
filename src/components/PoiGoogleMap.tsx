@@ -133,6 +133,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       this.iconSvg = iconSvg;
       this.highlighted = highlighted;
       this.customColor = customColor;
+      this.highlightColor = highlightColor;
       this._onClick = onClick;
       this._onMouseOver = onMouseOver;
       this._onMouseOut = onMouseOut;
