@@ -336,7 +336,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
                     <ChevronLeft className="h-4 w-4" />
                   </button>
                   <h3 className="text-sm font-semibold truncate">
-                    {language === "en" ? "Nearby businesses" : "Établissements à proximité"}
+                    {language === "en" ? "Nearby" : "À proximité"}
                   </h3>
                 </div>
                 {/* Map */}
