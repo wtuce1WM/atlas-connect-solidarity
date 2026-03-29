@@ -395,6 +395,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
           }, 300);
         },
         poi.markerColor,
+        highlightColor,
       );
 
       overlaysRef.current.set(poi.id, overlay);
