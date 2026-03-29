@@ -1142,9 +1142,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
                 <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
                 {videoDocs.map((vid, index) => {
-                  const embed = getVideoEmbed(vid.url);
-                  const thumbnail = embed?.thumbnail || null;
-                  return (
+                  const ytMatch = vid.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
+                  const vimeoMatch = vid.url.match(/vimeo\.com\/(\d+)/);
+                  const thumbnail = ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : vimeoMatch ? `https://vumbnail.com/${vimeoMatch[1]}.jpg` : null;
                     <div
                       key={`vid-${index}`}
                       className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
