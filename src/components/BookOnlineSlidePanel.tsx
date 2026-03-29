@@ -182,7 +182,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [menuSummaries, setMenuSummaries] = useState<MenuSummary[]>([]);
   const [menuDocs, setMenuDocs] = useState<MenuDoc[]>([]);
   const [videoDocUrls, setVideoDocUrls] = useState<string[]>([]);
-  const [videoDocs, setVideoDocs] = useState<{ url: string; name: string | null }[]>([]);
+  const [videoDocs, setVideoDocs] = useState<{ url: string; name: string | null; city: string | null; price: string | null; price_type: string | null }[]>([]);
   const [categoryIcon, setCategoryIcon] = useState<string | null>(null);
   
   const [kpRelated, setKpRelated] = useState<KpRelatedBusiness[]>([]);
@@ -326,7 +326,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           .order("sort_order"),
         supabase
           .from("business_documents")
-          .select("url, name")
+          .select("url, name, city, price, price_type")
           .eq("business_id", businessId)
           .eq("type", "video")
           .order("sort_order"),
@@ -339,7 +339,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       setReviewTexts(reviewsRes.data ? (reviewsRes.data as any[]) : []);
       setExternalLinks((extLinksRes.data || []) as ExternalLinkItem[]);
       setMenuSummaries((menuSumRes.data || []) as MenuSummary[]);
-      const vDocs = (videoDocsRes.data || []) as { url: string; name: string | null }[];
+      const vDocs = (videoDocsRes.data || []) as { url: string; name: string | null; city: string | null; price: string | null; price_type: string | null }[];
       setVideoDocUrls(vDocs.map(d => d.url).filter(Boolean));
       setVideoDocs(vDocs.filter(d => d.url));
 
@@ -1173,9 +1173,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                           <span className="text-2xl">▶</span>
                         </div>
                       )}
-                      <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
-                        {vid.name || `Vidéo ${index + 1}`}
-                      </p>
+                      <div className="px-1.5 py-1.5 space-y-0.5">
+                        <p className="text-xs font-medium text-white text-center truncate">
+                          {vid.name || `Vidéo ${index + 1}`}
+                        </p>
+                        {(vid.city || vid.price || vid.price_type) && (
+                          <div className="flex items-center justify-center gap-1 text-[10px] text-white/70 truncate">
+                            {vid.city && <span>{vid.city}</span>}
+                            {vid.city && (vid.price || vid.price_type) && <span>·</span>}
+                            {vid.price && <span>{vid.price}</span>}
+                            {vid.price_type && <span className="capitalize">{vid.price_type}</span>}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
