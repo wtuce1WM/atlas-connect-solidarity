@@ -2602,6 +2602,7 @@ const SearchPage = () => {
                   onClose={() => { setOverlaySelectedBusiness(null); setIsOverlayPanelExpanded(false); }}
                   isExpanded={isOverlayPanelExpanded}
                   onToggleExpand={() => setIsOverlayPanelExpanded(prev => !prev)}
+                  forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
                 />
               </div>
             </div>
@@ -2992,6 +2993,7 @@ const SearchPage = () => {
                   onClose={() => { setPoiSelectedBusinessId(null); setPoiPanelExpanded(false); }}
                   isExpanded={poiPanelExpanded}
                   onToggleExpand={() => setPoiPanelExpanded(v => !v)}
+                  forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
                 />
               </div>
             )}
@@ -3168,6 +3170,7 @@ const SearchPage = () => {
                     onClose={() => { setDestSelectedBusinessId(null); setDestPanelExpanded(false); }}
                     isExpanded={destPanelExpanded}
                     onToggleExpand={() => setDestPanelExpanded(prev => !prev)}
+                    forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
                   />
                 </div>
               </div>
@@ -4082,6 +4085,7 @@ const SearchPage = () => {
                 isExpanded={isCompactPanelExpanded}
                 onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
                 externalOverlayActive={showAiPopup}
+                forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
               />
             </div>
           </div>

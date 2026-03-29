@@ -48,11 +48,13 @@ interface BookOnlineSlidePanelProps {
   isExpanded?: boolean;
   onToggleExpand?: () => void;
   externalOverlayActive?: boolean;
+  /** When true, mute all background media (e.g. during voice search) */
+  forceMuted?: boolean;
 }
 
 type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string };
 
-const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand, externalOverlayActive }: BookOnlineSlidePanelProps) => {
+const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand, externalOverlayActive, forceMuted }: BookOnlineSlidePanelProps) => {
   const [activeBusinessId, setActiveBusinessId] = useState(propBusinessId);
   useEffect(() => { setActiveBusinessId(propBusinessId); }, [propBusinessId]);
   const businessId = activeBusinessId;
@@ -160,6 +162,23 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     overlayWasOpenRef.current = false;
     iframeSrcRef.current = "";
   }, [businessId]);
+
+  // Force-mute background media when parent requests it (e.g. voice search active)
+  useEffect(() => {
+    if (forceMuted) {
+      if (videoRef.current) videoRef.current.muted = true;
+      if (iframeRef.current) {
+        iframeSrcRef.current = iframeRef.current.src;
+        iframeRef.current.src = "";
+      }
+    } else if (!forceMuted && iframeRef.current && !iframeRef.current.src && iframeSrcRef.current) {
+      // Restore iframe when force mute ends
+      const restoredMutedSrc = iframeSrcRef.current
+        .replace(/([?&])mute=\d/i, "$1mute=1")
+        .replace(/([?&])controls=\d/i, "$1controls=0");
+      iframeRef.current.src = restoredMutedSrc;
+    }
+  }, [forceMuted]);
 
   // Pause/resume background media when overlays open/close
   useEffect(() => {
