@@ -1173,9 +1173,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                           <span className="text-2xl">▶</span>
                         </div>
                       )}
-                      <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
-                        {vid.name || `Vidéo ${index + 1}`}
-                      </p>
+                      <div className="px-1.5 py-1.5 space-y-0.5">
+                        <p className="text-xs font-medium text-white text-center truncate">
+                          {vid.name || `Vidéo ${index + 1}`}
+                        </p>
+                        {(vid.city || vid.price || vid.price_type) && (
+                          <div className="flex items-center justify-center gap-1 text-[10px] text-white/70 truncate">
+                            {vid.city && <span>{vid.city}</span>}
+                            {vid.city && (vid.price || vid.price_type) && <span>·</span>}
+                            {vid.price && <span>{vid.price}</span>}
+                            {vid.price_type && <span className="capitalize">{vid.price_type}</span>}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
