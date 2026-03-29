@@ -152,6 +152,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [poiBusinesses, setPoiBusinesses] = useState<PoiBusiness[]>([]);
   const [kpRelated, setKpRelated] = useState<KpRelatedBusiness[]>([]);
+  const [isKp1Only, setIsKp1Only] = useState(false);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
   const [youtubeVideoCount, setYoutubeVideoCount] = useState<number | null>(null);
