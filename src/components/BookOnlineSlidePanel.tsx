@@ -1252,7 +1252,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
       {/* POI Google Map overlay */}
       {showPoiMapOverlay && (
-        <div className="absolute inset-0 z-[60] bg-background flex flex-col animate-slide-in-right">
+        <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[60] bg-background flex flex-col animate-slide-in-right">
           <div className="shrink-0 flex items-center px-4 py-2 border-b bg-background gap-2">
             <button
               onClick={() => setShowPoiMapOverlay(false)}
