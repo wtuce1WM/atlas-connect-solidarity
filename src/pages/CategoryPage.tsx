@@ -52,12 +52,8 @@ interface Business {
   is_open_24h: boolean;
   rating: number | null;
   gamme_id: string | null;
-  google_rating: number | null;
-  google_review_count: number | null;
-  tripadvisor_rating: number | null;
-  tripadvisor_review_count: number | null;
-  restaurant_guru_rating: number | null;
-  restaurant_guru_review_count: number | null;
+  computed_rating?: number | null;
+  total_review_count?: number | null;
 }
 
 // Gamme interface is imported from BusinessCard
