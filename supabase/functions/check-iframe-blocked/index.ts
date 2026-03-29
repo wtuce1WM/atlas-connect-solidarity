@@ -158,7 +158,6 @@ Deno.serve(async (req) => {
     }
 
     // Deactivate domains that are no longer blocked
-    let autoUnforcedCount = 0;
     if (unblockedDomains.length > 0) {
       const { error: deactivateError } = await supabase
         .from("blocked_domains")
@@ -170,78 +169,6 @@ Deno.serve(async (req) => {
       } else {
         console.log(`Deactivated ${unblockedDomains.length} previously blocked domains`);
       }
-
-      // Auto-reset reserve_now_force_external for businesses whose booking domains are now unblocked
-      const unblockedSet = new Set(unblockedDomains);
-      const { data: forcedBiz } = await supabase
-        .from("businesses")
-        .select("id, reserve_now_url, booking_url, other_booking_url")
-        .eq("is_active", true)
-        .eq("reserve_now_force_external", true);
-
-      if (forcedBiz) {
-        const toUnforce: string[] = [];
-        for (const b of forcedBiz) {
-          const urls = [b.reserve_now_url, b.booking_url, b.other_booking_url].filter(Boolean);
-          const allUnblocked = urls.length > 0 && urls.every((u: string) => {
-            try { return unblockedSet.has(new URL(u).hostname); } catch { return false; }
-          });
-          if (allUnblocked) toUnforce.push(b.id);
-        }
-
-        if (toUnforce.length > 0) {
-          for (let i = 0; i < toUnforce.length; i += 50) {
-            const batch = toUnforce.slice(i, i + 50);
-            await supabase
-              .from("businesses")
-              .update({ reserve_now_force_external: false, updated_at: new Date().toISOString() })
-              .in("id", batch);
-          }
-          autoUnforcedCount = toUnforce.length;
-          console.log(`Auto-reset reserve_now_force_external=false for ${autoUnforcedCount} businesses`);
-        }
-      }
-    }
-
-    // Auto-set reserve_now_force_external for businesses with blocked booking domains
-    const blockedDomainSet = new Set(blockedResults.map((r: any) => r.domain));
-    let autoForcedCount = 0;
-
-    if (blockedDomainSet.size > 0) {
-      // Get all businesses with booking URLs
-      const bookingFields = "id, reserve_now_url, booking_url, other_booking_url, reserve_now_force_external";
-      const { data: allBiz } = await supabase
-        .from("businesses")
-        .select(bookingFields)
-        .eq("is_active", true);
-
-      if (allBiz) {
-        const toForce: string[] = [];
-        for (const b of allBiz) {
-          if (b.reserve_now_force_external) continue; // already forced
-          const urls = [b.reserve_now_url, b.booking_url, b.other_booking_url].filter(Boolean);
-          const hasBlocked = urls.some((u: string) => {
-            try { return blockedDomainSet.has(new URL(u).hostname); } catch { return false; }
-          });
-          if (hasBlocked) toForce.push(b.id);
-        }
-
-        if (toForce.length > 0) {
-          // Update in batches of 50
-          for (let i = 0; i < toForce.length; i += 50) {
-            const batch = toForce.slice(i, i + 50);
-            const { error: forceError } = await supabase
-              .from("businesses")
-              .update({ reserve_now_force_external: true, updated_at: new Date().toISOString() })
-              .in("id", batch);
-            if (forceError) {
-              console.error("Error forcing external for batch:", forceError);
-            }
-          }
-          autoForcedCount = toForce.length;
-          console.log(`Auto-set reserve_now_force_external=true for ${autoForcedCount} businesses`);
-        }
-      }
     }
 
     const blockedDomains = blockedResults;
@@ -249,11 +176,9 @@ Deno.serve(async (req) => {
       totalDomains: results.length,
       blockedDomains: blockedDomains.length,
       totalBusinessesAffected: blockedDomains.reduce((sum: number, r: any) => sum + r.businessCount, 0),
-      autoForcedExternal: autoForcedCount,
-      autoUnforcedExternal: autoUnforcedCount,
     };
 
-    console.log(`Done. ${summary.blockedDomains}/${summary.totalDomains} domains blocked. ${autoForcedCount} forced, ${autoUnforcedCount} unforced.`);
+    console.log(`Done. ${summary.blockedDomains}/${summary.totalDomains} domains blocked (informational only).`);
 
     return new Response(JSON.stringify({ summary, results }, null, 2), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
