@@ -1139,7 +1139,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             )}
             {/* Video controls — below CTAs */}
             {currentMedia?.kind === "video" && videoInfo?.type === "file" && (
-              <div className="flex items-center gap-10 mt-5 mb-6 md:mb-4 lg:mb-0 pb-2">
+              <div className="flex items-center gap-6 md:gap-10 mt-4 md:mt-5 mb-6 md:mb-4 lg:mb-0 pb-2">
                 <button
                   type="button"
                   onClick={() => {
@@ -1148,10 +1148,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       else videoRef.current.pause();
                     }
                   }}
-                  className="w-14 h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
                   aria-label={videoRef.current?.paused ? "Play" : "Pause"}
                 >
-                  {videoRef.current?.paused ? <Play className="h-6 w-6" /> : <Pause className="h-6 w-6" />}
+                  {videoRef.current?.paused ? <Play className="h-5 w-5 md:h-6 md:w-6" /> : <Pause className="h-5 w-5 md:h-6 md:w-6" />}
                 </button>
                 <button
                   type="button"
@@ -1160,10 +1160,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       videoRef.current.muted = !videoRef.current.muted;
                     }
                   }}
-                  className="w-14 h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
                   aria-label={videoRef.current?.muted ? "Unmute" : "Mute"}
                 >
-                  {videoRef.current?.muted ? <VolumeX className="h-6 w-6" /> : <Volume2 className="h-6 w-6" />}
+                  {videoRef.current?.muted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
                 </button>
               </div>
             )}
