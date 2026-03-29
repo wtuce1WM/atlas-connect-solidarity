@@ -2133,7 +2133,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           <div className="space-y-2">
             <Label>Présentation</Label>
             <Select
-              value={(formData as any).presentation_mode || "standard"}
+              value={(formData as any).presentation_mode || "acheter_en_ligne"}
               onValueChange={(value) => handleChange("presentation_mode", value)}
             >
               <SelectTrigger>
