@@ -508,7 +508,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       <div className="absolute inset-0 z-0">
         {currentMedia?.kind === "video" ? (
           videoInfo?.type === "file" ? (
-            <video
+             <video
               ref={videoRef}
               key={currentMedia.url}
               src={currentMedia.url}
@@ -517,6 +517,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               loop
               playsInline
               muted
+              controls
               onPlay={() => {
                 if (videoRef.current) {
                   const currentSrc = videoRef.current.currentSrc || videoRef.current.src || null;
