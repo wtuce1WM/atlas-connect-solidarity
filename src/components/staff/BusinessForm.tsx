@@ -3329,7 +3329,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 <span className="text-xs text-muted-foreground">{formData.show_videos ? "Activé" : "Désactivé"} — non utilisé sur le frontend actuellement</span>
               </div>
             </div>
-            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => [...prev, { url: "", name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null }])}>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => [...prev, { url: "", name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null }])}>
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
