@@ -1078,7 +1078,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         )}
 
         {/* CTAs + video controls */}
-        <div className={`shrink-0 py-2 pb-32 md:pb-24 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto ${noBottomCarousel ? 'mt-auto' : ''}`}>
+        <div className={`shrink-0 py-2 pb-36 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto ${noBottomCarousel ? 'mt-auto' : ''}`}>
             {bookingCta && (
               bookingCta.forceExternal ? (
                 <a
