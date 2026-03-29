@@ -261,7 +261,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const iframeSrcRef = useRef<string>("");
 
   useEffect(() => {
-    const overlayOpen = !!selectedDestinationId || !!selectedPoiBusinessId || !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic || !!externalOverlayActive || showPoiMapOverlay;
+    const overlayOpen = !!selectedDestinationId || !!selectedPoiBusinessId || !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic || !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay;
     if (overlayOpen) {
       if (videoRef.current) {
         videoRef.current.pause();
