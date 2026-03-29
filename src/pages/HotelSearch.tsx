@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Search, Hotel, Star, MapPin, Calendar, Users, BedDouble } from "lucide-react";
 import { toast } from "sonner";
 import HotelDetailDialog, { type HotelResult } from "@/components/HotelDetailDialog";
-import BusinessSlidePanel, { type LiteApiData } from "@/components/BusinessSlidePanel";
+import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 import { useSEO } from "@/hooks/useSEO";
 
 // HotelOffer type is now in HotelDetailDialog
@@ -61,7 +61,7 @@ const HotelSearch = () => {
   const [results, setResults] = useState<HotelResult[]>([]);
   const [searchDone, setSearchDone] = useState(false);
   const [selectedHotel, setSelectedHotel] = useState<HotelResult | null>(null);
-  const [slidePanelBusiness, setSlidePanelBusiness] = useState<{ id: string; liteApiData: LiteApiData } | null>(null);
+  const [slidePanelBusiness, setSlidePanelBusiness] = useState<{ id: string } | null>(null);
 
   // Default dates: tomorrow + day after
   const getDefaultDates = () => {
@@ -482,17 +482,7 @@ const HotelSearch = () => {
               paymentType: o.policies?.paymentType,
             }));
             const h = hotelResult.hotel;
-            setSlidePanelBusiness({
-              id: businessId,
-              liteApiData: {
-                offers,
-                rating: h.guestRating,
-                reviewCount: h.reviewCount,
-                checkIn: ci,
-                checkOut: co,
-                hotelName: h.name,
-              },
-            });
+            setSlidePanelBusiness({ id: businessId });
             setSelectedHotel(null);
           }}
         />
@@ -501,10 +491,9 @@ const HotelSearch = () => {
           <div className="fixed inset-0 z-50 flex justify-end">
             <div className="absolute inset-0 bg-black/40" onClick={() => setSlidePanelBusiness(null)} />
             <div className="relative w-full max-w-md h-full">
-              <BusinessSlidePanel
+              <BookOnlineSlidePanel
                 businessId={slidePanelBusiness.id}
                 onClose={() => setSlidePanelBusiness(null)}
-                liteApiData={slidePanelBusiness.liteApiData}
               />
             </div>
           </div>

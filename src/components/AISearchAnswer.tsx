@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
-import BusinessSlidePanel from "@/components/BusinessSlidePanel";
+import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 
 interface BusinessData {
   id: string;
@@ -595,7 +595,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
           </div>
 
           <div className="flex-1 min-h-0">
-            <BusinessSlidePanel
+            <BookOnlineSlidePanel
               businessId={selectedBusiness!.id}
               onClose={() => { setSelectedBusiness(null); setIsPanelExpanded(false); }}
               isExpanded={isPanelExpanded}

@@ -37,8 +37,6 @@ import DestinationSection, { type DestinationItem } from "@/components/Destinati
 import DestinationBusinessesPanel from "@/components/DestinationBusinessesPanel";
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
 import AISearchAnswer, { parseInline, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
-import BusinessSlidePanel, { type BusinessSlidePanelHandle } from "@/components/BusinessSlidePanel";
-import WebOnlySlidePanel from "@/components/WebOnlySlidePanel";
 import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
@@ -724,47 +722,13 @@ const SearchPage = () => {
     const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
       const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
-      const [isCompactPanelWebOnly, setIsCompactPanelWebOnly] = useState(false);
-      const [isCompactPanelBookOnline, setIsCompactPanelBookOnline] = useState(false);
 
-      const openCompactPanel = useCallback(async (bizOrData: AIBusinessData | { id: string; name: string }, forceWebOnly?: boolean) => {
+      const openCompactPanel = useCallback((bizOrData: AIBusinessData | { id: string; name: string }) => {
         hasInteractedWithCompactPanelRef.current = true;
         const b = bizOrData as AIBusinessData;
         setCompactPanelBusiness(b);
         setIsCompactPanelExpanded(false);
-        if (forceWebOnly !== undefined) {
-          setIsCompactPanelWebOnly(forceWebOnly);
-          setIsCompactPanelBookOnline(false);
-        } else {
-          // Detect panel type from presentation_mode — check local data first
-          const found = allBusinesses.find(biz => biz.id === b.id);
-          const localMode = found ? (found as any).presentation_mode : (b as any).presentation_mode;
-          if (localMode && localMode !== "standard") {
-            setIsCompactPanelBookOnline(localMode === "reserver");
-            setIsCompactPanelWebOnly(localMode === "acheter");
-          } else if (!localMode || !found) {
-            // Fallback: fetch presentation_mode from DB
-            try {
-              const { data } = await supabase
-                .from("businesses")
-                .select("presentation_mode")
-                .eq("id", b.id)
-                .single();
-              const mode = data?.presentation_mode || "standard";
-              setIsCompactPanelBookOnline(mode === "reserver");
-              setIsCompactPanelWebOnly(mode === "acheter");
-            } catch {
-              setIsCompactPanelWebOnly(false);
-              setIsCompactPanelBookOnline(false);
-            }
-          } else {
-            setIsCompactPanelWebOnly(false);
-            setIsCompactPanelBookOnline(false);
-          }
-        }
-      }, [allBusinesses]);
-
-      const compactPanelRef = useRef<BusinessSlidePanelHandle>(null);
+      }, []);
 
       const closeCompactPanel = useCallback(() => {
         hasInteractedWithCompactPanelRef.current = true;
@@ -779,8 +743,6 @@ const SearchPage = () => {
           setIsCompactPanelExpanded(false);
           return;
         }
-        // Let BSP handle close internally (go back to fallback) if applicable
-        if (compactPanelRef.current?.requestClose()) return;
         closeCompactPanel();
       }, [closeCompactPanel, isCompactPanelExpanded]);
 
@@ -799,7 +761,6 @@ const SearchPage = () => {
       const [selectedDestination, setSelectedDestination] = useState<DestinationItem | null>(null);
       const [destSelectedBusinessId, setDestSelectedBusinessId] = useState<string | null>(null);
        const [destPanelExpanded, setDestPanelExpanded] = useState(false);
-       const [poiPanelMode, setPoiPanelMode] = useState<"bookonline" | "webonly">("webonly");
      const [allDestItems, setAllDestItems] = useState<DestinationItem[]>([]);
    const resetPanelStates = () => {
      setPoiSelectedBusinessId(null);
@@ -2806,12 +2767,11 @@ const SearchPage = () => {
                 toolbarRightId="overlay-slide-panel-toolbar"
               />
               <div className="flex-1 min-h-0">
-                <BusinessSlidePanel
+                <BookOnlineSlidePanel
                   businessId={overlaySelectedBusiness.id}
                   onClose={() => { setOverlaySelectedBusiness(null); setIsOverlayPanelExpanded(false); }}
                   isExpanded={isOverlayPanelExpanded}
                   onToggleExpand={() => setIsOverlayPanelExpanded(prev => !prev)}
-                  leftPanelPortalRef={overlayLeftPanelRef}
                 />
               </div>
             </div>
@@ -3286,12 +3246,8 @@ const SearchPage = () => {
                 <PoiSection
                   city={poiCity}
                   language={language}
-                   onBusinessClick={async (bizId) => {
+                   onBusinessClick={(bizId) => {
                      setPoiMapBusiness(null);
-                     try {
-                       const { data } = await supabase.from("businesses").select("presentation_mode").eq("id", bizId).single();
-                        setPoiPanelMode(data?.presentation_mode === "reserver" ? "bookonline" : "webonly");
-                      } catch { setPoiPanelMode("webonly"); }
                      setPoiSelectedBusinessId(bizId);
                    }}
                   columns={hasKnownLocation ? 2 : undefined}
@@ -3335,21 +3291,12 @@ const SearchPage = () => {
             )}
             {poiSelectedBusinessId && (
               <div className={`fixed top-0 left-0 right-0 bottom-0 z-40 bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:top-[53px] lg:left-auto lg:bottom-auto lg:border-l lg:border-border lg:transition-[width] lg:duration-300 lg:ease-out ${poiPanelExpanded ? "lg:w-full border-l-2 border-border shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "lg:w-1/2"}`} style={{ height: isSubDesktop ? undefined : "calc(100vh - 53px)" }}>
-                {poiPanelMode === "bookonline" ? (
-                  <BookOnlineSlidePanel
-                    businessId={poiSelectedBusinessId}
-                    onClose={() => { setPoiSelectedBusinessId(null); setPoiPanelExpanded(false); }}
-                    isExpanded={poiPanelExpanded}
-                    onToggleExpand={() => setPoiPanelExpanded(v => !v)}
-                  />
-                ) : (
-                  <WebOnlySlidePanel
-                    businessId={poiSelectedBusinessId}
-                    onClose={() => { setPoiSelectedBusinessId(null); setPoiPanelExpanded(false); }}
-                    isExpanded={poiPanelExpanded}
-                    onToggleExpand={() => setPoiPanelExpanded(v => !v)}
-                  />
-                )}
+                <BookOnlineSlidePanel
+                  businessId={poiSelectedBusinessId}
+                  onClose={() => { setPoiSelectedBusinessId(null); setPoiPanelExpanded(false); }}
+                  isExpanded={poiPanelExpanded}
+                  onToggleExpand={() => setPoiPanelExpanded(v => !v)}
+                />
               </div>
             )}
             {poiMapBusiness && (
@@ -3519,13 +3466,8 @@ const SearchPage = () => {
             )}
             {destSelectedBusinessId && (
               <div className={`fixed top-0 left-0 right-0 z-40 bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:top-[54px] lg:left-auto lg:border-l lg:border-border lg:transition-[width] lg:duration-300 lg:ease-out ${destPanelExpanded ? "lg:w-full" : "lg:w-1/2"}`} style={{ height: isSubDesktop ? "100vh" : "calc(100vh - 54px)" }}>
-                <SlidePanelHeader
-                  onClose={() => { setDestSelectedBusinessId(null); setDestPanelExpanded(false); }}
-                  isExpanded={destPanelExpanded}
-                  onToggleExpand={() => setDestPanelExpanded(prev => !prev)}
-                />
                 <div className="flex-1 min-h-0">
-                  <BusinessSlidePanel
+                  <BookOnlineSlidePanel
                     businessId={destSelectedBusinessId}
                     onClose={() => { setDestSelectedBusinessId(null); setDestPanelExpanded(false); }}
                     isExpanded={destPanelExpanded}
@@ -4030,16 +3972,12 @@ const SearchPage = () => {
                   const avgOn20 = computeWeightedRatingOn20(sources);
                   const totalReviews = sources.reduce((s, r) => s + r.count, 0);
                   const subcat = business.categories?.[0] || null;
-                   const mode = (business as any).presentation_mode || "standard";
-                   const isWebOnly = mode === "acheter";
-                   const isBookOnline = mode === "reserver";
-                   const forceFlag = isBookOnline ? undefined : (isWebOnly ? true : undefined);
 
                    const card = (
                      <div
                        key={business.id}
                        data-result-card={index === 0 ? "true" : undefined}
-                       onClick={() => openCompactPanel({ id: business.id, name: business.name } as AIBusinessData, forceFlag)}
+                       onClick={() => openCompactPanel({ id: business.id, name: business.name } as AIBusinessData)}
                       onMouseEnter={() => setHoveredResultId(business.id)}
                       onMouseLeave={() => setHoveredResultId(null)}
                       className="group overflow-hidden rounded-xl border border-border shadow-sm hover:shadow-md transition-all cursor-pointer relative aspect-square bg-muted"
@@ -4374,7 +4312,7 @@ const SearchPage = () => {
       )}
 
       {/* Floating Search Bar */}
-      <div className={`fixed bottom-0 bg-white border-t border-border pt-3 py-3 px-4 md:px-4 transition-transform duration-300 ${hasKnownLocation ? "left-0 w-1/2" : "left-0 right-0"} ${(isSubDesktop && ((isCompactPanelWebOnly || isCompactPanelBookOnline) && compactPanelBusiness)) || (isSubDesktop && showMobileMap) ? "translate-y-full" : ""} ${isCompactPanelExpanded ? "z-[190]" : "z-[210]"}`}>
+      <div className={`fixed bottom-0 bg-white border-t border-border pt-3 py-3 px-4 md:px-4 transition-transform duration-300 ${hasKnownLocation ? "left-0 w-1/2" : "left-0 right-0"} ${(isSubDesktop && compactPanelBusiness) || (isSubDesktop && showMobileMap) ? "translate-y-full" : ""} ${isCompactPanelExpanded ? "z-[190]" : "z-[210]"}`}>
         <div className="max-w-2xl mx-auto">
           <button
             type="button"
@@ -4726,39 +4664,23 @@ const SearchPage = () => {
 
           {/* Right panel — business detail */}
           <div
-            className={`fixed top-0 left-0 right-0 bottom-0 z-[201] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:top-[53px] lg:left-auto lg:bottom-auto lg:border-l lg:border-border lg:transition-[width] lg:duration-300 lg:ease-out ${isCompactPanelExpanded && !isCompactPanelWebOnly ? "lg:w-full border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "lg:w-1/2"}`}
+            className={`fixed top-0 left-0 right-0 bottom-0 z-[201] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:top-[53px] lg:left-auto lg:bottom-auto lg:border-l lg:border-border lg:transition-[width] lg:duration-300 lg:ease-out ${isCompactPanelExpanded ? "lg:w-full border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "lg:w-1/2"}`}
             style={{ height: isSubDesktop ? undefined : "calc(100vh - 53px)" }}
           >
             <SlidePanelHeader
               onClose={handleCompactPanelClose}
-              isExpanded={isCompactPanelWebOnly ? undefined : isCompactPanelExpanded}
+              isExpanded={isCompactPanelExpanded}
               onToggleExpand={undefined}
-              mobileTransparent={isCompactPanelBookOnline}
+              mobileTransparent
             />
-            <div className={`flex-1 min-h-0 ${isCompactPanelWebOnly ? "overflow-hidden" : ""}`}>
-              {isCompactPanelBookOnline && !isCompactPanelExpanded ? (
-                <BookOnlineSlidePanel
-                  businessId={compactPanelBusiness.id}
-                  onClose={closeCompactPanel}
-                  isExpanded={isCompactPanelExpanded}
-                  onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
-                  externalOverlayActive={showAiPopup}
-                />
-              ) : isCompactPanelWebOnly ? (
-                <WebOnlySlidePanel
-                  businessId={compactPanelBusiness.id}
-                  onClose={closeCompactPanel}
-                />
-              ) : (
-                <BusinessSlidePanel
-                  ref={compactPanelRef}
-                  businessId={compactPanelBusiness.id}
-                  onClose={closeCompactPanel}
-                  isExpanded={isCompactPanelExpanded}
-                  onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
-                  onImageCount={setCompactBusinessImageCount}
-                />
-              )}
+            <div className="flex-1 min-h-0">
+              <BookOnlineSlidePanel
+                businessId={compactPanelBusiness.id}
+                onClose={closeCompactPanel}
+                isExpanded={isCompactPanelExpanded}
+                onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
+                externalOverlayActive={showAiPopup}
+              />
             </div>
           </div>
         </>
