@@ -2791,40 +2791,8 @@ const SearchPage = () => {
       {/* Mobile-only: geo + time badges removed — geo button lives in sticky tab bars */}
 
       {/* Hero Section - DISABLED */}
-      {false && (
-      <section className={`bg-background relative ${(isCategoryFilterActive || hasReachedTabBar) ? 'hidden' : 'pt-6 lg:pt-28 pb-8 lg:pb-16'} ${isMobile && spokenText && filteredBusinesses.length > 0 ? 'hidden' : ''}`}>
-        <div className="mx-auto px-4 relative max-w-[80%]">
-          {(searchQuery || categoryFromUrl) && (
-            <div className="text-center mb-8">
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-2">
-                {searchQuery ? (
-                  <>{t.searchResults} {t.for}<br />«&nbsp;<span className="text-muted-foreground italic font-normal">{spokenText || searchQuery}</span>&nbsp;»</>
-                ) : (() => {
-                  const categoryLabels: Record<string, { fr: string; en: string; ar: string }> = {
-                    "Hôtellerie": { fr: "Hôtels", en: "Hotels", ar: "الفنادق" },
-                    "Restauration": { fr: "Restaurants", en: "Restaurants", ar: "المطاعم" },
-                    "Tourisme": { fr: "Activités & Tourisme", en: "Activities & Tourism", ar: "الأنشطة والسياحة" },
-                    "Commerce": { fr: "Commerce & Shopping", en: "Shopping", ar: "التسوق" },
-                    "Bien-être": { fr: "Bien-être & Spa", en: "Wellness & Spa", ar: "العافية والسبا" },
-                    "Santé": { fr: "Santé", en: "Health", ar: "الصحة" },
-                    "Culture": { fr: "Culture", en: "Culture", ar: "الثقافة" },
-                    "Transport": { fr: "Transport", en: "Transport", ar: "النقل" },
-                    "Sport & Loisirs": { fr: "Sport & Loisirs", en: "Sports & Leisure", ar: "الرياضة والترفيه" },
-                  };
-                  const label = categoryLabels[categoryFromUrl];
-                  const catName = label
-                    ? (language === "en" ? label.en : language === "ar" ? label.ar : label.fr)
-                    : categoryFromUrl;
-                  const prefix = language === "en" ? "Best" : language === "ar" ? "أفضل" : "Meilleurs";
-                  const suffix = language === "en" ? "in Morocco" : language === "ar" ? "في المغرب" : "au Maroc";
-                  return <><span className="text-gold">{prefix} {catName}</span> {suffix}</>;
-                })()}
-              </h1>
-            </div>
-          )}
-        </div>
-      </section>
-      )}
+
+
 
       {/* Tab Bar — stickybar 1 (above cities) */}
       <section data-tab-bar className="sticky top-[60px] z-[20] bg-white border-b border-border relative">
