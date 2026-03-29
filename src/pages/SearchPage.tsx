@@ -2863,43 +2863,8 @@ const SearchPage = () => {
 
 
 
-      {/* CityCategoryFilter (3b/3c) — DISABLED */}
-      {false && activeTab === "suggestions" && allBusinesses.length > 0 && !isLoading && !detectedSubcategory && (
-        <CityCategoryFilter
-          cityName={detectedCity || (selectedCity && selectedCity !== "all" ? selectedCity : null) || ""}
-          hasCityBar={availableCities.length > 1 && !queryHasExplicitCity}
-          stickyBaseTop={stickyTops.serviceBar}
-          selectedCategory={selectedCategoryFilter}
-          onSelectCategory={(cat) => {
-            setSelectedCategoryFilter(cat);
-            setSelectedSubcategoryFilter(null);
-            setSelectedServiceFilter(null);
-            requestAnimationFrame(() => {
-              const tabBar = document.querySelector('[data-tab-bar]');
-              if (tabBar) {
-                const y = tabBar.getBoundingClientRect().top + window.scrollY - 60;
-                window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
-              }
-            });
-          }}
-          selectedSubcategory={selectedSubcategoryFilter}
-          onSelectSubcategory={(sub) => {
-            setSelectedSubcategoryFilter(sub);
-            setSelectedServiceFilter(null);
-            requestAnimationFrame(() => {
-              const tabBar = document.querySelector('[data-tab-bar]');
-              if (tabBar) {
-                const y = tabBar.getBoundingClientRect().top + window.scrollY - 60;
-                window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
-              }
-            });
-          }}
-          selectedService={selectedServiceFilter}
-          onSelectService={(svc) => {
-            setSelectedServiceFilter(svc);
-          }}
-        />
-      )}
+
+
 
       {/* 🩵 STICKY 3d — Service Filter (shown when subcategory detected) — DISABLED in Résultats tab */}
       {/* {detectedSubcategory && searchServiceFilters.length >= 1 && !isLoading && activeTab === "suggestions" && (
