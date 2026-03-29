@@ -63,7 +63,7 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
 
       let query = supabase
         .from("businesses")
-        .select("id, name, city, neighborhood, images, rating, wtuce_status, categories, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count", { count: "exact" })
+        .select("id, name, city, neighborhood, images, rating, computed_rating, total_review_count, wtuce_status, categories", { count: "exact" })
         .eq("is_active", true)
         .contains("categories", [subcategory])
         .neq("id", currentBusinessId)
