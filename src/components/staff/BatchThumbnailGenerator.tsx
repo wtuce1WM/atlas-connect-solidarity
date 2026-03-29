@@ -117,20 +117,20 @@ const BatchThumbnailGenerator = () => {
     }
 
     let ok = 0, fail = 0;
+    const CONCURRENCY = 4;
 
-    for (const doc of docs) {
-      if (cancelRef.current) break;
-
+    const processOne = async (doc: { id: string; url: string }) => {
+      if (cancelRef.current) return;
       try {
         const blob = await generateVideoThumbnail(doc.url);
-        if (!blob) { fail++; setFailed(f => f + 1); setProcessed(p => p + 1); continue; }
+        if (!blob) { fail++; setFailed(f => f + 1); setProcessed(p => p + 1); return; }
 
         const thumbName = `thumbs/batch-${doc.id}-${Date.now()}.jpg`;
         const { error: upErr } = await supabase.storage
           .from("business-images")
           .upload(thumbName, blob, { cacheControl: "31536000", upsert: true, contentType: "image/jpeg" });
 
-        if (upErr) { fail++; setFailed(f => f + 1); setProcessed(p => p + 1); continue; }
+        if (upErr) { fail++; setFailed(f => f + 1); setProcessed(p => p + 1); return; }
 
         const { data: urlData } = supabase.storage.from("business-images").getPublicUrl(thumbName);
         if (urlData?.publicUrl) {
@@ -146,6 +146,13 @@ const BatchThumbnailGenerator = () => {
         setFailed(f => f + 1);
       }
       setProcessed(p => p + 1);
+    };
+
+    // Process in parallel batches
+    for (let i = 0; i < docs.length; i += CONCURRENCY) {
+      if (cancelRef.current) break;
+      const batch = docs.slice(i, i + CONCURRENCY);
+      await Promise.all(batch.map(processOne));
     }
 
     toast({
