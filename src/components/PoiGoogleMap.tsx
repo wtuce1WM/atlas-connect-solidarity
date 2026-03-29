@@ -107,6 +107,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     private name: string;
     private iconSvg: string;
     private highlighted: boolean;
+    private customColor?: { bg: string; fg: string; border: string };
     private _onClick?: () => void;
     private _onMouseOver?: () => void;
     private _onMouseOut?: () => void;
@@ -120,12 +121,14 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       onClick?: () => void,
       onMouseOver?: () => void,
       onMouseOut?: () => void,
+      customColor?: { bg: string; fg: string; border: string },
     ) {
       super();
       this.position = new gmaps.LatLng(position.lat, position.lng);
       this.name = name;
       this.iconSvg = iconSvg;
       this.highlighted = highlighted;
+      this.customColor = customColor;
       this._onClick = onClick;
       this._onMouseOver = onMouseOver;
       this._onMouseOut = onMouseOut;
