@@ -325,7 +325,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           .order("sort_order"),
         supabase
           .from("business_documents")
-          .select("url")
+          .select("url, name")
           .eq("business_id", businessId)
           .eq("type", "video")
           .order("sort_order"),
