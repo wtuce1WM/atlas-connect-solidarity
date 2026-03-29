@@ -1145,6 +1145,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   const ytMatch = vid.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
                   const vimeoMatch = vid.url.match(/vimeo\.com\/(\d+)/);
                   const thumbnail = ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : vimeoMatch ? `https://vumbnail.com/${vimeoMatch[1]}.jpg` : null;
+                  return (
                     <div
                       key={`vid-${index}`}
                       className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
