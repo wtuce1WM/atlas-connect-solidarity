@@ -2139,10 +2139,11 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-background z-50">
-                <SelectItem value="standard">Standard</SelectItem>
-                <SelectItem value="acheter">Acheter</SelectItem>
-                <SelectItem value="reserver">Réserver</SelectItem>
+               <SelectContent className="bg-background z-50">
+                <SelectItem value="acheter_en_ligne">Acheter en ligne</SelectItem>
+                <SelectItem value="reserver_en_ligne">Réserver en ligne</SelectItem>
+                <SelectItem value="consulter_offre">Consulter notre offre</SelectItem>
+                <SelectItem value="plus_informations">Plus d'informations</SelectItem>
               </SelectContent>
             </Select>
           </div>
