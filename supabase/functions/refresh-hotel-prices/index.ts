@@ -9,14 +9,14 @@ const corsHeaders = {
 const SERPAPI_BASE = "https://serpapi.com/search.json";
 const LITEAPI_BASE = "https://api.liteapi.travel/v3.0";
 
-function tomorrow() {
+function checkInDate() {
   const d = new Date();
-  d.setDate(d.getDate() + 1);
+  d.setDate(d.getDate() + 15);
   return d.toISOString().slice(0, 10);
 }
-function dayAfterTomorrow() {
+function checkOutDate() {
   const d = new Date();
-  d.setDate(d.getDate() + 2);
+  d.setDate(d.getDate() + 16);
   return d.toISOString().slice(0, 10);
 }
 
@@ -33,8 +33,8 @@ Deno.serve(async (req) => {
     const serpApiKey = Deno.env.get("SERPAPI_API_KEY");
     const liteApiKey = Deno.env.get("LITEAPI_API_KEY");
 
-    const checkIn = tomorrow();
-    const checkOut = dayAfterTomorrow();
+    const checkIn = checkInDate();
+    const checkOut = checkOutDate();
     const resultsMap = new Map<string, any>(); // key: business_id+source
     const errors: string[] = [];
 
