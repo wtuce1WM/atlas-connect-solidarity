@@ -1109,197 +1109,197 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       </div>
 
       {/* YouTube Overlay */}
-    {showYoutubeOverlay && (
-      <YouTubeOverlay
-        business={business}
-        activeVideo={activeYoutubeVideo}
-        onSelectVideo={setActiveYoutubeVideo}
-        onPlayingChange={setYoutubeIsPlaying}
-        onClose={() => { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); setYoutubeIsPlaying(false); }}
-      />
-    )}
-
-    {/* Video Document Overlay */}
-    {activeVideoOverlay && (
-      <VideoDocumentOverlay
-        activeVideo={activeVideoOverlay}
-        videoDocs={videoDocs}
-        closing={videoOverlayClosing}
-        onClose={() => setVideoOverlayClosing(true)}
-        onNavigate={(v) => setActiveVideoOverlay(v)}
-        onAnimationEnd={() => { setActiveVideoOverlay(null); setVideoOverlayClosing(false); }}
-      />
-    )}
-
-    {/* Booking Overlay */}
-    {showBookingOverlay && (bookingOverlayUrl || bookUrl) && (() => {
-      const overlayUrl = bookingOverlayUrl || bookUrl!;
-      const finalUrl = overlayUrl.startsWith("http") ? overlayUrl : `https://${overlayUrl}`;
-      return (
-        <BookingOverlay
-          bookingUrl={finalUrl}
-          title={bookingOverlayUrl ? bookingOverlayTitle : undefined}
-          onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); }}
+      {showYoutubeOverlay && (
+        <YouTubeOverlay
+          business={business}
+          activeVideo={activeYoutubeVideo}
+          onSelectVideo={setActiveYoutubeVideo}
+          onPlayingChange={setYoutubeIsPlaying}
+          onClose={() => { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); setYoutubeIsPlaying(false); }}
         />
-      );
-    })()}
+      )}
 
-    {/* Document Overlay */}
-    {docOverlay && (
-      <DocumentOverlay
-        url={docOverlay.url}
-        name={docOverlay.name}
-        type={docOverlay.type}
-        ts={docOverlay.ts}
-        onClose={() => setDocOverlay(null)}
-      />
-    )}
+      {/* Video Document Overlay */}
+      {activeVideoOverlay && (
+        <VideoDocumentOverlay
+          activeVideo={activeVideoOverlay}
+          videoDocs={videoDocs}
+          closing={videoOverlayClosing}
+          onClose={() => setVideoOverlayClosing(true)}
+          onNavigate={(v) => setActiveVideoOverlay(v)}
+          onAnimationEnd={() => { setActiveVideoOverlay(null); setVideoOverlayClosing(false); }}
+        />
+      )}
 
-    {/* Directions Overlay */}
-    {showDirections && business && (
-      <DirectionsOverlay
-        business={business}
-        onClose={() => setShowDirections(false)}
-      />
-    )}
+      {/* Booking Overlay */}
+      {showBookingOverlay && (bookingOverlayUrl || bookUrl) && (() => {
+        const overlayUrl = bookingOverlayUrl || bookUrl!;
+        const finalUrl = overlayUrl.startsWith("http") ? overlayUrl : `https://${overlayUrl}`;
+        return (
+          <BookingOverlay
+            bookingUrl={finalUrl}
+            title={bookingOverlayUrl ? bookingOverlayTitle : undefined}
+            onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); }}
+          />
+        );
+      })()}
 
-    {/* Destination detail overlay */}
-    {selectedDestinationId && (
-      <DestinationSlidePanel
-        destinationId={selectedDestinationId}
-        onClose={() => setSelectedDestinationId(null)}
-        slideFrom="bottom"
-      />
-    )}
+      {/* Document Overlay */}
+      {docOverlay && (
+        <DocumentOverlay
+          url={docOverlay.url}
+          name={docOverlay.name}
+          type={docOverlay.type}
+          ts={docOverlay.ts}
+          onClose={() => setDocOverlay(null)}
+        />
+      )}
 
-    {/* POI business detail overlay */}
-    {selectedPoiBusinessId && (
-      <div className={poiOpenedFromMapRef.current ? "absolute inset-0 z-[70]" : ""}>
-        <PoiSlidePanel
-          businessId={selectedPoiBusinessId}
-          onClose={() => {
-            setSelectedPoiBusinessId(null);
-            if (poiOpenedFromMapRef.current) {
-              poiOpenedFromMapRef.current = false;
-            }
-          }}
+      {/* Directions Overlay */}
+      {showDirections && business && (
+        <DirectionsOverlay
+          business={business}
+          onClose={() => setShowDirections(false)}
+        />
+      )}
+
+      {/* Destination detail overlay */}
+      {selectedDestinationId && (
+        <DestinationSlidePanel
+          destinationId={selectedDestinationId}
+          onClose={() => setSelectedDestinationId(null)}
           slideFrom="bottom"
         />
-      </div>
-    )}
+      )}
 
-    {/* POI Google Map overlay */}
-    {showPoiMapOverlay && (
-      <div className="absolute inset-0 z-[60] bg-background flex flex-col animate-slide-in-right">
-        <div className="shrink-0 flex items-center px-4 py-2 border-b bg-background gap-2">
-          <button
-            onClick={() => setShowPoiMapOverlay(false)}
-            className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
-            aria-label="Fermer"
-          >
-            <X className="h-4 w-4" />
-          </button>
-          <span className="text-sm font-medium truncate">
-            {language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité"}
-          </span>
-        </div>
-        <div className="flex-1 min-h-0">
-          <PoiGoogleMap
-            pois={[
-              ...(business?.latitude && business?.longitude ? [{
-                id: `self-${business.id}`,
-                name: business.name,
-                latitude: business.latitude,
-                longitude: business.longitude,
-                images: business.images,
-                city: business.city,
-                neighborhood: business.neighborhood,
-                markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
-              } as PoiMapItem] : []),
-              ...poiBusinesses.map(p => ({
-                id: p.id,
-                name: p.name,
-                latitude: p.latitude,
-                longitude: p.longitude,
-                images: p.images,
-                city: p.city,
-                neighborhood: p.neighborhood,
-              } as PoiMapItem)),
-            ]}
-            selectedPoiId={null}
-            onPoiClick={(poiId) => {
-              if (poiId.startsWith("self-")) return;
-              poiOpenedFromMapRef.current = true;
-              setSelectedPoiBusinessId(poiId);
+      {/* POI business detail overlay */}
+      {selectedPoiBusinessId && (
+        <div className={poiOpenedFromMapRef.current ? "absolute inset-0 z-[70]" : ""}>
+          <PoiSlidePanel
+            businessId={selectedPoiBusinessId}
+            onClose={() => {
+              setSelectedPoiBusinessId(null);
+              if (poiOpenedFromMapRef.current) {
+                poiOpenedFromMapRef.current = false;
+              }
             }}
-            fitToMarkers
+            slideFrom="bottom"
           />
         </div>
-      </div>
-    )}
+      )}
 
-    {/* Mosaic overlay */}
-    {showMosaic && (
-      <MosaicOverlay
-        mediaItems={mediaItems.filter(m => m.kind === "video" || m.kind === "image")}
-        onClose={() => setShowMosaic(false)}
-        onOpenLightbox={(idx) => { setLightboxIndex(idx); setIsLightboxOpen(true); }}
-      />
-    )}
+      {/* POI Google Map overlay */}
+      {showPoiMapOverlay && (
+        <div className="absolute inset-0 z-[60] bg-background flex flex-col animate-slide-in-right">
+          <div className="shrink-0 flex items-center px-4 py-2 border-b bg-background gap-2">
+            <button
+              onClick={() => setShowPoiMapOverlay(false)}
+              className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
+              aria-label="Fermer"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <span className="text-sm font-medium truncate">
+              {language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité"}
+            </span>
+          </div>
+          <div className="flex-1 min-h-0">
+            <PoiGoogleMap
+              pois={[
+                ...(business?.latitude && business?.longitude ? [{
+                  id: `self-${business.id}`,
+                  name: business.name,
+                  latitude: business.latitude,
+                  longitude: business.longitude,
+                  images: business.images,
+                  city: business.city,
+                  neighborhood: business.neighborhood,
+                  markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
+                } as PoiMapItem] : []),
+                ...poiBusinesses.map(p => ({
+                  id: p.id,
+                  name: p.name,
+                  latitude: p.latitude,
+                  longitude: p.longitude,
+                  images: p.images,
+                  city: p.city,
+                  neighborhood: p.neighborhood,
+                } as PoiMapItem)),
+              ]}
+              selectedPoiId={null}
+              onPoiClick={(poiId) => {
+                if (poiId.startsWith("self-")) return;
+                poiOpenedFromMapRef.current = true;
+                setSelectedPoiBusinessId(poiId);
+              }}
+              fitToMarkers
+            />
+          </div>
+        </div>
+      )}
 
-    {/* Fullscreen media lightbox */}
-    {isLightboxOpen && totalMedia > 0 && (
-      <FullscreenLightbox
-        items={lightboxItems}
-        currentIndex={lightboxIndex}
-        onIndexChange={setLightboxIndex}
-        onClose={() => setIsLightboxOpen(false)}
-      />
-    )}
+      {/* Mosaic overlay */}
+      {showMosaic && (
+        <MosaicOverlay
+          mediaItems={mediaItems.filter(m => m.kind === "video" || m.kind === "image")}
+          onClose={() => setShowMosaic(false)}
+          onOpenLightbox={(idx) => { setLightboxIndex(idx); setIsLightboxOpen(true); }}
+        />
+      )}
 
-    {/* Hotel Availability overlay */}
-    {availabilityOverlayCtx && (
-      <HotelAvailabilityOverlay
-        liteApiHotelId={availabilityOverlayCtx.liteApiHotelId}
-        businessName={availabilityOverlayCtx.businessName}
-        businessCity={availabilityOverlayCtx.businessCity}
-        backgroundImage={availabilityOverlayCtx.backgroundImage}
-        onClose={() => setAvailabilityOverlayCtx(null)}
-        onSelectBusiness={(id) => setActiveBusinessId(id)}
-        onOpenFallbackPanel={(data) => {
-          const isMobileOrTablet = typeof window !== "undefined" && window.innerWidth < 1024;
-          if (isMobileOrTablet) setShowTransitionOverlay(true);
-          setFallbackPanelData(data);
-          setSelectedFallbackHotelId(null);
-          setFallbackHiddenOnMobile(false);
-          setAvailabilityOverlayCtx(null);
-        }}
-      />
-    )}
+      {/* Fullscreen media lightbox */}
+      {isLightboxOpen && totalMedia > 0 && (
+        <FullscreenLightbox
+          items={lightboxItems}
+          currentIndex={lightboxIndex}
+          onIndexChange={setLightboxIndex}
+          onClose={() => setIsLightboxOpen(false)}
+        />
+      )}
 
-    {/* Mobile transition overlay */}
-    {showTransitionOverlay && createPortal(
-      <div className="fixed inset-0 z-[215] bg-black lg:hidden animate-fade-in" />,
-      document.body
-    )}
+      {/* Hotel Availability overlay */}
+      {availabilityOverlayCtx && (
+        <HotelAvailabilityOverlay
+          liteApiHotelId={availabilityOverlayCtx.liteApiHotelId}
+          businessName={availabilityOverlayCtx.businessName}
+          businessCity={availabilityOverlayCtx.businessCity}
+          backgroundImage={availabilityOverlayCtx.backgroundImage}
+          onClose={() => setAvailabilityOverlayCtx(null)}
+          onSelectBusiness={(id) => setActiveBusinessId(id)}
+          onOpenFallbackPanel={(data) => {
+            const isMobileOrTablet = typeof window !== "undefined" && window.innerWidth < 1024;
+            if (isMobileOrTablet) setShowTransitionOverlay(true);
+            setFallbackPanelData(data);
+            setSelectedFallbackHotelId(null);
+            setFallbackHiddenOnMobile(false);
+            setAvailabilityOverlayCtx(null);
+          }}
+        />
+      )}
 
-    {/* Fallback hotels panel */}
-    {fallbackPanelData && !fallbackHiddenOnMobile && (
-      <FallbackHotelsPanel
-        data={fallbackPanelData}
-        selectedHotelId={selectedFallbackHotelId}
-        onClose={() => setFallbackPanelData(null)}
-        onSelectHotel={(hotelId, businessId) => {
-          if (businessId) {
-            if (window.innerWidth < 1024) setShowTransitionOverlay(true);
-            setSelectedFallbackHotelId(hotelId);
-            setActiveBusinessId(businessId);
-            if (window.innerWidth < 1024) setFallbackHiddenOnMobile(true);
-          }
-        }}
-      />
-    )}
-  </div>
+      {/* Mobile transition overlay */}
+      {showTransitionOverlay && createPortal(
+        <div className="fixed inset-0 z-[215] bg-black lg:hidden animate-fade-in" />,
+        document.body
+      )}
+
+      {/* Fallback hotels panel */}
+      {fallbackPanelData && !fallbackHiddenOnMobile && (
+        <FallbackHotelsPanel
+          data={fallbackPanelData}
+          selectedHotelId={selectedFallbackHotelId}
+          onClose={() => setFallbackPanelData(null)}
+          onSelectHotel={(hotelId, businessId) => {
+            if (businessId) {
+              if (window.innerWidth < 1024) setShowTransitionOverlay(true);
+              setSelectedFallbackHotelId(hotelId);
+              setActiveBusinessId(businessId);
+              if (window.innerWidth < 1024) setFallbackHiddenOnMobile(true);
+            }
+          }}
+        />
+      )}
+    </div>
   );
 };
 
