@@ -1130,6 +1130,49 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             </div>
           </div>
 
+          {/* Videos carousel — only when videos wins priority */}
+          {activeBottomCarousel === "videos" && (
+            <>
+            <div className="flex justify-center mt-6 mb-1.5 pointer-events-auto">
+              <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                {language === "en" ? "Videos" : "Vidéos"}
+              </h3>
+            </div>
+            <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
+              <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
+                {videoDocs.map((vid, index) => {
+                  const embed = getVideoEmbed(vid.url);
+                  const thumbnail = embed?.thumbnail || null;
+                  return (
+                    <div
+                      key={`vid-${index}`}
+                      className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                      style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
+                      onClick={() => {
+                        setLightboxIndex(images.length + index);
+                        setIsLightboxOpen(true);
+                      }}
+                    >
+                      {thumbnail ? (
+                        <img src={thumbnail} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                      ) : (
+                        <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
+                          <span className="text-2xl">▶</span>
+                        </div>
+                      )}
+                      <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
+                        {vid.name || `Vidéo ${index + 1}`}
+                      </p>
+                    </div>
+                  );
+                })}
+                <div className="shrink-0 w-6" aria-hidden="true" />
+              </div>
+            </div>
+            </>
+          )}
+
           {/* YouTube Shorts strip — only when YouTube wins priority */}
           {activeBottomCarousel === "youtube" && business?.youtube_url && (business as any)?.youtube_force_external && youtubeVideoCount !== 0 && (
             <div className="pointer-events-auto -mr-4 md:-mr-6">
