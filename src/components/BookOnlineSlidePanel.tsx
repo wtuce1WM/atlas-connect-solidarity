@@ -1160,10 +1160,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       videoRef.current.muted = !videoRef.current.muted;
                     }
                   }}
-                  className="w-11 h-11 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  className="w-14 h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
                   aria-label={videoRef.current?.muted ? "Unmute" : "Mute"}
                 >
-                  {videoRef.current?.muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                  {videoRef.current?.muted ? <VolumeX className="h-6 w-6" /> : <Volume2 className="h-6 w-6" />}
                 </button>
               </div>
             )}
