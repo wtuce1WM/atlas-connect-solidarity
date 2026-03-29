@@ -41,6 +41,7 @@ const ContactFlipCard = ({
   isHotel = false,
   hasLiteApiMapping = false,
   onCheckAvailability,
+  onOpenWebsite,
 }: ContactFlipCardProps) => {
   const [flipped, setFlipped] = useState(false);
 
