@@ -1,4 +1,5 @@
 import { X } from "lucide-react";
+import VideoThumbnail from "@/components/VideoThumbnail";
 
 type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
 
@@ -39,7 +40,7 @@ const MosaicOverlay = ({ mediaItems, onClose, onOpenLightbox }: MosaicOverlayPro
                 {thumbnail ? (
                   <img src={thumbnail} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <video src={item.url} className="w-full h-full object-cover" muted playsInline preload="metadata" />
+                  <VideoThumbnail src={item.url} alt="" className="w-full h-full object-cover" />
                 )}
                 <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                   <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
