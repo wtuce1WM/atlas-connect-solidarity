@@ -302,7 +302,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
                 {/* Back header */}
                 <div className="flex items-center gap-3 p-4 text-white">
                   <button
-                    onClick={() => setFlipped(false)}
+                    onClick={() => { playWoosh(); setFlipped(false); }}
                     className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
                     aria-label="Retourner"
                   >
