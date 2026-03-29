@@ -2031,48 +2031,6 @@ const SearchPage = () => {
     }
   }, [isLoading]);
 
-  // TEMP DISABLED: Auto-regenerate AI text when a category/subcategory filter changes
-  // Kept stable to avoid unnecessary API calls while user navigates filters
-  // const prevFilterRef = useRef({ cat: "", sub: "" });
-  // useEffect(() => {
-  //   const prev = prevFilterRef.current;
-  //   const changed =
-  //     prev.cat !== (selectedCategoryFilter || "") ||
-  //     prev.sub !== (selectedSubcategoryFilter || "");
-  //   prevFilterRef.current = {
-  //     cat: selectedCategoryFilter || "",
-  //     sub: selectedSubcategoryFilter || "",
-  //   };
-  //   if (!changed || !aiAnswerText || isAiRegenerating) return;
-  //   if (!selectedCategoryFilter && !selectedSubcategoryFilter) return;
-  //
-  //   const regenerate = async () => {
-  //     setIsAiRegenerating(true);
-  //     try {
-  //       await new Promise(r => setTimeout(r, 150));
-  //       const top10 = filteredBusinesses.slice(0, 10);
-  //       if (top10.length === 0) { setIsAiRegenerating(false); return; }
-  //       const { data } = await supabase.functions.invoke("ai-search-answer", {
-  //         body: {
-  //           query: spokenText || searchQuery,
-  //           spokenText: spokenText || undefined,
-  //           businesses: top10.map(b => ({
-  //             name: b.name, city: b.city, main_category: b.main_category,
-  //             categories: b.categories, hook_fr: b.hook_fr, wtuce_status: b.wtuce_status,
-  //           })),
-  //           language,
-  //           vary: Date.now() % 1000,
-  //         },
-  //       });
-  //       if (data?.answer) handleAiAnswerReady(data.answer);
-  //     } catch (e) {
-  //       console.error("AI filter-regenerate error:", e);
-  //     } finally {
-  //       setIsAiRegenerating(false);
-  //     }
-  //   };
-  //   regenerate();
-  // }, [selectedCategoryFilter, selectedSubcategoryFilter]);
 
 
   const translations = {
