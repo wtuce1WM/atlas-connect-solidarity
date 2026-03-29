@@ -1,0 +1,1 @@
+UPDATE public.businesses SET show_videos = false WHERE show_videos = true;
