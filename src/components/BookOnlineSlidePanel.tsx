@@ -1174,7 +1174,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       }}
                     >
                     <div className="relative">
-                        {ytThumb ? (
+                        {vid.thumbnail_url ? (
+                          <img src={vid.thumbnail_url} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                        ) : ytThumb ? (
                           <img src={ytThumb} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
                         ) : vimeoThumb ? (
                           <img src={vimeoThumb} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
