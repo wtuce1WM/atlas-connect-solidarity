@@ -1510,21 +1510,45 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         const isFile = !ytMatch && !vimeoMatch;
         return (
           <div className="absolute inset-0 z-[70] bg-black animate-slide-up-from-bottom overflow-hidden">
-            {/* Close button */}
-            <div className="absolute top-3 left-3 z-20">
+            {/* Top bar: close + mobile nav with counter */}
+            <div className="absolute top-3 left-3 right-3 z-20 flex items-center">
               <button
                 onClick={() => setActiveVideoOverlay(null)}
-                className="w-9 h-9 rounded-full bg-gray-500/70 backdrop-blur-sm flex items-center justify-center hover:bg-gray-500/90 transition-colors"
+                className="w-9 h-9 rounded-full bg-gray-500/70 backdrop-blur-sm flex items-center justify-center hover:bg-gray-500/90 transition-colors shrink-0"
               >
                 <X className="h-4 w-4 text-white" />
               </button>
+
+              {/* Mobile: nav + counter inline */}
+              <div className="flex md:hidden items-center justify-center flex-1 gap-3">
+                <button
+                  onClick={() => hasPrev && goTo(currentIdx - 1)}
+                  className={`w-8 h-8 rounded-full bg-gray-500/70 backdrop-blur-sm flex items-center justify-center transition-colors ${hasPrev ? 'hover:bg-gray-500/90' : 'opacity-30'}`}
+                  disabled={!hasPrev}
+                  aria-label="Vidéo précédente"
+                >
+                  <ChevronLeft className="h-4 w-4 text-white" />
+                </button>
+                <span className="text-white text-sm font-medium tabular-nums">
+                  {currentIdx + 1} / {videoDocs.length}
+                </span>
+                <button
+                  onClick={() => hasNext && goTo(currentIdx + 1)}
+                  className={`w-8 h-8 rounded-full bg-gray-500/70 backdrop-blur-sm flex items-center justify-center transition-colors ${hasNext ? 'hover:bg-gray-500/90' : 'opacity-30'}`}
+                  disabled={!hasNext}
+                  aria-label="Vidéo suivante"
+                >
+                  <ChevronRight className="h-4 w-4 text-white" />
+                </button>
+              </div>
+              <div className="w-9 shrink-0 md:hidden" />
             </div>
 
-            {/* Prev / Next navigation */}
+            {/* Desktop/Tablet: centered chevrons */}
             {hasPrev && (
               <button
                 onClick={() => goTo(currentIdx - 1)}
-                className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-gray-500/70 backdrop-blur-sm flex items-center justify-center hover:bg-gray-500/90 transition-colors"
+                className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-gray-500/70 backdrop-blur-sm items-center justify-center hover:bg-gray-500/90 transition-colors"
                 aria-label="Vidéo précédente"
               >
                 <ChevronLeft className="h-5 w-5 text-white" />
@@ -1533,7 +1557,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             {hasNext && (
               <button
                 onClick={() => goTo(currentIdx + 1)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-gray-500/70 backdrop-blur-sm flex items-center justify-center hover:bg-gray-500/90 transition-colors"
+                className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-gray-500/70 backdrop-blur-sm items-center justify-center hover:bg-gray-500/90 transition-colors"
                 aria-label="Vidéo suivante"
               >
                 <ChevronRight className="h-5 w-5 text-white" />
