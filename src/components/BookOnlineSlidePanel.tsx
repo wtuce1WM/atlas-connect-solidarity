@@ -149,7 +149,7 @@ interface PoiBusiness {
   neighborhood: string | null;
 }
 
-type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
+type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string };
 
 
 const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand, externalOverlayActive }: BookOnlineSlidePanelProps) => {
