@@ -499,6 +499,7 @@ export type Database = {
           language: string | null
           linked_business_id: string | null
           name: string | null
+          neighborhood: string | null
           poi_id: string | null
           sort_order: number
           subcategory_id: string | null
@@ -516,6 +517,7 @@ export type Database = {
           language?: string | null
           linked_business_id?: string | null
           name?: string | null
+          neighborhood?: string | null
           poi_id?: string | null
           sort_order?: number
           subcategory_id?: string | null
@@ -533,6 +535,7 @@ export type Database = {
           language?: string | null
           linked_business_id?: string | null
           name?: string | null
+          neighborhood?: string | null
           poi_id?: string | null
           sort_order?: number
           subcategory_id?: string | null

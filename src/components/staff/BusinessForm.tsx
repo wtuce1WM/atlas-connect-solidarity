@@ -275,7 +275,7 @@ const SERVICES: Record<string, string[]> = {
   ],
 };
 
-type VideoDocEntry = { id?: string; url: string; name: string; poi_id: string | null; destination_id: string | null; linked_business_id: string | null; subcategory_id: string | null; city: string | null; description: string | null };
+type VideoDocEntry = { id?: string; url: string; name: string; poi_id: string | null; destination_id: string | null; linked_business_id: string | null; subcategory_id: string | null; city: string | null; neighborhood: string | null; description: string | null };
 
 interface SortableVideoCardProps {
   id: string;
@@ -290,13 +290,14 @@ interface SortableVideoCardProps {
   setVideoBusinessSearch: Dispatch<SetStateAction<Record<number, string>>>;
   dbSubcategories: Array<{ id: string; name_fr: string; category_id: string }>;
   dbCities: Array<{ id: string; name_fr: string; region: string | null }>;
+  dbNeighborhoods: Array<{ id: string; name: string; city_id: string }>;
   business: any;
   toast: any;
   onOpenDesc: () => void;
   onDelete: () => void;
 }
 
-const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinessesForCity, dbDestinations, allBusinessesForVideo, videoBusinessSearch, setVideoBusinessSearch, dbSubcategories, dbCities, business, toast, onOpenDesc, onDelete }: SortableVideoCardProps) => {
+const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinessesForCity, dbDestinations, allBusinessesForVideo, videoBusinessSearch, setVideoBusinessSearch, dbSubcategories, dbCities, dbNeighborhoods, business, toast, onOpenDesc, onDelete }: SortableVideoCardProps) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1, zIndex: isDragging ? 50 : undefined };
 
@@ -449,11 +450,25 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
             </div>
             <div>
               <label className="text-[9px] text-muted-foreground">Ville</label>
-              <Select value={doc.city || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, city: v === "__none__" ? null : v } : d))}>
+              <Select value={doc.city || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, city: v === "__none__" ? null : v, neighborhood: null } : d))}>
                 <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__none__">— Aucune</SelectItem>
                   {dbCities.map(c => <SelectItem key={c.id} value={c.name_fr}>{c.name_fr}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-[9px] text-muted-foreground">Quartier</label>
+              <Select value={doc.neighborhood || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, neighborhood: v === "__none__" ? null : v } : d))}>
+                <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">— Aucun</SelectItem>
+                  {(() => {
+                    const selectedCity = dbCities.find(c => c.name_fr === doc.city);
+                    if (!selectedCity) return null;
+                    return dbNeighborhoods.filter(n => n.city_id === selectedCity.id).map(n => <SelectItem key={n.id} value={n.name}>{n.name}</SelectItem>);
+                  })()}
                 </SelectContent>
               </Select>
             </div>
@@ -811,7 +826,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         setMenuDocs((data as any[]).filter((d: any) => d.type === "menu").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "" })));
         setFlipbookDocs((data as any[]).filter((d: any) => d.type === "flipbook").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "" })));
         setExternalLinkDocs((data as any[]).filter((d: any) => d.type === "external_link").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", image_url: d.icon || "" })));
-        setVideoDocs((data as any[]).filter((d: any) => d.type === "video").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, city: d.city || null, description: d.description || null })));
+        setVideoDocs((data as any[]).filter((d: any) => d.type === "video").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null })));
       }
     };
     const fetchSummaries = async () => {
@@ -1464,7 +1479,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           ...externalLinkDocs
             .filter((d) => d.name.trim() && d.url.trim())
             .map((d, i) => ({ business_id: businessId, type: "external_link" as const, url: d.url.trim(), name: d.name.trim(), language: d.language || null, icon: d.image_url || null, sort_order: i })),
-          ...videoDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "video" as const, url: d.url.trim(), name: d.name || null, language: null, icon: null, sort_order: i, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, city: d.city || null, description: d.description || null })),
+          ...videoDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "video" as const, url: d.url.trim(), name: d.name || null, language: null, icon: null, sort_order: i, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null })),
         ];
         if (allDocs.length > 0) {
           const { error: docsError } = await supabase.from("business_documents" as any).insert(allDocs);
@@ -3243,7 +3258,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 <span className="text-xs text-muted-foreground">{formData.show_videos ? "Activé" : "Désactivé"}</span>
               </div>
             </div>
-            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => [...prev, { url: "", name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, description: null }])}>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => [...prev, { url: "", name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null }])}>
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
@@ -3265,7 +3280,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 if (error) { toast({ variant: "destructive", title: "Erreur", description: `${file.name}: ${error.message}` }); continue; }
                 const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
                 if (urlData?.publicUrl) {
-                  setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: file.name.replace(/\.[^.]+$/, ""), poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, description: null }]);
+                  setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: file.name.replace(/\.[^.]+$/, ""), poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null }]);
                 }
               }
               toast({ title: `${files.length} vidéo(s) uploadée(s) ✓` });
@@ -3285,7 +3300,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   if (error) { toast({ variant: "destructive", title: "Erreur", description: `${file.name}: ${error.message}` }); continue; }
                   const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
                   if (urlData?.publicUrl) {
-                    setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: file.name.replace(/\.[^.]+$/, ""), poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, description: null }]);
+                    setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: file.name.replace(/\.[^.]+$/, ""), poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null }]);
                   }
                 }
                 toast({ title: `${files.length} vidéo(s) uploadée(s) ✓` });
@@ -3344,6 +3359,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     setVideoBusinessSearch={setVideoBusinessSearch}
                     dbSubcategories={dbSubcategories}
                     dbCities={dbCities}
+                    dbNeighborhoods={dbNeighborhoods}
                     business={business}
                     toast={toast}
                     onOpenDesc={() => setVideoDescDialogIdx(idx)}
