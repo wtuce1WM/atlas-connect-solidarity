@@ -3966,11 +3966,8 @@ const SearchPage = () => {
               <div className={`grid gap-4 pt-10 md:pt-7 lg:pt-7 pb-28 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : hasKnownLocation ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
                 {paginatedBusinesses.map((business, index) => {
                   const img = business.images?.[0] || business.logo_url;
-                  const avgOn20 = (business as any).computed_rating ?? business.rating ?? ((): number | null => {
-                    const sources = collectRatingSources(business as any);
-                    return computeWeightedRatingOn20(sources);
-                  })();
-                  const totalReviews = (business as any).total_review_count ?? collectRatingSources(business as any).reduce((s: number, r: any) => s + r.count, 0);
+                  const avgOn20 = (business as any).computed_rating ?? business.rating ?? null;
+                  const totalReviews = (business as any).total_review_count ?? 0;
                   const subcat = business.categories?.[0] || null;
 
                    const card = (
