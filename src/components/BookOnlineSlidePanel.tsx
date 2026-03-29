@@ -117,6 +117,7 @@ interface BookOnlineBusiness {
   video_1_url: string | null;
   kp_regroupement: string | null;
   main_category: string | null;
+  presentation_mode: string | null;
 }
 
 interface KpRelatedBusiness {
@@ -284,7 +285,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       const [bizRes, woRes, destLinksRes, reviewsRes, extLinksRes, menuSumRes, menuDocsRes, videoDocsRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, reserve_now_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, computed_rating, total_review_count, online_shop_force_external, website_force_external, reserve_now_force_external, youtube_force_external, hook_fr, hook_en, hook_ar, description, facebook_url, instagram_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, vimeo_url, menu_url, menu_name, menu_language, video_1_url, kp_regroupement, kp_regroupement_2, kp_active, is_master, main_category")
+          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, reserve_now_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, computed_rating, total_review_count, online_shop_force_external, website_force_external, reserve_now_force_external, youtube_force_external, hook_fr, hook_en, hook_ar, description, facebook_url, instagram_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, vimeo_url, menu_url, menu_name, menu_language, video_1_url, kp_regroupement, kp_regroupement_2, kp_active, is_master, main_category, presentation_mode")
           .eq("id", businessId)
           .eq("is_active", true)
           .maybeSingle(),
@@ -670,6 +671,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     const forceExternal = business?.online_shop_force_external;
     return { fullUrl, forceExternal };
   }, [shopUrl, business?.online_shop_force_external]);
+
+  // CTA label based on presentation_mode
+  const ctaLabel = useMemo(() => {
+    const mode = business?.presentation_mode || 'acheter_en_ligne';
+    const labels: Record<string, { fr: string; en: string }> = {
+      acheter_en_ligne: { fr: 'Achetez en ligne', en: 'Shop Online' },
+      reserver_en_ligne: { fr: 'Réservez en ligne', en: 'Book Online' },
+      consulter_offre: { fr: 'Consultez notre offre', en: 'View Our Offer' },
+      plus_informations: { fr: "Plus d'informations", en: 'More Information' },
+    };
+    const pair = labels[mode] || labels.acheter_en_ligne;
+    return language === 'en' ? pair.en : pair.fr;
+  }, [business?.presentation_mode, language]);
 
   if (isLoading) {
     return (
@@ -1281,7 +1295,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                   >
                     <CalendarCheck className="h-4 w-4" />
-                    {language === "en" ? "Book Online" : "Réservez en ligne"}
+                    {ctaLabel}
                     <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
                   </a>
                 ) : (
@@ -1291,7 +1305,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366' }}
                   >
                     <CalendarCheck className="h-4 w-4" />
-                    {language === "en" ? "Book Online" : "Réservez en ligne"}
+                    {ctaLabel}
                   </button>
                 )
               )}
@@ -1305,17 +1319,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                   >
                     <ShoppingBag className="h-4 w-4" />
-                    {language === "en" ? "Shop Online" : "Achetez en ligne"}
+                    {ctaLabel}
                     <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
                   </a>
                 ) : (
                   <button
-                    onClick={() => { setBookingOverlayUrl(shopCta.fullUrl); setBookingOverlayTitle(language === "en" ? "Shop Online" : "Achetez en ligne"); setShowBookingOverlay(true); }}
+                    onClick={() => { setBookingOverlayUrl(shopCta.fullUrl); setBookingOverlayTitle(ctaLabel); setShowBookingOverlay(true); }}
                     className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-right"
                     style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366' }}
                   >
                     <ShoppingBag className="h-4 w-4" />
-                    {language === "en" ? "Shop Online" : "Achetez en ligne"}
+                    {ctaLabel}
                   </button>
                 )
               )}
