@@ -1534,7 +1534,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
             {/* Description card — POI style, below close button */}
             {(activeVideoOverlay.description || activeVideoOverlay.name) && (
-              <div className="absolute left-3 right-3 top-14 z-10 pointer-events-auto">
+              <div className="absolute left-3 right-3 md:left-[15%] md:right-[15%] top-14 z-10 pointer-events-auto">
                 <div className="rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white">
                   <div className="flex items-center gap-3">
                     <div className="min-w-0 flex-1">
