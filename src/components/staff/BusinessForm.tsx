@@ -292,6 +292,7 @@ interface SortableVideoCardProps {
   business: any;
   toast: any;
   onOpenDesc: () => void;
+  onDelete: () => void;
 }
 
 const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinessesForCity, dbDestinations, allBusinessesForVideo, videoBusinessSearch, setVideoBusinessSearch, dbSubcategories, dbCities, business, toast, onOpenDesc }: SortableVideoCardProps) => {
