@@ -73,8 +73,8 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
         const aV = a.wtuce_status === "verified" ? 1 : 0;
         const bV = b.wtuce_status === "verified" ? 1 : 0;
         if (bV !== aV) return bV - aV;
-        const aRating = a.rating ?? computeWeightedRatingOn20(collectRatingSources(a)) ?? 0;
-        const bRating = b.rating ?? computeWeightedRatingOn20(collectRatingSources(b)) ?? 0;
+        const aRating = a.computed_rating ?? a.rating ?? 0;
+        const bRating = b.computed_rating ?? b.rating ?? 0;
         return bRating - aRating;
       });
 
