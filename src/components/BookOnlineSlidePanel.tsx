@@ -491,9 +491,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               playsInline
               muted
               onPlay={() => {
-                if (keepMutedRef.current && videoRef.current) {
-                  videoRef.current.muted = true;
-                  keepMutedRef.current = false;
+                if (videoRef.current) {
+                  if (keepMutedRef.current) {
+                    videoRef.current.muted = true;
+                    keepMutedRef.current = false;
+                  } else {
+                    videoRef.current.muted = false;
+                  }
                 }
               }}
               onLoadedMetadata={(e) => {
