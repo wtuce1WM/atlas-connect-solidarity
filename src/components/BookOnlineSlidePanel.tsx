@@ -572,14 +572,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     return { text: closedLabel, isOpen: false };
   }, [business, language]);
 
-  // Priority-based bottom carousel: YouTube > KP > Destinations > POI
+  // Priority-based bottom carousel: Videos > YouTube > KP > Destinations > POI
+  const hasVideosCarousel = !!((business as any)?.show_videos && videoDocs.length > 0);
   const hasYoutubeBottomCarousel = !!(business?.youtube_url && (business as any)?.youtube_force_external && youtubeVideoCount !== 0);
   const hasYoutubeReady = !!(youtubeVideoCount && youtubeVideoCount > 0);
   const hasKpCarousel = kpRelated.length > 0;
   const hasDestCarousel = destinations.length > 0;
   const hasPoiCarousel = poiBusinesses.length > 0;
 
-  const activeBottomCarousel: "youtube" | "kp" | "dest" | "poi" | "none" =
+  const activeBottomCarousel: "videos" | "youtube" | "kp" | "dest" | "poi" | "none" =
+    hasVideosCarousel ? "videos" :
     (hasYoutubeBottomCarousel && hasYoutubeReady) ? "youtube" :
     hasYoutubeBottomCarousel ? "youtube" :
     hasKpCarousel ? "kp" :
