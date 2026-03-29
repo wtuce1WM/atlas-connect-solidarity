@@ -3359,6 +3359,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     setVideoBusinessSearch={setVideoBusinessSearch}
                     dbSubcategories={dbSubcategories}
                     dbCities={dbCities}
+                    dbNeighborhoods={dbNeighborhoods}
                     business={business}
                     toast={toast}
                     onOpenDesc={() => setVideoDescDialogIdx(idx)}
