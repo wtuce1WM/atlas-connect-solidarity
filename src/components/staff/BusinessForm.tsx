@@ -2747,24 +2747,28 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     )}
                   </>
                 )}
-                <label className="shrink-0 cursor-pointer" title="Uploader un PDF">
+                <label className="shrink-0 cursor-pointer" title="Uploader un PDF ou une image">
                   <input
                     type="file"
-                    accept="application/pdf"
+                    accept="application/pdf,image/*"
                     className="hidden"
                     onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
-                      if (file.type !== 'application/pdf') { toast({ variant: 'destructive', title: 'Seuls les PDF sont acceptés' }); return; }
+                      const isPdf = file.type === 'application/pdf';
+                      const isImage = file.type.startsWith('image/');
+                      if (!isPdf && !isImage) { toast({ variant: 'destructive', title: 'Seuls les PDF et images sont acceptés' }); return; }
                       if (file.size > 10 * 1024 * 1024) { toast({ variant: 'destructive', title: 'Max 10MB' }); return; }
-                      const fileName = `${business?.id || 'new'}-menu-${Date.now()}-${Math.random().toString(36).substring(7)}.pdf`;
-                      const filePath = `businesses/pdfs/${fileName}`;
+                      const ext = file.name.split('.').pop() || (isPdf ? 'pdf' : 'jpg');
+                      const folder = isPdf ? 'pdfs' : 'menus';
+                      const fileName = `${business?.id || 'new'}-menu-${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+                      const filePath = `businesses/${folder}/${fileName}`;
                       const { error } = await supabase.storage.from('business-images').upload(filePath, file);
                       if (error) { toast({ variant: 'destructive', title: "Erreur d'upload" }); return; }
                       const { data } = supabase.storage.from('business-images').getPublicUrl(filePath);
                       if (data?.publicUrl) {
                         setMenuDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: data.publicUrl } : d));
-                        toast({ title: 'PDF uploadé' });
+                        toast({ title: isPdf ? 'PDF uploadé' : 'Image uploadée' });
                       }
                       e.target.value = '';
                     }}
