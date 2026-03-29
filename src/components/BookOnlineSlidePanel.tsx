@@ -1488,6 +1488,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       {/* Video Document Overlay */}
       {activeVideoOverlay && (() => {
         const vidUrl = activeVideoOverlay.url;
+        const currentIdx = videoDocs.findIndex(v => v.url === vidUrl);
+        const hasPrev = currentIdx > 0;
+        const hasNext = currentIdx < videoDocs.length - 1;
+        const goTo = (idx: number) => {
+          const v = videoDocs[idx];
+          if (v) {
+            setActiveVideoOverlay({ url: v.url, name: v.name, description: v.description });
+            setVideoDescExpanded(false);
+          }
+        };
         const ytMatch = vidUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
         const vimeoMatch = vidUrl.match(/vimeo\.com\/(\d+)/);
         const isVerticalHint = /shorts\//.test(vidUrl);
@@ -1508,6 +1518,26 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 <X className="h-4 w-4 text-white" />
               </button>
             </div>
+
+            {/* Prev / Next navigation */}
+            {hasPrev && (
+              <button
+                onClick={() => goTo(currentIdx - 1)}
+                className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-gray-500/70 backdrop-blur-sm flex items-center justify-center hover:bg-gray-500/90 transition-colors"
+                aria-label="Vidéo précédente"
+              >
+                <ChevronLeft className="h-5 w-5 text-white" />
+              </button>
+            )}
+            {hasNext && (
+              <button
+                onClick={() => goTo(currentIdx + 1)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-gray-500/70 backdrop-blur-sm flex items-center justify-center hover:bg-gray-500/90 transition-colors"
+                aria-label="Vidéo suivante"
+              >
+                <ChevronRight className="h-5 w-5 text-white" />
+              </button>
+            )}
 
             {/* Video — full overlay */}
             <div className="absolute inset-0 flex items-center justify-center">
