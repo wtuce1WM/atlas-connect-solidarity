@@ -685,11 +685,19 @@ const CategoryManagement = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Gestion des catégories</h2>
-        <Button onClick={() => startEdit({ type: "category", id: null })}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nouvelle catégorie
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setFrontStructureOpen(true)}>
+            <LayoutGrid className="h-4 w-4 mr-2" />
+            Structure du front
+          </Button>
+          <Button onClick={() => startEdit({ type: "category", id: null })}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nouvelle catégorie
+          </Button>
+        </div>
       </div>
+
+      <FrontStructureManagement open={frontStructureOpen} onOpenChange={setFrontStructureOpen} />
 
       {/* New category form */}
       {editMode?.type === "category" && editMode.id === null && renderEditForm(true, true, true)}
