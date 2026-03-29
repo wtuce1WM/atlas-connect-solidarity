@@ -1158,10 +1158,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
                       style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
                       onClick={() => {
-                        if (mediaIdx >= 0) {
-                          setLightboxIndex(mediaIdx);
-                          setIsLightboxOpen(true);
-                        }
+                        setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description });
                       }}
                     >
                     <div className="relative">
