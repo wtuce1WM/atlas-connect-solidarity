@@ -24,6 +24,7 @@ import {
   ExternalLink,
   Settings,
   Copy,
+  LayoutGrid,
 } from "lucide-react";
 import {
   AlertDialog,
