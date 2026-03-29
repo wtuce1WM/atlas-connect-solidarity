@@ -450,7 +450,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const destName = (d: Destination) => language === "en" && d.name_en ? d.name_en : d.name_fr;
 
   return (
-    <div className="h-full overflow-hidden overscroll-none bg-black">
+    <div className="h-full overflow-hidden overscroll-none bg-black relative">
       {/* Portal media button into left of fixed bar */}
       {toolbarLeftPortal && createPortal(
         <div className="flex items-center gap-2">
@@ -612,7 +612,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
       {/* Overlaid content — swipeable */}
       <div
-        className={`relative z-10 flex flex-col overflow-y-auto overscroll-contain ${currentMedia?.kind === "video" ? "h-[calc(100%-3.5rem)]" : "h-full"} p-4 pt-12 md:p-6 md:pt-16 lg:pt-6 ${cardsHidden ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"}`}
+        className={`relative z-10 flex flex-col overflow-y-auto overscroll-contain h-full p-4 pt-12 md:p-6 md:pt-16 lg:pt-6 pb-8 ${cardsHidden ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"}`}
         style={{
           transform: isDragging
             ? `translateY(${dragOffsetY}px)`
