@@ -338,7 +338,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       setReviewTexts(reviewsRes.data ? (reviewsRes.data as any[]) : []);
       setExternalLinks((extLinksRes.data || []) as ExternalLinkItem[]);
       setMenuSummaries((menuSumRes.data || []) as MenuSummary[]);
-      setVideoDocUrls((videoDocsRes.data || []).map((d: any) => d.url).filter(Boolean));
+      const vDocs = (videoDocsRes.data || []) as { url: string; name: string | null }[];
+      setVideoDocUrls(vDocs.map(d => d.url).filter(Boolean));
+      setVideoDocs(vDocs.filter(d => d.url));
 
       // Fetch category icon
       const mainCat = (bizRes.data as any)?.main_category;
