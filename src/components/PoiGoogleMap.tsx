@@ -300,6 +300,21 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     map.setOptions({ fullscreenControl: false });
   }, [ready]);
 
+  // Serialized key to detect when pois/center actually change (not just iconCache)
+  const poisKey = useMemo(() => {
+    const ids = pois.map(p => p.id).sort().join(",");
+    const c = center ? `${center.lat},${center.lng}` : "";
+    return `${ids}|${c}`;
+  }, [pois, center]);
+
+  // Track whether we need to re-fit bounds (only when pois/center change, not iconCache)
+  const needsFitRef = useRef(true);
+  const prevPoisKeyRef = useRef("");
+  if (prevPoisKeyRef.current !== poisKey) {
+    prevPoisKeyRef.current = poisKey;
+    needsFitRef.current = true;
+  }
+
   // Create/update label markers when pois change
   useEffect(() => {
     const map = mapRef.current;
@@ -310,7 +325,6 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     // Clear old overlays
     overlaysRef.current.forEach((o) => o.setMap(null));
     overlaysRef.current.clear();
-    hasFittedRef.current = false;
 
     const bounds = new gmaps.LatLngBounds();
     let hasPoints = false;
@@ -403,7 +417,9 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
 
     if (center) bounds.extend(center);
 
-    if (hasPoints || center) {
+    // Only fitBounds when pois/center actually changed, not on iconCache updates
+    if ((hasPoints || center) && needsFitRef.current) {
+      needsFitRef.current = false;
       gmaps.event.trigger(map, "resize");
       // Use generous padding when fitting to markers so labels aren't clipped
       const padding = fitToMarkers
