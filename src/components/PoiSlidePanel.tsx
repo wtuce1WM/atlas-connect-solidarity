@@ -119,6 +119,10 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [totalMedia]);
 
+  const playWoosh = useCallback(() => {
+    try { new Audio(wooshSfx).play(); } catch {}
+  }, []);
+
   if (isLoading) {
     return (
       <div className={`absolute inset-0 z-[70] bg-black flex items-center justify-center ${slideAnim}`}>
