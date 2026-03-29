@@ -1526,7 +1526,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               selectedPoiId={null}
               onPoiClick={(poiId) => {
                 if (poiId.startsWith("self-")) return;
-                setShowPoiMapOverlay(false);
                 poiOpenedFromMapRef.current = true;
                 setSelectedPoiBusinessId(poiId);
               }}
