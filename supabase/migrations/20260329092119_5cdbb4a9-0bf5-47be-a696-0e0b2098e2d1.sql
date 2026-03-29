@@ -1,0 +1,1 @@
+ALTER TABLE businesses ALTER COLUMN presentation_mode SET DEFAULT 'acheter_en_ligne';
