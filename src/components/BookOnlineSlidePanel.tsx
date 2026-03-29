@@ -184,6 +184,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [videoDocUrls, setVideoDocUrls] = useState<string[]>([]);
   const [videoDocs, setVideoDocs] = useState<{ url: string; name: string | null; city: string | null; price: string | null; price_type: string | null; description: string | null }[]>([]);
   const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ url: string; name: string | null; description: string | null } | null>(null);
+  const [videoDescExpanded, setVideoDescExpanded] = useState(false);
   const [categoryIcon, setCategoryIcon] = useState<string | null>(null);
   
   const [kpRelated, setKpRelated] = useState<KpRelatedBusiness[]>([]);
@@ -1499,7 +1500,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         return (
           <div className="absolute inset-0 z-[70] bg-black flex flex-col animate-slide-up-from-bottom overflow-hidden">
             {/* Close button */}
-            <div className="absolute top-3 right-3 z-10">
+            <div className="absolute top-3 right-3 z-20">
               <button
                 onClick={() => setActiveVideoOverlay(null)}
                 className="w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center hover:bg-black/80 transition-colors"
@@ -1508,7 +1509,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               </button>
             </div>
 
-            {/* Video area — full size */}
+            {/* Video area */}
             <div className="flex-1 flex items-center justify-center relative min-h-0">
               {embedUrl ? (
                 <div className={`${isVerticalHint ? "h-full aspect-[9/16]" : "w-full h-full"}`}>
@@ -1529,26 +1530,38 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   playsInline
                 />
               ) : null}
-
-              {/* Description collapsible overlay */}
-              {(activeVideoOverlay.description || activeVideoOverlay.name) && (
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
-                  <details className="group p-3">
-                    <summary className="cursor-pointer list-none flex items-center gap-2 text-white font-bold text-sm uppercase tracking-[0.12em] drop-shadow-lg" style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: '0.02em' }}>
-                      <ChevronRight className="h-4 w-4 transition-transform group-open:rotate-90 shrink-0" />
-                      <span className="truncate">{activeVideoOverlay.name || "Détails"}</span>
-                    </summary>
-                    {activeVideoOverlay.description && (
-                      <div
-                        className="mt-2 text-sm text-white/90 leading-relaxed max-h-[30vh] overflow-y-auto rounded-xl bg-black/40 backdrop-blur-sm p-3"
-                        style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: '0.02em' }}
-                        dangerouslySetInnerHTML={{ __html: activeVideoOverlay.description }}
-                      />
-                    )}
-                  </details>
-                </div>
-              )}
             </div>
+
+            {/* Description card — POI style, below video */}
+            {(activeVideoOverlay.description || activeVideoOverlay.name) && (
+              <div className="shrink-0 p-3">
+                <div className="rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white">
+                  <div className="flex items-center gap-3">
+                    <div className="min-w-0 flex-1">
+                      <h2 className="text-base font-bold truncate drop-shadow-lg" style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: '0.02em' }}>
+                        {activeVideoOverlay.name || "Détails"}
+                      </h2>
+                    </div>
+                    {activeVideoOverlay.description && (
+                      <button
+                        onClick={() => setVideoDescExpanded(p => !p)}
+                        className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors shrink-0"
+                        aria-label={videoDescExpanded ? "Replier" : "Déplier"}
+                      >
+                        {videoDescExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+                      </button>
+                    )}
+                  </div>
+                  {activeVideoOverlay.description && videoDescExpanded && (
+                    <div
+                      className="mt-3 text-sm leading-relaxed max-h-[30vh] overflow-y-auto pr-1 prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
+                      style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: '0.02em' }}
+                      dangerouslySetInnerHTML={{ __html: activeVideoOverlay.description }}
+                    />
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         );
       })()}
