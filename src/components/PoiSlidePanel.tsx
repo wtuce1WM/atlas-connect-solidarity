@@ -56,7 +56,7 @@ const MemoizedPoiMap = React.memo(({ poi, linkedBusinesses }: { poi: PoiFull; li
   );
 });
 
-
+const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePanelProps) => {
   const { language } = useLanguage();
   const slideAnim = slideFrom === "bottom" ? "animate-slide-up-from-bottom" : "animate-slide-in-right";
   const [poi, setPoi] = useState<PoiFull | null>(null);
