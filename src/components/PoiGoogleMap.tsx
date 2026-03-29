@@ -26,6 +26,8 @@ interface PoiGoogleMapProps {
   subcategoryIconMap?: Record<string, string>;
   /** When true, fitBounds on markers instead of forcing center */
   fitToMarkers?: boolean;
+  /** Custom highlight color for the selected marker (default: dark) */
+  highlightColor?: { bg: string; fg: string; border: string };
 }
 
 /* ── Google Maps loader (reuses shared singleton) ── */
