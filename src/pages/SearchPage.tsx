@@ -2767,12 +2767,11 @@ const SearchPage = () => {
                 toolbarRightId="overlay-slide-panel-toolbar"
               />
               <div className="flex-1 min-h-0">
-                <BusinessSlidePanel
+                <BookOnlineSlidePanel
                   businessId={overlaySelectedBusiness.id}
                   onClose={() => { setOverlaySelectedBusiness(null); setIsOverlayPanelExpanded(false); }}
                   isExpanded={isOverlayPanelExpanded}
                   onToggleExpand={() => setIsOverlayPanelExpanded(prev => !prev)}
-                  leftPanelPortalRef={overlayLeftPanelRef}
                 />
               </div>
             </div>
