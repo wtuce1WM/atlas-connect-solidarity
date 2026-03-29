@@ -150,11 +150,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const keepMutedRef = useRef(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const iframeSrcRef = useRef<string>("");
+  const overlayWasOpenRef = useRef(false);
 
   // Pause/resume background media when overlays open/close
   useEffect(() => {
     const overlayOpen = !!selectedDestinationId || !!selectedPoiBusinessId || !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic || !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay;
+
     if (overlayOpen) {
+      overlayWasOpenRef.current = true;
       if (videoRef.current) {
         videoRef.current.pause();
         videoRef.current.muted = true;
@@ -163,7 +166,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         iframeSrcRef.current = iframeRef.current.src;
         iframeRef.current.src = "";
       }
-    } else {
+      return;
+    }
+
+    // Only keep muted when we are actually returning from an open overlay.
+    if (overlayWasOpenRef.current) {
       keepMutedRef.current = true;
       if (videoRef.current) {
         videoRef.current.muted = true;
@@ -172,6 +179,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       if (iframeRef.current && iframeSrcRef.current) {
         iframeRef.current.src = iframeSrcRef.current;
       }
+      overlayWasOpenRef.current = false;
+      return;
+    }
+
+    // Initial load / normal navigation: do not force mute.
+    if (videoRef.current && videoRef.current.paused) {
+      videoRef.current.play().catch(() => {});
     }
   }, [selectedDestinationId, selectedPoiBusinessId, docOverlay, showBookingOverlay, showYoutubeOverlay, showMosaic, externalOverlayActive, showPoiMapOverlay, activeVideoOverlay]);
 
