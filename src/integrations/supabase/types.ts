@@ -505,6 +505,7 @@ export type Database = {
           price_type: string | null
           sort_order: number
           subcategory_id: string | null
+          thumbnail_url: string | null
           type: string
           url: string
         }
@@ -525,6 +526,7 @@ export type Database = {
           price_type?: string | null
           sort_order?: number
           subcategory_id?: string | null
+          thumbnail_url?: string | null
           type: string
           url: string
         }
@@ -545,6 +547,7 @@ export type Database = {
           price_type?: string | null
           sort_order?: number
           subcategory_id?: string | null
+          thumbnail_url?: string | null
           type?: string
           url?: string
         }
