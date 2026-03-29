@@ -183,6 +183,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       keepMutedRef.current = true;
       if (videoRef.current) {
         videoRef.current.muted = true;
+        muteLockSrcRef.current = videoRef.current.currentSrc || videoRef.current.src || null;
         videoRef.current.play().catch(() => {});
       }
       if (iframeRef.current && iframeSrcRef.current) {
