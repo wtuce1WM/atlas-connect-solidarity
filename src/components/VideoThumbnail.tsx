@@ -35,8 +35,8 @@ const VideoThumbnail = ({ src, alt, className }: VideoThumbnailProps) => {
     video.preload = "metadata";
     video.src = src;
 
-    const THUMB_W = 320;
-    const THUMB_H = 180;
+    const THUMB_W = 640;
+    const THUMB_H = 360;
 
     const capture = () => {
       const canvas = document.createElement("canvas");
