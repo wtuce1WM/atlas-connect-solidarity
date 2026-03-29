@@ -1236,12 +1236,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         />
       )}
 
-      {/* Directions Overlay */}
+      {/* Directions Overlay — covers toolbar */}
       {showDirections && business && (
-        <DirectionsOverlay
-          business={business}
-          onClose={() => setShowDirections(false)}
-        />
+        <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[70]">
+          <DirectionsOverlay
+            business={business}
+            onClose={() => setShowDirections(false)}
+          />
+        </div>
       )}
 
       {/* Destination detail overlay */}
