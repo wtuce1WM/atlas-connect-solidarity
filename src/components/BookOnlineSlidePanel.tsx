@@ -1078,7 +1078,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         )}
 
         {/* CTAs + video controls */}
-        <div className={`shrink-0 py-2 pb-36 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto ${noBottomCarousel ? 'mt-auto' : ''}`}>
+        <div className={`shrink-0 py-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto ${noBottomCarousel ? 'lg:mt-auto' : ''}`}>
             {bookingCta && (
               bookingCta.forceExternal ? (
                 <a
@@ -1139,7 +1139,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             )}
             {/* Video controls — below CTAs */}
             {currentMedia?.kind === "video" && videoInfo?.type === "file" && (
-              <div className="flex items-center gap-6 md:gap-10 mt-4 md:mt-5 mb-6 md:mb-4 lg:mb-0 pb-2">
+              <div className="flex items-center gap-6 md:gap-10 mt-2 md:mt-3">
                 <button
                   type="button"
                   onClick={() => {
