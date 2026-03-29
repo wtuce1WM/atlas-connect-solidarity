@@ -3365,10 +3365,28 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 </div>
               )}
               <DialogFooter>
-                <Button type="button" onClick={() => setVideoDescDialogIdx(null)}>Fermer</Button>
+                <Button type="button" onClick={() => setVideoDescDialogIdx(null)}>Sauvegarder</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
+
+          {/* Delete confirmation dialog */}
+          <AlertDialog open={videoDeleteConfirmIdx !== null} onOpenChange={(open) => { if (!open) setVideoDeleteConfirmIdx(null); }}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Supprimer cette vidéo ?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Cette action est irréversible. La vidéo {videoDeleteConfirmIdx !== null ? `#${videoDeleteConfirmIdx + 1}` : ""} sera supprimée.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction onClick={() => { setVideoDocs(prev => prev.filter((_, i) => i !== videoDeleteConfirmIdx)); setVideoDeleteConfirmIdx(null); }}>
+                  Supprimer
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
 
         {/* Matterport */}
