@@ -175,6 +175,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [categoryIcon, setCategoryIcon] = useState<string | null>(null);
   
   const [kpRelated, setKpRelated] = useState<KpRelatedBusiness[]>([]);
+  const [isKp1Only, setIsKp1Only] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showHook, setShowHook] = useState(false);
