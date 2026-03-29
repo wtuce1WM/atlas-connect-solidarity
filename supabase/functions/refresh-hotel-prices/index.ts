@@ -33,8 +33,8 @@ Deno.serve(async (req) => {
     const serpApiKey = Deno.env.get("SERPAPI_API_KEY");
     const liteApiKey = Deno.env.get("LITEAPI_API_KEY");
 
-    const checkIn = tomorrow();
-    const checkOut = dayAfterTomorrow();
+    const checkIn = checkInDate();
+    const checkOut = checkOutDate();
     const resultsMap = new Map<string, any>(); // key: business_id+source
     const errors: string[] = [];
 
