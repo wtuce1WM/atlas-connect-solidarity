@@ -3336,6 +3336,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     business={business}
                     toast={toast}
                     onOpenDesc={() => setVideoDescDialogIdx(idx)}
+                    onDelete={() => setVideoDeleteConfirmIdx(idx)}
                   />
                 ))}
               </div>
