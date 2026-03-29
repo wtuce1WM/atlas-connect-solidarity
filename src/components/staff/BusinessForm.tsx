@@ -3375,7 +3375,17 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           <Dialog open={videoDescDialogIdx !== null} onOpenChange={(open) => { if (!open) setVideoDescDialogIdx(null); }}>
             <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Description vidéo {videoDescDialogIdx !== null ? `#${videoDescDialogIdx + 1}` : ""}</DialogTitle>
+                <div className="flex items-center gap-3">
+                  <DialogTitle className="shrink-0">Description vidéo {videoDescDialogIdx !== null ? `#${videoDescDialogIdx + 1}` : ""}</DialogTitle>
+                  {videoDescDialogIdx !== null && (
+                    <Input
+                      placeholder="Prix (ex: 150 MAD)"
+                      value={videoDocs[videoDescDialogIdx]?.price || ""}
+                      onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === videoDescDialogIdx ? { ...d, price: e.target.value || null } : d))}
+                      className="h-8 text-sm max-w-[200px]"
+                    />
+                  )}
+                </div>
               </DialogHeader>
               {videoDescDialogIdx !== null && (
                 <div className="space-y-2">
