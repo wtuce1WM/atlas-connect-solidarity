@@ -1311,7 +1311,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   </a>
                 ) : (
                   <button
-                    onClick={() => { setBookingOverlayUrl(shopCta.fullUrl); setBookingOverlayTitle(language === "en" ? "Shop Online" : "Achetez en ligne"); setShowBookingOverlay(true); }}
+                    onClick={() => { setBookingOverlayUrl(shopCta.fullUrl); setBookingOverlayTitle(ctaLabel); setShowBookingOverlay(true); }}
                     className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-right"
                     style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366' }}
                   >
