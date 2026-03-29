@@ -27,6 +27,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle, Copy, ExternalLink, Globe, Star, Plus, Merge, ArrowRight, Loader2, FileText, X, Upload, Image as ImageIcon, ChevronUp, ChevronDown } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import type { Tables } from "@/integrations/supabase/types";
 import RichTextEditor from "./RichTextEditor";
 import ImageUploader from "./ImageUploader";
@@ -323,7 +324,7 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
       {/* Preview or input — reduced size */}
       {doc.url ? (
         <div className="space-y-0.5">
-          <div className="relative aspect-video w-full max-h-24 rounded overflow-hidden border bg-black">
+          <div className="relative aspect-square w-full rounded overflow-hidden border bg-black">
             {(() => {
               const url = doc.url;
               const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
@@ -370,85 +371,95 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
           </div>
         </div>
       )}
-      {/* POI, Destination, Business, Subcategory & City selectors */}
-      <div className="grid grid-cols-1 gap-1">
-        <div>
-          <label className="text-[9px] text-muted-foreground">POI</label>
-          <Select value={doc.poi_id || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, poi_id: v === "__none__" ? null : v } : d))}>
-            <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__none__">— Aucun</SelectItem>
-              {poiBusinessesForCity.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <label className="text-[9px] text-muted-foreground">Destination</label>
-          <Select value={doc.destination_id || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, destination_id: v === "__none__" ? null : v } : d))}>
-            <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__none__">— Aucune</SelectItem>
-              {dbDestinations.map(d => <SelectItem key={d.id} value={d.id}>{d.name_fr}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="relative">
-          <label className="text-[9px] text-muted-foreground">Établissement</label>
-          {doc.linked_business_id ? (
-            <div className="flex items-center gap-0.5 h-5 px-1 border rounded-md bg-background">
-              <span className="text-[9px] truncate flex-1">{allBusinessesForVideo.find(b => b.id === doc.linked_business_id)?.name || "…"}</span>
-              <button type="button" className="shrink-0" onClick={() => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, linked_business_id: null } : d))}>
-                <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
-              </button>
-            </div>
-          ) : (
+      {/* POI, Destination, Business, Subcategory & City selectors — collapsible */}
+      <Collapsible>
+        <CollapsibleTrigger asChild>
+          <button type="button" className="flex items-center gap-1 text-[9px] text-muted-foreground hover:text-foreground w-full">
+            <ChevronDown className="h-2.5 w-2.5 transition-transform [[data-state=open]>&]:rotate-180" />
+            Liaisons
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="grid grid-cols-1 gap-1 pt-1">
             <div>
-              <Input
-                value={videoBusinessSearch[idx] || ""}
-                onChange={(e) => setVideoBusinessSearch(prev => ({ ...prev, [idx]: e.target.value }))}
-                placeholder="Rechercher…"
-                className="h-5 text-[9px]"
-              />
-              {(videoBusinessSearch[idx] || "").length >= 2 && (
-                <div className="absolute z-50 mt-0.5 w-full max-h-28 overflow-y-auto bg-popover border rounded-md shadow-md">
-                  {allBusinessesForVideo
-                    .filter(b => b.name.toLowerCase().includes((videoBusinessSearch[idx] || "").toLowerCase()))
-                    .slice(0, 8)
-                    .map(b => (
-                      <button key={b.id} type="button" className="w-full text-left px-1.5 py-0.5 text-[9px] hover:bg-accent truncate"
-                        onClick={() => { setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, linked_business_id: b.id } : d)); setVideoBusinessSearch(prev => ({ ...prev, [idx]: "" })); }}>
-                        {b.name}
-                      </button>
-                    ))}
-                  {allBusinessesForVideo.filter(b => b.name.toLowerCase().includes((videoBusinessSearch[idx] || "").toLowerCase())).length === 0 && (
-                    <p className="px-1.5 py-0.5 text-[9px] text-muted-foreground">Aucun résultat</p>
+              <label className="text-[9px] text-muted-foreground">POI</label>
+              <Select value={doc.poi_id || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, poi_id: v === "__none__" ? null : v } : d))}>
+                <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">— Aucun</SelectItem>
+                  {poiBusinessesForCity.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-[9px] text-muted-foreground">Destination</label>
+              <Select value={doc.destination_id || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, destination_id: v === "__none__" ? null : v } : d))}>
+                <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">— Aucune</SelectItem>
+                  {dbDestinations.map(d => <SelectItem key={d.id} value={d.id}>{d.name_fr}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="relative">
+              <label className="text-[9px] text-muted-foreground">Établissement</label>
+              {doc.linked_business_id ? (
+                <div className="flex items-center gap-0.5 h-5 px-1 border rounded-md bg-background">
+                  <span className="text-[9px] truncate flex-1">{allBusinessesForVideo.find(b => b.id === doc.linked_business_id)?.name || "…"}</span>
+                  <button type="button" className="shrink-0" onClick={() => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, linked_business_id: null } : d))}>
+                    <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <Input
+                    value={videoBusinessSearch[idx] || ""}
+                    onChange={(e) => setVideoBusinessSearch(prev => ({ ...prev, [idx]: e.target.value }))}
+                    placeholder="Rechercher…"
+                    className="h-5 text-[9px]"
+                  />
+                  {(videoBusinessSearch[idx] || "").length >= 2 && (
+                    <div className="absolute z-50 mt-0.5 w-full max-h-28 overflow-y-auto bg-popover border rounded-md shadow-md">
+                      {allBusinessesForVideo
+                        .filter(b => b.name.toLowerCase().includes((videoBusinessSearch[idx] || "").toLowerCase()))
+                        .slice(0, 8)
+                        .map(b => (
+                          <button key={b.id} type="button" className="w-full text-left px-1.5 py-0.5 text-[9px] hover:bg-accent truncate"
+                            onClick={() => { setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, linked_business_id: b.id } : d)); setVideoBusinessSearch(prev => ({ ...prev, [idx]: "" })); }}>
+                            {b.name}
+                          </button>
+                        ))}
+                      {allBusinessesForVideo.filter(b => b.name.toLowerCase().includes((videoBusinessSearch[idx] || "").toLowerCase())).length === 0 && (
+                        <p className="px-1.5 py-0.5 text-[9px] text-muted-foreground">Aucun résultat</p>
+                      )}
+                    </div>
                   )}
                 </div>
               )}
             </div>
-          )}
-        </div>
-        <div>
-          <label className="text-[9px] text-muted-foreground">Sous-catégorie</label>
-          <Select value={doc.subcategory_id || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, subcategory_id: v === "__none__" ? null : v } : d))}>
-            <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__none__">— Aucune</SelectItem>
-              {dbSubcategories.slice().sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr')).map(s => <SelectItem key={s.id} value={s.id}>{s.name_fr}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <label className="text-[9px] text-muted-foreground">Ville</label>
-          <Select value={doc.city || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, city: v === "__none__" ? null : v } : d))}>
-            <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__none__">— Aucune</SelectItem>
-              {dbCities.map(c => <SelectItem key={c.id} value={c.name_fr}>{c.name_fr}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+            <div>
+              <label className="text-[9px] text-muted-foreground">Sous-catégorie</label>
+              <Select value={doc.subcategory_id || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, subcategory_id: v === "__none__" ? null : v } : d))}>
+                <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">— Aucune</SelectItem>
+                  {dbSubcategories.slice().sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr')).map(s => <SelectItem key={s.id} value={s.id}>{s.name_fr}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-[9px] text-muted-foreground">Ville</label>
+              <Select value={doc.city || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, city: v === "__none__" ? null : v } : d))}>
+                <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">— Aucune</SelectItem>
+                  {dbCities.map(c => <SelectItem key={c.id} value={c.name_fr}>{c.name_fr}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   );
 };
