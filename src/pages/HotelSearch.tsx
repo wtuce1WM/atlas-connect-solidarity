@@ -501,7 +501,7 @@ const HotelSearch = () => {
           <div className="fixed inset-0 z-50 flex justify-end">
             <div className="absolute inset-0 bg-black/40" onClick={() => setSlidePanelBusiness(null)} />
             <div className="relative w-full max-w-md h-full">
-              <BusinessSlidePanel
+              <BookOnlineSlidePanel
                 businessId={slidePanelBusiness.id}
                 onClose={() => setSlidePanelBusiness(null)}
                 liteApiData={slidePanelBusiness.liteApiData}
