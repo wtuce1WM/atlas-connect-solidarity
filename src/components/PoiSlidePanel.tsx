@@ -265,7 +265,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
                   <div className="flex items-center gap-2 shrink-0">
                     {linkedBusinesses.length > 0 && (
                       <button
-                        onClick={() => setFlipped(true)}
+                        onClick={() => { playWoosh(); setFlipped(true); }}
                         className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
                         aria-label="Voir la carte"
                         title="Voir sur la carte"
