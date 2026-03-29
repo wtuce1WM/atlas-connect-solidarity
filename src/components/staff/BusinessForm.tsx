@@ -452,7 +452,7 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
   );
 };
 
-
+const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: BusinessFormProps) => {
   // Set of broken URL values for quick lookup
   const brokenUrlSet = useMemo(() => new Set(brokenLinks.map(bl => bl.url)), [brokenLinks]);
   const isBrokenUrl = (url: string) => url && brokenUrlSet.has(url);
