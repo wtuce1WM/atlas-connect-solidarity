@@ -346,7 +346,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       setReviewTexts(reviewsRes.data ? (reviewsRes.data as any[]) : []);
       setExternalLinks((extLinksRes.data || []) as ExternalLinkItem[]);
       setMenuSummaries((menuSumRes.data || []) as MenuSummary[]);
-      const vDocs = (videoDocsRes.data || []) as { url: string; name: string | null; city: string | null; price: string | null; price_type: string | null; description: string | null }[];
+      const vDocs = (videoDocsRes.data || []) as { url: string; name: string | null; city: string | null; price: string | null; price_type: string | null; description: string | null; thumbnail_url: string | null }[];
       setVideoDocUrls(vDocs.map(d => d.url).filter(Boolean));
       setVideoDocs(vDocs.filter(d => d.url));
 
