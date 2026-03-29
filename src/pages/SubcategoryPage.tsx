@@ -1,7 +1,7 @@
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import { useSEO } from "@/hooks/useSEO";
-import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -55,12 +55,8 @@ interface Business {
   neighborhood?: string | null;
   default_service?: string | null;
   hook_fr?: string | null;
-  google_rating: number | null;
-  google_review_count: number | null;
-  tripadvisor_rating: number | null;
-  tripadvisor_review_count: number | null;
-  restaurant_guru_rating: number | null;
-  restaurant_guru_review_count: number | null;
+  computed_rating?: number | null;
+  total_review_count?: number | null;
 }
 
 interface SubcategoryInfo {
@@ -154,8 +150,7 @@ const SubcategoryPage = () => {
   }, [allBusinesses, selectedCity, gammes]);
 
   const getEffectiveRating = (b: Business): number | null => {
-    if (b.rating) return Number(b.rating);
-    return computeWeightedRatingOn20(collectRatingSources(b));
+    return (b as any).computed_rating ?? (b.rating ? Number(b.rating) : null);
   };
 
   // Filter businesses
@@ -179,8 +174,8 @@ const SubcategoryPage = () => {
     const dir = sortAsc ? -1 : 1;
     result = [...result].sort((a, b) => {
       if (sortMode === "reviews") {
-        const countA = (a.google_review_count || 0) + (a.tripadvisor_review_count || 0) + (a.restaurant_guru_review_count || 0);
-        const countB = (b.google_review_count || 0) + (b.tripadvisor_review_count || 0) + (b.restaurant_guru_review_count || 0);
+        const countA = a.total_review_count || 0;
+        const countB = b.total_review_count || 0;
         return (countB - countA) * dir;
       }
       const rA = getEffectiveRating(a);
@@ -276,7 +271,7 @@ const SubcategoryPage = () => {
         // Fetch businesses that have this subcategory in their categories array
         const { data: businessData, error } = await supabase
           .from("businesses")
-          .select("id, slug, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, default_service, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, gamme_id, badge_id, neighborhood, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, hook_fr")
+          .select("id, slug, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, default_service, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, computed_rating, total_review_count, gamme_id, badge_id, neighborhood, hook_fr")
           .eq("is_active", true)
           .contains("categories", [decodedSubcategoryName])
           .order("wtuce_status", { ascending: true })

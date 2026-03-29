@@ -1,7 +1,7 @@
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useSEO } from "@/hooks/useSEO";
-import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
+
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -147,8 +147,7 @@ const ServicePage = () => {
   }, [allBusinesses, selectedCity, selectedGammeFilter]);
 
   const getEffectiveRating = (b: typeof allBusinesses[0]): number | null => {
-    if (b.rating) return Number(b.rating);
-    return computeWeightedRatingOn20(collectRatingSources(b));
+    return (b as any).computed_rating ?? (b.rating ? Number(b.rating) : null);
   };
 
   // Filter businesses by city, service, and gamme, then sort by rating
@@ -303,7 +302,7 @@ const ServicePage = () => {
         if (badgeSubcatsRes.data) setBadgeSubcategories(badgeSubcatsRes.data);
 
         // Fetch businesses
-        const selectFields = "id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, default_service, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, gamme_id, badge_id, neighborhood, hook_fr, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count";
+        const selectFields = "id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, default_service, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, computed_rating, total_review_count, gamme_id, badge_id, neighborhood, hook_fr";
 
         let businessData: Business[] | null = null;
         let fetchError: Error | null = null;

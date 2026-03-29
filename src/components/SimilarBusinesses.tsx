@@ -3,7 +3,7 @@ import { businessUrl } from "@/lib/businessUrl";
 import { Link } from "react-router-dom";
 import { MapPin, Star, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
+
 import BookmarkButton from "@/components/BookmarkButton";
 
 interface SimilarBusiness {
@@ -13,16 +13,8 @@ interface SimilarBusiness {
   neighborhood: string | null;
   images: string[] | null;
   rating: number | null;
-  google_rating: number | null;
-  google_review_count: number | null;
-  tripadvisor_rating: number | null;
-  tripadvisor_review_count: number | null;
-  restaurant_guru_rating: number | null;
-  restaurant_guru_review_count: number | null;
-  getyourguide_rating: number | null;
-  getyourguide_review_count: number | null;
-  viator_rating: number | null;
-  viator_review_count: number | null;
+  computed_rating?: number | null;
+  total_review_count?: number | null;
   wtuce_status: string | null;
   categories: string[] | null;
 }
@@ -63,7 +55,7 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
 
       let query = supabase
         .from("businesses")
-        .select("id, name, city, neighborhood, images, rating, wtuce_status, categories, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count", { count: "exact" })
+        .select("id, name, city, neighborhood, images, rating, computed_rating, total_review_count, wtuce_status, categories", { count: "exact" })
         .eq("is_active", true)
         .contains("categories", [subcategory])
         .neq("id", currentBusinessId)
@@ -82,8 +74,8 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
           const aV = a.wtuce_status === "verified" ? 1 : 0;
           const bV = b.wtuce_status === "verified" ? 1 : 0;
           if (bV !== aV) return bV - aV;
-          const aRating = a.rating ?? computeWeightedRatingOn20(collectRatingSources(a)) ?? 0;
-          const bRating = b.rating ?? computeWeightedRatingOn20(collectRatingSources(b)) ?? 0;
+          const aRating = a.computed_rating ?? a.rating ?? 0;
+          const bRating = b.computed_rating ?? b.rating ?? 0;
           return bRating - aRating;
         });
         setAllBusinesses(sorted);
@@ -125,9 +117,8 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
       <div className="flex gap-2 overflow-x-auto scrollbar-hide sm:hidden" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
         {allBusinesses.map((biz) => {
           const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
-          const sources = collectRatingSources(biz);
-          const avgOn20 = biz.rating ?? computeWeightedRatingOn20(sources);
-          const totalReviews = sources.reduce((s, r) => s + r.count, 0);
+          const avgOn20 = (biz as any).computed_rating ?? biz.rating;
+          const totalReviews = (biz as any).total_review_count ?? 0;
 
           return (
             <Link
@@ -173,9 +164,8 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
       <div className="hidden sm:grid grid-cols-3 gap-2">
         {businesses.map((biz) => {
           const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
-          const sources = collectRatingSources(biz);
-          const avgOn20 = biz.rating ?? computeWeightedRatingOn20(sources);
-          const totalReviews = sources.reduce((s, r) => s + r.count, 0);
+          const avgOn20 = (biz as any).computed_rating ?? biz.rating;
+          const totalReviews = (biz as any).total_review_count ?? 0;
 
           return (
             <Link

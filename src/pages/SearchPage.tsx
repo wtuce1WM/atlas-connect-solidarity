@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGeolocation } from "@/hooks/useGeolocation";
-import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
+
 import { extractTimeSlot, isOpenDuringSlot, getCurrentTimePeriod, type TimeSlot, type TimePeriod } from "@/lib/timeSlots";
 import { isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHours";
 import zitounMaskImg from "@/assets/zitoun-mask.jpg";
@@ -1224,8 +1224,7 @@ const SearchPage = () => {
   ]);
 
   const getEffectiveRating = (b: typeof allBusinesses[0]): number | null => {
-    if (b.rating) return Number(b.rating);
-    return computeWeightedRatingOn20(collectRatingSources(b));
+    return (b as any).computed_rating ?? (b.rating ? Number(b.rating) : null);
   };
 
   // Compute distance between user coords and a business
@@ -1444,8 +1443,8 @@ const SearchPage = () => {
         city: b.city,
         neighborhood: b.neighborhood,
         rating: b.rating,
-        avgOn20: computeWeightedRatingOn20(collectRatingSources(b as any)),
-        totalReviews: collectRatingSources(b as any).reduce((s, r) => s + r.count, 0),
+        avgOn20: (b as any).computed_rating ?? b.rating ?? null,
+        totalReviews: (b as any).total_review_count ?? 0,
         subcategory: b.categories?.[0] || null,
       }));
   }, [hasKnownLocation, filteredBusinesses, mapCenterForResults, neighborhoodCoords, effectiveCityForMap]);
@@ -1487,8 +1486,8 @@ const SearchPage = () => {
         city: b.city,
         neighborhood: b.neighborhood,
         rating: b.rating,
-        avgOn20: computeWeightedRatingOn20(collectRatingSources(b as any)),
-        totalReviews: collectRatingSources(b as any).reduce((s, r) => s + r.count, 0),
+        avgOn20: (b as any).computed_rating ?? b.rating ?? null,
+        totalReviews: (b as any).total_review_count ?? 0,
         subcategory: b.categories?.[0] || null,
       }));
   }, [isSubDesktop, filteredBusinesses, mapCenterForResults, neighborhoodCoords]);
@@ -2008,7 +2007,7 @@ const SearchPage = () => {
     }
 
     // Rating
-    const ratingOn20 = computeWeightedRatingOn20(collectRatingSources(b));
+    const ratingOn20 = (b as any).computed_rating ?? b.rating ?? null;
     if (ratingOn20 !== null) {
       parts.push(`noté ${ratingOn20.toFixed(1).replace('.', ',')} sur 20`);
     }
@@ -3252,10 +3251,9 @@ const SearchPage = () => {
                    }}
                   columns={hasKnownLocation ? 2 : undefined}
                   onMapClick={hasKnownLocation ? (biz) => { setHoveredPoiId(biz.id); } : (biz) => { setPoiSelectedBusinessId(null); setPoiMapBusiness({ id: biz.id, name: biz.name, latitude: biz.latitude, longitude: biz.longitude, address: biz.address, google_maps_url: biz.google_maps_url }); }}
-                  onPoisLoaded={(loadedPois) => setAllPois(loadedPois.map(p => {
-                    const sources = collectRatingSources(p);
-                    const avgOn20 = p.rating ?? computeWeightedRatingOn20(sources);
-                    const totalReviews = sources.reduce((s, r) => s + r.count, 0);
+                   onPoisLoaded={(loadedPois) => setAllPois(loadedPois.map(p => {
+                    const avgOn20 = (p as any).computed_rating ?? p.rating ?? null;
+                    const totalReviews = (p as any).total_review_count ?? 0;
                     return { id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude, images: p.images, city: p.city, neighborhood: p.neighborhood, avgOn20, totalReviews };
                   }))}
                   onHover={setHoveredPoiId}
@@ -3968,11 +3966,8 @@ const SearchPage = () => {
               <div className={`grid gap-4 pt-10 md:pt-7 lg:pt-7 pb-28 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : hasKnownLocation ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
                 {paginatedBusinesses.map((business, index) => {
                   const img = business.images?.[0] || business.logo_url;
-                  const avgOn20 = (business as any).computed_rating ?? business.rating ?? ((): number | null => {
-                    const sources = collectRatingSources(business as any);
-                    return computeWeightedRatingOn20(sources);
-                  })();
-                  const totalReviews = (business as any).total_review_count ?? collectRatingSources(business as any).reduce((s: number, r: any) => s + r.count, 0);
+                  const avgOn20 = (business as any).computed_rating ?? business.rating ?? null;
+                  const totalReviews = (business as any).total_review_count ?? 0;
                   const subcat = business.categories?.[0] || null;
 
                    const card = (

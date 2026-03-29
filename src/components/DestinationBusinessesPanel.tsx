@@ -6,7 +6,7 @@ import SlidePanelHeader from "@/components/SlidePanelHeader";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem } from "@/components/FullscreenLightbox";
 import { supabase } from "@/integrations/supabase/client";
-import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
+
 import BookmarkButton from "@/components/BookmarkButton";
 import type { DestinationItem } from "@/components/DestinationSection";
 
@@ -17,16 +17,8 @@ interface Business {
   neighborhood: string | null;
   images: string[] | null;
   rating: number | null;
-  google_rating: number | null;
-  google_review_count: number | null;
-  tripadvisor_rating: number | null;
-  tripadvisor_review_count: number | null;
-  restaurant_guru_rating: number | null;
-  restaurant_guru_review_count: number | null;
-  getyourguide_rating: number | null;
-  getyourguide_review_count: number | null;
-  viator_rating: number | null;
-  viator_review_count: number | null;
+  computed_rating?: number | null;
+  total_review_count?: number | null;
   wtuce_status: string | null;
 }
 
@@ -38,7 +30,7 @@ interface DestinationBusinessesPanelProps {
   onLoginRequired?: () => void;
 }
 
-const SELECT_FIELDS = "id, name, city, neighborhood, images, rating, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count";
+const SELECT_FIELDS = "id, name, city, neighborhood, images, rating, computed_rating, total_review_count, wtuce_status";
 
 const DestinationBusinessesPanel = ({ destination, language, onClose, onBusinessClick, onLoginRequired }: DestinationBusinessesPanelProps) => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -81,8 +73,8 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
         const aV = a.wtuce_status === "verified" ? 1 : 0;
         const bV = b.wtuce_status === "verified" ? 1 : 0;
         if (bV !== aV) return bV - aV;
-        const aRating = a.rating ?? computeWeightedRatingOn20(collectRatingSources(a)) ?? 0;
-        const bRating = b.rating ?? computeWeightedRatingOn20(collectRatingSources(b)) ?? 0;
+        const aRating = a.computed_rating ?? a.rating ?? 0;
+        const bRating = b.computed_rating ?? b.rating ?? 0;
         return bRating - aRating;
       });
 
@@ -246,9 +238,8 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 {businesses.map((biz) => {
                   const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
-                  const sources = collectRatingSources(biz);
-                  const avgOn20 = biz.rating ?? computeWeightedRatingOn20(sources);
-                  const totalReviews = sources.reduce((s, r) => s + r.count, 0);
+                  const avgOn20 = biz.computed_rating ?? biz.rating;
+                  const totalReviews = biz.total_review_count ?? 0;
 
                   return (
                     <Link
