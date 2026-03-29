@@ -1162,29 +1162,31 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                         }
                       }}
                     >
-                      {ytThumb ? (
-                        <img src={ytThumb} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
-                      ) : vimeoThumb ? (
-                        <img src={vimeoThumb} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
-                      ) : isFile ? (
-                        <VideoThumbnail src={vid.url} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
-                      ) : (
-                        <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
-                          <span className="text-2xl">▶</span>
-                        </div>
-                      )}
-                      <div className="px-1.5 py-1.5 space-y-0.5">
-                        <p className="text-xs font-medium text-white text-center truncate">
-                          {vid.name || `Vidéo ${index + 1}`}
-                        </p>
+                    <div className="relative">
+                        {ytThumb ? (
+                          <img src={ytThumb} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                        ) : vimeoThumb ? (
+                          <img src={vimeoThumb} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                        ) : isFile ? (
+                          <VideoThumbnail src={vid.url} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                        ) : (
+                          <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
+                            <span className="text-2xl">▶</span>
+                          </div>
+                        )}
                         {(vid.city || vid.price || vid.price_type) && (
-                          <div className="flex items-center justify-center gap-1 text-[10px] text-white/70 truncate">
+                          <div className="absolute top-1 left-1 right-1 flex items-center gap-1 text-[10px] text-white truncate bg-black/50 rounded px-1.5 py-0.5 backdrop-blur-sm">
                             {vid.city && <span>{vid.city}</span>}
                             {vid.city && (vid.price || vid.price_type) && <span>·</span>}
                             {vid.price && <span>{vid.price}</span>}
                             {vid.price_type && <span className="capitalize">{vid.price_type}</span>}
                           </div>
                         )}
+                      </div>
+                      <div className="px-1.5 py-1.5">
+                        <p className="text-xs font-medium text-white text-center truncate">
+                          {vid.name || `Vidéo ${index + 1}`}
+                        </p>
                       </div>
                     </div>
                   );
