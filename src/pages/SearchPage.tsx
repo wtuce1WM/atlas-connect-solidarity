@@ -2993,6 +2993,7 @@ const SearchPage = () => {
                   onClose={() => { setPoiSelectedBusinessId(null); setPoiPanelExpanded(false); }}
                   isExpanded={poiPanelExpanded}
                   onToggleExpand={() => setPoiPanelExpanded(v => !v)}
+                  forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
                 />
               </div>
             )}
