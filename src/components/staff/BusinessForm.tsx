@@ -782,6 +782,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   const [externalLinkDocs, setExternalLinkDocs] = useState<ExternalLinkEntry[]>([]);
   const [videoDocs, setVideoDocs] = useState<VideoDocEntry[]>([]);
   const [videoDescDialogIdx, setVideoDescDialogIdx] = useState<number | null>(null);
+  const [videoDeleteConfirmIdx, setVideoDeleteConfirmIdx] = useState<number | null>(null);
 
   // --- Menu summaries (multiple per business) ---
   type MenuSummaryEntry = { id?: string; title: string; content: string; avg_price_range: any; price_details: string };
