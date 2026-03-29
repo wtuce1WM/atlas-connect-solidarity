@@ -1139,7 +1139,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             )}
             {/* Video controls — below CTAs */}
             {currentMedia?.kind === "video" && videoInfo?.type === "file" && (
-              <div className="flex items-center gap-10 mt-5 mb-4 pb-2">
+              <div className="flex items-center gap-10 mt-5 mb-6 md:mb-4 lg:mb-0 pb-2">
                 <button
                   type="button"
                   onClick={() => {
