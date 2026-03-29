@@ -238,9 +238,8 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 {businesses.map((biz) => {
                   const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
-                  const sources = collectRatingSources(biz);
-                  const avgOn20 = biz.rating ?? computeWeightedRatingOn20(sources);
-                  const totalReviews = sources.reduce((s, r) => s + r.count, 0);
+                  const avgOn20 = biz.computed_rating ?? biz.rating;
+                  const totalReviews = biz.total_review_count ?? 0;
 
                   return (
                     <Link
