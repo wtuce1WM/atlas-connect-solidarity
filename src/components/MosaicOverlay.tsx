@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
 
-type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
+type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string };
 
 interface MosaicOverlayProps {
   mediaItems: MediaItem[];
@@ -26,11 +26,13 @@ const MosaicOverlay = ({ mediaItems, onClose, onOpenLightbox }: MosaicOverlayPro
           if (item.kind === "video") {
             const ytMatch = item.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
             const vimeoMatch = item.url.match(/vimeo\.com\/(\d+)/);
-            const thumbnail = ytMatch
-              ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`
-              : vimeoMatch
-                ? `https://vumbnail.com/${vimeoMatch[1]}.jpg`
-                : null;
+            const thumbnail = item.thumbnailUrl
+              ? item.thumbnailUrl
+              : ytMatch
+                ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`
+                : vimeoMatch
+                  ? `https://vumbnail.com/${vimeoMatch[1]}.jpg`
+                  : null;
             return (
               <div
                 key={`mv-${idx}`}

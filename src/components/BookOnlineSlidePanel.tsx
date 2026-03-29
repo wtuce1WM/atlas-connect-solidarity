@@ -149,7 +149,7 @@ interface PoiBusiness {
   neighborhood: string | null;
 }
 
-type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
+type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string };
 
 
 const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand, externalOverlayActive }: BookOnlineSlidePanelProps) => {
@@ -182,7 +182,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [menuSummaries, setMenuSummaries] = useState<MenuSummary[]>([]);
   const [menuDocs, setMenuDocs] = useState<MenuDoc[]>([]);
   const [videoDocUrls, setVideoDocUrls] = useState<string[]>([]);
-  const [videoDocs, setVideoDocs] = useState<{ url: string; name: string | null; city: string | null; price: string | null; price_type: string | null; description: string | null }[]>([]);
+  const [videoDocs, setVideoDocs] = useState<{ url: string; name: string | null; city: string | null; price: string | null; price_type: string | null; description: string | null; thumbnail_url: string | null }[]>([]);
   const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ url: string; name: string | null; description: string | null } | null>(null);
   const [videoOverlayClosing, setVideoOverlayClosing] = useState(false);
   const [videoDescExpanded, setVideoDescExpanded] = useState(true);
@@ -333,7 +333,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           .order("sort_order"),
         supabase
           .from("business_documents")
-          .select("url, name, city, price, price_type, description")
+          .select("url, name, city, price, price_type, description, thumbnail_url")
           .eq("business_id", businessId)
           .eq("type", "video")
           .order("sort_order"),
@@ -346,7 +346,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       setReviewTexts(reviewsRes.data ? (reviewsRes.data as any[]) : []);
       setExternalLinks((extLinksRes.data || []) as ExternalLinkItem[]);
       setMenuSummaries((menuSumRes.data || []) as MenuSummary[]);
-      const vDocs = (videoDocsRes.data || []) as { url: string; name: string | null; city: string | null; price: string | null; price_type: string | null; description: string | null }[];
+      const vDocs = (videoDocsRes.data || []) as { url: string; name: string | null; city: string | null; price: string | null; price_type: string | null; description: string | null; thumbnail_url: string | null }[];
       setVideoDocUrls(vDocs.map(d => d.url).filter(Boolean));
       setVideoDocs(vDocs.filter(d => d.url));
 
@@ -620,9 +620,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   }, [hookText, businessId]);
 
   const mediaItems = useMemo<MediaItem[]>(() => [
-    ...videos.map((v) => ({ kind: "video" as const, url: v })),
+    ...videos.map((v) => {
+      const doc = videoDocs.find(d => d.url === v);
+      return { kind: "video" as const, url: v, thumbnailUrl: doc?.thumbnail_url || null };
+    }),
     ...images.map((i) => ({ kind: "image" as const, url: i })),
-  ], [videos, images]);
+  ], [videos, images, videoDocs]);
 
   const totalMedia = mediaItems.length;
   const safeIndex = totalMedia > 0 ? currentMediaIndex % totalMedia : 0;
@@ -1174,7 +1177,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       }}
                     >
                     <div className="relative">
-                        {ytThumb ? (
+                        {vid.thumbnail_url ? (
+                          <img src={vid.thumbnail_url} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                        ) : ytThumb ? (
                           <img src={ytThumb} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
                         ) : vimeoThumb ? (
                           <img src={vimeoThumb} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
@@ -1798,7 +1803,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       {/* Mosaic overlay */}
       {showMosaic && (
         <MosaicOverlay
-          mediaItems={mediaItems.filter(m => m.kind === "video" || m.kind === "image") as { kind: "video" | "image"; url: string }[]}
+          mediaItems={mediaItems.filter(m => m.kind === "video" || m.kind === "image")}
           onClose={() => setShowMosaic(false)}
           onOpenLightbox={(idx) => { setLightboxIndex(idx); setIsLightboxOpen(true); }}
         />

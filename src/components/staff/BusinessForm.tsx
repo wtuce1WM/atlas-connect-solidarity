@@ -275,7 +275,77 @@ const SERVICES: Record<string, string[]> = {
   ],
 };
 
-type VideoDocEntry = { id?: string; url: string; name: string; poi_id: string | null; destination_id: string | null; linked_business_id: string | null; subcategory_id: string | null; city: string | null; neighborhood: string | null; description: string | null; price: string | null; price_type: string | null };
+type VideoDocEntry = { id?: string; url: string; name: string; poi_id: string | null; destination_id: string | null; linked_business_id: string | null; subcategory_id: string | null; city: string | null; neighborhood: string | null; description: string | null; price: string | null; price_type: string | null; thumbnail_url: string | null };
+
+/** Generate a JPEG thumbnail from a video URL. Returns a Blob or null. */
+async function generateVideoThumbnail(videoUrl: string): Promise<Blob | null> {
+  return new Promise((resolve) => {
+    const video = document.createElement("video");
+    video.crossOrigin = "anonymous";
+    video.muted = true;
+    video.preload = "auto";
+    video.playsInline = true;
+    video.src = videoUrl;
+
+    const timeout = setTimeout(() => { video.remove(); resolve(null); }, 15000);
+
+    const capture = () => {
+      try {
+        const THUMB_W = 1280, THUMB_H = 720;
+        const natW = video.videoWidth || THUMB_W;
+        const natH = video.videoHeight || THUMB_H;
+        const scale = Math.min(THUMB_W / natW, THUMB_H / natH, 1);
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(natW * scale);
+        canvas.height = Math.round(natH * scale);
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return null;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        // Check brightness
+        const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let total = 0;
+        const pixels = data.length / 4;
+        for (let i = 0; i < data.length; i += 4) {
+          total += data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+        }
+        const isBlack = total / pixels < 35;
+        return isBlack ? null : canvas;
+      } catch { return null; }
+    };
+
+    let triedSeek = false;
+
+    const handleSeeked = () => {
+      const canvas = capture();
+      if (!canvas && !triedSeek) {
+        triedSeek = true;
+        video.currentTime = Math.min(5, video.duration * 0.25);
+        return;
+      }
+      clearTimeout(timeout);
+      if (canvas) {
+        canvas.toBlob((blob) => { video.remove(); resolve(blob); }, "image/jpeg", 0.75);
+      } else {
+        // Force capture even if black
+        try {
+          const c = document.createElement("canvas");
+          c.width = video.videoWidth || 1280;
+          c.height = video.videoHeight || 720;
+          const ctx2 = c.getContext("2d");
+          if (ctx2) { ctx2.drawImage(video, 0, 0, c.width, c.height); c.toBlob((blob) => { video.remove(); resolve(blob); }, "image/jpeg", 0.75); }
+          else { video.remove(); resolve(null); }
+        } catch { video.remove(); resolve(null); }
+      }
+    };
+
+    const handleLoaded = () => { video.currentTime = 3; };
+    const handleError = () => { clearTimeout(timeout); video.remove(); resolve(null); };
+
+    video.addEventListener("loadeddata", handleLoaded);
+    video.addEventListener("seeked", handleSeeked);
+    video.addEventListener("error", handleError);
+  });
+}
 
 interface SortableVideoCardProps {
   id: string;
@@ -826,7 +896,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         setMenuDocs((data as any[]).filter((d: any) => d.type === "menu").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "" })));
         setFlipbookDocs((data as any[]).filter((d: any) => d.type === "flipbook").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "" })));
         setExternalLinkDocs((data as any[]).filter((d: any) => d.type === "external_link").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", image_url: d.icon || "" })));
-        setVideoDocs((data as any[]).filter((d: any) => d.type === "video").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null })));
+        setVideoDocs((data as any[]).filter((d: any) => d.type === "video").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null })));
       }
     };
     const fetchSummaries = async () => {
@@ -1472,6 +1542,23 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
       // Save business documents (menus, flipbooks & external links)
       if (businessId) {
+        // Generate thumbnails for file-hosted videos that don't have one yet
+        const isFileVideo = (url: string) => !url.match(/youtube\.com|youtu\.be|vimeo\.com/i) && url.includes("supabase.co/storage");
+        const videoDocsWithThumbs = await Promise.all(
+          videoDocs.filter(d => d.url.trim()).map(async (d) => {
+            if (d.thumbnail_url || !isFileVideo(d.url)) return d;
+            try {
+              const blob = await generateVideoThumbnail(d.url);
+              if (!blob) return d;
+              const thumbName = `thumbs/${businessId}-${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
+              const { error: upErr } = await supabase.storage.from("business-images").upload(thumbName, blob, { contentType: "image/jpeg", cacheControl: "31536000", upsert: false });
+              if (upErr) { console.warn("Thumb upload error:", upErr); return d; }
+              const { data: thumbUrl } = supabase.storage.from("business-images").getPublicUrl(thumbName);
+              return { ...d, thumbnail_url: thumbUrl?.publicUrl || null };
+            } catch (e) { console.warn("Thumb generation error:", e); return d; }
+          })
+        );
+
         await supabase.from("business_documents" as any).delete().eq("business_id", businessId);
         const allDocs = [
           ...menuDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "menu" as const, url: d.url.trim(), name: d.name || null, language: d.language || null, icon: d.icon || null, sort_order: i })),
@@ -1479,7 +1566,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           ...externalLinkDocs
             .filter((d) => d.name.trim() && d.url.trim())
             .map((d, i) => ({ business_id: businessId, type: "external_link" as const, url: d.url.trim(), name: d.name.trim(), language: d.language || null, icon: d.image_url || null, sort_order: i })),
-          ...videoDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "video" as const, url: d.url.trim(), name: d.name || null, language: null, icon: null, sort_order: i, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null })),
+          ...videoDocsWithThumbs.map((d, i) => ({ business_id: businessId, type: "video" as const, url: d.url.trim(), name: d.name || null, language: null, icon: null, sort_order: i, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null })),
         ];
         if (allDocs.length > 0) {
           const { error: docsError } = await supabase.from("business_documents" as any).insert(allDocs);
@@ -3259,7 +3346,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 <span className="text-xs text-muted-foreground">{formData.show_videos ? "Activé" : "Désactivé"} — non utilisé sur le frontend actuellement</span>
               </div>
             </div>
-            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => [...prev, { url: "", name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null }])}>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => [...prev, { url: "", name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null }])}>
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
@@ -3281,7 +3368,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 if (error) { toast({ variant: "destructive", title: "Erreur", description: `${file.name}: ${error.message}` }); continue; }
                 const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
                 if (urlData?.publicUrl) {
-                  setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: file.name.replace(/\.[^.]+$/, ""), poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null }]);
+                   setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: file.name.replace(/\.[^.]+$/, ""), poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null }]);
                 }
               }
               toast({ title: `${files.length} vidéo(s) uploadée(s) ✓` });
@@ -3301,7 +3388,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   if (error) { toast({ variant: "destructive", title: "Erreur", description: `${file.name}: ${error.message}` }); continue; }
                   const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
                   if (urlData?.publicUrl) {
-                    setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: file.name.replace(/\.[^.]+$/, ""), poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null }]);
+                    setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: file.name.replace(/\.[^.]+$/, ""), poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null }]);
                   }
                 }
                 toast({ title: `${files.length} vidéo(s) uploadée(s) ✓` });
