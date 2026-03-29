@@ -730,8 +730,6 @@ const SearchPage = () => {
         setIsCompactPanelExpanded(false);
       }, []);
 
-      const compactPanelRef = useRef<BusinessSlidePanelHandle>(null);
-
       const closeCompactPanel = useCallback(() => {
         hasInteractedWithCompactPanelRef.current = true;
         hasAutoAlignedResultsRef.current = true;
@@ -745,8 +743,6 @@ const SearchPage = () => {
           setIsCompactPanelExpanded(false);
           return;
         }
-        // Let BSP handle close internally (go back to fallback) if applicable
-        if (compactPanelRef.current?.requestClose()) return;
         closeCompactPanel();
       }, [closeCompactPanel, isCompactPanelExpanded]);
 
