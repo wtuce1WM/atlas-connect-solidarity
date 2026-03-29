@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Search, Hotel, Star, MapPin, Calendar, Users, BedDouble } from "lucide-react";
 import { toast } from "sonner";
 import HotelDetailDialog, { type HotelResult } from "@/components/HotelDetailDialog";
-import BusinessSlidePanel, { type LiteApiData } from "@/components/BusinessSlidePanel";
+import BookOnlineSlidePanel, { type LiteApiData } from "@/components/BookOnlineSlidePanel";
 import { useSEO } from "@/hooks/useSEO";
 
 // HotelOffer type is now in HotelDetailDialog
