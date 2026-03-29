@@ -1513,11 +1513,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         const isVerticalHint = overlayVid.isVertical;
         const isFile = overlayVid.type === "file";
         return (
-          <div className="absolute inset-0 z-[70] bg-black animate-slide-up-from-bottom overflow-hidden">
+          <div
+            className={`absolute inset-0 z-[70] bg-black overflow-hidden ${videoOverlayClosing ? 'animate-slide-out-bottom' : 'animate-slide-up-from-bottom'}`}
+            onAnimationEnd={() => { if (videoOverlayClosing) { setActiveVideoOverlay(null); setVideoOverlayClosing(false); } }}
+          >
             {/* Top bar: close + mobile nav with counter */}
             <div className="absolute top-3 left-3 right-3 z-20 flex items-center">
               <button
-                onClick={() => setActiveVideoOverlay(null)}
+                onClick={() => setVideoOverlayClosing(true)}
                 className="w-9 h-9 rounded-full bg-gray-500/70 backdrop-blur-sm flex items-center justify-center hover:bg-gray-500/90 transition-colors shrink-0"
               >
                 <X className="h-4 w-4 text-white" />
