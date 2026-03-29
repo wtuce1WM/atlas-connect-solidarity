@@ -1542,6 +1542,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         );
       })()}
 
+      {showBookingOverlay && (bookingOverlayUrl || bookUrl) && (() => {
         const overlayUrl = bookingOverlayUrl || bookUrl!;
         const finalUrl = overlayUrl.startsWith("http") ? overlayUrl : `https://${overlayUrl}`;
         return (
