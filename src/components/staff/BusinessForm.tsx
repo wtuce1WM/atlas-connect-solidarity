@@ -292,9 +292,10 @@ interface SortableVideoCardProps {
   business: any;
   toast: any;
   onOpenDesc: () => void;
+  onDelete: () => void;
 }
 
-const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinessesForCity, dbDestinations, allBusinessesForVideo, videoBusinessSearch, setVideoBusinessSearch, dbSubcategories, dbCities, business, toast, onOpenDesc }: SortableVideoCardProps) => {
+const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinessesForCity, dbDestinations, allBusinessesForVideo, videoBusinessSearch, setVideoBusinessSearch, dbSubcategories, dbCities, business, toast, onOpenDesc, onDelete }: SortableVideoCardProps) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1, zIndex: isDragging ? 50 : undefined };
 
@@ -306,16 +307,16 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
           <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><circle cx="4" cy="3" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="4" cy="8" r="1.5"/><circle cx="12" cy="8" r="1.5"/><circle cx="4" cy="13" r="1.5"/><circle cx="12" cy="13" r="1.5"/></svg>
         </button>
         <span className="text-[9px] text-muted-foreground shrink-0">{idx + 1}</span>
+        <Button type="button" variant={doc.description ? "default" : "outline"} size="sm" className="h-5 px-1.5 text-[9px] shrink-0" title="Description" onClick={onOpenDesc}>
+          TXT
+        </Button>
         <Input
           value={doc.name}
           onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, name: e.target.value } : d))}
           placeholder="Titre"
           className="h-5 text-[10px] flex-1 min-w-0"
         />
-        <Button type="button" variant={doc.description ? "default" : "outline"} size="sm" className="h-5 px-1.5 text-[9px] shrink-0" title="Description" onClick={onOpenDesc}>
-          TXT
-        </Button>
-        <Button type="button" variant="ghost" size="sm" className="h-5 w-5 p-0 text-destructive hover:text-destructive shrink-0" title="Supprimer" onClick={() => setVideoDocs(prev => prev.filter((_, i) => i !== idx))}>
+        <Button type="button" variant="ghost" size="sm" className="h-5 w-5 p-0 text-destructive hover:text-destructive shrink-0" title="Supprimer" onClick={onDelete}>
           <Trash2 className="h-2.5 w-2.5" />
         </Button>
       </div>
@@ -370,7 +371,7 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
         </div>
       )}
       {/* POI, Destination, Business, Subcategory & City selectors */}
-      <div className="grid grid-cols-5 gap-1">
+      <div className="grid grid-cols-1 gap-1">
         <div>
           <label className="text-[9px] text-muted-foreground">POI</label>
           <Select value={doc.poi_id || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, poi_id: v === "__none__" ? null : v } : d))}>
@@ -781,6 +782,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   const [externalLinkDocs, setExternalLinkDocs] = useState<ExternalLinkEntry[]>([]);
   const [videoDocs, setVideoDocs] = useState<VideoDocEntry[]>([]);
   const [videoDescDialogIdx, setVideoDescDialogIdx] = useState<number | null>(null);
+  const [videoDeleteConfirmIdx, setVideoDeleteConfirmIdx] = useState<number | null>(null);
 
   // --- Menu summaries (multiple per business) ---
   type MenuSummaryEntry = { id?: string; title: string; content: string; avg_price_range: any; price_details: string };
@@ -3334,6 +3336,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     business={business}
                     toast={toast}
                     onOpenDesc={() => setVideoDescDialogIdx(idx)}
+                    onDelete={() => setVideoDeleteConfirmIdx(idx)}
                   />
                 ))}
               </div>
@@ -3362,10 +3365,28 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 </div>
               )}
               <DialogFooter>
-                <Button type="button" onClick={() => setVideoDescDialogIdx(null)}>Fermer</Button>
+                <Button type="button" onClick={() => setVideoDescDialogIdx(null)}>Sauvegarder</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
+
+          {/* Delete confirmation dialog */}
+          <AlertDialog open={videoDeleteConfirmIdx !== null} onOpenChange={(open) => { if (!open) setVideoDeleteConfirmIdx(null); }}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Supprimer cette vidéo ?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Cette action est irréversible. La vidéo {videoDeleteConfirmIdx !== null ? `#${videoDeleteConfirmIdx + 1}` : ""} sera supprimée.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction onClick={() => { setVideoDocs(prev => prev.filter((_, i) => i !== videoDeleteConfirmIdx)); setVideoDeleteConfirmIdx(null); }}>
+                  Supprimer
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
 
         {/* Matterport */}
