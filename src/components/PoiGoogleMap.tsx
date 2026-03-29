@@ -14,6 +14,8 @@ export interface PoiMapItem {
   avgOn20?: number | null;
   totalReviews?: number;
   subcategory?: string | null;
+  /** Custom marker colors (bg, text, border) for special pins */
+  markerColor?: { bg: string; fg: string; border: string };
 }
 
 interface PoiGoogleMapProps {
