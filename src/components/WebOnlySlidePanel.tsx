@@ -945,7 +945,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                     </div>
                   );
                 })}
-                {isKp1Only && poiBusinesses.length > 0 && (
+                {isKp1Only && poiBusinesses.length > 0 && business?.latitude && business?.longitude && (
                   <div
                     className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
                     style={{ animationDelay: `${kpRelated.length * 120}ms`, animationFillMode: 'forwards' }}
