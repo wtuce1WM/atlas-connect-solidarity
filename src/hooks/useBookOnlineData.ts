@@ -139,7 +139,7 @@ export function useBookOnlineData(businessId: string) {
   const [reviewTexts, setReviewTexts] = useState<ReviewText[]>([]);
   const [externalLinks, setExternalLinks] = useState<ExternalLinkItem[]>([]);
   const [menuSummaries, setMenuSummaries] = useState<MenuSummary[]>([]);
-  const [menuDocs, setMenuDocs] = useState<MenuDoc[]>([]);
+  const [menuDocsRaw, setMenuDocsRaw] = useState<MenuDoc[]>([]);
   const [videoDocs, setVideoDocs] = useState<VideoDoc[]>([]);
   const [categoryIcon, setCategoryIcon] = useState<string | null>(null);
   const [kpRelated, setKpRelated] = useState<KpRelatedBusiness[]>([]);
@@ -147,8 +147,11 @@ export function useBookOnlineData(businessId: string) {
   const [liteApiHotelId, setLiteApiHotelId] = useState<string | null>(null);
 
   useEffect(() => {
+    let isCancelled = false;
+
     const fetchData = async () => {
       setIsLoading(true);
+
       const [bizRes, woRes, destLinksRes, reviewsRes, extLinksRes, menuSumRes, menuDocsRes, videoDocsRes] = await Promise.all([
         supabase
           .from("businesses")
@@ -197,78 +200,89 @@ export function useBookOnlineData(businessId: string) {
           .order("sort_order"),
       ]);
 
+      if (isCancelled) return;
+
       const biz = bizRes.data as BookOnlineBusiness | null;
       setBusiness(biz);
+
       const rawWoDesc = (woRes.data as any)?.description?.replace(/<[^>]*>/g, "").trim();
       setWoDescription(rawWoDesc ? (woRes.data as any).description : biz?.description || null);
       setReviewTexts(reviewsRes.data ? (reviewsRes.data as any[]) : []);
       setExternalLinks((extLinksRes.data || []) as ExternalLinkItem[]);
       setMenuSummaries((menuSumRes.data || []) as MenuSummary[]);
-      const vDocs = (videoDocsRes.data || []) as VideoDoc[];
-      setVideoDocs(vDocs.filter(d => d.url));
+      setMenuDocsRaw((menuDocsRes.data || []) as MenuDoc[]);
 
-      // Fetch category icon
-      const mainCat = biz?.main_category;
-      if (mainCat) {
+      const vDocs = (videoDocsRes.data || []) as VideoDoc[];
+      setVideoDocs(vDocs.filter((d) => d.url));
+
+      // Important: render panel as soon as core data is ready
+      setIsLoading(false);
+
+      const destIds = ((destLinksRes.data || []) as { destination_id: string }[]).map((d) => d.destination_id);
+
+      const fetchCategoryIcon = async () => {
+        const mainCat = biz?.main_category;
+        if (!mainCat) {
+          if (!isCancelled) setCategoryIcon(null);
+          return;
+        }
         const { data: catData } = await supabase
           .from("categories")
           .select("icon")
           .eq("name_fr", mainCat)
           .maybeSingle();
-        setCategoryIcon(catData?.icon || null);
-      } else {
-        setCategoryIcon(null);
-      }
+        if (!isCancelled) setCategoryIcon(catData?.icon || null);
+      };
 
-      const docs = (menuDocsRes.data || []) as MenuDoc[];
-      const filteredDocs = brokenLinksLoaded
-        ? docs.filter(d => !brokenLinksSet.has(d.url))
-        : docs;
-      setMenuDocs(filteredDocs);
-
-      // Fetch destination details
-      const destIds = (destLinksRes.data || []).map(d => d.destination_id);
-      let fetchedDests: Destination[] = [];
-      if (destIds.length > 0) {
+      const fetchDestinations = async () => {
+        if (destIds.length === 0) {
+          if (!isCancelled) setDestinations([]);
+          return;
+        }
         const { data: destData } = await supabase
           .from("destinations")
           .select("id, name_fr, name_en, image_url, images")
           .in("id", destIds);
-        fetchedDests = ((destData || []) as Destination[]).sort((a, b) => {
-          const nameA = (language === "en" && a.name_en ? a.name_en : a.name_fr).toLowerCase();
-          const nameB = (language === "en" && b.name_en ? b.name_en : b.name_fr).toLowerCase();
-          return nameA.localeCompare(nameB);
-        });
-      }
-      setDestinations(fetchedDests);
+        if (!isCancelled) setDestinations((destData || []) as Destination[]);
+      };
 
-      // Fetch POI businesses
-      {
+      const fetchPoiBusinesses = async () => {
         const { data: poiLinks } = await supabase
           .from("business_poi_businesses")
           .select("poi_business_id")
           .eq("business_id", businessId);
-        const poiIds = (poiLinks || []).map(p => p.poi_business_id);
-        if (poiIds.length > 0) {
-          const { data: poiData } = await supabase
-            .from("businesses")
-            .select("id, name, images, logo_url, latitude, longitude, city, neighborhood")
-            .in("id", poiIds)
-            .eq("is_active", true);
-          setPoiBusinesses((poiData || []) as PoiBusiness[]);
-        } else {
-          setPoiBusinesses([]);
+
+        const poiIds = ((poiLinks || []) as { poi_business_id: string }[]).map((p) => p.poi_business_id);
+        if (poiIds.length === 0) {
+          if (!isCancelled) setPoiBusinesses([]);
+          return;
         }
-      }
 
-      // Fetch KP related businesses
-      const kp1Val = biz?.kp_regroupement?.trim() || "";
-      const kp2Val = biz?.kp_regroupement_2?.trim() || "";
-      const isKpActive = biz?.kp_active;
-      const isMaster = biz?.is_master === true;
+        const { data: poiData } = await supabase
+          .from("businesses")
+          .select("id, name, images, logo_url, latitude, longitude, city, neighborhood")
+          .in("id", poiIds)
+          .eq("is_active", true);
 
-      let kpResults: KpRelatedBusiness[] = [];
-      if (isKpActive) {
+        if (!isCancelled) setPoiBusinesses((poiData || []) as PoiBusiness[]);
+      };
+
+      const fetchKpRelated = async () => {
+        const kp1Val = biz?.kp_regroupement?.trim() || "";
+        const kp2Val = biz?.kp_regroupement_2?.trim() || "";
+        const isKpActive = biz?.kp_active;
+        const isMaster = biz?.is_master === true;
+
+        if (!isKpActive) {
+          if (!isCancelled) {
+            setKpRelated([]);
+            setIsKp1Only(false);
+          }
+          return;
+        }
+
+        let kpResults: KpRelatedBusiness[] = [];
+
         if (kp1Val) {
           const { data: kp1Data } = await supabase
             .from("businesses")
@@ -279,15 +293,19 @@ export function useBookOnlineData(businessId: string) {
           kpResults = (kp1Data || []) as KpRelatedBusiness[];
 
           if (kp2Val) {
-            const existingIds = new Set([businessId, ...kpResults.map(r => r.id)]);
+            const existingIds = new Set([businessId, ...kpResults.map((r) => r.id)]);
             const { data: kp2Masters } = await supabase
               .from("businesses")
               .select("id, name, slug, logo_url, images, is_master, computed_rating")
               .eq("kp_regroupement_2", kp2Val)
               .eq("is_master", true)
               .eq("is_active", true);
+
             for (const m of (kp2Masters || []) as KpRelatedBusiness[]) {
-              if (!existingIds.has(m.id)) { kpResults.push(m); existingIds.add(m.id); }
+              if (!existingIds.has(m.id)) {
+                kpResults.push(m);
+                existingIds.add(m.id);
+              }
             }
           }
         } else if (kp2Val && isMaster) {
@@ -299,35 +317,66 @@ export function useBookOnlineData(businessId: string) {
             .neq("id", businessId);
           kpResults = (kp2Data || []) as KpRelatedBusiness[];
         }
+
         kpResults.sort((a, b) => {
           if (a.is_master !== b.is_master) return a.is_master ? -1 : 1;
           return (b.computed_rating ?? 0) - (a.computed_rating ?? 0);
         });
-      }
-      setKpRelated(kpResults);
-      setIsKp1Only(!!(kp1Val && !kp2Val));
 
-      // Fetch LiteAPI hotel mapping
-      if (biz?.main_category === "Hôtellerie") {
+        if (!isCancelled) {
+          setKpRelated(kpResults);
+          setIsKp1Only(!!(kp1Val && !kp2Val));
+        }
+      };
+
+      const fetchLiteApiMapping = async () => {
+        if (biz?.main_category !== "Hôtellerie") {
+          if (!isCancelled) setLiteApiHotelId(null);
+          return;
+        }
+
         const { data: mapping } = await supabase
           .from("hotel_api_mappings")
           .select("liteapi_hotel_id")
           .eq("business_id", businessId)
           .maybeSingle();
-        setLiteApiHotelId(mapping?.liteapi_hotel_id || null);
-      } else {
-        setLiteApiHotelId(null);
-      }
 
-      setIsLoading(false);
+        if (!isCancelled) setLiteApiHotelId(mapping?.liteapi_hotel_id || null);
+      };
+
+      await Promise.allSettled([
+        fetchCategoryIcon(),
+        fetchDestinations(),
+        fetchPoiBusinesses(),
+        fetchKpRelated(),
+        fetchLiteApiMapping(),
+      ]);
     };
-    fetchData();
-  }, [businessId, brokenLinksLoaded]);
+
+    void fetchData();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [businessId]);
+
+  const menuDocs = useMemo(() => {
+    if (!brokenLinksLoaded) return menuDocsRaw;
+    return menuDocsRaw.filter((d) => !brokenLinksSet.has(d.url));
+  }, [menuDocsRaw, brokenLinksLoaded, brokenLinksSet]);
+
+  const destinationsSorted = useMemo(() => {
+    return [...destinations].sort((a, b) => {
+      const nameA = (language === "en" && a.name_en ? a.name_en : a.name_fr).toLowerCase();
+      const nameB = (language === "en" && b.name_en ? b.name_en : b.name_fr).toLowerCase();
+      return nameA.localeCompare(nameB);
+    });
+  }, [destinations, language]);
 
   // Derived: all video URLs (legacy + docs)
   const allVideoUrls = useMemo(() => {
     const legacyVideo = business?.video_1_url?.trim() || null;
-    const docUrls = videoDocs.map(d => d.url).filter(Boolean);
+    const docUrls = videoDocs.map((d) => d.url).filter(Boolean);
     const urls = [...docUrls];
     if (legacyVideo && !urls.includes(legacyVideo)) urls.unshift(legacyVideo);
     return urls;
@@ -336,7 +385,7 @@ export function useBookOnlineData(businessId: string) {
   return {
     business,
     woDescription,
-    destinations,
+    destinations: destinationsSorted,
     poiBusinesses,
     isLoading,
     reviewTexts,
