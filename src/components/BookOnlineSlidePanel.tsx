@@ -1174,10 +1174,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                             <span className="text-2xl">▶</span>
                           </div>
                         )}
-                        {vid.price_type && (
+                        {vid.price && (
                           <div className="absolute top-1 inset-x-0 flex justify-center">
-                            <span className="bg-gold text-black text-[10px] font-semibold capitalize rounded px-2 py-0.5 backdrop-blur-sm">
-                              {vid.price_type}
+                            <span className="bg-gold text-black text-[10px] font-semibold rounded px-2 py-0.5 backdrop-blur-sm">
+                              Prix: {vid.price}
                             </span>
                           </div>
                         )}
