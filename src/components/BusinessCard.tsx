@@ -409,6 +409,17 @@ const BusinessCard = ({
             {business.name}
           </h3>
 
+          {/* Rating & reviews */}
+          {displayRating && (
+            <div className="flex items-center gap-1.5 text-sm mb-2">
+              <Star className="h-3.5 w-3.5 text-gold fill-gold flex-shrink-0" />
+              <span className="font-semibold text-foreground">{displayRating}/20</span>
+              {totalReviews > 0 && (
+                <span className="text-muted-foreground text-xs">({totalReviews} avis)</span>
+              )}
+            </div>
+          )}
+
           {locationText ? (
             <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
               <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
