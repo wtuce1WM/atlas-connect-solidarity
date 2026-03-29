@@ -1491,9 +1491,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         const vimeoMatch = vidUrl.match(/vimeo\.com\/(\d+)/);
         const isVerticalHint = /shorts\//.test(vidUrl);
         const embedUrl = ytMatch
-          ? `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1`
+          ? `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&mute=0&loop=1&playlist=${ytMatch[1]}&rel=0&modestbranding=1&playsinline=1`
           : vimeoMatch
-            ? `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=0`
+            ? `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=0&loop=1`
             : null;
         const isFile = !ytMatch && !vimeoMatch;
         return (
