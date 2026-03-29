@@ -243,6 +243,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     setActiveYoutubeVideo(null);
     setYoutubeIsPlaying(false);
     setShowYoutubeOverlay(false);
+    setShowPoiMapOverlay(false);
     setAvailabilityOverlayCtx(null);
     setFallbackPanelData(null);
     setSelectedFallbackHotelId(null);
