@@ -9,14 +9,14 @@ const corsHeaders = {
 const SERPAPI_BASE = "https://serpapi.com/search.json";
 const LITEAPI_BASE = "https://api.liteapi.travel/v3.0";
 
-function tomorrow() {
+function checkInDate() {
   const d = new Date();
-  d.setDate(d.getDate() + 1);
+  d.setDate(d.getDate() + 15);
   return d.toISOString().slice(0, 10);
 }
-function dayAfterTomorrow() {
+function checkOutDate() {
   const d = new Date();
-  d.setDate(d.getDate() + 2);
+  d.setDate(d.getDate() + 16);
   return d.toISOString().slice(0, 10);
 }
 
