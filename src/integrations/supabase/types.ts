@@ -502,6 +502,7 @@ export type Database = {
           neighborhood: string | null
           poi_id: string | null
           price: string | null
+          price_type: string | null
           sort_order: number
           subcategory_id: string | null
           type: string
@@ -521,6 +522,7 @@ export type Database = {
           neighborhood?: string | null
           poi_id?: string | null
           price?: string | null
+          price_type?: string | null
           sort_order?: number
           subcategory_id?: string | null
           type: string
@@ -540,6 +542,7 @@ export type Database = {
           neighborhood?: string | null
           poi_id?: string | null
           price?: string | null
+          price_type?: string | null
           sort_order?: number
           subcategory_id?: string | null
           type?: string

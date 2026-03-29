@@ -275,7 +275,7 @@ const SERVICES: Record<string, string[]> = {
   ],
 };
 
-type VideoDocEntry = { id?: string; url: string; name: string; poi_id: string | null; destination_id: string | null; linked_business_id: string | null; subcategory_id: string | null; city: string | null; neighborhood: string | null; description: string | null; price: string | null };
+type VideoDocEntry = { id?: string; url: string; name: string; poi_id: string | null; destination_id: string | null; linked_business_id: string | null; subcategory_id: string | null; city: string | null; neighborhood: string | null; description: string | null; price: string | null; price_type: string | null };
 
 interface SortableVideoCardProps {
   id: string;
@@ -826,7 +826,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         setMenuDocs((data as any[]).filter((d: any) => d.type === "menu").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "" })));
         setFlipbookDocs((data as any[]).filter((d: any) => d.type === "flipbook").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "" })));
         setExternalLinkDocs((data as any[]).filter((d: any) => d.type === "external_link").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", image_url: d.icon || "" })));
-        setVideoDocs((data as any[]).filter((d: any) => d.type === "video").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null })));
+        setVideoDocs((data as any[]).filter((d: any) => d.type === "video").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null })));
       }
     };
     const fetchSummaries = async () => {
@@ -1479,7 +1479,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           ...externalLinkDocs
             .filter((d) => d.name.trim() && d.url.trim())
             .map((d, i) => ({ business_id: businessId, type: "external_link" as const, url: d.url.trim(), name: d.name.trim(), language: d.language || null, icon: d.image_url || null, sort_order: i })),
-          ...videoDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "video" as const, url: d.url.trim(), name: d.name || null, language: null, icon: null, sort_order: i, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null })),
+          ...videoDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "video" as const, url: d.url.trim(), name: d.name || null, language: null, icon: null, sort_order: i, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null })),
         ];
         if (allDocs.length > 0) {
           const { error: docsError } = await supabase.from("business_documents" as any).insert(allDocs);
@@ -3259,7 +3259,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 <span className="text-xs text-muted-foreground">{formData.show_videos ? "Activé" : "Désactivé"}</span>
               </div>
             </div>
-            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => [...prev, { url: "", name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, price: null }])}>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => [...prev, { url: "", name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null }])}>
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
@@ -3281,7 +3281,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 if (error) { toast({ variant: "destructive", title: "Erreur", description: `${file.name}: ${error.message}` }); continue; }
                 const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
                 if (urlData?.publicUrl) {
-                  setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: file.name.replace(/\.[^.]+$/, ""), poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, price: null }]);
+                  setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: file.name.replace(/\.[^.]+$/, ""), poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null }]);
                 }
               }
               toast({ title: `${files.length} vidéo(s) uploadée(s) ✓` });
@@ -3301,7 +3301,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   if (error) { toast({ variant: "destructive", title: "Erreur", description: `${file.name}: ${error.message}` }); continue; }
                   const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
                   if (urlData?.publicUrl) {
-                    setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: file.name.replace(/\.[^.]+$/, ""), poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, price: null }]);
+                    setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: file.name.replace(/\.[^.]+$/, ""), poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null }]);
                   }
                 }
                 toast({ title: `${files.length} vidéo(s) uploadée(s) ✓` });
@@ -3374,17 +3374,29 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
           {/* Rich text description dialog */}
           <Dialog open={videoDescDialogIdx !== null} onOpenChange={(open) => { if (!open) setVideoDescDialogIdx(null); }}>
-            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
                   <DialogTitle className="shrink-0">Description vidéo {videoDescDialogIdx !== null ? `#${videoDescDialogIdx + 1}` : ""}</DialogTitle>
                   {videoDescDialogIdx !== null && (
-                    <Input
-                      placeholder="Prix (ex: 150 MAD)"
-                      value={videoDocs[videoDescDialogIdx]?.price || ""}
-                      onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === videoDescDialogIdx ? { ...d, price: e.target.value || null } : d))}
-                      className="h-8 text-sm max-w-[200px]"
-                    />
+                    <>
+                      <Input
+                        placeholder="Prix (ex: 150 MAD)"
+                        value={videoDocs[videoDescDialogIdx]?.price || ""}
+                        onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === videoDescDialogIdx ? { ...d, price: e.target.value || null } : d))}
+                        className="h-8 text-sm w-[260px]"
+                      />
+                      <Select value={videoDocs[videoDescDialogIdx]?.price_type || "__empty__"} onValueChange={(val) => setVideoDocs(prev => prev.map((d, i) => i === videoDescDialogIdx ? { ...d, price_type: val === "__empty__" ? null : val } : d))}>
+                        <SelectTrigger className="h-8 text-sm w-[140px]">
+                          <SelectValue placeholder="Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__empty__">—</SelectItem>
+                          <SelectItem value="location">Location</SelectItem>
+                          <SelectItem value="vente">Vente</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </>
                   )}
                 </div>
               </DialogHeader>
