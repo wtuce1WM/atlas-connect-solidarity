@@ -205,8 +205,8 @@ const CategoryPage = () => {
     const dir = sortAsc ? -1 : 1;
     result = [...result].sort((a, b) => {
       if (sortMode === "reviews") {
-        const countA = (a.google_review_count || 0) + (a.tripadvisor_review_count || 0) + (a.restaurant_guru_review_count || 0);
-        const countB = (b.google_review_count || 0) + (b.tripadvisor_review_count || 0) + (b.restaurant_guru_review_count || 0);
+        const countA = a.total_review_count || 0;
+        const countB = b.total_review_count || 0;
         return (countB - countA) * dir;
       }
       const rA = getEffectiveRating(a);
