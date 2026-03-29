@@ -1144,19 +1144,29 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 {videoDocs.map((vid, index) => {
                   const ytMatch = vid.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
                   const vimeoMatch = vid.url.match(/vimeo\.com\/(\d+)/);
-                  const thumbnail = ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : vimeoMatch ? `https://vumbnail.com/${vimeoMatch[1]}.jpg` : null;
+                  const ytThumb = ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : null;
+                  const vimeoThumb = vimeoMatch ? `https://vumbnail.com/${vimeoMatch[1]}.jpg` : null;
+                  const isFile = !ytMatch && !vimeoMatch;
+                  // Find matching index in mediaItems (videos are first)
+                  const mediaIdx = mediaItems.findIndex(m => m.kind === "video" && m.url === vid.url);
                   return (
                     <div
                       key={`vid-${index}`}
                       className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
                       style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
                       onClick={() => {
-                        setLightboxIndex(images.length + index);
-                        setIsLightboxOpen(true);
+                        if (mediaIdx >= 0) {
+                          setLightboxIndex(mediaIdx);
+                          setIsLightboxOpen(true);
+                        }
                       }}
                     >
-                      {thumbnail ? (
-                        <img src={thumbnail} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                      {ytThumb ? (
+                        <img src={ytThumb} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                      ) : vimeoThumb ? (
+                        <img src={vimeoThumb} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                      ) : isFile ? (
+                        <video src={vid.url} muted preload="metadata" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover pointer-events-none" />
                       ) : (
                         <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
                           <span className="text-2xl">▶</span>
