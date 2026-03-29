@@ -127,6 +127,10 @@ interface PoiBusiness {
   name: string;
   images: string[] | null;
   logo_url: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  city: string | null;
+  neighborhood: string | null;
 }
 
 type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };

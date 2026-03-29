@@ -1246,10 +1246,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   <div
                     className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
                     style={{ animationDelay: `${kpRelated.length * 120}ms`, animationFillMode: 'forwards' }}
-                    onClick={() => {
-                      const firstPoi = poiBusinesses[0];
-                      if (firstPoi) setSelectedPoiBusinessId(firstPoi.id);
-                    }}
+                    onClick={() => setShowPoiMapOverlay(true)}
                   >
                     <img src={poiNearbyImg} alt="Points d'intérêt" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
                     <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
