@@ -785,8 +785,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 className={`w-full h-full bg-black ${isFileVideoVertical ? "object-cover" : "object-contain"}`}
                 onEnded={() => totalMedia > 1 && goMedia(1)}
                 onPlay={(e) => {
-                  const anyOverlay = !!selectedDestinationId || !!selectedPoiBusinessId || !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic || !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay;
-                  if (!anyOverlay) e.currentTarget.muted = false;
+                  if (keepMutedRef.current) {
+                    keepMutedRef.current = false;
+                    return;
+                  }
+                  e.currentTarget.muted = false;
                 }}
                 onLoadedMetadata={(e) => {
                   const v = e.currentTarget;
