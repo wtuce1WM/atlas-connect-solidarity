@@ -477,7 +477,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const bookUrl = business?.reserve_now_url || null;
   const shopUrl = business?.online_shop_url || null;
   // Collect videos from business_documents + legacy video_1_url
-  const legacyVideo = business?.video_1_url;
+  const legacyVideo = business?.video_1_url?.trim() || null;
   const allVideoUrls = [...videoDocUrls];
   if (legacyVideo && !allVideoUrls.includes(legacyVideo)) allVideoUrls.unshift(legacyVideo);
   const videos = allVideoUrls;
