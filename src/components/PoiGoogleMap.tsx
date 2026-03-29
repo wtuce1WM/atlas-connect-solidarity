@@ -14,6 +14,8 @@ export interface PoiMapItem {
   avgOn20?: number | null;
   totalReviews?: number;
   subcategory?: string | null;
+  /** Custom marker colors (bg, text, border) for special pins */
+  markerColor?: { bg: string; fg: string; border: string };
 }
 
 interface PoiGoogleMapProps {
@@ -105,6 +107,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     private name: string;
     private iconSvg: string;
     private highlighted: boolean;
+    private customColor?: { bg: string; fg: string; border: string };
     private _onClick?: () => void;
     private _onMouseOver?: () => void;
     private _onMouseOut?: () => void;
@@ -118,12 +121,14 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       onClick?: () => void,
       onMouseOver?: () => void,
       onMouseOut?: () => void,
+      customColor?: { bg: string; fg: string; border: string },
     ) {
       super();
       this.position = new gmaps.LatLng(position.lat, position.lng);
       this.name = name;
       this.iconSvg = iconSvg;
       this.highlighted = highlighted;
+      this.customColor = customColor;
       this._onClick = onClick;
       this._onMouseOver = onMouseOver;
       this._onMouseOut = onMouseOut;
@@ -167,14 +172,14 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
 
     private applyStyle() {
       if (!this.div) return;
-      const bg = this.highlighted ? "#1a1a1a" : "#ffffff";
-      const fg = this.highlighted ? "#ffffff" : "#1a1a1a";
-      const border = this.highlighted ? "#1a1a1a" : "#d1d5db";
+      const bg = this.customColor ? this.customColor.bg : (this.highlighted ? "#1a1a1a" : "#ffffff");
+      const fg = this.customColor ? this.customColor.fg : (this.highlighted ? "#ffffff" : "#1a1a1a");
+      const border = this.customColor ? this.customColor.border : (this.highlighted ? "#1a1a1a" : "#d1d5db");
       const shadow = this.highlighted
         ? "0 2px 8px rgba(0,0,0,0.4)"
         : "0 1px 4px rgba(0,0,0,0.15)";
       const scale = this.highlighted ? "scale(1.08)" : "scale(1)";
-      const z = this.highlighted ? "1000" : "1";
+      const z = this.customColor ? "999" : (this.highlighted ? "1000" : "1");
 
       this.div.style.cssText = `
       position:absolute;
@@ -367,6 +372,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
             }
           }, 300);
         },
+        poi.markerColor,
       );
 
       overlaysRef.current.set(poi.id, overlay);

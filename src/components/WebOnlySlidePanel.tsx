@@ -1096,17 +1096,30 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
           </div>
           <div className="flex-1 min-h-0">
             <PoiGoogleMap
-              pois={poiBusinesses.map(p => ({
-                id: p.id,
-                name: p.name,
-                latitude: p.latitude,
-                longitude: p.longitude,
-                images: p.images,
-                city: p.city,
-                neighborhood: p.neighborhood,
-              } as PoiMapItem))}
+              pois={[
+                ...(business?.latitude && business?.longitude ? [{
+                  id: `self-${business.id}`,
+                  name: business.name,
+                  latitude: business.latitude,
+                  longitude: business.longitude,
+                  images: business.images,
+                  city: business.city,
+                  neighborhood: business.neighborhood,
+                  markerColor: { bg: "#C04F17", fg: "#ffffff", border: "#C04F17" },
+                } as PoiMapItem] : []),
+                ...poiBusinesses.map(p => ({
+                  id: p.id,
+                  name: p.name,
+                  latitude: p.latitude,
+                  longitude: p.longitude,
+                  images: p.images,
+                  city: p.city,
+                  neighborhood: p.neighborhood,
+                } as PoiMapItem)),
+              ]}
               selectedPoiId={null}
               onPoiClick={(poiId) => {
+                if (poiId.startsWith("self-")) return;
                 setShowPoiMapOverlay(false);
                 setSelectedPoiBusinessId(poiId);
               }}
