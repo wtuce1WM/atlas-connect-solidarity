@@ -7,6 +7,7 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 
 import { extractTimeSlot, isOpenDuringSlot, getCurrentTimePeriod, type TimeSlot, type TimePeriod } from "@/lib/timeSlots";
 import { isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHours";
+import { haversineKm } from "@/lib/haversine";
 import zitounMaskImg from "@/assets/zitoun-mask.jpg";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,6 +47,7 @@ import { useTextToSpeech, preloadTTS } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
 import WarningOverlay from "@/components/WarningOverlay";
+import EmergencyNumbers from "@/components/EmergencyNumbers";
 import { useSearchHistory } from "@/hooks/useSearchHistory";
 
 interface Business {
@@ -958,51 +960,6 @@ const SearchPage = () => {
     fetchCoords();
   }, [detectedNeighborhood]);
 
-  // TEMP DISABLED: Regenerate AI answer when city filter changes
-  // const prevCityForAiRef = useRef<string>(selectedCity);
-  // useEffect(() => {
-  //   const prev = prevCityForAiRef.current;
-  //   prevCityForAiRef.current = selectedCity;
-  //   if (prev === selectedCity) return;
-  //   if (!searchQuery.trim() || isLoading) return;
-  //   if (allBusinesses.length === 0) return;
-  //   const cityFiltered = (selectedCity && selectedCity !== "all")
-  //     ? allBusinesses.filter(b => {
-  //         if (b.city === selectedCity) return true;
-  //         const cId = citiesWithPriority.find(c => c.name === selectedCity)?.id;
-  //         if (cId && b.zone_city_ids?.includes(cId) && b.is_visible_locale) return true;
-  //         return false;
-  //       })
-  //     : allBusinesses;
-  //   if (cityFiltered.length === 0) return;
-  //   const top10 = cityFiltered.slice(0, 10);
-  //   const combinedQuery = (selectedCity && selectedCity !== "all")
-  //     ? `${searchQuery} ${selectedCity}`
-  //     : searchQuery;
-  //   setIsAiRegenerating(true);
-  //   setIsAiSummaryExpanded(false);
-  //   supabase.functions.invoke("ai-search-answer", {
-  //     body: {
-  //       query: combinedQuery,
-  //       spokenText: spokenText || undefined,
-  //       businesses: top10.map(b => ({
-  //         name: b.name,
-  //         city: b.city,
-  //         main_category: b.main_category,
-  //         categories: b.categories,
-  //         hook_fr: b.hook_fr,
-  //         wtuce_status: b.wtuce_status,
-  //       })),
-  //       language,
-  //     },
-  //   }).then(({ data }) => {
-  //     if (data?.answer) handleAiAnswerReady(data.answer);
-  //   }).catch(e => {
-  //     console.error("AI city-regenerate error:", e);
-  //   }).finally(() => {
-  //     setIsAiRegenerating(false);
-  //   });
-  // }, [selectedCity]);
 
   // Fetch matching business IDs when engagement/commodité filters change
   useEffect(() => {
@@ -1230,15 +1187,7 @@ const SearchPage = () => {
   // Compute distance between user coords and a business
   const getDistanceKm = useCallback((b: Business): number | null => {
     if (!geo.isEnabled || !geo.coords || b.latitude == null || b.longitude == null) return null;
-    const R = 6371;
-    const dLat = ((b.latitude - geo.coords.lat) * Math.PI) / 180;
-    const dLon = ((b.longitude - geo.coords.lng) * Math.PI) / 180;
-    const a =
-      Math.sin(dLat / 2) ** 2 +
-      Math.cos((geo.coords.lat * Math.PI) / 180) *
-        Math.cos((b.latitude * Math.PI) / 180) *
-        Math.sin(dLon / 2) ** 2;
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return haversineKm(geo.coords.lat, geo.coords.lng, b.latitude, b.longitude);
   }, [geo.isEnabled, geo.coords]);
 
   // Sort: WTUCE verified first (by rating desc), then non-verified (by rating desc)
@@ -1403,19 +1352,13 @@ const SearchPage = () => {
     return map;
   }, [subcategories]);
 
-  const mapPoiItems: PoiMapItem[] = useMemo(() => {
-    if (!hasKnownLocation) return [];
+  const buildMapPoiItems = useCallback((businesses: Business[], guardDesktop: boolean): PoiMapItem[] => {
+    if (guardDesktop && !hasKnownLocation) return [];
+    if (!guardDesktop && !isSubDesktop) return [];
     const center = mapCenterForResults;
     const maxRadiusKm = neighborhoodCoords ? 2 : 60;
-    const haversine = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-      const R = 6371;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
-      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    };
     const effectiveCity = effectiveCityForMap || null;
-    return filteredBusinesses
+    return businesses
       .filter(b => {
         const isWebOnly = (b.engagements || []).some((e) => {
           const n = e.toLowerCase().trim();
@@ -1425,10 +1368,8 @@ const SearchPage = () => {
         if (!b.latitude || !b.longitude) return false;
         if (b.latitude < 21 || b.latitude > 36.5 || b.longitude < -17.5 || b.longitude > -1) return false;
         if (center) {
-          const dist = haversine(center.lat, center.lng, b.latitude, b.longitude);
-          if (dist > maxRadiusKm) return false;
-        } else if (effectiveCity) {
-          // Fallback: if center coords not yet loaded, filter by city name (accent/case insensitive)
+          if (haversineKm(center.lat, center.lng, b.latitude, b.longitude) > maxRadiusKm) return false;
+        } else if (guardDesktop && effectiveCity) {
           if (!b.city || normalizeText(b.city) !== normalizeText(effectiveCity)) return false;
         }
         return true;
@@ -1447,50 +1388,11 @@ const SearchPage = () => {
         totalReviews: (b as any).total_review_count ?? 0,
         subcategory: b.categories?.[0] || null,
       }));
-  }, [hasKnownLocation, filteredBusinesses, mapCenterForResults, neighborhoodCoords, effectiveCityForMap]);
+  }, [hasKnownLocation, isSubDesktop, mapCenterForResults, neighborhoodCoords, effectiveCityForMap]);
 
-  // Mobile/tablet map items — same logic but without hasKnownLocation guard
-  const mobileMapPoiItems: PoiMapItem[] = useMemo(() => {
-    if (!isSubDesktop) return [];
-    const center = mapCenterForResults;
-    const maxRadiusKm = neighborhoodCoords ? 2 : 60;
-    const haversine = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-      const R = 6371;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
-      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    };
-    return filteredBusinesses
-      .filter(b => {
-        const isWebOnly = (b.engagements || []).some((e) => {
-          const n = e.toLowerCase().trim();
-          return n === "web only" || n === "logistique:web only" || n.endsWith(":web only");
-        });
-        if (isWebOnly) return false;
-        if (!b.latitude || !b.longitude) return false;
-        if (b.latitude < 21 || b.latitude > 36.5 || b.longitude < -17.5 || b.longitude > -1) return false;
-        if (center) {
-          const dist = haversine(center.lat, center.lng, b.latitude, b.longitude);
-          if (dist > maxRadiusKm) return false;
-        }
-        return true;
-      })
-      .slice(0, 100)
-      .map(b => ({
-        id: b.id,
-        name: b.name,
-        latitude: b.latitude,
-        longitude: b.longitude,
-        images: b.images,
-        city: b.city,
-        neighborhood: b.neighborhood,
-        rating: b.rating,
-        avgOn20: (b as any).computed_rating ?? b.rating ?? null,
-        totalReviews: (b as any).total_review_count ?? 0,
-        subcategory: b.categories?.[0] || null,
-      }));
-  }, [isSubDesktop, filteredBusinesses, mapCenterForResults, neighborhoodCoords]);
+  const mapPoiItems: PoiMapItem[] = useMemo(() => buildMapPoiItems(filteredBusinesses, true), [buildMapPoiItems, filteredBusinesses]);
+  const mobileMapPoiItems: PoiMapItem[] = useMemo(() => buildMapPoiItems(filteredBusinesses, false), [buildMapPoiItems, filteredBusinesses]);
+
 
     // Auto-open first result's slide panel when arriving from external link
     useEffect(() => {
@@ -2014,11 +1916,7 @@ const SearchPage = () => {
 
     // Distance (if geo enabled)
     if (geo.isEnabled && geo.coords && b.latitude && b.longitude) {
-      const R = 6371;
-      const dLat = (b.latitude - geo.coords.lat) * Math.PI / 180;
-      const dLon = (b.longitude - geo.coords.lng) * Math.PI / 180;
-      const a = Math.sin(dLat/2)**2 + Math.cos(geo.coords.lat * Math.PI / 180) * Math.cos(b.latitude * Math.PI / 180) * Math.sin(dLon/2)**2;
-      const dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      const dist = haversineKm(geo.coords.lat, geo.coords.lng, b.latitude, b.longitude);
       if (dist < 1) {
         parts.push(`à ${Math.round(dist * 1000)} mètres de vous`);
       } else {
@@ -2035,27 +1933,6 @@ const SearchPage = () => {
     return parts.join(", ");
   }, [gammes, badges, geo.isEnabled, geo.coords, language]);
 
-   // Voice results overlay disabled — was only shown on mobile after voice search
-   // useEffect(() => {
-   //   if (!isLoading && spokenText && allBusinesses.length > 0 && !showResultsOverlay && !overlayDismissing) {
-   //     setShowResultsOverlay(true);
-   //   }
-   // }, [isLoading, spokenText, allBusinesses.length]);
-
-   // Show AI popup when arriving from homepage (non-voice) — DISABLED: overlay no longer shown
-   // useEffect(() => {
-   //   if (
-   //     !isLoading &&
-   //     searchQuery &&
-   //     !spokenText &&
-   //     aiAnswerText &&
-   //     allBusinesses.length > 0 &&
-   //     !aiPopupShownRef.current
-   //   ) {
-   //     aiPopupShownRef.current = true;
-   //     setShowAiPopup(true);
-   //   }
-   // }, [isLoading, searchQuery, spokenText, aiAnswerText, allBusinesses.length]);
 
   const dismissOverlay = () => {
     setOverlayDismissing(true);
@@ -2074,48 +1951,6 @@ const SearchPage = () => {
     }
   }, [isLoading]);
 
-  // TEMP DISABLED: Auto-regenerate AI text when a category/subcategory filter changes
-  // Kept stable to avoid unnecessary API calls while user navigates filters
-  // const prevFilterRef = useRef({ cat: "", sub: "" });
-  // useEffect(() => {
-  //   const prev = prevFilterRef.current;
-  //   const changed =
-  //     prev.cat !== (selectedCategoryFilter || "") ||
-  //     prev.sub !== (selectedSubcategoryFilter || "");
-  //   prevFilterRef.current = {
-  //     cat: selectedCategoryFilter || "",
-  //     sub: selectedSubcategoryFilter || "",
-  //   };
-  //   if (!changed || !aiAnswerText || isAiRegenerating) return;
-  //   if (!selectedCategoryFilter && !selectedSubcategoryFilter) return;
-  //
-  //   const regenerate = async () => {
-  //     setIsAiRegenerating(true);
-  //     try {
-  //       await new Promise(r => setTimeout(r, 150));
-  //       const top10 = filteredBusinesses.slice(0, 10);
-  //       if (top10.length === 0) { setIsAiRegenerating(false); return; }
-  //       const { data } = await supabase.functions.invoke("ai-search-answer", {
-  //         body: {
-  //           query: spokenText || searchQuery,
-  //           spokenText: spokenText || undefined,
-  //           businesses: top10.map(b => ({
-  //             name: b.name, city: b.city, main_category: b.main_category,
-  //             categories: b.categories, hook_fr: b.hook_fr, wtuce_status: b.wtuce_status,
-  //           })),
-  //           language,
-  //           vary: Date.now() % 1000,
-  //         },
-  //       });
-  //       if (data?.answer) handleAiAnswerReady(data.answer);
-  //     } catch (e) {
-  //       console.error("AI filter-regenerate error:", e);
-  //     } finally {
-  //       setIsAiRegenerating(false);
-  //     }
-  //   };
-  //   regenerate();
-  // }, [selectedCategoryFilter, selectedSubcategoryFilter]);
 
 
   const translations = {
@@ -2261,11 +2096,7 @@ const SearchPage = () => {
             let minDist = Infinity;
             for (const city of citiesWithPriority) {
               if (!city.latitude || !city.longitude) continue;
-              const R = 6371;
-              const dLat = ((city.latitude - confirmedCoords.lat) * Math.PI) / 180;
-              const dLon = ((city.longitude - confirmedCoords.lng) * Math.PI) / 180;
-              const a = Math.sin(dLat / 2) ** 2 + Math.cos((confirmedCoords.lat * Math.PI) / 180) * Math.cos((city.latitude * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
-              const dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+              const dist = haversineKm(confirmedCoords.lat, confirmedCoords.lng, city.latitude, city.longitude);
               if (dist < minDist) { minDist = dist; nearest = city.name; }
             }
             if (nearest && minDist <= 100) {
@@ -2897,40 +2728,8 @@ const SearchPage = () => {
       {/* Mobile-only: geo + time badges removed — geo button lives in sticky tab bars */}
 
       {/* Hero Section - DISABLED */}
-      {false && (
-      <section className={`bg-background relative ${(isCategoryFilterActive || hasReachedTabBar) ? 'hidden' : 'pt-6 lg:pt-28 pb-8 lg:pb-16'} ${isMobile && spokenText && filteredBusinesses.length > 0 ? 'hidden' : ''}`}>
-        <div className="mx-auto px-4 relative max-w-[80%]">
-          {(searchQuery || categoryFromUrl) && (
-            <div className="text-center mb-8">
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-2">
-                {searchQuery ? (
-                  <>{t.searchResults} {t.for}<br />«&nbsp;<span className="text-muted-foreground italic font-normal">{spokenText || searchQuery}</span>&nbsp;»</>
-                ) : (() => {
-                  const categoryLabels: Record<string, { fr: string; en: string; ar: string }> = {
-                    "Hôtellerie": { fr: "Hôtels", en: "Hotels", ar: "الفنادق" },
-                    "Restauration": { fr: "Restaurants", en: "Restaurants", ar: "المطاعم" },
-                    "Tourisme": { fr: "Activités & Tourisme", en: "Activities & Tourism", ar: "الأنشطة والسياحة" },
-                    "Commerce": { fr: "Commerce & Shopping", en: "Shopping", ar: "التسوق" },
-                    "Bien-être": { fr: "Bien-être & Spa", en: "Wellness & Spa", ar: "العافية والسبا" },
-                    "Santé": { fr: "Santé", en: "Health", ar: "الصحة" },
-                    "Culture": { fr: "Culture", en: "Culture", ar: "الثقافة" },
-                    "Transport": { fr: "Transport", en: "Transport", ar: "النقل" },
-                    "Sport & Loisirs": { fr: "Sport & Loisirs", en: "Sports & Leisure", ar: "الرياضة والترفيه" },
-                  };
-                  const label = categoryLabels[categoryFromUrl];
-                  const catName = label
-                    ? (language === "en" ? label.en : language === "ar" ? label.ar : label.fr)
-                    : categoryFromUrl;
-                  const prefix = language === "en" ? "Best" : language === "ar" ? "أفضل" : "Meilleurs";
-                  const suffix = language === "en" ? "in Morocco" : language === "ar" ? "في المغرب" : "au Maroc";
-                  return <><span className="text-gold">{prefix} {catName}</span> {suffix}</>;
-                })()}
-              </h1>
-            </div>
-          )}
-        </div>
-      </section>
-      )}
+
+
 
       {/* Tab Bar — stickybar 1 (above cities) */}
       <section data-tab-bar className="sticky top-[60px] z-[20] bg-white border-b border-border relative">
@@ -2998,115 +2797,14 @@ const SearchPage = () => {
         </div>
       </section>
 
-      {/* 🟠 STICKY 2 (City Bar) — COMMENTÉ */}
-      {false && availableCities.length > 1 && !queryHasExplicitCity && activeTab === "suggestions" && (
-        <div data-city-bar className="sticky z-[6] bg-white border-b border-border py-2 relative" style={{ top: `${stickyTops.cityBar}px` }}>
-          {/* <span className="absolute top-0 left-1 z-[60] bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🟠 STICKY 2</span> */}
-          <div className="mx-auto px-4 max-w-[80%]">
-            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-              <button
-                onClick={() => handleCityChange("all")}
-                className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold whitespace-nowrap transition-all ${
-                   selectedCity === "all"
-                     ? "bg-primary/20 border-primary text-primary shadow-sm"
-                     : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                 }`}
-               >
-                 <MapPin size={14} className={selectedCity === "all" ? "text-primary" : "text-muted-foreground"} />
-                 <span>{t.allCities}</span>
-              </button>
-              {availableCities.map((city) => {
-                const isSelected = selectedCity === city;
-                return (
-                  <button
-                    key={city}
-                    onClick={() => handleCityChange(isSelected ? "all" : city)}
-                    className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold whitespace-nowrap transition-all ${
-                       isSelected
-                         ? "bg-primary/20 border-primary text-primary shadow-sm"
-                         : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                     }`}
-                   >
-                     <MapPin size={14} className={isSelected ? "text-primary" : "text-muted-foreground"} />
-                     <span>{city}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* CityCategoryFilter (3b/3c) — DISABLED */}
-      {false && activeTab === "suggestions" && allBusinesses.length > 0 && !isLoading && !detectedSubcategory && (
-        <CityCategoryFilter
-          cityName={detectedCity || (selectedCity && selectedCity !== "all" ? selectedCity : null) || ""}
-          hasCityBar={availableCities.length > 1 && !queryHasExplicitCity}
-          stickyBaseTop={stickyTops.serviceBar}
-          selectedCategory={selectedCategoryFilter}
-          onSelectCategory={(cat) => {
-            setSelectedCategoryFilter(cat);
-            setSelectedSubcategoryFilter(null);
-            setSelectedServiceFilter(null);
-            requestAnimationFrame(() => {
-              const tabBar = document.querySelector('[data-tab-bar]');
-              if (tabBar) {
-                const y = tabBar.getBoundingClientRect().top + window.scrollY - 60;
-                window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
-              }
-            });
-          }}
-          selectedSubcategory={selectedSubcategoryFilter}
-          onSelectSubcategory={(sub) => {
-            setSelectedSubcategoryFilter(sub);
-            setSelectedServiceFilter(null);
-            requestAnimationFrame(() => {
-              const tabBar = document.querySelector('[data-tab-bar]');
-              if (tabBar) {
-                const y = tabBar.getBoundingClientRect().top + window.scrollY - 60;
-                window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
-              }
-            });
-          }}
-          selectedService={selectedServiceFilter}
-          onSelectService={(svc) => {
-            setSelectedServiceFilter(svc);
-          }}
-        />
-      )}
 
-      {/* 🩵 STICKY 3d — Service Filter (shown when subcategory detected) — DISABLED in Résultats tab */}
-      {/* {detectedSubcategory && searchServiceFilters.length >= 1 && !isLoading && activeTab === "suggestions" && (
-        <div data-service-filter className="sticky z-[5] bg-white py-2 relative" style={{ top: `${stickyTops.serviceBar}px` }}>
-          <div className="mx-auto px-4 max-w-[80%]">
-            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-              {[...searchServiceFilters].sort((a, b) => {
-                if (selectedServiceFilter === a.name) return -1;
-                if (selectedServiceFilter === b.name) return 1;
-                return 0;
-              }).map((svc) => {
-                const isSelected = selectedServiceFilter === svc.name;
-                return (
-                  <button
-                    key={svc.name}
-                    onClick={() => setSelectedServiceFilter(isSelected ? null : svc.name)}
-                    className={`flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-full border text-xs font-medium transition-all whitespace-nowrap ${
-                      isSelected
-                        ? "bg-primary/20 border-primary text-primary shadow-sm"
-                        : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                    }`}
-                  >
-                    <span>{svc.name.charAt(0).toUpperCase() + svc.name.slice(1).toLowerCase()}</span>
-                    <span className={`text-xs font-normal ${isSelected ? "text-primary/70" : "text-muted-foreground/60"}`}>
-                      {svc.count}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )} */}
+
+
+
+
+
+
 
       {activeTab === "map" && (
         <section className="pt-4 pb-4 lg:pt-20 lg:pb-4 bg-white dark:bg-zinc-900">
@@ -3505,214 +3203,8 @@ const SearchPage = () => {
         );
       })()}
 
-      {/* AI Summary Bar — STICKY 4 — disabled */}
-      {false && activeTab === "suggestions" && (aiAnswerText || isAiRegenerating) && (() => {
-        const hasCB = availableCities.length > 1 && !queryHasExplicitCity;
-        const baseTop = 104 + (hasCB ? 44 : 0);
-        const categoryEl = typeof document !== "undefined"
-          ? document.querySelector<HTMLElement>("[data-category-filter]")
-          : null;
-        const subcategoryEl = typeof document !== "undefined"
-          ? document.querySelector<HTMLElement>("[data-subcategory-filter]")
-          : null;
-        const serviceEl = typeof document !== "undefined"
-          ? document.querySelector<HTMLElement>("[data-service-filter]")
-          : null;
-        const searchServiceEl = typeof document !== "undefined"
-          ? document.querySelector<HTMLElement>("[data-search-service-filter]")
-          : null;
 
-        const getStickyBottom = (el: HTMLElement | null) => {
-          if (!el || typeof window === "undefined") return 0;
-          const computedTop = Number.parseFloat(window.getComputedStyle(el).top || "0");
-          const safeTop = Number.isFinite(computedTop) ? computedTop : 0;
-          return safeTop + el.getBoundingClientRect().height;
-        };
 
-        const filterBottom = (serviceEl && getStickyBottom(serviceEl))
-          || (subcategoryEl && getStickyBottom(subcategoryEl))
-          || (categoryEl && getStickyBottom(categoryEl))
-          || (searchServiceEl && getStickyBottom(searchServiceEl));
-        // When no filter bars exist (hero scroll mode), stick just below the tab bar or header
-        const tabBarEl = typeof document !== "undefined"
-          ? document.querySelector<HTMLElement>("[data-tab-bar]")
-          : null;
-        const aiTop = filterBottom
-          || (tabBarEl ? getStickyBottom(tabBarEl) : null)
-          || (baseTop + 62);
-
-        return (
-          <div data-ai-bar className="sticky z-[1] bg-white py-2 relative" style={{ top: `${aiTop}px` }}>
-            {/* <span className="absolute top-0 left-1 z-[60] bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🔵 STICKY 4</span> */}
-            <div className="mx-auto px-4 max-w-[80%]">
-              <div className="flex items-start gap-3">
-                <div className="flex-1 min-w-0">
-                  <div
-                    key={stickyAiAnimationKey}
-                    className={`text-sm text-muted-foreground leading-relaxed animate-fade-in ${isAiSummaryExpanded ? '' : 'line-clamp-2'}`}
-                    style={{ animation: "fade-in 0.45s ease-out both" }}
-                  >
-                    <Sparkles className="h-3.5 w-3.5 inline-block mr-1.5 text-gold align-text-bottom" />
-                    {isAiRegenerating ? (
-                      <span className="italic text-muted-foreground/60">{language === "en" ? "Regenerating…" : "Régénération en cours…"}</span>
-                    ) : (() => {
-                      const isTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0;
-                      const karaokeTarget = isTTSActive ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : -1;
-                      return parseInline(
-                        stickyAiText,
-                        allBusinesses as unknown as AIBusinessData[],
-                        (b) => openCompactPanel(b),
-                        "compact-ai",
-                        isTTSActive
-                          ? { wordIndex: 0, target: karaokeTarget, mode: "karaoke" as const }
-                          : { wordIndex: 0, target: stickyAiVisibleWordIndex }
-                      );
-                    })()}
-                  </div>
-                  {/* Mobile: "Lire la suite" opens fullscreen AI overlay; Desktop: expand/collapse */}
-                  {!isAiSummaryExpanded && isMobile ? (
-                    <button
-                      onClick={() => {
-                        aiPopupShownRef.current = false;
-                        if (selectedServiceFilter && lastAiServiceRef.current !== selectedServiceFilter) {
-                          setAiAnswerText("");
-                          setAiRegenerateKey(k => k + 1);
-                          lastAiServiceRef.current = selectedServiceFilter;
-                        }
-                        setWarningDismissed(true);
-                        setCompactPanelBusiness(null);
-                        setIsCompactPanelExpanded(false);
-                        setShowAiPopup(true);
-                      }}
-                      className="inline-flex items-center gap-1 mt-1 text-xs font-medium text-gold hover:text-gold/80 transition-colors"
-                    >
-                      <ChevronDown className="h-3 w-3" />{language === "en" ? "Read more" : "Lire la suite"}
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => setIsAiSummaryExpanded(!isAiSummaryExpanded)}
-                      className="inline-flex items-center gap-1 mt-1 text-xs font-medium text-gold hover:text-gold/80 transition-colors"
-                    >
-                      {isAiSummaryExpanded ? (
-                        <><ChevronUp className="h-3 w-3" />{language === "en" ? "Show less" : "Réduire"}</>
-                      ) : (
-                        <><ChevronDown className="h-3 w-3" />{language === "en" ? "Read more" : "Lire la suite"}</>
-                      )}
-                    </button>
-                  )}
-                </div>
-                <button
-                  disabled={isAiRegenerating}
-                  onClick={async () => {
-                    if (isAiRegenerating) return;
-                    // If no filters active, use the standard regenerate flow
-                    if (!isCategoryFilterActive) {
-                      setAiAnswerText("");
-                      setAiRegenerateKey(k => k + 1);
-                      return;
-                    }
-                    // Regenerate with filtered businesses
-                    setIsAiRegenerating(true);
-                    // Don't clear aiAnswerText to keep the sticky bar visible
-                    try {
-                      const top10 = filteredBusinesses.slice(0, 10);
-                      const { data } = await supabase.functions.invoke("ai-search-answer", {
-                        body: {
-                          query: spokenText || searchQuery,
-                          spokenText: spokenText || undefined,
-                          businesses: top10.map(b => ({
-                            name: b.name,
-                            city: b.city,
-                            main_category: b.main_category,
-                            categories: b.categories,
-                            hook_fr: b.hook_fr,
-                            wtuce_status: b.wtuce_status,
-                          })),
-                          language,
-                          vary: Date.now() % 1000,
-                        },
-                      });
-                      if (data?.answer) handleAiAnswerReady(data.answer);
-                    } catch (e) {
-                      console.error("AI regenerate error:", e);
-                    } finally {
-                      setIsAiRegenerating(false);
-                    }
-                  }}
-                  className="shrink-0 w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center hover:bg-foreground/80 transition-colors shadow-lg mt-0.5 disabled:opacity-50"
-                  title={language === "en" ? "Generate another suggestion" : "Régénérer la suggestion"}
-                >
-                  <RefreshCw className={`h-5 w-5 ${isAiRegenerating ? "animate-spin" : ""}`} />
-                </button>
-                <button
-                  onClick={() => {
-                    aiPopupShownRef.current = false;
-                    if (selectedServiceFilter && lastAiServiceRef.current !== selectedServiceFilter) {
-                      setAiAnswerText("");
-                      setAiRegenerateKey(k => k + 1);
-                      lastAiServiceRef.current = selectedServiceFilter;
-                    }
-                    setWarningDismissed(true);
-                    setCompactPanelBusiness(null);
-                    setIsCompactPanelExpanded(false);
-                    setShowAiPopup(true);
-                  }}
-                  className="shrink-0 w-10 h-10 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-lg mt-0.5"
-                  title={language === "en" ? "View AI suggestion" : "Voir la suggestion IA"}
-                >
-                  <Sparkles className="h-5 w-5" />
-                </button>
-              </div>
-              {/* Action buttons row: Plus de filtres, Écouter */}
-              <div className="flex items-center justify-between mt-2 pt-2">
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setMoreFiltersOpen(true)}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
-                      (moreFilterTimeSlots.length + moreFilterEngagements.length + moreFilterCommodites.length) > 0
-                        ? "border-primary bg-primary/10 text-primary hover:bg-primary/20"
-                        : "border-dashed border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground"
-                    }`}
-                  >
-                    <SlidersHorizontal size={14} />
-                    <span>Plus de filtres</span>
-                    {(moreFilterTimeSlots.length + moreFilterEngagements.length + moreFilterCommodites.length) > 0 && (
-                      <span className="bg-primary text-primary-foreground text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
-                        {moreFilterTimeSlots.length + moreFilterEngagements.length + moreFilterCommodites.length}
-                      </span>
-                    )}
-                  </button>
-                </div>
-                <div className="flex items-center gap-2">
-                  {(ttsStatus === "playing" || ttsStatus === "loading") ? (
-                    <button
-                      onClick={ttsStop}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold/20 text-gold text-xs font-medium hover:bg-gold/30 transition-colors"
-                    >
-                      {ttsStatus === "loading" ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <Volume2 className="h-3.5 w-3.5" />}
-                      {ttsStatus === "loading" ? "…" : "Stop"}
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => {
-                        const cleanText = aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
-                        const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
-                        ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
-                        voiceLoopRef.current = true;
-                        ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
-                      }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card border border-gold/30 text-gold text-xs font-medium hover:bg-gold/20 transition-colors"
-                    >
-                      <Volume2 className="h-3.5 w-3.5" />
-                      {language === "en" ? "Listen" : language === "ar" ? "استمع" : "Écouter"}
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
 
       {/* Filters & Results — Suggestion IA tab */}
       {activeTab === "suggestions" && (
@@ -3792,95 +3284,8 @@ const SearchPage = () => {
             </>
           )}
 
-          {/* Easter egg: SOS Médecin */}
-          {showSosMedecin && (
-            <div className="max-w-lg mx-auto mt-28 mb-10 rounded-2xl overflow-hidden border border-red-500/40 shadow-2xl bg-gradient-to-br from-black to-zinc-900">
-              <div className="px-6 py-5 border-b border-red-500/20 bg-gradient-to-r from-red-500/10 to-transparent">
-                <p className="text-red-400 font-semibold text-lg flex items-center gap-2">
-                  🚨 SOS Médecin — Numéros d'urgence au Maroc
-                </p>
-                <p className="text-white/50 text-sm mt-0.5">Appelez immédiatement si besoin d'aide médicale</p>
-              </div>
-              <div className="px-6 py-5 space-y-3">
-                <a href="tel:150" className="flex items-center justify-between rounded-xl border border-orange-500/30 bg-orange-500/5 px-4 py-3 hover:bg-orange-500/10 transition-colors group">
-                  <div>
-                    <p className="text-white font-semibold text-sm">Pompiers / Secours</p>
-                    <p className="text-white/40 text-xs">Incendie, accidents, sauvetage</p>
-                  </div>
-                  <span className="text-orange-400 font-bold text-2xl group-hover:scale-110 transition-transform">150</span>
-                </a>
-                <a href="tel:190" className="flex items-center justify-between rounded-xl border border-orange-500/30 bg-orange-500/5 px-4 py-3 hover:bg-orange-500/10 transition-colors group">
-                  <div>
-                    <p className="text-white font-semibold text-sm">Protection Civile</p>
-                    <p className="text-white/40 text-xs">Secours et premiers soins</p>
-                  </div>
-                  <span className="text-orange-400 font-bold text-2xl group-hover:scale-110 transition-transform">190</span>
-                </a>
-                <a href="tel:19" className="flex items-center justify-between rounded-xl border border-blue-500/30 bg-blue-500/5 px-4 py-3 hover:bg-blue-500/10 transition-colors group">
-                  <div>
-                    <p className="text-white font-semibold text-sm">Police Secours</p>
-                    <p className="text-white/40 text-xs">Urgences police</p>
-                  </div>
-                  <span className="text-blue-400 font-bold text-2xl group-hover:scale-110 transition-transform">19</span>
-                </a>
-                <a href="tel:177" className="flex items-center justify-between rounded-xl border border-yellow-500/30 bg-yellow-500/5 px-4 py-3 hover:bg-yellow-500/10 transition-colors group">
-                  <div>
-                    <p className="text-white font-semibold text-sm">Gendarmerie Royale</p>
-                    <p className="text-white/40 text-xs">Zones rurales et périurbaines</p>
-                  </div>
-                  <span className="text-yellow-400 font-bold text-2xl group-hover:scale-110 transition-transform">177</span>
-                </a>
-              </div>
-              <div className="px-6 py-3 border-t border-red-500/20 bg-red-500/5">
-                <p className="text-white/30 text-xs italic">En cas d'urgence grave, composez le 150 (SAMU) ou rendez-vous aux urgences de l'hôpital le plus proche.</p>
-              </div>
-            </div>
-          )}
-
-          {/* Easter egg: Pompiers */}
-          {showPompiers && (
-            <div className="max-w-lg mx-auto mt-28 mb-10 rounded-2xl overflow-hidden border border-orange-500/40 shadow-2xl bg-gradient-to-br from-black to-zinc-900">
-              <div className="px-6 py-5 border-b border-orange-500/20 bg-gradient-to-r from-orange-500/10 to-transparent">
-                <p className="text-orange-400 font-semibold text-lg flex items-center gap-2">
-                  🔥 Pompiers — Numéros d'urgence au Maroc
-                </p>
-                <p className="text-white/50 text-sm mt-0.5">Appelez immédiatement en cas d'incendie ou de danger</p>
-              </div>
-              <div className="px-6 py-5 space-y-3">
-                <a href="tel:150" className="flex items-center justify-between rounded-xl border border-orange-500/30 bg-orange-500/5 px-4 py-3 hover:bg-orange-500/10 transition-colors group">
-                  <div>
-                    <p className="text-white font-semibold text-sm">Sapeurs-Pompiers</p>
-                    <p className="text-white/40 text-xs">Incendie, secours et sauvetage</p>
-                  </div>
-                  <span className="text-orange-400 font-bold text-2xl group-hover:scale-110 transition-transform">150</span>
-                </a>
-                <a href="tel:190" className="flex items-center justify-between rounded-xl border border-red-500/30 bg-red-500/5 px-4 py-3 hover:bg-red-500/10 transition-colors group">
-                  <div>
-                    <p className="text-white font-semibold text-sm">Protection Civile</p>
-                    <p className="text-white/40 text-xs">Secours d'urgence et catastrophes</p>
-                  </div>
-                  <span className="text-red-400 font-bold text-2xl group-hover:scale-110 transition-transform">190</span>
-                </a>
-                <a href="tel:19" className="flex items-center justify-between rounded-xl border border-blue-500/30 bg-blue-500/5 px-4 py-3 hover:bg-blue-500/10 transition-colors group">
-                  <div>
-                    <p className="text-white font-semibold text-sm">Police Secours</p>
-                    <p className="text-white/40 text-xs">Urgences police</p>
-                  </div>
-                  <span className="text-blue-400 font-bold text-2xl group-hover:scale-110 transition-transform">19</span>
-                </a>
-                <a href="tel:177" className="flex items-center justify-between rounded-xl border border-yellow-500/30 bg-yellow-500/5 px-4 py-3 hover:bg-yellow-500/10 transition-colors group">
-                  <div>
-                    <p className="text-white font-semibold text-sm">Gendarmerie Royale</p>
-                    <p className="text-white/40 text-xs">Zones rurales et périurbaines</p>
-                  </div>
-                  <span className="text-yellow-400 font-bold text-2xl group-hover:scale-110 transition-transform">177</span>
-                </a>
-              </div>
-              <div className="px-6 py-3 border-t border-orange-500/20 bg-orange-500/5">
-                <p className="text-white/30 text-xs italic">En cas d'incendie, évacuez immédiatement et composez le 15. N'essayez pas d'éteindre un feu important seul.</p>
-              </div>
-            </div>
-          )}
+          {showSosMedecin && <EmergencyNumbers variant="sos" />}
+          {showPompiers && <EmergencyNumbers variant="pompiers" />}
 
           {/* Category filter moved to sticky zones above */}
 
