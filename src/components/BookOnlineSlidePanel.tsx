@@ -184,7 +184,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         videoRef.current.play().catch(() => {});
       }
       if (iframeRef.current && iframeSrcRef.current) {
-        iframeRef.current.src = iframeSrcRef.current;
+        const restoredMutedSrc = iframeSrcRef.current
+          .replace(/([?&])mute=\d/i, "$1mute=1")
+          .replace(/([?&])controls=\d/i, "$1controls=0");
+        iframeRef.current.src = restoredMutedSrc;
       }
       overlayWasOpenRef.current = false;
       return;
