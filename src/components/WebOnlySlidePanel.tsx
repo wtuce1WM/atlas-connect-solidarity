@@ -317,6 +317,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
         });
       }
       setKpRelated(kpResults);
+      setIsKp1Only(!!(kp1Val && !kp2Val));
 
       setIsLoading(false);
     };
