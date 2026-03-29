@@ -1077,9 +1077,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           </>
         )}
 
-        {/* CTAs */}
-        {(bookUrl || shopUrl || (business.latitude && business.longitude)) && (
-          <div className={`shrink-0 py-2 flex flex-col items-center gap-2 pointer-events-auto ${noBottomCarousel ? 'mt-auto' : ''}`}>
+        {/* CTAs + video controls */}
+        <div className={`shrink-0 py-2 flex flex-col items-center gap-2 pointer-events-auto ${noBottomCarousel ? 'mt-auto' : ''}`}>
             {bookingCta && (
               bookingCta.forceExternal ? (
                 <a
@@ -1138,8 +1137,37 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 {language === "en" ? "Directions" : "Itinéraire"}
               </button>
             )}
+            {/* Video controls — below CTAs */}
+            {currentMedia?.kind === "video" && videoInfo?.type === "file" && (
+              <div className="flex items-center gap-3 mt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (videoRef.current) {
+                      if (videoRef.current.paused) videoRef.current.play();
+                      else videoRef.current.pause();
+                    }
+                  }}
+                  className="w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  aria-label={videoRef.current?.paused ? "Play" : "Pause"}
+                >
+                  {videoRef.current?.paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (videoRef.current) {
+                      videoRef.current.muted = !videoRef.current.muted;
+                    }
+                  }}
+                  className="w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  aria-label={videoRef.current?.muted ? "Unmute" : "Mute"}
+                >
+                  {videoRef.current?.muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                </button>
+              </div>
+            )}
           </div>
-        )}
       </div>
 
       {/* YouTube Overlay */}
