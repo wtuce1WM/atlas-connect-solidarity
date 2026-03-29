@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation, Minimize2, Map } from "lucide-react";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
+import wooshSfx from "@/assets/woosh.wav";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
 import { supabase } from "@/integrations/supabase/client";
@@ -117,6 +118,10 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
     if (totalMedia <= 1) return;
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [totalMedia]);
+
+  const playWoosh = useCallback(() => {
+    try { new Audio(wooshSfx).play(); } catch {}
+  }, []);
 
   if (isLoading) {
     return (
@@ -260,7 +265,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
                   <div className="flex items-center gap-2 shrink-0">
                     {linkedBusinesses.length > 0 && (
                       <button
-                        onClick={() => setFlipped(true)}
+                        onClick={() => { playWoosh(); setFlipped(true); }}
                         className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
                         aria-label="Voir la carte"
                         title="Voir sur la carte"
@@ -297,7 +302,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
                 {/* Back header */}
                 <div className="flex items-center gap-3 p-4 text-white">
                   <button
-                    onClick={() => setFlipped(false)}
+                    onClick={() => { playWoosh(); setFlipped(false); }}
                     className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
                     aria-label="Retourner"
                   >
