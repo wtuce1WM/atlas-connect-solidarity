@@ -1568,25 +1568,36 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
             {/* Video — full overlay */}
             <div className="absolute inset-0 flex items-center justify-center">
-              {embedUrl ? (
-                <div className={`${isVerticalHint ? "h-full aspect-[9/16]" : "w-full h-full"}`}>
-                  <iframe
-                    src={embedUrl}
-                    className="w-full h-full"
-                    allow="autoplay; encrypted-media; fullscreen"
-                    allowFullScreen
-                  />
-                </div>
-              ) : isFile ? (
+              {isFile ? (
                 <video
                   src={vidUrl}
-                  className="w-full h-full object-contain"
+                  className={`w-full h-full bg-black ${isVerticalHint ? "object-cover" : "object-contain"}`}
                   autoPlay
                   controls
                   loop
                   playsInline
                 />
-              ) : null}
+              ) : (
+                <div className={`w-full h-full overflow-hidden bg-black ${overlayVid.type === "youtube" ? "relative" : ""}`}>
+                  {overlayVid.type === "youtube" && !isVerticalHint && (
+                    <>
+                      <div className="absolute inset-x-0 top-0 h-16 bg-black z-10" />
+                      <div className="absolute inset-x-0 bottom-0 h-12 bg-black z-10" />
+                    </>
+                  )}
+                  <iframe
+                    src={overlayEmbedUrl}
+                    className={overlayVid.type === "youtube"
+                      ? isVerticalHint
+                        ? "w-full h-full"
+                        : "w-full h-[calc(100%+80px)] -mt-16 -mb-[46px]"
+                      : "w-full h-full"
+                    }
+                    allow="autoplay; encrypted-media; fullscreen"
+                    allowFullScreen
+                  />
+                </div>
+              )}
             </div>
 
             {/* Description card — POI style, below close button */}
