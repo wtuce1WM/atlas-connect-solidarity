@@ -7,7 +7,7 @@ interface VideoThumbnailProps {
 }
 
 /** Check if a canvas frame is mostly black (avg brightness < threshold) */
-function isFrameBlack(canvas: HTMLCanvasElement, threshold = 15): boolean {
+function isFrameBlack(canvas: HTMLCanvasElement, threshold = 35): boolean {
   const ctx = canvas.getContext("2d");
   if (!ctx) return false;
   const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -76,7 +76,7 @@ const VideoThumbnail = ({ src, alt, className }: VideoThumbnailProps) => {
     const handleLoaded = () => {
       if (cancelled) return;
       // Start at frame 0 to check if it's black
-      video.currentTime = 1;
+      video.currentTime = 3;
     };
 
     const handleError = () => {
