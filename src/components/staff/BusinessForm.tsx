@@ -3173,7 +3173,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               {videoDescDialogIdx !== null && (
                 <div className="space-y-2">
                   <RichTextEditor
-                    value={videoDocs[videoDescDialogIdx]?.description || ""}
+                    content={videoDocs[videoDescDialogIdx]?.description || ""}
                     onChange={(val) => {
                       const trimmed = val.slice(0, 2000);
                       setVideoDocs(prev => prev.map((d, i) => i === videoDescDialogIdx ? { ...d, description: trimmed } : d));
