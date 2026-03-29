@@ -1538,7 +1538,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 <div className="rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white">
                   <div className="flex items-center gap-3">
                     <div className="min-w-0 flex-1">
-                      <h2 className="text-base font-bold truncate drop-shadow-lg uppercase" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em' }}>
+                      <h2 className="text-base font-bold drop-shadow-lg uppercase line-clamp-2 md:truncate" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em' }}>
                         {activeVideoOverlay.name || "Détails"}
                       </h2>
                     </div>
