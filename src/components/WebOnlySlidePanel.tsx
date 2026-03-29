@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, ShoppingBag, Star, Minimize2, X } from "lucide-react";
 import DestinationSlidePanel from "@/components/DestinationSlidePanel";
 import PoiSlidePanel from "@/components/PoiSlidePanel";
+import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 import YouTubeShortsCarousel, { type YouTubeVideo } from "@/components/YouTubeShortsCarousel";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import poiNearbyImg from "@/assets/poi-nearby.webp";

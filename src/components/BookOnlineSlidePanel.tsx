@@ -37,6 +37,7 @@ import { useDragToHide } from "@/hooks/useDragToHide";
 import { useBrokenLinks } from "@/hooks/useBrokenLinks";
 import { useNavigate } from "react-router-dom";
 import { businessUrl } from "@/lib/businessUrl";
+import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 
 interface BookOnlineSlidePanelProps {
   businessId: string;
