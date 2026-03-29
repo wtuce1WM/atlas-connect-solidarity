@@ -55,7 +55,7 @@ const VideoThumbnail = ({ src, alt, className }: VideoThumbnailProps) => {
           // If first attempt (time~0) is black, seek further
           if (!triedSeek && isFrameBlack(canvas)) {
             triedSeek = true;
-            video.currentTime = Math.min(3, video.duration * 0.25);
+            video.currentTime = Math.min(5, video.duration * 0.25);
             return; // will fire seeked again
           }
           setThumbUrl(canvas.toDataURL("image/jpeg", 0.7));
