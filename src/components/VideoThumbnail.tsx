@@ -42,8 +42,8 @@ const VideoThumbnail = ({ src, alt, className }: VideoThumbnailProps) => {
 
     const handleLoaded = () => {
       if (cancelled) return;
-      // Seek to 3s or 25% of duration, whichever is smaller
-      const seekTo = Math.min(3, video.duration * 0.25);
+      // Seek to 2s or 25% of duration, whichever is smaller
+      const seekTo = Math.min(2, video.duration * 0.25);
       video.currentTime = seekTo;
     };
 
