@@ -1292,7 +1292,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366' }}
                   >
                     <CalendarCheck className="h-4 w-4" />
-                    {language === "en" ? "Book Online" : "Réservez en ligne"}
+                    {ctaLabel}
                   </button>
                 )
               )}
