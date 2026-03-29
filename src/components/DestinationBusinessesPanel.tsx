@@ -38,7 +38,7 @@ interface DestinationBusinessesPanelProps {
   onLoginRequired?: () => void;
 }
 
-const SELECT_FIELDS = "id, name, city, neighborhood, images, rating, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count";
+const SELECT_FIELDS = "id, name, city, neighborhood, images, rating, computed_rating, total_review_count, wtuce_status";
 
 const DestinationBusinessesPanel = ({ destination, language, onClose, onBusinessClick, onLoginRequired }: DestinationBusinessesPanelProps) => {
   const [businesses, setBusinesses] = useState<Business[]>([]);

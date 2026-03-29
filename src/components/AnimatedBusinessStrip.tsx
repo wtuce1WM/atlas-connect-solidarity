@@ -41,16 +41,14 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
         // Fetch businesses in this category, then sort by avg review rating
         const { data: bizData } = await supabase
           .from("businesses")
-          .select("id, name, logo_url, neighborhood, phone, whatsapp, website, city, google_maps_url, rating, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count")
+          .select("id, name, logo_url, neighborhood, phone, whatsapp, website, city, google_maps_url, rating, computed_rating")
           .eq("is_active", true)
           .or(`main_category.eq.${category},categories.cs.{${category}}`)
           .not("logo_url", "is", null);
 
         if (bizData) {
-          // Calculate weighted avg rating (same logic as BusinessDetail: manual rating takes priority)
           const withRating = bizData.map((b) => {
-            const computedOn20 = computeWeightedRatingOn20(collectRatingSources(b));
-            const avgOn20 = b.rating ?? computedOn20;
+            const avgOn20 = (b as any).computed_rating ?? b.rating ?? null;
             return { ...b, avg_rating: avgOn20 };
           });
           withRating.sort((a, b) => (b.avg_rating ?? 0) - (a.avg_rating ?? 0));

@@ -105,20 +105,14 @@ function infoHtml(b: MapBusiness, hasClickHandler: boolean): string {
   const subcategory = b.categories?.[0] || b.main_category || "";
   const thumbnail = b.images?.[0] || "";
 
-  // Build review stars
-  const rating = b.google_rating || b.tripadvisor_rating;
-  const reviewCount = b.google_review_count || b.tripadvisor_review_count;
-  const reviewSource = b.google_rating ? "Google" : b.tripadvisor_rating ? "TripAdvisor" : "";
+  // Build review info from computed fields
+  const ratingOn20 = b.computed_rating;
+  const reviewCount = b.total_review_count;
   let starsHtml = "";
-  if (rating) {
-    const fullStars = Math.floor(rating);
-    const halfStar = rating - fullStars >= 0.3;
-    let stars = "";
-    for (let i = 0; i < fullStars; i++) stars += "★";
-    if (halfStar) stars += "½";
+  if (ratingOn20) {
     starsHtml = `<div style="font-size:11px;color:#D4AF37;margin-bottom:4px;">
-      <span style="letter-spacing:1px;">${stars}</span>
-      <span style="color:#888;font-size:10px;margin-left:4px;">${rating.toFixed(1)}${reviewCount ? ` (${reviewCount})` : ""} · ${reviewSource}</span>
+      <span style="font-weight:600;">★ ${Number(ratingOn20).toFixed(1)}/20</span>
+      ${reviewCount ? `<span style="color:#888;font-size:10px;margin-left:4px;">(${reviewCount} avis)</span>` : ""}
     </div>`;
   }
 

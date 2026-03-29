@@ -128,7 +128,7 @@ const RelaisChateauxSection = () => {
         {/* Business Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {businesses.map((business) => {
-            const displayRating = business.rating ?? getCalculatedRating(business);
+            const displayRating = business.computed_rating ?? business.rating;
             return (
             <Link
               key={business.id}

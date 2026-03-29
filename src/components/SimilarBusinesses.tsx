@@ -172,9 +172,8 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
       <div className="hidden sm:grid grid-cols-3 gap-2">
         {businesses.map((biz) => {
           const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
-          const sources = collectRatingSources(biz);
-          const avgOn20 = biz.rating ?? computeWeightedRatingOn20(sources);
-          const totalReviews = sources.reduce((s, r) => s + r.count, 0);
+          const avgOn20 = (biz as any).computed_rating ?? biz.rating;
+          const totalReviews = (biz as any).total_review_count ?? 0;
 
           return (
             <Link
