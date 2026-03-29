@@ -148,6 +148,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const keepMutedRef = useRef(false);
+  const muteLockSrcRef = useRef<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const iframeSrcRef = useRef<string>("");
   const overlayWasOpenRef = useRef(false);
@@ -155,6 +156,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   // Reset media mute/overlay refs when business changes (new search result).
   useEffect(() => {
     keepMutedRef.current = false;
+    muteLockSrcRef.current = null;
     overlayWasOpenRef.current = false;
     iframeSrcRef.current = "";
   }, [businessId]);
