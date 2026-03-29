@@ -2096,11 +2096,7 @@ const SearchPage = () => {
             let minDist = Infinity;
             for (const city of citiesWithPriority) {
               if (!city.latitude || !city.longitude) continue;
-              const R = 6371;
-              const dLat = ((city.latitude - confirmedCoords.lat) * Math.PI) / 180;
-              const dLon = ((city.longitude - confirmedCoords.lng) * Math.PI) / 180;
-              const a = Math.sin(dLat / 2) ** 2 + Math.cos((confirmedCoords.lat * Math.PI) / 180) * Math.cos((city.latitude * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
-              const dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+              const dist = haversineKm(confirmedCoords.lat, confirmedCoords.lng, city.latitude, city.longitude);
               if (dist < minDist) { minDist = dist; nearest = city.name; }
             }
             if (nearest && minDist <= 100) {
