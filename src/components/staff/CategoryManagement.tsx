@@ -24,6 +24,7 @@ import {
   ExternalLink,
   Settings,
   Copy,
+  LayoutGrid,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -48,6 +49,7 @@ import {
 } from "@/components/ui/dialog";
 import IconPicker, { ICONS } from "./IconPicker";
 import RichTextEditor from "./RichTextEditor";
+import FrontStructureManagement from "./FrontStructureManagement";
 
 // Helper component to render dynamic icons
 const DynamicIcon = ({ name, className }: { name: string; className?: string }) => {
@@ -127,6 +129,7 @@ const CategoryManagement = () => {
   
   const [businessesPopup, setBusinessesPopup] = useState<BusinessesPopup | null>(null);
   const [popupCityFilter, setPopupCityFilter] = useState<string>("all");
+  const [frontStructureOpen, setFrontStructureOpen] = useState(false);
 
   const openCategoryBusinesses = async (e: React.MouseEvent, categoryId: string, categoryName: string) => {
     e.stopPropagation();
@@ -683,11 +686,19 @@ const CategoryManagement = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Gestion des catégories</h2>
-        <Button onClick={() => startEdit({ type: "category", id: null })}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nouvelle catégorie
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setFrontStructureOpen(true)}>
+            <LayoutGrid className="h-4 w-4 mr-2" />
+            Structure du front
+          </Button>
+          <Button onClick={() => startEdit({ type: "category", id: null })}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nouvelle catégorie
+          </Button>
+        </div>
       </div>
+
+      <FrontStructureManagement open={frontStructureOpen} onOpenChange={setFrontStructureOpen} />
 
       {/* New category form */}
       {editMode?.type === "category" && editMode.id === null && renderEditForm(true, true, true)}
