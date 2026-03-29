@@ -1474,7 +1474,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       {selectedPoiBusinessId && (
         <PoiSlidePanel
           businessId={selectedPoiBusinessId}
-          onClose={() => setSelectedPoiBusinessId(null)}
+          onClose={() => {
+            setSelectedPoiBusinessId(null);
+            if (poiOpenedFromMapRef.current) {
+              poiOpenedFromMapRef.current = false;
+              setShowPoiMapOverlay(true);
+            }
+          }}
           slideFrom="bottom"
         />
       )}
