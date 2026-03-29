@@ -12,6 +12,7 @@ interface ContactFlipCardProps {
     whatsapp: string | null;
     email: string | null;
     website: string | null;
+    website_force_external?: boolean;
     latitude: number | null;
     longitude: number | null;
     is_open_24h: boolean;
@@ -27,6 +28,7 @@ interface ContactFlipCardProps {
   isHotel?: boolean;
   hasLiteApiMapping?: boolean;
   onCheckAvailability?: () => void;
+  onOpenWebsite?: (url: string) => void;
 }
 
 const ContactFlipCard = ({
@@ -39,6 +41,7 @@ const ContactFlipCard = ({
   isHotel = false,
   hasLiteApiMapping = false,
   onCheckAvailability,
+  onOpenWebsite,
 }: ContactFlipCardProps) => {
   const [flipped, setFlipped] = useState(false);
 
@@ -106,18 +109,30 @@ const ContactFlipCard = ({
                 Email
               </a>
             )}
-            {business.website && (
-              <a
-                href={business.website.startsWith("http") ? business.website : `https://${business.website}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
-              >
-                <Globe className="h-4 w-4 shrink-0 text-white/60" />
-                {language === "en" ? "Website" : "Site web"}
-                <ExternalLink className="h-3 w-3" />
-              </a>
-            )}
+            {business.website && (() => {
+              const fullWebUrl = business.website.startsWith("http") ? business.website : `https://${business.website}`;
+              const forceExt = business.website_force_external;
+              return forceExt ? (
+                <a
+                  href={fullWebUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
+                >
+                  <Globe className="h-4 w-4 shrink-0 text-white/60" />
+                  {language === "en" ? "Website" : "Site web"}
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              ) : (
+                <button
+                  onClick={() => onOpenWebsite?.(fullWebUrl)}
+                  className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
+                >
+                  <Globe className="h-4 w-4 shrink-0 text-white/60" />
+                  {language === "en" ? "Website" : "Site web"}
+                </button>
+              );
+            })()}
             {hasOpeningHours && !business.is_open_24h && <OpeningHoursBlock business={business} language={language} />}
 
             {/* Hotel availability widget */}

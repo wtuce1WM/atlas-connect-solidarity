@@ -771,6 +771,11 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                   hasOpeningHours={!!(business?.show_opening_hours !== false && (business?.is_open_24h || business?.opening_hours))}
                   tallHeight={noBottomCarousel}
                   animationDelay={woDescription ? "120ms" : "0ms"}
+                  onOpenWebsite={(url) => {
+                    setBookingOverlayUrl(url);
+                    setBookingOverlayTitle(language === "en" ? "Website" : "Site web");
+                    setShowBookingOverlay(true);
+                  }}
                 />
               )}
               {/* Card 3: Reviews Flip */}

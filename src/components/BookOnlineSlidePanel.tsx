@@ -1025,6 +1025,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                         });
                       }
                     }}
+                    onOpenWebsite={(url) => {
+                      setBookingOverlayUrl(url);
+                      setBookingOverlayTitle(language === "en" ? "Website" : "Site web");
+                      setShowBookingOverlay(true);
+                    }}
                   />
                 )}
                 {/* Card 3: Menu Summary */}
