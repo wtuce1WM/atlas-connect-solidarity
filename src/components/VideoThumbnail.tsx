@@ -35,10 +35,17 @@ const VideoThumbnail = ({ src, alt, className }: VideoThumbnailProps) => {
     video.preload = "metadata";
     video.src = src;
 
+    const THUMB_W = 320;
+    const THUMB_H = 180;
+
     const capture = () => {
       const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth || 320;
-      canvas.height = video.videoHeight || 180;
+      const natW = video.videoWidth || THUMB_W;
+      const natH = video.videoHeight || THUMB_H;
+      // Scale down to thumbnail size, preserving aspect ratio
+      const scale = Math.min(THUMB_W / natW, THUMB_H / natH, 1);
+      canvas.width = Math.round(natW * scale);
+      canvas.height = Math.round(natH * scale);
       const ctx = canvas.getContext("2d");
       if (!ctx) return null;
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
