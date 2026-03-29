@@ -117,6 +117,7 @@ interface BookOnlineBusiness {
   video_1_url: string | null;
   kp_regroupement: string | null;
   main_category: string | null;
+  presentation_mode: string | null;
 }
 
 interface KpRelatedBusiness {
