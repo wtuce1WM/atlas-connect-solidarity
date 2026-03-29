@@ -125,6 +125,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       onMouseOver?: () => void,
       onMouseOut?: () => void,
       customColor?: { bg: string; fg: string; border: string },
+      highlightColor?: { bg: string; fg: string; border: string },
     ) {
       super();
       this.position = new gmaps.LatLng(position.lat, position.lng);
