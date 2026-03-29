@@ -181,6 +181,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [menuSummaries, setMenuSummaries] = useState<MenuSummary[]>([]);
   const [menuDocs, setMenuDocs] = useState<MenuDoc[]>([]);
   const [videoDocUrls, setVideoDocUrls] = useState<string[]>([]);
+  const [videoDocs, setVideoDocs] = useState<{ url: string; name: string | null }[]>([]);
   const [categoryIcon, setCategoryIcon] = useState<string | null>(null);
   
   const [kpRelated, setKpRelated] = useState<KpRelatedBusiness[]>([]);
@@ -285,7 +286,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       const [bizRes, woRes, destLinksRes, reviewsRes, extLinksRes, menuSumRes, menuDocsRes, videoDocsRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, reserve_now_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, computed_rating, total_review_count, online_shop_force_external, website_force_external, reserve_now_force_external, youtube_force_external, hook_fr, hook_en, hook_ar, description, facebook_url, instagram_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, vimeo_url, menu_url, menu_name, menu_language, video_1_url, kp_regroupement, kp_regroupement_2, kp_active, is_master, main_category, presentation_mode")
+          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, reserve_now_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, show_videos, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, computed_rating, total_review_count, online_shop_force_external, website_force_external, reserve_now_force_external, youtube_force_external, hook_fr, hook_en, hook_ar, description, facebook_url, instagram_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, vimeo_url, menu_url, menu_name, menu_language, video_1_url, kp_regroupement, kp_regroupement_2, kp_active, is_master, main_category, presentation_mode")
           .eq("id", businessId)
           .eq("is_active", true)
           .maybeSingle(),
@@ -324,7 +325,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           .order("sort_order"),
         supabase
           .from("business_documents")
-          .select("url")
+          .select("url, name")
           .eq("business_id", businessId)
           .eq("type", "video")
           .order("sort_order"),
@@ -337,7 +338,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       setReviewTexts(reviewsRes.data ? (reviewsRes.data as any[]) : []);
       setExternalLinks((extLinksRes.data || []) as ExternalLinkItem[]);
       setMenuSummaries((menuSumRes.data || []) as MenuSummary[]);
-      setVideoDocUrls((videoDocsRes.data || []).map((d: any) => d.url).filter(Boolean));
+      const vDocs = (videoDocsRes.data || []) as { url: string; name: string | null }[];
+      setVideoDocUrls(vDocs.map(d => d.url).filter(Boolean));
+      setVideoDocs(vDocs.filter(d => d.url));
 
       // Fetch category icon
       const mainCat = (bizRes.data as any)?.main_category;
@@ -569,14 +572,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     return { text: closedLabel, isOpen: false };
   }, [business, language]);
 
-  // Priority-based bottom carousel: YouTube > KP > Destinations > POI
+  // Priority-based bottom carousel: Videos > YouTube > KP > Destinations > POI
+  const hasVideosCarousel = !!((business as any)?.show_videos && videoDocs.length > 0);
   const hasYoutubeBottomCarousel = !!(business?.youtube_url && (business as any)?.youtube_force_external && youtubeVideoCount !== 0);
   const hasYoutubeReady = !!(youtubeVideoCount && youtubeVideoCount > 0);
   const hasKpCarousel = kpRelated.length > 0;
   const hasDestCarousel = destinations.length > 0;
   const hasPoiCarousel = poiBusinesses.length > 0;
 
-  const activeBottomCarousel: "youtube" | "kp" | "dest" | "poi" | "none" =
+  const activeBottomCarousel: "videos" | "youtube" | "kp" | "dest" | "poi" | "none" =
+    hasVideosCarousel ? "videos" :
     (hasYoutubeBottomCarousel && hasYoutubeReady) ? "youtube" :
     hasYoutubeBottomCarousel ? "youtube" :
     hasKpCarousel ? "kp" :
@@ -1124,6 +1129,50 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 <div className="shrink-0 w-4" aria-hidden="true" />
             </div>
           </div>
+
+          {/* Videos carousel — only when videos wins priority */}
+          {activeBottomCarousel === "videos" && (
+            <>
+            <div className="flex justify-center mt-6 mb-1.5 pointer-events-auto">
+              <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                {language === "en" ? "Videos" : "Vidéos"}
+              </h3>
+            </div>
+            <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
+              <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
+                {videoDocs.map((vid, index) => {
+                  const ytMatch = vid.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
+                  const vimeoMatch = vid.url.match(/vimeo\.com\/(\d+)/);
+                  const thumbnail = ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : vimeoMatch ? `https://vumbnail.com/${vimeoMatch[1]}.jpg` : null;
+                  return (
+                    <div
+                      key={`vid-${index}`}
+                      className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                      style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
+                      onClick={() => {
+                        setLightboxIndex(images.length + index);
+                        setIsLightboxOpen(true);
+                      }}
+                    >
+                      {thumbnail ? (
+                        <img src={thumbnail} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                      ) : (
+                        <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
+                          <span className="text-2xl">▶</span>
+                        </div>
+                      )}
+                      <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
+                        {vid.name || `Vidéo ${index + 1}`}
+                      </p>
+                    </div>
+                  );
+                })}
+                <div className="shrink-0 w-6" aria-hidden="true" />
+              </div>
+            </div>
+            </>
+          )}
 
           {/* YouTube Shorts strip — only when YouTube wins priority */}
           {activeBottomCarousel === "youtube" && business?.youtube_url && (business as any)?.youtube_force_external && youtubeVideoCount !== 0 && (
