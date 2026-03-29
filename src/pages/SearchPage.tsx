@@ -761,7 +761,6 @@ const SearchPage = () => {
       const [selectedDestination, setSelectedDestination] = useState<DestinationItem | null>(null);
       const [destSelectedBusinessId, setDestSelectedBusinessId] = useState<string | null>(null);
        const [destPanelExpanded, setDestPanelExpanded] = useState(false);
-       const [poiPanelMode, setPoiPanelMode] = useState<"bookonline" | "webonly">("webonly");
      const [allDestItems, setAllDestItems] = useState<DestinationItem[]>([]);
    const resetPanelStates = () => {
      setPoiSelectedBusinessId(null);
