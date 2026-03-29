@@ -1571,11 +1571,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               {isFile ? (
                 <video
                   src={vidUrl}
-                  className={`w-full h-full bg-black ${isVerticalHint ? "object-cover" : "object-contain"}`}
+                  className="w-full h-full bg-black object-cover"
                   autoPlay
                   controls
                   loop
                   playsInline
+                  onLoadedMetadata={(e) => {
+                    const v = e.currentTarget;
+                    v.className = `w-full h-full bg-black ${v.videoHeight > v.videoWidth ? "object-cover" : "object-contain"}`;
+                  }}
                 />
               ) : (
                 <div className={`w-full h-full overflow-hidden bg-black ${overlayVid.type === "youtube" ? "relative" : ""}`}>
