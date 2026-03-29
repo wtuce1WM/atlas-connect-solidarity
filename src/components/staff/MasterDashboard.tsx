@@ -208,6 +208,8 @@ const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
           </div>
         </CardContent>
       </Card>
+
+      <BatchThumbnailGenerator />
     </div>
   );
 };
