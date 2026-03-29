@@ -161,6 +161,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
   const [showPoiMapOverlay, setShowPoiMapOverlay] = useState(false);
+  const poiOpenedFromMapRef = useRef(false);
   const [youtubeVideoCount, setYoutubeVideoCount] = useState<number | null>(null);
   const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
   const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
@@ -1075,7 +1076,13 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
       {selectedPoiBusinessId && (
         <PoiSlidePanel
           businessId={selectedPoiBusinessId}
-          onClose={() => setSelectedPoiBusinessId(null)}
+          onClose={() => {
+            setSelectedPoiBusinessId(null);
+            if (poiOpenedFromMapRef.current) {
+              poiOpenedFromMapRef.current = false;
+              setShowPoiMapOverlay(true);
+            }
+          }}
           slideFrom="bottom"
         />
       )}
@@ -1122,6 +1129,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
               onPoiClick={(poiId) => {
                 if (poiId.startsWith("self-")) return;
                 setShowPoiMapOverlay(false);
+                poiOpenedFromMapRef.current = true;
                 setSelectedPoiBusinessId(poiId);
               }}
               fitToMarkers

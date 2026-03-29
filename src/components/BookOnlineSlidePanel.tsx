@@ -174,6 +174,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
   const [showPoiMapOverlay, setShowPoiMapOverlay] = useState(false);
+  const poiOpenedFromMapRef = useRef(false);
   const [reviewTexts, setReviewTexts] = useState<ReviewText[]>([]);
   const [externalLinks, setExternalLinks] = useState<ExternalLinkItem[]>([]);
   const [menuSummaries, setMenuSummaries] = useState<MenuSummary[]>([]);
@@ -1473,7 +1474,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       {selectedPoiBusinessId && (
         <PoiSlidePanel
           businessId={selectedPoiBusinessId}
-          onClose={() => setSelectedPoiBusinessId(null)}
+          onClose={() => {
+            setSelectedPoiBusinessId(null);
+            if (poiOpenedFromMapRef.current) {
+              poiOpenedFromMapRef.current = false;
+              setShowPoiMapOverlay(true);
+            }
+          }}
           slideFrom="bottom"
         />
       )}
@@ -1520,6 +1527,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               onPoiClick={(poiId) => {
                 if (poiId.startsWith("self-")) return;
                 setShowPoiMapOverlay(false);
+                poiOpenedFromMapRef.current = true;
                 setSelectedPoiBusinessId(poiId);
               }}
               fitToMarkers
