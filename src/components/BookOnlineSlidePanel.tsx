@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
-import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, CalendarCheck, ShoppingBag, Star, Minimize2, Loader2 } from "lucide-react";
+import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, CalendarCheck, ShoppingBag, Star, Minimize2, Loader2, Volume2, VolumeX, Play, Pause } from "lucide-react";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 import { isCurrentlyOpen } from "@/lib/formatOpeningHours";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
@@ -357,7 +357,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [totalMedia]);
 
-  const videoInfo = currentMedia?.kind === "video" ? getVideoEmbed(currentMedia.url, window.location.origin, { background: false }) : null;
+  const videoInfo = currentMedia?.kind === "video" ? getVideoEmbed(currentMedia.url, window.location.origin, { background: true }) : null;
 
   const [isFileVideoVertical, setIsFileVideoVertical] = useState(false);
   const isVerticalVideo = videoInfo ? (videoInfo.type === "file" ? isFileVideoVertical : videoInfo.isVertical) : false;
@@ -517,7 +517,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               loop
               playsInline
               muted
-              controls
+              
               onPlay={() => {
                 if (videoRef.current) {
                   const currentSrc = videoRef.current.currentSrc || videoRef.current.src || null;
@@ -550,9 +550,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 src={videoInfo?.embedUrl}
                 className={videoInfo?.type === "youtube"
                   ? isVerticalVideo
-                    ? "w-full h-full"
-                    : "w-full h-[calc(100%+40px)] -mt-16"
-                  : "w-full h-full"}
+                    ? "w-full h-full pointer-events-none"
+                    : "w-full h-[calc(100%+40px)] -mt-16 pointer-events-none"
+                  : "w-full h-full pointer-events-none"}
                 allow="autoplay; encrypted-media"
                 allowFullScreen
                 frameBorder="0"
@@ -1077,9 +1077,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           </>
         )}
 
-        {/* CTAs */}
-        {(bookUrl || shopUrl || (business.latitude && business.longitude)) && (
-          <div className={`shrink-0 py-2 flex flex-col items-center gap-2 pointer-events-auto ${noBottomCarousel ? 'mt-auto' : ''}`}>
+        {/* CTAs + video controls */}
+        <div className={`shrink-0 py-2 flex flex-col items-center gap-2 pointer-events-auto ${noBottomCarousel ? 'mt-auto' : ''}`}>
             {bookingCta && (
               bookingCta.forceExternal ? (
                 <a
@@ -1138,8 +1137,37 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 {language === "en" ? "Directions" : "Itinéraire"}
               </button>
             )}
+            {/* Video controls — below CTAs */}
+            {currentMedia?.kind === "video" && videoInfo?.type === "file" && (
+              <div className="flex items-center gap-3 mt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (videoRef.current) {
+                      if (videoRef.current.paused) videoRef.current.play();
+                      else videoRef.current.pause();
+                    }
+                  }}
+                  className="w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  aria-label={videoRef.current?.paused ? "Play" : "Pause"}
+                >
+                  {videoRef.current?.paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (videoRef.current) {
+                      videoRef.current.muted = !videoRef.current.muted;
+                    }
+                  }}
+                  className="w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  aria-label={videoRef.current?.muted ? "Unmute" : "Mute"}
+                >
+                  {videoRef.current?.muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                </button>
+              </div>
+            )}
           </div>
-        )}
       </div>
 
       {/* YouTube Overlay */}
