@@ -276,7 +276,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       }
     } else {
       if (videoRef.current) {
-        videoRef.current.muted = false;
+        videoRef.current.muted = true;
         videoRef.current.play().catch(() => {});
       }
       if (iframeRef.current && iframeSrcRef.current) {
