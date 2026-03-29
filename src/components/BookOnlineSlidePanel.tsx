@@ -1175,15 +1175,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                           </div>
                         )}
                         {vid.price_type && (
-                          <div className="absolute top-1 left-1 right-1 flex items-center gap-1 text-[10px] text-white truncate bg-black/50 rounded px-1.5 py-0.5 backdrop-blur-sm">
-                            <span className="capitalize">{vid.price_type}</span>
+                          <div className="absolute top-1 inset-x-0 flex justify-center">
+                            <span className="bg-gold text-black text-[10px] font-semibold capitalize rounded px-2 py-0.5 backdrop-blur-sm">
+                              {vid.price_type}
+                            </span>
                           </div>
                         )}
                       </div>
                       <div className="px-1.5 py-1.5">
                         {vid.city && (
                           <div className="flex items-center justify-center gap-1 text-[10px] text-white/80 truncate">
-                            <MapPin className="w-3 h-3 text-red-500 shrink-0" />
+                            <MapPin className="w-3 h-3 text-gold shrink-0" />
                             <span className="truncate">{vid.city}{vid.price_type ? ` · ${vid.price_type}` : ""}</span>
                           </div>
                         )}
