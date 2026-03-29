@@ -323,7 +323,7 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
       {/* Preview or input — reduced size */}
       {doc.url ? (
         <div className="space-y-0.5">
-          <div className="relative aspect-video w-full max-h-24 rounded overflow-hidden border bg-black">
+          <div className="relative aspect-square w-full rounded overflow-hidden border bg-black">
             {(() => {
               const url = doc.url;
               const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
