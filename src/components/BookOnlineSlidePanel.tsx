@@ -28,6 +28,7 @@ import type { ExternalLinkItem } from "@/components/cards/ExternalLinksFlipCard"
 import SocialLinksCard from "@/components/cards/SocialLinksCard";
 import MenuSummaryCard from "@/components/cards/MenuSummaryCard";
 import type { MenuSummary } from "@/components/cards/MenuSummaryCard";
+import VideoThumbnail from "@/components/VideoThumbnail";
 import MenuUrlCard from "@/components/cards/MenuUrlCard";
 import type { MenuDoc } from "@/components/cards/MenuUrlCard";
 import DirectionsOverlay from "@/components/DirectionsOverlay";
