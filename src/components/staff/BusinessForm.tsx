@@ -717,7 +717,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     account_type: (business as any)?.account_type || "",
     zone_chalandise: (business as any)?.zone_chalandise || "locale",
     is_visible_locale: (business as any)?.is_visible_locale ?? true,
-    presentation_mode: (business as any)?.presentation_mode || "standard",
+    presentation_mode: (business as any)?.presentation_mode || "acheter_en_ligne",
     languages: (business as any)?.languages || [],
     affiliate_id: (business as any)?.affiliate_id || "",
     internal_notes: (business as any)?.internal_notes || "",
@@ -1333,7 +1333,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       account_type: formData.account_type || null,
       zone_chalandise: (formData as any).zone_chalandise || null,
       is_visible_locale: (formData as any).is_visible_locale ?? false,
-      presentation_mode: (formData as any).presentation_mode || "standard",
+      presentation_mode: (formData as any).presentation_mode || "acheter_en_ligne",
       zone_city_ids: (formData as any).zone_chalandise === "nationale" && (formData as any).zone_city_ids?.length > 0 ? (formData as any).zone_city_ids : [],
       languages: (formData as any).languages?.length > 0 ? (formData as any).languages : [],
       affiliate_id: (formData as any).affiliate_id || null,
@@ -2133,16 +2133,17 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           <div className="space-y-2">
             <Label>Présentation</Label>
             <Select
-              value={(formData as any).presentation_mode || "standard"}
+              value={(formData as any).presentation_mode || "acheter_en_ligne"}
               onValueChange={(value) => handleChange("presentation_mode", value)}
             >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-background z-50">
-                <SelectItem value="standard">Standard</SelectItem>
-                <SelectItem value="acheter">Acheter</SelectItem>
-                <SelectItem value="reserver">Réserver</SelectItem>
+               <SelectContent className="bg-background z-50">
+                <SelectItem value="acheter_en_ligne">Acheter en ligne</SelectItem>
+                <SelectItem value="reserver_en_ligne">Réserver en ligne</SelectItem>
+                <SelectItem value="consulter_offre">Consulter notre offre</SelectItem>
+                <SelectItem value="plus_informations">Plus d'informations</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -4165,8 +4166,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </div>
         </div>
 
-        {/* Web Only section — visible when presentation_mode is "acheter" or "reserver" */}
-        {((formData as any).presentation_mode === "acheter" || (formData as any).presentation_mode === "reserver") && business?.id ? (
+        {/* Web Only section — visible when presentation_mode is "acheter_en_ligne" or "reserver_en_ligne" */}
+        {((formData as any).presentation_mode === "acheter_en_ligne" || (formData as any).presentation_mode === "reserver_en_ligne") && business?.id ? (
           <WebOnlyEditor businessId={business.id} />
         ) : null}
 
