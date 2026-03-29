@@ -1554,7 +1554,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   </div>
                   {activeVideoOverlay.description && videoDescExpanded && (
                     <div
-                      className="mt-3 text-sm leading-relaxed max-h-[30vh] overflow-y-auto pr-1 prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
+                      className="mt-3 text-sm leading-relaxed pr-1 prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
                       style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: '0.02em' }}
                       dangerouslySetInnerHTML={{ __html: activeVideoOverlay.description }}
                     />
