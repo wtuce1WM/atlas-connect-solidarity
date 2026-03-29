@@ -1352,19 +1352,13 @@ const SearchPage = () => {
     return map;
   }, [subcategories]);
 
-  const mapPoiItems: PoiMapItem[] = useMemo(() => {
-    if (!hasKnownLocation) return [];
+  const buildMapPoiItems = useCallback((businesses: Business[], guardDesktop: boolean): PoiMapItem[] => {
+    if (guardDesktop && !hasKnownLocation) return [];
+    if (!guardDesktop && !isSubDesktop) return [];
     const center = mapCenterForResults;
     const maxRadiusKm = neighborhoodCoords ? 2 : 60;
-    const haversine = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-      const R = 6371;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
-      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    };
     const effectiveCity = effectiveCityForMap || null;
-    return filteredBusinesses
+    return businesses
       .filter(b => {
         const isWebOnly = (b.engagements || []).some((e) => {
           const n = e.toLowerCase().trim();
@@ -1374,10 +1368,8 @@ const SearchPage = () => {
         if (!b.latitude || !b.longitude) return false;
         if (b.latitude < 21 || b.latitude > 36.5 || b.longitude < -17.5 || b.longitude > -1) return false;
         if (center) {
-          const dist = haversine(center.lat, center.lng, b.latitude, b.longitude);
-          if (dist > maxRadiusKm) return false;
-        } else if (effectiveCity) {
-          // Fallback: if center coords not yet loaded, filter by city name (accent/case insensitive)
+          if (haversineKm(center.lat, center.lng, b.latitude, b.longitude) > maxRadiusKm) return false;
+        } else if (guardDesktop && effectiveCity) {
           if (!b.city || normalizeText(b.city) !== normalizeText(effectiveCity)) return false;
         }
         return true;
@@ -1396,50 +1388,11 @@ const SearchPage = () => {
         totalReviews: (b as any).total_review_count ?? 0,
         subcategory: b.categories?.[0] || null,
       }));
-  }, [hasKnownLocation, filteredBusinesses, mapCenterForResults, neighborhoodCoords, effectiveCityForMap]);
+  }, [hasKnownLocation, isSubDesktop, mapCenterForResults, neighborhoodCoords, effectiveCityForMap]);
 
-  // Mobile/tablet map items — same logic but without hasKnownLocation guard
-  const mobileMapPoiItems: PoiMapItem[] = useMemo(() => {
-    if (!isSubDesktop) return [];
-    const center = mapCenterForResults;
-    const maxRadiusKm = neighborhoodCoords ? 2 : 60;
-    const haversine = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-      const R = 6371;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
-      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    };
-    return filteredBusinesses
-      .filter(b => {
-        const isWebOnly = (b.engagements || []).some((e) => {
-          const n = e.toLowerCase().trim();
-          return n === "web only" || n === "logistique:web only" || n.endsWith(":web only");
-        });
-        if (isWebOnly) return false;
-        if (!b.latitude || !b.longitude) return false;
-        if (b.latitude < 21 || b.latitude > 36.5 || b.longitude < -17.5 || b.longitude > -1) return false;
-        if (center) {
-          const dist = haversine(center.lat, center.lng, b.latitude, b.longitude);
-          if (dist > maxRadiusKm) return false;
-        }
-        return true;
-      })
-      .slice(0, 100)
-      .map(b => ({
-        id: b.id,
-        name: b.name,
-        latitude: b.latitude,
-        longitude: b.longitude,
-        images: b.images,
-        city: b.city,
-        neighborhood: b.neighborhood,
-        rating: b.rating,
-        avgOn20: (b as any).computed_rating ?? b.rating ?? null,
-        totalReviews: (b as any).total_review_count ?? 0,
-        subcategory: b.categories?.[0] || null,
-      }));
-  }, [isSubDesktop, filteredBusinesses, mapCenterForResults, neighborhoodCoords]);
+  const mapPoiItems: PoiMapItem[] = useMemo(() => buildMapPoiItems(filteredBusinesses, true), [buildMapPoiItems, filteredBusinesses]);
+  const mobileMapPoiItems: PoiMapItem[] = useMemo(() => buildMapPoiItems(filteredBusinesses, false), [buildMapPoiItems, filteredBusinesses]);
+
 
     // Auto-open first result's slide panel when arriving from external link
     useEffect(() => {
