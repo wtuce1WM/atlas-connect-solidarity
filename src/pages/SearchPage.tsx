@@ -722,45 +722,13 @@ const SearchPage = () => {
     const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
       const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
-      const [isCompactPanelWebOnly, setIsCompactPanelWebOnly] = useState(false);
-      const [isCompactPanelBookOnline, setIsCompactPanelBookOnline] = useState(false);
 
-      const openCompactPanel = useCallback(async (bizOrData: AIBusinessData | { id: string; name: string }, forceWebOnly?: boolean) => {
+      const openCompactPanel = useCallback((bizOrData: AIBusinessData | { id: string; name: string }) => {
         hasInteractedWithCompactPanelRef.current = true;
         const b = bizOrData as AIBusinessData;
         setCompactPanelBusiness(b);
         setIsCompactPanelExpanded(false);
-        if (forceWebOnly !== undefined) {
-          setIsCompactPanelWebOnly(forceWebOnly);
-          setIsCompactPanelBookOnline(false);
-        } else {
-          // Detect panel type from presentation_mode — check local data first
-          const found = allBusinesses.find(biz => biz.id === b.id);
-          const localMode = found ? (found as any).presentation_mode : (b as any).presentation_mode;
-          if (localMode && localMode !== "standard") {
-            setIsCompactPanelBookOnline(localMode === "reserver");
-            setIsCompactPanelWebOnly(localMode === "acheter");
-          } else if (!localMode || !found) {
-            // Fallback: fetch presentation_mode from DB
-            try {
-              const { data } = await supabase
-                .from("businesses")
-                .select("presentation_mode")
-                .eq("id", b.id)
-                .single();
-              const mode = data?.presentation_mode || "standard";
-              setIsCompactPanelBookOnline(mode === "reserver");
-              setIsCompactPanelWebOnly(mode === "acheter");
-            } catch {
-              setIsCompactPanelWebOnly(false);
-              setIsCompactPanelBookOnline(false);
-            }
-          } else {
-            setIsCompactPanelWebOnly(false);
-            setIsCompactPanelBookOnline(false);
-          }
-        }
-      }, [allBusinesses]);
+      }, []);
 
       const compactPanelRef = useRef<BusinessSlidePanelHandle>(null);
 
