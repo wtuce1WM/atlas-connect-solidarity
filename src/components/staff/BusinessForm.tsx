@@ -3116,163 +3116,76 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               />
             </div>
           )}
-          {/* Grid 3 columns */}
-          <div className="grid grid-cols-3 gap-3">
-            {videoDocs.map((doc, idx) => (
-              <div key={idx} className="space-y-1.5 p-2 border rounded-md bg-background relative group">
-                {/* Header: order + title + actions */}
-                <div className="flex items-center gap-1">
-                  <div className="flex gap-0.5 shrink-0">
-                    <Button type="button" variant="ghost" size="sm" className="h-5 w-5 p-0" disabled={idx === 0}
-                      onClick={() => setVideoDocs(prev => { const a = [...prev]; [a[idx - 1], a[idx]] = [a[idx], a[idx - 1]]; return a; })}>
-                      <ChevronUp className="h-3 w-3" />
-                    </Button>
-                    <Button type="button" variant="ghost" size="sm" className="h-5 w-5 p-0" disabled={idx === videoDocs.length - 1}
-                      onClick={() => setVideoDocs(prev => { const a = [...prev]; [a[idx], a[idx + 1]] = [a[idx + 1], a[idx]]; return a; })}>
-                      <ChevronDown className="h-3 w-3" />
-                    </Button>
-                  </div>
-                  <span className="text-[10px] text-muted-foreground shrink-0">{idx + 1}</span>
-                  <Input
-                    value={doc.name}
-                    onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, name: e.target.value } : d))}
-                    placeholder="Titre"
-                    className="h-6 text-xs flex-1 min-w-0"
+          {/* Grid 4 columns — drag & drop */}
+          <DndContext
+            collisionDetection={closestCenter}
+            onDragEnd={(event) => {
+              const { active, over } = event;
+              if (over && active.id !== over.id) {
+                setVideoDocs(prev => {
+                  const oldIdx = prev.findIndex((_, i) => `video-${i}` === active.id);
+                  const newIdx = prev.findIndex((_, i) => `video-${i}` === over.id);
+                  if (oldIdx === -1 || newIdx === -1) return prev;
+                  const copy = [...prev];
+                  const [moved] = copy.splice(oldIdx, 1);
+                  copy.splice(newIdx, 0, moved);
+                  return copy;
+                });
+              }
+            }}
+          >
+            <SortableContext items={videoDocs.map((_, i) => `video-${i}`)} strategy={rectSortingStrategy}>
+              <div className="grid grid-cols-4 gap-2">
+                {videoDocs.map((doc, idx) => (
+                  <SortableVideoCard
+                    key={`video-${idx}`}
+                    id={`video-${idx}`}
+                    doc={doc}
+                    idx={idx}
+                    videoDocs={videoDocs}
+                    setVideoDocs={setVideoDocs}
+                    poiBusinessesForCity={poiBusinessesForCity}
+                    dbDestinations={dbDestinations}
+                    allBusinessesForVideo={allBusinessesForVideo}
+                    videoBusinessSearch={videoBusinessSearch}
+                    setVideoBusinessSearch={setVideoBusinessSearch}
+                    dbSubcategories={dbSubcategories}
+                    dbCities={dbCities}
+                    business={business}
+                    toast={toast}
+                    onOpenDesc={() => setVideoDescDialogIdx(idx)}
                   />
-                  <Button type="button" variant="ghost" size="sm" className="h-5 w-5 p-0 text-destructive hover:text-destructive shrink-0" title="Supprimer" onClick={() => setVideoDocs(prev => prev.filter((_, i) => i !== idx))}>
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-                {/* Preview or input */}
-                {doc.url ? (
-                  <div className="space-y-1">
-                    <div className="relative aspect-video w-full rounded overflow-hidden border bg-black">
-                      {(() => {
-                        const url = doc.url;
-                        const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
-                        if (ytMatch) return <iframe src={`https://www.youtube.com/embed/${ytMatch[1]}`} className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />;
-                        const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-                        if (vimeoMatch) return <iframe src={`https://player.vimeo.com/video/${vimeoMatch[1]}`} className="w-full h-full" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen />;
-                        return <video src={url} controls className="w-full h-full object-contain" playsInline />;
-                      })()}
-                      <button type="button" onClick={() => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: "" } : d))}
-                        className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full opacity-80 hover:opacity-100 transition-opacity">
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-                    <p className="text-[10px] text-muted-foreground truncate" title={doc.url}>
-                      {doc.url.includes("supabase.co/storage") ? "📦" : "🌐"} {doc.url.split('/').pop()?.substring(0, 30)}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-1.5">
-                    <Input
-                      value={doc.url}
-                      onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
-                      placeholder="URL vidéo…"
-                      className="h-7 text-xs"
-                    />
-                    <div>
-                      <input type="file" accept="video/mp4,video/webm,video/quicktime" id={`video-doc-upload-${idx}`} className="hidden"
-                        onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
-                          if (file.size > 100 * 1024 * 1024) { toast({ variant: "destructive", title: "Fichier trop volumineux", description: "Max 100MB" }); return; }
-                          const ext = file.name.split(".").pop()?.toLowerCase() || "mp4";
-                          const fileName = `${business?.id || "new"}-${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
-                          const path = `businesses/${fileName}`;
-                          const { error } = await supabase.storage.from("business-videos").upload(path, file, { cacheControl: "3600", upsert: false });
-                          if (error) { toast({ variant: "destructive", title: "Erreur d'upload", description: error.message }); return; }
-                          const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
-                          if (urlData?.publicUrl) { setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: urlData.publicUrl } : d)); toast({ title: "Vidéo uploadée ✓" }); }
-                        }}
-                      />
-                      <Button type="button" variant="outline" size="sm" className="h-6 text-[10px] gap-1 w-full" onClick={() => document.getElementById(`video-doc-upload-${idx}`)?.click()}>
-                        <Upload className="h-3 w-3" /> Uploader
-                      </Button>
-                    </div>
-                  </div>
-                )}
-                {/* POI, Destination, Business & Subcategory selectors */}
-                <div className="grid grid-cols-4 gap-1.5">
-                  <div>
-                    <label className="text-[10px] text-muted-foreground">POI</label>
-                    <Select value={doc.poi_id || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, poi_id: v === "__none__" ? null : v } : d))}>
-                      <SelectTrigger className="h-6 text-[10px]"><SelectValue placeholder="—" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="__none__">— Aucun</SelectItem>
-                        {poiBusinessesForCity.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-muted-foreground">Destination</label>
-                    <Select value={doc.destination_id || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, destination_id: v === "__none__" ? null : v } : d))}>
-                      <SelectTrigger className="h-6 text-[10px]"><SelectValue placeholder="—" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="__none__">— Aucune</SelectItem>
-                        {dbDestinations.map(d => <SelectItem key={d.id} value={d.id}>{d.name_fr}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="relative">
-                    <label className="text-[10px] text-muted-foreground">Établissement</label>
-                    {doc.linked_business_id ? (
-                      <div className="flex items-center gap-1 h-6 px-1.5 border rounded-md bg-background">
-                        <span className="text-[10px] truncate flex-1">{allBusinessesForVideo.find(b => b.id === doc.linked_business_id)?.name || "…"}</span>
-                        <button type="button" className="shrink-0" onClick={() => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, linked_business_id: null } : d))}>
-                          <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
-                        </button>
-                      </div>
-                    ) : (
-                      <div>
-                        <Input
-                          value={videoBusinessSearch[idx] || ""}
-                          onChange={(e) => setVideoBusinessSearch(prev => ({ ...prev, [idx]: e.target.value }))}
-                          placeholder="Rechercher…"
-                          className="h-6 text-[10px]"
-                        />
-                        {(videoBusinessSearch[idx] || "").length >= 2 && (
-                          <div className="absolute z-50 mt-0.5 w-full max-h-32 overflow-y-auto bg-popover border rounded-md shadow-md">
-                            {allBusinessesForVideo
-                              .filter(b => b.name.toLowerCase().includes((videoBusinessSearch[idx] || "").toLowerCase()))
-                              .slice(0, 8)
-                              .map(b => (
-                                <button
-                                  key={b.id}
-                                  type="button"
-                                  className="w-full text-left px-2 py-1 text-[10px] hover:bg-accent truncate"
-                                  onClick={() => {
-                                    setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, linked_business_id: b.id } : d));
-                                    setVideoBusinessSearch(prev => ({ ...prev, [idx]: "" }));
-                                  }}
-                                >
-                                  {b.name}
-                                </button>
-                              ))}
-                            {allBusinessesForVideo.filter(b => b.name.toLowerCase().includes((videoBusinessSearch[idx] || "").toLowerCase())).length === 0 && (
-                              <p className="px-2 py-1 text-[10px] text-muted-foreground">Aucun résultat</p>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-muted-foreground">Sous-catégorie</label>
-                    <Select value={doc.subcategory_id || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, subcategory_id: v === "__none__" ? null : v } : d))}>
-                      <SelectTrigger className="h-6 text-[10px]"><SelectValue placeholder="—" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="__none__">— Aucune</SelectItem>
-                        {dbSubcategories.slice().sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr')).map(s => <SelectItem key={s.id} value={s.id}>{s.name_fr}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </SortableContext>
+          </DndContext>
           {!formData.video_1_url && videoDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucune vidéo ajoutée.</p>}
+
+          {/* Rich text description dialog */}
+          <Dialog open={videoDescDialogIdx !== null} onOpenChange={(open) => { if (!open) setVideoDescDialogIdx(null); }}>
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Description vidéo {videoDescDialogIdx !== null ? `#${videoDescDialogIdx + 1}` : ""}</DialogTitle>
+              </DialogHeader>
+              {videoDescDialogIdx !== null && (
+                <div className="space-y-2">
+                  <RichTextEditor
+                    value={videoDocs[videoDescDialogIdx]?.description || ""}
+                    onChange={(val) => {
+                      const trimmed = val.slice(0, 2000);
+                      setVideoDocs(prev => prev.map((d, i) => i === videoDescDialogIdx ? { ...d, description: trimmed } : d));
+                    }}
+                  />
+                  <p className="text-xs text-muted-foreground text-right">
+                    {(videoDocs[videoDescDialogIdx]?.description || "").replace(/<[^>]*>/g, "").length} / 2000 caractères
+                  </p>
+                </div>
+              )}
+              <DialogFooter>
+                <Button type="button" onClick={() => setVideoDescDialogIdx(null)}>Fermer</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Matterport */}
