@@ -372,6 +372,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
             }
           }, 300);
         },
+        poi.markerColor,
       );
 
       overlaysRef.current.set(poi.id, overlay);
