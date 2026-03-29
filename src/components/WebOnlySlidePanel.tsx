@@ -1131,7 +1131,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                   images: business.images,
                   city: business.city,
                   neighborhood: business.neighborhood,
-                  markerColor: { bg: "#1a1a1a", fg: "#ffffff", border: "#1a1a1a" },
+                  markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
                 } as PoiMapItem] : []),
                 ...poiBusinesses.map(p => ({
                   id: p.id,
