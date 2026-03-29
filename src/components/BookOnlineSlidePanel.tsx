@@ -620,9 +620,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   }, [hookText, businessId]);
 
   const mediaItems = useMemo<MediaItem[]>(() => [
-    ...videos.map((v) => ({ kind: "video" as const, url: v })),
+    ...videos.map((v) => {
+      const doc = videoDocs.find(d => d.url === v);
+      return { kind: "video" as const, url: v, thumbnailUrl: doc?.thumbnail_url || null };
+    }),
     ...images.map((i) => ({ kind: "image" as const, url: i })),
-  ], [videos, images]);
+  ], [videos, images, videoDocs]);
 
   const totalMedia = mediaItems.length;
   const safeIndex = totalMedia > 0 ? currentMediaIndex % totalMedia : 0;
