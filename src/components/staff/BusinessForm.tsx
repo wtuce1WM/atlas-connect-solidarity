@@ -3374,17 +3374,29 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
           {/* Rich text description dialog */}
           <Dialog open={videoDescDialogIdx !== null} onOpenChange={(open) => { if (!open) setVideoDescDialogIdx(null); }}>
-            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
                   <DialogTitle className="shrink-0">Description vidéo {videoDescDialogIdx !== null ? `#${videoDescDialogIdx + 1}` : ""}</DialogTitle>
                   {videoDescDialogIdx !== null && (
-                    <Input
-                      placeholder="Prix (ex: 150 MAD)"
-                      value={videoDocs[videoDescDialogIdx]?.price || ""}
-                      onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === videoDescDialogIdx ? { ...d, price: e.target.value || null } : d))}
-                      className="h-8 text-sm max-w-[200px]"
-                    />
+                    <>
+                      <Input
+                        placeholder="Prix (ex: 150 MAD)"
+                        value={videoDocs[videoDescDialogIdx]?.price || ""}
+                        onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === videoDescDialogIdx ? { ...d, price: e.target.value || null } : d))}
+                        className="h-8 text-sm w-[260px]"
+                      />
+                      <Select value={videoDocs[videoDescDialogIdx]?.price_type || ""} onValueChange={(val) => setVideoDocs(prev => prev.map((d, i) => i === videoDescDialogIdx ? { ...d, price_type: val || null } : d))}>
+                        <SelectTrigger className="h-8 text-sm w-[140px]">
+                          <SelectValue placeholder="Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">—</SelectItem>
+                          <SelectItem value="location">Location</SelectItem>
+                          <SelectItem value="vente">Vente</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </>
                   )}
                 </div>
               </DialogHeader>
