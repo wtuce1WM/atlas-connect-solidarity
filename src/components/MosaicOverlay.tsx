@@ -1,4 +1,5 @@
 import { X } from "lucide-react";
+import VideoThumbnail from "@/components/VideoThumbnail";
 
 type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
 
