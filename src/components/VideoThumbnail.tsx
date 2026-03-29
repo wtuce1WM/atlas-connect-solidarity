@@ -69,7 +69,7 @@ const VideoThumbnail = ({ src, alt, className }: VideoThumbnailProps) => {
     const handleLoaded = () => {
       if (cancelled) return;
       // Start at frame 0 to check if it's black
-      video.currentTime = 0.1;
+      video.currentTime = 1;
     };
 
     const handleError = () => {
