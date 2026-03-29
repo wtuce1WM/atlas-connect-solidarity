@@ -315,25 +315,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
                 {/* Map */}
                 <div className="flex-1 min-h-0">
                   {flipped && (
-                    <PoiGoogleMap
-                      pois={[
-                        ...(poi.latitude && poi.longitude ? [{
-                          id: poi.id,
-                          name: poi.name,
-                          latitude: poi.latitude,
-                          longitude: poi.longitude,
-                          city: poi.city,
-                          neighborhood: poi.neighborhood,
-                          images: poi.images,
-                          markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
-                        }] : []),
-                        ...linkedBusinesses,
-                      ]}
-                      selectedPoiId={poi.id}
-                      highlightColor={{ bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" }}
-                      center={poi.latitude && poi.longitude ? { lat: poi.latitude, lng: poi.longitude } : undefined}
-                      fitToMarkers
-                    />
+                    <MemoizedPoiMap poi={poi} linkedBusinesses={linkedBusinesses} />
                   )}
                 </div>
               </div>
