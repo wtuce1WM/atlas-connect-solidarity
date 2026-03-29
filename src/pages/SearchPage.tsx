@@ -1916,11 +1916,7 @@ const SearchPage = () => {
 
     // Distance (if geo enabled)
     if (geo.isEnabled && geo.coords && b.latitude && b.longitude) {
-      const R = 6371;
-      const dLat = (b.latitude - geo.coords.lat) * Math.PI / 180;
-      const dLon = (b.longitude - geo.coords.lng) * Math.PI / 180;
-      const a = Math.sin(dLat/2)**2 + Math.cos(geo.coords.lat * Math.PI / 180) * Math.cos(b.latitude * Math.PI / 180) * Math.sin(dLon/2)**2;
-      const dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      const dist = haversineKm(geo.coords.lat, geo.coords.lng, b.latitude, b.longitude);
       if (dist < 1) {
         parts.push(`à ${Math.round(dist * 1000)} mètres de vous`);
       } else {
