@@ -48,6 +48,8 @@ interface BookOnlineSlidePanelProps {
   isExpanded?: boolean;
   onToggleExpand?: () => void;
   externalOverlayActive?: boolean;
+  /** When true, mute all background media (e.g. during voice search) */
+  forceMuted?: boolean;
 }
 
 type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string };
