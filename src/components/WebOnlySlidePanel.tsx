@@ -6,6 +6,7 @@ import DestinationSlidePanel from "@/components/DestinationSlidePanel";
 import PoiSlidePanel from "@/components/PoiSlidePanel";
 import YouTubeShortsCarousel, { type YouTubeVideo } from "@/components/YouTubeShortsCarousel";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
+import poiNearbyImg from "@/assets/poi-nearby.webp";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
