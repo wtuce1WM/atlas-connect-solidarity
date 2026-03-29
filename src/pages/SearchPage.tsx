@@ -1486,8 +1486,8 @@ const SearchPage = () => {
         city: b.city,
         neighborhood: b.neighborhood,
         rating: b.rating,
-        avgOn20: computeWeightedRatingOn20(collectRatingSources(b as any)),
-        totalReviews: collectRatingSources(b as any).reduce((s, r) => s + r.count, 0),
+        avgOn20: (b as any).computed_rating ?? b.rating ?? null,
+        totalReviews: (b as any).total_review_count ?? 0,
         subcategory: b.categories?.[0] || null,
       }));
   }, [isSubDesktop, filteredBusinesses, mapCenterForResults, neighborhoodCoords]);
