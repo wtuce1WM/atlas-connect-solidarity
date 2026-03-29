@@ -26,6 +26,8 @@ interface PoiGoogleMapProps {
   subcategoryIconMap?: Record<string, string>;
   /** When true, fitBounds on markers instead of forcing center */
   fitToMarkers?: boolean;
+  /** Custom highlight color for the selected marker (default: dark) */
+  highlightColor?: { bg: string; fg: string; border: string };
 }
 
 /* ── Google Maps loader (reuses shared singleton) ── */
@@ -108,6 +110,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     private iconSvg: string;
     private highlighted: boolean;
     private customColor?: { bg: string; fg: string; border: string };
+    private highlightColor?: { bg: string; fg: string; border: string };
     private _onClick?: () => void;
     private _onMouseOver?: () => void;
     private _onMouseOut?: () => void;
@@ -122,6 +125,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       onMouseOver?: () => void,
       onMouseOut?: () => void,
       customColor?: { bg: string; fg: string; border: string },
+      highlightColor?: { bg: string; fg: string; border: string },
     ) {
       super();
       this.position = new gmaps.LatLng(position.lat, position.lng);
@@ -129,6 +133,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       this.iconSvg = iconSvg;
       this.highlighted = highlighted;
       this.customColor = customColor;
+      this.highlightColor = highlightColor;
       this._onClick = onClick;
       this._onMouseOver = onMouseOver;
       this._onMouseOut = onMouseOut;
@@ -172,9 +177,10 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
 
     private applyStyle() {
       if (!this.div) return;
-      const bg = this.customColor ? this.customColor.bg : (this.highlighted ? "#1a1a1a" : "#ffffff");
-      const fg = this.customColor ? this.customColor.fg : (this.highlighted ? "#ffffff" : "#1a1a1a");
-      const border = this.customColor ? this.customColor.border : (this.highlighted ? "#1a1a1a" : "#d1d5db");
+      const hlc = this.highlightColor;
+      const bg = this.customColor ? this.customColor.bg : (this.highlighted && hlc ? hlc.bg : (this.highlighted ? "#1a1a1a" : "#ffffff"));
+      const fg = this.customColor ? this.customColor.fg : (this.highlighted && hlc ? hlc.fg : (this.highlighted ? "#ffffff" : "#1a1a1a"));
+      const border = this.customColor ? this.customColor.border : (this.highlighted && hlc ? hlc.border : (this.highlighted ? "#1a1a1a" : "#d1d5db"));
       const shadow = this.highlighted
         ? "0 2px 8px rgba(0,0,0,0.4)"
         : "0 1px 4px rgba(0,0,0,0.15)";
@@ -204,7 +210,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     }
   };
 
-const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers }: PoiGoogleMapProps) => {
+const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, highlightColor }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapShellRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -389,6 +395,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
           }, 300);
         },
         poi.markerColor,
+        highlightColor,
       );
 
       overlaysRef.current.set(poi.id, overlay);

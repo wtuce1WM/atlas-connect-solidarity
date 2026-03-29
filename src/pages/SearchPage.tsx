@@ -4320,6 +4320,7 @@ const SearchPage = () => {
               center={mapCenterForResults}
               fitToMarkers
               subcategoryIconMap={subcategoryIconMap}
+              highlightColor={{ bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" }}
             />
           </div>
         )}
@@ -4366,6 +4367,7 @@ const SearchPage = () => {
               center={mapCenterForResults}
               fitToMarkers
               subcategoryIconMap={activeTab === "suggestions" ? subcategoryIconMap : undefined}
+              highlightColor={activeTab === "suggestions" ? { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" } : undefined}
             />
           </div>
         </div>
