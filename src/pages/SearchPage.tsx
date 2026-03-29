@@ -4085,6 +4085,7 @@ const SearchPage = () => {
                 isExpanded={isCompactPanelExpanded}
                 onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
                 externalOverlayActive={showAiPopup}
+                forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
               />
             </div>
           </div>
