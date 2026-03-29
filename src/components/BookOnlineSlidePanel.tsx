@@ -433,6 +433,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         });
       }
       setKpRelated(kpResults);
+      setIsKp1Only(!!(kp1Val && !kp2Val));
 
       // Fetch LiteAPI hotel mapping for Hôtellerie businesses
       const mainCatVal = (bizRes.data as any)?.main_category;
