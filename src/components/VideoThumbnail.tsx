@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface VideoThumbnailProps {
   src: string;
@@ -6,12 +6,24 @@ interface VideoThumbnailProps {
   className?: string;
 }
 
+/** Check if a canvas frame is mostly black (avg brightness < threshold) */
+function isFrameBlack(canvas: HTMLCanvasElement, threshold = 15): boolean {
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return false;
+  const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  let total = 0;
+  const pixels = data.length / 4;
+  for (let i = 0; i < data.length; i += 4) {
+    total += data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+  }
+  return total / pixels < threshold;
+}
+
 /**
- * Generates a thumbnail from a hosted video by seeking to ~1s
- * to avoid black intro frames.
+ * Generates a thumbnail from a hosted video.
+ * If the first frame is black, seeks to 2s for a better frame.
  */
 const VideoThumbnail = ({ src, alt, className }: VideoThumbnailProps) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [thumbUrl, setThumbUrl] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
 
@@ -23,15 +35,29 @@ const VideoThumbnail = ({ src, alt, className }: VideoThumbnailProps) => {
     video.preload = "metadata";
     video.src = src;
 
+    const capture = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth || 320;
+      canvas.height = video.videoHeight || 180;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return null;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      return canvas;
+    };
+
+    let triedSeek = false;
+
     const handleSeeked = () => {
       if (cancelled) return;
       try {
-        const canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth || 320;
-        canvas.height = video.videoHeight || 180;
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const canvas = capture();
+        if (canvas) {
+          // If first attempt (time~0) is black, seek further
+          if (!triedSeek && isFrameBlack(canvas)) {
+            triedSeek = true;
+            video.currentTime = Math.min(2, video.duration * 0.25);
+            return; // will fire seeked again
+          }
           setThumbUrl(canvas.toDataURL("image/jpeg", 0.7));
         }
       } catch {
@@ -42,9 +68,8 @@ const VideoThumbnail = ({ src, alt, className }: VideoThumbnailProps) => {
 
     const handleLoaded = () => {
       if (cancelled) return;
-      // Seek to 2s or 25% of duration, whichever is smaller
-      const seekTo = Math.min(2, video.duration * 0.25);
-      video.currentTime = seekTo;
+      // Start at frame 0 to check if it's black
+      video.currentTime = 0.1;
     };
 
     const handleError = () => {
@@ -77,7 +102,6 @@ const VideoThumbnail = ({ src, alt, className }: VideoThumbnailProps) => {
     );
   }
 
-  // Loading state
   return <div className={`${className} bg-white/5 animate-pulse`} />;
 };
 
