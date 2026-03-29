@@ -1542,6 +1542,23 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
       // Save business documents (menus, flipbooks & external links)
       if (businessId) {
+        // Generate thumbnails for file-hosted videos that don't have one yet
+        const isFileVideo = (url: string) => !url.match(/youtube\.com|youtu\.be|vimeo\.com/i) && url.includes("supabase.co/storage");
+        const videoDocsWithThumbs = await Promise.all(
+          videoDocs.filter(d => d.url.trim()).map(async (d) => {
+            if (d.thumbnail_url || !isFileVideo(d.url)) return d;
+            try {
+              const blob = await generateVideoThumbnail(d.url);
+              if (!blob) return d;
+              const thumbName = `thumbs/${businessId}-${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
+              const { error: upErr } = await supabase.storage.from("business-images").upload(thumbName, blob, { contentType: "image/jpeg", cacheControl: "31536000", upsert: false });
+              if (upErr) { console.warn("Thumb upload error:", upErr); return d; }
+              const { data: thumbUrl } = supabase.storage.from("business-images").getPublicUrl(thumbName);
+              return { ...d, thumbnail_url: thumbUrl?.publicUrl || null };
+            } catch (e) { console.warn("Thumb generation error:", e); return d; }
+          })
+        );
+
         await supabase.from("business_documents" as any).delete().eq("business_id", businessId);
         const allDocs = [
           ...menuDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "menu" as const, url: d.url.trim(), name: d.name || null, language: d.language || null, icon: d.icon || null, sort_order: i })),
@@ -1549,7 +1566,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           ...externalLinkDocs
             .filter((d) => d.name.trim() && d.url.trim())
             .map((d, i) => ({ business_id: businessId, type: "external_link" as const, url: d.url.trim(), name: d.name.trim(), language: d.language || null, icon: d.image_url || null, sort_order: i })),
-          ...videoDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "video" as const, url: d.url.trim(), name: d.name || null, language: null, icon: null, sort_order: i, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null })),
+          ...videoDocsWithThumbs.map((d, i) => ({ business_id: businessId, type: "video" as const, url: d.url.trim(), name: d.name || null, language: null, icon: null, sort_order: i, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null })),
         ];
         if (allDocs.length > 0) {
           const { error: docsError } = await supabase.from("business_documents" as any).insert(allDocs);
