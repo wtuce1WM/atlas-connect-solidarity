@@ -1499,15 +1499,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             setVideoDescExpanded(true);
           }
         };
-        const ytMatch = vidUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
-        const vimeoMatch = vidUrl.match(/vimeo\.com\/(\d+)/);
-        const isVerticalHint = /shorts\//.test(vidUrl);
-        const embedUrl = ytMatch
-          ? `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&mute=0&loop=1&playlist=${ytMatch[1]}&rel=0&modestbranding=1&playsinline=1`
-          : vimeoMatch
-            ? `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=0&loop=1`
-            : null;
-        const isFile = !ytMatch && !vimeoMatch;
+        const overlayVid = getVideoEmbed(vidUrl, window.location.origin);
+        // Force loop & unmute for overlay
+        const overlayEmbedUrl = overlayVid.type === "youtube"
+          ? overlayVid.embedUrl.replace(/mute=\d/, "mute=0").replace(/loop=\d/, "loop=1") + `&playlist=${vidUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1] || ""}`
+          : overlayVid.type === "vimeo"
+            ? overlayVid.embedUrl.replace(/muted=\d/, "muted=0").replace(/loop=\d/, "loop=1")
+            : overlayVid.type === "bunny"
+              ? overlayVid.embedUrl.replace(/loop=false/, "loop=true")
+              : overlayVid.embedUrl;
+        const isVerticalHint = overlayVid.isVertical;
+        const isFile = overlayVid.type === "file";
         return (
           <div className="absolute inset-0 z-[70] bg-black animate-slide-up-from-bottom overflow-hidden">
             {/* Top bar: close + mobile nav with counter */}
