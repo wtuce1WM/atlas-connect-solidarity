@@ -2717,12 +2717,16 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <div className="flex-1 flex items-center gap-1">
                 {doc.url && doc.url.includes('/business-images/') ? (
                   <div className="flex-1 flex items-center gap-1 h-10 px-3 rounded-md border border-input bg-muted text-sm truncate">
-                    <FileText className="h-4 w-4 shrink-0 text-primary" />
+                    {/\.(jpg|jpeg|png|webp|gif|avif|svg)(\?|$)/i.test(doc.url) ? (
+                      <img src={doc.url} alt="" className="h-7 w-7 object-cover rounded shrink-0" />
+                    ) : (
+                      <FileText className="h-4 w-4 shrink-0 text-primary" />
+                    )}
                     <span className="truncate">{doc.url.split('/').pop()}</span>
-                    <a href={doc.url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-muted-foreground hover:text-primary" title="Ouvrir le PDF">
+                    <a href={doc.url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-muted-foreground hover:text-primary" title="Ouvrir">
                       <ExternalLink className="h-3.5 w-3.5" />
                     </a>
-                    <Button type="button" variant="ghost" size="sm" className="shrink-0 px-1 h-6 text-destructive hover:text-destructive" title="Supprimer le PDF" onClick={async () => {
+                    <Button type="button" variant="ghost" size="sm" className="shrink-0 px-1 h-6 text-destructive hover:text-destructive" title="Supprimer le fichier" onClick={async () => {
                       try {
                         const parts = doc.url.split('/business-images/');
                         if (parts.length > 1) await supabase.storage.from('business-images').remove([parts[1]]);
@@ -2737,7 +2741,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     <Input
                       value={doc.url}
                       onChange={(e) => setMenuDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
-                      placeholder="https://... ou uploadez un PDF"
+                      placeholder="https://... ou uploadez un PDF/image"
                       className="flex-1"
                     />
                     {doc.url && (
