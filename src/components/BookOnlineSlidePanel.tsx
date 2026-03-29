@@ -1236,7 +1236,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
       {/* POI business detail overlay */}
       {selectedPoiBusinessId && (
-        <div className={poiOpenedFromMapRef.current ? "absolute inset-0 z-[70]" : ""}>
+        <div className={poiOpenedFromMapRef.current ? "absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[70]" : "absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[70]"}>
           <PoiSlidePanel
             businessId={selectedPoiBusinessId}
             onClose={() => {
