@@ -4312,7 +4312,7 @@ const SearchPage = () => {
       )}
 
       {/* Floating Search Bar */}
-      <div className={`fixed bottom-0 bg-white border-t border-border pt-3 py-3 px-4 md:px-4 transition-transform duration-300 ${hasKnownLocation ? "left-0 w-1/2" : "left-0 right-0"} ${(isSubDesktop && ((isCompactPanelWebOnly || isCompactPanelBookOnline) && compactPanelBusiness)) || (isSubDesktop && showMobileMap) ? "translate-y-full" : ""} ${isCompactPanelExpanded ? "z-[190]" : "z-[210]"}`}>
+      <div className={`fixed bottom-0 bg-white border-t border-border pt-3 py-3 px-4 md:px-4 transition-transform duration-300 ${hasKnownLocation ? "left-0 w-1/2" : "left-0 right-0"} ${(isSubDesktop && compactPanelBusiness) || (isSubDesktop && showMobileMap) ? "translate-y-full" : ""} ${isCompactPanelExpanded ? "z-[190]" : "z-[210]"}`}>
         <div className="max-w-2xl mx-auto">
           <button
             type="button"
