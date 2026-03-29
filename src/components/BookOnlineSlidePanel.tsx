@@ -1533,9 +1533,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               {/* Description overlay on video */}
               {activeVideoOverlay.description && (
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 pt-10">
-                  <p className="text-sm text-white leading-relaxed" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                    {activeVideoOverlay.description}
-                  </p>
+                  <div className="text-sm text-white leading-relaxed" style={{ fontFamily: "'Josefin Sans', sans-serif" }} dangerouslySetInnerHTML={{ __html: activeVideoOverlay.description }} />
                 </div>
               )}
             </div>
