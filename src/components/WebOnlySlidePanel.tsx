@@ -1141,7 +1141,6 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
               selectedPoiId={null}
               onPoiClick={(poiId) => {
                 if (poiId.startsWith("self-")) return;
-                setShowPoiMapOverlay(false);
                 poiOpenedFromMapRef.current = true;
                 setSelectedPoiBusinessId(poiId);
               }}
