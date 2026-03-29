@@ -51,7 +51,7 @@ const RelaisChateauxSection = () => {
         // Then fetch the businesses with those IDs
         const { data, error } = await supabase
           .from("businesses")
-          .select("id, name, city, region, images, rating, description, wtuce_status, neighborhood, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count")
+          .select("id, name, city, region, images, rating, computed_rating, description, wtuce_status, neighborhood")
           .eq("is_active", true)
           .in("id", businessIds)
           .order("priority_score", { ascending: false });
