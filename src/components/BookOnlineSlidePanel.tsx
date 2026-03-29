@@ -1495,7 +1495,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           const v = videoDocs[idx];
           if (v) {
             setActiveVideoOverlay({ url: v.url, name: v.name, description: v.description });
-            setVideoDescExpanded(false);
+            setVideoDescExpanded(true);
           }
         };
         const ytMatch = vidUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
