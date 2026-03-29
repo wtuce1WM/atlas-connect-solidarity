@@ -517,7 +517,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               loop
               playsInline
               muted
-              controls
+              
               onPlay={() => {
                 if (videoRef.current) {
                   const currentSrc = videoRef.current.currentSrc || videoRef.current.src || null;
