@@ -1106,7 +1106,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           </div>
         )}
       </div>
-      </div>
 
       {/* YouTube Overlay */}
       {showYoutubeOverlay && (
