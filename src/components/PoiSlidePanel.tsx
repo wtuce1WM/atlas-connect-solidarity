@@ -28,8 +28,35 @@ interface PoiFull {
   city: string | null;
   neighborhood: string | null;
 }
+const GOLD = { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" };
 
-const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePanelProps) => {
+const MemoizedPoiMap = React.memo(({ poi, linkedBusinesses }: { poi: PoiFull; linkedBusinesses: PoiMapItem[] }) => {
+  const pois = useMemo(() => [
+    ...(poi.latitude && poi.longitude ? [{
+      id: poi.id, name: poi.name, latitude: poi.latitude, longitude: poi.longitude,
+      city: poi.city, neighborhood: poi.neighborhood, images: poi.images,
+      markerColor: GOLD,
+    }] : []),
+    ...linkedBusinesses,
+  ], [poi.id, poi.latitude, poi.longitude, poi.name, poi.city, poi.neighborhood, poi.images, linkedBusinesses]);
+
+  const center = useMemo(
+    () => poi.latitude && poi.longitude ? { lat: poi.latitude, lng: poi.longitude } : undefined,
+    [poi.latitude, poi.longitude]
+  );
+
+  return (
+    <PoiGoogleMap
+      pois={pois}
+      selectedPoiId={poi.id}
+      highlightColor={GOLD}
+      center={center}
+      fitToMarkers
+    />
+  );
+});
+
+
   const { language } = useLanguage();
   const slideAnim = slideFrom === "bottom" ? "animate-slide-up-from-bottom" : "animate-slide-in-right";
   const [poi, setPoi] = useState<PoiFull | null>(null);
