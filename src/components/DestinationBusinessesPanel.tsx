@@ -17,16 +17,8 @@ interface Business {
   neighborhood: string | null;
   images: string[] | null;
   rating: number | null;
-  google_rating: number | null;
-  google_review_count: number | null;
-  tripadvisor_rating: number | null;
-  tripadvisor_review_count: number | null;
-  restaurant_guru_rating: number | null;
-  restaurant_guru_review_count: number | null;
-  getyourguide_rating: number | null;
-  getyourguide_review_count: number | null;
-  viator_rating: number | null;
-  viator_review_count: number | null;
+  computed_rating?: number | null;
+  total_review_count?: number | null;
   wtuce_status: string | null;
 }
 
