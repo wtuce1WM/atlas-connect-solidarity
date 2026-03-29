@@ -290,13 +290,14 @@ interface SortableVideoCardProps {
   setVideoBusinessSearch: Dispatch<SetStateAction<Record<number, string>>>;
   dbSubcategories: Array<{ id: string; name_fr: string; category_id: string }>;
   dbCities: Array<{ id: string; name_fr: string; region: string | null }>;
+  dbNeighborhoods: Array<{ id: string; name: string; city_id: string }>;
   business: any;
   toast: any;
   onOpenDesc: () => void;
   onDelete: () => void;
 }
 
-const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinessesForCity, dbDestinations, allBusinessesForVideo, videoBusinessSearch, setVideoBusinessSearch, dbSubcategories, dbCities, business, toast, onOpenDesc, onDelete }: SortableVideoCardProps) => {
+const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinessesForCity, dbDestinations, allBusinessesForVideo, videoBusinessSearch, setVideoBusinessSearch, dbSubcategories, dbCities, dbNeighborhoods, business, toast, onOpenDesc, onDelete }: SortableVideoCardProps) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1, zIndex: isDragging ? 50 : undefined };
 
