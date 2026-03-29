@@ -6,6 +6,7 @@ import DestinationSlidePanel from "@/components/DestinationSlidePanel";
 import PoiSlidePanel from "@/components/PoiSlidePanel";
 import YouTubeShortsCarousel, { type YouTubeVideo } from "@/components/YouTubeShortsCarousel";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
+import poiNearbyImg from "@/assets/poi-nearby.webp";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
@@ -151,6 +152,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [poiBusinesses, setPoiBusinesses] = useState<PoiBusiness[]>([]);
   const [kpRelated, setKpRelated] = useState<KpRelatedBusiness[]>([]);
+  const [isKp1Only, setIsKp1Only] = useState(false);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
   const [youtubeVideoCount, setYoutubeVideoCount] = useState<number | null>(null);
@@ -315,6 +317,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
         });
       }
       setKpRelated(kpResults);
+      setIsKp1Only(!!(kp1Val && !kp2Val));
 
       setIsLoading(false);
     };
@@ -936,6 +939,21 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                     </div>
                   );
                 })}
+                {isKp1Only && poiBusinesses.length > 0 && (
+                  <div
+                    className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                    style={{ animationDelay: `${kpRelated.length * 120}ms`, animationFillMode: 'forwards' }}
+                    onClick={() => {
+                      const firstPoi = poiBusinesses[0];
+                      if (firstPoi) setSelectedPoiBusinessId(firstPoi.id);
+                    }}
+                  >
+                    <img src={poiNearbyImg} alt="Points d'intérêt" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                    <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
+                      {language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité"}
+                    </p>
+                  </div>
+                )}
                 <div className="shrink-0 w-6" aria-hidden="true" />
               </div>
             </div>

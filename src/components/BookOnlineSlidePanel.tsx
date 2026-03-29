@@ -5,6 +5,7 @@ import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 import { isCurrentlyOpen } from "@/lib/formatOpeningHours";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
+import poiNearbyImg from "@/assets/poi-nearby.webp";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
 
@@ -175,6 +176,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [categoryIcon, setCategoryIcon] = useState<string | null>(null);
   
   const [kpRelated, setKpRelated] = useState<KpRelatedBusiness[]>([]);
+  const [isKp1Only, setIsKp1Only] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showHook, setShowHook] = useState(false);
@@ -432,6 +434,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         });
       }
       setKpRelated(kpResults);
+      setIsKp1Only(!!(kp1Val && !kp2Val));
 
       // Fetch LiteAPI hotel mapping for Hôtellerie businesses
       const mainCatVal = (bizRes.data as any)?.main_category;
@@ -1234,6 +1237,21 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     </div>
                   );
                 })}
+                {isKp1Only && poiBusinesses.length > 0 && (
+                  <div
+                    className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                    style={{ animationDelay: `${kpRelated.length * 120}ms`, animationFillMode: 'forwards' }}
+                    onClick={() => {
+                      const firstPoi = poiBusinesses[0];
+                      if (firstPoi) setSelectedPoiBusinessId(firstPoi.id);
+                    }}
+                  >
+                    <img src={poiNearbyImg} alt="Points d'intérêt" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                    <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
+                      {language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité"}
+                    </p>
+                  </div>
+                )}
                 <div className="shrink-0 w-6" aria-hidden="true" />
               </div>
             </div>
