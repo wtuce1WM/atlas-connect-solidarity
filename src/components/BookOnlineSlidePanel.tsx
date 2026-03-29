@@ -152,6 +152,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const iframeSrcRef = useRef<string>("");
   const overlayWasOpenRef = useRef(false);
 
+  // Reset media mute/overlay refs when business changes (new search result).
+  useEffect(() => {
+    keepMutedRef.current = false;
+    overlayWasOpenRef.current = false;
+    iframeSrcRef.current = "";
+  }, [businessId]);
+
   // Pause/resume background media when overlays open/close
   useEffect(() => {
     const overlayOpen = !!selectedDestinationId || !!selectedPoiBusinessId || !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic || !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay;
