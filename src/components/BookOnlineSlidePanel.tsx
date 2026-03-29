@@ -1803,7 +1803,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       {/* Mosaic overlay */}
       {showMosaic && (
         <MosaicOverlay
-          mediaItems={mediaItems.filter(m => m.kind === "video" || m.kind === "image") as ({ kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string })[]}}
+          mediaItems={mediaItems.filter(m => m.kind === "video" || m.kind === "image")}}
           onClose={() => setShowMosaic(false)}
           onOpenLightbox={(idx) => { setLightboxIndex(idx); setIsLightboxOpen(true); }}
         />
