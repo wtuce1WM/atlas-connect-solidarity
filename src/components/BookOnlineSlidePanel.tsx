@@ -840,21 +840,22 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 return (
                   <div
                     key={`vid-${index}`}
-                    className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
-                    style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
+                    className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 cursor-pointer hover:border-white/30 transition-colors"
                     onClick={() => {
                       setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description });
                     }}
                   >
                   <div className="relative">
                       {vid.thumbnail_url ? (
-                        <img src={vid.thumbnail_url} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                        <img src={vid.thumbnail_url} alt={vid.name || `Vidéo ${index + 1}`} loading="lazy" decoding="async" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
                       ) : ytThumb ? (
-                        <img src={ytThumb} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                        <img src={ytThumb} alt={vid.name || `Vidéo ${index + 1}`} loading="lazy" decoding="async" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
                       ) : vimeoThumb ? (
-                        <img src={vimeoThumb} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                        <img src={vimeoThumb} alt={vid.name || `Vidéo ${index + 1}`} loading="lazy" decoding="async" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
                       ) : isFile ? (
-                        <VideoThumbnail src={vid.url} alt={vid.name || `Vidéo ${index + 1}`} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                        <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
+                          <span className="text-2xl">▶</span>
+                        </div>
                       ) : (
                         <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
                           <span className="text-2xl">▶</span>
