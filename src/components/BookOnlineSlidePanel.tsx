@@ -1499,15 +1499,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             setVideoDescExpanded(true);
           }
         };
-        const ytMatch = vidUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
-        const vimeoMatch = vidUrl.match(/vimeo\.com\/(\d+)/);
-        const isVerticalHint = /shorts\//.test(vidUrl);
-        const embedUrl = ytMatch
-          ? `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&mute=0&loop=1&playlist=${ytMatch[1]}&rel=0&modestbranding=1&playsinline=1`
-          : vimeoMatch
-            ? `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=0&loop=1`
-            : null;
-        const isFile = !ytMatch && !vimeoMatch;
+        const overlayVid = getVideoEmbed(vidUrl, window.location.origin);
+        // Force loop & unmute for overlay
+        const overlayEmbedUrl = overlayVid.type === "youtube"
+          ? overlayVid.embedUrl.replace(/mute=\d/, "mute=0").replace(/loop=\d/, "loop=1") + `&playlist=${vidUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1] || ""}`
+          : overlayVid.type === "vimeo"
+            ? overlayVid.embedUrl.replace(/muted=\d/, "muted=0").replace(/loop=\d/, "loop=1")
+            : overlayVid.type === "bunny"
+              ? overlayVid.embedUrl.replace(/loop=false/, "loop=true")
+              : overlayVid.embedUrl;
+        const isVerticalHint = overlayVid.isVertical;
+        const isFile = overlayVid.type === "file";
         return (
           <div className="absolute inset-0 z-[70] bg-black animate-slide-up-from-bottom overflow-hidden">
             {/* Top bar: close + mobile nav with counter */}
@@ -1566,25 +1568,36 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
             {/* Video — full overlay */}
             <div className="absolute inset-0 flex items-center justify-center">
-              {embedUrl ? (
-                <div className={`${isVerticalHint ? "h-full aspect-[9/16]" : "w-full h-full"}`}>
-                  <iframe
-                    src={embedUrl}
-                    className="w-full h-full"
-                    allow="autoplay; encrypted-media; fullscreen"
-                    allowFullScreen
-                  />
-                </div>
-              ) : isFile ? (
+              {isFile ? (
                 <video
                   src={vidUrl}
-                  className="w-full h-full object-contain"
+                  className={`w-full h-full bg-black ${isVerticalHint ? "object-cover" : "object-contain"}`}
                   autoPlay
                   controls
                   loop
                   playsInline
                 />
-              ) : null}
+              ) : (
+                <div className={`w-full h-full overflow-hidden bg-black ${overlayVid.type === "youtube" ? "relative" : ""}`}>
+                  {overlayVid.type === "youtube" && !isVerticalHint && (
+                    <>
+                      <div className="absolute inset-x-0 top-0 h-16 bg-black z-10" />
+                      <div className="absolute inset-x-0 bottom-0 h-12 bg-black z-10" />
+                    </>
+                  )}
+                  <iframe
+                    src={overlayEmbedUrl}
+                    className={overlayVid.type === "youtube"
+                      ? isVerticalHint
+                        ? "w-full h-full"
+                        : "w-full h-[calc(100%+80px)] -mt-16 -mb-[46px]"
+                      : "w-full h-full"
+                    }
+                    allow="autoplay; encrypted-media; fullscreen"
+                    allowFullScreen
+                  />
+                </div>
+              )}
             </div>
 
             {/* Description card — POI style, below close button */}
