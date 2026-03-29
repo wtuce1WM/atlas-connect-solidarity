@@ -482,17 +482,7 @@ const HotelSearch = () => {
               paymentType: o.policies?.paymentType,
             }));
             const h = hotelResult.hotel;
-            setSlidePanelBusiness({
-              id: businessId,
-              liteApiData: {
-                offers,
-                rating: h.guestRating,
-                reviewCount: h.reviewCount,
-                checkIn: ci,
-                checkOut: co,
-                hotelName: h.name,
-              },
-            });
+            setSlidePanelBusiness({ id: businessId });
             setSelectedHotel(null);
           }}
         />
@@ -504,7 +494,6 @@ const HotelSearch = () => {
               <BookOnlineSlidePanel
                 businessId={slidePanelBusiness.id}
                 onClose={() => setSlidePanelBusiness(null)}
-                liteApiData={slidePanelBusiness.liteApiData}
               />
             </div>
           </div>
