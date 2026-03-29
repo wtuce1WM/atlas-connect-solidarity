@@ -154,8 +154,7 @@ const SubcategoryPage = () => {
   }, [allBusinesses, selectedCity, gammes]);
 
   const getEffectiveRating = (b: Business): number | null => {
-    if (b.rating) return Number(b.rating);
-    return computeWeightedRatingOn20(collectRatingSources(b));
+    return (b as any).computed_rating ?? (b.rating ? Number(b.rating) : null);
   };
 
   // Filter businesses

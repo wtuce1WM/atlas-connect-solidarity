@@ -6,7 +6,7 @@ import SlidePanelHeader from "@/components/SlidePanelHeader";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem } from "@/components/FullscreenLightbox";
 import { supabase } from "@/integrations/supabase/client";
-import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
+
 import BookmarkButton from "@/components/BookmarkButton";
 import type { DestinationItem } from "@/components/DestinationSection";
 

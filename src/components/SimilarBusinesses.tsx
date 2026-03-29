@@ -3,7 +3,7 @@ import { businessUrl } from "@/lib/businessUrl";
 import { Link } from "react-router-dom";
 import { MapPin, Star, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
+
 import BookmarkButton from "@/components/BookmarkButton";
 
 interface SimilarBusiness {
