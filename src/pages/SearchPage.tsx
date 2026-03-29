@@ -3251,10 +3251,9 @@ const SearchPage = () => {
                    }}
                   columns={hasKnownLocation ? 2 : undefined}
                   onMapClick={hasKnownLocation ? (biz) => { setHoveredPoiId(biz.id); } : (biz) => { setPoiSelectedBusinessId(null); setPoiMapBusiness({ id: biz.id, name: biz.name, latitude: biz.latitude, longitude: biz.longitude, address: biz.address, google_maps_url: biz.google_maps_url }); }}
-                  onPoisLoaded={(loadedPois) => setAllPois(loadedPois.map(p => {
-                    const sources = collectRatingSources(p);
-                    const avgOn20 = p.rating ?? computeWeightedRatingOn20(sources);
-                    const totalReviews = sources.reduce((s, r) => s + r.count, 0);
+                   onPoisLoaded={(loadedPois) => setAllPois(loadedPois.map(p => {
+                    const avgOn20 = (p as any).computed_rating ?? p.rating ?? null;
+                    const totalReviews = (p as any).total_review_count ?? 0;
                     return { id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude, images: p.images, city: p.city, neighborhood: p.neighborhood, avgOn20, totalReviews };
                   }))}
                   onHover={setHoveredPoiId}
