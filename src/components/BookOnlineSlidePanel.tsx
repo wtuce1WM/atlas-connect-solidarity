@@ -1484,7 +1484,64 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         </div>
       )}
 
-      {showBookingOverlay && (bookingOverlayUrl || bookUrl) && (() => {
+      {/* Video Document Overlay */}
+      {activeVideoOverlay && (() => {
+        const vidUrl = activeVideoOverlay.url;
+        const ytMatch = vidUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
+        const vimeoMatch = vidUrl.match(/vimeo\.com\/(\d+)/);
+        const isVerticalHint = /shorts\//.test(vidUrl);
+        const embedUrl = ytMatch
+          ? `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1`
+          : vimeoMatch
+            ? `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=0`
+            : null;
+        const isFile = !ytMatch && !vimeoMatch;
+        return (
+          <div className="absolute inset-0 z-[70] bg-black flex flex-col animate-slide-up-from-bottom overflow-hidden">
+            {/* Close button */}
+            <div className="absolute top-3 right-3 z-10">
+              <button
+                onClick={() => setActiveVideoOverlay(null)}
+                className="w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center hover:bg-black/80 transition-colors"
+              >
+                <X className="h-4 w-4 text-white" />
+              </button>
+            </div>
+
+            {/* Video area — full size */}
+            <div className="flex-1 flex items-center justify-center relative min-h-0">
+              {embedUrl ? (
+                <div className={`${isVerticalHint ? "h-full aspect-[9/16]" : "w-full h-full"}`}>
+                  <iframe
+                    src={embedUrl}
+                    className="w-full h-full"
+                    allow="autoplay; encrypted-media; fullscreen"
+                    allowFullScreen
+                  />
+                </div>
+              ) : isFile ? (
+                <video
+                  src={vidUrl}
+                  className="w-full h-full object-contain"
+                  autoPlay
+                  controls
+                  playsInline
+                />
+              ) : null}
+
+              {/* Description overlay on video */}
+              {activeVideoOverlay.description && (
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 pt-10">
+                  <p className="text-sm text-white leading-relaxed" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                    {activeVideoOverlay.description}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })()}
+
         const overlayUrl = bookingOverlayUrl || bookUrl!;
         const finalUrl = overlayUrl.startsWith("http") ? overlayUrl : `https://${overlayUrl}`;
         return (
