@@ -1786,6 +1786,69 @@ export type Database = {
         }
         Relationships: []
       }
+      front_structure: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      front_structure_subcategories: {
+        Row: {
+          created_at: string
+          front_structure_id: string
+          id: string
+          sort_order: number
+          subcategory_id: string
+        }
+        Insert: {
+          created_at?: string
+          front_structure_id: string
+          id?: string
+          sort_order?: number
+          subcategory_id: string
+        }
+        Update: {
+          created_at?: string
+          front_structure_id?: string
+          id?: string
+          sort_order?: number
+          subcategory_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "front_structure_subcategories_front_structure_id_fkey"
+            columns: ["front_structure_id"]
+            isOneToOne: false
+            referencedRelation: "front_structure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "front_structure_subcategories_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "subcategories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gamme_categories: {
         Row: {
           category_id: string
