@@ -48,6 +48,7 @@ import {
 } from "@/components/ui/dialog";
 import IconPicker, { ICONS } from "./IconPicker";
 import RichTextEditor from "./RichTextEditor";
+import FrontStructureManagement from "./FrontStructureManagement";
 
 // Helper component to render dynamic icons
 const DynamicIcon = ({ name, className }: { name: string; className?: string }) => {
