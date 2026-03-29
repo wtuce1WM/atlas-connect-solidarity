@@ -1472,17 +1472,18 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
       {/* POI business detail overlay */}
       {selectedPoiBusinessId && (
-        <PoiSlidePanel
-          businessId={selectedPoiBusinessId}
-          onClose={() => {
-            setSelectedPoiBusinessId(null);
-            if (poiOpenedFromMapRef.current) {
-              poiOpenedFromMapRef.current = false;
-              setShowPoiMapOverlay(true);
-            }
-          }}
-          slideFrom="bottom"
-        />
+        <div className={poiOpenedFromMapRef.current ? "absolute inset-0 z-[70]" : ""}>
+          <PoiSlidePanel
+            businessId={selectedPoiBusinessId}
+            onClose={() => {
+              setSelectedPoiBusinessId(null);
+              if (poiOpenedFromMapRef.current) {
+                poiOpenedFromMapRef.current = false;
+              }
+            }}
+            slideFrom="bottom"
+          />
+        </div>
       )}
 
       {/* POI Google Map overlay */}
