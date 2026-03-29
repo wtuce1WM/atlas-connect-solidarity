@@ -37,6 +37,7 @@ import { useDragToHide } from "@/hooks/useDragToHide";
 import { useBrokenLinks } from "@/hooks/useBrokenLinks";
 import { useNavigate } from "react-router-dom";
 import { businessUrl } from "@/lib/businessUrl";
+import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 
 interface BookOnlineSlidePanelProps {
   businessId: string;
@@ -140,6 +141,10 @@ interface PoiBusiness {
   name: string;
   images: string[] | null;
   logo_url: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  city: string | null;
+  neighborhood: string | null;
 }
 
 type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
@@ -168,6 +173,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook'; ts: number } | null>(null);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
+  const [showPoiMapOverlay, setShowPoiMapOverlay] = useState(false);
   const [reviewTexts, setReviewTexts] = useState<ReviewText[]>([]);
   const [externalLinks, setExternalLinks] = useState<ExternalLinkItem[]>([]);
   const [menuSummaries, setMenuSummaries] = useState<MenuSummary[]>([]);
@@ -377,7 +383,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         if (poiIds.length > 0) {
           const { data: poiData } = await supabase
             .from("businesses")
-            .select("id, name, images, logo_url")
+            .select("id, name, images, logo_url, latitude, longitude, city, neighborhood")
             .in("id", poiIds)
             .eq("is_active", true);
           setPoiBusinesses((poiData || []) as PoiBusiness[]);
@@ -1241,10 +1247,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   <div
                     className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
                     style={{ animationDelay: `${kpRelated.length * 120}ms`, animationFillMode: 'forwards' }}
-                    onClick={() => {
-                      const firstPoi = poiBusinesses[0];
-                      if (firstPoi) setSelectedPoiBusinessId(firstPoi.id);
-                    }}
+                    onClick={() => setShowPoiMapOverlay(true)}
                   >
                     <img src={poiNearbyImg} alt="Points d'intérêt" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
                     <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
@@ -1472,6 +1475,43 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           onClose={() => setSelectedPoiBusinessId(null)}
           slideFrom="bottom"
         />
+      )}
+
+      {/* POI Google Map overlay */}
+      {showPoiMapOverlay && (
+        <div className="absolute inset-0 z-[60] bg-background flex flex-col animate-slide-in-right">
+          <div className="shrink-0 flex items-center px-4 py-2 border-b bg-background gap-2">
+            <button
+              onClick={() => setShowPoiMapOverlay(false)}
+              className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
+              aria-label="Fermer"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <span className="text-sm font-medium truncate">
+              {language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité"}
+            </span>
+          </div>
+          <div className="flex-1 min-h-0">
+            <PoiGoogleMap
+              pois={poiBusinesses.map(p => ({
+                id: p.id,
+                name: p.name,
+                latitude: p.latitude,
+                longitude: p.longitude,
+                images: p.images,
+                city: p.city,
+                neighborhood: p.neighborhood,
+              } as PoiMapItem))}
+              selectedPoiId={null}
+              onPoiClick={(poiId) => {
+                setShowPoiMapOverlay(false);
+                setSelectedPoiBusinessId(poiId);
+              }}
+              fitToMarkers
+            />
+          </div>
+        </div>
       )}
 
       {/* Mosaic overlay */}
