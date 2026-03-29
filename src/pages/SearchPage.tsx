@@ -2007,7 +2007,7 @@ const SearchPage = () => {
     }
 
     // Rating
-    const ratingOn20 = computeWeightedRatingOn20(collectRatingSources(b));
+    const ratingOn20 = (b as any).computed_rating ?? b.rating ?? null;
     if (ratingOn20 !== null) {
       parts.push(`noté ${ratingOn20.toFixed(1).replace('.', ',')} sur 20`);
     }
