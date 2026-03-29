@@ -1160,6 +1160,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
                       onClick={() => {
                         setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description });
+                        setVideoDescExpanded(true);
                       }}
                     >
                     <div className="relative">
