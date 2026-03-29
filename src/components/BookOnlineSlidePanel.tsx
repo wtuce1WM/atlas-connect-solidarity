@@ -612,7 +612,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
       {/* Overlaid content — swipeable */}
       <div
-        className={`relative z-10 flex flex-col ${currentMedia?.kind === "video" ? "h-[calc(100%-3.5rem)] pointer-events-none" : "h-full"} p-4 pt-12 md:p-6 md:pt-16 lg:pt-6 ${cardsHidden ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+        className={`relative z-10 flex flex-col overflow-y-auto overscroll-contain ${currentMedia?.kind === "video" ? "h-[calc(100%-3.5rem)]" : "h-full"} p-4 pt-12 md:p-6 md:pt-16 lg:pt-6 ${cardsHidden ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"}`}
         style={{
           transform: isDragging
             ? `translateY(${dragOffsetY}px)`
