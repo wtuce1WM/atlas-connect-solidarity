@@ -490,7 +490,9 @@ export type Database = {
       business_documents: {
         Row: {
           business_id: string
+          city: string | null
           created_at: string
+          description: string | null
           destination_id: string | null
           icon: string | null
           id: string
@@ -505,7 +507,9 @@ export type Database = {
         }
         Insert: {
           business_id: string
+          city?: string | null
           created_at?: string
+          description?: string | null
           destination_id?: string | null
           icon?: string | null
           id?: string
@@ -520,7 +524,9 @@ export type Database = {
         }
         Update: {
           business_id?: string
+          city?: string | null
           created_at?: string
+          description?: string | null
           destination_id?: string | null
           icon?: string | null
           id?: string
