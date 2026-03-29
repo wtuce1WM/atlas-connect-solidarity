@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation, Minimize2, Map } from "lucide-react";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import wooshSfx from "@/assets/woosh.wav";
@@ -28,6 +28,33 @@ interface PoiFull {
   city: string | null;
   neighborhood: string | null;
 }
+const GOLD = { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" };
+
+const MemoizedPoiMap = React.memo(({ poi, linkedBusinesses }: { poi: PoiFull; linkedBusinesses: PoiMapItem[] }) => {
+  const pois = useMemo(() => [
+    ...(poi.latitude && poi.longitude ? [{
+      id: poi.id, name: poi.name, latitude: poi.latitude, longitude: poi.longitude,
+      city: poi.city, neighborhood: poi.neighborhood, images: poi.images,
+      markerColor: GOLD,
+    }] : []),
+    ...linkedBusinesses,
+  ], [poi.id, poi.latitude, poi.longitude, poi.name, poi.city, poi.neighborhood, poi.images, linkedBusinesses]);
+
+  const center = useMemo(
+    () => poi.latitude && poi.longitude ? { lat: poi.latitude, lng: poi.longitude } : undefined,
+    [poi.latitude, poi.longitude]
+  );
+
+  return (
+    <PoiGoogleMap
+      pois={pois}
+      selectedPoiId={poi.id}
+      highlightColor={GOLD}
+      center={center}
+      fitToMarkers
+    />
+  );
+});
 
 const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePanelProps) => {
   const { language } = useLanguage();
@@ -315,25 +342,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
                 {/* Map */}
                 <div className="flex-1 min-h-0">
                   {flipped && (
-                    <PoiGoogleMap
-                      pois={[
-                        ...(poi.latitude && poi.longitude ? [{
-                          id: poi.id,
-                          name: poi.name,
-                          latitude: poi.latitude,
-                          longitude: poi.longitude,
-                          city: poi.city,
-                          neighborhood: poi.neighborhood,
-                          images: poi.images,
-                          markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
-                        }] : []),
-                        ...linkedBusinesses,
-                      ]}
-                      selectedPoiId={poi.id}
-                      highlightColor={{ bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" }}
-                      center={poi.latitude && poi.longitude ? { lat: poi.latitude, lng: poi.longitude } : undefined}
-                      fitToMarkers
-                    />
+                    <MemoizedPoiMap poi={poi} linkedBusinesses={linkedBusinesses} />
                   )}
                 </div>
               </div>
