@@ -4,7 +4,7 @@ import { businessUrl } from "@/lib/businessUrl";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Phone, Globe, MapPin, Map, Crown, Star, MessageCircle } from "lucide-react";
-import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
+
 import { cleanPhone, whatsappUrl } from "@/lib/phoneUtils";
 
 interface StripBusiness {
