@@ -3256,7 +3256,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Label className="text-base font-semibold">🎬 Vidéos</Label>
               <div className="flex items-center gap-2">
                 <Switch checked={formData.show_videos} onCheckedChange={(checked) => handleChange("show_videos", checked)} />
-                <span className="text-xs text-muted-foreground">{formData.show_videos ? "Activé" : "Désactivé"}</span>
+                <span className="text-xs text-muted-foreground">{formData.show_videos ? "Activé" : "Désactivé"} — non utilisé sur le frontend actuellement</span>
               </div>
             </div>
             <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => [...prev, { url: "", name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null }])}>
