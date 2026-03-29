@@ -182,7 +182,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [menuSummaries, setMenuSummaries] = useState<MenuSummary[]>([]);
   const [menuDocs, setMenuDocs] = useState<MenuDoc[]>([]);
   const [videoDocUrls, setVideoDocUrls] = useState<string[]>([]);
-  const [videoDocs, setVideoDocs] = useState<{ url: string; name: string | null; city: string | null; price: string | null; price_type: string | null }[]>([]);
+  const [videoDocs, setVideoDocs] = useState<{ url: string; name: string | null; city: string | null; price: string | null; price_type: string | null; description: string | null }[]>([]);
+  const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ url: string; name: string | null; description: string | null } | null>(null);
   const [categoryIcon, setCategoryIcon] = useState<string | null>(null);
   
   const [kpRelated, setKpRelated] = useState<KpRelatedBusiness[]>([]);
@@ -247,6 +248,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     setActiveYoutubeVideo(null);
     setYoutubeIsPlaying(false);
     setShowYoutubeOverlay(false);
+    setActiveVideoOverlay(null);
     setShowPoiMapOverlay(false);
     setAvailabilityOverlayCtx(null);
     setFallbackPanelData(null);
@@ -259,7 +261,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const iframeSrcRef = useRef<string>("");
 
   useEffect(() => {
-    const overlayOpen = !!selectedDestinationId || !!selectedPoiBusinessId || !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic || !!externalOverlayActive || showPoiMapOverlay;
+    const overlayOpen = !!selectedDestinationId || !!selectedPoiBusinessId || !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic || !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay;
     if (overlayOpen) {
       if (videoRef.current) {
         videoRef.current.pause();
@@ -278,7 +280,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         iframeRef.current.src = iframeSrcRef.current;
       }
     }
-  }, [selectedDestinationId, selectedPoiBusinessId, docOverlay, showBookingOverlay, showYoutubeOverlay, showMosaic, externalOverlayActive, showPoiMapOverlay]);
+  }, [selectedDestinationId, selectedPoiBusinessId, docOverlay, showBookingOverlay, showYoutubeOverlay, showMosaic, externalOverlayActive, showPoiMapOverlay, activeVideoOverlay]);
 
   // Fetch all data in a single Promise.all
   useEffect(() => {
@@ -326,7 +328,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           .order("sort_order"),
         supabase
           .from("business_documents")
-          .select("url, name, city, price, price_type")
+          .select("url, name, city, price, price_type, description")
           .eq("business_id", businessId)
           .eq("type", "video")
           .order("sort_order"),
@@ -339,7 +341,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       setReviewTexts(reviewsRes.data ? (reviewsRes.data as any[]) : []);
       setExternalLinks((extLinksRes.data || []) as ExternalLinkItem[]);
       setMenuSummaries((menuSumRes.data || []) as MenuSummary[]);
-      const vDocs = (videoDocsRes.data || []) as { url: string; name: string | null; city: string | null; price: string | null; price_type: string | null }[];
+      const vDocs = (videoDocsRes.data || []) as { url: string; name: string | null; city: string | null; price: string | null; price_type: string | null; description: string | null }[];
       setVideoDocUrls(vDocs.map(d => d.url).filter(Boolean));
       setVideoDocs(vDocs.filter(d => d.url));
 
@@ -1156,10 +1158,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
                       style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
                       onClick={() => {
-                        if (mediaIdx >= 0) {
-                          setLightboxIndex(mediaIdx);
-                          setIsLightboxOpen(true);
-                        }
+                        setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description });
                       }}
                     >
                     <div className="relative">
@@ -1484,6 +1483,64 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           )}
         </div>
       )}
+
+      {/* Video Document Overlay */}
+      {activeVideoOverlay && (() => {
+        const vidUrl = activeVideoOverlay.url;
+        const ytMatch = vidUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
+        const vimeoMatch = vidUrl.match(/vimeo\.com\/(\d+)/);
+        const isVerticalHint = /shorts\//.test(vidUrl);
+        const embedUrl = ytMatch
+          ? `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1`
+          : vimeoMatch
+            ? `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=0`
+            : null;
+        const isFile = !ytMatch && !vimeoMatch;
+        return (
+          <div className="absolute inset-0 z-[70] bg-black flex flex-col animate-slide-up-from-bottom overflow-hidden">
+            {/* Close button */}
+            <div className="absolute top-3 right-3 z-10">
+              <button
+                onClick={() => setActiveVideoOverlay(null)}
+                className="w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center hover:bg-black/80 transition-colors"
+              >
+                <X className="h-4 w-4 text-white" />
+              </button>
+            </div>
+
+            {/* Video area — full size */}
+            <div className="flex-1 flex items-center justify-center relative min-h-0">
+              {embedUrl ? (
+                <div className={`${isVerticalHint ? "h-full aspect-[9/16]" : "w-full h-full"}`}>
+                  <iframe
+                    src={embedUrl}
+                    className="w-full h-full"
+                    allow="autoplay; encrypted-media; fullscreen"
+                    allowFullScreen
+                  />
+                </div>
+              ) : isFile ? (
+                <video
+                  src={vidUrl}
+                  className="w-full h-full object-contain"
+                  autoPlay
+                  controls
+                  playsInline
+                />
+              ) : null}
+
+              {/* Description overlay on video */}
+              {activeVideoOverlay.description && (
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 pt-10">
+                  <p className="text-sm text-white leading-relaxed" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                    {activeVideoOverlay.description}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })()}
 
       {showBookingOverlay && (bookingOverlayUrl || bookUrl) && (() => {
         const overlayUrl = bookingOverlayUrl || bookUrl!;
