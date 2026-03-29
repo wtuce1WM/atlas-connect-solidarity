@@ -371,7 +371,7 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
         </div>
       )}
       {/* POI, Destination, Business, Subcategory & City selectors */}
-      <div className="grid grid-cols-5 gap-1">
+      <div className="grid grid-cols-1 gap-1">
         <div>
           <label className="text-[9px] text-muted-foreground">POI</label>
           <Select value={doc.poi_id || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, poi_id: v === "__none__" ? null : v } : d))}>
