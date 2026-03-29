@@ -256,7 +256,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const iframeSrcRef = useRef<string>("");
 
   useEffect(() => {
-    const overlayOpen = !!selectedDestinationId || !!selectedPoiBusinessId || !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic || !!externalOverlayActive;
+    const overlayOpen = !!selectedDestinationId || !!selectedPoiBusinessId || !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic || !!externalOverlayActive || showPoiMapOverlay;
     if (overlayOpen) {
       if (videoRef.current) {
         videoRef.current.pause();
@@ -275,7 +275,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         iframeRef.current.src = iframeSrcRef.current;
       }
     }
-  }, [selectedDestinationId, selectedPoiBusinessId, docOverlay, showBookingOverlay, showYoutubeOverlay, showMosaic, externalOverlayActive]);
+  }, [selectedDestinationId, selectedPoiBusinessId, docOverlay, showBookingOverlay, showYoutubeOverlay, showMosaic, externalOverlayActive, showPoiMapOverlay]);
 
   // Fetch all data in a single Promise.all
   useEffect(() => {
