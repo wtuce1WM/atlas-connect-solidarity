@@ -8,8 +8,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import relaisLogo from "@/assets/relais-chateaux-logo.png";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import symboleMaroc from "@/assets/symbole-maroc-2.webp";
-import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
-
 interface Business {
   id: string;
   name: string;
@@ -17,19 +15,10 @@ interface Business {
   region: string;
   images: string[] | null;
   rating: number | null;
-  google_rating?: number | null;
-  google_review_count?: number | null;
-  tripadvisor_rating?: number | null;
-  tripadvisor_review_count?: number | null;
-  restaurant_guru_rating?: number | null;
-  restaurant_guru_review_count?: number | null;
+  computed_rating?: number | null;
   description: string | null;
   wtuce_status: string | null;
 }
-
-const getCalculatedRating = (business: Business): number | null => {
-  return computeWeightedRatingOn20(collectRatingSources(business));
-};
 
 // Label ID for "Relais & Châteaux"
 const RELAIS_CHATEAUX_LABEL_ID = "4be8e4aa-99fb-4502-a531-7eec608efe5a";
