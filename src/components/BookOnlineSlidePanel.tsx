@@ -260,6 +260,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   }, [businessId, resetDrag]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
+  const keepMutedRef = useRef(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const iframeSrcRef = useRef<string>("");
 
