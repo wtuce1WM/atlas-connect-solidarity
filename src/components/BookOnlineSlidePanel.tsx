@@ -260,6 +260,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   }, [businessId, resetDrag]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
+  const keepMutedRef = useRef(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const iframeSrcRef = useRef<string>("");
 
@@ -275,6 +276,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         iframeRef.current.src = "";
       }
     } else {
+      keepMutedRef.current = true;
       if (videoRef.current) {
         videoRef.current.muted = true;
         videoRef.current.play().catch(() => {});
@@ -782,7 +784,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 autoPlay muted playsInline controls
                 className={`w-full h-full bg-black ${isFileVideoVertical ? "object-cover" : "object-contain"}`}
                 onEnded={() => totalMedia > 1 && goMedia(1)}
-                onPlay={(e) => { e.currentTarget.muted = false; }}
+                onPlay={(e) => {
+                  if (keepMutedRef.current) {
+                    keepMutedRef.current = false;
+                    return;
+                  }
+                  e.currentTarget.muted = false;
+                }}
                 onLoadedMetadata={(e) => {
                   const v = e.currentTarget;
                   setIsFileVideoVertical(v.videoHeight > v.videoWidth);
