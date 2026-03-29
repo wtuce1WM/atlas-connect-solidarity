@@ -543,7 +543,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
 
   return (
     <>
-      <style>{`.gm-style .gm-style-iw-chr { display: none !important; } .gm-style .gm-style-iw { padding: 0 !important; } .gm-style .gm-style-iw-d { overflow: hidden !important; } .gm-style .gm-fullscreen-control { display: none !important; } .gm-style .gm-bundled-control button[aria-label*="location" i], .gm-style .gm-bundled-control button[aria-label*="position" i], .gm-style .gm-bundled-control button[title*="location" i], .gm-style button.gm-control-active[draggable="false"][aria-label] { display: none !important; } .gm-style .gmnoprint[role="menubar"] ~ .gmnoprint:not([role]) { display: none !important; }`}</style>
+      <style>{`.gm-style .gm-style-iw-chr { display: none !important; } .gm-style .gm-style-iw { padding: 0 !important; background: transparent !important; box-shadow: none !important; border-radius: 10px !important; } .gm-style .gm-style-iw-d { overflow: hidden !important; background: transparent !important; } .gm-style .gm-style-iw-tc { display: none !important; } .gm-style .gm-style-iw-t::after { display: none !important; } .gm-style .gm-fullscreen-control { display: none !important; } .gm-style .gm-bundled-control button[aria-label*="location" i], .gm-style .gm-bundled-control button[aria-label*="position" i], .gm-style .gm-bundled-control button[title*="location" i], .gm-style button.gm-control-active[draggable="false"][aria-label] { display: none !important; } .gm-style .gmnoprint[role="menubar"] ~ .gmnoprint:not([role]) { display: none !important; }`}</style>
       <div ref={mapShellRef} className="relative w-full h-full">
         <div ref={containerRef} className="w-full h-full" />
       </div>
