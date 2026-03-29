@@ -2866,38 +2866,8 @@ const SearchPage = () => {
 
 
 
-      {/* 🩵 STICKY 3d — Service Filter (shown when subcategory detected) — DISABLED in Résultats tab */}
-      {/* {detectedSubcategory && searchServiceFilters.length >= 1 && !isLoading && activeTab === "suggestions" && (
-        <div data-service-filter className="sticky z-[5] bg-white py-2 relative" style={{ top: `${stickyTops.serviceBar}px` }}>
-          <div className="mx-auto px-4 max-w-[80%]">
-            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-              {[...searchServiceFilters].sort((a, b) => {
-                if (selectedServiceFilter === a.name) return -1;
-                if (selectedServiceFilter === b.name) return 1;
-                return 0;
-              }).map((svc) => {
-                const isSelected = selectedServiceFilter === svc.name;
-                return (
-                  <button
-                    key={svc.name}
-                    onClick={() => setSelectedServiceFilter(isSelected ? null : svc.name)}
-                    className={`flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-full border text-xs font-medium transition-all whitespace-nowrap ${
-                      isSelected
-                        ? "bg-primary/20 border-primary text-primary shadow-sm"
-                        : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                    }`}
-                  >
-                    <span>{svc.name.charAt(0).toUpperCase() + svc.name.slice(1).toLowerCase()}</span>
-                    <span className={`text-xs font-normal ${isSelected ? "text-primary/70" : "text-muted-foreground/60"}`}>
-                      {svc.count}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )} */}
+
+
 
       {activeTab === "map" && (
         <section className="pt-4 pb-4 lg:pt-20 lg:pb-4 bg-white dark:bg-zinc-900">
