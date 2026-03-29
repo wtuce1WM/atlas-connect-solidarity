@@ -24,7 +24,7 @@ import ReviewsFlipCard from "@/components/cards/ReviewsFlipCard";
 import ExternalLinksFlipCard from "@/components/cards/ExternalLinksFlipCard";
 import SocialLinksCard from "@/components/cards/SocialLinksCard";
 import MenuSummaryCard from "@/components/cards/MenuSummaryCard";
-import VideoThumbnail from "@/components/VideoThumbnail";
+
 import MenuUrlCard from "@/components/cards/MenuUrlCard";
 import DirectionsOverlay from "@/components/DirectionsOverlay";
 import MosaicOverlay from "@/components/MosaicOverlay";
