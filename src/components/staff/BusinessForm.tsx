@@ -307,16 +307,16 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
           <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><circle cx="4" cy="3" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="4" cy="8" r="1.5"/><circle cx="12" cy="8" r="1.5"/><circle cx="4" cy="13" r="1.5"/><circle cx="12" cy="13" r="1.5"/></svg>
         </button>
         <span className="text-[9px] text-muted-foreground shrink-0">{idx + 1}</span>
+        <Button type="button" variant={doc.description ? "default" : "outline"} size="sm" className="h-5 px-1.5 text-[9px] shrink-0" title="Description" onClick={onOpenDesc}>
+          TXT
+        </Button>
         <Input
           value={doc.name}
           onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, name: e.target.value } : d))}
           placeholder="Titre"
           className="h-5 text-[10px] flex-1 min-w-0"
         />
-        <Button type="button" variant={doc.description ? "default" : "outline"} size="sm" className="h-5 px-1.5 text-[9px] shrink-0" title="Description" onClick={onOpenDesc}>
-          TXT
-        </Button>
-        <Button type="button" variant="ghost" size="sm" className="h-5 w-5 p-0 text-destructive hover:text-destructive shrink-0" title="Supprimer" onClick={() => setVideoDocs(prev => prev.filter((_, i) => i !== idx))}>
+        <Button type="button" variant="ghost" size="sm" className="h-5 w-5 p-0 text-destructive hover:text-destructive shrink-0" title="Supprimer" onClick={onDelete}>
           <Trash2 className="h-2.5 w-2.5" />
         </Button>
       </div>
