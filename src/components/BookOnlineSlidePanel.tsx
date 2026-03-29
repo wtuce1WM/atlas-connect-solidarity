@@ -1530,10 +1530,22 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 />
               ) : null}
 
-              {/* Description overlay on video */}
-              {activeVideoOverlay.description && (
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 pt-10">
-                  <div className="text-sm text-white leading-relaxed" style={{ fontFamily: "'Josefin Sans', sans-serif" }} dangerouslySetInnerHTML={{ __html: activeVideoOverlay.description }} />
+              {/* Description collapsible overlay */}
+              {(activeVideoOverlay.description || activeVideoOverlay.name) && (
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+                  <details className="group p-3">
+                    <summary className="cursor-pointer list-none flex items-center gap-2 text-white font-bold text-sm uppercase tracking-[0.12em] drop-shadow-lg" style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: '0.02em' }}>
+                      <ChevronRight className="h-4 w-4 transition-transform group-open:rotate-90 shrink-0" />
+                      <span className="truncate">{activeVideoOverlay.name || "Détails"}</span>
+                    </summary>
+                    {activeVideoOverlay.description && (
+                      <div
+                        className="mt-2 text-sm text-white/90 leading-relaxed max-h-[30vh] overflow-y-auto rounded-xl bg-black/40 backdrop-blur-sm p-3"
+                        style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: '0.02em' }}
+                        dangerouslySetInnerHTML={{ __html: activeVideoOverlay.description }}
+                      />
+                    )}
+                  </details>
                 </div>
               )}
             </div>
