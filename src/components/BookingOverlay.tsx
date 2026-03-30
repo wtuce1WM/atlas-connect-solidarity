@@ -15,7 +15,7 @@ const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp }: BookingOverlay
 
   return (
     <div className="absolute inset-0 z-[60] bg-white flex flex-col animate-slide-down-from-top" style={{ marginTop: "-3rem" }}>
-      <div className="flex items-center px-4 py-2 border-b bg-white shrink-0">
+      <div className="relative flex items-center px-4 py-2 border-b bg-white shrink-0">
         <button
           onClick={onClose}
           className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-white/20 shadow-2xl hover:opacity-90 transition-opacity shrink-0"
@@ -25,22 +25,19 @@ const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp }: BookingOverlay
           <X className="h-4 w-4" />
         </button>
         <span className="text-sm font-semibold ml-2">{title || "Réservation"}</span>
-        <div className="flex-1 flex justify-center">
-          {whatsapp && (
-            <a
-              href={whatsappUrl(whatsapp)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="h-9 w-9 flex items-center justify-center rounded-full text-white hover:opacity-90 transition-opacity"
-              style={{ backgroundColor: "#25D366" }}
-              title="WhatsApp"
-              aria-label="Contacter sur WhatsApp"
-            >
-              <WhatsAppIcon className="h-4 w-4" />
-            </a>
-          )}
-        </div>
-        <div className="w-9 shrink-0" />
+        {whatsapp && (
+          <a
+            href={whatsappUrl(whatsapp)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="absolute left-1/2 -translate-x-1/2 h-9 w-9 flex items-center justify-center rounded-full text-white hover:opacity-90 transition-opacity"
+            style={{ backgroundColor: "#25D366" }}
+            title="WhatsApp"
+            aria-label="Contacter sur WhatsApp"
+          >
+            <WhatsAppIcon className="h-4 w-4" />
+          </a>
+        )}
       </div>
 
       <iframe
