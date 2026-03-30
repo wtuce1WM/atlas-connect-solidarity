@@ -455,4 +455,93 @@ function MappedHotelCard({ hotel, isEn, onSelect }: {
   );
 }
 
+function HotelThumbnailCard({ hotel, isEn, onSelect }: {
+  hotel: MappedHotelResult;
+  isEn: boolean;
+  onSelect?: (businessId: string) => void;
+}) {
+  const hasPrice = hotel.serpData?.ratePerNight;
+
+  return (
+    <div
+      className="group rounded-xl border border-border bg-card overflow-hidden cursor-pointer hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10"
+      onClick={() => onSelect?.(hotel.businessId)}
+    >
+      {/* Image - aspect-video like BusinessCard */}
+      <div className="aspect-video overflow-hidden relative bg-muted">
+        <img
+          src={hotel.serpData?.thumbnail || hotel.businessImage || "/placeholder.svg"}
+          alt={hotel.businessName}
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
+          onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
+        />
+        {/* Gamme badge - top center */}
+        {hotel.gamme && (
+          <div className="absolute top-1.5 left-1/2 -translate-x-1/2 z-10">
+            <Badge
+              className="text-[10px] border border-black whitespace-nowrap px-1.5 py-0"
+              style={{ backgroundColor: hotel.gamme.color_hex || '#666666', color: hotel.gamme.text_color_hex || '#000000' }}
+            >
+              {hotel.gamme.name_fr}
+            </Badge>
+          </div>
+        )}
+        {/* Price overlay bottom */}
+        {(hasPrice || hotel.liteApiPrice) && (
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-2 py-1.5">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {hasPrice && (
+                <span className="text-[10px] font-bold text-gold">
+                  {hotel.serpData!.ratePerNight!.amount}/{isEn ? "n" : "n"}
+                </span>
+              )}
+              {hotel.liteApiPrice && (
+                <span className="text-[10px] font-bold text-white">
+                  LiteAPI: {hotel.liteApiPrice.amount} {hotel.liteApiPrice.currency}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="p-2.5 space-y-1">
+        <p className="font-semibold text-xs text-foreground line-clamp-1">{hotel.businessName}</p>
+        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+          {hotel.googleRating && (
+            <span className="flex items-center gap-0.5">
+              <Star className="h-2.5 w-2.5 text-gold fill-gold" />
+              {hotel.googleRating}
+            </span>
+          )}
+          {hotel.serpData?.hotelClass && (
+            <span>{"★".repeat(hotel.serpData.hotelClass as number)}</span>
+          )}
+          {hotel.manualPriceRange && (
+            <span className="text-muted-foreground">{hotel.manualPriceRange}</span>
+          )}
+        </div>
+        {hotel.serpData?.dealDescription && (
+          <p className="text-[9px] text-green-600 font-medium line-clamp-1">{hotel.serpData.dealDescription}</p>
+        )}
+        <div className="flex items-center gap-1.5 mt-1">
+          {hotel.reserveNowUrl && (
+            <a
+              href={hotel.reserveNowUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="text-[10px] font-semibold text-gold hover:underline flex items-center gap-0.5"
+            >
+              {isEn ? "Book" : "Réserver"} <ExternalLink className="h-2.5 w-2.5" />
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default SerpApiHotelOverlay;
