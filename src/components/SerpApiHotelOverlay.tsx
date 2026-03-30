@@ -163,7 +163,7 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
             const longer = rNorm.length < mappingNorm.length ? mappingNorm : rNorm;
             return shorter.length >= 8 && longer.includes(shorter);
           });
-          const isCurrentHotel = m.serp_hotel_name?.toLowerCase().trim() === serpHotelName.toLowerCase().trim();
+          const isCurrentHotel = m.business_id === currentBusinessId;
           return {
             id: m.id,
             businessId: m.business_id,
