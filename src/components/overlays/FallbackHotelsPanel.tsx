@@ -19,22 +19,22 @@ const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel }: 
   return createPortal(
     <div className="fixed inset-0 z-[220] lg:z-[200] flex flex-col lg:justify-start lg:right-auto lg:w-1/2 lg:top-[53px]">
       <div className="hidden lg:block absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-black/90 backdrop-blur-md flex flex-col overflow-hidden w-full h-full lg:rounded-none animate-fade-in lg:animate-slide-in-left">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
+      <div className="relative bg-background flex flex-col overflow-hidden w-full h-full lg:rounded-none animate-fade-in lg:animate-slide-in-left">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
           <div>
-            <p className="text-sm font-bold text-white">
+            <p className="text-sm font-bold text-foreground">
               {isEn ? `Hotels in ${data.city}` : `Hôtels à ${data.city}`}
             </p>
-            <p className="text-xs text-white/60">
+            <p className="text-xs text-muted-foreground">
               {data.checkIn} → {data.checkOut} · {data.adults} {isEn ? "adult(s)" : "adulte(s)"}
               {isSerpApi && <span className="ml-2 text-gold">SerpAPI</span>}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+            className="p-1.5 rounded-full bg-muted hover:bg-muted/80 transition-colors"
           >
-            <X className="h-4 w-4 text-white" />
+            <X className="h-4 w-4 text-foreground" />
           </button>
         </div>
         <div className="flex-1 overflow-y-auto p-3 pb-24">
@@ -50,12 +50,12 @@ const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel }: 
                 )}
                 <div className="flex-1 py-2 pr-3 space-y-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="font-semibold text-sm text-white line-clamp-1">{currentHotel.name}</p>
+                    <p className="font-semibold text-sm text-foreground line-clamp-1">{currentHotel.name}</p>
                     <span className="text-[10px] font-bold text-gold uppercase tracking-wider shrink-0">
                       {isEn ? "Your hotel" : "Votre hôtel"}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-white/60 flex-wrap">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
                     {currentHotel.dbGoogleRating && (
                       <span className="flex items-center gap-0.5">
                         <Star className="h-3 w-3 text-gold fill-gold" />
@@ -72,7 +72,7 @@ const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel }: 
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
                     {currentHotel.manualPriceRange && (
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-white/30 text-white/70">
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-border text-muted-foreground">
                         {currentHotel.manualPriceRange}
                       </Badge>
                     )}
@@ -82,13 +82,13 @@ const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel }: 
                       </Badge>
                     )}
                     {currentHotel.liteApiPrice && (
-                      <Badge className="bg-blue-500/15 text-blue-400 border-blue-500/30 text-xs font-bold px-2 py-0.5">
+                      <Badge className="bg-blue-500/15 text-blue-600 border-blue-500/30 text-xs font-bold px-2 py-0.5">
                         LiteAPI: {currentHotel.liteApiPrice.amount} {currentHotel.liteApiPrice.currency} / {isEn ? "night" : "nuit"}
                       </Badge>
                     )}
                   </div>
                   {currentHotel.dealDescription && (
-                    <p className="text-[10px] text-green-400 font-medium">{currentHotel.dealDescription}</p>
+                    <p className="text-[10px] text-green-600 font-medium">{currentHotel.dealDescription}</p>
                   )}
                   {currentHotel.reserveNowUrl && (
                     <a href={currentHotel.reserveNowUrl} target="_blank" rel="noopener noreferrer"
@@ -127,7 +127,7 @@ const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel }: 
               return (
                 <div
                   key={hotel.hotelId}
-                  className="group overflow-hidden rounded-xl border border-white/15 shadow-sm hover:shadow-md transition-all cursor-pointer relative aspect-square"
+                  className="group overflow-hidden rounded-xl border border-border shadow-sm hover:shadow-md transition-all cursor-pointer relative aspect-square"
                   onClick={() => {
                     if (hotel.businessId) {
                       onSelectHotel(hotel.hotelId, hotel.businessId);
@@ -137,8 +137,8 @@ const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel }: 
                   {img ? (
                     <img src={img} alt={hotel.name} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full bg-black/60 flex items-center justify-center">
-                      <span className="text-white/40 text-xs">No image</span>
+                    <div className="w-full h-full bg-muted flex items-center justify-center">
+                      <span className="text-muted-foreground text-xs">No image</span>
                     </div>
                   )}
                   {/* Gamme badge - top center */}
@@ -169,7 +169,7 @@ const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel }: 
                     )}
                     {/* LiteAPI cached price */}
                     {!cheapest && !hotel.serpPrice && hotel.liteApiPrice && (
-                      <p className="text-blue-400 text-[10px] font-bold mt-0.5">
+                      <p className="text-blue-300 text-[10px] font-bold mt-0.5">
                         LiteAPI: {hotel.liteApiPrice.amount} {hotel.liteApiPrice.currency}
                       </p>
                     )}
