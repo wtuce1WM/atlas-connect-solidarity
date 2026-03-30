@@ -545,7 +545,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     keepMutedRef.current = false;
                     muteLockSrcRef.current = null;
                   } else {
-                    videoRef.current.muted = false;
+                    videoRef.current.muted = !(business?.default_sound_on ?? true);
                     keepMutedRef.current = false;
                     muteLockSrcRef.current = null;
                   }
