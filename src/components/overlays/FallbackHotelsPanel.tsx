@@ -72,7 +72,7 @@ const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel }: 
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
                     {currentHotel.manualPriceRange && (
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-white/30 text-white/70">
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-border text-muted-foreground">
                         {currentHotel.manualPriceRange}
                       </Badge>
                     )}
