@@ -150,7 +150,7 @@ const PricingManagement = () => {
       .from("businesses")
       .select("id, name, city, website, manual_price_range, min_price")
       .eq("is_active", true)
-      .or("main_category.ilike.%hôtel%,main_category.ilike.%hotel%,main_category.ilike.%hébergement%,main_category.ilike.%riad%");
+      .or("main_category.ilike.%hôtel%,main_category.ilike.%hotel%,main_category.ilike.%hébergement%,main_category.ilike.%riad%,main_category.eq.Hôtellerie");
 
     const { data: businesses } = allMappedIds.length > 0
       ? await supabase
