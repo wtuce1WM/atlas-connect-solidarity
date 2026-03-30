@@ -105,6 +105,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [fallbackPanelData, setFallbackPanelData] = useState<FallbackPanelData | null>(null);
   const [selectedFallbackHotelId, setSelectedFallbackHotelId] = useState<string | null>(null);
   const [serpApiOverlayCtx, setSerpApiOverlayCtx] = useState<{ serpHotelName: string; serpCity: string; businessName: string; reserveNowUrl?: string | null } | null>(null);
+  const serpApiOverlayCtxRef = useRef<typeof serpApiOverlayCtx>(null);
+  const serpApiReturnBusinessIdRef = useRef<string | null>(null);
   const [fallbackHiddenOnMobile, setFallbackHiddenOnMobile] = useState(false);
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
   const fallbackDataRef = useRef<FallbackPanelData | null>(null);
@@ -484,6 +486,21 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       {/* Portal media button into left of fixed bar */}
       {toolbarLeftPortal && createPortal(
         <div className="flex items-center gap-2">
+          {serpApiOverlayCtxRef.current && activeBusinessId !== propBusinessId && (
+            <button
+              onClick={() => {
+                const ctx = serpApiOverlayCtxRef.current;
+                serpApiOverlayCtxRef.current = null;
+                serpApiReturnBusinessIdRef.current = null;
+                setActiveBusinessId(propBusinessId);
+                setTimeout(() => setSerpApiOverlayCtx(ctx), 50);
+              }}
+              className="h-9 w-9 flex items-center justify-center rounded-full bg-gold text-black shadow-md hover:bg-gold/90 transition-colors"
+              title="Retour aux résultats SerpAPI"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+          )}
           {images.length >= 5 && (
             <button
               onClick={() => setShowMosaic((p) => !p)}
@@ -1452,7 +1469,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           businessName={serpApiOverlayCtx.businessName}
           reserveNowUrl={serpApiOverlayCtx.reserveNowUrl}
           onClose={() => setSerpApiOverlayCtx(null)}
-          onSelectBusiness={(id) => { setSerpApiOverlayCtx(null); setActiveBusinessId(id); }}
+          onSelectBusiness={(id) => {
+            serpApiOverlayCtxRef.current = serpApiOverlayCtx;
+            serpApiReturnBusinessIdRef.current = propBusinessId;
+            setSerpApiOverlayCtx(null);
+            setActiveBusinessId(id);
+          }}
         />
       )}
 
