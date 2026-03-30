@@ -98,7 +98,7 @@ const AppContent = () => {
               <Route path="/staff/backoffice" element={<StaffHub />} />
               <Route path="/staff/catalogue" element={<StaffBackoffice />} />
               <Route path="/staff/crm" element={<StaffCRM />} />
-              <Route path="/staff/master" element={<StaffMaster />} />
+              <Route path="/staff/master" element={<StaffRouteGuard><StaffMaster /></StaffRouteGuard>} />
               <Route path="/staff/b2b" element={<StaffB2B />} />
               <Route path="/affiliates" element={<AffiliatesLogin />} />
               <Route path="/affiliates/reset-password" element={<AffiliatesResetPassword />} />
