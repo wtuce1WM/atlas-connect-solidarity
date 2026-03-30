@@ -108,6 +108,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const serpApiOverlayCtxRef = useRef<typeof serpApiOverlayCtx>(null);
   const serpApiReturnBusinessIdRef = useRef<string | null>(null);
   const [fallbackHiddenOnMobile, setFallbackHiddenOnMobile] = useState(false);
+  const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
   const fallbackDataRef = useRef<FallbackPanelData | null>(null);
   useEffect(() => { fallbackDataRef.current = fallbackPanelData; }, [fallbackPanelData]);
