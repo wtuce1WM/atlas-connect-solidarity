@@ -21,6 +21,13 @@ interface SerpApiHotel {
   images: string[];
 }
 
+interface GammeInfo {
+  id: string;
+  name_fr: string;
+  color_hex: string | null;
+  text_color_hex: string | null;
+}
+
 interface MappedHotelResult {
   id: string;
   businessId: string;
@@ -34,6 +41,7 @@ interface MappedHotelResult {
   tripadvisorReviewCount: number | null;
   reserveNowUrl: string | null;
   manualPriceRange: string | null;
+  gamme: GammeInfo | null;
   liteApiPrice: { amount: number; currency: string } | null;
   serpData?: SerpApiHotel | null;
   isCurrentHotel: boolean;
@@ -130,12 +138,18 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
 
       // 3. Get business info for all mapped hotels
       const bizIds = mappings.map(m => m.business_id).filter(Boolean);
-      const { data: businesses } = await supabase
-        .from("businesses")
-        .select("id, name, slug, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range")
-        .in("id", bizIds);
+      const [{ data: businesses }, { data: gammes }] = await Promise.all([
+        supabase
+          .from("businesses")
+          .select("id, name, slug, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, gamme_id")
+          .in("id", bizIds),
+        supabase
+          .from("gammes")
+          .select("id, name_fr, color_hex, text_color_hex"),
+      ]);
 
       const bizMap = new Map((businesses || []).map(b => [b.id, b]));
+      const gammeMap = new Map((gammes || []).map(g => [g.id, g]));
 
       // 4. Fetch LiteAPI cached prices
       const { data: liteApiPrices } = await supabase
@@ -177,6 +191,7 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
             tripadvisorReviewCount: biz.tripadvisor_review_count,
             reserveNowUrl: isCurrentHotel ? (reserveNowUrl || biz.reserve_now_url) : biz.reserve_now_url,
             manualPriceRange: biz.manual_price_range,
+            gamme: biz.gamme_id ? gammeMap.get(biz.gamme_id) || null : null,
             liteApiPrice: liteApiPriceMap.get(m.business_id) || null,
             serpData: serpMatch || null,
             isCurrentHotel,
@@ -314,21 +329,36 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
           </div>
         )}
 
-        {hasSearched && !isLoading && results.length > 0 && (
-          <div className="space-y-3">
-            <p className="text-xs text-muted-foreground">
-              {results.length} {isEn ? "mapped hotel(s)" : "hôtel(s) référencé(s)"} — {serpCity}
-            </p>
-            {results.map(hotel => (
-              <MappedHotelCard
-                key={hotel.id}
-                hotel={hotel}
-                isEn={isEn}
-                onSelect={onSelectBusiness}
-              />
-            ))}
-          </div>
-        )}
+        {hasSearched && !isLoading && results.length > 0 && (() => {
+          const currentHotel = results.find(h => h.isCurrentHotel);
+          const otherHotels = results.filter(h => !h.isCurrentHotel);
+          return (
+            <div className="space-y-4">
+              <p className="text-xs text-muted-foreground">
+                {results.length} {isEn ? "mapped hotel(s)" : "hôtel(s) référencé(s)"} — {serpCity}
+              </p>
+              {currentHotel && (
+                <MappedHotelCard
+                  hotel={currentHotel}
+                  isEn={isEn}
+                  onSelect={onSelectBusiness}
+                />
+              )}
+              {otherHotels.length > 0 && (
+                <div className="grid grid-cols-2 gap-3">
+                  {otherHotels.map(hotel => (
+                    <HotelThumbnailCard
+                      key={hotel.id}
+                      hotel={hotel}
+                      isEn={isEn}
+                      onSelect={onSelectBusiness}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {hasSearched && !isLoading && results.length === 0 && !error && (
           <div className="text-center py-16 text-muted-foreground text-sm">
@@ -418,6 +448,95 @@ function MappedHotelCard({ hotel, isEn, onSelect }: {
             >
               {isEn ? "View" : "Voir"} <ExternalLink className="h-3 w-3" />
             </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HotelThumbnailCard({ hotel, isEn, onSelect }: {
+  hotel: MappedHotelResult;
+  isEn: boolean;
+  onSelect?: (businessId: string) => void;
+}) {
+  const hasPrice = hotel.serpData?.ratePerNight;
+
+  return (
+    <div
+      className="group rounded-xl border border-border bg-card overflow-hidden cursor-pointer hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10"
+      onClick={() => onSelect?.(hotel.businessId)}
+    >
+      {/* Image - aspect-video like BusinessCard */}
+      <div className="aspect-video overflow-hidden relative bg-muted">
+        <img
+          src={hotel.serpData?.thumbnail || hotel.businessImage || "/placeholder.svg"}
+          alt={hotel.businessName}
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
+          onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
+        />
+        {/* Gamme badge - top center */}
+        {hotel.gamme && (
+          <div className="absolute top-1.5 left-1/2 -translate-x-1/2 z-10">
+            <Badge
+              className="text-[10px] border border-black whitespace-nowrap px-1.5 py-0"
+              style={{ backgroundColor: hotel.gamme.color_hex || '#666666', color: hotel.gamme.text_color_hex || '#000000' }}
+            >
+              {hotel.gamme.name_fr}
+            </Badge>
+          </div>
+        )}
+        {/* Price overlay bottom */}
+        {(hasPrice || hotel.liteApiPrice) && (
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-2 py-1.5">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {hasPrice && (
+                <span className="text-[10px] font-bold text-gold">
+                  {hotel.serpData!.ratePerNight!.amount}/{isEn ? "n" : "n"}
+                </span>
+              )}
+              {hotel.liteApiPrice && (
+                <span className="text-[10px] font-bold text-white">
+                  LiteAPI: {hotel.liteApiPrice.amount} {hotel.liteApiPrice.currency}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="p-2.5 space-y-1">
+        <p className="font-semibold text-xs text-foreground line-clamp-1">{hotel.businessName}</p>
+        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+          {hotel.googleRating && (
+            <span className="flex items-center gap-0.5">
+              <Star className="h-2.5 w-2.5 text-gold fill-gold" />
+              {hotel.googleRating}
+            </span>
+          )}
+          {hotel.serpData?.hotelClass && (
+            <span>{"★".repeat(hotel.serpData.hotelClass as number)}</span>
+          )}
+          {hotel.manualPriceRange && (
+            <span className="text-muted-foreground">{hotel.manualPriceRange}</span>
+          )}
+        </div>
+        {hotel.serpData?.dealDescription && (
+          <p className="text-[9px] text-green-600 font-medium line-clamp-1">{hotel.serpData.dealDescription}</p>
+        )}
+        <div className="flex items-center gap-1.5 mt-1">
+          {hotel.reserveNowUrl && (
+            <a
+              href={hotel.reserveNowUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="text-[10px] font-semibold text-gold hover:underline flex items-center gap-0.5"
+            >
+              {isEn ? "Book" : "Réserver"} <ExternalLink className="h-2.5 w-2.5" />
+            </a>
           )}
         </div>
       </div>
