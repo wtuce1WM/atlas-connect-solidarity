@@ -117,7 +117,7 @@ const ContactFlipCard = ({
                   href={fullWebUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
+                  className="flex items-center gap-2 text-white/80 hover:text-white transition-colors normal-case tracking-normal font-['Roboto',sans-serif]"
                 >
                   <Globe className="h-4 w-4 shrink-0 text-white/60" />
                   {language === "en" ? "Website" : "Site web"}
@@ -126,7 +126,7 @@ const ContactFlipCard = ({
               ) : (
                 <button
                   onClick={() => onOpenWebsite?.(fullWebUrl)}
-                  className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
+                  className="flex items-center gap-2 text-white/80 hover:text-white transition-colors normal-case tracking-normal font-['Roboto',sans-serif]"
                 >
                   <Globe className="h-4 w-4 shrink-0 text-white/60" />
                   {language === "en" ? "Website" : "Site web"}
@@ -268,7 +268,7 @@ function HotelAvailabilityWidget({
       <button
         onClick={() => onCheckAvailability?.(checkIn, checkOut, adults)}
         disabled={isLoading}
-        className="w-full py-2.5 rounded-full bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 normal-case tracking-normal"
+        className="w-full py-2.5 rounded-full bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 normal-case tracking-normal font-['Roboto',sans-serif]"
       >
         {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
         {isEn ? "Check availability" : "Vérifier la disponibilité"}
