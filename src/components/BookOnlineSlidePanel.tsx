@@ -995,28 +995,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   hasOpeningHours={!!hasOpeningHours}
                   tallHeight={noBottomCarousel}
                   animationDelay={woDescription ? "120ms" : "0ms"}
-                  hasLiteApiMapping={!!liteApiHotelId}
-                  hasSerpApiMapping={!!serpApiMapping}
-                  onCheckAvailabilityLiteApi={() => {
-                    if (liteApiHotelId) {
-                      setAvailabilityOverlayCtx({
-                        liteApiHotelId,
-                        businessName: business.name,
-                        businessCity: business.city || undefined,
-                        backgroundImage: business.images?.[0] || undefined,
-                      });
-                    }
-                  }}
-                  onCheckAvailabilitySerpApi={() => {
-                    if (serpApiMapping) {
-                      setSerpApiOverlayCtx({
-                        serpHotelName: serpApiMapping.serpHotelName,
-                        serpCity: serpApiMapping.city,
-                        businessName: business.name,
-                        reserveNowUrl: business.reserve_now_url,
-                      });
-                    }
-                  }}
+                  hasHotelMapping={!!serpApiMapping || !!liteApiHotelId}
+                  isSearchingAvailability={hotelSearchLoading}
+                  onCheckAvailability={handleCheckAvailability}
                   onOpenWebsite={(url) => {
                     setBookingOverlayUrl(url);
                     setBookingOverlayTitle(language === "en" ? "Website" : "Site web");
