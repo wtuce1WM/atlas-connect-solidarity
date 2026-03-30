@@ -236,24 +236,28 @@ const PricingManagement = () => {
   };
 
   const handleMinPriceSave = async (businessId: string, value: number | null) => {
-    const { error, data } = await supabase
-      .from("businesses")
-      .update({ min_price: value })
-      .eq("id", businessId)
-      .select("id, min_price");
+    const { data, error } = await supabase.functions.invoke("update-business-min-price", {
+      body: {
+        businessId,
+        minPrice: value,
+      },
+    });
 
     if (error) {
       toast.error("Erreur: " + error.message);
       return;
     }
-    if (!data || data.length === 0) {
-      toast.error("Sauvegarde refusée (vérifiez que vous êtes connecté en tant que staff)");
+
+    if (!data?.success) {
+      toast.error(data?.error || "Sauvegarde refusée");
       return;
     }
+
+    const savedMinPrice = data.min_price ?? value;
     toast.success("Prix minimum mis à jour");
 
     const updater = (rows: PriceRow[]) =>
-      rows.map(r => r.id === businessId ? { ...r, min_price: value } : r);
+      rows.map(r => r.id === businessId ? { ...r, min_price: savedMinPrice } : r);
     setHotelPrices(updater);
     setNoPriceHotels(updater);
     setUnmappedHotels(updater);
