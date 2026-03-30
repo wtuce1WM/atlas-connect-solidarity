@@ -137,8 +137,8 @@ const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel }: 
                   {img ? (
                     <img src={img} alt={hotel.name} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full bg-black/60 flex items-center justify-center">
-                      <span className="text-white/40 text-xs">No image</span>
+                    <div className="w-full h-full bg-muted flex items-center justify-center">
+                      <span className="text-muted-foreground text-xs">No image</span>
                     </div>
                   )}
                   {/* Gamme badge - top center */}
