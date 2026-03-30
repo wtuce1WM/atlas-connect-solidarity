@@ -814,62 +814,87 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
-        {/* Top bar: flags, masquer, rating */}
-        {!cardsHidden && (
-          <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex items-center justify-center pb-3 pointer-events-auto animate-[slide-in-top_0.35s_ease-out_both]">
-            {languages.length > 0 && (
-               <div className={`absolute left-0 z-50 flex items-center gap-0.5 md:gap-1.5 bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2 md:px-2.5 md:rounded-full md:py-1 md:flex-wrap md:justify-center md:overflow-visible ${languages.length > 5 ? 'max-w-[7rem] overflow-x-auto' : ''} ${languages.length > 4 ? 'md:max-w-none md:overflow-visible' : ''}`} style={languages.length > 5 ? { scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties : undefined}>
-                {languages.map((lang, i) => {
-                  const langAlt = getLangAlt(lang);
-                  return (
-                    <span
-                      key={i}
-                      className="group relative inline-flex items-center justify-center text-base md:text-lg leading-none cursor-help shrink-0"
-                      title={langAlt}
-                      aria-label={langAlt}
-                      tabIndex={0}
-                    >
-                      {getLangFlag(lang)}
+        {/* Top bar: toggle, flags, rating */}
+        <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex flex-col items-center pb-3 pointer-events-auto animate-[slide-in-top_0.35s_ease-out_both]">
+          {cardsHidden ? (
+            <div className="flex items-center gap-3">
+              {totalMedia > 1 && (
+                <button onClick={() => goMedia(-1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+              )}
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm hover:bg-background transition-colors"
+                title="Afficher les cartes"
+                aria-label="Afficher les cartes"
+                onClick={showCards}
+              >
+                <ChevronUp className="h-3.5 w-3.5" />
+                <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Afficher</span>
+                <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
+              </button>
+              {totalMedia > 1 && (
+                <button onClick={() => goMedia(1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="relative w-full flex items-center justify-center">
+              {languages.length > 0 && (
+                <div className={`absolute left-0 z-50 flex items-center gap-0.5 md:gap-1.5 bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2 md:px-2.5 md:rounded-full md:py-1 md:flex-wrap md:justify-center md:overflow-visible ${languages.length > 5 ? 'max-w-[7rem] overflow-x-auto' : ''} ${languages.length > 4 ? 'md:max-w-none md:overflow-visible' : ''}`} style={languages.length > 5 ? { scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties : undefined}>
+                  {languages.map((lang, i) => {
+                    const langAlt = getLangAlt(lang);
+                    return (
                       <span
-                        role="tooltip"
-                        className="pointer-events-none absolute left-0 top-full z-50 mt-2 hidden whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[10px] text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 md:block md:text-xs"
+                        key={i}
+                        className="group relative inline-flex items-center justify-center text-base md:text-lg leading-none cursor-help shrink-0"
+                        title={langAlt}
+                        aria-label={langAlt}
+                        tabIndex={0}
                       >
-                        {langAlt}
+                        {getLangFlag(lang)}
+                        <span
+                          role="tooltip"
+                          className="pointer-events-none absolute left-0 top-full z-50 mt-2 hidden whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[10px] text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 md:block md:text-xs"
+                        >
+                          {langAlt}
+                        </span>
                       </span>
-                    </span>
-                  );
-                })}
-              </div>
-            )}
-
-            <button
-              type="button"
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:bg-background transition-colors"
-              title="Masquer les cartes"
-              aria-label="Masquer les cartes"
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  hideCards();
-                }
-              }}
-              onMouseDown={onMouseDownDrag}
-            >
-              <ChevronDown className="h-3.5 w-3.5" />
-              <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Masquer</span>
-              <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
-            </button>
-            {avgOn20 !== null && avgOn20 > 0 && (
-              <div className="md:hidden absolute right-0 z-50 flex flex-col items-center bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2.5 animate-slide-in-right">
-                <div className="flex items-center gap-1">
-                  <Star className="h-3.5 w-3.5 text-gold fill-gold" />
-                  <span className="text-base font-bold text-white">{avgOn20}</span>
-                  <span className="text-[10px] text-white/60">/20</span>
+                    );
+                  })}
                 </div>
-              </div>
-            )}
-          </div>
-        )}
+              )}
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:bg-background transition-colors"
+                title="Masquer les cartes"
+                aria-label="Masquer les cartes"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    hideCards();
+                  }
+                }}
+                onMouseDown={onMouseDownDrag}
+              >
+                <ChevronDown className="h-3.5 w-3.5" />
+                <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Masquer</span>
+                <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
+              </button>
+              {avgOn20 !== null && avgOn20 > 0 && (
+                <div className="md:hidden absolute right-0 z-50 flex flex-col items-center bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2.5 animate-slide-in-right">
+                  <div className="flex items-center gap-1">
+                    <Star className="h-3.5 w-3.5 text-gold fill-gold" />
+                    <span className="text-base font-bold text-white">{avgOn20}</span>
+                    <span className="text-[10px] text-white/60">/20</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Block 1: Logo + name */}
         <div key={businessId} className="w-full shrink-0 rounded-2xl bg-black/40 backdrop-blur-sm px-4 md:px-6 text-white overflow-hidden relative h-[4.5rem] md:h-[5.5rem] pointer-events-auto mt-3 md:mt-0 animate-slide-in-right">
