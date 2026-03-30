@@ -19,7 +19,7 @@ const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel }: 
   return createPortal(
     <div className="fixed inset-0 z-[220] lg:z-[200] flex flex-col lg:justify-start lg:right-auto lg:w-1/2 lg:top-[53px]">
       <div className="hidden lg:block absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-black/90 backdrop-blur-md flex flex-col overflow-hidden w-full h-full lg:rounded-none animate-fade-in lg:animate-slide-in-left">
+      <div className="relative bg-background flex flex-col overflow-hidden w-full h-full lg:rounded-none animate-fade-in lg:animate-slide-in-left">
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
           <div>
             <p className="text-sm font-bold text-white">
