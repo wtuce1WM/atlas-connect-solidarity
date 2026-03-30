@@ -21,6 +21,35 @@ const VideoDocumentOverlay = ({
   onAnimationEnd,
 }: VideoDocumentOverlayProps) => {
   const [descExpanded, setDescExpanded] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const postCmd = useCallback((func: string) => {
+    iframeRef.current?.contentWindow?.postMessage(
+      JSON.stringify({ event: "command", func }),
+      "*"
+    );
+  }, []);
+
+  const togglePlay = useCallback(() => {
+    if (videoRef.current) {
+      if (isPlaying) videoRef.current.pause(); else videoRef.current.play();
+    } else {
+      postCmd(isPlaying ? "pauseVideo" : "playVideo");
+    }
+    setIsPlaying(p => !p);
+  }, [isPlaying, postCmd]);
+
+  const toggleMute = useCallback(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+    } else {
+      postCmd(isMuted ? "unMute" : "mute");
+    }
+    setIsMuted(m => !m);
+  }, [isMuted, postCmd]);
 
   const vidUrl = activeVideo.url;
   const currentIdx = videoDocs.findIndex(v => v.url === vidUrl);
