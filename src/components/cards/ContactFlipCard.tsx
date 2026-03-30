@@ -208,11 +208,10 @@ function HotelAvailabilityWidget({
     <div className="mt-3 pt-3 border-t border-white/20 space-y-2">
       {/* Date fields + adults on same row */}
       <div className="grid grid-cols-[1fr_1fr_auto] gap-px rounded-xl overflow-hidden border border-white/20">
-        <div className="bg-white/10 p-2 relative">
-          <label className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block">
+        <div className="bg-white/10 p-2">
+          <label className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block mb-0.5">
             {isEn ? "CHECK-IN" : "ARRIVÉE"}
           </label>
-          <span className="text-white font-bold text-sm">{formatDateShort(checkIn)}</span>
           <input
             type="date"
             value={checkIn}
@@ -225,33 +224,32 @@ function HotelAvailabilityWidget({
               }
             }}
             min={fmt(tomorrow)}
-            className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+            className="w-full bg-transparent text-white font-bold text-sm border-0 outline-none cursor-pointer p-0 [color-scheme:dark]"
           />
         </div>
-        <div className="bg-white/10 p-2 border-l border-white/20 relative">
-          <label className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block">
+        <div className="bg-white/10 p-2 border-l border-white/20">
+          <label className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block mb-0.5">
             {isEn ? "CHECK-OUT" : "DÉPART"}
           </label>
-          <span className="text-white font-bold text-sm">{formatDateShort(checkOut)}</span>
           <input
             type="date"
             value={checkOut}
             onChange={e => setCheckOut(e.target.value)}
             min={checkIn}
-            className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+            className="w-full bg-transparent text-white font-bold text-sm border-0 outline-none cursor-pointer p-0 [color-scheme:dark]"
           />
         </div>
-        <div className="bg-white/10 p-2 border-l border-white/20 relative flex flex-col items-center justify-center">
-          <label className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block">
+        <div className="bg-white/10 p-2 border-l border-white/20 flex flex-col items-center justify-center">
+          <label className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block mb-0.5">
             {isEn ? "GUESTS" : "ADULTES"}
           </label>
           <select
             value={adults}
             onChange={e => setAdults(Number(e.target.value))}
-            className="bg-transparent text-white font-bold text-sm appearance-none cursor-pointer text-center outline-none w-8"
+            className="bg-transparent text-white font-bold text-sm cursor-pointer text-center outline-none w-8 [color-scheme:dark]"
           >
             {[1, 2, 3, 4].map(n => (
-              <option key={n} value={n} className="text-black">{n}</option>
+              <option key={n} value={n} className="text-black bg-white">{n}</option>
             ))}
           </select>
         </div>
