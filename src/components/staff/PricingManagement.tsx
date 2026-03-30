@@ -446,6 +446,50 @@ const PricingManagement = () => {
               ))}
             </>
           )}
+
+          {/* Unmapped hotels */}
+          {unmappedHotels.length > 0 && (
+            <>
+              <div className="flex items-center gap-3 text-sm text-muted-foreground mt-8 pt-6 border-t">
+                <span className="font-medium text-foreground">{unmappedHotels.length} hôtels non mappés</span>
+                <span>— aucun lien API (LiteAPI / SerpAPI)</span>
+              </div>
+
+              {unmappedSortedCities.map((city) => (
+                <Card key={`unmapped-${city}`}>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base">{city} ({unmappedCitiesMap[city].length})</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Établissement</th>
+                            <th className="text-right py-2 px-4 font-medium text-muted-foreground">Prix minimum</th>
+                            <th className="text-center py-2 pl-4 font-medium text-muted-foreground">Gamme de prix</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y">
+                          {unmappedCitiesMap[city].map((row) => (
+                            <tr key={row.id} className="hover:bg-muted/50">
+                              <td className="py-2 pr-4 font-medium">{row.name}</td>
+                              <td className="py-2 px-4 text-right">
+                                <MinPriceCell row={row} onSave={handleMinPriceSave} />
+                              </td>
+                              <td className="py-2 pl-4 text-center">
+                                <PriceRangeSelect row={row} />
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </>
+          )}
         </div>
       </TabsContent>
 
