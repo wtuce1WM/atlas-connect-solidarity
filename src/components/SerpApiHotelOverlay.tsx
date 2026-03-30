@@ -33,6 +33,7 @@ interface FallbackSerpHotel {
   tripadvisorRating: number | null;
   tripadvisorReviewCount: number | null;
   reserveNowUrl: string | null;
+  manualPriceRange: string | null;
   // SerpAPI result data if found
   serpData?: SerpApiHotel | null;
 }
