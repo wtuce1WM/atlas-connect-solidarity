@@ -204,6 +204,8 @@ function HotelAvailabilityWidget({
     return `${months[d.getMonth()]} ${d.getDate()}`;
   };
 
+  const ciRef = useRef<HTMLInputElement>(null);
+  const coRef = useRef<HTMLInputElement>(null);
 
   return (
     <div className="mt-3 pt-3 border-t border-white/20 space-y-2">
