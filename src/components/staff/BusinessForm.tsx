@@ -1546,11 +1546,22 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
       // Save business documents (menus, flipbooks & external links)
       if (businessId) {
-        // Generate thumbnails for file-hosted videos that don't have one yet
+        // Generate thumbnails for videos that don't have one yet
         const isFileVideo = (url: string) => !url.match(/youtube\.com|youtu\.be|vimeo\.com/i) && url.includes("supabase.co/storage");
+        const getYouTubeId = (url: string): string | null => {
+          const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+          return m ? m[1] : null;
+        };
         const videoDocsWithThumbs = await Promise.all(
           videoDocs.filter(d => d.url.trim()).map(async (d) => {
-            if (d.thumbnail_url || !isFileVideo(d.url)) return d;
+            if (d.thumbnail_url) return d;
+            // YouTube thumbnail
+            const ytId = getYouTubeId(d.url);
+            if (ytId) {
+              return { ...d, thumbnail_url: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` };
+            }
+            // File-hosted video thumbnail
+            if (!isFileVideo(d.url)) return d;
             try {
               const blob = await generateVideoThumbnail(d.url);
               if (!blob) return d;
@@ -3376,7 +3387,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 if (error) { toast({ variant: "destructive", title: "Erreur", description: `${file.name}: ${error.message}` }); continue; }
                 const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
                 if (urlData?.publicUrl) {
-                   setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: file.name.replace(/\.[^.]+$/, ""), poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null }]);
+                   setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null }]);
                 }
               }
               toast({ title: `${files.length} vidéo(s) uploadée(s) ✓` });
@@ -3396,7 +3407,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   if (error) { toast({ variant: "destructive", title: "Erreur", description: `${file.name}: ${error.message}` }); continue; }
                   const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
                   if (urlData?.publicUrl) {
-                    setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: file.name.replace(/\.[^.]+$/, ""), poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null }]);
+                    setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null }]);
                   }
                 }
                 toast({ title: `${files.length} vidéo(s) uploadée(s) ✓` });
