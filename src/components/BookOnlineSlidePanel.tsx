@@ -376,7 +376,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [totalMedia]);
 
-  const videoInfo = currentMedia?.kind === "video" ? getVideoEmbed(currentMedia.url, window.location.origin, { background: true }) : null;
+  const videoInfo = currentMedia?.kind === "video" ? getVideoEmbed(currentMedia.url, window.location.origin, { background: true, defaultSoundOn: business?.default_sound_on ?? true }) : null;
 
   const [isFileVideoVertical, setIsFileVideoVertical] = useState(false);
   const isVerticalVideo = videoInfo ? (videoInfo.type === "file" ? isFileVideoVertical : videoInfo.isVertical) : false;
@@ -545,7 +545,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     keepMutedRef.current = false;
                     muteLockSrcRef.current = null;
                   } else {
-                    videoRef.current.muted = false;
+                    videoRef.current.muted = !(business?.default_sound_on ?? true);
                     keepMutedRef.current = false;
                     muteLockSrcRef.current = null;
                   }

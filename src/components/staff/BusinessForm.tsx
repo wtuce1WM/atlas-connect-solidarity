@@ -815,6 +815,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     reserve_now_url: (business as any)?.reserve_now_url || "",
     show_opening_hours: (business as any)?.show_opening_hours ?? false,
     show_videos: (business as any)?.show_videos ?? false,
+    default_sound_on: (business as any)?.default_sound_on ?? true,
     is_open_24h: (business as any)?.is_open_24h ?? false,
     vacation_dates: ((business as any)?.vacation_dates || []) as VacationPeriod[],
     hotels_com_url: (business as any)?.hotels_com_url || "",
@@ -1431,6 +1432,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       reserve_now_url: formData.reserve_now_url || null,
       show_opening_hours: formData.show_opening_hours,
       show_videos: formData.show_videos,
+      default_sound_on: formData.default_sound_on,
       is_open_24h: formData.is_open_24h,
       vacation_dates: formData.vacation_dates.length > 0 ? JSON.parse(JSON.stringify(formData.vacation_dates)) : [],
       hotels_com_url: formData.hotels_com_url || null,
@@ -3343,7 +3345,11 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Label className="text-base font-semibold">🎬 Vidéos</Label>
               <div className="flex items-center gap-2">
                 <Switch checked={formData.show_videos} onCheckedChange={(checked) => handleChange("show_videos", checked)} />
-                <span className="text-xs text-muted-foreground">{formData.show_videos ? "Activé" : "Désactivé"} — non utilisé sur le frontend actuellement</span>
+                <span className="text-xs text-muted-foreground">{formData.show_videos ? "Activé" : "Désactivé"} — Active le Carrousel vidéo</span>
+              </div>
+              <div className="flex items-center gap-2 ml-4">
+                <Switch checked={formData.default_sound_on} onCheckedChange={(checked) => handleChange("default_sound_on", checked)} />
+                <span className="text-xs text-muted-foreground">🔊 Son {formData.default_sound_on ? "activé" : "désactivé"} par défaut</span>
               </div>
             </div>
             <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => [...prev, { url: "", name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null }])}>

@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN default_sound_on boolean NOT NULL DEFAULT true;
