@@ -176,6 +176,32 @@ const VideoDocumentOverlay = ({
         )}
       </div>
 
+      {/* Custom Play/Pause + Mute controls */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-6 md:gap-10 z-20">
+        <button
+          onClick={togglePlay}
+          className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center hover:bg-black/80 transition-colors"
+          aria-label={isPlaying ? "Pause" : "Lecture"}
+        >
+          {isPlaying ? (
+            <Pause className="h-5 w-5 text-white fill-white" />
+          ) : (
+            <Play className="h-5 w-5 text-white fill-white ml-0.5" />
+          )}
+        </button>
+        <button
+          onClick={toggleMute}
+          className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center hover:bg-black/80 transition-colors"
+          aria-label={isMuted ? "Activer le son" : "Couper le son"}
+        >
+          {isMuted ? (
+            <VolumeX className="h-5 w-5 text-white" />
+          ) : (
+            <Volume2 className="h-5 w-5 text-white" />
+          )}
+        </button>
+      </div>
+
       {/* Description card */}
       {(activeVideo.description || activeVideo.name) && (
         <div className="absolute left-3 right-3 md:left-[15%] md:right-[15%] top-20 md:top-14 bottom-5 md:bottom-auto z-10 pointer-events-auto overflow-hidden flex flex-col">
