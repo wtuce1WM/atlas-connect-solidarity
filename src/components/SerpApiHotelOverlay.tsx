@@ -117,7 +117,7 @@ const SerpApiHotelOverlay = ({ serpHotelName, serpCity, businessName, reserveNow
       const bizIds = otherMappings.map(m => m.business_id).filter(Boolean);
       const { data: businesses } = await supabase
         .from("businesses")
-        .select("id, name, slug, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url")
+        .select("id, name, slug, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range")
         .in("id", bizIds);
 
       const bizMap = new Map((businesses || []).map(b => [b.id, b]));
