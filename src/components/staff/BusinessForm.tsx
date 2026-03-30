@@ -368,14 +368,6 @@ async function generateVideoThumbnail(videoUrl: string): Promise<Blob | null> {
   if (blob) return blob;
   console.log("[thumb] CORS attempt failed, retrying without crossOrigin…");
   return tryCapture(false);
-
-    const handleLoaded = () => { video.currentTime = 3; };
-    const handleError = () => { clearTimeout(timeout); video.remove(); resolve(null); };
-
-    video.addEventListener("loadeddata", handleLoaded);
-    video.addEventListener("seeked", handleSeeked);
-    video.addEventListener("error", handleError);
-  });
 }
 
 interface SortableVideoCardProps {
