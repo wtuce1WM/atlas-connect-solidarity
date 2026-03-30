@@ -200,9 +200,15 @@ const SerpApiHotelOverlay = ({ serpHotelName, serpCity, businessName, reserveNow
       setResults(hotels);
       setHasSearched(true);
 
-      // Find the matched hotel
-      const normalizedTarget = serpHotelName.toLowerCase().trim();
-      const match = hotels.find(h => h.name.toLowerCase().trim() === normalizedTarget);
+      // Find the matched hotel (fuzzy: normalize punctuation and compare)
+      const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9\u00C0-\u024F]/gi, '').trim();
+      const normalizedTarget = normalize(serpHotelName);
+      const match = hotels.find(h => {
+        const normalizedName = normalize(h.name);
+        return normalizedName === normalizedTarget
+          || normalizedName.includes(normalizedTarget)
+          || normalizedTarget.includes(normalizedName);
+      });
       setMatchedHotel(match || null);
 
       if (!match) {
