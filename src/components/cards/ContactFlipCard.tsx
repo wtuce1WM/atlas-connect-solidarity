@@ -206,8 +206,8 @@ function HotelAvailabilityWidget({
 
   return (
     <div className="mt-3 pt-3 border-t border-white/20 space-y-2">
-      {/* Date fields */}
-      <div className="grid grid-cols-2 gap-px rounded-xl overflow-hidden border border-white/20">
+      {/* Date fields + adults on same row */}
+      <div className="grid grid-cols-[1fr_1fr_auto] gap-px rounded-xl overflow-hidden border border-white/20">
         <div className="bg-white/10 p-2 relative">
           <label className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block">
             {isEn ? "CHECK-IN" : "ARRIVÉE"}
@@ -241,21 +241,19 @@ function HotelAvailabilityWidget({
             className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
           />
         </div>
-      </div>
-      <div className="bg-white/10 rounded-xl px-3 py-1.5 border border-white/20">
-        <span className="text-white/80 text-xs">{adults} {isEn ? "adults" : "adultes"}</span>
-        <div className="flex gap-1 mt-1">
-          {[1, 2, 3, 4].map(n => (
-            <button
-              key={n}
-              onClick={() => setAdults(n)}
-              className={`flex-1 py-0.5 rounded text-xs font-bold transition-all ${
-                adults === n ? "bg-white text-black" : "text-white/60 hover:text-white"
-              }`}
-            >
-              {n}
-            </button>
-          ))}
+        <div className="bg-white/10 p-2 border-l border-white/20 relative flex flex-col items-center justify-center">
+          <label className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block">
+            {isEn ? "GUESTS" : "ADULTES"}
+          </label>
+          <select
+            value={adults}
+            onChange={e => setAdults(Number(e.target.value))}
+            className="bg-transparent text-white font-bold text-sm appearance-none cursor-pointer text-center outline-none w-8"
+          >
+            {[1, 2, 3, 4].map(n => (
+              <option key={n} value={n} className="text-black">{n}</option>
+            ))}
+          </select>
         </div>
       </div>
       <button
