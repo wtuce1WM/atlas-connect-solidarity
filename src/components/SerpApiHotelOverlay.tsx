@@ -138,10 +138,15 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
 
       // 3. Get business info for all mapped hotels
       const bizIds = mappings.map(m => m.business_id).filter(Boolean);
-      const { data: businesses } = await supabase
-        .from("businesses")
-        .select("id, name, slug, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range")
-        .in("id", bizIds);
+      const [{ data: businesses }, { data: gammes }] = await Promise.all([
+        supabase
+          .from("businesses")
+          .select("id, name, slug, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, gamme_id")
+          .in("id", bizIds),
+        supabase
+          .from("gammes")
+          .select("id, name_fr, color_hex, text_color_hex"),
+      ]);
 
       const bizMap = new Map((businesses || []).map(b => [b.id, b]));
 
