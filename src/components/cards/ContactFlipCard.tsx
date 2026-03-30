@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { MapPin, Phone, Mail, Globe, Clock, ExternalLink, Search, Loader2 } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { formatDayHours as formatDayHoursDisplay, isCurrentlyOpen } from "@/lib/formatOpeningHours";
@@ -204,25 +204,17 @@ function HotelAvailabilityWidget({
     return `${months[d.getMonth()]} ${d.getDate()}`;
   };
 
-  const checkInRef = useRef<HTMLInputElement>(null);
-  const checkOutRef = useRef<HTMLInputElement>(null);
 
   return (
     <div className="mt-3 pt-3 border-t border-white/20 space-y-2">
       {/* Date fields + adults on same row */}
       <div className="flex rounded-xl overflow-hidden border border-white/20">
         {/* Check-in */}
-        <button
-          type="button"
-          onClick={() => checkInRef.current?.showPicker?.()}
-          className="flex-1 bg-white/10 p-2 text-left"
-        >
+        <label className="flex-1 bg-white/10 p-2 cursor-pointer">
           <span className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block mb-0.5">
             {isEn ? "CHECK-IN" : "ARRIVÉE"}
           </span>
-          <span className="text-white font-bold text-sm">{formatDateShort(checkIn)}</span>
           <input
-            ref={checkInRef}
             type="date"
             value={checkIn}
             onChange={e => {
@@ -235,30 +227,22 @@ function HotelAvailabilityWidget({
               }
             }}
             min={fmt(tomorrow)}
-            className="sr-only"
-            tabIndex={-1}
+            className="w-full bg-transparent text-white font-bold text-sm border-0 outline-none cursor-pointer p-0 [color-scheme:dark]"
           />
-        </button>
+        </label>
         {/* Check-out */}
-        <button
-          type="button"
-          onClick={() => checkOutRef.current?.showPicker?.()}
-          className="flex-1 bg-white/10 p-2 text-left border-l border-white/20"
-        >
+        <label className="flex-1 bg-white/10 p-2 border-l border-white/20 cursor-pointer">
           <span className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block mb-0.5">
             {isEn ? "CHECK-OUT" : "DÉPART"}
           </span>
-          <span className="text-white font-bold text-sm">{formatDateShort(checkOut)}</span>
           <input
-            ref={checkOutRef}
             type="date"
             value={checkOut}
             onChange={e => { if (e.target.value) setCheckOut(e.target.value); }}
             min={checkIn}
-            className="sr-only"
-            tabIndex={-1}
+            className="w-full bg-transparent text-white font-bold text-sm border-0 outline-none cursor-pointer p-0 [color-scheme:dark]"
           />
-        </button>
+        </label>
         {/* Adults */}
         <div className="bg-white/10 px-3 py-2 border-l border-white/20 flex flex-col items-center justify-center shrink-0">
           <span className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block mb-0.5">
@@ -267,7 +251,7 @@ function HotelAvailabilityWidget({
           <select
             value={adults}
             onChange={e => setAdults(Number(e.target.value))}
-            className="bg-black/50 text-white font-bold text-sm cursor-pointer text-center outline-none rounded px-1 border border-white/20"
+            className="bg-black/50 text-white font-bold text-sm cursor-pointer text-center outline-none rounded px-1 border border-white/20 [color-scheme:dark]"
           >
             {[1, 2, 3, 4].map(n => (
               <option key={n} value={n}>{n}</option>
