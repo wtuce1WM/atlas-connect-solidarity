@@ -1193,6 +1193,43 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 </button>
               </div>
             )}
+            {/* YouTube iframe controls — below CTAs */}
+            {currentMedia?.kind === "video" && videoInfo?.type === "youtube" && (
+              <div className="flex items-center gap-6 md:gap-10 mt-2 md:mt-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (iframeRef.current?.contentWindow) {
+                      iframeRef.current.contentWindow.postMessage(
+                        JSON.stringify({ event: "command", func: ytBgPlaying ? "pauseVideo" : "playVideo" }),
+                        "*"
+                      );
+                      setYtBgPlaying(p => !p);
+                    }
+                  }}
+                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  aria-label={ytBgPlaying ? "Pause" : "Play"}
+                >
+                  {ytBgPlaying ? <Pause className="h-5 w-5 md:h-6 md:w-6" /> : <Play className="h-5 w-5 md:h-6 md:w-6" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (iframeRef.current?.contentWindow) {
+                      iframeRef.current.contentWindow.postMessage(
+                        JSON.stringify({ event: "command", func: ytBgMuted ? "unMute" : "mute" }),
+                        "*"
+                      );
+                      setYtBgMuted(m => !m);
+                    }
+                  }}
+                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  aria-label={ytBgMuted ? "Unmute" : "Mute"}
+                >
+                  {ytBgMuted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
+                </button>
+              </div>
+            )}
           </div>
       </div>
 
