@@ -877,6 +877,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     hideCards();
                   }
                 }}
+                onClick={hideCards}
                 onMouseDown={onMouseDownDrag}
               >
                 <ChevronDown className="h-3.5 w-3.5" />
