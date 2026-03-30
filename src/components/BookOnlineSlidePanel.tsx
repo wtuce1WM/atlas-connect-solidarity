@@ -104,6 +104,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   } | null>(null);
   const [fallbackPanelData, setFallbackPanelData] = useState<FallbackPanelData | null>(null);
   const [selectedFallbackHotelId, setSelectedFallbackHotelId] = useState<string | null>(null);
+  const [serpApiOverlayCtx, setSerpApiOverlayCtx] = useState<{ serpHotelName: string; serpCity: string; businessName: string; reserveNowUrl?: string | null } | null>(null);
   const [fallbackHiddenOnMobile, setFallbackHiddenOnMobile] = useState(false);
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
   const fallbackDataRef = useRef<FallbackPanelData | null>(null);
