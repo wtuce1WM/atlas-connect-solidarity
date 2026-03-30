@@ -804,9 +804,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   hasOpeningHours={!!hasOpeningHours}
                   tallHeight={noBottomCarousel}
                   animationDelay={woDescription ? "120ms" : "0ms"}
-                  isHotel={business.main_category === "Hôtellerie"}
                   hasLiteApiMapping={!!liteApiHotelId}
-                  onCheckAvailability={() => {
+                  hasSerpApiMapping={!!serpApiMapping}
+                  onCheckAvailabilityLiteApi={() => {
                     if (liteApiHotelId) {
                       setAvailabilityOverlayCtx({
                         liteApiHotelId,
@@ -814,6 +814,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                         businessCity: business.city || undefined,
                         backgroundImage: business.images?.[0] || undefined,
                       });
+                    }
+                  }}
+                  onCheckAvailabilitySerpApi={() => {
+                    // TODO: implement SerpAPI availability flow
+                    if (serpApiMapping) {
+                      console.log("SerpAPI check:", serpApiMapping);
                     }
                   }}
                   onOpenWebsite={(url) => {
