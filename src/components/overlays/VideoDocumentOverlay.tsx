@@ -17,13 +17,14 @@ const VideoDocumentOverlay = ({
   activeVideo,
   videoDocs,
   closing,
+  defaultSoundOn = true,
   onClose,
   onNavigate,
   onAnimationEnd,
 }: VideoDocumentOverlayProps) => {
   const [descExpanded, setDescExpanded] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(!defaultSoundOn);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
