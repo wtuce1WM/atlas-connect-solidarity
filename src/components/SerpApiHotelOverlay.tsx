@@ -208,9 +208,11 @@ const SerpApiHotelOverlay = ({ serpHotelName, serpCity, businessName, reserveNow
       const normalizedTarget = normalize(serpHotelName);
       const match = hotels.find(h => {
         const normalizedName = normalize(h.name);
-        return normalizedName === normalizedTarget
-          || normalizedName.includes(normalizedTarget)
-          || normalizedTarget.includes(normalizedName);
+        if (normalizedName === normalizedTarget) return true;
+        // Only use includes if the shorter string is long enough (>= 8 chars) to avoid false positives
+        const shorter = normalizedName.length < normalizedTarget.length ? normalizedName : normalizedTarget;
+        const longer = normalizedName.length < normalizedTarget.length ? normalizedTarget : normalizedName;
+        return shorter.length >= 8 && longer.includes(shorter);
       });
       setMatchedHotel(match || null);
 
@@ -226,13 +228,7 @@ const SerpApiHotelOverlay = ({ serpHotelName, serpCity, businessName, reserveNow
     }
   }, [serpCity, checkIn, checkOut, adults, currency, sort, rating, minPrice, maxPrice, language, serpHotelName, loadFallbackHotels]);
 
-  // Auto-search when dates change
-  useEffect(() => {
-    if (checkIn && checkOut && checkIn < checkOut) {
-      handleSearch();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checkIn, checkOut]);
+  // No auto-search — user clicks CTA button to search
 
   return (
     <div className="absolute -top-[3.25rem] left-0 right-0 bottom-0 z-[60] bg-background flex flex-col animate-slide-down-from-top">
