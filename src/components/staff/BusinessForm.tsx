@@ -279,72 +279,95 @@ type VideoDocEntry = { id?: string; url: string; name: string; poi_id: string | 
 
 /** Generate a JPEG thumbnail from a video URL. Returns a Blob or null. */
 async function generateVideoThumbnail(videoUrl: string): Promise<Blob | null> {
-  return new Promise((resolve) => {
-    const video = document.createElement("video");
-    video.crossOrigin = "anonymous";
-    video.muted = true;
-    video.preload = "auto";
-    video.playsInline = true;
-    video.src = videoUrl;
+  // Try first with crossOrigin (allows canvas read), fallback without it
+  const tryCapture = (useCors: boolean): Promise<Blob | null> =>
+    new Promise((resolve) => {
+      const video = document.createElement("video");
+      if (useCors) video.crossOrigin = "anonymous";
+      video.muted = true;
+      video.preload = "auto";
+      video.playsInline = true;
+      video.src = videoUrl;
 
-    const timeout = setTimeout(() => { video.remove(); resolve(null); }, 15000);
+      const timeout = setTimeout(() => {
+        console.warn("[thumb] timeout loading video", videoUrl);
+        video.remove();
+        resolve(null);
+      }, 12000);
 
-    const capture = () => {
-      try {
-        const THUMB_W = 1280, THUMB_H = 720;
-        const natW = video.videoWidth || THUMB_W;
-        const natH = video.videoHeight || THUMB_H;
-        const scale = Math.min(THUMB_W / natW, THUMB_H / natH, 1);
-        const canvas = document.createElement("canvas");
-        canvas.width = Math.round(natW * scale);
-        canvas.height = Math.round(natH * scale);
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return null;
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        // Check brightness
-        const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        let total = 0;
-        const pixels = data.length / 4;
-        for (let i = 0; i < data.length; i += 4) {
-          total += data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-        }
-        const isBlack = total / pixels < 35;
-        return isBlack ? null : canvas;
-      } catch { return null; }
-    };
-
-    let triedSeek = false;
-
-    const handleSeeked = () => {
-      const canvas = capture();
-      if (!canvas && !triedSeek) {
-        triedSeek = true;
-        video.currentTime = Math.min(5, video.duration * 0.25);
-        return;
-      }
-      clearTimeout(timeout);
-      if (canvas) {
-        canvas.toBlob((blob) => { video.remove(); resolve(blob); }, "image/jpeg", 0.75);
-      } else {
-        // Force capture even if black
+      const capture = (): HTMLCanvasElement | null => {
         try {
-          const c = document.createElement("canvas");
-          c.width = video.videoWidth || 1280;
-          c.height = video.videoHeight || 720;
-          const ctx2 = c.getContext("2d");
-          if (ctx2) { ctx2.drawImage(video, 0, 0, c.width, c.height); c.toBlob((blob) => { video.remove(); resolve(blob); }, "image/jpeg", 0.75); }
-          else { video.remove(); resolve(null); }
-        } catch { video.remove(); resolve(null); }
-      }
-    };
+          const THUMB_W = 1280, THUMB_H = 720;
+          const natW = video.videoWidth || THUMB_W;
+          const natH = video.videoHeight || THUMB_H;
+          const scale = Math.min(THUMB_W / natW, THUMB_H / natH, 1);
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.round(natW * scale);
+          canvas.height = Math.round(natH * scale);
+          const ctx = canvas.getContext("2d");
+          if (!ctx) return null;
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          // Check if tainted
+          ctx.getImageData(0, 0, 1, 1);
+          // Check brightness
+          const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          let total = 0;
+          const pixels = data.length / 4;
+          for (let i = 0; i < data.length; i += 4) {
+            total += data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+          }
+          return (total / pixels < 35) ? null : canvas;
+        } catch {
+          // Canvas tainted or other error
+          return null;
+        }
+      };
 
-    const handleLoaded = () => { video.currentTime = 3; };
-    const handleError = () => { clearTimeout(timeout); video.remove(); resolve(null); };
+      let triedSeek = false;
 
-    video.addEventListener("loadeddata", handleLoaded);
-    video.addEventListener("seeked", handleSeeked);
-    video.addEventListener("error", handleError);
-  });
+      const handleSeeked = () => {
+        const canvas = capture();
+        if (!canvas && !triedSeek) {
+          triedSeek = true;
+          video.currentTime = Math.min(5, video.duration * 0.25);
+          return;
+        }
+        clearTimeout(timeout);
+        if (canvas) {
+          canvas.toBlob((blob) => { video.remove(); resolve(blob); }, "image/jpeg", 0.75);
+        } else {
+          // Force capture even if black
+          try {
+            const c = document.createElement("canvas");
+            c.width = video.videoWidth || 1280;
+            c.height = video.videoHeight || 720;
+            const ctx2 = c.getContext("2d");
+            if (ctx2) {
+              ctx2.drawImage(video, 0, 0, c.width, c.height);
+              c.toBlob((blob) => { video.remove(); resolve(blob); }, "image/jpeg", 0.75);
+            } else { video.remove(); resolve(null); }
+          } catch { video.remove(); resolve(null); }
+        }
+      };
+
+      const handleLoaded = () => { video.currentTime = 2; };
+      const handleError = () => {
+        console.warn("[thumb] video load error", useCors ? "(CORS)" : "(no-CORS)", videoUrl);
+        clearTimeout(timeout);
+        video.remove();
+        resolve(null);
+      };
+
+      video.addEventListener("loadeddata", handleLoaded);
+      video.addEventListener("seeked", handleSeeked);
+      video.addEventListener("error", handleError);
+    });
+
+  // Try with CORS first (canvas readable), then without
+  const blob = await tryCapture(true);
+  if (blob) return blob;
+  console.log("[thumb] CORS attempt failed, retrying without crossOrigin…");
+  return tryCapture(false);
 }
 
 interface SortableVideoCardProps {
@@ -1547,7 +1570,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       // Save business documents (menus, flipbooks & external links)
       if (businessId) {
         // Generate thumbnails for videos that don't have one yet
-        const isFileVideo = (url: string) => !url.match(/youtube\.com|youtu\.be|vimeo\.com/i) && url.includes("supabase.co/storage");
+        const isNonEmbedVideo = (url: string) => !url.match(/youtube\.com|youtu\.be|vimeo\.com/i);
         const getYouTubeId = (url: string): string | null => {
           const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
           return m ? m[1] : null;
@@ -1560,17 +1583,19 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             if (ytId) {
               return { ...d, thumbnail_url: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` };
             }
-            // File-hosted video thumbnail
-            if (!isFileVideo(d.url)) return d;
+            // Hosted video thumbnail (any non-YouTube/Vimeo)
+            if (!isNonEmbedVideo(d.url)) return d;
             try {
+              console.log("[thumb] Generating thumbnail for:", d.url);
               const blob = await generateVideoThumbnail(d.url);
-              if (!blob) return d;
+              if (!blob) { console.warn("[thumb] No blob generated for:", d.url); return d; }
               const thumbName = `thumbs/${businessId}-${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
-              const { error: upErr } = await supabase.storage.from("business-images").upload(thumbName, blob, { contentType: "image/jpeg", cacheControl: "31536000", upsert: false });
-              if (upErr) { console.warn("Thumb upload error:", upErr); return d; }
+              const { error: upErr } = await supabase.storage.from("business-images").upload(thumbName, blob, { contentType: "image/jpeg", cacheControl: "31536000", upsert: true });
+              if (upErr) { console.warn("[thumb] Upload error:", upErr); return d; }
               const { data: thumbUrl } = supabase.storage.from("business-images").getPublicUrl(thumbName);
+              console.log("[thumb] Generated:", thumbUrl?.publicUrl);
               return { ...d, thumbnail_url: thumbUrl?.publicUrl || null };
-            } catch (e) { console.warn("Thumb generation error:", e); return d; }
+            } catch (e) { console.warn("[thumb] Generation error:", e); return d; }
           })
         );
 
