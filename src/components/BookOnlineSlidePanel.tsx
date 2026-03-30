@@ -1153,17 +1153,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             />
           </div>
         )}
-        {/* Hidden YouTube count probe */}
-        {activeBottomCarousel !== "youtube" && business?.youtube_url && business?.youtube_force_external && youtubeVideoCount === null && (
-          <div className="hidden">
-            <YouTubeShortsCarousel
-              youtubeUrl={business.youtube_url}
-              onVideoCount={setYoutubeVideoCount}
-              shortsOnly
-              hideLabel
-            />
-          </div>
-        )}
 
         {/* Destinations carousel */}
         {activeBottomCarousel === "dest" && (
