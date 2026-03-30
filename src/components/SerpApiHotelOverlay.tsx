@@ -191,6 +191,7 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
             tripadvisorReviewCount: biz.tripadvisor_review_count,
             reserveNowUrl: isCurrentHotel ? (reserveNowUrl || biz.reserve_now_url) : biz.reserve_now_url,
             manualPriceRange: biz.manual_price_range,
+            gamme: biz.gamme_id ? gammeMap.get(biz.gamme_id) || null : null,
             liteApiPrice: liteApiPriceMap.get(m.business_id) || null,
             serpData: serpMatch || null,
             isCurrentHotel,
