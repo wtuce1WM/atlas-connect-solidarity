@@ -1318,9 +1318,85 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           </div>
           </>
         )}
+          </>
+        )}
+
+        {/* Hidden YouTube count probe — always mounted */}
+        {business?.youtube_url && business?.youtube_force_external && youtubeVideoCount === null && (
+          <div className="hidden">
+            <YouTubeShortsCarousel
+              youtubeUrl={business.youtube_url}
+              onVideoCount={setYoutubeVideoCount}
+              shortsOnly
+              hideLabel
+            />
+          </div>
+        )}
+
+        {/* Spacer + availability zone when cards hidden */}
+        {cardsHidden && (
+          <div className="flex-1 flex flex-col items-center justify-center gap-4 pointer-events-auto">
+            {currentMedia?.kind === "video" && videoInfo?.type === "file" && (
+              <div className="flex items-center gap-6 md:gap-10">
+                <button
+                  type="button"
+                  onClick={() => { if (videoRef.current) { if (videoRef.current.paused) videoRef.current.play(); else videoRef.current.pause(); } }}
+                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  aria-label={videoRef.current?.paused ? "Play" : "Pause"}
+                >
+                  {videoRef.current?.paused ? <Play className="h-5 w-5 md:h-6 md:w-6" /> : <Pause className="h-5 w-5 md:h-6 md:w-6" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { if (videoRef.current) { videoRef.current.muted = !videoRef.current.muted; } }}
+                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  aria-label={videoRef.current?.muted ? "Unmute" : "Mute"}
+                >
+                  {videoRef.current?.muted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
+                </button>
+              </div>
+            )}
+            {currentMedia?.kind === "video" && videoInfo?.type === "youtube" && (
+              <div className="flex items-center gap-6 md:gap-10">
+                <button
+                  type="button"
+                  onClick={() => { if (iframeRef.current?.contentWindow) { iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: "command", func: ytBgPlaying ? "pauseVideo" : "playVideo" }), "*"); setYtBgPlaying(p => !p); } }}
+                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  aria-label={ytBgPlaying ? "Pause" : "Play"}
+                >
+                  {ytBgPlaying ? <Pause className="h-5 w-5 md:h-6 md:w-6" /> : <Play className="h-5 w-5 md:h-6 md:w-6" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { if (iframeRef.current?.contentWindow) { iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: "command", func: ytBgMuted ? "unMute" : "mute" }), "*"); setYtBgMuted(m => !m); } }}
+                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  aria-label={ytBgMuted ? "Unmute" : "Mute"}
+                >
+                  {ytBgMuted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
+                </button>
+              </div>
+            )}
+            {hotelSearchLoading && (
+              <div className="flex items-center gap-2 text-white/80">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span className="text-sm font-['Roboto',sans-serif]">{language === "en" ? "Searching availability..." : "Recherche de disponibilité..."}</span>
+              </div>
+            )}
+            {fallbackPanelData && !hotelSearchLoading && (
+              <div className="text-center text-white bg-black/40 backdrop-blur-sm rounded-xl px-6 py-4 border border-white/10">
+                <p className="text-sm font-medium font-['Josefin_Sans',sans-serif] mb-1">
+                  {fallbackPanelData.hotels.length} {language === "en" ? "hotels found" : "hôtels trouvés"}
+                </p>
+                <p className="text-xs text-white/60 font-['Roboto',sans-serif]">
+                  {fallbackPanelData.checkIn} → {fallbackPanelData.checkOut} · {fallbackPanelData.adults} {language === "en" ? "adults" : "adultes"}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* CTAs + video controls */}
-        <div className={`shrink-0 py-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto ${noBottomCarousel ? 'lg:mt-auto' : ''}`}>
+        <div className={`shrink-0 py-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto ${cardsHidden ? '' : noBottomCarousel ? 'lg:mt-auto' : ''}`}>
             {bookingCta && (
               bookingCta.forceExternal ? (
                 <a
