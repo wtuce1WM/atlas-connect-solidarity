@@ -149,6 +149,7 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
       ]);
 
       const bizMap = new Map((businesses || []).map(b => [b.id, b]));
+      const gammeMap = new Map((gammes || []).map(g => [g.id, g]));
 
       // 4. Fetch LiteAPI cached prices
       const { data: liteApiPrices } = await supabase
