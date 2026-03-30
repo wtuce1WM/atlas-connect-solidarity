@@ -208,9 +208,11 @@ const SerpApiHotelOverlay = ({ serpHotelName, serpCity, businessName, reserveNow
       const normalizedTarget = normalize(serpHotelName);
       const match = hotels.find(h => {
         const normalizedName = normalize(h.name);
-        return normalizedName === normalizedTarget
-          || normalizedName.includes(normalizedTarget)
-          || normalizedTarget.includes(normalizedName);
+        if (normalizedName === normalizedTarget) return true;
+        // Only use includes if the shorter string is long enough (>= 8 chars) to avoid false positives
+        const shorter = normalizedName.length < normalizedTarget.length ? normalizedName : normalizedTarget;
+        const longer = normalizedName.length < normalizedTarget.length ? normalizedTarget : normalizedName;
+        return shorter.length >= 8 && longer.includes(shorter);
       });
       setMatchedHotel(match || null);
 
