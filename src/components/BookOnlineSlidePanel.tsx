@@ -828,7 +828,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm hover:bg-background transition-colors"
                 title="Afficher les cartes"
                 aria-label="Afficher les cartes"
-                onClick={showCards}
+                onClick={(e) => { e.stopPropagation(); showCards(); }}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
               >
                 <ChevronUp className="h-3.5 w-3.5" />
                 <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Afficher</span>
