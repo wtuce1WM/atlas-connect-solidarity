@@ -147,6 +147,7 @@ export function useBookOnlineData(businessId: string) {
   const [kpRelated, setKpRelated] = useState<KpRelatedBusiness[]>([]);
   const [isKp1Only, setIsKp1Only] = useState(false);
   const [liteApiHotelId, setLiteApiHotelId] = useState<string | null>(null);
+  const [serpApiMapping, setSerpApiMapping] = useState<{ serpHotelName: string; city: string } | null>(null);
 
   useEffect(() => {
     let isCancelled = false;
@@ -332,11 +333,6 @@ export function useBookOnlineData(businessId: string) {
       };
 
       const fetchLiteApiMapping = async () => {
-        if (biz?.main_category !== "Hôtellerie") {
-          if (!isCancelled) setLiteApiHotelId(null);
-          return;
-        }
-
         const { data: mapping } = await supabase
           .from("hotel_api_mappings")
           .select("liteapi_hotel_id")
@@ -346,12 +342,23 @@ export function useBookOnlineData(businessId: string) {
         if (!isCancelled) setLiteApiHotelId(mapping?.liteapi_hotel_id || null);
       };
 
+      const fetchSerpApiMapping = async () => {
+        const { data: mapping } = await supabase
+          .from("hotel_mappings")
+          .select("serp_hotel_name, city")
+          .eq("business_id", businessId)
+          .maybeSingle();
+
+        if (!isCancelled) setSerpApiMapping(mapping ? { serpHotelName: (mapping as any).serp_hotel_name, city: (mapping as any).city } : null);
+      };
+
       await Promise.allSettled([
         fetchCategoryIcon(),
         fetchDestinations(),
         fetchPoiBusinesses(),
         fetchKpRelated(),
         fetchLiteApiMapping(),
+        fetchSerpApiMapping(),
       ]);
     };
 
@@ -400,5 +407,6 @@ export function useBookOnlineData(businessId: string) {
     kpRelated,
     isKp1Only,
     liteApiHotelId,
+    serpApiMapping,
   };
 }

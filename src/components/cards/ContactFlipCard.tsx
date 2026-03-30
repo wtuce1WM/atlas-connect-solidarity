@@ -25,9 +25,10 @@ interface ContactFlipCardProps {
   animationDelay?: string;
   tallHeight?: boolean;
   className?: string;
-  isHotel?: boolean;
   hasLiteApiMapping?: boolean;
-  onCheckAvailability?: () => void;
+  hasSerpApiMapping?: boolean;
+  onCheckAvailabilityLiteApi?: () => void;
+  onCheckAvailabilitySerpApi?: () => void;
   onOpenWebsite?: (url: string) => void;
 }
 
@@ -38,9 +39,10 @@ const ContactFlipCard = ({
   animationDelay = "0ms",
   tallHeight = false,
   className = "",
-  isHotel = false,
   hasLiteApiMapping = false,
-  onCheckAvailability,
+  hasSerpApiMapping = false,
+  onCheckAvailabilityLiteApi,
+  onCheckAvailabilitySerpApi,
   onOpenWebsite,
 }: ContactFlipCardProps) => {
   const [flipped, setFlipped] = useState(false);
@@ -135,11 +137,14 @@ const ContactFlipCard = ({
             })()}
             {hasOpeningHours && !business.is_open_24h && <OpeningHoursBlock business={business} language={language} />}
 
-            {/* Hotel availability widget */}
-            {isHotel && hasLiteApiMapping && (
+            {/* Hotel availability buttons */}
+            {(hasLiteApiMapping || hasSerpApiMapping) && (
               <HotelAvailabilityWidget
                 language={language}
-                onCheckAvailability={onCheckAvailability}
+                hasLiteApiMapping={hasLiteApiMapping}
+                hasSerpApiMapping={hasSerpApiMapping}
+                onCheckAvailabilityLiteApi={onCheckAvailabilityLiteApi}
+                onCheckAvailabilitySerpApi={onCheckAvailabilitySerpApi}
               />
             )}
           </div>
@@ -176,57 +181,37 @@ const ContactFlipCard = ({
 /** Hotel availability widget — Airbnb-style */
 function HotelAvailabilityWidget({
   language,
-  onCheckAvailability,
+  hasLiteApiMapping,
+  hasSerpApiMapping,
+  onCheckAvailabilityLiteApi,
+  onCheckAvailabilitySerpApi,
 }: {
   language: string;
-  onCheckAvailability?: () => void;
+  hasLiteApiMapping?: boolean;
+  hasSerpApiMapping?: boolean;
+  onCheckAvailabilityLiteApi?: () => void;
+  onCheckAvailabilitySerpApi?: () => void;
 }) {
-  // Default dates: tomorrow → +4 days
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const checkout = new Date(tomorrow);
-  checkout.setDate(checkout.getDate() + 4);
-
-  const formatDate = (d: Date) => {
-    const months = language === "en"
-      ? ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-      : ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"];
-    return `${months[d.getMonth()]} ${d.getDate()}`;
-  };
-
   return (
-    <div className="mt-3 pt-3 border-t border-white/20">
-      {/* Date selectors */}
-      <div className="rounded-xl border border-white/20 overflow-hidden">
-        <div className="grid grid-cols-2 divide-x divide-white/20">
-          <div className="px-3 py-2">
-            <p className="text-[10px] uppercase tracking-wider text-white/50 font-semibold">
-              {language === "en" ? "Check in" : "Arrivée"}
-            </p>
-            <p className="text-sm font-bold text-white">{formatDate(tomorrow)}</p>
-          </div>
-          <div className="px-3 py-2">
-            <p className="text-[10px] uppercase tracking-wider text-white/50 font-semibold">
-              {language === "en" ? "Check out" : "Départ"}
-            </p>
-            <p className="text-sm font-bold text-white">{formatDate(checkout)}</p>
-          </div>
-        </div>
-        <div className="border-t border-white/20 px-3 py-2">
-          <p className="text-white/80 text-xs">
-            {language === "en" ? "2 adults" : "2 adultes"}
-          </p>
-        </div>
-      </div>
-
-      {/* Check availability button */}
-      <button
-        onClick={onCheckAvailability}
-        className="mt-3 w-full py-2.5 rounded-full bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2"
-      >
-        <Search className="h-4 w-4" />
-        {language === "en" ? "Check availability" : "Vérifier la disponibilité"}
-      </button>
+    <div className="mt-3 pt-3 border-t border-white/20 space-y-2">
+      {hasLiteApiMapping && (
+        <button
+          onClick={onCheckAvailabilityLiteApi}
+          className="w-full py-2.5 rounded-full bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2"
+        >
+          <Search className="h-4 w-4" />
+          LiteAPI
+        </button>
+      )}
+      {hasSerpApiMapping && (
+        <button
+          onClick={onCheckAvailabilitySerpApi}
+          className="w-full py-2.5 rounded-full bg-gold/90 text-black font-bold text-sm hover:bg-gold transition-colors flex items-center justify-center gap-2"
+        >
+          <Search className="h-4 w-4" />
+          SerpAPI
+        </button>
+      )}
     </div>
   );
 }
