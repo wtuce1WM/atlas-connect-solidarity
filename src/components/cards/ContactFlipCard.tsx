@@ -39,9 +39,10 @@ const ContactFlipCard = ({
   animationDelay = "0ms",
   tallHeight = false,
   className = "",
-  isHotel = false,
   hasLiteApiMapping = false,
-  onCheckAvailability,
+  hasSerpApiMapping = false,
+  onCheckAvailabilityLiteApi,
+  onCheckAvailabilitySerpApi,
   onOpenWebsite,
 }: ContactFlipCardProps) => {
   const [flipped, setFlipped] = useState(false);

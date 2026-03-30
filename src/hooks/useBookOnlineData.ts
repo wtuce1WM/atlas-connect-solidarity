@@ -333,11 +333,6 @@ export function useBookOnlineData(businessId: string) {
       };
 
       const fetchLiteApiMapping = async () => {
-        if (biz?.main_category !== "Hôtellerie") {
-          if (!isCancelled) setLiteApiHotelId(null);
-          return;
-        }
-
         const { data: mapping } = await supabase
           .from("hotel_api_mappings")
           .select("liteapi_hotel_id")
@@ -345,6 +340,16 @@ export function useBookOnlineData(businessId: string) {
           .maybeSingle();
 
         if (!isCancelled) setLiteApiHotelId(mapping?.liteapi_hotel_id || null);
+      };
+
+      const fetchSerpApiMapping = async () => {
+        const { data: mapping } = await supabase
+          .from("hotel_mappings")
+          .select("serp_hotel_name, city")
+          .eq("business_id", businessId)
+          .maybeSingle();
+
+        if (!isCancelled) setSerpApiMapping(mapping ? { serpHotelName: (mapping as any).serp_hotel_name, city: (mapping as any).city } : null);
       };
 
       await Promise.allSettled([
