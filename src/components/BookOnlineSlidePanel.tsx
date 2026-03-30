@@ -251,18 +251,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         if (fbHotels.length > 0) {
           const fbIds = fbHotels.map(h => h.hotelId);
           const { data: apiMappings } = await supabase.from("hotel_api_mappings").select("liteapi_hotel_id, business_id").in("liteapi_hotel_id", fbIds);
-          const mappingMap = new Map((apiMappings || []).map((m: any) => [m.liteapi_hotel_id, m.business_id]));
-          const bIds = [...mappingMap.values()].filter(Boolean) as string[];
+          const mappingMap = new Map<string, string>((apiMappings || []).map((m: any) => [m.liteapi_hotel_id, m.business_id]));
+          const bIds = [...mappingMap.values()].filter(Boolean);
           let bizDataMap = new Map<string, any>();
           if (bIds.length > 0) {
             const { data: bizData } = await supabase.from("businesses").select("id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, images, name").in("id", bIds);
             bizDataMap = new Map((bizData || []).map((b: any) => [b.id, b]));
           }
-          const linked = fbHotels
+          const linked: FallbackHotel[] = fbHotels
             .filter(h => mappingMap.has(h.hotelId) && h.hotelId !== liteApiHotelId)
             .map(h => {
-              const biz = bizDataMap.get(mappingMap.get(h.hotelId) || "");
-              return { ...h, businessId: mappingMap.get(h.hotelId) || undefined, wtuce_status: biz?.wtuce_status, name: biz?.name || h.name, dbImage: biz?.images?.[0], dbGoogleRating: biz?.google_rating, dbGoogleReviewCount: biz?.google_review_count, dbTripadvisorRating: biz?.tripadvisor_rating, dbTripadvisorReviewCount: biz?.tripadvisor_review_count };
+              const bizId = mappingMap.get(h.hotelId) || "";
+              const biz = bizDataMap.get(bizId);
+              return { ...h, businessId: bizId || undefined, wtuce_status: biz?.wtuce_status, name: biz?.name || h.name, dbImage: biz?.images?.[0], dbGoogleRating: biz?.google_rating, dbGoogleReviewCount: biz?.google_review_count, dbTripadvisorRating: biz?.tripadvisor_rating, dbTripadvisorReviewCount: biz?.tripadvisor_review_count };
             });
           if (linked.length > 0) {
             openFallback({ hotels: linked, city: business.city || "", checkIn, checkOut, adults, source: "liteapi" });
