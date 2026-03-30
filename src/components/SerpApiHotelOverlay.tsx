@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { X, Search, Loader2, Star, ExternalLink, Calendar, Users, SlidersHorizontal, MapPin, Hotel } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SerpApiHotel {
