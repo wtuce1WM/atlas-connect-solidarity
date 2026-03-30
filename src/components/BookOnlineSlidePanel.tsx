@@ -1221,6 +1221,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             bookingUrl={finalUrl}
             title={bookingOverlayUrl ? bookingOverlayTitle : undefined}
             onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); }}
+            whatsapp={business?.whatsapp}
           />
         );
       })()}
