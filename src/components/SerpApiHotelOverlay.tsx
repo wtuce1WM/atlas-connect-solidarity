@@ -170,8 +170,18 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
           } satisfies FallbackHotel;
         });
 
+      // Deduplicate by business_id – keep the entry that has a serpPrice match
+      const deduped = new Map<string, FallbackHotel>();
+      for (const h of hotels) {
+        const existing = deduped.get(h.businessId!);
+        if (!existing || (h.serpPrice && !existing.serpPrice)) {
+          deduped.set(h.businessId!, h);
+        }
+      }
+      const uniqueHotels = Array.from(deduped.values());
+
       // Sort: current hotel first, then those with SerpAPI prices, then rest
-      hotels.sort((a, b) => {
+      uniqueHotels.sort((a, b) => {
         if (a.isCurrentHotel !== b.isCurrentHotel) return a.isCurrentHotel ? -1 : 1;
         if (!!a.serpPrice !== !!b.serpPrice) return a.serpPrice ? -1 : 1;
         return 0;
@@ -180,7 +190,7 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
       // Push to fallbackPanelData and close overlay
       if (onOpenFallbackPanel) {
         onOpenFallbackPanel({
-          hotels,
+          hotels: uniqueHotels,
           city: serpCity,
           checkIn,
           checkOut,
