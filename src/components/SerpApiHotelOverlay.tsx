@@ -79,17 +79,10 @@ const SerpApiHotelOverlay = ({ serpHotelName, serpCity, businessName, reserveNow
   const [maxPrice, setMaxPrice] = useState("");
   const [currency, setCurrency] = useState("EUR");
 
-  const [results, setResults] = useState<SerpApiHotel[]>([]);
-  const [matchedHotel, setMatchedHotel] = useState<SerpApiHotel | null>(null);
+  const [results, setResults] = useState<FallbackSerpHotel[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-
-  // Fallback state
-  const [isFallback, setIsFallback] = useState(false);
-  const [fallbackHotels, setFallbackHotels] = useState<FallbackSerpHotel[]>([]);
-  const [fallbackLoading, setFallbackLoading] = useState(false);
 
   const isEn = language === "en";
 
