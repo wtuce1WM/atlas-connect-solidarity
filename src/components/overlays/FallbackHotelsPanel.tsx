@@ -88,7 +88,7 @@ const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel }: 
                     )}
                   </div>
                   {currentHotel.dealDescription && (
-                    <p className="text-[10px] text-green-400 font-medium">{currentHotel.dealDescription}</p>
+                    <p className="text-[10px] text-green-600 font-medium">{currentHotel.dealDescription}</p>
                   )}
                   {currentHotel.reserveNowUrl && (
                     <a href={currentHotel.reserveNowUrl} target="_blank" rel="noopener noreferrer"
