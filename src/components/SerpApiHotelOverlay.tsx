@@ -197,7 +197,7 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
     } finally {
       setIsLoading(false);
     }
-  }, [serpCity, checkIn, checkOut, adults, currency, sort, rating, minPrice, maxPrice, language, serpHotelName, reserveNowUrl]);
+  }, [serpCity, checkIn, checkOut, adults, currency, sort, rating, minPrice, maxPrice, language, currentBusinessId, reserveNowUrl]);
 
   return (
     <div className="absolute -top-[3.25rem] left-0 right-0 bottom-0 z-[60] bg-background flex flex-col animate-slide-down-from-top">
