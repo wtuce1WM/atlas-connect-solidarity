@@ -41,6 +41,7 @@ import VideoDocumentOverlay from "@/components/overlays/VideoDocumentOverlay";
 import YouTubeOverlay from "@/components/overlays/YouTubeOverlay";
 import DocumentOverlay from "@/components/overlays/DocumentOverlay";
 import FallbackHotelsPanel from "@/components/overlays/FallbackHotelsPanel";
+import SerpApiHotelOverlay from "@/components/SerpApiHotelOverlay";
 
 interface BookOnlineSlidePanelProps {
   businessId: string;
