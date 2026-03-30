@@ -141,9 +141,12 @@ const SerpApiHotelOverlay = ({ serpHotelName, serpCity, businessName, reserveNow
         .filter(m => bizMap.has(m.business_id))
         .map(m => {
           const biz = bizMap.get(m.business_id)!;
-          const serpMatch = serpResults.find(
-            r => r.name.toLowerCase().trim() === (m.serp_hotel_name || "").toLowerCase().trim()
-          );
+          const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9\u00C0-\u024F]/gi, '').trim();
+          const mappingNorm = norm(m.serp_hotel_name || "");
+          const serpMatch = serpResults.find(r => {
+            const rNorm = norm(r.name);
+            return rNorm === mappingNorm || rNorm.includes(mappingNorm) || mappingNorm.includes(rNorm);
+          });
           return {
             id: m.id,
             businessId: m.business_id,
