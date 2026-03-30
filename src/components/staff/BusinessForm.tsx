@@ -405,6 +405,33 @@ async function generateVideoThumbnail(videoUrl: string): Promise<Blob | null> {
   return tryCapture(false);
 }
 
+const isInternalBusinessVideoUrl = (url: string) =>
+  /\/storage\/v1\/object\/public\/business-videos\//i.test(url);
+
+async function internalizeExternalVideoUrl(videoUrl: string, businessId: string): Promise<string | null> {
+  try {
+    const { data, error } = await supabase.functions.invoke("internalize-video", {
+      body: { videoUrl, businessId },
+    });
+
+    if (error) {
+      console.warn("[thumb] Internalize function error:", error.message);
+      return null;
+    }
+
+    const publicUrl = data?.publicUrl;
+    if (typeof publicUrl === "string" && publicUrl.trim()) {
+      console.log("[thumb] Video internalized:", publicUrl);
+      return publicUrl;
+    }
+
+    return null;
+  } catch (e) {
+    console.warn("[thumb] Internalize invocation failed:", e);
+    return null;
+  }
+}
+
 interface SortableVideoCardProps {
   id: string;
   doc: VideoDocEntry;
@@ -1620,25 +1647,50 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
         const videoDocsWithThumbs = await Promise.all(
           normalizedVideoDocs.map(async (d) => {
-            if (d.thumbnail_url) return d;
+            let resolvedUrl = d.url;
+            if (d.thumbnail_url) return { ...d, url: resolvedUrl };
+
             // YouTube thumbnail
-            const ytId = getYouTubeId(d.url);
+            const ytId = getYouTubeId(resolvedUrl);
             if (ytId) {
-              return { ...d, thumbnail_url: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` };
+              return { ...d, url: resolvedUrl, thumbnail_url: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` };
             }
+
             // Hosted video thumbnail (any non-YouTube/Vimeo)
-            if (!isNonEmbedVideo(d.url)) return d;
+            if (!isNonEmbedVideo(resolvedUrl)) return { ...d, url: resolvedUrl };
+
             try {
-              console.log("[thumb] Generating thumbnail for:", d.url);
-              const blob = await generateVideoThumbnail(d.url);
-              if (!blob) { console.warn("[thumb] No blob generated for:", d.url); return d; }
+              console.log("[thumb] Generating thumbnail for:", resolvedUrl);
+              let blob = await generateVideoThumbnail(resolvedUrl);
+
+              // Fallback for CORS-blocked external hosts: internalize video first, then capture again
+              if (!blob && !isInternalBusinessVideoUrl(resolvedUrl)) {
+                const internalizedUrl = await internalizeExternalVideoUrl(resolvedUrl, businessId);
+                if (internalizedUrl) {
+                  resolvedUrl = internalizedUrl;
+                  blob = await generateVideoThumbnail(resolvedUrl);
+                }
+              }
+
+              if (!blob) {
+                console.warn("[thumb] No blob generated for:", resolvedUrl);
+                return { ...d, url: resolvedUrl };
+              }
+
               const thumbName = `thumbs/${businessId}-${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
               const { error: upErr } = await supabase.storage.from("business-images").upload(thumbName, blob, { contentType: "image/jpeg", cacheControl: "31536000", upsert: true });
-              if (upErr) { console.warn("[thumb] Upload error:", upErr); return d; }
+              if (upErr) {
+                console.warn("[thumb] Upload error:", upErr);
+                return { ...d, url: resolvedUrl };
+              }
+
               const { data: thumbUrl } = supabase.storage.from("business-images").getPublicUrl(thumbName);
               console.log("[thumb] Generated:", thumbUrl?.publicUrl);
-              return { ...d, thumbnail_url: thumbUrl?.publicUrl || null };
-            } catch (e) { console.warn("[thumb] Generation error:", e); return d; }
+              return { ...d, url: resolvedUrl, thumbnail_url: thumbUrl?.publicUrl || null };
+            } catch (e) {
+              console.warn("[thumb] Generation error:", e);
+              return { ...d, url: resolvedUrl };
+            }
           })
         );
 
