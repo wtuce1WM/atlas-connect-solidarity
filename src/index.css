@@ -176,7 +176,20 @@ body {
   letter-spacing: 0.02em;
 }
 
- 
+/* Card 1 headings: sentence case only (first letter uppercase) */
+.card1-headings h1,
+.card1-headings h2,
+.card1-headings h3,
+.card1-headings h4 {
+  text-transform: lowercase !important;
+}
+.card1-headings h1::first-letter,
+.card1-headings h2::first-letter,
+.card1-headings h3::first-letter,
+.card1-headings h4::first-letter {
+  text-transform: uppercase !important;
+}
+
  /* Arabic font support */
  .font-arabic {
    font-family: 'Noto Sans Arabic', 'Segoe UI', Tahoma, sans-serif;
