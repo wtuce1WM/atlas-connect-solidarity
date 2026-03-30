@@ -86,6 +86,7 @@ export interface BookOnlineBusiness {
   kp_regroupement_2: string | null;
   kp_active: boolean;
   is_master: boolean;
+  prioritize_images: boolean;
   default_sound_on: boolean;
 }
 
