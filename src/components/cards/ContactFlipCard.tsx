@@ -210,11 +210,13 @@ function HotelAvailabilityWidget({
       {/* Date fields + adults on same row */}
       <div className="flex rounded-xl overflow-hidden border border-white/20">
         {/* Check-in */}
-        <label className="flex-1 bg-white/10 p-2 cursor-pointer">
+        <div className="relative flex-1 bg-white/10 p-2 cursor-pointer" onClick={() => ciRef.current?.showPicker?.()}>
           <span className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block mb-0.5">
             {isEn ? "CHECK-IN" : "ARRIVÉE"}
           </span>
+          <span className="text-white font-bold text-sm">{formatDateShort(checkIn)}</span>
           <input
+            ref={ciRef}
             type="date"
             value={checkIn}
             onChange={e => {
@@ -227,22 +229,24 @@ function HotelAvailabilityWidget({
               }
             }}
             min={fmt(tomorrow)}
-            className="w-full bg-transparent text-white font-bold text-sm border-0 outline-none cursor-pointer p-0 [color-scheme:dark]"
+            className="absolute inset-0 opacity-0 cursor-pointer"
           />
-        </label>
+        </div>
         {/* Check-out */}
-        <label className="flex-1 bg-white/10 p-2 border-l border-white/20 cursor-pointer">
+        <div className="relative flex-1 bg-white/10 p-2 border-l border-white/20 cursor-pointer" onClick={() => coRef.current?.showPicker?.()}>
           <span className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block mb-0.5">
             {isEn ? "CHECK-OUT" : "DÉPART"}
           </span>
+          <span className="text-white font-bold text-sm">{formatDateShort(checkOut)}</span>
           <input
+            ref={coRef}
             type="date"
             value={checkOut}
             onChange={e => { if (e.target.value) setCheckOut(e.target.value); }}
             min={checkIn}
-            className="w-full bg-transparent text-white font-bold text-sm border-0 outline-none cursor-pointer p-0 [color-scheme:dark]"
+            className="absolute inset-0 opacity-0 cursor-pointer"
           />
-        </label>
+        </div>
         {/* Adults */}
         <div className="bg-white/10 px-3 py-2 border-l border-white/20 flex flex-col items-center justify-center shrink-0">
           <span className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block mb-0.5">
