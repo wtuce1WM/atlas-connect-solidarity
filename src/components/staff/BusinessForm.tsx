@@ -3548,7 +3548,13 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
         {/* Images */}
         <div className="space-y-2">
-          <Label className="text-base font-semibold">Images (max 30)</Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-base font-semibold">Images (max 30)</Label>
+            <div className="flex items-center gap-2">
+              <Switch checked={formData.prioritize_images} onCheckedChange={(checked) => { handleChange("prioritize_images", checked); if (checked) handleChange("show_videos", false); }} />
+              <span className="text-xs text-muted-foreground">Prioriser les images en fond de fiche produit</span>
+            </div>
+          </div>
           <ImageUploader
             images={formData.images}
             onChange={(images) => handleChange("images", images)}
