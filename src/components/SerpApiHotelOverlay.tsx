@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from "react";
-import { X, Search, Loader2, Star, ExternalLink, Calendar, Users, SlidersHorizontal, MapPin, Hotel } from "lucide-react";
+import { useState, useCallback } from "react";
+import { X, Search, Loader2, Star, ExternalLink, Calendar, Users, SlidersHorizontal, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -21,7 +21,7 @@ interface SerpApiHotel {
   images: string[];
 }
 
-interface FallbackSerpHotel {
+interface MappedHotelResult {
   id: string;
   businessId: string;
   serpHotelName: string;
@@ -35,8 +35,8 @@ interface FallbackSerpHotel {
   reserveNowUrl: string | null;
   manualPriceRange: string | null;
   liteApiPrice: { amount: number; currency: string } | null;
-  // SerpAPI result data if found
   serpData?: SerpApiHotel | null;
+  isCurrentHotel: boolean;
 }
 
 interface SerpApiHotelOverlayProps {
@@ -79,107 +79,35 @@ const SerpApiHotelOverlay = ({ serpHotelName, serpCity, businessName, reserveNow
   const [maxPrice, setMaxPrice] = useState("");
   const [currency, setCurrency] = useState("EUR");
 
-  const [results, setResults] = useState<SerpApiHotel[]>([]);
-  const [matchedHotel, setMatchedHotel] = useState<SerpApiHotel | null>(null);
+  const [results, setResults] = useState<MappedHotelResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Fallback state
-  const [isFallback, setIsFallback] = useState(false);
-  const [fallbackHotels, setFallbackHotels] = useState<FallbackSerpHotel[]>([]);
-  const [fallbackLoading, setFallbackLoading] = useState(false);
-
   const isEn = language === "en";
 
-  const loadFallbackHotels = useCallback(async (serpResults: SerpApiHotel[]) => {
-    setFallbackLoading(true);
+  const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9\u00C0-\u024F]/gi, '').trim();
+
+  const handleSearch = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    setResults([]);
     try {
-      // Get all SerpAPI-mapped hotels in the same city (excluding current one)
+      // 1. Fetch all SerpAPI mappings for this city
       const { data: mappings, error: mapErr } = await supabase
         .from("hotel_mappings")
         .select("id, serp_hotel_name, business_id, city")
         .ilike("city", serpCity);
 
       if (mapErr) throw mapErr;
-
-      const otherMappings = (mappings || []).filter(
-        m => m.serp_hotel_name?.toLowerCase().trim() !== serpHotelName.toLowerCase().trim()
-      );
-
-      if (otherMappings.length === 0) {
-        setFallbackHotels([]);
-        setFallbackLoading(false);
+      if (!mappings || mappings.length === 0) {
+        setHasSearched(true);
+        setIsLoading(false);
         return;
       }
 
-      // Get business info for these mappings
-      const bizIds = otherMappings.map(m => m.business_id).filter(Boolean);
-      const { data: businesses } = await supabase
-        .from("businesses")
-        .select("id, name, slug, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range")
-        .in("id", bizIds);
-
-      const bizMap = new Map((businesses || []).map(b => [b.id, b]));
-
-      // Fetch LiteAPI cached prices for these businesses
-      const { data: liteApiPrices } = await supabase
-        .from("hotel_price_cache")
-        .select("business_id, price_per_night, currency")
-        .in("business_id", bizIds)
-        .eq("source", "liteapi")
-        .eq("check_in", checkIn)
-        .eq("check_out", checkOut);
-
-      const liteApiPriceMap = new Map(
-        (liteApiPrices || []).map(p => [p.business_id, { amount: p.price_per_night, currency: p.currency }])
-      );
-
-      // Match SerpAPI results with mappings
-      const fallback: FallbackSerpHotel[] = otherMappings
-        .filter(m => bizMap.has(m.business_id))
-        .map(m => {
-          const biz = bizMap.get(m.business_id)!;
-          const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9\u00C0-\u024F]/gi, '').trim();
-          const mappingNorm = norm(m.serp_hotel_name || "");
-          const serpMatch = serpResults.find(r => {
-            const rNorm = norm(r.name);
-            return rNorm === mappingNorm || rNorm.includes(mappingNorm) || mappingNorm.includes(rNorm);
-          });
-          return {
-            id: m.id,
-            businessId: m.business_id,
-            serpHotelName: m.serp_hotel_name || "",
-            businessName: biz.name,
-            businessSlug: biz.slug,
-            businessImage: biz.images?.[0] || null,
-            googleRating: biz.google_rating,
-            googleReviewCount: biz.google_review_count,
-            tripadvisorRating: biz.tripadvisor_rating,
-            tripadvisorReviewCount: biz.tripadvisor_review_count,
-            reserveNowUrl: biz.reserve_now_url,
-            manualPriceRange: biz.manual_price_range,
-            liteApiPrice: liteApiPriceMap.get(m.business_id) || null,
-            serpData: serpMatch || null,
-          };
-        });
-
-      setFallbackHotels(fallback);
-    } catch (err) {
-      console.error("Fallback load error:", err);
-    } finally {
-      setFallbackLoading(false);
-    }
-  }, [serpCity, serpHotelName, checkIn, checkOut]);
-
-  const handleSearch = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    setMatchedHotel(null);
-    setIsFallback(false);
-    setFallbackHotels([]);
-    try {
+      // 2. Call SerpAPI edge function
       const { data, error: fnError } = await supabase.functions.invoke("serpapi-hotels", {
         body: {
           cityName: serpCity,
@@ -198,37 +126,78 @@ const SerpApiHotelOverlay = ({ serpHotelName, serpCity, businessName, reserveNow
       });
 
       if (fnError) throw fnError;
+      const serpHotels: SerpApiHotel[] = data?.data || [];
 
-      const hotels: SerpApiHotel[] = data?.data || [];
-      setResults(hotels);
-      setHasSearched(true);
+      // 3. Get business info for all mapped hotels
+      const bizIds = mappings.map(m => m.business_id).filter(Boolean);
+      const { data: businesses } = await supabase
+        .from("businesses")
+        .select("id, name, slug, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range")
+        .in("id", bizIds);
 
-      // Find the matched hotel (fuzzy: normalize punctuation and compare)
-      const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9\u00C0-\u024F]/gi, '').trim();
-      const normalizedTarget = normalize(serpHotelName);
-      const match = hotels.find(h => {
-        const normalizedName = normalize(h.name);
-        if (normalizedName === normalizedTarget) return true;
-        // Only use includes if the shorter string is long enough (>= 8 chars) to avoid false positives
-        const shorter = normalizedName.length < normalizedTarget.length ? normalizedName : normalizedTarget;
-        const longer = normalizedName.length < normalizedTarget.length ? normalizedTarget : normalizedName;
-        return shorter.length >= 8 && longer.includes(shorter);
+      const bizMap = new Map((businesses || []).map(b => [b.id, b]));
+
+      // 4. Fetch LiteAPI cached prices
+      const { data: liteApiPrices } = await supabase
+        .from("hotel_price_cache")
+        .select("business_id, price_per_night, currency")
+        .in("business_id", bizIds)
+        .eq("source", "liteapi")
+        .eq("check_in", checkIn)
+        .eq("check_out", checkOut);
+
+      const liteApiPriceMap = new Map(
+        (liteApiPrices || []).map(p => [p.business_id, { amount: p.price_per_night, currency: p.currency }])
+      );
+
+      // 5. Build results: only mapped hotels, enriched with SerpAPI data
+      const mapped: MappedHotelResult[] = mappings
+        .filter(m => bizMap.has(m.business_id))
+        .map(m => {
+          const biz = bizMap.get(m.business_id)!;
+          const mappingNorm = normalize(m.serp_hotel_name || "");
+          const serpMatch = serpHotels.find(r => {
+            const rNorm = normalize(r.name);
+            if (rNorm === mappingNorm) return true;
+            const shorter = rNorm.length < mappingNorm.length ? rNorm : mappingNorm;
+            const longer = rNorm.length < mappingNorm.length ? mappingNorm : rNorm;
+            return shorter.length >= 8 && longer.includes(shorter);
+          });
+          const isCurrentHotel = m.serp_hotel_name?.toLowerCase().trim() === serpHotelName.toLowerCase().trim();
+          return {
+            id: m.id,
+            businessId: m.business_id,
+            serpHotelName: m.serp_hotel_name || "",
+            businessName: biz.name,
+            businessSlug: biz.slug,
+            businessImage: biz.images?.[0] || null,
+            googleRating: biz.google_rating,
+            googleReviewCount: biz.google_review_count,
+            tripadvisorRating: biz.tripadvisor_rating,
+            tripadvisorReviewCount: biz.tripadvisor_review_count,
+            reserveNowUrl: isCurrentHotel ? (reserveNowUrl || biz.reserve_now_url) : biz.reserve_now_url,
+            manualPriceRange: biz.manual_price_range,
+            liteApiPrice: liteApiPriceMap.get(m.business_id) || null,
+            serpData: serpMatch || null,
+            isCurrentHotel,
+          };
+        });
+
+      // Sort: current hotel first, then those with SerpAPI prices, then rest
+      mapped.sort((a, b) => {
+        if (a.isCurrentHotel !== b.isCurrentHotel) return a.isCurrentHotel ? -1 : 1;
+        if (!!a.serpData?.ratePerNight !== !!b.serpData?.ratePerNight) return a.serpData?.ratePerNight ? -1 : 1;
+        return 0;
       });
-      setMatchedHotel(match || null);
 
-      if (!match) {
-        // Hotel not found → fallback mode
-        setIsFallback(true);
-        await loadFallbackHotels(hotels);
-      }
+      setResults(mapped);
+      setHasSearched(true);
     } catch (err: any) {
       setError(err.message || "Erreur lors de la recherche");
     } finally {
       setIsLoading(false);
     }
-  }, [serpCity, checkIn, checkOut, adults, currency, sort, rating, minPrice, maxPrice, language, serpHotelName, loadFallbackHotels]);
-
-  // No auto-search — user clicks CTA button to search
+  }, [serpCity, checkIn, checkOut, adults, currency, sort, rating, minPrice, maxPrice, language, serpHotelName, reserveNowUrl]);
 
   return (
     <div className="absolute -top-[3.25rem] left-0 right-0 bottom-0 z-[60] bg-background flex flex-col animate-slide-down-from-top">
@@ -345,86 +314,25 @@ const SerpApiHotelOverlay = ({ serpHotelName, serpCity, businessName, reserveNow
           </div>
         )}
 
-        {/* Matched hotel found */}
-        {matchedHotel && (
-          <div className="rounded-xl border-2 border-gold bg-gold/5 p-4 space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-gold uppercase tracking-wider">
-                {isEn ? "Your hotel" : "Votre hôtel"}
-              </span>
-            </div>
-            <HotelCard hotel={matchedHotel} reserveUrl={reserveNowUrl} isEn={isEn} isHighlighted />
-          </div>
-        )}
-
-        {/* Fallback: hotel not found in SerpAPI results */}
-        {hasSearched && !isLoading && isFallback && (
-          <div className="space-y-4">
-            <div className="rounded-xl border border-orange-500/30 bg-orange-500/5 p-4 text-center space-y-2">
-              <Hotel className="h-8 w-8 text-orange-500 mx-auto" />
-              <p className="text-sm font-semibold text-foreground">
-                {isEn
-                  ? `"${serpHotelName}" was not found for these dates`
-                  : `"${serpHotelName}" n'a pas été trouvé pour ces dates`}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {isEn
-                  ? "Here are other hotels available in the area"
-                  : "Voici d'autres hôtels disponibles dans la zone"}
-              </p>
-            </div>
-
-            {fallbackLoading && (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-gold" />
-              </div>
-            )}
-
-            {!fallbackLoading && fallbackHotels.length > 0 && (
-              <div className="space-y-3">
-                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
-                  {isEn
-                    ? `${fallbackHotels.length} hotel(s) available in ${serpCity}`
-                    : `${fallbackHotels.length} hôtel(s) disponible(s) à ${serpCity}`}
-                </p>
-                {fallbackHotels.map(fb => (
-                  <FallbackHotelCard
-                    key={fb.id}
-                    hotel={fb}
-                    isEn={isEn}
-                    onSelect={onSelectBusiness}
-                  />
-                ))}
-              </div>
-            )}
-
-            {!fallbackLoading && fallbackHotels.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground text-sm">
-                {isEn ? "No other mapped hotels available" : "Aucun autre hôtel référencé disponible"}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Normal results (non-fallback) */}
-        {hasSearched && !isLoading && !isFallback && (
-          <>
+        {hasSearched && !isLoading && results.length > 0 && (
+          <div className="space-y-3">
             <p className="text-xs text-muted-foreground">
-              {results.length} {isEn ? "hotels found" : "hôtels trouvés"} — {serpCity}
+              {results.length} {isEn ? "mapped hotel(s)" : "hôtel(s) référencé(s)"} — {serpCity}
             </p>
-            <div className="space-y-3">
-              {results
-                .filter(h => h.name.toLowerCase().trim() !== serpHotelName.toLowerCase().trim())
-                .map((hotel, i) => (
-                  <HotelCard key={i} hotel={hotel} isEn={isEn} />
-                ))}
-            </div>
-          </>
+            {results.map(hotel => (
+              <MappedHotelCard
+                key={hotel.id}
+                hotel={hotel}
+                isEn={isEn}
+                onSelect={onSelectBusiness}
+              />
+            ))}
+          </div>
         )}
 
-        {hasSearched && !isLoading && results.length === 0 && !error && !isFallback && (
+        {hasSearched && !isLoading && results.length === 0 && !error && (
           <div className="text-center py-16 text-muted-foreground text-sm">
-            {isEn ? "No hotels found for these criteria" : "Aucun hôtel trouvé pour ces critères"}
+            {isEn ? "No mapped hotels found for this city" : "Aucun hôtel référencé trouvé pour cette ville"}
           </div>
         )}
       </div>
@@ -432,62 +340,15 @@ const SerpApiHotelOverlay = ({ serpHotelName, serpCity, businessName, reserveNow
   );
 };
 
-function HotelCard({ hotel, reserveUrl, isEn, isHighlighted }: {
-  hotel: SerpApiHotel;
-  reserveUrl?: string | null;
-  isEn: boolean;
-  isHighlighted?: boolean;
-}) {
-  const bookUrl = isHighlighted && reserveUrl ? reserveUrl : hotel.link;
-
-  return (
-    <div className={`flex gap-3 rounded-xl border ${isHighlighted ? "border-gold/30" : "border-border"} bg-card overflow-hidden`}>
-      {hotel.thumbnail && (
-        <img src={hotel.thumbnail} alt={hotel.name}
-          className="w-24 h-24 sm:w-28 sm:h-28 object-cover shrink-0" loading="lazy" />
-      )}
-      <div className="flex-1 py-2 pr-3 space-y-1 min-w-0">
-        <p className="font-semibold text-sm text-foreground line-clamp-1">{hotel.name}</p>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          {hotel.overallRating && (
-            <span className="flex items-center gap-0.5">
-              <Star className="h-3 w-3 text-gold fill-gold" />{hotel.overallRating}
-            </span>
-          )}
-          {hotel.reviewCount && <span>({hotel.reviewCount})</span>}
-          {hotel.hotelClass && <span>{"★".repeat(hotel.hotelClass as number)}</span>}
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          {hotel.ratePerNight && (
-            <Badge className="bg-gold/15 text-gold border-gold/30 text-xs font-bold px-2 py-0.5">
-              {hotel.ratePerNight.amount} / {isEn ? "night" : "nuit"}
-            </Badge>
-          )}
-        </div>
-        {hotel.dealDescription && (
-          <p className="text-[10px] text-green-600 font-medium">{hotel.dealDescription}</p>
-        )}
-        {bookUrl && (
-          <a href={bookUrl} target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs font-semibold text-gold hover:underline mt-1">
-            {isEn ? "Book" : "Réserver"} <ExternalLink className="h-3 w-3" />
-          </a>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function FallbackHotelCard({ hotel, isEn, onSelect }: {
-  hotel: FallbackSerpHotel;
+function MappedHotelCard({ hotel, isEn, onSelect }: {
+  hotel: MappedHotelResult;
   isEn: boolean;
   onSelect?: (businessId: string) => void;
 }) {
   const hasPrice = hotel.serpData?.ratePerNight;
 
   return (
-    <div className="flex gap-3 rounded-xl border border-border bg-card overflow-hidden">
-      {/* Image */}
+    <div className={`flex gap-3 rounded-xl border ${hotel.isCurrentHotel ? "border-2 border-gold bg-gold/5" : "border-border"} bg-card overflow-hidden`}>
       {(hotel.serpData?.thumbnail || hotel.businessImage) && (
         <img
           src={hotel.serpData?.thumbnail || hotel.businessImage || ""}
@@ -497,7 +358,14 @@ function FallbackHotelCard({ hotel, isEn, onSelect }: {
         />
       )}
       <div className="flex-1 py-2 pr-3 space-y-1 min-w-0">
-        <p className="font-semibold text-sm text-foreground line-clamp-1">{hotel.businessName}</p>
+        <div className="flex items-center gap-2">
+          <p className="font-semibold text-sm text-foreground line-clamp-1">{hotel.businessName}</p>
+          {hotel.isCurrentHotel && (
+            <span className="text-[10px] font-bold text-gold uppercase tracking-wider shrink-0">
+              {isEn ? "Your hotel" : "Votre hôtel"}
+            </span>
+          )}
+        </div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
           {hotel.googleRating && (
             <span className="flex items-center gap-0.5">
@@ -543,7 +411,7 @@ function FallbackHotelCard({ hotel, isEn, onSelect }: {
               {isEn ? "Book" : "Réserver"} <ExternalLink className="h-3 w-3" />
             </a>
           )}
-          {onSelect && (
+          {onSelect && !hotel.isCurrentHotel && (
             <button
               onClick={() => onSelect(hotel.businessId)}
               className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
