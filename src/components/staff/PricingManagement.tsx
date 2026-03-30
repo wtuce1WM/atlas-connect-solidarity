@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Loader2, Hotel, UtensilsCrossed, Check, ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, Hotel, UtensilsCrossed, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 const PRICE_RANGES = [
@@ -41,7 +42,7 @@ interface PriceRow {
   hasApiPrice: boolean;
 }
 
-const MinPriceCell = ({ row, onSave }: { row: PriceRow; onSave: (id: string, value: number | null) => void }) => {
+const MinPriceCell = ({ row, onSave }: { row: PriceRow; onSave: (id: string, value: number | null) => Promise<boolean> }) => {
   const computedMin = Math.min(row.liteapi_price ?? Infinity, row.serpapi_price ?? Infinity);
   const hasComputed = computedMin !== Infinity;
   const displayValue = row.min_price ?? (hasComputed ? computedMin : null);
@@ -49,20 +50,30 @@ const MinPriceCell = ({ row, onSave }: { row: PriceRow; onSave: (id: string, val
 
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const trimmed = draft.trim();
+    let success = false;
+
     if (trimmed === "") {
-      onSave(row.id, null);
+      setSaving(true);
+      success = await onSave(row.id, null);
+      setSaving(false);
     } else {
       const num = parseFloat(trimmed);
       if (isNaN(num) || num < 0) {
         toast.error("Prix invalide");
         return;
       }
-      onSave(row.id, Math.round(num));
+      setSaving(true);
+      success = await onSave(row.id, Math.round(num));
+      setSaving(false);
     }
-    setEditing(false);
+
+    if (success) {
+      setEditing(false);
+    }
   };
 
   if (editing) {
@@ -73,13 +84,27 @@ const MinPriceCell = ({ row, onSave }: { row: PriceRow; onSave: (id: string, val
           min={0}
           className="h-7 w-20 text-xs text-right"
           value={draft}
+          disabled={saving}
           onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter") handleSave(); if (e.key === "Escape") setEditing(false); }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              void handleSave();
+            }
+            if (e.key === "Escape" && !saving) {
+              setEditing(false);
+            }
+          }}
           autoFocus
         />
-        <button onClick={handleSave} className="p-1 rounded hover:bg-muted">
-          <Check className="h-3.5 w-3.5 text-green-600" />
-        </button>
+        <Button
+          type="button"
+          size="sm"
+          className="h-7 px-2 text-xs"
+          disabled={saving}
+          onClick={() => void handleSave()}
+        >
+          {saving ? "Saving..." : "Save"}
+        </Button>
       </div>
     );
   }
@@ -239,7 +264,7 @@ const PricingManagement = () => {
     setUnmappedHotels(updater);
   };
 
-  const handleMinPriceSave = async (businessId: string, value: number | null) => {
+  const handleMinPriceSave = async (businessId: string, value: number | null): Promise<boolean> => {
     const { data, error } = await supabase.functions.invoke("update-business-min-price", {
       body: {
         businessId,
@@ -249,12 +274,12 @@ const PricingManagement = () => {
 
     if (error) {
       toast.error("Erreur de sauvegarde: " + error.message);
-      return;
+      return false;
     }
 
     if (!data?.success) {
       toast.error(data?.error || "Sauvegarde refusée");
-      return;
+      return false;
     }
 
     const savedMinPrice = data.min_price ?? value;
@@ -265,6 +290,8 @@ const PricingManagement = () => {
     setHotelPrices(updater);
     setNoPriceHotels(updater);
     setUnmappedHotels(updater);
+
+    return true;
   };
 
   const groupByCity = (rows: PriceRow[]) => {
