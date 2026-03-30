@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN prioritize_images boolean NOT NULL DEFAULT false;

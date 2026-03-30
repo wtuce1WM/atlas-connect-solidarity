@@ -816,6 +816,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     show_opening_hours: (business as any)?.show_opening_hours ?? false,
     show_videos: (business as any)?.show_videos ?? false,
     default_sound_on: (business as any)?.default_sound_on ?? true,
+    prioritize_images: (business as any)?.prioritize_images ?? false,
     is_open_24h: (business as any)?.is_open_24h ?? false,
     vacation_dates: ((business as any)?.vacation_dates || []) as VacationPeriod[],
     hotels_com_url: (business as any)?.hotels_com_url || "",
@@ -1433,6 +1434,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       show_opening_hours: formData.show_opening_hours,
       show_videos: formData.show_videos,
       default_sound_on: formData.default_sound_on,
+      prioritize_images: formData.prioritize_images,
       is_open_24h: formData.is_open_24h,
       vacation_dates: formData.vacation_dates.length > 0 ? JSON.parse(JSON.stringify(formData.vacation_dates)) : [],
       hotels_com_url: formData.hotels_com_url || null,
@@ -3344,7 +3346,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             <div className="flex items-center gap-3">
               <Label className="text-base font-semibold">🎬 Vidéos</Label>
               <div className="flex items-center gap-2">
-                <Switch checked={formData.show_videos} onCheckedChange={(checked) => handleChange("show_videos", checked)} />
+                <Switch checked={formData.show_videos} onCheckedChange={(checked) => { handleChange("show_videos", checked); if (checked) handleChange("prioritize_images", false); }} />
                 <span className="text-xs text-muted-foreground">{formData.show_videos ? "Activé" : "Désactivé"} — Active le Carrousel vidéo</span>
               </div>
               <div className="flex items-center gap-2 ml-4">
@@ -3546,7 +3548,13 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
         {/* Images */}
         <div className="space-y-2">
-          <Label className="text-base font-semibold">Images (max 30)</Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-base font-semibold">Images (max 30)</Label>
+            <div className="flex items-center gap-2">
+              <Switch checked={formData.prioritize_images} onCheckedChange={(checked) => { handleChange("prioritize_images", checked); if (checked) handleChange("show_videos", false); }} />
+              <span className="text-xs text-muted-foreground">Prioriser les images en fond de fiche produit</span>
+            </div>
+          </div>
           <ImageUploader
             images={formData.images}
             onChange={(images) => handleChange("images", images)}
