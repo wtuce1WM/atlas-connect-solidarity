@@ -325,6 +325,9 @@ const PricingManagement = () => {
 
       <TabsContent value="hotels">
         <div className="space-y-6">
+          {/* === HÔTELS MAPPÉS === */}
+          <h3 className="text-lg font-semibold text-foreground border-b pb-2">Hôtels mappés</h3>
+
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
             <span>{hotelPrices.length} hôtels avec prix API</span>
             <Badge variant="outline" className="bg-violet-100 text-violet-700 border-violet-300">LiteAPI</Badge>
@@ -338,24 +341,24 @@ const PricingManagement = () => {
               </CardHeader>
               <CardContent>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                  <table className="w-full text-sm table-fixed">
                     <thead>
                       <tr className="border-b">
-                        <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Établissement</th>
-                        <th className="text-right py-2 px-4 font-medium text-muted-foreground">
+                        <th className="text-left py-2 pr-4 font-medium text-muted-foreground w-[40%]">Établissement</th>
+                        <th className="text-right py-2 px-4 font-medium text-muted-foreground w-[15%]">
                           <span className="inline-flex items-center gap-1">
                             <span className="w-2 h-2 rounded-full bg-violet-500 inline-block" />
                             LiteAPI
                           </span>
                         </th>
-                        <th className="text-right py-2 px-4 font-medium text-muted-foreground">
+                        <th className="text-right py-2 px-4 font-medium text-muted-foreground w-[15%]">
                           <span className="inline-flex items-center gap-1">
                             <span className="w-2 h-2 rounded-full bg-teal-500 inline-block" />
                             SerpAPI
                           </span>
                         </th>
-                        <th className="text-right py-2 px-4 font-medium text-muted-foreground">Prix minimum</th>
-                        <th className="text-center py-2 pl-4 font-medium text-muted-foreground">Gamme de prix</th>
+                        <th className="text-right py-2 px-4 font-medium text-muted-foreground w-[15%]">Prix minimum</th>
+                        <th className="text-center py-2 pl-4 font-medium text-muted-foreground w-[15%]">Gamme de prix</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
@@ -364,7 +367,7 @@ const PricingManagement = () => {
                         const autoRange = getPriceRange(minPrice === Infinity ? null : minPrice);
                         return (
                           <tr key={row.id} className="hover:bg-muted/50">
-                            <td className="py-2 pr-4 font-medium">{row.name}</td>
+                            <td className="py-2 pr-4 font-medium truncate">{row.name}</td>
                             <td className="py-2 px-4 text-right">
                               {row.liteapi_price != null ? (
                                 <span className={`font-mono ${row.liteapi_price === minPrice ? "font-bold text-violet-700" : "text-muted-foreground"}`}>
@@ -403,11 +406,11 @@ const PricingManagement = () => {
             </Card>
           ))}
 
-          {/* Hotels without prices */}
+          {/* Hotels mapped but without prices */}
           {noPriceHotels.length > 0 && (
             <>
-              <div className="flex items-center gap-3 text-sm text-muted-foreground mt-8 pt-6 border-t">
-                <span className="font-medium text-foreground">{noPriceHotels.length} hôtels sans prix API</span>
+              <div className="flex items-center gap-3 text-sm text-muted-foreground mt-4">
+                <span>{noPriceHotels.length} hôtels mappés sans prix API</span>
                 <span>— assignez un prix minimum ou une gamme manuellement</span>
               </div>
 
@@ -418,18 +421,18 @@ const PricingManagement = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
+                      <table className="w-full text-sm table-fixed">
                         <thead>
                           <tr className="border-b">
-                            <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Établissement</th>
-                            <th className="text-right py-2 px-4 font-medium text-muted-foreground">Prix minimum</th>
-                            <th className="text-center py-2 pl-4 font-medium text-muted-foreground">Gamme de prix</th>
+                            <th className="text-left py-2 pr-4 font-medium text-muted-foreground w-[60%]">Établissement</th>
+                            <th className="text-right py-2 px-4 font-medium text-muted-foreground w-[20%]">Prix minimum</th>
+                            <th className="text-center py-2 pl-4 font-medium text-muted-foreground w-[20%]">Gamme de prix</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y">
                           {noPriceCitiesMap[city].map((row) => (
                             <tr key={row.id} className="hover:bg-muted/50">
-                              <td className="py-2 pr-4 font-medium">{row.name}</td>
+                              <td className="py-2 pr-4 font-medium truncate">{row.name}</td>
                               <td className="py-2 px-4 text-right">
                                 <MinPriceCell row={row} onSave={handleMinPriceSave} />
                               </td>
@@ -447,11 +450,13 @@ const PricingManagement = () => {
             </>
           )}
 
-          {/* Unmapped hotels */}
+          {/* === HÔTELS NON MAPPÉS === */}
           {unmappedHotels.length > 0 && (
             <>
-              <div className="flex items-center gap-3 text-sm text-muted-foreground mt-8 pt-6 border-t">
-                <span className="font-medium text-foreground">{unmappedHotels.length} hôtels non mappés</span>
+              <h3 className="text-lg font-semibold text-foreground border-b pb-2 mt-8">Hôtels non mappés</h3>
+
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                <span>{unmappedHotels.length} hôtels</span>
                 <span>— aucun lien API (LiteAPI / SerpAPI)</span>
               </div>
 
@@ -462,18 +467,18 @@ const PricingManagement = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
+                      <table className="w-full text-sm table-fixed">
                         <thead>
                           <tr className="border-b">
-                            <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Établissement</th>
-                            <th className="text-right py-2 px-4 font-medium text-muted-foreground">Prix minimum</th>
-                            <th className="text-center py-2 pl-4 font-medium text-muted-foreground">Gamme de prix</th>
+                            <th className="text-left py-2 pr-4 font-medium text-muted-foreground w-[60%]">Établissement</th>
+                            <th className="text-right py-2 px-4 font-medium text-muted-foreground w-[20%]">Prix minimum</th>
+                            <th className="text-center py-2 pl-4 font-medium text-muted-foreground w-[20%]">Gamme de prix</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y">
                           {unmappedCitiesMap[city].map((row) => (
                             <tr key={row.id} className="hover:bg-muted/50">
-                              <td className="py-2 pr-4 font-medium">{row.name}</td>
+                              <td className="py-2 pr-4 font-medium truncate">{row.name}</td>
                               <td className="py-2 px-4 text-right">
                                 <MinPriceCell row={row} onSave={handleMinPriceSave} />
                               </td>
