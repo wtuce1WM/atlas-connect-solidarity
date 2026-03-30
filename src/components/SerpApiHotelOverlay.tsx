@@ -494,12 +494,18 @@ function FallbackHotelCard({ hotel, isEn, onSelect }: {
             <span>{"★".repeat(hotel.serpData.hotelClass as number)}</span>
           )}
         </div>
-        {hasPrice && (
-          <p className="text-base font-bold text-foreground">
-            {hotel.serpData!.ratePerNight!.amount}
-            <span className="text-xs font-normal text-muted-foreground ml-1">/ {isEn ? "night" : "nuit"}</span>
-          </p>
-        )}
+        <div className="flex items-center gap-2 flex-wrap">
+          {hotel.manualPriceRange && (
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-muted-foreground/30 text-muted-foreground">
+              {hotel.manualPriceRange}
+            </Badge>
+          )}
+          {hasPrice && (
+            <Badge className="bg-gold/15 text-gold border-gold/30 text-xs font-bold px-2 py-0.5">
+              {hotel.serpData!.ratePerNight!.amount} / {isEn ? "night" : "nuit"}
+            </Badge>
+          )}
+        </div>
         {hotel.serpData?.dealDescription && (
           <p className="text-[10px] text-green-600 font-medium">{hotel.serpData.dealDescription}</p>
         )}
