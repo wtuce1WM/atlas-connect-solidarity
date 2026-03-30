@@ -1276,6 +1276,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           activeVideo={activeVideoOverlay}
           videoDocs={videoDocs}
           closing={videoOverlayClosing}
+          defaultSoundOn={business?.default_sound_on ?? true}
           onClose={() => setVideoOverlayClosing(true)}
           onNavigate={(v) => setActiveVideoOverlay(v)}
           onAnimationEnd={() => { setActiveVideoOverlay(null); setVideoOverlayClosing(false); }}

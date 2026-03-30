@@ -64,7 +64,7 @@ const VideoDocumentOverlay = ({
       onNavigate({ url: v.url, name: v.name, description: v.description });
       setDescExpanded(true);
       setIsPlaying(true);
-      setIsMuted(false);
+      setIsMuted(!defaultSoundOn);
     }
   };
 
