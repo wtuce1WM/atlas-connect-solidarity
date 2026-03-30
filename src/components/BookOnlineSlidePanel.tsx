@@ -41,6 +41,7 @@ import VideoDocumentOverlay from "@/components/overlays/VideoDocumentOverlay";
 import YouTubeOverlay from "@/components/overlays/YouTubeOverlay";
 import DocumentOverlay from "@/components/overlays/DocumentOverlay";
 import FallbackHotelsPanel from "@/components/overlays/FallbackHotelsPanel";
+import SerpApiHotelOverlay from "@/components/SerpApiHotelOverlay";
 
 interface BookOnlineSlidePanelProps {
   businessId: string;
@@ -103,6 +104,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   } | null>(null);
   const [fallbackPanelData, setFallbackPanelData] = useState<FallbackPanelData | null>(null);
   const [selectedFallbackHotelId, setSelectedFallbackHotelId] = useState<string | null>(null);
+  const [serpApiOverlayCtx, setSerpApiOverlayCtx] = useState<{ serpHotelName: string; serpCity: string; businessName: string; reserveNowUrl?: string | null } | null>(null);
   const [fallbackHiddenOnMobile, setFallbackHiddenOnMobile] = useState(false);
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
   const fallbackDataRef = useRef<FallbackPanelData | null>(null);
@@ -817,9 +819,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     }
                   }}
                   onCheckAvailabilitySerpApi={() => {
-                    // TODO: implement SerpAPI availability flow
                     if (serpApiMapping) {
-                      console.log("SerpAPI check:", serpApiMapping);
+                      setSerpApiOverlayCtx({
+                        serpHotelName: serpApiMapping.serpHotelName,
+                        serpCity: serpApiMapping.city,
+                        businessName: business.name,
+                        reserveNowUrl: business.reserve_now_url,
+                      });
                     }
                   }}
                   onOpenWebsite={(url) => {
@@ -1435,6 +1441,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             setFallbackHiddenOnMobile(false);
             setAvailabilityOverlayCtx(null);
           }}
+        />
+      )}
+
+      {/* SerpAPI Hotel overlay */}
+      {serpApiOverlayCtx && (
+        <SerpApiHotelOverlay
+          serpHotelName={serpApiOverlayCtx.serpHotelName}
+          serpCity={serpApiOverlayCtx.serpCity}
+          businessName={serpApiOverlayCtx.businessName}
+          reserveNowUrl={serpApiOverlayCtx.reserveNowUrl}
+          onClose={() => setSerpApiOverlayCtx(null)}
         />
       )}
 
