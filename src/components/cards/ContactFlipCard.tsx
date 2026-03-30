@@ -268,7 +268,7 @@ function HotelAvailabilityWidget({
       <button
         onClick={() => onCheckAvailability?.(checkIn, checkOut, adults)}
         disabled={isLoading}
-        className="w-full py-2.5 rounded-full bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+        className="w-full py-2.5 rounded-full bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 normal-case tracking-normal"
       >
         {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
         {isEn ? "Check availability" : "Vérifier la disponibilité"}
