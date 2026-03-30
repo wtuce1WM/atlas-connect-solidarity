@@ -1454,7 +1454,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           businessName={serpApiOverlayCtx.businessName}
           reserveNowUrl={serpApiOverlayCtx.reserveNowUrl}
           onClose={() => setSerpApiOverlayCtx(null)}
-          onSelectBusiness={(id) => { setSerpApiOverlayCtx(null); setActiveBusinessId(id); }}
+          onSelectBusiness={(id) => {
+            serpApiOverlayCtxRef.current = serpApiOverlayCtx;
+            serpApiReturnBusinessIdRef.current = propBusinessId;
+            setSerpApiOverlayCtx(null);
+            setActiveBusinessId(id);
+          }}
         />
       )}
 
