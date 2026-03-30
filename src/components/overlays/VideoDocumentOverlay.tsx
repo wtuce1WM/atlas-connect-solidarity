@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { X, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
+import { useState, useRef, useCallback } from "react";
+import { X, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import type { VideoDoc } from "@/hooks/useBookOnlineData";
 
