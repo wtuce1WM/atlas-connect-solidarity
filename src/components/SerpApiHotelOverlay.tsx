@@ -435,12 +435,13 @@ function HotelCard({ hotel, reserveUrl, isEn, isHighlighted }: {
           {hotel.reviewCount && <span>({hotel.reviewCount})</span>}
           {hotel.hotelClass && <span>{"★".repeat(hotel.hotelClass as number)}</span>}
         </div>
-        {hotel.ratePerNight && (
-          <p className="text-base font-bold text-foreground">
-            {hotel.ratePerNight.amount}
-            <span className="text-xs font-normal text-muted-foreground ml-1">/ {isEn ? "night" : "nuit"}</span>
-          </p>
-        )}
+        <div className="flex items-center gap-2 flex-wrap">
+          {hotel.ratePerNight && (
+            <Badge className="bg-gold/15 text-gold border-gold/30 text-xs font-bold px-2 py-0.5">
+              {hotel.ratePerNight.amount} / {isEn ? "night" : "nuit"}
+            </Badge>
+          )}
+        </div>
         {hotel.dealDescription && (
           <p className="text-[10px] text-green-600 font-medium">{hotel.dealDescription}</p>
         )}
