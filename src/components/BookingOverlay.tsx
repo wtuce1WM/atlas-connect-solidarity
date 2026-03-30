@@ -1,19 +1,22 @@
 import { useRef } from "react";
 import { X } from "lucide-react";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
+import { whatsappUrl } from "@/lib/phoneUtils";
 
 interface BookingOverlayProps {
   bookingUrl: string;
   title?: string;
   onClose: () => void;
+  whatsapp?: string | null;
 }
 
-const BookingOverlay = ({ bookingUrl, title, onClose }: BookingOverlayProps) => {
+const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp }: BookingOverlayProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   return (
-    <div className="absolute inset-0 z-[60] bg-white flex flex-col animate-slide-down-from-top">
-      <div className="flex items-center justify-between px-4 py-2 border-b bg-white">
-        <div className="flex items-center gap-3">
+    <div className="absolute inset-0 z-[60] bg-white flex flex-col animate-slide-down-from-top" style={{ marginTop: "-2.75rem" }}>
+      <div className="flex items-center justify-between px-4 py-2 border-b bg-white shrink-0">
+        <div className="flex items-center gap-3 shrink-0">
           <button
             onClick={onClose}
             className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-white/20 shadow-2xl hover:opacity-90 transition-opacity shrink-0"
@@ -22,8 +25,22 @@ const BookingOverlay = ({ bookingUrl, title, onClose }: BookingOverlayProps) => 
           >
             <X className="h-4 w-4" />
           </button>
-          <span className="text-sm font-semibold">{title || "Réservation"}</span>
         </div>
+        <span className="text-sm font-semibold absolute left-1/2 -translate-x-1/2">{title || "Réservation"}</span>
+        {whatsapp && (
+          <a
+            href={whatsappUrl(whatsapp)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="h-9 w-9 flex items-center justify-center rounded-full text-white shrink-0 hover:opacity-90 transition-opacity"
+            style={{ backgroundColor: "#25D366" }}
+            title="WhatsApp"
+            aria-label="Contacter sur WhatsApp"
+          >
+            <WhatsAppIcon className="h-4 w-4" />
+          </a>
+        )}
+        {!whatsapp && <div className="w-9 shrink-0" />}
       </div>
 
       <iframe
