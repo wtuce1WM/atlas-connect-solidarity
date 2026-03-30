@@ -79,7 +79,8 @@ const VideoDocumentOverlay = ({
 
   return (
     <div
-      className={`absolute inset-0 z-[70] bg-black overflow-hidden ${closing ? 'animate-slide-out-bottom' : 'animate-slide-up-from-bottom'}`}
+      className={`absolute inset-0 z-[70] bg-black overflow-hidden ${closing ? 'animate-slide-out-bottom' : 'animate-slide-in-left'}`}
+      style={{ marginTop: "-3.25rem" }}
       onAnimationEnd={() => { if (closing) onAnimationEnd(); }}
     >
       {/* Top bar: close + mobile nav with counter */}
