@@ -98,6 +98,7 @@ const PricingManagement = () => {
   const [loading, setLoading] = useState(true);
   const [hotelPrices, setHotelPrices] = useState<PriceRow[]>([]);
   const [noPriceHotels, setNoPriceHotels] = useState<PriceRow[]>([]);
+  const [unmappedHotels, setUnmappedHotels] = useState<PriceRow[]>([]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -118,12 +119,22 @@ const PricingManagement = () => {
       ...(serpMap || []).map(r => r.business_id),
     ])];
 
-    const { data: businesses } = await supabase
+    // Fetch all hotel-category businesses for unmapped section
+    const { data: allHotels } = await supabase
       .from("businesses")
       .select("id, name, city, manual_price_range, min_price")
-      .in("id", allMappedIds);
+      .eq("is_active", true)
+      .or("main_category.ilike.%hôtel%,main_category.ilike.%hotel%,main_category.ilike.%hébergement%,main_category.ilike.%riad%");
+
+    const { data: businesses } = allMappedIds.length > 0
+      ? await supabase
+          .from("businesses")
+          .select("id, name, city, manual_price_range, min_price")
+          .in("id", allMappedIds)
+      : { data: [] };
 
     const bizMap = Object.fromEntries((businesses || []).map((b) => [b.id, b]));
+    const mappedIdSet = new Set(allMappedIds);
 
     const grouped: Record<string, PriceRow> = {};
     for (const row of cache || []) {
@@ -179,8 +190,26 @@ const PricingManagement = () => {
       })
       .sort((a, b) => a.city.localeCompare(b.city) || a.name.localeCompare(b.name));
 
+    // Unmapped hotels: hotels not in any mapping table
+    const unmapped: PriceRow[] = (allHotels || [])
+      .filter(h => !mappedIdSet.has(h.id))
+      .map(h => ({
+        id: h.id,
+        name: h.name,
+        city: h.city || "—",
+        liteapi_price: null,
+        serpapi_price: null,
+        liteapi_currency: null,
+        serpapi_currency: null,
+        manual_price_range: h.manual_price_range,
+        min_price: (h as any).min_price ?? null,
+        hasApiPrice: false,
+      }))
+      .sort((a, b) => a.city.localeCompare(b.city) || a.name.localeCompare(b.name));
+
     setHotelPrices(withPrices);
     setNoPriceHotels(withoutPrices);
+    setUnmappedHotels(unmapped);
     setLoading(false);
   }, []);
 
