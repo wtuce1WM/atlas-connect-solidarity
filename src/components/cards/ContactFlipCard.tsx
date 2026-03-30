@@ -137,11 +137,14 @@ const ContactFlipCard = ({
             })()}
             {hasOpeningHours && !business.is_open_24h && <OpeningHoursBlock business={business} language={language} />}
 
-            {/* Hotel availability widget */}
-            {isHotel && hasLiteApiMapping && (
+            {/* Hotel availability buttons */}
+            {(hasLiteApiMapping || hasSerpApiMapping) && (
               <HotelAvailabilityWidget
                 language={language}
-                onCheckAvailability={onCheckAvailability}
+                hasLiteApiMapping={hasLiteApiMapping}
+                hasSerpApiMapping={hasSerpApiMapping}
+                onCheckAvailabilityLiteApi={onCheckAvailabilityLiteApi}
+                onCheckAvailabilitySerpApi={onCheckAvailabilitySerpApi}
               />
             )}
           </div>

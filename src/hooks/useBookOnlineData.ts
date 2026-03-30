@@ -407,5 +407,6 @@ export function useBookOnlineData(businessId: string) {
     kpRelated,
     isKp1Only,
     liteApiHotelId,
+    serpApiMapping,
   };
 }
