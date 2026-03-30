@@ -123,6 +123,19 @@ const SerpApiHotelOverlay = ({ serpHotelName, serpCity, businessName, reserveNow
 
       const bizMap = new Map((businesses || []).map(b => [b.id, b]));
 
+      // Fetch LiteAPI cached prices for these businesses
+      const { data: liteApiPrices } = await supabase
+        .from("hotel_price_cache")
+        .select("business_id, price_per_night, currency")
+        .in("business_id", bizIds)
+        .eq("source", "liteapi")
+        .eq("check_in", checkIn)
+        .eq("check_out", checkOut);
+
+      const liteApiPriceMap = new Map(
+        (liteApiPrices || []).map(p => [p.business_id, { amount: p.price_per_night, currency: p.currency }])
+      );
+
       // Match SerpAPI results with mappings
       const fallback: FallbackSerpHotel[] = otherMappings
         .filter(m => bizMap.has(m.business_id))
@@ -144,6 +157,7 @@ const SerpApiHotelOverlay = ({ serpHotelName, serpCity, businessName, reserveNow
             tripadvisorReviewCount: biz.tripadvisor_review_count,
             reserveNowUrl: biz.reserve_now_url,
             manualPriceRange: biz.manual_price_range,
+            liteApiPrice: liteApiPriceMap.get(m.business_id) || null,
             serpData: serpMatch || null,
           };
         });
