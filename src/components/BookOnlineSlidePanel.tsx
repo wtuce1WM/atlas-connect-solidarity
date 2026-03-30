@@ -1464,7 +1464,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       {/* SerpAPI Hotel overlay */}
       {serpApiOverlayCtx && (
         <SerpApiHotelOverlay
-          serpHotelName={serpApiOverlayCtx.serpHotelName}
+          currentBusinessId={businessId}
           serpCity={serpApiOverlayCtx.serpCity}
           businessName={serpApiOverlayCtx.businessName}
           reserveNowUrl={serpApiOverlayCtx.reserveNowUrl}

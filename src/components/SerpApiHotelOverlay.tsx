@@ -40,7 +40,7 @@ interface MappedHotelResult {
 }
 
 interface SerpApiHotelOverlayProps {
-  serpHotelName: string;
+  currentBusinessId: string;
   serpCity: string;
   businessName: string;
   reserveNowUrl?: string | null;
