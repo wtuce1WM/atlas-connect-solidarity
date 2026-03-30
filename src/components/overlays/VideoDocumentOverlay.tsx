@@ -141,10 +141,10 @@ const VideoDocumentOverlay = ({
       <div className="absolute inset-0 flex items-center justify-center">
         {isFile ? (
           <video
+            ref={videoRef}
             src={vidUrl}
             className="w-full h-full bg-black object-cover"
             autoPlay
-            controls
             loop
             playsInline
             onLoadedMetadata={(e) => {
@@ -161,6 +161,7 @@ const VideoDocumentOverlay = ({
               </>
             )}
             <iframe
+              ref={iframeRef}
               src={overlayEmbedUrl}
               className={overlayVid.type === "youtube"
                 ? isVerticalHint
