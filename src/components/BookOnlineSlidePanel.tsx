@@ -806,8 +806,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       )}
 
       {cardsHidden && (
-        <div className="absolute left-1/2 -translate-x-1/2 z-30 pointer-events-auto flex flex-col items-center gap-3" style={{ top: 'calc(3rem + 0.75rem)' }}>
-          <div className="flex items-center gap-3">
+        <div className="absolute inset-x-0 top-0 z-30 px-4 pt-12 md:px-6 md:pt-16 lg:pt-6 pointer-events-none">
+          <div className="relative z-40 overflow-visible flex flex-col items-center gap-3 pointer-events-auto">
+            <div className="flex items-center gap-3">
           {totalMedia > 1 && (
             <button onClick={() => goMedia(-1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
               <ChevronLeft className="h-4 w-4" />
@@ -829,73 +830,74 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               <ChevronRight className="h-4 w-4" />
             </button>
           )}
+            </div>
+            {/* Video controls when cards hidden */}
+            {currentMedia?.kind === "video" && videoInfo?.type === "file" && (
+              <div className="flex items-center gap-6 md:gap-10">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (videoRef.current) {
+                      if (videoRef.current.paused) videoRef.current.play();
+                      else videoRef.current.pause();
+                    }
+                  }}
+                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  aria-label={videoRef.current?.paused ? "Play" : "Pause"}
+                >
+                  {videoRef.current?.paused ? <Play className="h-5 w-5 md:h-6 md:w-6" /> : <Pause className="h-5 w-5 md:h-6 md:w-6" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (videoRef.current) {
+                      videoRef.current.muted = !videoRef.current.muted;
+                    }
+                  }}
+                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  aria-label={videoRef.current?.muted ? "Unmute" : "Mute"}
+                >
+                  {videoRef.current?.muted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
+                </button>
+              </div>
+            )}
+            {currentMedia?.kind === "video" && videoInfo?.type === "youtube" && (
+              <div className="flex items-center gap-6 md:gap-10">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (iframeRef.current?.contentWindow) {
+                      iframeRef.current.contentWindow.postMessage(
+                        JSON.stringify({ event: "command", func: ytBgPlaying ? "pauseVideo" : "playVideo" }),
+                        "*"
+                      );
+                      setYtBgPlaying(p => !p);
+                    }
+                  }}
+                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  aria-label={ytBgPlaying ? "Pause" : "Play"}
+                >
+                  {ytBgPlaying ? <Pause className="h-5 w-5 md:h-6 md:w-6" /> : <Play className="h-5 w-5 md:h-6 md:w-6" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (iframeRef.current?.contentWindow) {
+                      iframeRef.current.contentWindow.postMessage(
+                        JSON.stringify({ event: "command", func: ytBgMuted ? "unMute" : "mute" }),
+                        "*"
+                      );
+                      setYtBgMuted(m => !m);
+                    }
+                  }}
+                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  aria-label={ytBgMuted ? "Unmute" : "Mute"}
+                >
+                  {ytBgMuted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
+                </button>
+              </div>
+            )}
           </div>
-          {/* Video controls when cards hidden */}
-          {currentMedia?.kind === "video" && videoInfo?.type === "file" && (
-            <div className="flex items-center gap-6 md:gap-10">
-              <button
-                type="button"
-                onClick={() => {
-                  if (videoRef.current) {
-                    if (videoRef.current.paused) videoRef.current.play();
-                    else videoRef.current.pause();
-                  }
-                }}
-                className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                aria-label={videoRef.current?.paused ? "Play" : "Pause"}
-              >
-                {videoRef.current?.paused ? <Play className="h-5 w-5 md:h-6 md:w-6" /> : <Pause className="h-5 w-5 md:h-6 md:w-6" />}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  if (videoRef.current) {
-                    videoRef.current.muted = !videoRef.current.muted;
-                  }
-                }}
-                className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                aria-label={videoRef.current?.muted ? "Unmute" : "Mute"}
-              >
-                {videoRef.current?.muted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
-              </button>
-            </div>
-          )}
-          {currentMedia?.kind === "video" && videoInfo?.type === "youtube" && (
-            <div className="flex items-center gap-6 md:gap-10">
-              <button
-                type="button"
-                onClick={() => {
-                  if (iframeRef.current?.contentWindow) {
-                    iframeRef.current.contentWindow.postMessage(
-                      JSON.stringify({ event: "command", func: ytBgPlaying ? "pauseVideo" : "playVideo" }),
-                      "*"
-                    );
-                    setYtBgPlaying(p => !p);
-                  }
-                }}
-                className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                aria-label={ytBgPlaying ? "Pause" : "Play"}
-              >
-                {ytBgPlaying ? <Pause className="h-5 w-5 md:h-6 md:w-6" /> : <Play className="h-5 w-5 md:h-6 md:w-6" />}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  if (iframeRef.current?.contentWindow) {
-                    iframeRef.current.contentWindow.postMessage(
-                      JSON.stringify({ event: "command", func: ytBgMuted ? "unMute" : "mute" }),
-                      "*"
-                    );
-                    setYtBgMuted(m => !m);
-                  }
-                }}
-                className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                aria-label={ytBgMuted ? "Unmute" : "Mute"}
-              >
-                {ytBgMuted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
-              </button>
-            </div>
-          )}
         </div>
       )}
 
