@@ -7,6 +7,7 @@ interface VideoDocumentOverlayProps {
   activeVideo: { url: string; name: string | null; description: string | null };
   videoDocs: VideoDoc[];
   closing: boolean;
+  defaultSoundOn?: boolean;
   onClose: () => void;
   onNavigate: (video: { url: string; name: string | null; description: string | null }) => void;
   onAnimationEnd: () => void;
@@ -16,13 +17,14 @@ const VideoDocumentOverlay = ({
   activeVideo,
   videoDocs,
   closing,
+  defaultSoundOn = true,
   onClose,
   onNavigate,
   onAnimationEnd,
 }: VideoDocumentOverlayProps) => {
   const [descExpanded, setDescExpanded] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(!defaultSoundOn);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -62,13 +64,14 @@ const VideoDocumentOverlay = ({
       onNavigate({ url: v.url, name: v.name, description: v.description });
       setDescExpanded(true);
       setIsPlaying(true);
-      setIsMuted(false);
+      setIsMuted(!defaultSoundOn);
     }
   };
 
   const overlayVid = getVideoEmbed(vidUrl, window.location.origin);
+  const muteVal = defaultSoundOn ? "0" : "1";
   const overlayEmbedUrl = overlayVid.type === "youtube"
-    ? overlayVid.embedUrl.replace(/mute=\d/, "mute=0").replace(/loop=\d/, "loop=1").replace(/controls=\d/, "controls=0") + `&playlist=${vidUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1] || ""}`
+    ? overlayVid.embedUrl.replace(/mute=\d/, `mute=${muteVal}`).replace(/loop=\d/, "loop=1").replace(/controls=\d/, "controls=0") + `&playlist=${vidUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1] || ""}`
     : overlayVid.type === "vimeo"
       ? overlayVid.embedUrl.replace(/muted=\d/, "muted=0").replace(/loop=\d/, "loop=1")
       : overlayVid.type === "bunny"
