@@ -433,11 +433,15 @@ const PricingManagement = () => {
                           {noPriceCitiesMap[city].map((row) => (
                             <tr key={row.id} className="hover:bg-muted/50">
                               <td className="py-2 pr-4 font-medium truncate">{row.name}</td>
-                              <td className="py-2 px-4 text-right">
-                                <MinPriceCell row={row} onSave={handleMinPriceSave} />
+                              <td className="py-2 px-4">
+                                <div className="flex justify-end">
+                                  <MinPriceCell row={row} onSave={handleMinPriceSave} />
+                                </div>
                               </td>
-                              <td className="py-2 pl-4 text-center">
-                                <PriceRangeSelect row={row} />
+                              <td className="py-2 pl-4">
+                                <div className="flex justify-center">
+                                  <PriceRangeSelect row={row} />
+                                </div>
                               </td>
                             </tr>
                           ))}
@@ -479,11 +483,15 @@ const PricingManagement = () => {
                           {unmappedCitiesMap[city].map((row) => (
                             <tr key={row.id} className="hover:bg-muted/50">
                               <td className="py-2 pr-4 font-medium truncate">{row.name}</td>
-                              <td className="py-2 px-4 text-right">
-                                <MinPriceCell row={row} onSave={handleMinPriceSave} />
+                              <td className="py-2 px-4">
+                                <div className="flex justify-end">
+                                  <MinPriceCell row={row} onSave={handleMinPriceSave} />
+                                </div>
                               </td>
-                              <td className="py-2 pl-4 text-center">
-                                <PriceRangeSelect row={row} />
+                              <td className="py-2 pl-4">
+                                <div className="flex justify-center">
+                                  <PriceRangeSelect row={row} />
+                                </div>
                               </td>
                             </tr>
                           ))}
