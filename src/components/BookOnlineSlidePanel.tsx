@@ -879,8 +879,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     hideCards();
                   }
                 }}
-                onClick={hideCards}
-                onMouseDown={onMouseDownDrag}
+                onClick={(e) => { e.stopPropagation(); hideCards(); }}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
               >
                 <ChevronDown className="h-3.5 w-3.5" />
                 <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Masquer</span>
