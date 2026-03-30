@@ -805,173 +805,96 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         </>
       )}
 
-      {cardsHidden && (
-        <div className="absolute inset-x-0 top-0 z-30 px-4 pt-12 md:px-6 md:pt-16 lg:pt-6 pointer-events-none">
-          <div className="relative z-40 overflow-visible flex flex-col items-center gap-3 pointer-events-auto">
-            <div className="flex items-center gap-3">
-          {totalMedia > 1 && (
-            <button onClick={() => goMedia(-1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-          )}
-          <button
-            type="button"
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm hover:bg-background transition-colors"
-            title="Afficher les cartes"
-            aria-label="Afficher les cartes"
-            onClick={showCards}
-          >
-            <ChevronUp className="h-3.5 w-3.5" />
-            <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Afficher</span>
-            <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
-          </button>
-          {totalMedia > 1 && (
-            <button onClick={() => goMedia(1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          )}
-            </div>
-            {/* Video controls when cards hidden */}
-            {currentMedia?.kind === "video" && videoInfo?.type === "file" && (
-              <div className="flex items-center gap-6 md:gap-10">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (videoRef.current) {
-                      if (videoRef.current.paused) videoRef.current.play();
-                      else videoRef.current.pause();
-                    }
-                  }}
-                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                  aria-label={videoRef.current?.paused ? "Play" : "Pause"}
-                >
-                  {videoRef.current?.paused ? <Play className="h-5 w-5 md:h-6 md:w-6" /> : <Pause className="h-5 w-5 md:h-6 md:w-6" />}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (videoRef.current) {
-                      videoRef.current.muted = !videoRef.current.muted;
-                    }
-                  }}
-                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                  aria-label={videoRef.current?.muted ? "Unmute" : "Mute"}
-                >
-                  {videoRef.current?.muted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
-                </button>
-              </div>
-            )}
-            {currentMedia?.kind === "video" && videoInfo?.type === "youtube" && (
-              <div className="flex items-center gap-6 md:gap-10">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (iframeRef.current?.contentWindow) {
-                      iframeRef.current.contentWindow.postMessage(
-                        JSON.stringify({ event: "command", func: ytBgPlaying ? "pauseVideo" : "playVideo" }),
-                        "*"
-                      );
-                      setYtBgPlaying(p => !p);
-                    }
-                  }}
-                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                  aria-label={ytBgPlaying ? "Pause" : "Play"}
-                >
-                  {ytBgPlaying ? <Pause className="h-5 w-5 md:h-6 md:w-6" /> : <Play className="h-5 w-5 md:h-6 md:w-6" />}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (iframeRef.current?.contentWindow) {
-                      iframeRef.current.contentWindow.postMessage(
-                        JSON.stringify({ event: "command", func: ytBgMuted ? "unMute" : "mute" }),
-                        "*"
-                      );
-                      setYtBgMuted(m => !m);
-                    }
-                  }}
-                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                  aria-label={ytBgMuted ? "Unmute" : "Mute"}
-                >
-                  {ytBgMuted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
-      {/* Overlaid content — swipeable */}
+      {/* Overlaid content — always visible, carousels toggle */}
       <div
-        className={`relative z-10 flex flex-col overflow-y-auto overscroll-contain h-full p-4 pt-12 md:p-6 md:pt-16 lg:pt-6 pb-8 ${cardsHidden ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"}`}
-        style={{
-          transform: isDragging
-            ? `translateY(${dragOffsetY}px)`
-            : cardsHidden
-              ? 'translateY(100%)'
-              : 'translateY(0)',
-          transition: isDragging ? 'none' : 'transform 0.35s cubic-bezier(.4,0,.2,1)',
-        }}
+        className="relative z-10 flex flex-col overflow-y-auto overscroll-contain h-full p-4 pt-12 md:p-6 md:pt-16 lg:pt-6 pb-8"
+        style={isDragging ? { transform: `translateY(${dragOffsetY}px)`, transition: 'none' } : undefined}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
-        {/* Top bar: flags, masquer, rating */}
-        {!cardsHidden && (
-          <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex items-center justify-center pb-3 pointer-events-auto animate-[slide-in-top_0.35s_ease-out_both]">
-            {languages.length > 0 && (
-               <div className={`absolute left-0 z-50 flex items-center gap-0.5 md:gap-1.5 bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2 md:px-2.5 md:rounded-full md:py-1 md:flex-wrap md:justify-center md:overflow-visible ${languages.length > 5 ? 'max-w-[7rem] overflow-x-auto' : ''} ${languages.length > 4 ? 'md:max-w-none md:overflow-visible' : ''}`} style={languages.length > 5 ? { scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties : undefined}>
-                {languages.map((lang, i) => {
-                  const langAlt = getLangAlt(lang);
-                  return (
-                    <span
-                      key={i}
-                      className="group relative inline-flex items-center justify-center text-base md:text-lg leading-none cursor-help shrink-0"
-                      title={langAlt}
-                      aria-label={langAlt}
-                      tabIndex={0}
-                    >
-                      {getLangFlag(lang)}
+        {/* Top bar: toggle, flags, rating */}
+        <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex flex-col items-center pb-3 pointer-events-auto animate-[slide-in-top_0.35s_ease-out_both]">
+          {cardsHidden ? (
+            <div className="flex items-center gap-3">
+              {totalMedia > 1 && (
+                <button onClick={() => goMedia(-1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+              )}
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm hover:bg-background transition-colors"
+                title="Afficher les cartes"
+                aria-label="Afficher les cartes"
+                onClick={showCards}
+              >
+                <ChevronUp className="h-3.5 w-3.5" />
+                <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Afficher</span>
+                <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
+              </button>
+              {totalMedia > 1 && (
+                <button onClick={() => goMedia(1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="relative w-full flex items-center justify-center">
+              {languages.length > 0 && (
+                <div className={`absolute left-0 z-50 flex items-center gap-0.5 md:gap-1.5 bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2 md:px-2.5 md:rounded-full md:py-1 md:flex-wrap md:justify-center md:overflow-visible ${languages.length > 5 ? 'max-w-[7rem] overflow-x-auto' : ''} ${languages.length > 4 ? 'md:max-w-none md:overflow-visible' : ''}`} style={languages.length > 5 ? { scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties : undefined}>
+                  {languages.map((lang, i) => {
+                    const langAlt = getLangAlt(lang);
+                    return (
                       <span
-                        role="tooltip"
-                        className="pointer-events-none absolute left-0 top-full z-50 mt-2 hidden whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[10px] text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 md:block md:text-xs"
+                        key={i}
+                        className="group relative inline-flex items-center justify-center text-base md:text-lg leading-none cursor-help shrink-0"
+                        title={langAlt}
+                        aria-label={langAlt}
+                        tabIndex={0}
                       >
-                        {langAlt}
+                        {getLangFlag(lang)}
+                        <span
+                          role="tooltip"
+                          className="pointer-events-none absolute left-0 top-full z-50 mt-2 hidden whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[10px] text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 md:block md:text-xs"
+                        >
+                          {langAlt}
+                        </span>
                       </span>
-                    </span>
-                  );
-                })}
-              </div>
-            )}
-
-            <button
-              type="button"
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:bg-background transition-colors"
-              title="Masquer les cartes"
-              aria-label="Masquer les cartes"
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  hideCards();
-                }
-              }}
-              onMouseDown={onMouseDownDrag}
-            >
-              <ChevronDown className="h-3.5 w-3.5" />
-              <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Masquer</span>
-              <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
-            </button>
-            {avgOn20 !== null && avgOn20 > 0 && (
-              <div className="md:hidden absolute right-0 z-50 flex flex-col items-center bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2.5 animate-slide-in-right">
-                <div className="flex items-center gap-1">
-                  <Star className="h-3.5 w-3.5 text-gold fill-gold" />
-                  <span className="text-base font-bold text-white">{avgOn20}</span>
-                  <span className="text-[10px] text-white/60">/20</span>
+                    );
+                  })}
                 </div>
-              </div>
-            )}
-          </div>
-        )}
+              )}
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:bg-background transition-colors"
+                title="Masquer les cartes"
+                aria-label="Masquer les cartes"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    hideCards();
+                  }
+                }}
+                onMouseDown={onMouseDownDrag}
+              >
+                <ChevronDown className="h-3.5 w-3.5" />
+                <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Masquer</span>
+                <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
+              </button>
+              {avgOn20 !== null && avgOn20 > 0 && (
+                <div className="md:hidden absolute right-0 z-50 flex flex-col items-center bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2.5 animate-slide-in-right">
+                  <div className="flex items-center gap-1">
+                    <Star className="h-3.5 w-3.5 text-gold fill-gold" />
+                    <span className="text-base font-bold text-white">{avgOn20}</span>
+                    <span className="text-[10px] text-white/60">/20</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Block 1: Logo + name */}
         <div key={businessId} className="w-full shrink-0 rounded-2xl bg-black/40 backdrop-blur-sm px-4 md:px-6 text-white overflow-hidden relative h-[4.5rem] md:h-[5.5rem] pointer-events-auto mt-3 md:mt-0 animate-slide-in-right">
@@ -1032,6 +955,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           )}
         </div>
 
+        {!cardsHidden && (
+          <>
         {/* Info Carousel */}
         <div className="shrink-0 w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto">
           <div className="flex w-max gap-2 items-start">
@@ -1228,17 +1153,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             />
           </div>
         )}
-        {/* Hidden YouTube count probe */}
-        {activeBottomCarousel !== "youtube" && business?.youtube_url && business?.youtube_force_external && youtubeVideoCount === null && (
-          <div className="hidden">
-            <YouTubeShortsCarousel
-              youtubeUrl={business.youtube_url}
-              onVideoCount={setYoutubeVideoCount}
-              shortsOnly
-              hideLabel
-            />
-          </div>
-        )}
 
         {/* Destinations carousel */}
         {activeBottomCarousel === "dest" && (
@@ -1393,9 +1307,85 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           </div>
           </>
         )}
+          </>
+        )}
+
+        {/* Hidden YouTube count probe — always mounted */}
+        {business?.youtube_url && business?.youtube_force_external && youtubeVideoCount === null && (
+          <div className="hidden">
+            <YouTubeShortsCarousel
+              youtubeUrl={business.youtube_url}
+              onVideoCount={setYoutubeVideoCount}
+              shortsOnly
+              hideLabel
+            />
+          </div>
+        )}
+
+        {/* Spacer + availability zone when cards hidden */}
+        {cardsHidden && (
+          <div className="flex-1 flex flex-col items-center justify-center gap-4 pointer-events-auto">
+            {currentMedia?.kind === "video" && videoInfo?.type === "file" && (
+              <div className="flex items-center gap-6 md:gap-10">
+                <button
+                  type="button"
+                  onClick={() => { if (videoRef.current) { if (videoRef.current.paused) videoRef.current.play(); else videoRef.current.pause(); } }}
+                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  aria-label={videoRef.current?.paused ? "Play" : "Pause"}
+                >
+                  {videoRef.current?.paused ? <Play className="h-5 w-5 md:h-6 md:w-6" /> : <Pause className="h-5 w-5 md:h-6 md:w-6" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { if (videoRef.current) { videoRef.current.muted = !videoRef.current.muted; } }}
+                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  aria-label={videoRef.current?.muted ? "Unmute" : "Mute"}
+                >
+                  {videoRef.current?.muted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
+                </button>
+              </div>
+            )}
+            {currentMedia?.kind === "video" && videoInfo?.type === "youtube" && (
+              <div className="flex items-center gap-6 md:gap-10">
+                <button
+                  type="button"
+                  onClick={() => { if (iframeRef.current?.contentWindow) { iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: "command", func: ytBgPlaying ? "pauseVideo" : "playVideo" }), "*"); setYtBgPlaying(p => !p); } }}
+                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  aria-label={ytBgPlaying ? "Pause" : "Play"}
+                >
+                  {ytBgPlaying ? <Pause className="h-5 w-5 md:h-6 md:w-6" /> : <Play className="h-5 w-5 md:h-6 md:w-6" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { if (iframeRef.current?.contentWindow) { iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: "command", func: ytBgMuted ? "unMute" : "mute" }), "*"); setYtBgMuted(m => !m); } }}
+                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  aria-label={ytBgMuted ? "Unmute" : "Mute"}
+                >
+                  {ytBgMuted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
+                </button>
+              </div>
+            )}
+            {hotelSearchLoading && (
+              <div className="flex items-center gap-2 text-white/80">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span className="text-sm font-['Roboto',sans-serif]">{language === "en" ? "Searching availability..." : "Recherche de disponibilité..."}</span>
+              </div>
+            )}
+            {fallbackPanelData && !hotelSearchLoading && (
+              <div className="text-center text-white bg-black/40 backdrop-blur-sm rounded-xl px-6 py-4 border border-white/10">
+                <p className="text-sm font-medium font-['Josefin_Sans',sans-serif] mb-1">
+                  {fallbackPanelData.hotels.length} {language === "en" ? "hotels found" : "hôtels trouvés"}
+                </p>
+                <p className="text-xs text-white/60 font-['Roboto',sans-serif]">
+                  {fallbackPanelData.checkIn} → {fallbackPanelData.checkOut} · {fallbackPanelData.adults} {language === "en" ? "adults" : "adultes"}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* CTAs + video controls */}
-        <div className={`shrink-0 py-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto ${noBottomCarousel ? 'lg:mt-auto' : ''}`}>
+        <div className={`shrink-0 py-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto ${cardsHidden ? '' : noBottomCarousel ? 'lg:mt-auto' : ''}`}>
             {bookingCta && (
               bookingCta.forceExternal ? (
                 <a
