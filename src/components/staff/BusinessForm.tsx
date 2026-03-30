@@ -1610,8 +1610,16 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
           return m ? m[1] : null;
         };
+        const normalizedVideoDocs = videoDocs
+          .map((d) => ({
+            ...d,
+            url: d.url.trim(),
+            thumbnail_url: d.thumbnail_url?.trim() || null,
+          }))
+          .filter((d) => d.url);
+
         const videoDocsWithThumbs = await Promise.all(
-          videoDocs.filter(d => d.url.trim()).map(async (d) => {
+          normalizedVideoDocs.map(async (d) => {
             if (d.thumbnail_url) return d;
             // YouTube thumbnail
             const ytId = getYouTubeId(d.url);
@@ -1641,12 +1649,15 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           ...externalLinkDocs
             .filter((d) => d.name.trim() && d.url.trim())
             .map((d, i) => ({ business_id: businessId, type: "external_link" as const, url: d.url.trim(), name: d.name.trim(), language: d.language || null, icon: d.image_url || null, sort_order: i })),
-          ...videoDocsWithThumbs.map((d, i) => ({ business_id: businessId, type: "video" as const, url: d.url.trim(), name: d.name || null, language: null, icon: null, sort_order: i, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null })),
+          ...videoDocsWithThumbs.map((d, i) => ({ business_id: businessId, type: "video" as const, url: d.url, name: d.name || null, language: null, icon: null, sort_order: i, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null })),
         ];
         if (allDocs.length > 0) {
           const { error: docsError } = await supabase.from("business_documents" as any).insert(allDocs);
           if (docsError) throw docsError;
         }
+
+        // Keep UI in sync immediately after save (no manual refresh needed)
+        setVideoDocs(videoDocsWithThumbs);
       }
 
       // Save menu summaries
