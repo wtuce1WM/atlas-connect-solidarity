@@ -1469,11 +1469,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           businessName={serpApiOverlayCtx.businessName}
           reserveNowUrl={serpApiOverlayCtx.reserveNowUrl}
           onClose={() => setSerpApiOverlayCtx(null)}
-          onSelectBusiness={(id) => {
-            serpApiOverlayCtxRef.current = serpApiOverlayCtx;
-            serpApiReturnBusinessIdRef.current = propBusinessId;
+          onOpenFallbackPanel={(panelData) => {
+            const isMobileOrTablet = typeof window !== "undefined" && window.innerWidth < 1024;
+            if (isMobileOrTablet) setShowTransitionOverlay(true);
+            setFallbackPanelData(panelData);
+            setSelectedFallbackHotelId(null);
+            setFallbackHiddenOnMobile(false);
             setSerpApiOverlayCtx(null);
-            setActiveBusinessId(id);
           }}
         />
       )}
