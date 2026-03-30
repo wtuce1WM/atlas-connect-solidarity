@@ -232,6 +232,7 @@ const PricingManagement = () => {
       rows.map(r => r.id === businessId ? { ...r, manual_price_range: rangeValue } : r);
     setHotelPrices(updater);
     setNoPriceHotels(updater);
+    setUnmappedHotels(updater);
   };
 
   const handleMinPriceSave = async (businessId: string, value: number | null) => {
