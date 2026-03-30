@@ -168,7 +168,7 @@ const SerpApiHotelOverlay = ({ serpHotelName, serpCity, businessName, reserveNow
     } finally {
       setFallbackLoading(false);
     }
-  }, [serpCity, serpHotelName]);
+  }, [serpCity, serpHotelName, checkIn, checkOut]);
 
   const handleSearch = useCallback(async () => {
     setIsLoading(true);
