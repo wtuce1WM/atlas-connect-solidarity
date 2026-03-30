@@ -3,6 +3,7 @@ import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
 import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, CalendarCheck, ShoppingBag, Star, Minimize2, Loader2, Volume2, VolumeX, Play, Pause } from "lucide-react";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
+import { supabase } from "@/integrations/supabase/client";
 import { isCurrentlyOpen } from "@/lib/formatOpeningHours";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import poiNearbyImg from "@/assets/poi-nearby.webp";
