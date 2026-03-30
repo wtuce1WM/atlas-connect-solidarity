@@ -98,6 +98,7 @@ const PricingManagement = () => {
   const [loading, setLoading] = useState(true);
   const [hotelPrices, setHotelPrices] = useState<PriceRow[]>([]);
   const [noPriceHotels, setNoPriceHotels] = useState<PriceRow[]>([]);
+  const [unmappedHotels, setUnmappedHotels] = useState<PriceRow[]>([]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -118,12 +119,22 @@ const PricingManagement = () => {
       ...(serpMap || []).map(r => r.business_id),
     ])];
 
-    const { data: businesses } = await supabase
+    // Fetch all hotel-category businesses for unmapped section
+    const { data: allHotels } = await supabase
       .from("businesses")
       .select("id, name, city, manual_price_range, min_price")
-      .in("id", allMappedIds);
+      .eq("is_active", true)
+      .or("main_category.ilike.%hôtel%,main_category.ilike.%hotel%,main_category.ilike.%hébergement%,main_category.ilike.%riad%");
+
+    const { data: businesses } = allMappedIds.length > 0
+      ? await supabase
+          .from("businesses")
+          .select("id, name, city, manual_price_range, min_price")
+          .in("id", allMappedIds)
+      : { data: [] };
 
     const bizMap = Object.fromEntries((businesses || []).map((b) => [b.id, b]));
+    const mappedIdSet = new Set(allMappedIds);
 
     const grouped: Record<string, PriceRow> = {};
     for (const row of cache || []) {
@@ -179,8 +190,26 @@ const PricingManagement = () => {
       })
       .sort((a, b) => a.city.localeCompare(b.city) || a.name.localeCompare(b.name));
 
+    // Unmapped hotels: hotels not in any mapping table
+    const unmapped: PriceRow[] = (allHotels || [])
+      .filter(h => !mappedIdSet.has(h.id))
+      .map(h => ({
+        id: h.id,
+        name: h.name,
+        city: h.city || "—",
+        liteapi_price: null,
+        serpapi_price: null,
+        liteapi_currency: null,
+        serpapi_currency: null,
+        manual_price_range: h.manual_price_range,
+        min_price: (h as any).min_price ?? null,
+        hasApiPrice: false,
+      }))
+      .sort((a, b) => a.city.localeCompare(b.city) || a.name.localeCompare(b.name));
+
     setHotelPrices(withPrices);
     setNoPriceHotels(withoutPrices);
+    setUnmappedHotels(unmapped);
     setLoading(false);
   }, []);
 
@@ -203,6 +232,7 @@ const PricingManagement = () => {
       rows.map(r => r.id === businessId ? { ...r, manual_price_range: rangeValue } : r);
     setHotelPrices(updater);
     setNoPriceHotels(updater);
+    setUnmappedHotels(updater);
   };
 
   const handleMinPriceSave = async (businessId: string, value: number | null) => {
@@ -221,6 +251,7 @@ const PricingManagement = () => {
       rows.map(r => r.id === businessId ? { ...r, min_price: value } : r);
     setHotelPrices(updater);
     setNoPriceHotels(updater);
+    setUnmappedHotels(updater);
   };
 
   const groupByCity = (rows: PriceRow[]) => {
@@ -236,6 +267,8 @@ const PricingManagement = () => {
   const sortedCities = Object.keys(citiesMap).sort();
   const noPriceCitiesMap = groupByCity(noPriceHotels);
   const noPriceSortedCities = Object.keys(noPriceCitiesMap).sort();
+  const unmappedCitiesMap = groupByCity(unmappedHotels);
+  const unmappedSortedCities = Object.keys(unmappedCitiesMap).sort();
 
   if (loading) {
     return (
@@ -395,6 +428,50 @@ const PricingManagement = () => {
                         </thead>
                         <tbody className="divide-y">
                           {noPriceCitiesMap[city].map((row) => (
+                            <tr key={row.id} className="hover:bg-muted/50">
+                              <td className="py-2 pr-4 font-medium">{row.name}</td>
+                              <td className="py-2 px-4 text-right">
+                                <MinPriceCell row={row} onSave={handleMinPriceSave} />
+                              </td>
+                              <td className="py-2 pl-4 text-center">
+                                <PriceRangeSelect row={row} />
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </>
+          )}
+
+          {/* Unmapped hotels */}
+          {unmappedHotels.length > 0 && (
+            <>
+              <div className="flex items-center gap-3 text-sm text-muted-foreground mt-8 pt-6 border-t">
+                <span className="font-medium text-foreground">{unmappedHotels.length} hôtels non mappés</span>
+                <span>— aucun lien API (LiteAPI / SerpAPI)</span>
+              </div>
+
+              {unmappedSortedCities.map((city) => (
+                <Card key={`unmapped-${city}`}>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base">{city} ({unmappedCitiesMap[city].length})</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Établissement</th>
+                            <th className="text-right py-2 px-4 font-medium text-muted-foreground">Prix minimum</th>
+                            <th className="text-center py-2 pl-4 font-medium text-muted-foreground">Gamme de prix</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y">
+                          {unmappedCitiesMap[city].map((row) => (
                             <tr key={row.id} className="hover:bg-muted/50">
                               <td className="py-2 pr-4 font-medium">{row.name}</td>
                               <td className="py-2 px-4 text-right">
