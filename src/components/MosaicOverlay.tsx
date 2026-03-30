@@ -11,7 +11,7 @@ interface MosaicOverlayProps {
 
 const MosaicOverlay = ({ mediaItems, onClose, onOpenLightbox }: MosaicOverlayProps) => {
   return (
-    <div className="absolute inset-0 z-[76] bg-black overflow-y-auto animate-slide-in-left">
+    <div className="absolute inset-0 -top-[3.3rem] z-[76] bg-black overflow-y-auto animate-slide-in-left">
       <div className="sticky top-0 z-10 p-2">
         <button
           onClick={onClose}
