@@ -1444,6 +1444,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         />
       )}
 
+      {/* SerpAPI Hotel overlay */}
+      {serpApiOverlayCtx && (
+        <SerpApiHotelOverlay
+          serpHotelName={serpApiOverlayCtx.serpHotelName}
+          serpCity={serpApiOverlayCtx.serpCity}
+          businessName={serpApiOverlayCtx.businessName}
+          reserveNowUrl={serpApiOverlayCtx.reserveNowUrl}
+          onClose={() => setSerpApiOverlayCtx(null)}
+        />
+      )}
+
       {/* Mobile transition overlay */}
       {showTransitionOverlay && createPortal(
         <div className="fixed inset-0 z-[215] bg-black lg:hidden animate-fade-in" />,
