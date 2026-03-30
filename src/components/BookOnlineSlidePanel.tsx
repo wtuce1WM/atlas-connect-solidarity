@@ -57,7 +57,7 @@ type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | 
 
 const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand, externalOverlayActive, forceMuted }: BookOnlineSlidePanelProps) => {
   const [activeBusinessId, setActiveBusinessId] = useState(propBusinessId);
-  useEffect(() => { setActiveBusinessId(propBusinessId); }, [propBusinessId]);
+  useEffect(() => { setActiveBusinessId(propBusinessId); setSerpApiOverlayCtx(null); }, [propBusinessId]);
   const businessId = activeBusinessId;
   const { language } = useLanguage();
   const navigate = useNavigate();
