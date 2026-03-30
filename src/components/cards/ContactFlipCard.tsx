@@ -174,40 +174,98 @@ const ContactFlipCard = ({
   );
 };
 
-/** Hotel availability widget — Airbnb-style */
+/** Hotel availability widget — Airbnb-style date picker */
 function HotelAvailabilityWidget({
   language,
-  hasLiteApiMapping,
-  hasSerpApiMapping,
-  onCheckAvailabilityLiteApi,
-  onCheckAvailabilitySerpApi,
+  isLoading,
+  onCheckAvailability,
 }: {
   language: string;
-  hasLiteApiMapping?: boolean;
-  hasSerpApiMapping?: boolean;
-  onCheckAvailabilityLiteApi?: () => void;
-  onCheckAvailabilitySerpApi?: () => void;
+  isLoading?: boolean;
+  onCheckAvailability?: (checkIn: string, checkOut: string, adults: number) => void;
 }) {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const defaultCheckout = new Date(tomorrow);
+  defaultCheckout.setDate(defaultCheckout.getDate() + 3);
+  const fmt = (d: Date) => d.toISOString().split("T")[0];
+
+  const [checkIn, setCheckIn] = useState(fmt(tomorrow));
+  const [checkOut, setCheckOut] = useState(fmt(defaultCheckout));
+  const [adults, setAdults] = useState(2);
+
+  const isEn = language === "en";
+
+  const formatDateShort = (dateStr: string) => {
+    const d = new Date(dateStr + "T12:00:00");
+    const months = isEn
+      ? ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+      : ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc"];
+    return `${months[d.getMonth()]} ${d.getDate()}`;
+  };
+
   return (
     <div className="mt-3 pt-3 border-t border-white/20 space-y-2">
-      {hasLiteApiMapping && (
-        <button
-          onClick={onCheckAvailabilityLiteApi}
-          className="w-full py-2.5 rounded-full bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2"
-        >
-          <Search className="h-4 w-4" />
-          LiteAPI
-        </button>
-      )}
-      {hasSerpApiMapping && (
-        <button
-          onClick={onCheckAvailabilitySerpApi}
-          className="w-full py-2.5 rounded-full bg-gold/90 text-black font-bold text-sm hover:bg-gold transition-colors flex items-center justify-center gap-2"
-        >
-          <Search className="h-4 w-4" />
-          SerpAPI
-        </button>
-      )}
+      {/* Date fields */}
+      <div className="grid grid-cols-2 gap-px rounded-xl overflow-hidden border border-white/20">
+        <div className="bg-white/10 p-2 relative">
+          <label className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block">
+            {isEn ? "CHECK-IN" : "ARRIVÉE"}
+          </label>
+          <span className="text-white font-bold text-sm">{formatDateShort(checkIn)}</span>
+          <input
+            type="date"
+            value={checkIn}
+            onChange={e => {
+              setCheckIn(e.target.value);
+              if (e.target.value >= checkOut) {
+                const next = new Date(e.target.value);
+                next.setDate(next.getDate() + 1);
+                setCheckOut(fmt(next));
+              }
+            }}
+            min={fmt(tomorrow)}
+            className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+          />
+        </div>
+        <div className="bg-white/10 p-2 border-l border-white/20 relative">
+          <label className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block">
+            {isEn ? "CHECK-OUT" : "DÉPART"}
+          </label>
+          <span className="text-white font-bold text-sm">{formatDateShort(checkOut)}</span>
+          <input
+            type="date"
+            value={checkOut}
+            onChange={e => setCheckOut(e.target.value)}
+            min={checkIn}
+            className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+          />
+        </div>
+      </div>
+      <div className="bg-white/10 rounded-xl px-3 py-1.5 border border-white/20">
+        <span className="text-white/80 text-xs">{adults} {isEn ? "adults" : "adultes"}</span>
+        <div className="flex gap-1 mt-1">
+          {[1, 2, 3, 4].map(n => (
+            <button
+              key={n}
+              onClick={() => setAdults(n)}
+              className={`flex-1 py-0.5 rounded text-xs font-bold transition-all ${
+                adults === n ? "bg-white text-black" : "text-white/60 hover:text-white"
+              }`}
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+      </div>
+      <button
+        onClick={() => onCheckAvailability?.(checkIn, checkOut, adults)}
+        disabled={isLoading}
+        className="w-full py-2.5 rounded-full bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+      >
+        {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+        {isEn ? "CHECK AVAILABILITY" : "VÉRIFIER LA DISPONIBILITÉ"}
+      </button>
     </div>
   );
 }
