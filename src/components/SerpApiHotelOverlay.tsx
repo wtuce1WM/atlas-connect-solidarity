@@ -34,6 +34,7 @@ interface FallbackSerpHotel {
   tripadvisorReviewCount: number | null;
   reserveNowUrl: string | null;
   manualPriceRange: string | null;
+  liteApiPrice: { amount: number; currency: string } | null;
   // SerpAPI result data if found
   serpData?: SerpApiHotel | null;
 }
