@@ -127,7 +127,7 @@ const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel }: 
               return (
                 <div
                   key={hotel.hotelId}
-                  className="group overflow-hidden rounded-xl border border-white/15 shadow-sm hover:shadow-md transition-all cursor-pointer relative aspect-square"
+                  className="group overflow-hidden rounded-xl border border-border shadow-sm hover:shadow-md transition-all cursor-pointer relative aspect-square"
                   onClick={() => {
                     if (hotel.businessId) {
                       onSelectHotel(hotel.hotelId, hotel.businessId);
