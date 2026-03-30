@@ -1570,7 +1570,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       // Save business documents (menus, flipbooks & external links)
       if (businessId) {
         // Generate thumbnails for videos that don't have one yet
-        const isFileVideo = (url: string) => !url.match(/youtube\.com|youtu\.be|vimeo\.com/i) && url.includes("supabase.co/storage");
+        const isNonEmbedVideo = (url: string) => !url.match(/youtube\.com|youtu\.be|vimeo\.com/i);
         const getYouTubeId = (url: string): string | null => {
           const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
           return m ? m[1] : null;
@@ -1583,17 +1583,19 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             if (ytId) {
               return { ...d, thumbnail_url: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` };
             }
-            // File-hosted video thumbnail
-            if (!isFileVideo(d.url)) return d;
+            // Hosted video thumbnail (any non-YouTube/Vimeo)
+            if (!isNonEmbedVideo(d.url)) return d;
             try {
+              console.log("[thumb] Generating thumbnail for:", d.url);
               const blob = await generateVideoThumbnail(d.url);
-              if (!blob) return d;
+              if (!blob) { console.warn("[thumb] No blob generated for:", d.url); return d; }
               const thumbName = `thumbs/${businessId}-${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
-              const { error: upErr } = await supabase.storage.from("business-images").upload(thumbName, blob, { contentType: "image/jpeg", cacheControl: "31536000", upsert: false });
-              if (upErr) { console.warn("Thumb upload error:", upErr); return d; }
+              const { error: upErr } = await supabase.storage.from("business-images").upload(thumbName, blob, { contentType: "image/jpeg", cacheControl: "31536000", upsert: true });
+              if (upErr) { console.warn("[thumb] Upload error:", upErr); return d; }
               const { data: thumbUrl } = supabase.storage.from("business-images").getPublicUrl(thumbName);
+              console.log("[thumb] Generated:", thumbUrl?.publicUrl);
               return { ...d, thumbnail_url: thumbUrl?.publicUrl || null };
-            } catch (e) { console.warn("Thumb generation error:", e); return d; }
+            } catch (e) { console.warn("[thumb] Generation error:", e); return d; }
           })
         );
 
