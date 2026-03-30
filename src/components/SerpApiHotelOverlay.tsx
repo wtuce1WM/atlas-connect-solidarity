@@ -21,6 +21,13 @@ interface SerpApiHotel {
   images: string[];
 }
 
+interface GammeInfo {
+  id: string;
+  name_fr: string;
+  color_hex: string | null;
+  text_color_hex: string | null;
+}
+
 interface MappedHotelResult {
   id: string;
   businessId: string;
@@ -34,6 +41,7 @@ interface MappedHotelResult {
   tripadvisorReviewCount: number | null;
   reserveNowUrl: string | null;
   manualPriceRange: string | null;
+  gamme: GammeInfo | null;
   liteApiPrice: { amount: number; currency: string } | null;
   serpData?: SerpApiHotel | null;
   isCurrentHotel: boolean;
