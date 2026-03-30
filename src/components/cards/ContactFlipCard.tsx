@@ -126,7 +126,7 @@ const ContactFlipCard = ({
               ) : (
                 <button
                   onClick={() => onOpenWebsite?.(fullWebUrl)}
-                  className="flex items-center gap-2 text-white/80 hover:text-white transition-colors normal-case tracking-normal font-['Roboto',sans-serif] font-bold"
+                  className="flex items-center gap-2 text-white/80 hover:text-white transition-colors normal-case tracking-normal font-['Roboto',sans-serif]"
                 >
                   <Globe className="h-4 w-4 shrink-0 text-white/60" />
                   {language === "en" ? "Website" : "Site web"}
