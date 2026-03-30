@@ -25,9 +25,10 @@ interface ContactFlipCardProps {
   animationDelay?: string;
   tallHeight?: boolean;
   className?: string;
-  isHotel?: boolean;
   hasLiteApiMapping?: boolean;
-  onCheckAvailability?: () => void;
+  hasSerpApiMapping?: boolean;
+  onCheckAvailabilityLiteApi?: () => void;
+  onCheckAvailabilitySerpApi?: () => void;
   onOpenWebsite?: (url: string) => void;
 }
 

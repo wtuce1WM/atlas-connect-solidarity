@@ -147,6 +147,7 @@ export function useBookOnlineData(businessId: string) {
   const [kpRelated, setKpRelated] = useState<KpRelatedBusiness[]>([]);
   const [isKp1Only, setIsKp1Only] = useState(false);
   const [liteApiHotelId, setLiteApiHotelId] = useState<string | null>(null);
+  const [serpApiMapping, setSerpApiMapping] = useState<{ serpHotelName: string; city: string } | null>(null);
 
   useEffect(() => {
     let isCancelled = false;
