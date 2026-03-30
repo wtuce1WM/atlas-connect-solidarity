@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { X, Search, Loader2, Star, ExternalLink, Calendar, Users, SlidersHorizontal, MapPin, Hotel } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SerpApiHotel {
@@ -32,6 +33,7 @@ interface FallbackSerpHotel {
   tripadvisorRating: number | null;
   tripadvisorReviewCount: number | null;
   reserveNowUrl: string | null;
+  manualPriceRange: string | null;
   // SerpAPI result data if found
   serpData?: SerpApiHotel | null;
 }
@@ -115,7 +117,7 @@ const SerpApiHotelOverlay = ({ serpHotelName, serpCity, businessName, reserveNow
       const bizIds = otherMappings.map(m => m.business_id).filter(Boolean);
       const { data: businesses } = await supabase
         .from("businesses")
-        .select("id, name, slug, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url")
+        .select("id, name, slug, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range")
         .in("id", bizIds);
 
       const bizMap = new Map((businesses || []).map(b => [b.id, b]));
@@ -140,6 +142,7 @@ const SerpApiHotelOverlay = ({ serpHotelName, serpCity, businessName, reserveNow
             tripadvisorRating: biz.tripadvisor_rating,
             tripadvisorReviewCount: biz.tripadvisor_review_count,
             reserveNowUrl: biz.reserve_now_url,
+            manualPriceRange: biz.manual_price_range,
             serpData: serpMatch || null,
           };
         });
@@ -432,12 +435,13 @@ function HotelCard({ hotel, reserveUrl, isEn, isHighlighted }: {
           {hotel.reviewCount && <span>({hotel.reviewCount})</span>}
           {hotel.hotelClass && <span>{"★".repeat(hotel.hotelClass as number)}</span>}
         </div>
-        {hotel.ratePerNight && (
-          <p className="text-base font-bold text-foreground">
-            {hotel.ratePerNight.amount}
-            <span className="text-xs font-normal text-muted-foreground ml-1">/ {isEn ? "night" : "nuit"}</span>
-          </p>
-        )}
+        <div className="flex items-center gap-2 flex-wrap">
+          {hotel.ratePerNight && (
+            <Badge className="bg-gold/15 text-gold border-gold/30 text-xs font-bold px-2 py-0.5">
+              {hotel.ratePerNight.amount} / {isEn ? "night" : "nuit"}
+            </Badge>
+          )}
+        </div>
         {hotel.dealDescription && (
           <p className="text-[10px] text-green-600 font-medium">{hotel.dealDescription}</p>
         )}
@@ -490,12 +494,18 @@ function FallbackHotelCard({ hotel, isEn, onSelect }: {
             <span>{"★".repeat(hotel.serpData.hotelClass as number)}</span>
           )}
         </div>
-        {hasPrice && (
-          <p className="text-base font-bold text-foreground">
-            {hotel.serpData!.ratePerNight!.amount}
-            <span className="text-xs font-normal text-muted-foreground ml-1">/ {isEn ? "night" : "nuit"}</span>
-          </p>
-        )}
+        <div className="flex items-center gap-2 flex-wrap">
+          {hotel.manualPriceRange && (
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-muted-foreground/30 text-muted-foreground">
+              {hotel.manualPriceRange}
+            </Badge>
+          )}
+          {hasPrice && (
+            <Badge className="bg-gold/15 text-gold border-gold/30 text-xs font-bold px-2 py-0.5">
+              {hotel.serpData!.ratePerNight!.amount} / {isEn ? "night" : "nuit"}
+            </Badge>
+          )}
+        </div>
         {hotel.serpData?.dealDescription && (
           <p className="text-[10px] text-green-600 font-medium">{hotel.serpData.dealDescription}</p>
         )}
