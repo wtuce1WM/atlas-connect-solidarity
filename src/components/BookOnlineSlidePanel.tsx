@@ -819,9 +819,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     }
                   }}
                   onCheckAvailabilitySerpApi={() => {
-                    // TODO: implement SerpAPI availability flow
                     if (serpApiMapping) {
-                      console.log("SerpAPI check:", serpApiMapping);
+                      setSerpApiOverlayCtx({
+                        serpHotelName: serpApiMapping.serpHotelName,
+                        serpCity: serpApiMapping.city,
+                        businessName: business.name,
+                        reserveNowUrl: business.reserve_now_url,
+                      });
                     }
                   }}
                   onOpenWebsite={(url) => {
