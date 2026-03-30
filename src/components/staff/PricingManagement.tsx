@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Loader2, Hotel, UtensilsCrossed, Check } from "lucide-react";
+import { Loader2, Hotel, UtensilsCrossed, Check, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 const PRICE_RANGES = [
@@ -31,6 +31,7 @@ interface PriceRow {
   id: string;
   name: string;
   city: string;
+  website: string | null;
   liteapi_price: number | null;
   serpapi_price: number | null;
   liteapi_currency: string | null;
@@ -122,14 +123,14 @@ const PricingManagement = () => {
     // Fetch all hotel-category businesses for unmapped section
     const { data: allHotels } = await supabase
       .from("businesses")
-      .select("id, name, city, manual_price_range, min_price")
+      .select("id, name, city, website, manual_price_range, min_price")
       .eq("is_active", true)
       .or("main_category.ilike.%hôtel%,main_category.ilike.%hotel%,main_category.ilike.%hébergement%,main_category.ilike.%riad%");
 
     const { data: businesses } = allMappedIds.length > 0
       ? await supabase
           .from("businesses")
-          .select("id, name, city, manual_price_range, min_price")
+          .select("id, name, city, website, manual_price_range, min_price")
           .in("id", allMappedIds)
       : { data: [] };
 
@@ -145,6 +146,7 @@ const PricingManagement = () => {
           id: row.business_id,
           name: biz.name,
           city: biz.city || "—",
+          website: (biz as any).website ?? null,
           liteapi_price: null,
           serpapi_price: null,
           liteapi_currency: null,
@@ -179,6 +181,7 @@ const PricingManagement = () => {
           id,
           name: biz.name,
           city: biz.city || "—",
+          website: (biz as any).website ?? null,
           liteapi_price: null,
           serpapi_price: null,
           liteapi_currency: null,
@@ -197,6 +200,7 @@ const PricingManagement = () => {
         id: h.id,
         name: h.name,
         city: h.city || "—",
+        website: (h as any).website ?? null,
         liteapi_price: null,
         serpapi_price: null,
         liteapi_currency: null,
@@ -236,24 +240,19 @@ const PricingManagement = () => {
   };
 
   const handleMinPriceSave = async (businessId: string, value: number | null) => {
-    const { data, error } = await supabase.functions.invoke("update-business-min-price", {
-      body: {
-        businessId,
-        minPrice: value,
-      },
-    });
+    const { data, error } = await supabase
+      .from("businesses")
+      .update({ min_price: value } as any)
+      .eq("id", businessId)
+      .select("min_price")
+      .single();
 
     if (error) {
       toast.error("Erreur: " + error.message);
       return;
     }
 
-    if (!data?.success) {
-      toast.error(data?.error || "Sauvegarde refusée");
-      return;
-    }
-
-    const savedMinPrice = data.min_price ?? value;
+    const savedMinPrice = (data as any)?.min_price ?? value;
     toast.success("Prix minimum mis à jour");
 
     const updater = (rows: PriceRow[]) =>
@@ -376,7 +375,23 @@ const PricingManagement = () => {
                         const autoRange = getPriceRange(minPrice === Infinity ? null : minPrice);
                         return (
                           <tr key={row.id} className="hover:bg-muted/50">
-                            <td className="py-2 pr-4 font-medium truncate">{row.name}</td>
+                            <td className="py-2 pr-4 font-medium truncate">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className="truncate">{row.name}</span>
+                                {row.website && (
+                                  <a
+                                    href={row.website}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-muted-foreground hover:text-foreground shrink-0"
+                                    title="Ouvrir le site web"
+                                    aria-label={`Ouvrir le site web de ${row.name}`}
+                                  >
+                                    <ExternalLink className="h-3.5 w-3.5" />
+                                  </a>
+                                )}
+                              </div>
+                            </td>
                             <td className="py-2 px-4 text-right">
                               {row.liteapi_price != null ? (
                                 <span className={`font-mono ${row.liteapi_price === minPrice ? "font-bold text-violet-700" : "text-muted-foreground"}`}>
@@ -441,7 +456,23 @@ const PricingManagement = () => {
                         <tbody className="divide-y">
                           {noPriceCitiesMap[city].map((row) => (
                             <tr key={row.id} className="hover:bg-muted/50">
-                              <td className="py-2 pr-4 font-medium truncate">{row.name}</td>
+                              <td className="py-2 pr-4 font-medium truncate">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span className="truncate">{row.name}</span>
+                                  {row.website && (
+                                    <a
+                                      href={row.website}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-muted-foreground hover:text-foreground shrink-0"
+                                      title="Ouvrir le site web"
+                                      aria-label={`Ouvrir le site web de ${row.name}`}
+                                    >
+                                      <ExternalLink className="h-3.5 w-3.5" />
+                                    </a>
+                                  )}
+                                </div>
+                              </td>
                               <td className="py-2 px-4">
                                 <div className="flex justify-end">
                                   <MinPriceCell row={row} onSave={handleMinPriceSave} />
@@ -491,7 +522,23 @@ const PricingManagement = () => {
                         <tbody className="divide-y">
                           {unmappedCitiesMap[city].map((row) => (
                             <tr key={row.id} className="hover:bg-muted/50">
-                              <td className="py-2 pr-4 font-medium truncate">{row.name}</td>
+                              <td className="py-2 pr-4 font-medium truncate">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span className="truncate">{row.name}</span>
+                                  {row.website && (
+                                    <a
+                                      href={row.website}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-muted-foreground hover:text-foreground shrink-0"
+                                      title="Ouvrir le site web"
+                                      aria-label={`Ouvrir le site web de ${row.name}`}
+                                    >
+                                      <ExternalLink className="h-3.5 w-3.5" />
+                                    </a>
+                                  )}
+                                </div>
+                              </td>
                               <td className="py-2 px-4">
                                 <div className="flex justify-end">
                                   <MinPriceCell row={row} onSave={handleMinPriceSave} />
