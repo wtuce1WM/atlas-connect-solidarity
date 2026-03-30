@@ -61,7 +61,7 @@ const RATING_OPTIONS = [
   { value: 9, labelFr: "4.5+", labelEn: "4.5+" },
 ];
 
-const SerpApiHotelOverlay = ({ serpHotelName, serpCity, businessName, reserveNowUrl, onClose, onSelectBusiness }: SerpApiHotelOverlayProps) => {
+const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserveNowUrl, onClose, onSelectBusiness }: SerpApiHotelOverlayProps) => {
   const { language } = useLanguage();
 
   const tomorrow = new Date();
