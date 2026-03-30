@@ -82,7 +82,7 @@ const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel }: 
                       </Badge>
                     )}
                     {currentHotel.liteApiPrice && (
-                      <Badge className="bg-blue-500/15 text-blue-400 border-blue-500/30 text-xs font-bold px-2 py-0.5">
+                      <Badge className="bg-blue-500/15 text-blue-600 border-blue-500/30 text-xs font-bold px-2 py-0.5">
                         LiteAPI: {currentHotel.liteApiPrice.amount} {currentHotel.liteApiPrice.currency} / {isEn ? "night" : "nuit"}
                       </Badge>
                     )}
