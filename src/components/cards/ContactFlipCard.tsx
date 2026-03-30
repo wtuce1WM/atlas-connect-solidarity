@@ -204,18 +204,29 @@ function HotelAvailabilityWidget({
     return `${months[d.getMonth()]} ${d.getDate()}`;
   };
 
+  const checkInRef = useRef<HTMLInputElement>(null);
+  const checkOutRef = useRef<HTMLInputElement>(null);
+
   return (
     <div className="mt-3 pt-3 border-t border-white/20 space-y-2">
       {/* Date fields + adults on same row */}
-      <div className="grid grid-cols-[1fr_1fr_auto] gap-px rounded-xl overflow-hidden border border-white/20">
-        <div className="bg-white/10 p-2">
-          <label className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block mb-0.5">
+      <div className="flex rounded-xl overflow-hidden border border-white/20">
+        {/* Check-in */}
+        <button
+          type="button"
+          onClick={() => checkInRef.current?.showPicker?.()}
+          className="flex-1 bg-white/10 p-2 text-left"
+        >
+          <span className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block mb-0.5">
             {isEn ? "CHECK-IN" : "ARRIVÉE"}
-          </label>
+          </span>
+          <span className="text-white font-bold text-sm">{formatDateShort(checkIn)}</span>
           <input
+            ref={checkInRef}
             type="date"
             value={checkIn}
             onChange={e => {
+              if (!e.target.value) return;
               setCheckIn(e.target.value);
               if (e.target.value >= checkOut) {
                 const next = new Date(e.target.value);
@@ -224,32 +235,42 @@ function HotelAvailabilityWidget({
               }
             }}
             min={fmt(tomorrow)}
-            className="w-full bg-transparent text-white font-bold text-sm border-0 outline-none cursor-pointer p-0 [color-scheme:dark]"
+            className="sr-only"
+            tabIndex={-1}
           />
-        </div>
-        <div className="bg-white/10 p-2 border-l border-white/20">
-          <label className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block mb-0.5">
+        </button>
+        {/* Check-out */}
+        <button
+          type="button"
+          onClick={() => checkOutRef.current?.showPicker?.()}
+          className="flex-1 bg-white/10 p-2 text-left border-l border-white/20"
+        >
+          <span className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block mb-0.5">
             {isEn ? "CHECK-OUT" : "DÉPART"}
-          </label>
+          </span>
+          <span className="text-white font-bold text-sm">{formatDateShort(checkOut)}</span>
           <input
+            ref={checkOutRef}
             type="date"
             value={checkOut}
-            onChange={e => setCheckOut(e.target.value)}
+            onChange={e => { if (e.target.value) setCheckOut(e.target.value); }}
             min={checkIn}
-            className="w-full bg-transparent text-white font-bold text-sm border-0 outline-none cursor-pointer p-0 [color-scheme:dark]"
+            className="sr-only"
+            tabIndex={-1}
           />
-        </div>
-        <div className="bg-white/10 p-2 border-l border-white/20 flex flex-col items-center justify-center">
-          <label className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block mb-0.5">
+        </button>
+        {/* Adults */}
+        <div className="bg-white/10 px-3 py-2 border-l border-white/20 flex flex-col items-center justify-center shrink-0">
+          <span className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block mb-0.5">
             {isEn ? "GUESTS" : "ADULTES"}
-          </label>
+          </span>
           <select
             value={adults}
             onChange={e => setAdults(Number(e.target.value))}
-            className="bg-transparent text-white font-bold text-sm cursor-pointer text-center outline-none w-8 [color-scheme:dark]"
+            className="bg-black/50 text-white font-bold text-sm cursor-pointer text-center outline-none rounded px-1 border border-white/20"
           >
             {[1, 2, 3, 4].map(n => (
-              <option key={n} value={n} className="text-black bg-white">{n}</option>
+              <option key={n} value={n}>{n}</option>
             ))}
           </select>
         </div>
