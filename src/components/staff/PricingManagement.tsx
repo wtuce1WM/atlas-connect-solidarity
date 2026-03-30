@@ -251,6 +251,7 @@ const PricingManagement = () => {
       rows.map(r => r.id === businessId ? { ...r, min_price: value } : r);
     setHotelPrices(updater);
     setNoPriceHotels(updater);
+    setUnmappedHotels(updater);
   };
 
   const groupByCity = (rows: PriceRow[]) => {
