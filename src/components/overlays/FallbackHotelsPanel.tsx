@@ -50,12 +50,12 @@ const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel }: 
                 )}
                 <div className="flex-1 py-2 pr-3 space-y-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="font-semibold text-sm text-white line-clamp-1">{currentHotel.name}</p>
+                    <p className="font-semibold text-sm text-foreground line-clamp-1">{currentHotel.name}</p>
                     <span className="text-[10px] font-bold text-gold uppercase tracking-wider shrink-0">
                       {isEn ? "Your hotel" : "Votre hôtel"}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-white/60 flex-wrap">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
                     {currentHotel.dbGoogleRating && (
                       <span className="flex items-center gap-0.5">
                         <Star className="h-3 w-3 text-gold fill-gold" />
