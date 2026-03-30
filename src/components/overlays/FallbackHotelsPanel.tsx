@@ -169,7 +169,7 @@ const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel }: 
                     )}
                     {/* LiteAPI cached price */}
                     {!cheapest && !hotel.serpPrice && hotel.liteApiPrice && (
-                      <p className="text-blue-400 text-[10px] font-bold mt-0.5">
+                      <p className="text-blue-300 text-[10px] font-bold mt-0.5">
                         LiteAPI: {hotel.liteApiPrice.amount} {hotel.liteApiPrice.currency}
                       </p>
                     )}
