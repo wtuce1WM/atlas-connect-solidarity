@@ -329,21 +329,36 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
           </div>
         )}
 
-        {hasSearched && !isLoading && results.length > 0 && (
-          <div className="space-y-3">
-            <p className="text-xs text-muted-foreground">
-              {results.length} {isEn ? "mapped hotel(s)" : "hôtel(s) référencé(s)"} — {serpCity}
-            </p>
-            {results.map(hotel => (
-              <MappedHotelCard
-                key={hotel.id}
-                hotel={hotel}
-                isEn={isEn}
-                onSelect={onSelectBusiness}
-              />
-            ))}
-          </div>
-        )}
+        {hasSearched && !isLoading && results.length > 0 && (() => {
+          const currentHotel = results.find(h => h.isCurrentHotel);
+          const otherHotels = results.filter(h => !h.isCurrentHotel);
+          return (
+            <div className="space-y-4">
+              <p className="text-xs text-muted-foreground">
+                {results.length} {isEn ? "mapped hotel(s)" : "hôtel(s) référencé(s)"} — {serpCity}
+              </p>
+              {currentHotel && (
+                <MappedHotelCard
+                  hotel={currentHotel}
+                  isEn={isEn}
+                  onSelect={onSelectBusiness}
+                />
+              )}
+              {otherHotels.length > 0 && (
+                <div className="grid grid-cols-2 gap-3">
+                  {otherHotels.map(hotel => (
+                    <HotelThumbnailCard
+                      key={hotel.id}
+                      hotel={hotel}
+                      isEn={isEn}
+                      onSelect={onSelectBusiness}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {hasSearched && !isLoading && results.length === 0 && !error && (
           <div className="text-center py-16 text-muted-foreground text-sm">
