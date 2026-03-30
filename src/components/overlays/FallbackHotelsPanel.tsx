@@ -20,21 +20,21 @@ const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel }: 
     <div className="fixed inset-0 z-[220] lg:z-[200] flex flex-col lg:justify-start lg:right-auto lg:w-1/2 lg:top-[53px]">
       <div className="hidden lg:block absolute inset-0 bg-black/40" onClick={onClose} />
       <div className="relative bg-background flex flex-col overflow-hidden w-full h-full lg:rounded-none animate-fade-in lg:animate-slide-in-left">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
           <div>
-            <p className="text-sm font-bold text-white">
+            <p className="text-sm font-bold text-foreground">
               {isEn ? `Hotels in ${data.city}` : `Hôtels à ${data.city}`}
             </p>
-            <p className="text-xs text-white/60">
+            <p className="text-xs text-muted-foreground">
               {data.checkIn} → {data.checkOut} · {data.adults} {isEn ? "adult(s)" : "adulte(s)"}
               {isSerpApi && <span className="ml-2 text-gold">SerpAPI</span>}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+            className="p-1.5 rounded-full bg-muted hover:bg-muted/80 transition-colors"
           >
-            <X className="h-4 w-4 text-white" />
+            <X className="h-4 w-4 text-foreground" />
           </button>
         </div>
         <div className="flex-1 overflow-y-auto p-3 pb-24">
