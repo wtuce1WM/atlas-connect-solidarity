@@ -358,6 +358,7 @@ export function useBookOnlineData(businessId: string) {
         fetchPoiBusinesses(),
         fetchKpRelated(),
         fetchLiteApiMapping(),
+        fetchSerpApiMapping(),
       ]);
     };
 
