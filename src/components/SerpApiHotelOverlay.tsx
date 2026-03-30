@@ -517,7 +517,12 @@ function FallbackHotelCard({ hotel, isEn, onSelect }: {
           )}
           {hasPrice && (
             <Badge className="bg-gold/15 text-gold border-gold/30 text-xs font-bold px-2 py-0.5">
-              {hotel.serpData!.ratePerNight!.amount} / {isEn ? "night" : "nuit"}
+              SerpAPI: {hotel.serpData!.ratePerNight!.amount} / {isEn ? "night" : "nuit"}
+            </Badge>
+          )}
+          {hotel.liteApiPrice && (
+            <Badge className="bg-primary/15 text-primary border-primary/30 text-xs font-bold px-2 py-0.5">
+              LiteAPI: {hotel.liteApiPrice.amount} {hotel.liteApiPrice.currency} / {isEn ? "night" : "nuit"}
             </Badge>
           )}
         </div>
