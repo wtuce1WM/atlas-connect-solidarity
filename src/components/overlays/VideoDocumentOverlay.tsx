@@ -7,6 +7,7 @@ interface VideoDocumentOverlayProps {
   activeVideo: { url: string; name: string | null; description: string | null };
   videoDocs: VideoDoc[];
   closing: boolean;
+  defaultSoundOn?: boolean;
   onClose: () => void;
   onNavigate: (video: { url: string; name: string | null; description: string | null }) => void;
   onAnimationEnd: () => void;
