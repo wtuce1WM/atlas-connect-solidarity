@@ -136,6 +136,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     setDocOverlay(null);
     setIsLightboxOpen(false);
     setShowMosaic(false);
+    setYtBgPlaying(true);
+    setYtBgMuted(!(business?.default_sound_on ?? true));
     setShowHook(false);
     setYoutubeVideoCount(null);
     setActiveYoutubeVideo(null);
