@@ -190,7 +190,7 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
       // Push to fallbackPanelData and close overlay
       if (onOpenFallbackPanel) {
         onOpenFallbackPanel({
-          hotels,
+          hotels: uniqueHotels,
           city: serpCity,
           checkIn,
           checkOut,
