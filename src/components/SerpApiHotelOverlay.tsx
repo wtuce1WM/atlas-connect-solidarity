@@ -40,7 +40,7 @@ interface MappedHotelResult {
 }
 
 interface SerpApiHotelOverlayProps {
-  serpHotelName: string;
+  currentBusinessId: string;
   serpCity: string;
   businessName: string;
   reserveNowUrl?: string | null;
@@ -61,7 +61,7 @@ const RATING_OPTIONS = [
   { value: 9, labelFr: "4.5+", labelEn: "4.5+" },
 ];
 
-const SerpApiHotelOverlay = ({ serpHotelName, serpCity, businessName, reserveNowUrl, onClose, onSelectBusiness }: SerpApiHotelOverlayProps) => {
+const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserveNowUrl, onClose, onSelectBusiness }: SerpApiHotelOverlayProps) => {
   const { language } = useLanguage();
 
   const tomorrow = new Date();
@@ -163,7 +163,7 @@ const SerpApiHotelOverlay = ({ serpHotelName, serpCity, businessName, reserveNow
             const longer = rNorm.length < mappingNorm.length ? mappingNorm : rNorm;
             return shorter.length >= 8 && longer.includes(shorter);
           });
-          const isCurrentHotel = m.serp_hotel_name?.toLowerCase().trim() === serpHotelName.toLowerCase().trim();
+          const isCurrentHotel = m.business_id === currentBusinessId;
           return {
             id: m.id,
             businessId: m.business_id,
@@ -197,7 +197,7 @@ const SerpApiHotelOverlay = ({ serpHotelName, serpCity, businessName, reserveNow
     } finally {
       setIsLoading(false);
     }
-  }, [serpCity, checkIn, checkOut, adults, currency, sort, rating, minPrice, maxPrice, language, serpHotelName, reserveNowUrl]);
+  }, [serpCity, checkIn, checkOut, adults, currency, sort, rating, minPrice, maxPrice, language, currentBusinessId, reserveNowUrl]);
 
   return (
     <div className="absolute -top-[3.25rem] left-0 right-0 bottom-0 z-[60] bg-background flex flex-col animate-slide-down-from-top">
