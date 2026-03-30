@@ -903,6 +903,7 @@ export type Database = {
           country: string | null
           created_at: string
           default_service: string | null
+          default_sound_on: boolean
           description: string | null
           destination_description: string | null
           destination_hook: string | null
@@ -1042,6 +1043,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           default_service?: string | null
+          default_sound_on?: boolean
           description?: string | null
           destination_description?: string | null
           destination_hook?: string | null
@@ -1181,6 +1183,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           default_service?: string | null
+          default_sound_on?: boolean
           description?: string | null
           destination_description?: string | null
           destination_hook?: string | null
@@ -3877,6 +3880,7 @@ export type Database = {
               country: string | null
               created_at: string
               default_service: string | null
+              default_sound_on: boolean
               description: string | null
               destination_description: string | null
               destination_hook: string | null
@@ -4032,6 +4036,7 @@ export type Database = {
               country: string | null
               created_at: string
               default_service: string | null
+              default_sound_on: boolean
               description: string | null
               destination_description: string | null
               destination_hook: string | null
