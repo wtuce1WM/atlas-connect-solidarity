@@ -359,13 +359,18 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     return () => clearInterval(interval);
   }, [hookText, businessId]);
 
-  const mediaItems = useMemo<MediaItem[]>(() => [
-    ...videos.map((v) => {
+  const mediaItems = useMemo<MediaItem[]>(() => {
+    const videoItems = videos.map((v) => {
       const doc = videoDocs.find(d => d.url === v);
       return { kind: "video" as const, url: v, thumbnailUrl: doc?.thumbnail_url || null };
-    }),
-    ...images.map((i) => ({ kind: "image" as const, url: i })),
-  ], [videos, images, videoDocs]);
+    });
+    const imageItems = images.map((i) => ({ kind: "image" as const, url: i }));
+    // When prioritize_images is on, show images first (as background) instead of videos
+    if (business?.prioritize_images) {
+      return [...imageItems, ...videoItems];
+    }
+    return [...videoItems, ...imageItems];
+  }, [videos, images, videoDocs, business?.prioritize_images]);
 
   const totalMedia = mediaItems.length;
   const safeIndex = totalMedia > 0 ? currentMediaIndex % totalMedia : 0;
