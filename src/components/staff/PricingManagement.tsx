@@ -267,6 +267,8 @@ const PricingManagement = () => {
   const sortedCities = Object.keys(citiesMap).sort();
   const noPriceCitiesMap = groupByCity(noPriceHotels);
   const noPriceSortedCities = Object.keys(noPriceCitiesMap).sort();
+  const unmappedCitiesMap = groupByCity(unmappedHotels);
+  const unmappedSortedCities = Object.keys(unmappedCitiesMap).sort();
 
   if (loading) {
     return (
