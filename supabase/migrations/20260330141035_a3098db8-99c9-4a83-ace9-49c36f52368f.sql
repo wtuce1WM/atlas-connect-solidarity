@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN min_price numeric NULL;
