@@ -236,13 +236,17 @@ const PricingManagement = () => {
   };
 
   const handleMinPriceSave = async (businessId: string, value: number | null) => {
-    const { error } = await supabase
+    console.log("Saving min_price:", { businessId, value });
+    const { error, data } = await supabase
       .from("businesses")
-      .update({ min_price: value } as any)
-      .eq("id", businessId);
+      .update({ min_price: value })
+      .eq("id", businessId)
+      .select("id, min_price");
 
+    console.log("min_price save result:", { error, data });
     if (error) {
-      toast.error("Erreur lors de la mise à jour du prix minimum");
+      console.error("min_price save error:", error);
+      toast.error("Erreur lors de la mise à jour du prix minimum: " + error.message);
       return;
     }
     toast.success("Prix minimum mis à jour");
