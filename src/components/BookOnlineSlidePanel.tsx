@@ -1008,6 +1008,18 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   </div>
                 );
               })}
+              {poiBusinesses.length > 0 && business?.latitude && business?.longitude && (
+                <div
+                  className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                  style={{ animationDelay: `${destinations.length * 120}ms`, animationFillMode: 'forwards' }}
+                  onClick={() => setShowPoiMapOverlay(true)}
+                >
+                  <img src={poiNearbyImg} alt="Points d'intérêt" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                  <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
+                    {language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité"}
+                  </p>
+                </div>
+              )}
               <div className="shrink-0 w-6" aria-hidden="true" />
             </div>
           </div>
@@ -1047,6 +1059,18 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   </div>
                 );
               })}
+              {business?.latitude && business?.longitude && (
+                <div
+                  className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                  style={{ animationDelay: `${poiBusinesses.length * 120}ms`, animationFillMode: 'forwards' }}
+                  onClick={() => setShowPoiMapOverlay(true)}
+                >
+                  <img src={poiNearbyImg} alt="Points d'intérêt" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                  <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
+                    {language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité"}
+                  </p>
+                </div>
+              )}
               <div className="shrink-0 w-6" aria-hidden="true" />
             </div>
           </div>
@@ -1087,7 +1111,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   </div>
                 );
               })}
-              {isKp1Only && poiBusinesses.length > 0 && business?.latitude && business?.longitude && (
+              {poiBusinesses.length > 0 && business?.latitude && business?.longitude && (
                 <div
                   className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
                   style={{ animationDelay: `${kpRelated.length * 120}ms`, animationFillMode: 'forwards' }}
