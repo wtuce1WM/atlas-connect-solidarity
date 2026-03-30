@@ -279,93 +279,128 @@ type VideoDocEntry = { id?: string; url: string; name: string; poi_id: string | 
 
 /** Generate a JPEG thumbnail from a video URL. Returns a Blob or null. */
 async function generateVideoThumbnail(videoUrl: string): Promise<Blob | null> {
-  // Try first with crossOrigin (allows canvas read), fallback without it
+  const canvasToBlob = (canvas: HTMLCanvasElement): Promise<Blob | null> =>
+    new Promise((resolve) => canvas.toBlob((b) => resolve(b), "image/jpeg", 0.78));
+
+  const isMostlyBlack = (canvas: HTMLCanvasElement) => {
+    try {
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return false;
+      const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      let total = 0;
+      const pixels = data.length / 4;
+      for (let i = 0; i < data.length; i += 4) {
+        total += data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+      }
+      return total / pixels < 22;
+    } catch {
+      // Cross-origin canvas may block pixel reads; in that case we still accept blob capture.
+      return false;
+    }
+  };
+
   const tryCapture = (useCors: boolean): Promise<Blob | null> =>
     new Promise((resolve) => {
       const video = document.createElement("video");
       if (useCors) video.crossOrigin = "anonymous";
       video.muted = true;
-      video.preload = "auto";
       video.playsInline = true;
+      video.preload = "auto";
       video.src = videoUrl;
 
-      const timeout = setTimeout(() => {
-        console.warn("[thumb] timeout loading video", videoUrl);
-        video.remove();
-        resolve(null);
-      }, 12000);
+      let done = false;
+      const seekRatios = [0.08, 0.2, 0.35, 0.55];
+      let seekIndex = 0;
 
-      const capture = (): HTMLCanvasElement | null => {
+      const cleanup = () => {
+        video.removeEventListener("loadedmetadata", onLoadedMetadata);
+        video.removeEventListener("seeked", onSeeked);
+        video.removeEventListener("error", onError);
+        video.remove();
+      };
+
+      const finish = (blob: Blob | null) => {
+        if (done) return;
+        done = true;
+        clearTimeout(timeout);
+        cleanup();
+        resolve(blob);
+      };
+
+      const getSeekTime = () => {
+        const duration = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : 0;
+        if (!duration) return 1.5;
+        return Math.max(0.4, Math.min(duration - 0.2, duration * seekRatios[seekIndex]));
+      };
+
+      const captureCurrentFrame = async () => {
         try {
-          const THUMB_W = 1280, THUMB_H = 720;
+          const THUMB_W = 1280;
+          const THUMB_H = 720;
           const natW = video.videoWidth || THUMB_W;
           const natH = video.videoHeight || THUMB_H;
           const scale = Math.min(THUMB_W / natW, THUMB_H / natH, 1);
           const canvas = document.createElement("canvas");
-          canvas.width = Math.round(natW * scale);
-          canvas.height = Math.round(natH * scale);
+          canvas.width = Math.max(1, Math.round(natW * scale));
+          canvas.height = Math.max(1, Math.round(natH * scale));
           const ctx = canvas.getContext("2d");
           if (!ctx) return null;
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-          // Check if tainted
-          ctx.getImageData(0, 0, 1, 1);
-          // Check brightness
-          const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          let total = 0;
-          const pixels = data.length / 4;
-          for (let i = 0; i < data.length; i += 4) {
-            total += data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-          }
-          return (total / pixels < 35) ? null : canvas;
+
+          const blob = await canvasToBlob(canvas);
+          if (!blob || blob.size < 900) return null;
+          if (isMostlyBlack(canvas) && seekIndex < seekRatios.length - 1) return null;
+          return blob;
         } catch {
-          // Canvas tainted or other error
           return null;
         }
       };
 
-      let triedSeek = false;
-
-      const handleSeeked = () => {
-        const canvas = capture();
-        if (!canvas && !triedSeek) {
-          triedSeek = true;
-          video.currentTime = Math.min(5, video.duration * 0.25);
+      const onSeeked = async () => {
+        const blob = await captureCurrentFrame();
+        if (blob) {
+          finish(blob);
           return;
         }
-        clearTimeout(timeout);
-        if (canvas) {
-          canvas.toBlob((blob) => { video.remove(); resolve(blob); }, "image/jpeg", 0.75);
-        } else {
-          // Force capture even if black
+
+        if (seekIndex < seekRatios.length - 1) {
+          seekIndex += 1;
           try {
-            const c = document.createElement("canvas");
-            c.width = video.videoWidth || 1280;
-            c.height = video.videoHeight || 720;
-            const ctx2 = c.getContext("2d");
-            if (ctx2) {
-              ctx2.drawImage(video, 0, 0, c.width, c.height);
-              c.toBlob((blob) => { video.remove(); resolve(blob); }, "image/jpeg", 0.75);
-            } else { video.remove(); resolve(null); }
-          } catch { video.remove(); resolve(null); }
+            video.currentTime = getSeekTime();
+          } catch {
+            finish(null);
+          }
+          return;
+        }
+
+        finish(null);
+      };
+
+      const onLoadedMetadata = () => {
+        try {
+          video.currentTime = getSeekTime();
+        } catch {
+          finish(null);
         }
       };
 
-      const handleLoaded = () => { video.currentTime = 2; };
-      const handleError = () => {
+      const onError = () => {
         console.warn("[thumb] video load error", useCors ? "(CORS)" : "(no-CORS)", videoUrl);
-        clearTimeout(timeout);
-        video.remove();
-        resolve(null);
+        finish(null);
       };
 
-      video.addEventListener("loadeddata", handleLoaded);
-      video.addEventListener("seeked", handleSeeked);
-      video.addEventListener("error", handleError);
+      const timeout = setTimeout(() => {
+        console.warn("[thumb] timeout loading video", videoUrl);
+        finish(null);
+      }, 20000);
+
+      video.addEventListener("loadedmetadata", onLoadedMetadata);
+      video.addEventListener("seeked", onSeeked);
+      video.addEventListener("error", onError);
     });
 
-  // Try with CORS first (canvas readable), then without
-  const blob = await tryCapture(true);
-  if (blob) return blob;
+  const corsBlob = await tryCapture(true);
+  if (corsBlob) return corsBlob;
   console.log("[thumb] CORS attempt failed, retrying without crossOrigin…");
   return tryCapture(false);
 }
@@ -1575,8 +1610,16 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
           return m ? m[1] : null;
         };
+        const normalizedVideoDocs = videoDocs
+          .map((d) => ({
+            ...d,
+            url: d.url.trim(),
+            thumbnail_url: d.thumbnail_url?.trim() || null,
+          }))
+          .filter((d) => d.url);
+
         const videoDocsWithThumbs = await Promise.all(
-          videoDocs.filter(d => d.url.trim()).map(async (d) => {
+          normalizedVideoDocs.map(async (d) => {
             if (d.thumbnail_url) return d;
             // YouTube thumbnail
             const ytId = getYouTubeId(d.url);
@@ -1606,12 +1649,15 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           ...externalLinkDocs
             .filter((d) => d.name.trim() && d.url.trim())
             .map((d, i) => ({ business_id: businessId, type: "external_link" as const, url: d.url.trim(), name: d.name.trim(), language: d.language || null, icon: d.image_url || null, sort_order: i })),
-          ...videoDocsWithThumbs.map((d, i) => ({ business_id: businessId, type: "video" as const, url: d.url.trim(), name: d.name || null, language: null, icon: null, sort_order: i, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null })),
+          ...videoDocsWithThumbs.map((d, i) => ({ business_id: businessId, type: "video" as const, url: d.url, name: d.name || null, language: null, icon: null, sort_order: i, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null })),
         ];
         if (allDocs.length > 0) {
           const { error: docsError } = await supabase.from("business_documents" as any).insert(allDocs);
           if (docsError) throw docsError;
         }
+
+        // Keep UI in sync immediately after save (no manual refresh needed)
+        setVideoDocs(videoDocsWithThumbs);
       }
 
       // Save menu summaries
