@@ -984,7 +984,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     </div>
                   )}
                   <div
-                    className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17] [&_h2]:!font-bold [&_h3]:!font-bold"
+                    className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17] [&_h2]:!font-bold [&_h3]:!font-bold [&_h1]:!lowercase [&_h1]:first-letter:!uppercase [&_h2]:!lowercase [&_h2]:first-letter:!uppercase [&_h3]:!lowercase [&_h3]:first-letter:!uppercase [&_h4]:!lowercase [&_h4]:first-letter:!uppercase"
                     dangerouslySetInnerHTML={{ __html: woDescription }}
                   />
                 </div>
