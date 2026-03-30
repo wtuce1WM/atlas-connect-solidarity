@@ -27,6 +27,7 @@ import SocialLinksCard from "@/components/cards/SocialLinksCard";
 import MenuSummaryCard from "@/components/cards/MenuSummaryCard";
 
 import MenuUrlCard from "@/components/cards/MenuUrlCard";
+import MapCard from "@/components/cards/MapCard";
 import DirectionsOverlay from "@/components/DirectionsOverlay";
 import MosaicOverlay from "@/components/MosaicOverlay";
 import YouTubeShortsCarousel, { type YouTubeVideo } from "@/components/YouTubeShortsCarousel";
@@ -1006,7 +1007,18 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   }}
                 />
               )}
-              {/* Card 3: Menu Summary */}
+              {/* Card 3: Map */}
+              {business && (business.latitude || business.google_maps_url) && (
+                <MapCard
+                  latitude={business.latitude}
+                  longitude={business.longitude}
+                  googleMapsUrl={business.google_maps_url}
+                  businessName={business.name}
+                  tallHeight={noBottomCarousel}
+                  animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
+                />
+              )}
+              {/* Card 4: Menu Summary */}
               {menuSummaries.length > 0 && (
                 <MenuSummaryCard
                   summaries={menuSummaries}

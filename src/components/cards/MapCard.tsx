@@ -1,0 +1,56 @@
+interface MapCardProps {
+  latitude: number | null;
+  longitude: number | null;
+  googleMapsUrl?: string | null;
+  businessName: string;
+  tallHeight?: boolean;
+  animationDelay?: string;
+  className?: string;
+}
+
+const extractMarkerCoordsFromMapsUrl = (url: string): { lat: number; lng: number } | null => {
+  const dataBlockMatch = url.match(/!8m2!3d(-?\d+\.?\d+)!4d(-?\d+\.?\d+)/);
+  if (dataBlockMatch) return { lat: parseFloat(dataBlockMatch[1]), lng: parseFloat(dataBlockMatch[2]) };
+  const allMatches = [...url.matchAll(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/g)];
+  if (allMatches.length > 0) {
+    const last = allMatches[allMatches.length - 1];
+    return { lat: parseFloat(last[1]), lng: parseFloat(last[2]) };
+  }
+  return null;
+};
+
+const MapCard = ({
+  latitude,
+  longitude,
+  googleMapsUrl,
+  businessName,
+  tallHeight = false,
+  animationDelay = "0ms",
+  className = "",
+}: MapCardProps) => {
+  const markerCoords = googleMapsUrl ? extractMarkerCoordsFromMapsUrl(googleMapsUrl) : null;
+  const lat = markerCoords?.lat ?? latitude;
+  const lng = markerCoords?.lng ?? longitude;
+
+  if (!lat || !lng) return null;
+
+  const embedUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${lat},${lng}&zoom=15`;
+
+  return (
+    <div
+      className={`snap-start shrink-0 w-[20rem] ${tallHeight ? 'h-[21.6em] md:h-[28.8em]' : 'h-[18em] md:h-[24em]'} mb-4 rounded-2xl overflow-hidden border border-white/10 animate-slide-in-left opacity-0 ${className}`}
+      style={{ animationDelay, animationFillMode: "forwards" }}
+    >
+      <iframe
+        src={embedUrl}
+        className="w-full h-full border-0"
+        allowFullScreen
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+        title={`Carte de ${businessName}`}
+      />
+    </div>
+  );
+};
+
+export default MapCard;
