@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Hotel, UtensilsCrossed } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Loader2, Hotel, UtensilsCrossed, Check } from "lucide-react";
 import { toast } from "sonner";
 
 const PRICE_RANGES = [
@@ -35,8 +36,63 @@ interface PriceRow {
   liteapi_currency: string | null;
   serpapi_currency: string | null;
   manual_price_range: string | null;
+  min_price: number | null;
   hasApiPrice: boolean;
 }
+
+const MinPriceCell = ({ row, onSave }: { row: PriceRow; onSave: (id: string, value: number | null) => void }) => {
+  const computedMin = Math.min(row.liteapi_price ?? Infinity, row.serpapi_price ?? Infinity);
+  const hasComputed = computedMin !== Infinity;
+  const displayValue = row.min_price ?? (hasComputed ? computedMin : null);
+  const isFromApi = !row.min_price && hasComputed;
+
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState("");
+
+  const handleSave = () => {
+    const trimmed = draft.trim();
+    if (trimmed === "") {
+      onSave(row.id, null);
+    } else {
+      const num = parseFloat(trimmed);
+      if (isNaN(num) || num < 0) {
+        toast.error("Prix invalide");
+        return;
+      }
+      onSave(row.id, Math.round(num));
+    }
+    setEditing(false);
+  };
+
+  if (editing) {
+    return (
+      <div className="flex items-center gap-1 justify-end">
+        <Input
+          type="number"
+          min={0}
+          className="h-7 w-20 text-xs text-right"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") handleSave(); if (e.key === "Escape") setEditing(false); }}
+          autoFocus
+        />
+        <button onClick={handleSave} className="p-1 rounded hover:bg-muted">
+          <Check className="h-3.5 w-3.5 text-green-600" />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <span
+      className={`font-mono cursor-pointer hover:underline ${isFromApi ? "text-muted-foreground italic" : row.min_price != null ? "font-bold text-foreground" : "text-muted-foreground/40"}`}
+      onClick={() => { setDraft(displayValue != null ? String(displayValue) : ""); setEditing(true); }}
+      title={isFromApi ? "Calculé depuis API (cliquer pour modifier)" : "Cliquer pour modifier"}
+    >
+      {displayValue != null ? `${displayValue}€` : "—"}
+    </span>
+  );
+};
 
 const PricingManagement = () => {
   const [loading, setLoading] = useState(true);
@@ -46,14 +102,12 @@ const PricingManagement = () => {
   const fetchData = useCallback(async () => {
     setLoading(true);
 
-    // Get all price cache entries
     const { data: cache } = await supabase
       .from("hotel_price_cache")
       .select("business_id, price_per_night, currency, source");
 
     const priceBusinessIds = new Set((cache || []).filter(r => r.price_per_night != null).map((r) => r.business_id));
 
-    // Get all mapped hotel IDs (both sources)
     const [{ data: liteMap }, { data: serpMap }] = await Promise.all([
       supabase.from("hotel_api_mappings").select("business_id"),
       supabase.from("hotel_mappings").select("business_id"),
@@ -64,15 +118,13 @@ const PricingManagement = () => {
       ...(serpMap || []).map(r => r.business_id),
     ])];
 
-    // Get business info for all mapped hotels
     const { data: businesses } = await supabase
       .from("businesses")
-      .select("id, name, city, manual_price_range")
+      .select("id, name, city, manual_price_range, min_price")
       .in("id", allMappedIds);
 
     const bizMap = Object.fromEntries((businesses || []).map((b) => [b.id, b]));
 
-    // Group price cache by business_id
     const grouped: Record<string, PriceRow> = {};
     for (const row of cache || []) {
       const biz = bizMap[row.business_id];
@@ -87,6 +139,7 @@ const PricingManagement = () => {
           liteapi_currency: null,
           serpapi_currency: null,
           manual_price_range: biz.manual_price_range,
+          min_price: (biz as any).min_price ?? null,
           hasApiPrice: false,
         };
       }
@@ -101,14 +154,12 @@ const PricingManagement = () => {
       }
     }
 
-    // Hotels with prices
     const withPrices = Object.values(grouped).filter(r => r.hasApiPrice).sort((a, b) => {
       const minA = Math.min(a.liteapi_price ?? Infinity, a.serpapi_price ?? Infinity);
       const minB = Math.min(b.liteapi_price ?? Infinity, b.serpapi_price ?? Infinity);
       return minA - minB;
     });
 
-    // Hotels mapped but without prices
     const withoutPrices: PriceRow[] = allMappedIds
       .filter(id => !priceBusinessIds.has(id) && bizMap[id])
       .map(id => {
@@ -122,6 +173,7 @@ const PricingManagement = () => {
           liteapi_currency: null,
           serpapi_currency: null,
           manual_price_range: biz.manual_price_range,
+          min_price: (biz as any).min_price ?? null,
           hasApiPrice: false,
         };
       })
@@ -147,14 +199,30 @@ const PricingManagement = () => {
     }
     toast.success("Gamme de prix mise à jour");
 
-    // Update local state
     const updater = (rows: PriceRow[]) =>
       rows.map(r => r.id === businessId ? { ...r, manual_price_range: rangeValue } : r);
     setHotelPrices(updater);
     setNoPriceHotels(updater);
   };
 
-  // Group by city
+  const handleMinPriceSave = async (businessId: string, value: number | null) => {
+    const { error } = await supabase
+      .from("businesses")
+      .update({ min_price: value } as any)
+      .eq("id", businessId);
+
+    if (error) {
+      toast.error("Erreur lors de la mise à jour du prix minimum");
+      return;
+    }
+    toast.success("Prix minimum mis à jour");
+
+    const updater = (rows: PriceRow[]) =>
+      rows.map(r => r.id === businessId ? { ...r, min_price: value } : r);
+    setHotelPrices(updater);
+    setNoPriceHotels(updater);
+  };
+
   const groupByCity = (rows: PriceRow[]) => {
     const map: Record<string, PriceRow[]> = {};
     for (const row of rows) {
@@ -224,7 +292,6 @@ const PricingManagement = () => {
 
       <TabsContent value="hotels">
         <div className="space-y-6">
-          {/* Hotels with API prices */}
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
             <span>{hotelPrices.length} hôtels avec prix API</span>
             <Badge variant="outline" className="bg-violet-100 text-violet-700 border-violet-300">LiteAPI</Badge>
@@ -248,12 +315,13 @@ const PricingManagement = () => {
                             LiteAPI
                           </span>
                         </th>
-                        <th className="text-right py-2 pl-4 font-medium text-muted-foreground">
+                        <th className="text-right py-2 px-4 font-medium text-muted-foreground">
                           <span className="inline-flex items-center gap-1">
                             <span className="w-2 h-2 rounded-full bg-teal-500 inline-block" />
                             SerpAPI
                           </span>
                         </th>
+                        <th className="text-right py-2 px-4 font-medium text-muted-foreground">Prix minimum</th>
                         <th className="text-center py-2 pl-4 font-medium text-muted-foreground">Gamme de prix</th>
                       </tr>
                     </thead>
@@ -273,7 +341,7 @@ const PricingManagement = () => {
                                 <span className="text-muted-foreground/40">—</span>
                               )}
                             </td>
-                            <td className="py-2 pl-4 text-right">
+                            <td className="py-2 px-4 text-right">
                               {row.serpapi_price != null ? (
                                 <span className={`font-mono ${row.serpapi_price === minPrice ? "font-bold text-teal-700" : "text-muted-foreground"}`}>
                                   {row.serpapi_price.toFixed(0)} {row.serpapi_currency}
@@ -281,6 +349,9 @@ const PricingManagement = () => {
                               ) : (
                                 <span className="text-muted-foreground/40">—</span>
                               )}
+                            </td>
+                            <td className="py-2 px-4 text-right">
+                              <MinPriceCell row={row} onSave={handleMinPriceSave} />
                             </td>
                             <td className="py-2 pl-4 text-center">
                               {autoRange ? (
@@ -299,12 +370,12 @@ const PricingManagement = () => {
             </Card>
           ))}
 
-          {/* Hotels without prices - manual assignment */}
+          {/* Hotels without prices */}
           {noPriceHotels.length > 0 && (
             <>
               <div className="flex items-center gap-3 text-sm text-muted-foreground mt-8 pt-6 border-t">
                 <span className="font-medium text-foreground">{noPriceHotels.length} hôtels sans prix API</span>
-                <span>— assignez une gamme manuellement</span>
+                <span>— assignez un prix minimum ou une gamme manuellement</span>
               </div>
 
               {noPriceSortedCities.map((city) => (
@@ -318,6 +389,7 @@ const PricingManagement = () => {
                         <thead>
                           <tr className="border-b">
                             <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Établissement</th>
+                            <th className="text-right py-2 px-4 font-medium text-muted-foreground">Prix minimum</th>
                             <th className="text-center py-2 pl-4 font-medium text-muted-foreground">Gamme de prix</th>
                           </tr>
                         </thead>
@@ -325,6 +397,9 @@ const PricingManagement = () => {
                           {noPriceCitiesMap[city].map((row) => (
                             <tr key={row.id} className="hover:bg-muted/50">
                               <td className="py-2 pr-4 font-medium">{row.name}</td>
+                              <td className="py-2 px-4 text-right">
+                                <MinPriceCell row={row} onSave={handleMinPriceSave} />
+                              </td>
                               <td className="py-2 pl-4 text-center">
                                 <PriceRangeSelect row={row} />
                               </td>
