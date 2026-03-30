@@ -142,6 +142,7 @@ const SerpApiHotelOverlay = ({ serpHotelName, serpCity, businessName, reserveNow
             tripadvisorRating: biz.tripadvisor_rating,
             tripadvisorReviewCount: biz.tripadvisor_review_count,
             reserveNowUrl: biz.reserve_now_url,
+            manualPriceRange: biz.manual_price_range,
             serpData: serpMatch || null,
           };
         });
