@@ -156,7 +156,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             const serpHotels = data?.data || [];
             const bizIds = mappings.map((m: any) => m.business_id).filter(Boolean);
             const [{ data: businesses }, { data: gammes }, { data: liteApiPrices }] = await Promise.all([
-              supabase.from("businesses").select("id, name, slug, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, gamme_id, wtuce_status").in("id", bizIds),
+              supabase.from("businesses").select("id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, skype, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, badge_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, opening_hours, show_opening_hours, is_open_24h, engagements, online_shop_url, latitude, longitude, google_maps_url, rating, website").in("id", bizIds),
               supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex"),
               supabase.from("hotel_price_cache").select("business_id, price_per_night, currency").in("business_id", bizIds).eq("source", "liteapi").eq("check_in", checkIn).eq("check_out", checkOut),
             ]);
@@ -190,6 +190,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   manualPriceRange: biz.manual_price_range, isCurrentHotel,
                   gamme: gammeInfo ? { name_fr: gammeInfo.name_fr, color_hex: gammeInfo.color_hex, text_color_hex: gammeInfo.text_color_hex } : null,
                   dealDescription: serpMatch?.dealDescription || null,
+                  dbBusiness: biz,
                 } satisfies FallbackHotel;
               });
 
@@ -203,7 +204,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               return 0;
             });
 
-            openFallback({ hotels: uniqueHotels, city: serpApiMapping.city, checkIn, checkOut, adults, source: "serpapi" });
+            openFallback({ hotels: uniqueHotels, city: serpApiMapping.city, checkIn, checkOut, adults, source: "serpapi", gammes: (gammes || []).map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })) });
             setHotelSearchLoading(false);
             return;
           }
@@ -258,19 +259,24 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           const mappingMap = new Map<string, string>((apiMappings || []).map((m: any) => [m.liteapi_hotel_id, m.business_id]));
           const bIds = [...mappingMap.values()].filter(Boolean);
           let bizDataMap = new Map<string, any>();
+          let liteGammes: any[] = [];
           if (bIds.length > 0) {
-            const { data: bizData } = await supabase.from("businesses").select("id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, images, name").in("id", bIds);
+            const [{ data: bizData }, { data: gData }] = await Promise.all([
+              supabase.from("businesses").select("id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, skype, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, badge_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, opening_hours, show_opening_hours, is_open_24h, engagements, online_shop_url, latitude, longitude, google_maps_url, rating, website").in("id", bIds),
+              supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
+            ]);
             bizDataMap = new Map((bizData || []).map((b: any) => [b.id, b]));
+            liteGammes = gData || [];
           }
           const linked: FallbackHotel[] = fbHotels
             .filter(h => mappingMap.has(h.hotelId) && h.hotelId !== liteApiHotelId)
             .map(h => {
               const bizId = mappingMap.get(h.hotelId) || "";
               const biz = bizDataMap.get(bizId);
-              return { ...h, businessId: bizId || undefined, wtuce_status: biz?.wtuce_status, name: biz?.name || h.name, dbImage: biz?.images?.[0], dbGoogleRating: biz?.google_rating, dbGoogleReviewCount: biz?.google_review_count, dbTripadvisorRating: biz?.tripadvisor_rating, dbTripadvisorReviewCount: biz?.tripadvisor_review_count };
+              return { ...h, businessId: bizId || undefined, wtuce_status: biz?.wtuce_status, name: biz?.name || h.name, dbImage: biz?.images?.[0], dbGoogleRating: biz?.google_rating, dbGoogleReviewCount: biz?.google_review_count, dbTripadvisorRating: biz?.tripadvisor_rating, dbTripadvisorReviewCount: biz?.tripadvisor_review_count, dbBusiness: biz || null };
             });
           if (linked.length > 0) {
-            openFallback({ hotels: linked, city: business.city || "", checkIn, checkOut, adults, source: "liteapi" });
+            openFallback({ hotels: linked, city: business.city || "", checkIn, checkOut, adults, source: "liteapi", gammes: liteGammes });
             setHotelSearchLoading(false);
             return;
           }
