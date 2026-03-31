@@ -1665,7 +1665,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               </button>
             )}
             {/* Video controls — below CTAs */}
-            {!cardsHidden && currentMedia?.kind === "video" && videoInfo?.type === "file" && (
+            {!cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type === "file" && (
               <div className="flex items-center gap-6 md:gap-10 mt-2 md:mt-3">
                 <button
                   type="button"
