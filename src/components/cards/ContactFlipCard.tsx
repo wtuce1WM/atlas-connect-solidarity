@@ -43,8 +43,8 @@ const ContactFlipCard = ({
   onCheckAvailability,
   onOpenWebsite,
 }: ContactFlipCardProps) => {
-  const [activeView, setActiveView] = useState<"contact" | "map" | "dates">("contact");
-  const flipped = activeView !== "contact";
+  const [activeView, setActiveView] = useState<"contact" | "dates">("contact");
+  const flipped = activeView === "dates";
 
   return (
     <div
@@ -66,7 +66,7 @@ const ContactFlipCard = ({
           <div className="space-y-2.5 text-sm">
             {business.google_maps_url && (
               <button
-                onClick={() => setActiveView("map")}
+                onClick={() => setActiveView("dates")}
                 className="flex items-center justify-center w-full mb-1"
               >
                 <MapPin
@@ -153,28 +153,6 @@ const ContactFlipCard = ({
           className="absolute inset-0 rounded-2xl overflow-hidden"
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
         >
-          {/* Back button only for map view */}
-          {activeView === "map" && (
-            <div className="absolute top-0 right-0 p-3 z-10">
-              <button
-                onClick={() => setActiveView("contact")}
-                className="text-xs text-black font-bold hover:text-black/70 transition-colors uppercase tracking-wider drop-shadow-md"
-              >
-                ← {language === "en" ? "Back" : "Retour"}
-              </button>
-            </div>
-          )}
-
-          {activeView === "map" && business.latitude && business.longitude && (
-            <iframe
-              src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${business.latitude},${business.longitude}&zoom=13`}
-              className="w-full h-full border-0"
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
-          )}
-
           {activeView === "dates" && (
             <DatePickerBack
               language={language}
