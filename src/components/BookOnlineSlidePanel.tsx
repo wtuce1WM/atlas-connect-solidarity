@@ -117,7 +117,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   useEffect(() => { fallbackDataRef.current = fallbackPanelData; }, [fallbackPanelData]);
   const hideCardsRef = useRef<() => void>(() => {});
 
-  // Unified hotel availability search: SerpAPI priority, then LiteAPI fallback
+  // Unified hotel availability search: always calls SerpAPI to verify real availability
   const handleCheckAvailability = useCallback(async (checkIn: string, checkOut: string, adults: number) => {
     if (!business) return;
     setHotelSearchLoading(true);
@@ -133,170 +133,113 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     };
 
     try {
-      // Try SerpAPI first if mapping exists
-      if (serpApiMapping) {
-        const { data: mappings } = await supabase
-          .from("hotel_mappings")
-          .select("id, serp_hotel_name, business_id, city")
-          .ilike("city", serpApiMapping.city);
+      const cityName = serpApiMapping?.city || business.city || "";
+      if (!cityName) throw new Error("City not found");
 
-        if (mappings && mappings.length > 0) {
-          const { data, error: fnError } = await supabase.functions.invoke("serpapi-hotels", {
-            body: {
-              cityName: serpApiMapping.city,
-              checkIn, checkOut, adults,
-              currency: "EUR",
-              sort: 3,
-              language: language === "en" ? "en" : "fr",
-              country: "ma",
-              maxPages: 3,
-            },
-          });
-          if (!fnError) {
-            const serpHotels = data?.data || [];
-            const bizIds = mappings.map((m: any) => m.business_id).filter(Boolean);
-            const [{ data: businesses }, { data: gammes }, { data: allGammeBusinesses }] = await Promise.all([
-              supabase.from("businesses").select("id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, skype, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, badge_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, opening_hours, show_opening_hours, is_open_24h, engagements, online_shop_url, latitude, longitude, google_maps_url, rating, website, min_price").in("id", bizIds),
-              supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
-              supabase.from("businesses").select("id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, skype, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, badge_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, opening_hours, show_opening_hours, is_open_24h, engagements, online_shop_url, latitude, longitude, google_maps_url, rating, website, min_price")
-                .eq("is_active", true)
-                .not("gamme_id", "is", null)
-                .eq("main_category", "Hôtellerie")
-                .ilike("city", serpApiMapping.city),
-            ]);
-            const bizMap = new Map((businesses || []).map((b: any) => [b.id, b]));
-            const gammeMap = new Map((gammes || []).map((g: any) => [g.id, g]));
+      // Always call SerpAPI to get real availability for the city
+      const [serpResult, dbResult, gammeResult] = await Promise.all([
+        supabase.functions.invoke("serpapi-hotels", {
+          body: {
+            cityName,
+            checkIn, checkOut, adults,
+            currency: "EUR",
+            sort: 3,
+            language: language === "en" ? "en" : "fr",
+            country: "ma",
+            maxPages: 3,
+          },
+        }),
+        supabase.from("businesses").select("id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, skype, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, badge_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, opening_hours, show_opening_hours, is_open_24h, engagements, online_shop_url, latitude, longitude, google_maps_url, rating, website, min_price")
+          .eq("is_active", true)
+          .not("gamme_id", "is", null)
+          .eq("main_category", "Hôtellerie")
+          .ilike("city", cityName),
+        supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
+      ]);
 
-            const hotels: FallbackHotel[] = mappings
-              .filter((m: any) => bizMap.has(m.business_id))
-              .map((m: any) => {
-                const biz = bizMap.get(m.business_id)!;
-                const mappingNorm = normalize(m.serp_hotel_name || "");
-                const serpMatch = serpHotels.find((r: any) => {
-                  const rNorm = normalize(r.name);
-                  if (rNorm === mappingNorm) return true;
-                  const shorter = rNorm.length < mappingNorm.length ? rNorm : mappingNorm;
-                  const longer = rNorm.length < mappingNorm.length ? mappingNorm : rNorm;
-                  return shorter.length >= 8 && longer.includes(shorter);
-                });
-                const isCurrentHotel = m.business_id === businessId;
-                const gammeInfo = biz.gamme_id ? gammeMap.get(biz.gamme_id) || null : null;
-                return {
-                  hotelId: m.id, businessId: m.business_id, name: biz.name,
-                  wtuce_status: biz.wtuce_status || undefined, offers: [],
-                  dbImage: biz.images?.[0] || undefined, mainImage: serpMatch?.thumbnail || undefined,
-                  dbGoogleRating: biz.google_rating, dbGoogleReviewCount: biz.google_review_count,
-                  dbTripadvisorRating: biz.tripadvisor_rating, dbTripadvisorReviewCount: biz.tripadvisor_review_count,
-                  serpPrice: serpMatch?.ratePerNight || null,
-                  reserveNowUrl: isCurrentHotel ? (business.reserve_now_url || biz.reserve_now_url) : biz.reserve_now_url,
-                  manualPriceRange: biz.manual_price_range, isCurrentHotel,
-                  gamme: gammeInfo ? { name_fr: gammeInfo.name_fr, color_hex: gammeInfo.color_hex, text_color_hex: gammeInfo.text_color_hex } : null,
-                  dealDescription: serpMatch?.dealDescription || null,
-                  dbBusiness: biz,
-                } satisfies FallbackHotel;
-              });
+      const serpHotels = serpResult.data?.data || [];
+      const dbBizList = dbResult.data || [];
+      const gammes = gammeResult.data || [];
+      const gammeMap = new Map(gammes.map((g: any) => [g.id, g]));
 
-            // Dedup by business_id
-            const deduped = new Map<string, FallbackHotel>();
-            for (const h of hotels) { const ex = deduped.get(h.businessId!); if (!ex || (h.serpPrice && !ex.serpPrice)) deduped.set(h.businessId!, h); }
+      // Also fetch hotel_mappings for name matching
+      const { data: mappings } = await supabase
+        .from("hotel_mappings")
+        .select("id, serp_hotel_name, business_id, city")
+        .ilike("city", cityName);
+      const mappingByBizId = new Map((mappings || []).map((m: any) => [m.business_id, m]));
 
-            // Add non-mapped businesses with gamme_id from same city
-            for (const biz of (allGammeBusinesses || [])) {
-              if (deduped.has(biz.id)) continue;
-              const isCurrentHotel = biz.id === businessId;
-              const gammeInfo = biz.gamme_id ? gammeMap.get(biz.gamme_id) || null : null;
-              deduped.set(biz.id, {
-                hotelId: biz.id, businessId: biz.id, name: biz.name,
-                wtuce_status: biz.wtuce_status || undefined, offers: [],
-                dbImage: biz.images?.[0] || undefined,
-                dbGoogleRating: biz.google_rating, dbGoogleReviewCount: biz.google_review_count,
-                dbTripadvisorRating: biz.tripadvisor_rating, dbTripadvisorReviewCount: biz.tripadvisor_review_count,
-                serpPrice: null,
-                reserveNowUrl: isCurrentHotel ? (business.reserve_now_url || biz.reserve_now_url) : biz.reserve_now_url,
-                manualPriceRange: biz.manual_price_range, isCurrentHotel,
-                gamme: gammeInfo ? { name_fr: gammeInfo.name_fr, color_hex: gammeInfo.color_hex, text_color_hex: gammeInfo.text_color_hex } : null,
-                dealDescription: null,
-                dbBusiness: biz,
-              });
-            }
+      // Match each DB hotel to SerpAPI results to confirm availability
+      const hotels: FallbackHotel[] = [];
+      for (const biz of dbBizList) {
+        const mapping = mappingByBizId.get(biz.id);
+        const nameToMatch = mapping?.serp_hotel_name || biz.name;
+        const normName = normalize(nameToMatch);
 
-            const uniqueHotels = Array.from(deduped.values());
-            uniqueHotels.sort((a, b) => {
-              if (a.isCurrentHotel !== b.isCurrentHotel) return a.isCurrentHotel ? -1 : 1;
-              if (!!a.serpPrice !== !!b.serpPrice) return a.serpPrice ? -1 : 1;
-              const aVerified = a.wtuce_status === "verified" ? 1 : 0;
-              const bVerified = b.wtuce_status === "verified" ? 1 : 0;
-              if (aVerified !== bVerified) return bVerified - aVerified;
-              const aRating = a.dbBusiness?.computed_rating || 0;
-              const bRating = b.dbBusiness?.computed_rating || 0;
-              return bRating - aRating;
-            });
+        const serpMatch = serpHotels.find((r: any) => {
+          const rNorm = normalize(r.name);
+          if (rNorm === normName) return true;
+          const shorter = rNorm.length < normName.length ? rNorm : normName;
+          const longer = rNorm.length < normName.length ? normName : rNorm;
+          return shorter.length >= 8 && longer.includes(shorter);
+        });
 
-            openFallback({ hotels: uniqueHotels, city: serpApiMapping.city, checkIn, checkOut, adults, source: "serpapi", gammes: (gammes || []).map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })) });
-            setHotelSearchLoading(false);
-            return;
-          }
-        }
+        // Only include hotels confirmed available by SerpAPI
+        if (!serpMatch) continue;
+
+        const isCurrentHotel = biz.id === businessId;
+        const gammeInfo = biz.gamme_id ? gammeMap.get(biz.gamme_id) || null : null;
+        hotels.push({
+          hotelId: mapping?.id || biz.id,
+          businessId: biz.id,
+          name: biz.name,
+          wtuce_status: biz.wtuce_status || undefined,
+          offers: [],
+          dbImage: biz.images?.[0] || undefined,
+          mainImage: serpMatch.thumbnail || undefined,
+          dbGoogleRating: biz.google_rating,
+          dbGoogleReviewCount: biz.google_review_count,
+          dbTripadvisorRating: biz.tripadvisor_rating,
+          dbTripadvisorReviewCount: biz.tripadvisor_review_count,
+          serpPrice: serpMatch.ratePerNight || null,
+          reserveNowUrl: isCurrentHotel ? (business.reserve_now_url || biz.reserve_now_url) : biz.reserve_now_url,
+          manualPriceRange: biz.manual_price_range,
+          isCurrentHotel,
+          gamme: gammeInfo ? { name_fr: gammeInfo.name_fr, color_hex: gammeInfo.color_hex, text_color_hex: gammeInfo.text_color_hex } : null,
+          dealDescription: serpMatch.dealDescription || null,
+          dbBusiness: biz,
+        } satisfies FallbackHotel);
       }
 
-      // Fallback: query all businesses with gamme_id in the same city
-      {
-        const cityName = business.city || "";
-        const [{ data: dbBizList }, { data: dbGammes }] = await Promise.all([
-          supabase.from("businesses").select("id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, skype, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, badge_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, opening_hours, show_opening_hours, is_open_24h, engagements, online_shop_url, latitude, longitude, google_maps_url, rating, website, min_price")
-            .eq("is_active", true)
-            .not("gamme_id", "is", null)
-            .eq("main_category", "Hôtellerie")
-            .ilike("city", cityName),
-          supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
-        ]);
+      // Sort: current hotel first, then verified, then by rating
+      hotels.sort((a, b) => {
+        if (a.isCurrentHotel !== b.isCurrentHotel) return a.isCurrentHotel ? -1 : 1;
+        const aVerified = a.wtuce_status === "verified" ? 1 : 0;
+        const bVerified = b.wtuce_status === "verified" ? 1 : 0;
+        if (aVerified !== bVerified) return bVerified - aVerified;
+        const aRating = a.dbBusiness?.computed_rating || 0;
+        const bRating = b.dbBusiness?.computed_rating || 0;
+        return bRating - aRating;
+      });
 
-        if (dbBizList && dbBizList.length > 0) {
-          const gammeMap = new Map((dbGammes || []).map((g: any) => [g.id, g]));
-          const dbHotels: FallbackHotel[] = dbBizList.map((biz: any) => {
-            const isCurrentHotel = biz.id === businessId;
-            const gammeInfo = biz.gamme_id ? gammeMap.get(biz.gamme_id) || null : null;
-            return {
-              hotelId: biz.id,
-              businessId: biz.id,
-              name: biz.name,
-              wtuce_status: biz.wtuce_status || undefined,
-              offers: [],
-              dbImage: biz.images?.[0] || undefined,
-              dbGoogleRating: biz.google_rating,
-              dbGoogleReviewCount: biz.google_review_count,
-              dbTripadvisorRating: biz.tripadvisor_rating,
-              dbTripadvisorReviewCount: biz.tripadvisor_review_count,
-              serpPrice: null,
-              reserveNowUrl: isCurrentHotel ? (business.reserve_now_url || biz.reserve_now_url) : biz.reserve_now_url,
-              manualPriceRange: biz.manual_price_range,
-              isCurrentHotel,
-              gamme: gammeInfo ? { name_fr: gammeInfo.name_fr, color_hex: gammeInfo.color_hex, text_color_hex: gammeInfo.text_color_hex } : null,
-              dealDescription: null,
-              dbBusiness: biz,
-            } satisfies FallbackHotel;
-          });
-
-          // Sort: current hotel first, then WTUCE verified, then by computed_rating
-          dbHotels.sort((a, b) => {
-            if (a.isCurrentHotel !== b.isCurrentHotel) return a.isCurrentHotel ? -1 : 1;
-            const aVerified = a.wtuce_status === "verified" ? 1 : 0;
-            const bVerified = b.wtuce_status === "verified" ? 1 : 0;
-            if (aVerified !== bVerified) return bVerified - aVerified;
-            const aRating = a.dbBusiness?.computed_rating || 0;
-            const bRating = b.dbBusiness?.computed_rating || 0;
-            return bRating - aRating;
-          });
-
-          openFallback({ hotels: dbHotels, city: cityName, checkIn, checkOut, adults, source: "serpapi", gammes: (dbGammes || []).map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })) });
-          setHotelSearchLoading(false);
-          return;
-        }
-
-        // No results at all
+      if (hotels.length > 0) {
+        openFallback({
+          hotels,
+          city: cityName,
+          checkIn, checkOut, adults,
+          source: "serpapi",
+          gammes: gammes.map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })),
+        });
+      } else {
+        // No availability found at all
         hideCardsRef.current();
-        const { toast } = await import("sonner");
-        toast.info(language === "en" ? "No availability for these dates" : "Aucune disponibilité pour ces dates");
+        openFallback({
+          hotels: [],
+          city: cityName,
+          checkIn, checkOut, adults,
+          source: "serpapi",
+          gammes: gammes.map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })),
+        });
       }
     } catch (err: any) {
       console.error("Hotel availability error:", err);
