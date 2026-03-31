@@ -1332,9 +1332,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
         {/* Spacer + availability zone when cards hidden */}
         {cardsHidden && (
-          <div className="flex-1 flex flex-col items-center justify-center gap-4 pointer-events-auto">
+          <div className="flex-1 flex flex-col justify-center gap-3 pointer-events-auto px-4 md:px-8 overflow-y-auto">
             {hotelSearchLoading && (
-              <div className="flex items-center gap-2 text-white/80">
+              <div className="flex items-center justify-center gap-2 text-white/80">
                 <Loader2 className="h-5 w-5 animate-spin" />
                 <span className="text-sm font-['Roboto',sans-serif]">{language === "en" ? "Searching availability..." : "Recherche de disponibilité..."}</span>
               </div>
@@ -1344,37 +1344,110 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               const hasAvailability = currentHotel && (currentHotel.serpPrice || (currentHotel.offers && currentHotel.offers.length > 0));
               const hotelName = business?.name || "";
               const minPrice = business?.min_price;
+
+              // Build action cards for availability case
+              const actionCards: { icon: React.ReactNode; label: string; onClick: () => void; color: string }[] = [];
+              if (hasAvailability && business) {
+                if (business.whatsapp) {
+                  actionCards.push({
+                    icon: <WhatsAppIcon className="h-5 w-5" />,
+                    label: "WhatsApp",
+                    onClick: () => window.open(whatsappUrl(business.whatsapp!), "_blank"),
+                    color: "#25D366",
+                  });
+                }
+                if (business.phone) {
+                  actionCards.push({
+                    icon: <span className="text-lg">📞</span>,
+                    label: language === "en" ? "Call" : "Téléphone",
+                    onClick: () => window.open(`tel:${business.phone!.replace(/(?!^\+)[^\d]/g, '')}`, "_self"),
+                    color: "#3B82F6",
+                  });
+                }
+                if (business.reserve_now_url) {
+                  const isExternal = business.reserve_now_force_external;
+                  actionCards.push({
+                    icon: <CalendarCheck className="h-5 w-5" />,
+                    label: language === "en" ? "Book online" : "Réservez en ligne",
+                    onClick: () => {
+                      if (isExternal) {
+                        window.open(business.reserve_now_url!, "_blank");
+                      } else {
+                        setBookingOverlayUrl(null);
+                        setBookingOverlayTitle(undefined);
+                        setShowBookingOverlay(true);
+                      }
+                    },
+                    color: "#F59E0B",
+                  });
+                }
+                if (business.latitude && business.longitude) {
+                  actionCards.push({
+                    icon: <MapPin className="h-5 w-5" />,
+                    label: language === "en" ? "Directions" : "Vous rendre sur place",
+                    onClick: () => setShowDirections(true),
+                    color: "#8B5CF6",
+                  });
+                }
+              }
+
               return (
-                <div className="text-center text-white bg-black/40 backdrop-blur-sm rounded-xl px-6 py-4 border border-white/10 max-w-sm">
-                  <p className="text-sm font-['Roboto',sans-serif] mb-3 leading-relaxed">
-                    {hasAvailability ? (
-                      <>
-                        <span className="font-bold">{hotelName}</span>{" "}
-                        {language === "en"
-                          ? "has availability for the selected dates."
-                          : "a de la disponibilité sur les dates recherchées."}
-                        {minPrice ? (
-                          <>
-                            {" "}{language === "en" ? "The minimum price generally observed is" : "Le prix minimum généralement constaté est de"}{" "}
-                            <span className="font-bold">{minPrice} €</span>{" "}
+                <>
+                  {/* Contextual message */}
+                  <div className="text-left text-white bg-black/40 backdrop-blur-sm rounded-xl px-5 py-4 border border-white/10">
+                    <div className="text-sm font-['Roboto',sans-serif] leading-relaxed space-y-2">
+                      {hasAvailability ? (
+                        <>
+                          <p>
+                            <span className="font-bold">{hotelName}</span>{" "}
                             {language === "en"
-                              ? "but the price per night may vary depending on season and room type."
-                              : "mais le prix par nuitée peut varier selon la saison et le type de chambre."}
-                          </>
-                        ) : null}
-                        {" "}{language === "en"
-                          ? `Contact ${hotelName} directly to book your stay.`
-                          : `Renseignez-vous directement auprès de ${hotelName} pour réserver votre séjour.`}
-                      </>
-                    ) : (
-                      <>
-                        {language === "en"
-                          ? `Unfortunately, we could not find availability at ${hotelName} for the selected dates.`
-                          : `Malheureusement, nous n'avons pas pu trouver de disponibilité chez ${hotelName} sur les dates recherchées.`}
-                      </>
-                    )}
-                  </p>
-                  <div className="border-t border-white/20 pt-3">
+                              ? "has availability for the selected dates."
+                              : "a de la disponibilité sur les dates recherchées."}
+                          </p>
+                          {minPrice ? (
+                            <p>
+                              {language === "en" ? "The minimum price generally observed is" : "Le prix minimum généralement constaté est de"}{" "}
+                              <span className="font-bold">{minPrice} €</span>{" "}
+                              {language === "en"
+                                ? "but the price per night may vary depending on season and room type."
+                                : "mais le prix par nuitée peut varier selon la saison et le type de chambre."}
+                            </p>
+                          ) : null}
+                          <p>
+                            {language === "en"
+                              ? `Contact ${hotelName} directly to book your stay.`
+                              : `Renseignez-vous directement auprès de ${hotelName} pour réserver votre séjour.`}
+                          </p>
+                        </>
+                      ) : (
+                        <p>
+                          {language === "en"
+                            ? `Unfortunately, we could not find availability at ${hotelName} for the selected dates.`
+                            : `Malheureusement, nous n'avons pas pu trouver de disponibilité chez ${hotelName} sur les dates recherchées.`}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Action cards when available */}
+                  {actionCards.length > 0 && (
+                    <div className="grid grid-cols-2 gap-2">
+                      {actionCards.map((card, i) => (
+                        <button
+                          key={i}
+                          onClick={card.onClick}
+                          className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-white text-xs font-medium font-['Josefin_Sans',sans-serif] shadow-lg hover:opacity-90 transition-opacity normal-case tracking-normal"
+                          style={{ backgroundColor: card.color }}
+                        >
+                          {card.icon}
+                          <span className="truncate">{card.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Hotels found card */}
+                  <div className="text-center text-white bg-black/40 backdrop-blur-sm rounded-xl px-5 py-3 border border-white/10">
                     <p className="text-sm font-medium font-['Josefin_Sans',sans-serif] mb-1">
                       {fallbackPanelData.hotels.length} {language === "en" ? "hotels found" : "hôtels trouvés"}
                     </p>
@@ -1382,13 +1455,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       {fallbackPanelData.checkIn} → {fallbackPanelData.checkOut} · {fallbackPanelData.adults} {language === "en" ? "adults" : "adultes"}
                     </p>
                   </div>
-                </div>
+                </>
               );
-            })()}
-            {/* No fallback data but search done = no results at all */}
-            {!fallbackPanelData && !hotelSearchLoading && business && (() => {
-              // This shows when search completed but found absolutely nothing
-              return null;
             })()}
           </div>
         )}
