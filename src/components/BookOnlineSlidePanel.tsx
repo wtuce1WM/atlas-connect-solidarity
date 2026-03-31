@@ -276,6 +276,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         }
 
         // No results at all
+        hideCardsRef.current();
         const { toast } = await import("sonner");
         toast.info(language === "en" ? "No availability for these dates" : "Aucune disponibilité pour ces dates");
       }
