@@ -451,13 +451,22 @@ function OpeningHoursBlock({
   };
   language: string;
 }) {
+  const frToEn: Record<string, string> = {
+    lundi: "monday", mardi: "tuesday", mercredi: "wednesday", jeudi: "thursday",
+    vendredi: "friday", samedi: "saturday", dimanche: "sunday",
+  };
   const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
   const dayNames: Record<string, string> = {
     monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu",
     friday: "Ven", saturday: "Sam", sunday: "Dim",
   };
   const displayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
-  const hours = business.opening_hours as Record<string, any> | null;
+  const rawHours = business.opening_hours as Record<string, any> | null;
+  // Normalize French keys to English
+  const hours = rawHours ? Object.entries(rawHours).reduce((acc, [k, v]) => {
+    acc[frToEn[k] || k] = v;
+    return acc;
+  }, {} as Record<string, any>) : null;
   const now = new Date();
   const todayKey = dayOrder[now.getDay()];
   const todayDh = todayKey && hours ? hours[todayKey] : null;

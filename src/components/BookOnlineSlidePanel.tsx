@@ -422,8 +422,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       return { text: label, isOpen: true };
     }
 
-    const hours = business.opening_hours as Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }> | null;
-    if (!hours) return { text: null, isOpen: false };
+    const frToEn: Record<string, string> = {
+      lundi: "monday", mardi: "tuesday", mercredi: "wednesday", jeudi: "thursday",
+      vendredi: "friday", samedi: "saturday", dimanche: "sunday",
+    };
+    const rawHours = business.opening_hours as Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }> | null;
+    if (!rawHours) return { text: null, isOpen: false };
+    const hours = Object.entries(rawHours).reduce((acc, [k, v]) => {
+      acc[frToEn[k] || k] = v;
+      return acc;
+    }, {} as Record<string, any>);
 
     const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
     const now = new Date();
