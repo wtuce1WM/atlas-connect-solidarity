@@ -167,6 +167,7 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
             gamme: gammeInfo ? { name_fr: gammeInfo.name_fr, color_hex: gammeInfo.color_hex, text_color_hex: gammeInfo.text_color_hex } : null,
             isCurrentHotel,
             dealDescription: serpMatch?.dealDescription || null,
+            dbBusiness: biz,
           } satisfies FallbackHotel;
         });
 
