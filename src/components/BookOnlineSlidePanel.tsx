@@ -1325,6 +1325,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               const hasAvailability = !!currentHotel;
               const hotelName = business?.name || "";
               const minPrice = business?.min_price;
+              const nightsCount = (() => {
+                const d1 = new Date(fallbackPanelData.checkIn);
+                const d2 = new Date(fallbackPanelData.checkOut);
+                const diff = Math.round((d2.getTime() - d1.getTime()) / 86400000);
+                return diff > 0 ? diff : 1;
+              })();
+              const totalMinPrice = minPrice ? minPrice * nightsCount : null;
 
               // Build action cards for availability case
               const actionCards: { icon: React.ReactNode; label: string; onClick: () => void; color: string; textColor?: string }[] = [];
@@ -1390,15 +1397,24 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                             <p>
                               {language === "en" ? "The minimum price generally observed is" : "Le prix minimum généralement constaté est de"}{" "}
                               <span className="font-bold">{minPrice} €</span>{" "}
+                              {language === "en" ? "per night" : "par nuit"}{" "}
                               {language === "en"
                                 ? "but the price per night may vary depending on season and room type."
                                 : "mais le prix par nuitée peut varier selon la saison et le type de chambre."}
                             </p>
                           ) : null}
+                          {totalMinPrice ? (
+                            <p>
+                              {language === "en"
+                                ? `You can therefore expect a minimum price for your stay of`
+                                : `Vous pouvez donc vous attendre à un prix minimal pour votre séjour de`}{" "}
+                              <span className="font-bold">{totalMinPrice} €</span>.
+                            </p>
+                          ) : null}
                           <p>
                             {language === "en"
-                              ? `Contact ${hotelName} directly to book your stay.`
-                              : `Renseignez-vous directement auprès de ${hotelName} pour réserver votre séjour.`}
+                              ? <>Contact <span className="font-bold">{hotelName}</span> directly to book your stay.</>
+                              : <>Renseignez-vous directement auprès de <span className="font-bold">{hotelName}</span> pour réserver votre séjour.</>}
                           </p>
                         </>
                       ) : (
