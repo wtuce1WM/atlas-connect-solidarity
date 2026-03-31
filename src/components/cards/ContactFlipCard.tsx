@@ -203,53 +203,36 @@ function HotelAvailabilityWidget({
   };
 
   return (
-    <div className="mt-3 pt-3 border-t border-white/20 space-y-2">
-      {/* Date fields + adults on same row */}
+    <div className="mt-3 pt-3 border-t border-white/20 space-y-2 cursor-pointer" onClick={() => onOpenDatePicker?.()}>
+      {/* Date fields + adults on same row — entire zone triggers flip */}
       <div className="flex rounded-xl overflow-hidden border border-white/20">
-        {/* Check-in — opens date picker on back */}
-        <button
-          className="relative flex-1 bg-white/10 p-2 text-left hover:bg-white/20 transition-colors"
-          onClick={() => onOpenDatePicker?.()}
-        >
+        {/* Check-in */}
+        <div className="relative flex-1 bg-white/10 p-2 text-left">
           <span className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block mb-0.5">
             {isEn ? "CHECK-IN" : "ARRIVÉE"}
           </span>
           <span className="text-white font-bold text-sm">{formatDateShort(checkIn)}</span>
-        </button>
-        {/* Check-out — opens date picker on back */}
-        <button
-          className="relative flex-1 bg-white/10 p-2 border-l border-white/20 text-left hover:bg-white/20 transition-colors"
-          onClick={() => onOpenDatePicker?.()}
-        >
+        </div>
+        {/* Check-out */}
+        <div className="relative flex-1 bg-white/10 p-2 border-l border-white/20 text-left">
           <span className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block mb-0.5">
             {isEn ? "CHECK-OUT" : "DÉPART"}
           </span>
           <span className="text-white font-bold text-sm">{formatDateShort(checkOut)}</span>
-        </button>
-        {/* Adults */}
+        </div>
+        {/* Adults — display only */}
         <div className="bg-white/10 px-3 py-2 border-l border-white/20 flex flex-col items-center justify-center shrink-0">
           <span className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block mb-0.5">
             {isEn ? "GUESTS" : "ADULTES"}
           </span>
-          <select
-            value={adults}
-            onChange={e => setAdults(Number(e.target.value))}
-            className="bg-black/50 text-white font-bold text-sm cursor-pointer text-center outline-none rounded px-1 border border-white/20 [color-scheme:dark]"
-          >
-            {[1, 2, 3, 4].map(n => (
-              <option key={n} value={n}>{n}</option>
-            ))}
-          </select>
+          <span className="text-white font-bold text-sm">{adults}</span>
         </div>
       </div>
-      <button
-        onClick={() => onCheckAvailability?.(checkIn, checkOut, adults)}
-        disabled={isLoading}
-        className="w-fit mx-auto px-5 py-2.5 rounded-full bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 normal-case tracking-normal font-['Roboto',sans-serif]"
-      >
-        {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+      {/* CTA — visual only, click triggers flip */}
+      <div className="w-fit mx-auto px-5 py-2.5 rounded-full bg-white text-black font-bold text-sm flex items-center justify-center gap-2 normal-case tracking-normal font-['Roboto',sans-serif]">
+        <Search className="h-4 w-4" />
         {isEn ? "Check availability" : "Vérifier la disponibilité"}
-      </button>
+      </div>
     </div>
   );
 }
