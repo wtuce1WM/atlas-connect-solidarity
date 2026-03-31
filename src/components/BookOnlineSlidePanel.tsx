@@ -1794,21 +1794,24 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         document.body
       )}
 
-      {/* Fallback hotels panel */}
-      {fallbackPanelData && !fallbackHiddenOnMobile && (
-        <FallbackHotelsPanel
-          data={fallbackPanelData}
-          selectedHotelId={selectedFallbackHotelId}
-          onClose={() => setFallbackPanelData(null)}
-          onSelectHotel={(hotelId, businessId) => {
-            if (businessId) {
-              if (window.innerWidth < 1024) setShowTransitionOverlay(true);
-              setSelectedFallbackHotelId(hotelId);
-              setActiveBusinessId(businessId);
-              if (window.innerWidth < 1024) setFallbackHiddenOnMobile(true);
-            }
-          }}
-        />
+      {/* Fallback hotels overlay — covers toolbar */}
+      {fallbackPanelData && showFallbackOverlay && (
+        <div className="absolute inset-0 -top-[3.3rem] z-[76] bg-white overflow-y-auto animate-slide-in-left">
+          <FallbackHotelsPanel
+            data={fallbackPanelData}
+            selectedHotelId={selectedFallbackHotelId}
+            onClose={() => setShowFallbackOverlay(false)}
+            onSelectHotel={(hotelId, businessId) => {
+              if (businessId) {
+                if (window.innerWidth < 1024) setShowTransitionOverlay(true);
+                setSelectedFallbackHotelId(hotelId);
+                setActiveBusinessId(businessId);
+                setShowFallbackOverlay(false);
+              }
+            }}
+            inline
+          />
+        </div>
       )}
     </div>
   );
