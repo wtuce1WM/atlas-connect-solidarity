@@ -56,7 +56,7 @@ export interface FallbackPanelData {
   checkIn: string;
   checkOut: string;
   adults: number;
-  source?: "liteapi" | "serpapi";
+  source?: "serpapi" | "db";
   gammes?: { id: string; name_fr: string; color_hex: string | null; text_color_hex: string | null; sort_order?: number | null }[];
 }
 
