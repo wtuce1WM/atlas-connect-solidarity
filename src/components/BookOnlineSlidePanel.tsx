@@ -208,81 +208,57 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         }
       }
 
-      // Fallback to LiteAPI if mapping exists
-      if (liteApiHotelId) {
-        const { data, error } = await supabase.functions.invoke("liteapi-hotels", {
-          body: {
-            hotelIds: [liteApiHotelId],
-            checkIn, checkOut, adults, rooms: 1,
-            currency: "EUR",
-            fallbackCityName: business.city || undefined,
-          },
-        });
-        if (error) throw new Error(error.message);
-        if (data?.error) throw new Error(data.error);
+      // Fallback: query all businesses with gamme_id in the same city
+      {
+        const cityName = business.city || "";
+        const [{ data: dbBizList }, { data: dbGammes }] = await Promise.all([
+          supabase.from("businesses").select("id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, skype, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, badge_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, opening_hours, show_opening_hours, is_open_24h, engagements, online_shop_url, latitude, longitude, google_maps_url, rating, website, min_price")
+            .eq("is_active", true)
+            .not("gamme_id", "is", null)
+            .ilike("city", cityName),
+          supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
+        ]);
 
-        const apiHotels = data?.data || [];
-        const wasFallback = !!data?.fallback;
-        const fbHotels: FallbackHotel[] = [];
-
-        for (const h of apiHotels) {
-          if (h.available && h.offers) {
-            fbHotels.push({
-              hotelId: h.hotelId, name: h.name || "Hotel", rating: h.rating,
-              guestRating: h.guestRating, reviewCount: h.reviewCount,
-              accessibilityAttributes: h.accessibilityAttributes || null,
-              address: h.address, mainImage: h.mainImage,
-              amenities: h.amenities || [], offers: h.offers,
-            });
-          }
-        }
-
-        // If direct hotel found (not fallback), show it
-        if (!wasFallback && fbHotels.length > 0) {
-          // Direct availability → open LiteAPI overlay
-          setAvailabilityOverlayCtx({
-            liteApiHotelId, businessName: business.name,
-            businessCity: business.city || undefined,
-            backgroundImage: business.images?.[0] || undefined,
+        if (dbBizList && dbBizList.length > 0) {
+          const gammeMap = new Map((dbGammes || []).map((g: any) => [g.id, g]));
+          const dbHotels: FallbackHotel[] = dbBizList.map((biz: any) => {
+            const isCurrentHotel = biz.id === businessId;
+            const gammeInfo = biz.gamme_id ? gammeMap.get(biz.gamme_id) || null : null;
+            return {
+              hotelId: biz.id,
+              businessId: biz.id,
+              name: biz.name,
+              wtuce_status: biz.wtuce_status || undefined,
+              offers: [],
+              dbImage: biz.images?.[0] || undefined,
+              dbGoogleRating: biz.google_rating,
+              dbGoogleReviewCount: biz.google_review_count,
+              dbTripadvisorRating: biz.tripadvisor_rating,
+              dbTripadvisorReviewCount: biz.tripadvisor_review_count,
+              serpPrice: null,
+              reserveNowUrl: isCurrentHotel ? (business.reserve_now_url || biz.reserve_now_url) : biz.reserve_now_url,
+              manualPriceRange: biz.manual_price_range,
+              isCurrentHotel,
+              gamme: gammeInfo ? { name_fr: gammeInfo.name_fr, color_hex: gammeInfo.color_hex, text_color_hex: gammeInfo.text_color_hex } : null,
+              dealDescription: null,
+              dbBusiness: biz,
+            } satisfies FallbackHotel;
           });
+
+          // Sort: current hotel first, then WTUCE verified, then by computed_rating
+          dbHotels.sort((a, b) => {
+            if (a.isCurrentHotel !== b.isCurrentHotel) return a.isCurrentHotel ? -1 : 1;
+            const aVerified = a.wtuce_status === "verified" ? 1 : 0;
+            const bVerified = b.wtuce_status === "verified" ? 1 : 0;
+            if (aVerified !== bVerified) return bVerified - aVerified;
+            const aRating = a.dbBusiness?.computed_rating || 0;
+            const bRating = b.dbBusiness?.computed_rating || 0;
+            return bRating - aRating;
+          });
+
+          openFallback({ hotels: dbHotels, city: cityName, checkIn, checkOut, adults, source: "serpapi", gammes: (dbGammes || []).map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })) });
           setHotelSearchLoading(false);
           return;
-        }
-
-        // Fallback: filter to mapped hotels
-        if (fbHotels.length > 0) {
-          const fbIds = fbHotels.map(h => h.hotelId);
-          const { data: apiMappings } = await supabase.from("hotel_api_mappings").select("liteapi_hotel_id, business_id").in("liteapi_hotel_id", fbIds);
-          const mappingMap = new Map<string, string>((apiMappings || []).map((m: any) => [m.liteapi_hotel_id, m.business_id]));
-          const bIds = [...mappingMap.values()].filter(Boolean);
-          let bizDataMap = new Map<string, any>();
-          let liteGammes: any[] = [];
-          if (bIds.length > 0) {
-            const [{ data: bizData }, { data: gData }] = await Promise.all([
-              supabase.from("businesses").select("id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, skype, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, badge_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, opening_hours, show_opening_hours, is_open_24h, engagements, online_shop_url, latitude, longitude, google_maps_url, rating, website").in("id", bIds),
-              supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
-            ]);
-            bizDataMap = new Map((bizData || []).map((b: any) => [b.id, b]));
-            liteGammes = gData || [];
-          }
-          const linked: FallbackHotel[] = fbHotels
-            .filter(h => mappingMap.has(h.hotelId))
-            .map(h => {
-              const bizId = mappingMap.get(h.hotelId) || "";
-              const biz = bizDataMap.get(bizId);
-              const isCurrentHotel = bizId === businessId;
-              return { ...h, businessId: bizId || undefined, isCurrentHotel, wtuce_status: biz?.wtuce_status, name: biz?.name || h.name, dbImage: biz?.images?.[0], dbGoogleRating: biz?.google_rating, dbGoogleReviewCount: biz?.google_review_count, dbTripadvisorRating: biz?.tripadvisor_rating, dbTripadvisorReviewCount: biz?.tripadvisor_review_count, dbBusiness: biz || null };
-            });
-          if (linked.length > 0) {
-            // Sort: current hotel first
-            linked.sort((a, b) => {
-              if (a.isCurrentHotel !== b.isCurrentHotel) return a.isCurrentHotel ? -1 : 1;
-              return 0;
-            });
-            openFallback({ hotels: linked, city: business.city || "", checkIn, checkOut, adults, source: "liteapi", gammes: liteGammes });
-            setHotelSearchLoading(false);
-            return;
-          }
         }
 
         // No results at all
