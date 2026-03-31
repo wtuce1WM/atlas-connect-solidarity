@@ -1393,7 +1393,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               }
 
               return (
-                <>
+                <div className="flex flex-col items-center justify-center flex-1">
                   {/* Contextual message */}
                   <div className="text-left text-white bg-black/40 backdrop-blur-sm rounded-xl px-5 py-4 border border-white/10">
                     <div className="text-sm font-['Roboto',sans-serif] leading-relaxed space-y-2">
@@ -1432,7 +1432,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
                   {/* Action cards when available */}
                   {actionCards.length > 0 && (
-                    <div className="flex flex-col items-center gap-2" style={{ width: 'fit-content' }}>
+                    <div className="flex flex-col items-center gap-2 mt-3" style={{ width: 'fit-content' }}>
                       {actionCards.map((card, i) => (
                         <button
                           key={i}
@@ -1448,7 +1448,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   )}
 
                   {/* Hotels found card */}
-                  <div className="text-center text-white bg-black/40 backdrop-blur-sm rounded-xl px-5 py-3 border border-white/10">
+                  <div className="text-center text-white bg-black/40 backdrop-blur-sm rounded-xl px-5 py-3 border border-white/10 mt-3">
                     <p className="text-sm font-medium font-['Josefin_Sans',sans-serif] mb-1">
                       {fallbackPanelData.hotels.length} {language === "en" ? "hotels found" : "hôtels trouvés"}
                     </p>
@@ -1456,7 +1456,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       {fallbackPanelData.checkIn} → {fallbackPanelData.checkOut} · {fallbackPanelData.adults} {language === "en" ? "adults" : "adultes"}
                     </p>
                   </div>
-                </>
+                </div>
               );
             })()}
           </div>
