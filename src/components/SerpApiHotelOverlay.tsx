@@ -51,7 +51,7 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
   const [checkIn, setCheckIn] = useState(fmt(tomorrow));
   const [checkOut, setCheckOut] = useState(fmt(defaultCheckout));
   const [adults, setAdults] = useState(2);
-  const [sort, setSort] = useState(3);
+  
   const [rating, setRating] = useState(0);
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
