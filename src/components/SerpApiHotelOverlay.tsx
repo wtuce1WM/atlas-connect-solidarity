@@ -112,7 +112,7 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
       const [{ data: businesses }, { data: gammes }, { data: liteApiPrices }] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, slug, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, gamme_id, wtuce_status")
+          .select("id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, skype, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, badge_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, opening_hours, show_opening_hours, is_open_24h, engagements, online_shop_url, latitude, longitude, google_maps_url, rating, website")
           .in("id", bizIds),
         supabase
           .from("gammes")
