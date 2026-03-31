@@ -204,7 +204,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               return 0;
             });
 
-            openFallback({ hotels: uniqueHotels, city: serpApiMapping.city, checkIn, checkOut, adults, source: "serpapi" });
+            openFallback({ hotels: uniqueHotels, city: serpApiMapping.city, checkIn, checkOut, adults, source: "serpapi", gammes: (gammes || []).map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })) });
             setHotelSearchLoading(false);
             return;
           }
