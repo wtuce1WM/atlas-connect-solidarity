@@ -1449,7 +1449,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   )}
 
                   {/* Hotels found card */}
-                  <div className="text-center text-white bg-black/40 backdrop-blur-sm rounded-xl px-5 py-3 border border-white/10 mt-3 font-['Roboto',sans-serif] cursor-pointer hover:bg-black/50 transition-colors" onClick={() => { showCards(); }}>
+                  <div className="text-center text-white bg-black/40 backdrop-blur-sm rounded-xl px-5 py-3 border border-white/10 mt-3 font-['Roboto',sans-serif] cursor-pointer hover:bg-black/50 transition-colors" onClick={() => { setShowFallbackOverlay(true); }}>
                     <p className="text-sm font-medium mb-1">
                       {fallbackPanelData.hotels.length} {language === "en" ? "hotels found" : "hôtels trouvés"}
                     </p>
