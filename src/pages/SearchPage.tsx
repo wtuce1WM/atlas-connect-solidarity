@@ -3414,13 +3414,29 @@ const SearchPage = () => {
                             </span>
                           )}
                           {(() => {
-                            if (business.is_open_24h) return <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#25D366] text-black">Ouvert 24h</span>;
+                            if (!business.is_open_24h && !business.show_opening_hours) return null;
+                            if (business.is_open_24h) {
+                              return <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-atlas/85 text-atlas-foreground">Ouvert 24h</span>;
+                            }
                             if (!business.opening_hours) return null;
-                            const oh = business.opening_hours as Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }>;
-                            const days = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+
+                            const frToEn: Record<string, string> = {
+                              lundi: "monday", mardi: "tuesday", mercredi: "wednesday", jeudi: "thursday",
+                              vendredi: "friday", samedi: "saturday", dimanche: "sunday",
+                            };
+                            const rawOH = business.opening_hours as Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }>;
+                            const oh = Object.entries(rawOH).reduce((acc, [k, v]) => {
+                              acc[frToEn[k] || k] = v;
+                              return acc;
+                            }, {} as Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }>);
+
+                            const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
                             const now = new Date();
                             const todayKey = days[now.getDay()];
-                            if (isCurrentlyOpenCheck(oh[todayKey])) return <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#25D366] text-black">Ouvert</span>;
+                            if (isCurrentlyOpenCheck(oh[todayKey])) {
+                              return <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-atlas/85 text-atlas-foreground">Ouvert</span>;
+                            }
+
                             const nowMin = now.getHours() * 60 + now.getMinutes();
                             const dh = oh[todayKey];
                             let badge: string | null = null;
@@ -3433,11 +3449,14 @@ const SearchPage = () => {
                               }
                             }
                             if (!badge) {
-                              const dayLabels = ["dim.","lun.","mar.","mer.","jeu.","ven.","sam."];
+                              const dayLabels = ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."];
                               for (let i = 1; i <= 7; i++) {
                                 const idx = (now.getDay() + i) % 7;
                                 const nd = oh[days[idx]];
-                                if (nd && !nd.closed && nd.open) { badge = `Ouvre ${dayLabels[idx]} à ${nd.open}`; break; }
+                                if (nd && !nd.closed && nd.open) {
+                                  badge = `Ouvre ${dayLabels[idx]} à ${nd.open}`;
+                                  break;
+                                }
                               }
                             }
                             if (!badge) return null;
