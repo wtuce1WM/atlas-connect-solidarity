@@ -1449,7 +1449,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         )}
 
         {/* CTAs + video controls */}
-        <div className={`shrink-0 py-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto ${cardsHidden ? 'mb-6 md:mb-10' : noBottomCarousel ? 'lg:mt-auto' : ''}`} style={(cardsHidden && fallbackPanelData && (() => { const ch = fallbackPanelData.hotels.find(h => h.isCurrentHotel); return !!ch; })()) ? { display: 'none' } : undefined}>
+        <div className={`shrink-0 py-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto ${cardsHidden ? '' : noBottomCarousel ? 'lg:mt-auto' : ''}`} style={(cardsHidden && fallbackPanelData && (() => { const ch = fallbackPanelData.hotels.find(h => h.isCurrentHotel); return !!ch; })()) ? { display: 'none' } : undefined}>
             {bookingCta && (
               bookingCta.forceExternal ? (
                 <a
@@ -1579,7 +1579,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
           {/* Video controls — always visible at bottom in Afficher mode */}
           {cardsHidden && currentMedia?.kind === "video" && videoInfo?.type === "file" && (
-            <div className="shrink-0 flex justify-center pointer-events-auto mt-2 md:mt-3 pb-3 mb-6 md:mb-10">
+            <div className="shrink-0 flex justify-center pointer-events-auto mt-2 md:mt-3 pb-6 md:pb-10">
               <div className="flex items-center gap-6 md:gap-10">
                 <button
                   type="button"
@@ -1610,7 +1610,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             </div>
           )}
           {cardsHidden && currentMedia?.kind === "video" && videoInfo?.type === "youtube" && (
-            <div className="shrink-0 flex justify-center pointer-events-auto mt-2 md:mt-3 pb-3 mb-6 md:mb-10">
+            <div className="shrink-0 flex justify-center pointer-events-auto mt-2 md:mt-3 pb-6 md:pb-10">
               <div className="flex items-center gap-6 md:gap-10">
                 <button
                   type="button"
