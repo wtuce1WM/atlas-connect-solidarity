@@ -1449,7 +1449,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         )}
 
         {/* CTAs + video controls */}
-        <div className={`shrink-0 py-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto ${cardsHidden ? 'mb-6 md:mb-10' : noBottomCarousel ? 'lg:mt-auto' : ''}`} style={(cardsHidden && fallbackPanelData && (() => { const ch = fallbackPanelData.hotels.find(h => h.isCurrentHotel); return !!ch; })()) ? { display: 'none' } : undefined}>
+        <div className={`shrink-0 py-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto ${cardsHidden ? '' : noBottomCarousel ? 'lg:mt-auto' : ''}`} style={(cardsHidden && fallbackPanelData && (() => { const ch = fallbackPanelData.hotels.find(h => h.isCurrentHotel); return !!ch; })()) ? { display: 'none' } : undefined}>
             {bookingCta && (
               bookingCta.forceExternal ? (
                 <a
