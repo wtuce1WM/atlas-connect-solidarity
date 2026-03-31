@@ -26,7 +26,15 @@ const HotelResultCard = ({ hotel, onSelectHotel }: { hotel: FallbackHotel; onSel
   const openBadge = (() => {
     if (biz?.is_open_24h) return "Ouvert 24h";
     if (!biz?.opening_hours) return null;
-    const oh = biz.opening_hours as Record<string, DayHoursData>;
+    const frToEn: Record<string, string> = {
+      lundi: "monday", mardi: "tuesday", mercredi: "wednesday", jeudi: "thursday",
+      vendredi: "friday", samedi: "saturday", dimanche: "sunday",
+    };
+    const rawOH = biz.opening_hours as Record<string, DayHoursData>;
+    const oh = Object.entries(rawOH).reduce((acc, [k, v]) => {
+      acc[frToEn[k] || k] = v;
+      return acc;
+    }, {} as Record<string, DayHoursData>);
     const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
     const now = new Date();
     const todayKey = days[now.getDay()];
