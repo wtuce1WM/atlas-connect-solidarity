@@ -1367,7 +1367,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                         setShowBookingOverlay(true);
                       }
                     },
-                    color: "#F59E0B",
+                    color: "#25D366",
+                    textColor: "#000000",
                   });
                 }
                 if (business.latitude && business.longitude) {
