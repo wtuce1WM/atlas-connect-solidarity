@@ -116,12 +116,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [showFallbackOverlay, setShowFallbackOverlay] = useState(false);
   const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
+  const fallbackDataRef = useRef<FallbackPanelData | null>(null);
+  useEffect(() => {
+    if (fallbackPanelData) fallbackDataRef.current = fallbackPanelData;
+  }, [fallbackPanelData]);
 
   // Expose close interceptor: when navigated from fallback, reopen fallback list instead of closing panel
   useEffect(() => {
     if (!interceptCloseRef) return;
-    if (cameFromFallback && fallbackPanelData) {
+    if (cameFromFallback && fallbackDataRef.current) {
       interceptCloseRef.current = () => {
+        if (!fallbackPanelData && fallbackDataRef.current) {
+          setFallbackPanelData(fallbackDataRef.current);
+        }
         setFallbackHiddenOnMobile(false);
         setShowFallbackOverlay(true);
         return true; // intercepted
