@@ -333,6 +333,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     setFallbackPanelData(null);
     setSelectedFallbackHotelId(null);
     setFallbackHiddenOnMobile(false);
+    setShowFallbackOverlay(false);
   }, [businessId, resetDrag]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
