@@ -652,12 +652,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const safeIndex = totalMedia > 0 ? currentMediaIndex % totalMedia : 0;
   const currentMedia = totalMedia > 0 ? mediaItems[safeIndex] : null;
 
+  // In "Afficher" mode, override background to matterport if available
+  const matterportItem = useMemo(() => mediaItems.find(m => m.kind === "matterport") || null, [mediaItems]);
+  const effectiveMedia = (cardsHidden && matterportItem) ? matterportItem : currentMedia;
+
   const goMedia = useCallback((dir: 1 | -1) => {
     if (totalMedia <= 1) return;
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [totalMedia]);
 
-  const videoInfo = currentMedia?.kind === "video" ? getVideoEmbed(currentMedia.url, window.location.origin, { background: true, defaultSoundOn: business?.default_sound_on ?? true }) : null;
+  const videoInfo = effectiveMedia?.kind === "video" ? getVideoEmbed(effectiveMedia.url, window.location.origin, { background: true, defaultSoundOn: business?.default_sound_on ?? true }) : null;
 
   const [isFileVideoVertical, setIsFileVideoVertical] = useState(false);
   const isVerticalVideo = videoInfo ? (videoInfo.type === "file" ? isFileVideoVertical : videoInfo.isVertical) : false;
