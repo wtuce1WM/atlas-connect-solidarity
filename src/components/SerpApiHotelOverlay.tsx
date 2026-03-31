@@ -30,11 +30,7 @@ interface SerpApiHotelOverlayProps {
   onOpenFallbackPanel?: (data: FallbackPanelData) => void;
 }
 
-const SORT_OPTIONS = [
-  { value: 3, labelFr: "Le moins cher", labelEn: "Lowest price" },
-  { value: 4, labelFr: "Le mieux noté", labelEn: "Highest rated" },
-  { value: 13, labelFr: "Le plus populaire", labelEn: "Most popular" },
-];
+// Sort removed — sorting is done client-side by verified status then highest rating
 
 const RATING_OPTIONS = [
   { value: 0, labelFr: "Tous", labelEn: "All" },
