@@ -1325,6 +1325,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               const hasAvailability = !!currentHotel;
               const hotelName = business?.name || "";
               const minPrice = business?.min_price;
+              const nightsCount = (() => {
+                const d1 = new Date(fallbackPanelData.checkIn);
+                const d2 = new Date(fallbackPanelData.checkOut);
+                const diff = Math.round((d2.getTime() - d1.getTime()) / 86400000);
+                return diff > 0 ? diff : 1;
+              })();
+              const totalMinPrice = minPrice ? minPrice * nightsCount : null;
 
               // Build action cards for availability case
               const actionCards: { icon: React.ReactNode; label: string; onClick: () => void; color: string; textColor?: string }[] = [];
