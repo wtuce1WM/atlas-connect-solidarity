@@ -1384,7 +1384,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 <div className="flex flex-col items-center justify-center flex-1">
                   {/* Contextual message */}
                   <div className="text-left text-white bg-black/40 backdrop-blur-sm rounded-xl px-5 py-4 border border-white/10">
-                    <div className="text-sm font-['Roboto',sans-serif] leading-relaxed space-y-2">
+                    <div className="text-[20px] font-['Roboto',sans-serif] leading-relaxed space-y-2">
                       {hasAvailability ? (
                         <>
                           <p>
