@@ -30,11 +30,7 @@ interface SerpApiHotelOverlayProps {
   onOpenFallbackPanel?: (data: FallbackPanelData) => void;
 }
 
-const SORT_OPTIONS = [
-  { value: 3, labelFr: "Le moins cher", labelEn: "Lowest price" },
-  { value: 4, labelFr: "Le mieux noté", labelEn: "Highest rated" },
-  { value: 13, labelFr: "Le plus populaire", labelEn: "Most popular" },
-];
+// Sort removed — sorting is done client-side by verified status then highest rating
 
 const RATING_OPTIONS = [
   { value: 0, labelFr: "Tous", labelEn: "All" },
@@ -55,7 +51,7 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
   const [checkIn, setCheckIn] = useState(fmt(tomorrow));
   const [checkOut, setCheckOut] = useState(fmt(defaultCheckout));
   const [adults, setAdults] = useState(2);
-  const [sort, setSort] = useState(3);
+  
   const [rating, setRating] = useState(0);
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -86,7 +82,10 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
         return;
       }
 
-      // 2. Call SerpAPI edge function
+      // Calculate optimal maxPages based on mapped hotel count (~20 results per page)
+      const optimalMaxPages = Math.max(1, Math.ceil(mappings.length / 20));
+
+      // 2. Call SerpAPI edge function (no sort — sorting is done client-side by verified status then rating)
       const { data, error: fnError } = await supabase.functions.invoke("serpapi-hotels", {
         body: {
           cityName: serpCity,
@@ -94,13 +93,12 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
           checkOut,
           adults,
           currency,
-          sort,
           rating: rating || undefined,
           minPrice: minPrice ? Number(minPrice) : undefined,
           maxPrice: maxPrice ? Number(maxPrice) : undefined,
           language: language === "en" ? "en" : "fr",
           country: "ma",
-          maxPages: 3,
+          maxPages: optimalMaxPages,
         },
       });
 
@@ -195,7 +193,7 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
     } finally {
       setIsLoading(false);
     }
-  }, [serpCity, checkIn, checkOut, adults, currency, sort, rating, minPrice, maxPrice, language, currentBusinessId, reserveNowUrl, onClose, onOpenFallbackPanel]);
+  }, [serpCity, checkIn, checkOut, adults, currency, rating, minPrice, maxPrice, language, currentBusinessId, reserveNowUrl, onClose, onOpenFallbackPanel]);
 
   return (
     <div className="absolute -top-[3.25rem] left-0 right-0 bottom-0 z-[60] bg-background flex flex-col animate-slide-down-from-top">
@@ -257,16 +255,7 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
         </button>
 
         {showFilters && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-            <div className="space-y-1">
-              <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-                {isEn ? "Sort by" : "Trier par"}
-              </label>
-              <select value={sort} onChange={e => setSort(Number(e.target.value))}
-                className="w-full px-2 py-1.5 rounded-lg border border-border bg-background text-foreground text-sm">
-                {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{isEn ? o.labelEn : o.labelFr}</option>)}
-              </select>
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
             <div className="space-y-1">
               <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
                 {isEn ? "Min rating" : "Note min."}

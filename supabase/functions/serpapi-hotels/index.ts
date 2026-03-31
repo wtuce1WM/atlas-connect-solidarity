@@ -14,7 +14,7 @@ interface SerpApiRequest {
   currency?: string;
   language?: string;
   country?: string;
-  sort?: number;
+  
   minPrice?: number;
   maxPrice?: number;
   rating?: number;
@@ -99,7 +99,7 @@ Deno.serve(async (req) => {
       if (nextPageToken) {
         searchParams.set("next_page_token", nextPageToken);
       }
-      if (params.sort) searchParams.set("sort_by", String(params.sort));
+      
       if (params.minPrice) searchParams.set("min_price", String(params.minPrice));
       if (params.maxPrice) searchParams.set("max_price", String(params.maxPrice));
       if (params.rating) searchParams.set("rating", String(params.rating));

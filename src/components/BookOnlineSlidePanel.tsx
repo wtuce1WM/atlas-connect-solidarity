@@ -136,14 +136,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       if (!cityName) throw new Error("City not found");
 
       // Align with backoffice flow: SerpAPI raw results intersected with exact hotel_mappings
-      const [serpResult, mappingResult, gammeResult] = await Promise.all([
-        supabase.functions.invoke("serpapi-hotels", {
-          body: {
-            cityName,
-            checkIn, checkOut, adults,
-            currency: "EUR",
-          },
-        }),
+      // Fetch mappings first to determine optimal maxPages
+      const [mappingResult, gammeResult] = await Promise.all([
         supabase
           .from("hotel_mappings")
           .select("id, serp_hotel_name, business_id, city")
@@ -151,8 +145,21 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
       ]);
 
-      const serpHotels = (serpResult.data?.data || []) as any[];
       const allMappings = (mappingResult.data || []) as any[];
+      // Calculate maxPages: ~20 results per page, cap based on mapped hotel count
+      const mappedCount = allMappings.length;
+      const optimalMaxPages = Math.max(1, Math.ceil(mappedCount / 20));
+
+      const serpResult = await supabase.functions.invoke("serpapi-hotels", {
+        body: {
+          cityName,
+          checkIn, checkOut, adults,
+          currency: "EUR",
+          maxPages: optimalMaxPages,
+        },
+      });
+
+      const serpHotels = (serpResult.data?.data || []) as any[];
       const gammes = gammeResult.data || [];
       const gammeMap = new Map(gammes.map((g: any) => [g.id, g]));
 
