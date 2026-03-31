@@ -1313,7 +1313,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
         {/* Spacer + availability zone when cards hidden */}
         {cardsHidden && (
-          <div className="flex-1 flex flex-col justify-center gap-3 pointer-events-auto px-4 md:px-8 overflow-y-auto">
+          <div className="flex-1 flex flex-col justify-center gap-3 pointer-events-auto px-0 md:px-8 overflow-y-auto">
             {hotelSearchLoading && (
               <div className="flex items-center justify-center gap-2 text-white/80">
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -1321,68 +1321,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               </div>
             )}
             {fallbackPanelData && !hotelSearchLoading && (() => {
-              const currentHotel = fallbackPanelData.hotels.find(h => h.isCurrentHotel);
-              const hasAvailability = !!currentHotel;
-              const hotelName = business?.name || "";
-              const minPrice = business?.min_price;
-              const nightsCount = (() => {
-                const d1 = new Date(fallbackPanelData.checkIn);
-                const d2 = new Date(fallbackPanelData.checkOut);
-                const diff = Math.round((d2.getTime() - d1.getTime()) / 86400000);
-                return diff > 0 ? diff : 1;
-              })();
-              const totalMinPrice = minPrice ? minPrice * nightsCount : null;
-
-              // Build action cards for availability case
-              const actionCards: { icon: React.ReactNode; label: string; onClick: () => void; color: string; textColor?: string }[] = [];
-              if (hasAvailability && business) {
-                if (business.whatsapp) {
-                  actionCards.push({
-                    icon: <WhatsAppIcon className="h-5 w-5" />,
-                    label: "WhatsApp",
-                    onClick: () => window.open(whatsappUrl(business.whatsapp!), "_blank"),
-                    color: "#25D366",
-                  });
-                }
-                if (business.phone) {
-                  actionCards.push({
-                    icon: <span className="text-lg">📞</span>,
-                    label: language === "en" ? "Call" : "Téléphone",
-                    onClick: () => window.open(`tel:${business.phone!.replace(/(?!^\+)[^\d]/g, '')}`, "_self"),
-                    color: "#FFFFFF",
-                    textColor: "#000000",
-                  });
-                }
-                if (business.reserve_now_url) {
-                  const isExternal = business.reserve_now_force_external;
-                  actionCards.push({
-                    icon: <CalendarCheck className="h-5 w-5" />,
-                    label: language === "en" ? "Book online" : "Réservez en ligne",
-                    onClick: () => {
-                      if (isExternal) {
-                        window.open(business.reserve_now_url!, "_blank");
-                      } else {
-                        setBookingOverlayUrl(null);
-                        setBookingOverlayTitle(undefined);
-                        setShowBookingOverlay(true);
-                      }
-                    },
-                    color: "#25D366",
-                    textColor: "#000000",
-                  });
-                }
-                if (business.latitude && business.longitude) {
-                  actionCards.push({
-                    icon: <MapPin className="h-5 w-5" />,
-                    label: language === "en" ? "Directions" : "Vous rendre sur place",
-                    onClick: () => setShowDirections(true),
-                    color: "#C04F17",
-                  });
-                }
-              }
-
+...
               return (
-                <div className="flex flex-col items-center justify-center flex-1 w-full px-4 md:px-0">
+                <div className="flex flex-col items-center justify-center flex-1 w-full">
                   {/* Contextual message */}
                   <div className="text-left text-white bg-black/40 backdrop-blur-sm rounded-xl px-4 md:px-5 py-4 border border-white/10 w-full md:w-auto">
                     <div className="text-[14px] md:text-[20px] font-['Roboto',sans-serif] leading-relaxed space-y-2">
