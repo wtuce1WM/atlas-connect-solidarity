@@ -197,6 +197,7 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
           checkOut,
           adults,
           source: "serpapi",
+          gammes: (gammes || []).map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })),
         });
       }
       onClose();
