@@ -399,7 +399,7 @@ export function useBookOnlineData(businessId: string) {
   const isHotelWithPrice = useMemo(() => {
     if (!business) return false;
     const isHotellerie = business.main_category === "Hôtellerie";
-    const hasPrice = !!(business.gamme_id || business.manual_price_range || business.min_price);
+    const hasPrice = !!(business.manual_price_range || business.min_price);
     return isHotellerie && hasPrice;
   }, [business]);
 
