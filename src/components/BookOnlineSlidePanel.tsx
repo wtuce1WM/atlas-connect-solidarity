@@ -136,8 +136,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       const cityName = serpApiMapping?.city || business.city || "";
       if (!cityName) throw new Error("City not found");
 
-      // Always call SerpAPI to get real availability for the city
-      const [serpResult, dbResult, gammeResult] = await Promise.all([
+      // Align with backoffice flow: SerpAPI raw results intersected with exact hotel_mappings
+      const [serpResult, mappingResult, gammeResult] = await Promise.all([
         supabase.functions.invoke("serpapi-hotels", {
           body: {
             cityName,
@@ -145,48 +145,47 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             currency: "EUR",
           },
         }),
-        supabase.from("businesses").select("id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, skype, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, badge_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, opening_hours, show_opening_hours, is_open_24h, engagements, online_shop_url, latitude, longitude, google_maps_url, rating, website, min_price")
-          .eq("is_active", true)
-          .not("gamme_id", "is", null)
-          .eq("main_category", "Hôtellerie")
+        supabase
+          .from("hotel_mappings")
+          .select(`
+            id,
+            serp_hotel_name,
+            business_id,
+            city,
+            businesses!inner(
+              id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, skype,
+              categories, default_service, hook_fr, logo_url, computed_rating, total_review_count,
+              gamme_id, badge_id, wtuce_status, google_rating, google_review_count,
+              tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range,
+              opening_hours, show_opening_hours, is_open_24h, engagements, online_shop_url,
+              latitude, longitude, google_maps_url, rating, website, min_price, is_active, main_category
+            )
+          `)
           .ilike("city", cityName),
         supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
       ]);
 
       const serpHotels = serpResult.data?.data || [];
-      const dbBizList = dbResult.data || [];
+      const mappings = (mappingResult.data || []).filter((m: any) => {
+        const biz = Array.isArray(m.businesses) ? m.businesses[0] : m.businesses;
+        return biz?.is_active === true && biz?.main_category === "Hôtellerie";
+      });
       const gammes = gammeResult.data || [];
       const gammeMap = new Map(gammes.map((g: any) => [g.id, g]));
+      const serpByExactName = new Map(serpHotels.map((hotel: any) => [hotel.name, hotel]));
 
-      // Also fetch hotel_mappings for name matching
-      const { data: mappings } = await supabase
-        .from("hotel_mappings")
-        .select("id, serp_hotel_name, business_id, city")
-        .ilike("city", cityName);
-      const mappingByBizId = new Map((mappings || []).map((m: any) => [m.business_id, m]));
-
-      // Match each DB hotel to SerpAPI results to confirm availability
       const hotels: FallbackHotel[] = [];
-      for (const biz of dbBizList) {
-        const mapping = mappingByBizId.get(biz.id);
-        const nameToMatch = mapping?.serp_hotel_name || biz.name;
-        const normName = normalize(nameToMatch);
-
-        const serpMatch = serpHotels.find((r: any) => {
-          const rNorm = normalize(r.name);
-          if (rNorm === normName) return true;
-          const shorter = rNorm.length < normName.length ? rNorm : normName;
-          const longer = rNorm.length < normName.length ? normName : rNorm;
-          return shorter.length >= 8 && longer.includes(shorter);
-        });
-
-        // Only include hotels confirmed available by SerpAPI
+      for (const mapping of mappings) {
+        const serpMatch = serpByExactName.get(mapping.serp_hotel_name);
         if (!serpMatch) continue;
+
+        const biz = Array.isArray(mapping.businesses) ? mapping.businesses[0] : mapping.businesses;
+        if (!biz) continue;
 
         const isCurrentHotel = biz.id === businessId;
         const gammeInfo = biz.gamme_id ? gammeMap.get(biz.gamme_id) || null : null;
         hotels.push({
-          hotelId: mapping?.id || biz.id,
+          hotelId: mapping.id || biz.id,
           businessId: biz.id,
           name: biz.name,
           wtuce_status: biz.wtuce_status || undefined,
