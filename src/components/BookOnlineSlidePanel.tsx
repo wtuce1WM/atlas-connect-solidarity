@@ -877,6 +877,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               />
             </div>
           )
+        ) : currentMedia?.kind === "matterport" ? (
+          <iframe
+            key={currentMedia.url}
+            src={currentMedia.url}
+            className="w-full h-full border-0"
+            allow="xr-spatial-tracking"
+            allowFullScreen
+          />
         ) : currentMedia?.kind === "image" ? (
           <img src={currentMedia.url} alt={business.name} className="w-full h-full object-cover" />
         ) : (
