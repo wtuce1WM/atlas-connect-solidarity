@@ -88,6 +88,7 @@ export interface BookOnlineBusiness {
   is_master: boolean;
   prioritize_images: boolean;
   default_sound_on: boolean;
+  min_price: number | null;
 }
 
 export interface KpRelatedBusiness {
