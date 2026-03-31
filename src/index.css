@@ -328,6 +328,15 @@ textarea::placeholder {
   display: none;
 }
 
+/* Hide page scrollbar when slide panel is open on desktop — keeps scroll functional */
+html.hide-scrollbar-panel-open {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+html.hide-scrollbar-panel-open::-webkit-scrollbar {
+  display: none;
+}
+
 /* Full-width on mobile & tablet: remove max-w constraints below lg breakpoint */
 @media (max-width: 1023px) {
   .max-w-\[80\%\] {
