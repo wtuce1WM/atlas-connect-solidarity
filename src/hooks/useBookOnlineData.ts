@@ -92,6 +92,7 @@ export interface BookOnlineBusiness {
   gamme_id: string | null;
   manual_price_range: string | null;
   default_service: string | null;
+  matterport_url: string | null;
 }
 
 export interface KpRelatedBusiness {
