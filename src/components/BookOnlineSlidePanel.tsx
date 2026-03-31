@@ -687,7 +687,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     mediaItems.map((m) =>
       m.kind === "video"
         ? { type: "video" as const, src: m.url, alt: business?.name || "" }
-        : { type: "image" as const, src: m.url, alt: business?.name || "" }
+        : m.kind === "matterport"
+          ? { type: "matterport" as const, src: m.url, alt: `${business?.name || ""} – Visite 3D` }
+          : { type: "image" as const, src: m.url, alt: business?.name || "" }
     ),
   [mediaItems, business?.name]);
 
