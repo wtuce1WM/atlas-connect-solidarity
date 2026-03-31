@@ -269,13 +269,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             liteGammes = gData || [];
           }
           const linked: FallbackHotel[] = fbHotels
-            .filter(h => mappingMap.has(h.hotelId) && h.hotelId !== liteApiHotelId)
+            .filter(h => mappingMap.has(h.hotelId))
             .map(h => {
               const bizId = mappingMap.get(h.hotelId) || "";
               const biz = bizDataMap.get(bizId);
-              return { ...h, businessId: bizId || undefined, wtuce_status: biz?.wtuce_status, name: biz?.name || h.name, dbImage: biz?.images?.[0], dbGoogleRating: biz?.google_rating, dbGoogleReviewCount: biz?.google_review_count, dbTripadvisorRating: biz?.tripadvisor_rating, dbTripadvisorReviewCount: biz?.tripadvisor_review_count, dbBusiness: biz || null };
+              const isCurrentHotel = bizId === businessId;
+              return { ...h, businessId: bizId || undefined, isCurrentHotel, wtuce_status: biz?.wtuce_status, name: biz?.name || h.name, dbImage: biz?.images?.[0], dbGoogleRating: biz?.google_rating, dbGoogleReviewCount: biz?.google_review_count, dbTripadvisorRating: biz?.tripadvisor_rating, dbTripadvisorReviewCount: biz?.tripadvisor_review_count, dbBusiness: biz || null };
             });
           if (linked.length > 0) {
+            // Sort: current hotel first
+            linked.sort((a, b) => {
+              if (a.isCurrentHotel !== b.isCurrentHotel) return a.isCurrentHotel ? -1 : 1;
+              return 0;
+            });
             openFallback({ hotels: linked, city: business.city || "", checkIn, checkOut, adults, source: "liteapi", gammes: liteGammes });
             setHotelSearchLoading(false);
             return;
