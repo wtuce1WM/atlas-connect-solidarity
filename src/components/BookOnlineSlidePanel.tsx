@@ -190,6 +190,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   manualPriceRange: biz.manual_price_range, isCurrentHotel,
                   gamme: gammeInfo ? { name_fr: gammeInfo.name_fr, color_hex: gammeInfo.color_hex, text_color_hex: gammeInfo.text_color_hex } : null,
                   dealDescription: serpMatch?.dealDescription || null,
+                  dbBusiness: biz,
                 } satisfies FallbackHotel;
               });
 
