@@ -829,6 +829,19 @@ const SearchPage = () => {
      setIsCompactPanelExpanded(false);
    }, [searchQuery, urlT]);
 
+    // Hide page-level scrollbar when slide panel is open on desktop to prevent overlap
+    useEffect(() => {
+      const isDesktop = window.innerWidth >= 1024;
+      if (compactPanelBusiness && isDesktop && !isCompactPanelExpanded) {
+        document.documentElement.style.overflowY = 'clip';
+        document.documentElement.style.height = '100vh';
+      } else {
+        document.documentElement.style.overflowY = '';
+        document.documentElement.style.height = '';
+      }
+      return () => { document.documentElement.style.overflowY = ''; document.documentElement.style.height = ''; };
+    }, [compactPanelBusiness, isCompactPanelExpanded]);
+
     // Auto-open first result — ref declared here, effect after filteredBusinesses
     const hasAutoOpenedFirstRef = useRef(false);
 
@@ -3219,7 +3232,7 @@ const SearchPage = () => {
       {activeTab === "suggestions" && (
       <section
          ref={resultsRef}
-         className={`bg-white pt-4 pb-6 lg:pb-4 transition-all duration-300 [overflow-anchor:none] ${compactPanelBusiness ? "w-full lg:w-1/2" : "w-full"}`}
+         className={`bg-white pt-4 pb-6 lg:pb-4 transition-all duration-300 [overflow-anchor:none] ${compactPanelBusiness ? "w-full lg:w-1/2 lg:h-[calc(100vh-53px)] lg:overflow-y-auto" : "w-full"}`}
        >
         {/* Split layout wrapper: results left + map right when city/neighborhood known */}
         <div className={hasKnownLocation && !compactPanelBusiness ? "flex gap-0" : ""}>
