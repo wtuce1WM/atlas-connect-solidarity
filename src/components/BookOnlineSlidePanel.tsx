@@ -1453,7 +1453,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       <p className="text-xs text-white/60">
                         {fallbackPanelData.checkIn} → {fallbackPanelData.checkOut} · {fallbackPanelData.adults} {language === "en" ? "adults" : "adultes"}
                       </p>
-                      <p className="text-[20px] text-white/80 mt-1.5 underline underline-offset-2">
+                      <p className="text-xs text-white/80 mt-1.5 underline underline-offset-2">
                         {language === "en" ? "View other available hotels" : "Consulter les autres établissements avec de la disponibilité"}
                       </p>
                     </div>
