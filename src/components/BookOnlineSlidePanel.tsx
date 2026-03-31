@@ -116,28 +116,20 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [showFallbackOverlay, setShowFallbackOverlay] = useState(false);
   const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
-  const fallbackDataRef = useRef<FallbackPanelData | null>(null);
-  useEffect(() => { fallbackDataRef.current = fallbackPanelData; }, [fallbackPanelData]);
 
-  // Expose close interceptor: when navigated from fallback, return to fallback instead of closing
+  // Expose close interceptor: when navigated from fallback, reopen fallback list instead of closing panel
   useEffect(() => {
     if (!interceptCloseRef) return;
-    if (cameFromFallback && activeBusinessId !== propBusinessId && fallbackDataRef.current) {
+    if (cameFromFallback && fallbackPanelData) {
       interceptCloseRef.current = () => {
-        const savedData = fallbackDataRef.current;
-        setActiveBusinessId(propBusinessId);
-        setCameFromFallback(false);
-        // Restore fallback data after businessId reset clears it
-        setTimeout(() => {
-          if (savedData) setFallbackPanelData(savedData);
-          setShowFallbackOverlay(true);
-        }, 0);
+        setFallbackHiddenOnMobile(false);
+        setShowFallbackOverlay(true);
         return true; // intercepted
       };
     } else {
       interceptCloseRef.current = null;
     }
-  }, [cameFromFallback, activeBusinessId, propBusinessId, interceptCloseRef]);
+  }, [cameFromFallback, fallbackPanelData, interceptCloseRef]);
   const hideCardsRef = useRef<() => void>(() => {});
 
   // Unified hotel availability search: always calls SerpAPI to verify real availability
