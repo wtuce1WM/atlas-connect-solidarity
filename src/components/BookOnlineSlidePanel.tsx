@@ -273,7 +273,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     } finally {
       setHotelSearchLoading(false);
     }
-  }, [business, businessId, serpApiMapping, liteApiHotelId, language]);
+  }, [business, businessId, serpApiMapping, language]);
 
   useEffect(() => {
     if (!showTransitionOverlay) return;
