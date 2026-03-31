@@ -108,8 +108,8 @@ export default {
           },
         },
         "slide-down-from-top": {
-          "0%": { transform: "translateY(-100%)", opacity: "0" },
-          "100%": { transform: "translateY(0)", opacity: "1" },
+          "0%": { transform: "translateY(-100%) translateX(0)", opacity: "0" },
+          "100%": { transform: "translateY(0) translateX(0)", opacity: "1" },
         },
         "slide-in-left": {
           "0%": { transform: "translateX(-100%)", opacity: "0" },
