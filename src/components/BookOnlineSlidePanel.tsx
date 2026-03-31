@@ -1419,11 +1419,25 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                           </p>
                         </>
                       ) : (
-                        <p>
-                          {language === "en"
-                            ? `Unfortunately, we could not find availability at ${hotelName} for the selected dates.`
-                            : `Malheureusement, nous n'avons pas pu trouver de disponibilité chez ${hotelName} sur les dates recherchées.`}
-                        </p>
+                        <>
+                          <p>
+                            {language === "en"
+                              ? `Unfortunately, we could not find availability at ${hotelName} for the selected dates.`
+                              : `Malheureusement, nous n'avons pas pu trouver de disponibilité chez ${hotelName} sur les dates recherchées.`}
+                          </p>
+                          <p>
+                            {language === "en"
+                              ? "Please modify your search criteria or select an alternative below."
+                              : "Veuillez modifier vos critères de recherche ou sélectionner une alternative ci-dessous."}
+                          </p>
+                          <button
+                            onClick={showCards}
+                            className="mt-2 px-4 py-2 rounded-lg text-xs md:text-sm font-medium font-['Josefin_Sans',sans-serif] shadow-lg hover:opacity-90 transition-opacity bg-primary text-primary-foreground"
+                            style={{ height: '40px' }}
+                          >
+                            {language === "en" ? "Change dates" : "Modifier les dates"}
+                          </button>
+                        </>
                       )}
                     </div>
                   </div>
