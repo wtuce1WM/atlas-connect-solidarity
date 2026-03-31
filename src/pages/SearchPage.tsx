@@ -747,6 +747,10 @@ const SearchPage = () => {
           setIsCompactPanelExpanded(false);
           return;
         }
+        // If panel wants to intercept close (e.g. return to fallback hotels list)
+        if (compactPanelInterceptCloseRef.current?.()) {
+          return;
+        }
         closeCompactPanel();
       }, [closeCompactPanel, isCompactPanelExpanded]);
 
