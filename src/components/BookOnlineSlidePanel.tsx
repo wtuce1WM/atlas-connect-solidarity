@@ -916,7 +916,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
       {/* Overlaid content — always visible, carousels toggle */}
       <div
-        className={`relative z-10 flex flex-col overflow-y-auto overscroll-contain h-full p-4 pt-12 md:p-6 md:pt-16 lg:pt-6 ${cardsHidden ? 'pb-0' : 'pb-8'}`}
+        className={`relative z-10 flex flex-col overflow-y-auto overscroll-contain h-full p-4 pt-12 md:p-6 md:pt-16 lg:pt-6 ${cardsHidden ? 'pb-0' : 'pb-8'} ${effectiveMedia?.kind === "matterport" ? "pointer-events-none" : ""}`}
         style={isDragging ? { transform: `translateY(${dragOffsetY}px)`, transition: 'none' } : undefined}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
