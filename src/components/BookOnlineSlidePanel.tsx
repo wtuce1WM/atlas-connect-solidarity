@@ -1361,7 +1361,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     icon: <span className="text-lg">📞</span>,
                     label: language === "en" ? "Call" : "Téléphone",
                     onClick: () => window.open(`tel:${business.phone!.replace(/(?!^\+)[^\d]/g, '')}`, "_self"),
-                    color: "#3B82F6",
+                    color: "#FFFFFF",
+                    textColor: "#000000",
                   });
                 }
                 if (business.reserve_now_url) {
