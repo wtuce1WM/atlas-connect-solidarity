@@ -86,7 +86,10 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
         return;
       }
 
-      // 2. Call SerpAPI edge function
+      // Calculate optimal maxPages based on mapped hotel count (~20 results per page)
+      const optimalMaxPages = Math.max(1, Math.ceil(mappings.length / 20));
+
+      // 2. Call SerpAPI edge function (no sort — sorting is done client-side by verified status then rating)
       const { data, error: fnError } = await supabase.functions.invoke("serpapi-hotels", {
         body: {
           cityName: serpCity,
@@ -94,13 +97,12 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
           checkOut,
           adults,
           currency,
-          sort,
           rating: rating || undefined,
           minPrice: minPrice ? Number(minPrice) : undefined,
           maxPrice: maxPrice ? Number(maxPrice) : undefined,
           language: language === "en" ? "en" : "fr",
           country: "ma",
-          maxPages: 3,
+          maxPages: optimalMaxPages,
         },
       });
 
