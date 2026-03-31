@@ -214,6 +214,15 @@ const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel, in
           </div>
         </div>
       </div>
+    </div>
+  );
+
+  if (inline) return content;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[220] lg:z-[200] flex flex-col lg:justify-start lg:right-auto lg:w-1/2 lg:top-[53px]">
+      <div className="hidden lg:block absolute inset-0 bg-black/40" onClick={onClose} />
+      {content}
     </div>,
     document.body
   );
