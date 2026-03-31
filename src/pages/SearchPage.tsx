@@ -829,17 +829,15 @@ const SearchPage = () => {
      setIsCompactPanelExpanded(false);
    }, [searchQuery, urlT]);
 
-    // Hide page-level scrollbar when slide panel is open on desktop to prevent overlap
+    // Hide page-level scrollbar when slide panel is open on desktop to prevent overlap with right panel
     useEffect(() => {
       const isDesktop = window.innerWidth >= 1024;
       if (compactPanelBusiness && isDesktop && !isCompactPanelExpanded) {
-        document.documentElement.style.overflowY = 'clip';
-        document.documentElement.style.height = '100vh';
+        document.documentElement.classList.add('hide-scrollbar-panel-open');
       } else {
-        document.documentElement.style.overflowY = '';
-        document.documentElement.style.height = '';
+        document.documentElement.classList.remove('hide-scrollbar-panel-open');
       }
-      return () => { document.documentElement.style.overflowY = ''; document.documentElement.style.height = ''; };
+      return () => { document.documentElement.classList.remove('hide-scrollbar-panel-open'); };
     }, [compactPanelBusiness, isCompactPanelExpanded]);
 
     // Auto-open first result — ref declared here, effect after filteredBusinesses
