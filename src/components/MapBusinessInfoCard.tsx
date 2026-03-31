@@ -131,7 +131,15 @@ const MapBusinessInfoCard = ({ business, onClose, hideDirections, hideClose }: M
                 {showHours && (
                   <div className="text-[10px] mt-1 animate-fade-in">
                     {(() => {
-                      const hours = business.opening_hours as Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }>;
+                      const frToEn: Record<string, string> = {
+                        lundi: "monday", mardi: "tuesday", mercredi: "wednesday", jeudi: "thursday",
+                        vendredi: "friday", samedi: "saturday", dimanche: "sunday",
+                      };
+                      const rawHours = business.opening_hours as Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }>;
+                      const hours = Object.entries(rawHours).reduce((acc, [k, v]) => {
+                        acc[frToEn[k] || k] = v;
+                        return acc;
+                      }, {} as Record<string, any>);
                       const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
                       const dayLabels: Record<string, string> = {
                         monday: "Lun", tuesday: "Mar", wednesday: "Mer",
