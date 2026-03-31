@@ -827,12 +827,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
       {/* Full-bleed background */}
       <div className="absolute inset-0 z-0">
-        {currentMedia?.kind === "video" ? (
+        {effectiveMedia?.kind === "video" ? (
           videoInfo?.type === "file" ? (
              <video
               ref={videoRef}
-              key={currentMedia.url}
-              src={currentMedia.url}
+              key={effectiveMedia.url}
+              src={effectiveMedia.url}
               className={`w-full h-full bg-black ${isVerticalVideo ? "object-cover" : "object-contain"}`}
               autoPlay
               loop
@@ -867,7 +867,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               )}
               <iframe
                 ref={iframeRef}
-                key={currentMedia.url}
+                key={effectiveMedia.url}
                 src={videoInfo?.embedUrl}
                 className={videoInfo?.type === "youtube"
                   ? isVerticalVideo
@@ -881,22 +881,22 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               />
             </div>
           )
-        ) : currentMedia?.kind === "matterport" ? (
+        ) : effectiveMedia?.kind === "matterport" ? (
           <iframe
-            key={currentMedia.url}
-            src={currentMedia.url}
+            key={effectiveMedia.url}
+            src={effectiveMedia.url}
             className="w-full h-full border-0"
             allow="xr-spatial-tracking"
             allowFullScreen
           />
-        ) : currentMedia?.kind === "image" ? (
-          <img src={currentMedia.url} alt={business.name} className="w-full h-full object-cover" />
+        ) : effectiveMedia?.kind === "image" ? (
+          <img src={effectiveMedia.url} alt={business.name} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-muted">
             <CalendarCheck className="h-16 w-16 text-muted-foreground/40" />
           </div>
         )}
-        {currentMedia?.kind !== "video" && currentMedia?.kind !== "matterport" && (
+        {effectiveMedia?.kind !== "video" && effectiveMedia?.kind !== "matterport" && (
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
         )}
       </div>
