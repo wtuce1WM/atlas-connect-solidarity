@@ -109,7 +109,7 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
 
       // 3. Get business info for all mapped hotels
       const bizIds = mappings.map(m => m.business_id).filter(Boolean);
-      const [{ data: businesses }, { data: gammes }, { data: liteApiPrices }] = await Promise.all([
+      const [{ data: businesses }, { data: gammes }] = await Promise.all([
         supabase
           .from("businesses")
           .select("id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, skype, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, badge_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, opening_hours, show_opening_hours, is_open_24h, engagements, online_shop_url, latitude, longitude, google_maps_url, rating, website")
@@ -117,20 +117,10 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
         supabase
           .from("gammes")
           .select("id, name_fr, color_hex, text_color_hex"),
-        supabase
-          .from("hotel_price_cache")
-          .select("business_id, price_per_night, currency")
-          .in("business_id", bizIds)
-          .eq("source", "liteapi")
-          .eq("check_in", checkIn)
-          .eq("check_out", checkOut),
       ]);
 
       const bizMap = new Map((businesses || []).map(b => [b.id, b]));
       const gammeMap = new Map((gammes || []).map(g => [g.id, g]));
-      const liteApiPriceMap = new Map(
-        (liteApiPrices || []).map(p => [p.business_id, { amount: p.price_per_night, currency: p.currency }])
-      );
 
       // 4. Build FallbackHotel[] from mapped results
       const hotels: FallbackHotel[] = mappings
@@ -161,7 +151,6 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
             dbTripadvisorRating: biz.tripadvisor_rating,
             dbTripadvisorReviewCount: biz.tripadvisor_review_count,
             serpPrice: serpMatch?.ratePerNight || null,
-            liteApiPrice: liteApiPriceMap.get(m.business_id) || null,
             reserveNowUrl: isCurrentHotel ? (reserveNowUrl || biz.reserve_now_url) : biz.reserve_now_url,
             manualPriceRange: biz.manual_price_range,
             gamme: gammeInfo ? { name_fr: gammeInfo.name_fr, color_hex: gammeInfo.color_hex, text_color_hex: gammeInfo.text_color_hex } : null,
