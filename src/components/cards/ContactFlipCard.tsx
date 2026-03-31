@@ -153,14 +153,17 @@ const ContactFlipCard = ({
           className="absolute inset-0 rounded-2xl overflow-hidden"
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
         >
-          <div className="absolute top-0 right-0 p-3 z-10">
-            <button
-              onClick={() => setActiveView("contact")}
-              className="text-xs text-black font-bold hover:text-black/70 transition-colors uppercase tracking-wider drop-shadow-md"
-            >
-              ← {language === "en" ? "Back" : "Retour"}
-            </button>
-          </div>
+          {/* Back button only for map view */}
+          {activeView === "map" && (
+            <div className="absolute top-0 right-0 p-3 z-10">
+              <button
+                onClick={() => setActiveView("contact")}
+                className="text-xs text-black font-bold hover:text-black/70 transition-colors uppercase tracking-wider drop-shadow-md"
+              >
+                ← {language === "en" ? "Back" : "Retour"}
+              </button>
+            </div>
+          )}
 
           {activeView === "map" && business.latitude && business.longitude && (
             <iframe
@@ -446,11 +449,11 @@ function DatePickerBack({
         })}
       </div>
 
-      {/* Search button */}
+      {/* Search button — same style as front CTA */}
       <button
         onClick={() => onCheckAvailability(checkIn, checkOut, adults)}
         disabled={isLoading}
-        className="mt-2 w-full py-2 rounded-full bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 shrink-0"
+        className="mt-2 w-full py-2.5 rounded-full bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 normal-case tracking-normal font-['Roboto',sans-serif] shrink-0"
       >
         {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
         {isEn ? "Check availability" : "Vérifier la disponibilité"}
