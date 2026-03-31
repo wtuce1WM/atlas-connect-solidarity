@@ -184,7 +184,7 @@ const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel, in
       <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
         <div>
           <p className="text-sm font-bold text-foreground" style={{ fontFamily: "'Roboto', sans-serif" }}>
-            {isEn ? `Hotels in ${data.city}` : `Hôtels à ${data.city}`}
+            {isEn ? `Available hotels in ${data.city}` : `Hôtels disponibles à ${data.city}`}
           </p>
           <p className="text-xs text-muted-foreground" style={{ fontFamily: "'Roboto', sans-serif" }}>
             {data.checkIn} → {data.checkOut} · {data.adults} {isEn ? "adult(s)" : "adulte(s)"}
