@@ -1387,7 +1387,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     icon: <MapPin className="h-5 w-5" />,
                     label: language === "en" ? "Directions" : "Vous rendre sur place",
                     onClick: () => setShowDirections(true),
-                    color: "#8B5CF6",
+                    color: "#C04F17",
                   });
                 }
               }
