@@ -59,10 +59,11 @@ interface BookOnlineSlidePanelProps {
 
 type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string };
 
-const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand, externalOverlayActive, forceMuted }: BookOnlineSlidePanelProps) => {
+const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand, externalOverlayActive, forceMuted, interceptCloseRef }: BookOnlineSlidePanelProps) => {
   const [activeBusinessId, setActiveBusinessId] = useState(propBusinessId);
   useEffect(() => { setActiveBusinessId(propBusinessId); setSerpApiOverlayCtx(null); }, [propBusinessId]);
   const businessId = activeBusinessId;
+  const [cameFromFallback, setCameFromFallback] = useState(false);
   const { language } = useLanguage();
   const navigate = useNavigate();
 
