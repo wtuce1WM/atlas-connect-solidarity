@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
 
-type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string };
+type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string } | { kind: "matterport"; url: string };
 
 interface MosaicOverlayProps {
   mediaItems: MediaItem[];
