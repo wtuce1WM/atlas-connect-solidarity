@@ -1695,7 +1695,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               </div>
             )}
             {/* YouTube iframe controls — below CTAs */}
-            {!cardsHidden && currentMedia?.kind === "video" && videoInfo?.type === "youtube" && (
+            {!cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" && (
               <div className="flex items-center gap-6 md:gap-10 mt-2 md:mt-3">
                 <button
                   type="button"
