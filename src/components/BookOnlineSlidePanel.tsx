@@ -1447,7 +1447,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   {/* Hotels available card */}
                   {fallbackPanelData.hotels.filter(h => !h.isCurrentHotel).length > 0 && (
                     <div className="text-center text-white bg-black/40 backdrop-blur-sm rounded-xl px-5 py-3 border border-white/10 mt-3 font-['Roboto',sans-serif] cursor-pointer hover:bg-black/50 transition-colors" onClick={() => { setShowFallbackOverlay(true); }}>
-                      <p className="text-[24px] font-medium mb-1">
+                      <p className="text-sm font-medium mb-1">
                         {fallbackPanelData.hotels.filter(h => !h.isCurrentHotel).length} {language === "en" ? "available hotels" : "hôtels disponibles"}
                       </p>
                       <p className="text-[20px] text-white/60">
