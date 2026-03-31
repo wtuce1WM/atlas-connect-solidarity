@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
 
-type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string };
+type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string } | { kind: "matterport"; url: string };
 
 interface MosaicOverlayProps {
   mediaItems: MediaItem[];
@@ -48,6 +48,20 @@ const MosaicOverlay = ({ mediaItems, onClose, onOpenLightbox }: MosaicOverlayPro
                   <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
                     <span className="text-white text-lg">▶</span>
                   </div>
+                </div>
+              </div>
+            );
+          }
+          if (item.kind === "matterport") {
+            return (
+              <div
+                key="matterport"
+                className="relative aspect-square cursor-pointer overflow-hidden rounded-lg bg-black/40"
+                onClick={() => onOpenLightbox(idx)}
+              >
+                <div className="w-full h-full bg-white/10 flex flex-col items-center justify-center gap-2">
+                  <span className="text-white text-3xl">🏠</span>
+                  <span className="text-white/80 text-xs font-medium">Visite 3D</span>
                 </div>
               </div>
             );

@@ -57,7 +57,7 @@ interface BookOnlineSlidePanelProps {
   interceptCloseRef?: React.MutableRefObject<(() => boolean) | null>;
 }
 
-type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string };
+type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string } | { kind: "matterport"; url: string };
 
 const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand, externalOverlayActive, forceMuted, interceptCloseRef }: BookOnlineSlidePanelProps) => {
   const [activeBusinessId, setActiveBusinessId] = useState(propBusinessId);
@@ -638,12 +638,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       return { kind: "video" as const, url: v, thumbnailUrl: doc?.thumbnail_url || null };
     });
     const imageItems = images.map((i) => ({ kind: "image" as const, url: i }));
+    const matterportItems: MediaItem[] = business?.matterport_url
+      ? [{ kind: "matterport" as const, url: business.matterport_url }]
+      : [];
     // When prioritize_images is on, show images first (as background) instead of videos
     if (business?.prioritize_images) {
-      return [...imageItems, ...videoItems];
+      return [...imageItems, ...videoItems, ...matterportItems];
     }
-    return [...videoItems, ...imageItems];
-  }, [videos, images, videoDocs, business?.prioritize_images]);
+    return [...videoItems, ...imageItems, ...matterportItems];
+  }, [videos, images, videoDocs, business?.prioritize_images, business?.matterport_url]);
 
   const totalMedia = mediaItems.length;
   const safeIndex = totalMedia > 0 ? currentMediaIndex % totalMedia : 0;
@@ -684,7 +687,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     mediaItems.map((m) =>
       m.kind === "video"
         ? { type: "video" as const, src: m.url, alt: business?.name || "" }
-        : { type: "image" as const, src: m.url, alt: business?.name || "" }
+        : m.kind === "matterport"
+          ? { type: "matterport" as const, src: m.url, alt: `${business?.name || ""} – Visite 3D` }
+          : { type: "image" as const, src: m.url, alt: business?.name || "" }
     ),
   [mediaItems, business?.name]);
 
@@ -1925,7 +1930,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       {/* Mosaic overlay */}
       {showMosaic && (
         <MosaicOverlay
-          mediaItems={mediaItems.filter(m => m.kind === "video" || m.kind === "image")}
+          mediaItems={mediaItems}
           onClose={() => setShowMosaic(false)}
           onOpenLightbox={(idx) => { setLightboxIndex(idx); setIsLightboxOpen(true); }}
         />
