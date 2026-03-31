@@ -159,7 +159,6 @@ const ContactFlipCard = ({
               isLoading={isSearchingAvailability}
               onCheckAvailability={(ci, co, adults) => {
                 onCheckAvailability?.(ci, co, adults);
-                setActiveView("contact");
               }}
               onBack={() => setActiveView("contact")}
             />
