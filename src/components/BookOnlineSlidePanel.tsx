@@ -156,10 +156,33 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       const allMappings = (mappingResult.data || []) as any[];
       const gammes = gammeResult.data || [];
       const gammeMap = new Map(gammes.map((g: any) => [g.id, g]));
-      const serpByExactName = new Map<string, any>(serpHotels.map((hotel: any) => [hotel.name, hotel]));
+      // Normalize for accent-insensitive, case-insensitive matching
+      const normalize = (s: string) =>
+        s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
 
-      // Keep only mappings that have an exact SerpAPI match (= available)
-      const matchedMappings = allMappings.filter((m: any) => serpByExactName.has(m.serp_hotel_name));
+      // Build a map of normalized SerpAPI names → hotel data
+      const serpByNorm = new Map<string, any>();
+      for (const hotel of serpHotels) {
+        serpByNorm.set(normalize(hotel.name), hotel);
+      }
+
+      // Match mappings: try exact normalized match first, then check if one contains the other
+      const matchedMappings: Array<{ mapping: any; serpMatch: any }> = [];
+      for (const m of allMappings) {
+        const mNorm = normalize(m.serp_hotel_name);
+        // Exact normalized match
+        if (serpByNorm.has(mNorm)) {
+          matchedMappings.push({ mapping: m, serpMatch: serpByNorm.get(mNorm) });
+          continue;
+        }
+        // Containment match (mapping name contained in serp name or vice versa)
+        for (const [serpNorm, serpHotel] of serpByNorm.entries()) {
+          if (serpNorm.includes(mNorm) || mNorm.includes(serpNorm)) {
+            matchedMappings.push({ mapping: m, serpMatch: serpHotel });
+            break;
+          }
+        }
+      }
       const bizIds = [...new Set(matchedMappings.map((m: any) => m.business_id))];
 
       // Fetch the actual business data for matched mappings
