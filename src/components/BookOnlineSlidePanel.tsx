@@ -1432,16 +1432,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
                   {/* Action cards when available */}
                   {actionCards.length > 0 && (
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col items-center gap-2">
                       {actionCards.map((card, i) => (
                         <button
                           key={i}
                           onClick={card.onClick}
-                          className="flex items-center justify-center gap-2 px-3 py-3 rounded-lg text-xs font-medium font-['Josefin_Sans',sans-serif] shadow-lg hover:opacity-90 transition-opacity normal-case tracking-normal w-full"
-                          style={{ backgroundColor: card.color, color: card.textColor || "#FFFFFF" }}
+                          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs md:text-sm font-medium font-['Josefin_Sans',sans-serif] shadow-lg hover:opacity-90 transition-opacity normal-case tracking-normal whitespace-nowrap"
+                          style={{ backgroundColor: card.color, color: card.textColor || "#FFFFFF", minWidth: 'fit-content' }}
                         >
                           {card.icon}
-                          <span className="truncate">{card.label}</span>
+                          <span>{card.label}</span>
                         </button>
                       ))}
                     </div>
