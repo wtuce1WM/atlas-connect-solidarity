@@ -147,40 +147,38 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         }),
         supabase
           .from("hotel_mappings")
-          .select(`
-            id,
-            serp_hotel_name,
-            business_id,
-            city,
-            businesses!inner(
-              id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, skype,
-              categories, default_service, hook_fr, logo_url, computed_rating, total_review_count,
-              gamme_id, badge_id, wtuce_status, google_rating, google_review_count,
-              tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range,
-              opening_hours, show_opening_hours, is_open_24h, engagements, online_shop_url,
-              latitude, longitude, google_maps_url, rating, website, min_price, is_active, main_category
-            )
-          `)
+          .select("id, serp_hotel_name, business_id, city")
           .ilike("city", cityName),
         supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
       ]);
 
       const serpHotels = (serpResult.data?.data || []) as any[];
-      const mappings = ((mappingResult.data || []) as any[]).filter((m: any) => {
-        const biz = Array.isArray(m.businesses) ? m.businesses[0] : m.businesses;
-        return biz?.is_active === true && biz?.main_category === "Hôtellerie";
-      });
+      const allMappings = (mappingResult.data || []) as any[];
       const gammes = gammeResult.data || [];
       const gammeMap = new Map(gammes.map((g: any) => [g.id, g]));
       const serpByExactName = new Map<string, any>(serpHotels.map((hotel: any) => [hotel.name, hotel]));
 
-      const hotels: FallbackHotel[] = [];
-      for (const mapping of mappings) {
-        const serpMatch = serpByExactName.get(mapping.serp_hotel_name) as any;
-        if (!serpMatch) continue;
+      // Keep only mappings that have an exact SerpAPI match (= available)
+      const matchedMappings = allMappings.filter((m: any) => serpByExactName.has(m.serp_hotel_name));
+      const bizIds = [...new Set(matchedMappings.map((m: any) => m.business_id))];
 
-        const biz = Array.isArray(mapping.businesses) ? mapping.businesses[0] : mapping.businesses;
+      // Fetch the actual business data for matched mappings
+      let bizMap = new Map<string, any>();
+      if (bizIds.length > 0) {
+        const { data: bizData } = await supabase
+          .from("businesses")
+          .select("id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, skype, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, badge_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, opening_hours, show_opening_hours, is_open_24h, engagements, online_shop_url, latitude, longitude, google_maps_url, rating, website, min_price, main_category")
+          .in("id", bizIds)
+          .eq("is_active", true)
+          .eq("main_category", "Hôtellerie");
+        bizMap = new Map((bizData || []).map((b: any) => [b.id, b]));
+      }
+
+      const hotels: FallbackHotel[] = [];
+      for (const mapping of matchedMappings) {
+        const biz = bizMap.get(mapping.business_id);
         if (!biz) continue;
+        const serpMatch = serpByExactName.get(mapping.serp_hotel_name) as any;
 
         const isCurrentHotel = biz.id === businessId;
         const gammeInfo = biz.gamme_id ? gammeMap.get(biz.gamme_id) || null : null;
