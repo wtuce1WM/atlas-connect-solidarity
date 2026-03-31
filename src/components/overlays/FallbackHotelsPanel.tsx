@@ -9,6 +9,7 @@ interface FallbackHotelsPanelProps {
   selectedHotelId: string | null;
   onClose: () => void;
   onSelectHotel: (hotelId: string, businessId: string | null) => void;
+  inline?: boolean;
 }
 
 const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel }: FallbackHotelsPanelProps) => {
