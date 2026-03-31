@@ -1346,7 +1346,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               const minPrice = business?.min_price;
 
               // Build action cards for availability case
-              const actionCards: { icon: React.ReactNode; label: string; onClick: () => void; color: string }[] = [];
+              const actionCards: { icon: React.ReactNode; label: string; onClick: () => void; color: string; textColor?: string }[] = [];
               if (hasAvailability && business) {
                 if (business.whatsapp) {
                   actionCards.push({
