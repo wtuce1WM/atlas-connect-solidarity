@@ -89,6 +89,9 @@ export interface BookOnlineBusiness {
   prioritize_images: boolean;
   default_sound_on: boolean;
   min_price: number | null;
+  gamme_id: string | null;
+  manual_price_range: string | null;
+  default_service: string | null;
 }
 
 export interface KpRelatedBusiness {
