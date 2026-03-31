@@ -228,8 +228,16 @@ const BusinessCard = ({
     return parts.join(" ");
   }, [business, displayRating, totalReviews]);
 
-  // Check if business is open during the active time slot OR right now
-  const openingHoursTyped = (business.opening_hours as Record<string, DayHoursData>) || null;
+  // Normalize French day keys to English
+  const frToEn: Record<string, string> = {
+    lundi: "monday", mardi: "tuesday", mercredi: "wednesday", jeudi: "thursday",
+    vendredi: "friday", samedi: "saturday", dimanche: "sunday",
+  };
+  const rawOH = (business.opening_hours as Record<string, DayHoursData>) || null;
+  const openingHoursTyped = rawOH ? Object.entries(rawOH).reduce((acc, [k, v]) => {
+    acc[frToEn[k] || k] = v;
+    return acc;
+  }, {} as Record<string, DayHoursData>) : null;
   const vacationDatesTyped = Array.isArray(business.vacation_dates) ? business.vacation_dates as Array<{ start_date: string; end_date: string }> : null;
 
   // Only show open badge if show_opening_hours is enabled (or is_open_24h)
