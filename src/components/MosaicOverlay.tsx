@@ -52,6 +52,20 @@ const MosaicOverlay = ({ mediaItems, onClose, onOpenLightbox }: MosaicOverlayPro
               </div>
             );
           }
+          if (item.kind === "matterport") {
+            return (
+              <div
+                key="matterport"
+                className="relative aspect-square cursor-pointer overflow-hidden rounded-lg bg-black/40"
+                onClick={() => onOpenLightbox(idx)}
+              >
+                <div className="w-full h-full bg-white/10 flex flex-col items-center justify-center gap-2">
+                  <span className="text-white text-3xl">🏠</span>
+                  <span className="text-white/80 text-xs font-medium">Visite 3D</span>
+                </div>
+              </div>
+            );
+          }
           return (
             <div
               key={`mi-${idx}`}
