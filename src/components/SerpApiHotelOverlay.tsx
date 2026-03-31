@@ -151,7 +151,7 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
             dbTripadvisorRating: biz.tripadvisor_rating,
             dbTripadvisorReviewCount: biz.tripadvisor_review_count,
             serpPrice: serpMatch?.ratePerNight || null,
-            liteApiPrice: liteApiPriceMap.get(m.business_id) || null,
+            reserveNowUrl: isCurrentHotel ? (reserveNowUrl || biz.reserve_now_url) : biz.reserve_now_url,
             reserveNowUrl: isCurrentHotel ? (reserveNowUrl || biz.reserve_now_url) : biz.reserve_now_url,
             manualPriceRange: biz.manual_price_range,
             gamme: gammeInfo ? { name_fr: gammeInfo.name_fr, color_hex: gammeInfo.color_hex, text_color_hex: gammeInfo.text_color_hex } : null,
