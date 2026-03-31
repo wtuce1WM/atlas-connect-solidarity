@@ -255,16 +255,7 @@ const SerpApiHotelOverlay = ({ currentBusinessId, serpCity, businessName, reserv
         </button>
 
         {showFilters && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-            <div className="space-y-1">
-              <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-                {isEn ? "Sort by" : "Trier par"}
-              </label>
-              <select value={sort} onChange={e => setSort(Number(e.target.value))}
-                className="w-full px-2 py-1.5 rounded-lg border border-border bg-background text-foreground text-sm">
-                {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{isEn ? o.labelEn : o.labelFr}</option>)}
-              </select>
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
             <div className="space-y-1">
               <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
                 {isEn ? "Min rating" : "Note min."}
