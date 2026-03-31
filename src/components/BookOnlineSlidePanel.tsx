@@ -114,6 +114,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
   const fallbackDataRef = useRef<FallbackPanelData | null>(null);
   useEffect(() => { fallbackDataRef.current = fallbackPanelData; }, [fallbackPanelData]);
+  const hideCardsRef = useRef<() => void>(() => {});
 
   // Unified hotel availability search: SerpAPI priority, then LiteAPI fallback
   const handleCheckAvailability = useCallback(async (checkIn: string, checkOut: string, adults: number) => {
