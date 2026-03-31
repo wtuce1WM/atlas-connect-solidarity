@@ -155,9 +155,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           if (!fnError) {
             const serpHotels = data?.data || [];
             const bizIds = mappings.map((m: any) => m.business_id).filter(Boolean);
-            const [{ data: businesses }, { data: gammes }] = await Promise.all([
-              supabase.from("businesses").select("id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, skype, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, badge_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, opening_hours, show_opening_hours, is_open_24h, engagements, online_shop_url, latitude, longitude, google_maps_url, rating, website").in("id", bizIds),
-              supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex"),
+            const [{ data: businesses }, { data: gammes }, { data: allGammeBusinesses }] = await Promise.all([
+              supabase.from("businesses").select("id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, skype, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, badge_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, opening_hours, show_opening_hours, is_open_24h, engagements, online_shop_url, latitude, longitude, google_maps_url, rating, website, min_price").in("id", bizIds),
+              supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
+              supabase.from("businesses").select("id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, skype, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, badge_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, opening_hours, show_opening_hours, is_open_24h, engagements, online_shop_url, latitude, longitude, google_maps_url, rating, website, min_price")
+                .eq("is_active", true)
+                .not("gamme_id", "is", null)
+                .ilike("city", serpApiMapping.city),
             ]);
             const bizMap = new Map((businesses || []).map((b: any) => [b.id, b]));
             const gammeMap = new Map((gammes || []).map((g: any) => [g.id, g]));
@@ -194,11 +198,37 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             // Dedup by business_id
             const deduped = new Map<string, FallbackHotel>();
             for (const h of hotels) { const ex = deduped.get(h.businessId!); if (!ex || (h.serpPrice && !ex.serpPrice)) deduped.set(h.businessId!, h); }
+
+            // Add non-mapped businesses with gamme_id from same city
+            for (const biz of (allGammeBusinesses || [])) {
+              if (deduped.has(biz.id)) continue;
+              const isCurrentHotel = biz.id === businessId;
+              const gammeInfo = biz.gamme_id ? gammeMap.get(biz.gamme_id) || null : null;
+              deduped.set(biz.id, {
+                hotelId: biz.id, businessId: biz.id, name: biz.name,
+                wtuce_status: biz.wtuce_status || undefined, offers: [],
+                dbImage: biz.images?.[0] || undefined,
+                dbGoogleRating: biz.google_rating, dbGoogleReviewCount: biz.google_review_count,
+                dbTripadvisorRating: biz.tripadvisor_rating, dbTripadvisorReviewCount: biz.tripadvisor_review_count,
+                serpPrice: null,
+                reserveNowUrl: isCurrentHotel ? (business.reserve_now_url || biz.reserve_now_url) : biz.reserve_now_url,
+                manualPriceRange: biz.manual_price_range, isCurrentHotel,
+                gamme: gammeInfo ? { name_fr: gammeInfo.name_fr, color_hex: gammeInfo.color_hex, text_color_hex: gammeInfo.text_color_hex } : null,
+                dealDescription: null,
+                dbBusiness: biz,
+              });
+            }
+
             const uniqueHotels = Array.from(deduped.values());
             uniqueHotels.sort((a, b) => {
               if (a.isCurrentHotel !== b.isCurrentHotel) return a.isCurrentHotel ? -1 : 1;
               if (!!a.serpPrice !== !!b.serpPrice) return a.serpPrice ? -1 : 1;
-              return 0;
+              const aVerified = a.wtuce_status === "verified" ? 1 : 0;
+              const bVerified = b.wtuce_status === "verified" ? 1 : 0;
+              if (aVerified !== bVerified) return bVerified - aVerified;
+              const aRating = a.dbBusiness?.computed_rating || 0;
+              const bRating = b.dbBusiness?.computed_rating || 0;
+              return bRating - aRating;
             });
 
             openFallback({ hotels: uniqueHotels, city: serpApiMapping.city, checkIn, checkOut, adults, source: "serpapi", gammes: (gammes || []).map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })) });
