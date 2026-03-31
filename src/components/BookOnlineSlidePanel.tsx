@@ -53,14 +53,17 @@ interface BookOnlineSlidePanelProps {
   externalOverlayActive?: boolean;
   /** When true, mute all background media (e.g. during voice search) */
   forceMuted?: boolean;
+  /** Mutable ref: if set by the panel, the parent should call it instead of closing */
+  interceptCloseRef?: React.MutableRefObject<(() => boolean) | null>;
 }
 
 type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string };
 
-const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand, externalOverlayActive, forceMuted }: BookOnlineSlidePanelProps) => {
+const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand, externalOverlayActive, forceMuted, interceptCloseRef }: BookOnlineSlidePanelProps) => {
   const [activeBusinessId, setActiveBusinessId] = useState(propBusinessId);
-  useEffect(() => { setActiveBusinessId(propBusinessId); setSerpApiOverlayCtx(null); }, [propBusinessId]);
+  useEffect(() => { setActiveBusinessId(propBusinessId); setSerpApiOverlayCtx(null); setCameFromFallback(false); }, [propBusinessId]);
   const businessId = activeBusinessId;
+  const [cameFromFallback, setCameFromFallback] = useState(false);
   const { language } = useLanguage();
   const navigate = useNavigate();
 
@@ -115,6 +118,21 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
   const fallbackDataRef = useRef<FallbackPanelData | null>(null);
   useEffect(() => { fallbackDataRef.current = fallbackPanelData; }, [fallbackPanelData]);
+
+  // Expose close interceptor: when navigated from fallback, return to fallback instead of closing
+  useEffect(() => {
+    if (!interceptCloseRef) return;
+    if (cameFromFallback && activeBusinessId !== propBusinessId && fallbackPanelData) {
+      interceptCloseRef.current = () => {
+        setActiveBusinessId(propBusinessId);
+        setShowFallbackOverlay(true);
+        setCameFromFallback(false);
+        return true; // intercepted
+      };
+    } else {
+      interceptCloseRef.current = null;
+    }
+  }, [cameFromFallback, activeBusinessId, propBusinessId, fallbackPanelData, interceptCloseRef]);
   const hideCardsRef = useRef<() => void>(() => {});
 
   // Unified hotel availability search: always calls SerpAPI to verify real availability
@@ -1899,6 +1917,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 if (window.innerWidth < 1024) setShowTransitionOverlay(true);
                 setSelectedFallbackHotelId(hotelId);
                 setActiveBusinessId(businessId);
+                setCameFromFallback(true);
                 setShowFallbackOverlay(false);
               }
             }}

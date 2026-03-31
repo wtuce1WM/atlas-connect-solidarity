@@ -725,6 +725,7 @@ const SearchPage = () => {
     const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
       const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
+    const compactPanelInterceptCloseRef = useRef<(() => boolean) | null>(null);
 
       const openCompactPanel = useCallback((bizOrData: AIBusinessData | { id: string; name: string }) => {
         hasInteractedWithCompactPanelRef.current = true;
@@ -744,6 +745,10 @@ const SearchPage = () => {
         // If panel is in expanded/mosaic mode, collapse back to the panel instead of closing
         if (isCompactPanelExpanded) {
           setIsCompactPanelExpanded(false);
+          return;
+        }
+        // If panel wants to intercept close (e.g. return to fallback hotels list)
+        if (compactPanelInterceptCloseRef.current?.()) {
           return;
         }
         closeCompactPanel();
@@ -4106,6 +4111,7 @@ const SearchPage = () => {
                 onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
                 externalOverlayActive={showAiPopup}
                 forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
+                interceptCloseRef={compactPanelInterceptCloseRef}
               />
             </div>
           </div>
