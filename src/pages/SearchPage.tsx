@@ -832,13 +832,15 @@ const SearchPage = () => {
     // Hide page-level scrollbar when slide panel is open on desktop to prevent overlap
     useEffect(() => {
       const isDesktop = window.innerWidth >= 1024;
-      if (compactPanelBusiness && isDesktop) {
-        document.documentElement.style.overflowY = 'hidden';
+      if (compactPanelBusiness && isDesktop && !isCompactPanelExpanded) {
+        document.documentElement.style.overflowY = 'clip';
+        document.documentElement.style.height = '100vh';
       } else {
         document.documentElement.style.overflowY = '';
+        document.documentElement.style.height = '';
       }
-      return () => { document.documentElement.style.overflowY = ''; };
-    }, [compactPanelBusiness]);
+      return () => { document.documentElement.style.overflowY = ''; document.documentElement.style.height = ''; };
+    }, [compactPanelBusiness, isCompactPanelExpanded]);
 
     // Auto-open first result — ref declared here, effect after filteredBusinesses
     const hasAutoOpenedFirstRef = useRef(false);
