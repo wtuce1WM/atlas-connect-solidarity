@@ -53,6 +53,8 @@ interface BookOnlineSlidePanelProps {
   externalOverlayActive?: boolean;
   /** When true, mute all background media (e.g. during voice search) */
   forceMuted?: boolean;
+  /** Mutable ref: if set by the panel, the parent should call it instead of closing */
+  interceptCloseRef?: React.MutableRefObject<(() => boolean) | null>;
 }
 
 type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string };
