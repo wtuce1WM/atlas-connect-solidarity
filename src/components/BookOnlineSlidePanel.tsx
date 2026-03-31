@@ -1765,7 +1765,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               </div>
             </div>
           )}
-          {cardsHidden && currentMedia?.kind === "video" && videoInfo?.type === "youtube" && (
+          {cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" && (
             <div className="shrink-0 flex justify-center pointer-events-auto mt-2 md:mt-3 pb-[14px] md:pb-[10px]">
               <div className="flex items-center gap-6 md:gap-10">
                 <button
