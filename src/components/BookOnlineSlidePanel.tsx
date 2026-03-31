@@ -183,7 +183,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           }
         }
       }
-      const bizIds = [...new Set(matchedMappings.map((m: any) => m.business_id))];
+      const bizIds = [...new Set(matchedMappings.map((m) => m.mapping.business_id))];
 
       // Fetch the actual business data for matched mappings
       let bizMap = new Map<string, any>();
@@ -198,10 +198,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       }
 
       const hotels: FallbackHotel[] = [];
-      for (const mapping of matchedMappings) {
+      for (const { mapping, serpMatch } of matchedMappings) {
         const biz = bizMap.get(mapping.business_id);
         if (!biz) continue;
-        const serpMatch = serpByExactName.get(mapping.serp_hotel_name) as any;
 
         const isCurrentHotel = biz.id === businessId;
         const gammeInfo = biz.gamme_id ? gammeMap.get(biz.gamme_id) || null : null;
