@@ -431,7 +431,7 @@ function DatePickerBack({
       <button
         onClick={() => onCheckAvailability(checkIn, checkOut, adults)}
         disabled={isLoading}
-        className="mt-2 w-full min-w-fit py-2.5 rounded-full bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 normal-case tracking-normal font-['Roboto',sans-serif] shrink-0"
+        className="mt-2 w-fit mx-auto px-5 py-2.5 rounded-full bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 normal-case tracking-normal font-['Roboto',sans-serif] shrink-0"
       >
         {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
         {isEn ? "Check availability" : "Vérifier la disponibilité"}
