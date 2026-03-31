@@ -1430,13 +1430,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                               ? "Please modify your search criteria or select an alternative below."
                               : "Veuillez modifier vos critères de recherche ou sélectionner une alternative ci-dessous."}
                           </p>
-                          <button
-                            onClick={showCards}
-                            className="mt-2 px-4 py-2 rounded-lg text-xs md:text-sm font-medium font-['Josefin_Sans',sans-serif] shadow-lg hover:opacity-90 transition-opacity bg-primary text-primary-foreground"
-                            style={{ height: '40px' }}
-                          >
-                            {language === "en" ? "Change dates" : "Modifier les dates"}
-                          </button>
+                          <div className="flex justify-center mt-2">
+                            <button
+                              onClick={showCards}
+                              className="px-4 py-2 rounded-lg text-xs md:text-sm font-medium font-['Josefin_Sans',sans-serif] shadow-lg hover:opacity-90 transition-opacity bg-gold text-black"
+                              style={{ height: '40px' }}
+                            >
+                              {language === "en" ? "Change dates" : "Modifier les dates"}
+                            </button>
+                          </div>
                         </>
                       )}
                     </div>
