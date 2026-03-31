@@ -165,18 +165,18 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
       ]);
 
-      const serpHotels = serpResult.data?.data || [];
-      const mappings = (mappingResult.data || []).filter((m: any) => {
+      const serpHotels = (serpResult.data?.data || []) as any[];
+      const mappings = ((mappingResult.data || []) as any[]).filter((m: any) => {
         const biz = Array.isArray(m.businesses) ? m.businesses[0] : m.businesses;
         return biz?.is_active === true && biz?.main_category === "Hôtellerie";
       });
       const gammes = gammeResult.data || [];
       const gammeMap = new Map(gammes.map((g: any) => [g.id, g]));
-      const serpByExactName = new Map(serpHotels.map((hotel: any) => [hotel.name, hotel]));
+      const serpByExactName = new Map<string, any>(serpHotels.map((hotel: any) => [hotel.name, hotel]));
 
       const hotels: FallbackHotel[] = [];
       for (const mapping of mappings) {
-        const serpMatch = serpByExactName.get(mapping.serp_hotel_name);
+        const serpMatch = serpByExactName.get(mapping.serp_hotel_name) as any;
         if (!serpMatch) continue;
 
         const biz = Array.isArray(mapping.businesses) ? mapping.businesses[0] : mapping.businesses;
