@@ -43,8 +43,8 @@ const ContactFlipCard = ({
   onCheckAvailability,
   onOpenWebsite,
 }: ContactFlipCardProps) => {
-  const [activeView, setActiveView] = useState<"contact" | "map" | "dates">("contact");
-  const flipped = activeView !== "contact";
+  const [activeView, setActiveView] = useState<"contact" | "dates">("contact");
+  const flipped = activeView === "dates";
 
   return (
     <div
