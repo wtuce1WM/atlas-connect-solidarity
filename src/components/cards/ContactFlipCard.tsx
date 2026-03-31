@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { MapPin, Phone, Mail, Globe, Clock, ExternalLink, Search, Loader2 } from "lucide-react";
+import { useState, useRef, useCallback } from "react";
+import { MapPin, Phone, Mail, Globe, Clock, ExternalLink, Search, Loader2, ChevronLeft, ChevronRight, Users } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { formatDayHours as formatDayHoursDisplay, isCurrentlyOpen } from "@/lib/formatOpeningHours";
 import { cleanPhone, whatsappUrl } from "@/lib/phoneUtils";
@@ -43,7 +43,8 @@ const ContactFlipCard = ({
   onCheckAvailability,
   onOpenWebsite,
 }: ContactFlipCardProps) => {
-  const [flipped, setFlipped] = useState(false);
+  const [activeView, setActiveView] = useState<"contact" | "map" | "dates">("contact");
+  const flipped = activeView !== "contact";
 
   return (
     <div
@@ -65,7 +66,7 @@ const ContactFlipCard = ({
           <div className="space-y-2.5 text-sm">
             {business.google_maps_url && (
               <button
-                onClick={() => setFlipped(true)}
+                onClick={() => setActiveView("map")}
                 className="flex items-center justify-center w-full mb-1"
               >
                 <MapPin
@@ -141,25 +142,27 @@ const ContactFlipCard = ({
                 language={language}
                 isLoading={isSearchingAvailability}
                 onCheckAvailability={onCheckAvailability}
+                onOpenDatePicker={() => setActiveView("dates")}
               />
             )}
           </div>
         </div>
 
-        {/* BACK — Google Map */}
+        {/* BACK — Google Map OR Date Picker */}
         <div
           className="absolute inset-0 rounded-2xl overflow-hidden"
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
         >
           <div className="absolute top-0 right-0 p-3 z-10">
             <button
-              onClick={() => setFlipped(false)}
+              onClick={() => setActiveView("contact")}
               className="text-xs text-black font-bold hover:text-black/70 transition-colors uppercase tracking-wider drop-shadow-md"
             >
               ← {language === "en" ? "Back" : "Retour"}
             </button>
           </div>
-          {business.latitude && business.longitude && flipped && (
+
+          {activeView === "map" && business.latitude && business.longitude && (
             <iframe
               src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${business.latitude},${business.longitude}&zoom=13`}
               className="w-full h-full border-0"
@@ -168,21 +171,35 @@ const ContactFlipCard = ({
               referrerPolicy="no-referrer-when-downgrade"
             />
           )}
+
+          {activeView === "dates" && (
+            <DatePickerBack
+              language={language}
+              isLoading={isSearchingAvailability}
+              onCheckAvailability={(ci, co, adults) => {
+                onCheckAvailability?.(ci, co, adults);
+                setActiveView("contact");
+              }}
+              onBack={() => setActiveView("contact")}
+            />
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-/** Hotel availability widget — Airbnb-style date picker */
+/** Hotel availability widget — compact front-side summary */
 function HotelAvailabilityWidget({
   language,
   isLoading,
   onCheckAvailability,
+  onOpenDatePicker,
 }: {
   language: string;
   isLoading?: boolean;
   onCheckAvailability?: (checkIn: string, checkOut: string, adults: number) => void;
+  onOpenDatePicker?: () => void;
 }) {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -204,51 +221,30 @@ function HotelAvailabilityWidget({
     return `${months[d.getMonth()]} ${d.getDate()}`;
   };
 
-  const ciRef = useRef<HTMLInputElement>(null);
-  const coRef = useRef<HTMLInputElement>(null);
-
   return (
     <div className="mt-3 pt-3 border-t border-white/20 space-y-2">
       {/* Date fields + adults on same row */}
       <div className="flex rounded-xl overflow-hidden border border-white/20">
-        {/* Check-in */}
-        <div className="relative flex-1 bg-white/10 p-2 cursor-pointer" onClick={() => ciRef.current?.showPicker?.()}>
+        {/* Check-in — opens date picker on back */}
+        <button
+          className="relative flex-1 bg-white/10 p-2 text-left hover:bg-white/20 transition-colors"
+          onClick={() => onOpenDatePicker?.()}
+        >
           <span className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block mb-0.5">
             {isEn ? "CHECK-IN" : "ARRIVÉE"}
           </span>
           <span className="text-white font-bold text-sm">{formatDateShort(checkIn)}</span>
-          <input
-            ref={ciRef}
-            type="date"
-            value={checkIn}
-            onChange={e => {
-              if (!e.target.value) return;
-              setCheckIn(e.target.value);
-              if (e.target.value >= checkOut) {
-                const next = new Date(e.target.value);
-                next.setDate(next.getDate() + 1);
-                setCheckOut(fmt(next));
-              }
-            }}
-            min={fmt(tomorrow)}
-            className="absolute inset-0 opacity-0 cursor-pointer"
-          />
-        </div>
-        {/* Check-out */}
-        <div className="relative flex-1 bg-white/10 p-2 border-l border-white/20 cursor-pointer" onClick={() => coRef.current?.showPicker?.()}>
+        </button>
+        {/* Check-out — opens date picker on back */}
+        <button
+          className="relative flex-1 bg-white/10 p-2 border-l border-white/20 text-left hover:bg-white/20 transition-colors"
+          onClick={() => onOpenDatePicker?.()}
+        >
           <span className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block mb-0.5">
             {isEn ? "CHECK-OUT" : "DÉPART"}
           </span>
           <span className="text-white font-bold text-sm">{formatDateShort(checkOut)}</span>
-          <input
-            ref={coRef}
-            type="date"
-            value={checkOut}
-            onChange={e => { if (e.target.value) setCheckOut(e.target.value); }}
-            min={checkIn}
-            className="absolute inset-0 opacity-0 cursor-pointer"
-          />
-        </div>
+        </button>
         {/* Adults */}
         <div className="bg-white/10 px-3 py-2 border-l border-white/20 flex flex-col items-center justify-center shrink-0">
           <span className="text-[9px] uppercase tracking-wider text-white/50 font-semibold block mb-0.5">
@@ -269,6 +265,192 @@ function HotelAvailabilityWidget({
         onClick={() => onCheckAvailability?.(checkIn, checkOut, adults)}
         disabled={isLoading}
         className="w-full py-2.5 rounded-full bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 normal-case tracking-normal font-['Roboto',sans-serif]"
+      >
+        {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+        {isEn ? "Check availability" : "Vérifier la disponibilité"}
+      </button>
+    </div>
+  );
+}
+
+/** Full date picker on the back of the flip card */
+function DatePickerBack({
+  language,
+  isLoading,
+  onCheckAvailability,
+  onBack,
+}: {
+  language: string;
+  isLoading?: boolean;
+  onCheckAvailability: (checkIn: string, checkOut: string, adults: number) => void;
+  onBack: () => void;
+}) {
+  const isEn = language === "en";
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const defaultCheckout = new Date(tomorrow);
+  defaultCheckout.setDate(defaultCheckout.getDate() + 3);
+  const fmt = (d: Date) => d.toISOString().split("T")[0];
+
+  const [checkIn, setCheckIn] = useState(fmt(tomorrow));
+  const [checkOut, setCheckOut] = useState(fmt(defaultCheckout));
+  const [adults, setAdults] = useState(2);
+  const [selectingField, setSelectingField] = useState<"checkin" | "checkout">("checkin");
+
+  // Calendar state
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const d = new Date(checkIn + "T12:00:00");
+    return { year: d.getFullYear(), month: d.getMonth() };
+  });
+
+  const daysInMonth = new Date(calendarMonth.year, calendarMonth.month + 1, 0).getDate();
+  const firstDayOfWeek = new Date(calendarMonth.year, calendarMonth.month, 1).getDay();
+  // Adjust for Monday start: 0=Mon..6=Sun
+  const startOffset = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
+
+  const monthNames = isEn
+    ? ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    : ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+
+  const dayLabels = isEn ? ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"] : ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"];
+
+  const prevMonth = () => {
+    setCalendarMonth(prev => {
+      const m = prev.month - 1;
+      return m < 0 ? { year: prev.year - 1, month: 11 } : { year: prev.year, month: m };
+    });
+  };
+  const nextMonth = () => {
+    setCalendarMonth(prev => {
+      const m = prev.month + 1;
+      return m > 11 ? { year: prev.year + 1, month: 0 } : { year: prev.year, month: m };
+    });
+  };
+
+  const todayStr = fmt(new Date());
+
+  const handleDayClick = (day: number) => {
+    const dateStr = `${calendarMonth.year}-${String(calendarMonth.month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    if (dateStr <= todayStr) return; // can't select past dates
+
+    if (selectingField === "checkin") {
+      setCheckIn(dateStr);
+      if (dateStr >= checkOut) {
+        const next = new Date(dateStr);
+        next.setDate(next.getDate() + 1);
+        setCheckOut(fmt(next));
+      }
+      setSelectingField("checkout");
+    } else {
+      if (dateStr <= checkIn) {
+        // If selected checkout <= checkin, treat as new checkin
+        setCheckIn(dateStr);
+        setSelectingField("checkout");
+      } else {
+        setCheckOut(dateStr);
+        setSelectingField("checkin");
+      }
+    }
+  };
+
+  const isInRange = (dateStr: string) => dateStr > checkIn && dateStr < checkOut;
+
+  return (
+    <div className="h-full bg-black/90 text-white p-3 flex flex-col">
+      {/* Field tabs */}
+      <div className="flex gap-1 mb-2">
+        <button
+          onClick={() => setSelectingField("checkin")}
+          className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-semibold transition-colors ${
+            selectingField === "checkin" ? "bg-white text-black" : "bg-white/10 text-white/70"
+          }`}
+        >
+          <span className="block text-[8px] uppercase tracking-wider opacity-60">
+            {isEn ? "CHECK-IN" : "ARRIVÉE"}
+          </span>
+          {checkIn.split("-").reverse().join("/")}
+        </button>
+        <button
+          onClick={() => setSelectingField("checkout")}
+          className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-semibold transition-colors ${
+            selectingField === "checkout" ? "bg-white text-black" : "bg-white/10 text-white/70"
+          }`}
+        >
+          <span className="block text-[8px] uppercase tracking-wider opacity-60">
+            {isEn ? "CHECK-OUT" : "DÉPART"}
+          </span>
+          {checkOut.split("-").reverse().join("/")}
+        </button>
+        <div className="bg-white/10 rounded-lg px-2 py-1.5 flex flex-col items-center">
+          <span className="block text-[8px] uppercase tracking-wider opacity-60">
+            <Users className="h-3 w-3 inline" />
+          </span>
+          <select
+            value={adults}
+            onChange={e => setAdults(Number(e.target.value))}
+            className="bg-transparent text-white font-bold text-xs cursor-pointer text-center outline-none [color-scheme:dark] w-8"
+          >
+            {[1, 2, 3, 4].map(n => <option key={n} value={n}>{n}</option>)}
+          </select>
+        </div>
+      </div>
+
+      {/* Calendar header */}
+      <div className="flex items-center justify-between mb-1">
+        <button onClick={prevMonth} className="p-1 hover:bg-white/10 rounded">
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+        <span className="text-xs font-semibold">
+          {monthNames[calendarMonth.month]} {calendarMonth.year}
+        </span>
+        <button onClick={nextMonth} className="p-1 hover:bg-white/10 rounded">
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      </div>
+
+      {/* Day labels */}
+      <div className="grid grid-cols-7 gap-0 mb-0.5">
+        {dayLabels.map(d => (
+          <div key={d} className="text-center text-[9px] text-white/40 font-medium">{d}</div>
+        ))}
+      </div>
+
+      {/* Calendar grid */}
+      <div className="grid grid-cols-7 gap-0 flex-1 content-start">
+        {Array.from({ length: startOffset }).map((_, i) => (
+          <div key={`empty-${i}`} />
+        ))}
+        {Array.from({ length: daysInMonth }, (_, i) => {
+          const day = i + 1;
+          const dateStr = `${calendarMonth.year}-${String(calendarMonth.month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          const isPast = dateStr <= todayStr;
+          const isCheckIn = dateStr === checkIn;
+          const isCheckOut = dateStr === checkOut;
+          const inRange = isInRange(dateStr);
+
+          return (
+            <button
+              key={day}
+              onClick={() => handleDayClick(day)}
+              disabled={isPast}
+              className={`aspect-square flex items-center justify-center text-[11px] rounded-md transition-colors
+                ${isPast ? "text-white/20 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"}
+                ${isCheckIn ? "bg-white text-black font-bold" : ""}
+                ${isCheckOut ? "bg-white text-black font-bold" : ""}
+                ${inRange ? "bg-white/15" : ""}
+              `}
+            >
+              {day}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Search button */}
+      <button
+        onClick={() => onCheckAvailability(checkIn, checkOut, adults)}
+        disabled={isLoading}
+        className="mt-2 w-full py-2 rounded-full bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 shrink-0"
       >
         {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
         {isEn ? "Check availability" : "Vérifier la disponibilité"}
