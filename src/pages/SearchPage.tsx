@@ -3416,7 +3416,7 @@ const SearchPage = () => {
                           {(() => {
                             if (!business.is_open_24h && !business.show_opening_hours) return null;
                             if (business.is_open_24h) {
-                              return <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-atlas/85 text-atlas-foreground">Ouvert 24h</span>;
+                              return <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#25D366] text-black">Ouvert 24h</span>;
                             }
                             if (!business.opening_hours) return null;
 
@@ -3434,7 +3434,7 @@ const SearchPage = () => {
                             const now = new Date();
                             const todayKey = days[now.getDay()];
                             if (isCurrentlyOpenCheck(oh[todayKey])) {
-                              return <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-atlas/85 text-atlas-foreground">Ouvert</span>;
+                              return <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#25D366] text-black">Ouvert</span>;
                             }
 
                             const nowMin = now.getHours() * 60 + now.getMinutes();
