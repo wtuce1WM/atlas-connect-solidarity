@@ -302,6 +302,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     showCards, hideCards, resetDrag,
     onTouchStart, onTouchMove, onTouchEnd, onMouseDownDrag,
   } = useDragToHide();
+  useEffect(() => { hideCardsRef.current = hideCards; }, [hideCards]);
 
   // Reset UI state when switching business
   useEffect(() => {
