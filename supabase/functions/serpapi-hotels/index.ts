@@ -14,7 +14,7 @@ interface SerpApiRequest {
   currency?: string;
   language?: string;
   country?: string;
-  sort?: number;
+  
   minPrice?: number;
   maxPrice?: number;
   rating?: number;
