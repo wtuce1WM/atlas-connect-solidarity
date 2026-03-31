@@ -153,14 +153,17 @@ const ContactFlipCard = ({
           className="absolute inset-0 rounded-2xl overflow-hidden"
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
         >
-          <div className="absolute top-0 right-0 p-3 z-10">
-            <button
-              onClick={() => setActiveView("contact")}
-              className="text-xs text-black font-bold hover:text-black/70 transition-colors uppercase tracking-wider drop-shadow-md"
-            >
-              ← {language === "en" ? "Back" : "Retour"}
-            </button>
-          </div>
+          {/* Back button only for map view */}
+          {activeView === "map" && (
+            <div className="absolute top-0 right-0 p-3 z-10">
+              <button
+                onClick={() => setActiveView("contact")}
+                className="text-xs text-black font-bold hover:text-black/70 transition-colors uppercase tracking-wider drop-shadow-md"
+              >
+                ← {language === "en" ? "Back" : "Retour"}
+              </button>
+            </div>
+          )}
 
           {activeView === "map" && business.latitude && business.longitude && (
             <iframe
