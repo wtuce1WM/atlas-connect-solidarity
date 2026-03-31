@@ -12,15 +12,13 @@ interface FallbackHotelsPanelProps {
   inline?: boolean;
 }
 
-const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel }: FallbackHotelsPanelProps) => {
+const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel, inline }: FallbackHotelsPanelProps) => {
   const { language } = useLanguage();
   const isEn = language === "en";
   const isSerpApi = data.source === "serpapi";
 
-  return createPortal(
-    <div className="fixed inset-0 z-[220] lg:z-[200] flex flex-col lg:justify-start lg:right-auto lg:w-1/2 lg:top-[53px]">
-      <div className="hidden lg:block absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white flex flex-col overflow-hidden w-full h-full lg:rounded-none animate-fade-in lg:animate-slide-in-left">
+  const content = (
+    <div className={inline ? "flex flex-col overflow-hidden w-full h-full" : "relative bg-white flex flex-col overflow-hidden w-full h-full lg:rounded-none animate-fade-in lg:animate-slide-in-left"}>
         <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
           <div>
             <p className="text-sm font-bold text-foreground">
