@@ -1400,7 +1400,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                               {language === "en" ? "per night" : "par nuit"}{" "}
                               {language === "en"
                                 ? "but the price per night may vary depending on season and room type."
-                                : "mais le prix par nuitée peut varier selon la saison et le type de chambre."}
+                                : "mais le prix par nuitée peut varier selon la saison et du type de chambre."}
                             </p>
                           ) : null}
                           {totalMinPrice ? (
