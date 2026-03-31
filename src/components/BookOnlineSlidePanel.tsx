@@ -323,10 +323,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     setVideoOverlayClosing(false);
     setShowPoiMapOverlay(false);
     setAvailabilityOverlayCtx(null);
-    setFallbackPanelData(null);
-    setSelectedFallbackHotelId(null);
-    setFallbackHiddenOnMobile(false);
-    setShowFallbackOverlay(false);
+    if (!cameFromFallback) {
+      setFallbackPanelData(null);
+      setSelectedFallbackHotelId(null);
+      setFallbackHiddenOnMobile(false);
+      setShowFallbackOverlay(false);
+    } else {
+      setShowFallbackOverlay(false);
+    }
   }, [businessId, resetDrag]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
