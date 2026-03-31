@@ -1448,12 +1448,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   )}
 
                   {/* Hotels found card */}
-                  <div className="text-center text-white bg-black/40 backdrop-blur-sm rounded-xl px-5 py-3 border border-white/10 mt-3">
-                    <p className="text-sm font-medium font-['Josefin_Sans',sans-serif] mb-1">
+                  <div className="text-center text-white bg-black/40 backdrop-blur-sm rounded-xl px-5 py-3 border border-white/10 mt-3 font-['Roboto',sans-serif] cursor-pointer hover:bg-black/50 transition-colors" onClick={() => { setCardsHidden(false); setShowFallbackPanel(true); }}>
+                    <p className="text-sm font-medium mb-1">
                       {fallbackPanelData.hotels.length} {language === "en" ? "hotels found" : "hôtels trouvés"}
                     </p>
-                    <p className="text-xs text-white/60 font-['Roboto',sans-serif]">
+                    <p className="text-xs text-white/60">
                       {fallbackPanelData.checkIn} → {fallbackPanelData.checkOut} · {fallbackPanelData.adults} {language === "en" ? "adults" : "adultes"}
+                    </p>
+                    <p className="text-xs text-white/80 mt-1.5 underline underline-offset-2">
+                      {language === "en" ? "View other available hotels" : "Consulter les autres établissements avec de la disponibilité"}
                     </p>
                   </div>
                 </div>
