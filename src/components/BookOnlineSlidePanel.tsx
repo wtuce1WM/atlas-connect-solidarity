@@ -1463,7 +1463,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         )}
 
         {/* CTAs + video controls */}
-        <div className={`shrink-0 py-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto ${cardsHidden ? '' : noBottomCarousel ? 'lg:mt-auto' : ''}`}>
+        <div className={`shrink-0 py-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto ${cardsHidden ? '' : noBottomCarousel ? 'lg:mt-auto' : ''}`} style={(cardsHidden && fallbackPanelData) ? { display: 'none' } : undefined}>
             {bookingCta && (
               bookingCta.forceExternal ? (
                 <a
