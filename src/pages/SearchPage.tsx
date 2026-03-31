@@ -95,6 +95,7 @@ interface Business {
   avis_verifies_review_count?: number | null;
   tourradar_review_count?: number | null;
   opening_hours?: Record<string, { open?: string; close?: string; closed?: boolean; continuous?: boolean }> | null;
+  show_opening_hours?: boolean | null;
   is_open_24h?: boolean | null;
   vacation_dates?: unknown;
   zone_chalandise?: string | null;
