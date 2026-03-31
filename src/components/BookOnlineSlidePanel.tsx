@@ -158,15 +158,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           maxPages: optimalMaxPages,
         },
       });
-        supabase
-          .from("hotel_mappings")
-          .select("id, serp_hotel_name, business_id, city")
-          .ilike("city", cityName),
-        supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
-      ]);
 
       const serpHotels = (serpResult.data?.data || []) as any[];
-      const allMappings = (mappingResult.data || []) as any[];
       const gammes = gammeResult.data || [];
       const gammeMap = new Map(gammes.map((g: any) => [g.id, g]));
 
