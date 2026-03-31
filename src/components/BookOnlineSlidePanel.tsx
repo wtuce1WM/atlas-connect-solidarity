@@ -128,6 +128,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       setFallbackPanelData(data);
       setSelectedFallbackHotelId(null);
       setFallbackHiddenOnMobile(false);
+      hideCardsRef.current();
     };
 
     try {
