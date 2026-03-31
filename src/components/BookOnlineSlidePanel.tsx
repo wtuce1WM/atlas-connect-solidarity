@@ -122,7 +122,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     if (!business) return;
     setHotelSearchLoading(true);
     const isMobileOrTablet = typeof window !== "undefined" && window.innerWidth < 1024;
-    const normalize = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
 
     const openFallback = (data: FallbackPanelData) => {
       if (isMobileOrTablet) setShowTransitionOverlay(true);
@@ -157,54 +156,45 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       const gammes = gammeResult.data || [];
       const gammeMap = new Map(gammes.map((g: any) => [g.id, g]));
 
-      // Normalize for fuzzy SerpAPI name matching (only used for price/thumbnail extraction)
-      const normalize = (s: string) =>
-        s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
-
-      // Build normalized SerpAPI index for price/thumbnail lookup
-      const serpByNorm = new Map<string, any>();
+      // Front logic must stay aligned with backoffice: exact intersection only
+      const serpByExactName = new Map<string, any>();
       for (const hotel of serpHotels) {
-        serpByNorm.set(normalize(hotel.name), hotel);
+        const hotelName = typeof hotel.name === "string" ? hotel.name.trim().toLowerCase() : "";
+        if (hotelName && !serpByExactName.has(hotelName)) {
+          serpByExactName.set(hotelName, hotel);
+        }
       }
 
-      // Helper: find best SerpAPI match for a mapping name
-      const findSerpMatch = (mappingName: string): any | null => {
-        const mNorm = normalize(mappingName);
-        // Exact normalized
-        if (serpByNorm.has(mNorm)) return serpByNorm.get(mNorm);
-        // Containment
-        for (const [serpNorm, serpHotel] of serpByNorm.entries()) {
-          if (serpNorm.includes(mNorm) || mNorm.includes(serpNorm)) return serpHotel;
+      const availableMatches = new Map<string, { mapping: any; serpMatch: any }>();
+      for (const mapping of allMappings) {
+        const mappingName = typeof mapping.serp_hotel_name === "string"
+          ? mapping.serp_hotel_name.trim().toLowerCase()
+          : "";
+        if (!mapping.business_id || !mappingName || availableMatches.has(mapping.business_id)) {
+          continue;
         }
-        return null;
-      };
+        const serpMatch = serpByExactName.get(mappingName);
+        if (serpMatch) {
+          availableMatches.set(mapping.business_id, { mapping, serpMatch });
+        }
+      }
 
-      // Use business_id from mappings directly — no name matching needed for identification
-      const allBizIds = [...new Set(allMappings.map((m: any) => m.business_id))];
+      const availableBizIds = [...availableMatches.keys()];
 
-      // Fetch all mapped businesses in one go
+      // Fetch all available mapped businesses in one go
       let bizMap = new Map<string, any>();
-      if (allBizIds.length > 0) {
+      if (availableBizIds.length > 0) {
         const { data: bizData } = await supabase
           .from("businesses")
           .select("id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, skype, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, badge_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, opening_hours, show_opening_hours, is_open_24h, engagements, online_shop_url, latitude, longitude, google_maps_url, rating, website, min_price, main_category")
-          .in("id", allBizIds)
+          .in("id", availableBizIds)
           .eq("is_active", true)
           .eq("main_category", "Hôtellerie");
         bizMap = new Map((bizData || []).map((b: any) => [b.id, b]));
       }
 
-      // Build results: each mapping with a SerpAPI match = available
-      const matchedMappings: Array<{ mapping: any; serpMatch: any }> = [];
-      for (const m of allMappings) {
-        const serpMatch = findSerpMatch(m.serp_hotel_name);
-        if (serpMatch) {
-          matchedMappings.push({ mapping: m, serpMatch });
-        }
-      }
-
       const hotels: FallbackHotel[] = [];
-      for (const { mapping, serpMatch } of matchedMappings) {
+      for (const { mapping, serpMatch } of availableMatches.values()) {
         const biz = bizMap.get(mapping.business_id);
         if (!biz) continue;
 
@@ -1324,7 +1314,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             )}
             {fallbackPanelData && !hotelSearchLoading && (() => {
               const currentHotel = fallbackPanelData.hotels.find(h => h.isCurrentHotel);
-              const hasAvailability = currentHotel && (currentHotel.serpPrice || (currentHotel.offers && currentHotel.offers.length > 0));
+              const hasAvailability = !!currentHotel;
               const hotelName = business?.name || "";
               const minPrice = business?.min_price;
 
@@ -1451,7 +1441,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         )}
 
         {/* CTAs + video controls */}
-        <div className={`shrink-0 py-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto ${cardsHidden ? '' : noBottomCarousel ? 'lg:mt-auto' : ''}`} style={(cardsHidden && fallbackPanelData && (() => { const ch = fallbackPanelData.hotels.find(h => h.isCurrentHotel); return ch && (ch.serpPrice || (ch.offers && ch.offers.length > 0)); })()) ? { display: 'none' } : undefined}>
+        <div className={`shrink-0 py-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto ${cardsHidden ? '' : noBottomCarousel ? 'lg:mt-auto' : ''}`} style={(cardsHidden && fallbackPanelData && (() => { const ch = fallbackPanelData.hotels.find(h => h.isCurrentHotel); return !!ch; })()) ? { display: 'none' } : undefined}>
             {bookingCta && (
               bookingCta.forceExternal ? (
                 <a
