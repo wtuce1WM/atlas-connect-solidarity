@@ -122,7 +122,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     if (!business) return;
     setHotelSearchLoading(true);
     const isMobileOrTablet = typeof window !== "undefined" && window.innerWidth < 1024;
-    const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9\u00C0-\u024F]/gi, '').trim();
+    const normalize = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
 
     const openFallback = (data: FallbackPanelData) => {
       if (isMobileOrTablet) setShowTransitionOverlay(true);
