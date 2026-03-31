@@ -1436,7 +1436,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
         {/* Spacer + availability zone when cards hidden */}
         {cardsHidden && (
-          <div className="flex-1 w-full flex flex-col justify-center gap-3 pointer-events-auto px-0 md:px-8 overflow-y-auto">
+          <div className={`flex-1 w-full flex flex-col justify-center gap-3 px-0 md:px-8 overflow-y-auto ${effectiveMedia?.kind === "matterport" ? "pointer-events-none" : "pointer-events-auto"}`}>
             {hotelSearchLoading && (
               <div className="flex items-center justify-center gap-2 text-white/80">
                 <Loader2 className="h-5 w-5 animate-spin" />
