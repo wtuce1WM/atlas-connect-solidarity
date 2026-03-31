@@ -1450,7 +1450,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       <p className="text-sm font-medium mb-1">
                         {fallbackPanelData.hotels.filter(h => !h.isCurrentHotel).length} {language === "en" ? "available hotels" : "hôtels disponibles"}
                       </p>
-                      <p className="text-[20px] text-white/60">
+                      <p className="text-xs text-white/60">
                         {fallbackPanelData.checkIn} → {fallbackPanelData.checkOut} · {fallbackPanelData.adults} {language === "en" ? "adults" : "adultes"}
                       </p>
                       <p className="text-[20px] text-white/80 mt-1.5 underline underline-offset-2">
