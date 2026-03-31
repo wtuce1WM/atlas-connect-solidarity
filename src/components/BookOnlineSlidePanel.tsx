@@ -1917,6 +1917,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 if (window.innerWidth < 1024) setShowTransitionOverlay(true);
                 setSelectedFallbackHotelId(hotelId);
                 setActiveBusinessId(businessId);
+                setCameFromFallback(true);
                 setShowFallbackOverlay(false);
               }
             }}
