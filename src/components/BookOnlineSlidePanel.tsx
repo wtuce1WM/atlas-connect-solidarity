@@ -1346,7 +1346,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               const minPrice = business?.min_price;
 
               // Build action cards for availability case
-              const actionCards: { icon: React.ReactNode; label: string; onClick: () => void; color: string }[] = [];
+              const actionCards: { icon: React.ReactNode; label: string; onClick: () => void; color: string; textColor?: string }[] = [];
               if (hasAvailability && business) {
                 if (business.whatsapp) {
                   actionCards.push({
@@ -1361,7 +1361,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     icon: <span className="text-lg">📞</span>,
                     label: language === "en" ? "Call" : "Téléphone",
                     onClick: () => window.open(`tel:${business.phone!.replace(/(?!^\+)[^\d]/g, '')}`, "_self"),
-                    color: "#3B82F6",
+                    color: "#FFFFFF",
+                    textColor: "#000000",
                   });
                 }
                 if (business.reserve_now_url) {
@@ -1386,7 +1387,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     icon: <MapPin className="h-5 w-5" />,
                     label: language === "en" ? "Directions" : "Vous rendre sur place",
                     onClick: () => setShowDirections(true),
-                    color: "#8B5CF6",
+                    color: "#C04F17",
                   });
                 }
               }
@@ -1431,13 +1432,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
                   {/* Action cards when available */}
                   {actionCards.length > 0 && (
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="flex flex-col gap-2">
                       {actionCards.map((card, i) => (
                         <button
                           key={i}
                           onClick={card.onClick}
-                          className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-white text-xs font-medium font-['Josefin_Sans',sans-serif] shadow-lg hover:opacity-90 transition-opacity normal-case tracking-normal"
-                          style={{ backgroundColor: card.color }}
+                          className="flex items-center justify-center gap-2 px-3 py-3 rounded-lg text-xs font-medium font-['Josefin_Sans',sans-serif] shadow-lg hover:opacity-90 transition-opacity normal-case tracking-normal w-full"
+                          style={{ backgroundColor: card.color, color: card.textColor || "#FFFFFF" }}
                         >
                           {card.icon}
                           <span className="truncate">{card.label}</span>
