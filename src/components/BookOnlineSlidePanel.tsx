@@ -1377,7 +1377,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 <div className="flex flex-col items-center justify-center flex-1">
                   {/* Contextual message */}
                   <div className="text-left text-white bg-black/40 backdrop-blur-sm rounded-xl px-5 py-4 border border-white/10">
-                    <div className="text-sm font-['Roboto',sans-serif] leading-relaxed space-y-2">
+                    <div className="text-[24px] font-['Roboto',sans-serif] leading-relaxed space-y-2">
                       {hasAvailability ? (
                         <>
                           <p>
@@ -1431,13 +1431,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   {/* Hotels available card */}
                   {fallbackPanelData.hotels.filter(h => !h.isCurrentHotel).length > 0 && (
                     <div className="text-center text-white bg-black/40 backdrop-blur-sm rounded-xl px-5 py-3 border border-white/10 mt-3 font-['Roboto',sans-serif] cursor-pointer hover:bg-black/50 transition-colors" onClick={() => { setShowFallbackOverlay(true); }}>
-                      <p className="text-sm font-medium mb-1">
+                      <p className="text-[24px] font-medium mb-1">
                         {fallbackPanelData.hotels.filter(h => !h.isCurrentHotel).length} {language === "en" ? "available hotels" : "hôtels disponibles"}
                       </p>
-                      <p className="text-xs text-white/60">
+                      <p className="text-[20px] text-white/60">
                         {fallbackPanelData.checkIn} → {fallbackPanelData.checkOut} · {fallbackPanelData.adults} {language === "en" ? "adults" : "adultes"}
                       </p>
-                      <p className="text-xs text-white/80 mt-1.5 underline underline-offset-2">
+                      <p className="text-[20px] text-white/80 mt-1.5 underline underline-offset-2">
                         {language === "en" ? "View other available hotels" : "Consulter les autres établissements avec de la disponibilité"}
                       </p>
                     </div>
