@@ -118,6 +118,21 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
   const fallbackDataRef = useRef<FallbackPanelData | null>(null);
   useEffect(() => { fallbackDataRef.current = fallbackPanelData; }, [fallbackPanelData]);
+
+  // Expose close interceptor: when navigated from fallback, return to fallback instead of closing
+  useEffect(() => {
+    if (!interceptCloseRef) return;
+    if (cameFromFallback && activeBusinessId !== propBusinessId && fallbackPanelData) {
+      interceptCloseRef.current = () => {
+        setActiveBusinessId(propBusinessId);
+        setShowFallbackOverlay(true);
+        setCameFromFallback(false);
+        return true; // intercepted
+      };
+    } else {
+      interceptCloseRef.current = null;
+    }
+  }, [cameFromFallback, activeBusinessId, propBusinessId, fallbackPanelData, interceptCloseRef]);
   const hideCardsRef = useRef<() => void>(() => {});
 
   // Unified hotel availability search: always calls SerpAPI to verify real availability
