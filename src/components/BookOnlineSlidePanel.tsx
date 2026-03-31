@@ -1014,7 +1014,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   hasOpeningHours={!!hasOpeningHours}
                   tallHeight={noBottomCarousel}
                   animationDelay={woDescription ? "120ms" : "0ms"}
-                  hasHotelMapping={!!serpApiMapping || !!liteApiHotelId}
+                  hasHotelMapping={isHotelWithPrice}
                   isSearchingAvailability={hotelSearchLoading}
                   onCheckAvailability={handleCheckAvailability}
                   onOpenWebsite={(url) => {
