@@ -66,7 +66,7 @@ const ContactFlipCard = ({
           <div className="space-y-2.5 text-sm">
             {business.google_maps_url && (
               <button
-                onClick={() => setActiveView("map")}
+                onClick={() => setActiveView("dates")}
                 className="flex items-center justify-center w-full mb-1"
               >
                 <MapPin
