@@ -212,10 +212,11 @@ const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel, in
               );
             })}
           </div>
-        </div>
       </div>
     </div>
   );
+
+
 
   if (inline) return content;
 
