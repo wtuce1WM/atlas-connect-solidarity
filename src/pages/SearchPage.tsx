@@ -4111,6 +4111,7 @@ const SearchPage = () => {
                 onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
                 externalOverlayActive={showAiPopup}
                 forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
+                interceptCloseRef={compactPanelInterceptCloseRef}
               />
             </div>
           </div>
