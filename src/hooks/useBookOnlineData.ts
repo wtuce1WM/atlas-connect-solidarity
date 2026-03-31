@@ -395,6 +395,14 @@ export function useBookOnlineData(businessId: string) {
     return urls;
   }, [business?.video_1_url, videoDocs]);
 
+  // Dynamic: any Hôtellerie business with price data gets the availability widget
+  const isHotelWithPrice = useMemo(() => {
+    if (!business) return false;
+    const isHotellerie = business.main_category === "Hôtellerie";
+    const hasPrice = !!(business.gamme_id || business.manual_price_range || business.min_price);
+    return isHotellerie && hasPrice;
+  }, [business]);
+
   return {
     business,
     woDescription,
@@ -412,5 +420,6 @@ export function useBookOnlineData(businessId: string) {
     isKp1Only,
     liteApiHotelId,
     serpApiMapping,
+    isHotelWithPrice,
   };
 }
