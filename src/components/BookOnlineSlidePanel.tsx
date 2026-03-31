@@ -1313,7 +1313,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
         {/* Spacer + availability zone when cards hidden */}
         {cardsHidden && (
-          <div className="flex-1 flex flex-col justify-center gap-3 pointer-events-auto px-4 md:px-8 overflow-y-auto">
+          <div className="flex-1 w-full flex flex-col justify-center gap-3 pointer-events-auto px-0 md:px-8 overflow-y-auto">
             {hotelSearchLoading && (
               <div className="flex items-center justify-center gap-2 text-white/80">
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -1382,7 +1382,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               }
 
               return (
-                <div className="flex flex-col items-center justify-center flex-1 w-full px-4 md:px-0">
+                <div className="flex flex-col items-center justify-center flex-1 w-full">
                   {/* Contextual message */}
                   <div className="text-left text-white bg-black/40 backdrop-blur-sm rounded-xl px-4 md:px-5 py-4 border border-white/10 w-full md:w-auto">
                     <div className="text-[14px] md:text-[20px] font-['Roboto',sans-serif] leading-relaxed space-y-2">
