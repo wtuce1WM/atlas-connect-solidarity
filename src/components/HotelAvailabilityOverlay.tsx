@@ -48,6 +48,7 @@ export interface FallbackHotel {
   gamme?: { name_fr: string; color_hex: string | null; text_color_hex: string | null } | null;
   isCurrentHotel?: boolean;
   dealDescription?: string | null;
+  dbBusiness?: Record<string, any> | null;
 }
 
 export interface FallbackPanelData {
