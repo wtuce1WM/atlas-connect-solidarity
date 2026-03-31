@@ -1339,16 +1339,57 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 <span className="text-sm font-['Roboto',sans-serif]">{language === "en" ? "Searching availability..." : "Recherche de disponibilité..."}</span>
               </div>
             )}
-            {fallbackPanelData && !hotelSearchLoading && (
-              <div className="text-center text-white bg-black/40 backdrop-blur-sm rounded-xl px-6 py-4 border border-white/10">
-                <p className="text-sm font-medium font-['Josefin_Sans',sans-serif] mb-1">
-                  {fallbackPanelData.hotels.length} {language === "en" ? "hotels found" : "hôtels trouvés"}
-                </p>
-                <p className="text-xs text-white/60 font-['Roboto',sans-serif]">
-                  {fallbackPanelData.checkIn} → {fallbackPanelData.checkOut} · {fallbackPanelData.adults} {language === "en" ? "adults" : "adultes"}
-                </p>
-              </div>
-            )}
+            {fallbackPanelData && !hotelSearchLoading && (() => {
+              const currentHotel = fallbackPanelData.hotels.find(h => h.isCurrentHotel);
+              const hasAvailability = currentHotel && (currentHotel.serpPrice || (currentHotel.offers && currentHotel.offers.length > 0));
+              const hotelName = business?.name || "";
+              const minPrice = business?.min_price;
+              return (
+                <div className="text-center text-white bg-black/40 backdrop-blur-sm rounded-xl px-6 py-4 border border-white/10 max-w-sm">
+                  <p className="text-sm font-['Roboto',sans-serif] mb-3 leading-relaxed">
+                    {hasAvailability ? (
+                      <>
+                        <span className="font-bold">{hotelName}</span>{" "}
+                        {language === "en"
+                          ? "has availability for the selected dates."
+                          : "a de la disponibilité sur les dates recherchées."}
+                        {minPrice ? (
+                          <>
+                            {" "}{language === "en" ? "The minimum price generally observed is" : "Le prix minimum généralement constaté est de"}{" "}
+                            <span className="font-bold">{minPrice} €</span>{" "}
+                            {language === "en"
+                              ? "but the price per night may vary depending on season and room type."
+                              : "mais le prix par nuitée peut varier selon la saison et le type de chambre."}
+                          </>
+                        ) : null}
+                        {" "}{language === "en"
+                          ? `Contact ${hotelName} directly to book your stay.`
+                          : `Renseignez-vous directement auprès de ${hotelName} pour réserver votre séjour.`}
+                      </>
+                    ) : (
+                      <>
+                        {language === "en"
+                          ? `Unfortunately, we could not find availability at ${hotelName} for the selected dates.`
+                          : `Malheureusement, nous n'avons pas pu trouver de disponibilité chez ${hotelName} sur les dates recherchées.`}
+                      </>
+                    )}
+                  </p>
+                  <div className="border-t border-white/20 pt-3">
+                    <p className="text-sm font-medium font-['Josefin_Sans',sans-serif] mb-1">
+                      {fallbackPanelData.hotels.length} {language === "en" ? "hotels found" : "hôtels trouvés"}
+                    </p>
+                    <p className="text-xs text-white/60 font-['Roboto',sans-serif]">
+                      {fallbackPanelData.checkIn} → {fallbackPanelData.checkOut} · {fallbackPanelData.adults} {language === "en" ? "adults" : "adultes"}
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
+            {/* No fallback data but search done = no results at all */}
+            {!fallbackPanelData && !hotelSearchLoading && business && (() => {
+              // This shows when search completed but found absolutely nothing
+              return null;
+            })()}
           </div>
         )}
 
