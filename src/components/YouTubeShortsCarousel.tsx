@@ -86,12 +86,14 @@ const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange, onSe
   return (
     <div className="space-y-3">
       {/* Section title */}
-      <div className="flex items-center gap-2">
-        <YouTubeIcon className="h-5 w-5 text-red-600" />
-        <h3 className="text-sm font-semibold text-white tracking-wide" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-          {language === "en" ? "Latest Videos" : "Dernières vidéos"}
-        </h3>
-      </div>
+      {!hideHeader && (
+        <div className="flex items-center gap-2">
+          <YouTubeIcon className="h-5 w-5 text-red-600" />
+          <h3 className="text-sm font-semibold text-white tracking-wide" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+            {language === "en" ? "Latest Videos" : "Dernières vidéos"}
+          </h3>
+        </div>
+      )}
 
       {/* Shorts row */}
       {shorts.length > 0 && (
