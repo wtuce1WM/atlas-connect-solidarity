@@ -452,6 +452,19 @@ interface SortableVideoCardProps {
   onDelete: () => void;
 }
 
+const SortableDocRow = ({ id, children }: { id: string; children: React.ReactNode }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1, zIndex: isDragging ? 50 : undefined };
+  return (
+    <div ref={setNodeRef} style={style} className="flex items-center gap-1">
+      <button type="button" {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing shrink-0 text-muted-foreground hover:text-foreground touch-none">
+        <GripVertical className="h-4 w-4" />
+      </button>
+      <div className="flex-1 flex items-center gap-2">{children}</div>
+    </div>
+  );
+};
+
 const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinessesForCity, dbDestinations, allBusinessesForVideo, videoBusinessSearch, setVideoBusinessSearch, dbSubcategories, dbCities, dbNeighborhoods, business, toast, onOpenDesc, onDelete }: SortableVideoCardProps) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1, zIndex: isDragging ? 50 : undefined };
