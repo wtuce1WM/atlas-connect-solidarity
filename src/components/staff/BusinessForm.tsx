@@ -438,7 +438,7 @@ interface SortableVideoCardProps {
   idx: number;
   videoDocs: VideoDocEntry[];
   setVideoDocs: Dispatch<SetStateAction<VideoDocEntry[]>>;
-  poiBusinessesForCity: Array<{ id: string; name: string }>;
+  poiBusinessesForCity: Array<{ id: string; name: string; neighborhood: string | null }>;
   dbDestinations: Array<{ id: string; name_fr: string }>;
   allBusinessesForVideo: Array<{ id: string; name: string }>;
   videoBusinessSearch: Record<number, string>;
@@ -696,7 +696,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [selectedDestinationIds, setSelectedDestinationIds] = useState<string[]>([]);
   const [selectedPOIIds, setSelectedPOIIds] = useState<string[]>([]);
   const [selectedPoiBusinessIds, setSelectedPoiBusinessIds] = useState<string[]>([]);
-  const [poiBusinessesForCity, setPoiBusinessesForCity] = useState<Array<{ id: string; name: string }>>([]);
+  const [poiBusinessesForCity, setPoiBusinessesForCity] = useState<Array<{ id: string; name: string; neighborhood: string | null }>>([]);
   const [allBusinessesForVideo, setAllBusinessesForVideo] = useState<Array<{ id: string; name: string }>>([]);
   const [videoBusinessSearch, setVideoBusinessSearch] = useState<Record<number, string>>({});
   const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>([]);
@@ -1225,12 +1225,12 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     const fetchPoiBusinesses = async () => {
       const { data } = await supabase
         .from("businesses")
-        .select("id, name")
+        .select("id, name, neighborhood")
         .eq("city", formData.city)
         .eq("is_poi", true)
         .eq("is_active", true)
         .order("name");
-      setPoiBusinessesForCity((data || []).filter(b => b.id !== business?.id));
+      setPoiBusinessesForCity((data || []).filter(b => b.id !== business?.id).map(b => ({ id: b.id, name: b.name, neighborhood: b.neighborhood || null })));
     };
     fetchPoiBusinesses();
   }, [formData.city, business?.id]);
@@ -3177,25 +3177,41 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 ({formData.city})
               </span>
             </Label>
-            <div className="flex flex-wrap gap-2">
-              {poiBusinessesForCity.map((biz) => {
-                const isSelected = selectedPoiBusinessIds.includes(biz.id);
-                return (
-                  <Badge
-                    key={biz.id}
-                    variant={isSelected ? "default" : "outline"}
-                    className="cursor-pointer transition-colors"
-                    onClick={() => {
-                      setSelectedPoiBusinessIds(prev =>
-                        isSelected ? prev.filter(id => id !== biz.id) : [...prev, biz.id]
-                      );
-                      setIsDirty(true);
-                    }}
-                  >
-                    {biz.name}
-                  </Badge>
-                );
-              })}
+            <div className="space-y-3">
+              {(() => {
+                const grouped: Record<string, typeof poiBusinessesForCity> = {};
+                poiBusinessesForCity.forEach((biz) => {
+                  const key = biz.neighborhood || "Autre";
+                  if (!grouped[key]) grouped[key] = [];
+                  grouped[key].push(biz);
+                });
+                const sortedKeys = Object.keys(grouped).sort((a, b) => a === "Autre" ? 1 : b === "Autre" ? -1 : a.localeCompare(b));
+                return sortedKeys.map((neighborhood) => (
+                  <div key={neighborhood}>
+                    <p className="text-xs font-medium text-muted-foreground mb-1">{neighborhood}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {grouped[neighborhood].map((biz) => {
+                        const isSelected = selectedPoiBusinessIds.includes(biz.id);
+                        return (
+                          <Badge
+                            key={biz.id}
+                            variant={isSelected ? "default" : "outline"}
+                            className="cursor-pointer transition-colors"
+                            onClick={() => {
+                              setSelectedPoiBusinessIds(prev =>
+                                isSelected ? prev.filter(id => id !== biz.id) : [...prev, biz.id]
+                              );
+                              setIsDirty(true);
+                            }}
+                          >
+                            {biz.name}
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ));
+              })()}
             </div>
           </div>
         )}
