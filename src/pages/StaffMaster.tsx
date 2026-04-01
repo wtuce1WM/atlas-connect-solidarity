@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { HelpCircle } from "lucide-react";
 import { HelpContentPanel } from "@/components/staff/ScrollToTopButton";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
