@@ -13,6 +13,8 @@ interface ExternalLinksFlipCardProps {
   animationDelay?: string;
   className?: string;
   onOpenUrl?: (url: string, title?: string) => void;
+  logoUrl?: string | null;
+  logoBackground?: string | null;
 }
 
 const ExternalLinksFlipCard = ({
