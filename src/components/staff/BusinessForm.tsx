@@ -1295,6 +1295,82 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     return { avg, total };
   };
 
+  const reviewFetchFieldKeys = [
+    "google_rating",
+    "google_review_count",
+    "tripadvisor_rating",
+    "tripadvisor_review_count",
+    "restaurant_guru_rating",
+    "restaurant_guru_review_count",
+    "getyourguide_rating",
+    "getyourguide_review_count",
+    "viator_rating",
+    "viator_review_count",
+  ] as const;
+
+  const applyFetchedReviewsToForm = (fd: any, fetched: Record<string, unknown>) => {
+    const next = { ...fd };
+    for (const key of reviewFetchFieldKeys) {
+      const raw = fetched[key];
+      if (raw === null || raw === undefined) continue;
+      const parsed = Number(raw);
+      if (Number.isFinite(parsed)) {
+        next[key] = String(parsed);
+      }
+    }
+    return next;
+  };
+
+  const handleFetchReviewsAndSaveCalculation = async () => {
+    if (!business?.id) {
+      toast({ title: "Enregistre d'abord l'établissement", variant: "destructive" });
+      return;
+    }
+
+    setIsReviewCalcLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("fetch-reviews", {
+        body: { business_id: business.id },
+      });
+
+      if (error) throw new Error(error.message);
+      if (!data?.success) throw new Error(data?.error || "Impossible de récupérer les avis");
+
+      const mergedFormData = applyFetchedReviewsToForm(formData as any, (data.data || {}) as Record<string, unknown>);
+      const { avg, total } = computeReviewsFromForm(mergedFormData);
+
+      setFormData((prev) => ({
+        ...prev,
+        ...mergedFormData,
+        computed_rating: avg !== null ? String(avg) : "",
+        total_review_count: String(total),
+      }));
+      setIsDirty(true);
+
+      const { error: saveError } = await supabase
+        .from("businesses")
+        .update({
+          computed_rating: avg,
+          total_review_count: total,
+        })
+        .eq("id", business.id);
+
+      if (saveError) throw saveError;
+
+      toast({
+        title: "Avis récupérés",
+        description: avg !== null
+          ? `Calcul sauvegardé : ${avg}/20 (${total} avis)`
+          : `Aucune note récupérée (${total} avis)`,
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erreur inconnue";
+      toast({ title: "Erreur récupération avis", description: message, variant: "destructive" });
+    } finally {
+      setIsReviewCalcLoading(false);
+    }
+  };
+
   const handleCategoryToggle = (category: string) => {
     setFormData((prev) => {
       const currentCategories = prev.categories;
@@ -4029,55 +4105,50 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Input type="number" step="0.1" min="0" max="20" value={(formData as any).rating || ""} onChange={(e) => handleChange("rating", e.target.value)} placeholder="Ex: 16.5" className="w-32" />
               {(() => {
                 const fd = formData as any;
-                const sources = collectRatingSources({
-                  google_rating: fd.google_rating ? Number(fd.google_rating) : null,
-                  google_review_count: fd.google_review_count ? Number(fd.google_review_count) : null,
-                  tripadvisor_rating: fd.tripadvisor_rating ? Number(fd.tripadvisor_rating) : null,
-                  tripadvisor_review_count: fd.tripadvisor_review_count ? Number(fd.tripadvisor_review_count) : null,
-                  restaurant_guru_rating: fd.restaurant_guru_rating ? Number(fd.restaurant_guru_rating) : null,
-                  restaurant_guru_review_count: fd.restaurant_guru_review_count ? Number(fd.restaurant_guru_review_count) : null,
-                  getyourguide_rating: fd.getyourguide_rating ? Number(fd.getyourguide_rating) : null,
-                  getyourguide_review_count: fd.getyourguide_review_count ? Number(fd.getyourguide_review_count) : null,
-                  viator_rating: fd.viator_rating ? Number(fd.viator_rating) : null,
-                  viator_review_count: fd.viator_review_count ? Number(fd.viator_review_count) : null,
-                  avis_verifies_rating: fd.avis_verifies_rating ? Number(fd.avis_verifies_rating) : null,
-                  avis_verifies_review_count: fd.avis_verifies_review_count ? Number(fd.avis_verifies_review_count) : null,
-                  trustpilot_rating: fd.trustpilot_rating ? Number(fd.trustpilot_rating) : null,
-                  trustpilot_review_count: fd.trustpilot_review_count ? Number(fd.trustpilot_review_count) : null,
-                  tourradar_rating: fd.tourradar_rating ? Number(fd.tourradar_rating) : null,
-                  tourradar_review_count: fd.tourradar_review_count ? Number(fd.tourradar_review_count) : null,
-                });
-                const avg = computeWeightedRatingOn20(sources);
-                const total = getTotalReviewCount({
-                  google_review_count: fd.google_review_count ? Number(fd.google_review_count) : null,
-                  tripadvisor_review_count: fd.tripadvisor_review_count ? Number(fd.tripadvisor_review_count) : null,
-                  restaurant_guru_review_count: fd.restaurant_guru_review_count ? Number(fd.restaurant_guru_review_count) : null,
-                  getyourguide_review_count: fd.getyourguide_review_count ? Number(fd.getyourguide_review_count) : null,
-                  viator_review_count: fd.viator_review_count ? Number(fd.viator_review_count) : null,
-                  avis_verifies_review_count: fd.avis_verifies_review_count ? Number(fd.avis_verifies_review_count) : null,
-                  trustpilot_review_count: fd.trustpilot_review_count ? Number(fd.trustpilot_review_count) : null,
-                  tourradar_review_count: fd.tourradar_review_count ? Number(fd.tourradar_review_count) : null,
-                });
+                const { avg, total } = computeReviewsFromForm(fd);
                 return (
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     {avg !== null && (
                       <span className="flex items-center gap-1 text-amber-600 font-semibold text-sm">
                         <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
                         Calculée : {avg}/20 ({total} avis)
                       </span>
                     )}
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={handleFetchReviewsAndSaveCalculation}
+                      disabled={isReviewCalcLoading || !business?.id}
+                    >
+                      {isReviewCalcLoading ? (
+                        <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                      ) : (
+                        <ArrowDown className="h-3 w-3 mr-1" />
+                      )}
+                      Récupérer les avis + calculer
+                    </Button>
                     {avg !== null && (
-                      <Button type="button" variant="outline" size="sm" onClick={async () => {
-                        handleChange("computed_rating" as any, String(avg));
-                        handleChange("total_review_count" as any, String(total));
-                        if (business?.id) {
-                          await supabase.from("businesses").update({
-                            computed_rating: avg,
-                            total_review_count: total,
-                          }).eq("id", business.id);
-                        }
-                        toast({ title: `Note calculée et sauvegardée : ${avg}/20 (${total} avis)` });
-                      }}>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={isReviewCalcLoading}
+                        onClick={async () => {
+                          handleChange("computed_rating" as any, String(avg));
+                          handleChange("total_review_count" as any, String(total));
+                          if (business?.id) {
+                            await supabase
+                              .from("businesses")
+                              .update({
+                                computed_rating: avg,
+                                total_review_count: total,
+                              })
+                              .eq("id", business.id);
+                          }
+                          toast({ title: `Note calculée et sauvegardée : ${avg}/20 (${total} avis)` });
+                        }}
+                      >
                         <Save className="h-3 w-3 mr-1" /> Sauvegarder le calcul
                       </Button>
                     )}
