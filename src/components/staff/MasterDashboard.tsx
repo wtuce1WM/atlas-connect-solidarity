@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Search, BookOpen, Egg, Star, UserCheck, BarChart3, FlaskConical, Sparkles, Brain,
-  AlertTriangle, CheckCircle2, XCircle, Loader2, ArrowRight,
+  AlertTriangle, CheckCircle2, XCircle, Loader2, ArrowRight, FileText,
 } from "lucide-react";
 import BatchThumbnailGenerator from "./BatchThumbnailGenerator";
 import { supabase } from "@/integrations/supabase/client";
