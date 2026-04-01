@@ -28,6 +28,7 @@ const MapCard = ({
   tallHeight = false,
   animationDelay = "0ms",
   className = "",
+  onClick,
 }: MapCardProps) => {
   const markerCoords = googleMapsUrl ? extractMarkerCoordsFromMapsUrl(googleMapsUrl) : null;
   const lat = markerCoords?.lat ?? latitude;
