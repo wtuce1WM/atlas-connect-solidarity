@@ -695,10 +695,19 @@ const HotelApiComparison = () => {
               const matched = owmMatches[key] || null;
               const cachedPrice = matched ? cachedPrices[matched.id] : null;
               const cachedLite = matched ? cachedPricesLite[matched.id] : null;
+              const hasAvailability = !!(h.ratePerNight?.amount);
               return (
-                <Card key={`owm-${h.name}-${i}`} className="overflow-hidden min-h-[120px]">
+                <Card key={`owm-${h.name}-${i}`} className={`overflow-hidden min-h-[120px] ${hasAvailability && matched ? 'ring-2 ring-emerald-500' : ''}`}>
                   <div className="p-3 h-full">
-                    <p className="text-[10px] text-muted-foreground mb-1.5 truncate">↔ {h.name}</p>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <p className="text-[10px] text-muted-foreground truncate flex-1">↔ {h.name}</p>
+                      {hasAvailability && matched && (
+                        <Badge className="bg-emerald-500 text-white text-[10px] py-0.5 px-2 shrink-0 ml-1">
+                          <Check className="h-3 w-3 mr-0.5" />
+                          Disponible
+                        </Badge>
+                      )}
+                    </div>
                     <OwmMatcher
                       serpHotelName={h.name}
                       matchedBusiness={matched}
