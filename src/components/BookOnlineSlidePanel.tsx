@@ -1448,7 +1448,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
         {/* Spacer + availability zone when cards hidden */}
         {cardsHidden && (
-          <div className={`flex-1 w-full flex flex-col ${effectiveMedia?.kind === "matterport" ? 'justify-start pt-[30%]' : 'justify-center'} gap-3 px-0 md:px-8 overflow-y-auto ${effectiveMedia?.kind === "matterport" ? "pointer-events-none" : "pointer-events-auto"}`}>
+          <div className={`flex-1 w-full flex flex-col justify-center gap-3 px-0 md:px-8 overflow-y-auto ${effectiveMedia?.kind === "matterport" ? "pointer-events-none" : "pointer-events-auto"}`}>
             {hotelSearchLoading && (
               <div className="flex items-center justify-center gap-2 text-white/80">
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -1617,7 +1617,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         )}
 
         {/* CTAs + video controls */}
-        <div className={`shrink-0 py-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto ${cardsHidden ? '' : noBottomCarousel ? 'lg:mt-auto' : ''}`} style={(cardsHidden && fallbackPanelData && (() => { const ch = fallbackPanelData.hotels.find(h => h.isCurrentHotel); return !!ch; })()) ? { display: 'none' } : undefined}>
+        <div className={`shrink-0 py-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto ${cardsHidden && effectiveMedia?.kind === "matterport" ? 'mb-24' : ''} ${cardsHidden ? '' : noBottomCarousel ? 'lg:mt-auto' : ''}`} style={(cardsHidden && fallbackPanelData && (() => { const ch = fallbackPanelData.hotels.find(h => h.isCurrentHotel); return !!ch; })()) ? { display: 'none' } : undefined}>
             {bookingCta && (
               bookingCta.forceExternal ? (
                 <a
