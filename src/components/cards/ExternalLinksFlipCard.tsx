@@ -33,7 +33,7 @@ const ExternalLinksFlipCard = ({
   const cardTitle = deriveTitle();
 
   const handleClick = (link: ExternalLinkItem) => {
-    if (!link.url || link.url === "#") return;
+    if (!link.url || link.url === "#" || link.url === "*") return;
     if (onOpenUrl) {
       onOpenUrl(link.url, link.name || undefined);
     } else {
