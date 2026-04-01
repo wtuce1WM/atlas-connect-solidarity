@@ -64,7 +64,7 @@ const ContactFlipCard = ({
           style={{ backfaceVisibility: "hidden" }}
         >
           <div className="space-y-2.5 text-sm">
-            {business.google_maps_url && (
+            {business.google_maps_url && hasHotelMapping && (
               <button
                 onClick={() => setActiveView("dates")}
                 className="flex items-center justify-center w-full mb-1"
