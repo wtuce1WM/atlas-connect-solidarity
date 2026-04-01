@@ -25,7 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle, Copy, ExternalLink, Globe, Star, Plus, Merge, ArrowRight, Loader2, FileText, X, Upload, Image as ImageIcon, ChevronUp, ChevronDown, GripVertical } from "lucide-react";
+import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle, Copy, ExternalLink, Globe, Star, Plus, Merge, ArrowRight, Loader2, FileText, X, Upload, Image as ImageIcon, ChevronUp, ChevronDown, GripVertical, Monitor } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import type { Tables } from "@/integrations/supabase/types";
@@ -3574,9 +3574,36 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   required
                 />
                 {doc.url && (
-                  <a href={doc.url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-muted-foreground hover:text-primary" title="Ouvrir le lien">
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
+                  <>
+                    <a href={doc.url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-muted-foreground hover:text-primary" title="Ouvrir le lien">
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                    <button
+                      type="button"
+                      className="shrink-0 text-muted-foreground hover:text-primary"
+                      title="Tester iframe"
+                      onClick={async () => {
+                        try {
+                          const domain = new URL(doc.url).hostname;
+                          const { data } = await supabase
+                            .from("blocked_domains")
+                            .select("domain, reason")
+                            .eq("domain", domain)
+                            .eq("is_active", true)
+                            .maybeSingle();
+                          if (data) {
+                            toast({ title: "🚫 iframe bloquée", description: `${domain} — ${data.reason}`, variant: "destructive" });
+                          } else {
+                            toast({ title: "✅ iframe OK", description: `${domain} n'est pas dans la liste des domaines bloqués.` });
+                          }
+                        } catch (err: any) {
+                          toast({ title: "Erreur", description: err.message, variant: "destructive" });
+                        }
+                      }}
+                    >
+                      <Monitor className="h-4 w-4" />
+                    </button>
+                  </>
                 )}
               </div>
               <select
