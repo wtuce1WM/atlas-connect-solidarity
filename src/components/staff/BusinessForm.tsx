@@ -668,6 +668,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [showClearSocial, setShowClearSocial] = useState(false);
   const [showClearBooking, setShowClearBooking] = useState(false);
   const [showClearReviews, setShowClearReviews] = useState(false);
+  const [isReviewCalcLoading, setIsReviewCalcLoading] = useState(false);
   const [quickAddDialog, setQuickAddDialog] = useState<{ type: "certification" | "engagement" | "commodite" | "badge"; value: string } | null>(null);
   // Track all custom items ever added so they remain visible even when deselected
   const [customCerts, setCustomCerts] = useState<string[]>([]);
