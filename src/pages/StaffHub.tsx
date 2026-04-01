@@ -319,7 +319,7 @@ const StaffHub = () => {
           <h2 className="text-lg font-semibold text-muted-foreground mb-4">Accès rapide</h2>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
             <button
-              onClick={() => navigate("/blog")}
+              onClick={() => navigate("/staff/master?tab=blog")}
               className="group flex items-center gap-4 bg-background rounded-xl border p-5 text-left transition-all hover:shadow-md hover:border-gold/40 cursor-pointer"
             >
               <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-gold/20 to-amber-500/10">
