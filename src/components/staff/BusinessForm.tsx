@@ -2674,7 +2674,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <span>🔊 Son par défaut</span>
             </label>
             <label className="flex items-center gap-2 text-sm">
-              <Switch checked={formData.prioritize_images} onCheckedChange={(checked) => { handleChange("prioritize_images", checked); if (checked) handleChange("show_videos", false); }} />
+              <Switch checked={formData.prioritize_images} onCheckedChange={(checked) => { handleChange("prioritize_images", checked); handleChange("show_videos", !checked); }} />
               <span>🖼️ Prioriser images</span>
             </label>
           </div>
