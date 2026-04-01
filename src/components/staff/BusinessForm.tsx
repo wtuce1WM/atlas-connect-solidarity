@@ -3831,8 +3831,29 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             businessId={business?.id}
           />
         </div>
-
-
+        {/* Labels */}
+        <Accordion type="single" collapsible>
+          <AccordionItem value="labels" className="border-none">
+            <div className="p-4 bg-muted rounded-lg">
+              <AccordionTrigger className="py-0 hover:no-underline">
+                <Label className="text-base font-semibold flex items-center gap-2 cursor-pointer">
+                  <Award className="h-4 w-4" />
+                  Labels / Certifications
+                  {businessLabels.length > 0 && (
+                    <span className="ml-1.5 bg-primary text-primary-foreground rounded-full px-1.5 py-0 text-[10px] font-semibold">{businessLabels.length}</span>
+                  )}
+                </Label>
+              </AccordionTrigger>
+              <AccordionContent className="pt-3 pb-0">
+                <BusinessLabelsEditor
+                  businessId={business?.id}
+                  value={businessLabels}
+                  onChange={setBusinessLabels}
+                />
+              </AccordionContent>
+            </div>
+          </AccordionItem>
+        </Accordion>
 
         <div id="section-taxonomie" className="p-4 bg-orange-50 border border-orange-200 rounded-lg space-y-6" style={{ scrollMarginTop: '160px' }}>
           <Label className="text-xl font-semibold">Taxonomie</Label>
