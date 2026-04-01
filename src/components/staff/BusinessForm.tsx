@@ -955,6 +955,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     reserve_now_force_external: (business as any)?.reserve_now_force_external ?? false,
     online_shop_force_external: (business as any)?.online_shop_force_external ?? false,
     youtube_force_external: (business as any)?.youtube_force_external ?? false,
+    website_presentation_mode: (business as any)?.website_presentation_mode || "acheter_en_ligne",
+    online_shop_presentation_mode: (business as any)?.online_shop_presentation_mode || "acheter_en_ligne",
   });
 
   // --- Business documents (menus, flipbooks, external links & videos) ---
