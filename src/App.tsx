@@ -57,6 +57,7 @@ import IconPreview from "./pages/IconPreview";
 import BlogPresentation from "./pages/BlogPresentation";
 import BlogPresentationFR from "./pages/BlogPresentationFR";
 import Unsubscribe from "./pages/Unsubscribe";
+import CarouselNavDemo from "./pages/CarouselNavDemo";
 
 const queryClient = new QueryClient();
 
