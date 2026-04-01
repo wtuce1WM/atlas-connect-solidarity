@@ -22,6 +22,8 @@ const ExternalLinksFlipCard = ({
   animationDelay = "0ms",
   className = "",
   onOpenUrl,
+  logoUrl,
+  logoBackground,
 }: ExternalLinksFlipCardProps) => {
   const [flipped, setFlipped] = useState(false);
 
