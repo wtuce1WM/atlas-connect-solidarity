@@ -712,17 +712,25 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     return { fullUrl, forceExternal };
   }, [shopUrl, business?.online_shop_force_external]);
 
-  const ctaLabel = useMemo(() => {
-    const mode = business?.presentation_mode || 'acheter_en_ligne';
-    const labels: Record<string, { fr: string; en: string }> = {
-      acheter_en_ligne: { fr: 'Achetez en ligne', en: 'Shop Online' },
-      reserver_en_ligne: { fr: 'Réservez en ligne', en: 'Book Online' },
-      consulter_offre: { fr: 'Consultez notre offre', en: 'View Our Offer' },
-      plus_informations: { fr: "Plus d'informations", en: 'More Information' },
-    };
-    const pair = labels[mode] || labels.acheter_en_ligne;
+  const ctaModeLabels: Record<string, { fr: string; en: string }> = {
+    acheter_en_ligne: { fr: 'Achetez en ligne', en: 'Shop Online' },
+    reserver_en_ligne: { fr: 'Réservez en ligne', en: 'Book Online' },
+    consulter_offre: { fr: 'Consultez notre offre', en: 'View Our Offer' },
+    plus_informations: { fr: "Plus d'informations", en: 'More Information' },
+    contactez_nous: { fr: 'Contactez nous', en: 'Contact Us' },
+  };
+
+  const bookingCtaLabel = useMemo(() => {
+    const mode = business?.presentation_mode || 'reserver_en_ligne';
+    const pair = ctaModeLabels[mode] || ctaModeLabels.reserver_en_ligne;
     return language === 'en' ? pair.en : pair.fr;
   }, [business?.presentation_mode, language]);
+
+  const shopCtaLabel = useMemo(() => {
+    const mode = (business as any)?.online_shop_presentation_mode || 'acheter_en_ligne';
+    const pair = ctaModeLabels[mode] || ctaModeLabels.acheter_en_ligne;
+    return language === 'en' ? pair.en : pair.fr;
+  }, [(business as any)?.online_shop_presentation_mode, language]);
 
   // --- Helper to open document or booking overlay ---
   const openDocOrBooking = useCallback((url: string, title?: string) => {
@@ -1616,7 +1624,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                 >
                   <CalendarCheck className="h-4 w-4" />
-                  {ctaLabel}
+                  {bookingCtaLabel}
                   <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
                 </a>
               ) : (
@@ -1626,7 +1634,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366' }}
                 >
                   <CalendarCheck className="h-4 w-4" />
-                  {ctaLabel}
+                  {bookingCtaLabel}
                 </button>
               )
             )}
@@ -1640,17 +1648,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                 >
                   <ShoppingBag className="h-4 w-4" />
-                  {ctaLabel}
+                  {shopCtaLabel}
                   <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
                 </a>
               ) : (
                 <button
-                  onClick={() => { setBookingOverlayUrl(shopCta.fullUrl); setBookingOverlayTitle(ctaLabel); setShowBookingOverlay(true); }}
+                  onClick={() => { setBookingOverlayUrl(shopCta.fullUrl); setBookingOverlayTitle(shopCtaLabel); setShowBookingOverlay(true); }}
                   className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-right"
                   style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366' }}
                 >
                   <ShoppingBag className="h-4 w-4" />
-                  {ctaLabel}
+                  {shopCtaLabel}
                 </button>
               )
             )}
