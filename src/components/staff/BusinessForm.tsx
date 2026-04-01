@@ -2677,18 +2677,26 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             <BrokenUrlBadge url={formData.online_shop_url} />
           </div>
 
-          <div className="flex flex-wrap gap-6">
-            <label className="flex items-center gap-2 text-sm">
-              <Switch checked={formData.show_videos} onCheckedChange={(checked) => { handleChange("show_videos", checked); handleChange("prioritize_images", !checked); }} />
-              <span>🎬 Carrousel vidéo</span>
-            </label>
+          <div className="flex flex-wrap items-center gap-6">
+            <div className="flex items-center gap-2">
+              <Label className="text-sm whitespace-nowrap">📺 Média prioritaire</Label>
+              <select
+                value={formData.show_videos ? "videos" : formData.prioritize_images ? "images" : (formData.matterport_url ? "matterport" : "images")}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  handleChange("show_videos", v === "videos");
+                  handleChange("prioritize_images", v === "images");
+                }}
+                className="h-9 rounded-md border border-input bg-background px-3 text-sm w-48"
+              >
+                <option value="videos">🎬 Carrousel vidéo</option>
+                <option value="images">🖼️ Prioriser images</option>
+                <option value="matterport">🏠 Visite virtuelle 3D</option>
+              </select>
+            </div>
             <label className="flex items-center gap-2 text-sm">
               <Switch checked={formData.default_sound_on} onCheckedChange={(checked) => handleChange("default_sound_on", checked)} />
               <span>🔊 Son par défaut</span>
-            </label>
-            <label className="flex items-center gap-2 text-sm">
-              <Switch checked={formData.prioritize_images} onCheckedChange={(checked) => { handleChange("prioritize_images", checked); handleChange("show_videos", !checked); }} />
-              <span>🖼️ Prioriser images</span>
             </label>
           </div>
         </div>
