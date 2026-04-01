@@ -51,9 +51,7 @@ const ExternalLinksFlipCard = ({
             {cardTitle}
           </h3>
         </div>
-        <div
-          className="flex-1 grid gap-1.5 auto-rows-fr"
-          style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
+        <div className="flex-1 grid grid-cols-3 grid-rows-3 gap-1.5">
         >
           {links.map((link) => (
             <button
