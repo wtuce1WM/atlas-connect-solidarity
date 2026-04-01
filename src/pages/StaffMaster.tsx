@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { HelpCircle } from "lucide-react";
 import { HelpContentPanel } from "@/components/staff/ScrollToTopButton";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, Users, Search, ArrowLeft, BarChart3, FlaskConical, BookOpen, Egg, Sparkles, Brain, LayoutDashboard, Monitor, ChevronRight, ShieldAlert, Hotel, DollarSign } from "lucide-react";
+import { LogOut, Users, Search, ArrowLeft, BarChart3, FlaskConical, BookOpen, Egg, Sparkles, Brain, LayoutDashboard, Monitor, ChevronRight, ShieldAlert, Hotel, DollarSign, FileText } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import SearchConfigManagement from "@/components/staff/SearchConfigManagement";
 import UserManagement from "@/components/staff/UserManagement";
@@ -23,6 +23,7 @@ import BlockedDomainsManagement from "@/components/staff/BlockedDomainsManagemen
 import BrokenLinksManagement from "@/components/staff/BrokenLinksManagement";
 import HotelApiComparison from "@/components/staff/HotelApiComparison";
 import PricingManagement from "@/components/staff/PricingManagement";
+import BlogManagement from "@/components/staff/BlogManagement";
 
 const DisplayParam = ({ label, value, preview }: { label: string; value: string; preview?: React.ReactNode }) => (
   <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 border">
@@ -37,7 +38,9 @@ const DisplayParam = ({ label, value, preview }: { label: string; value: string;
 const StaffMaster = () => {
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab") || "dashboard";
+  const [activeTab, setActiveTab] = useState(initialTab);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -164,6 +167,10 @@ const StaffMaster = () => {
               <DollarSign className="h-4 w-4" />
               Prix
             </TabsTrigger>
+            <TabsTrigger value="blog" className="gap-2">
+              <FileText className="h-4 w-4" />
+              Blog
+            </TabsTrigger>
             {isAdmin && (
               <TabsTrigger value="users" className="gap-2">
                 <Users className="h-4 w-4" />
@@ -230,6 +237,10 @@ const StaffMaster = () => {
 
           <TabsContent value="pricing">
             <PricingManagement />
+          </TabsContent>
+
+          <TabsContent value="blog">
+            <BlogManagement />
           </TabsContent>
 
           <TabsContent value="display">
