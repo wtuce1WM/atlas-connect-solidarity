@@ -3199,8 +3199,17 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
-          {menuDocs.map((doc, idx) => (
-            <div key={idx} className="flex items-center gap-2">
+          <DndContext collisionDetection={closestCenter} onDragEnd={(event) => {
+            const { active, over } = event;
+            if (over && active.id !== over.id) {
+              const oldIdx = menuDocs.findIndex((_, i) => `menu-${i}` === active.id);
+              const newIdx = menuDocs.findIndex((_, i) => `menu-${i}` === over.id);
+              if (oldIdx !== -1 && newIdx !== -1) setMenuDocs(prev => arrayMove(prev, oldIdx, newIdx));
+            }
+          }}>
+            <SortableContext items={menuDocs.map((_, i) => `menu-${i}`)} strategy={verticalListSortingStrategy}>
+              {menuDocs.map((doc, idx) => (
+                <SortableDocRow key={`menu-${idx}`} id={`menu-${idx}`}>
               <div className="relative shrink-0 group">
                 {doc.icon ? (
                   <img src={getDocIconSrc(doc.icon)} alt="" className="h-9 w-9 object-contain rounded border border-input p-0.5 cursor-pointer" />
@@ -3302,8 +3311,10 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setMenuDocs(prev => prev.filter((_, i) => i !== idx))}>
                 <Trash2 className="h-4 w-4" />
               </Button>
-            </div>
-          ))}
+                </SortableDocRow>
+              ))}
+            </SortableContext>
+          </DndContext>
           {menuDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucun menu ajouté.</p>}
 
           {/* Menu Summaries - Multiple */}
