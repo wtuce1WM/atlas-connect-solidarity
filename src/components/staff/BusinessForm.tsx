@@ -3927,84 +3927,164 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           <SocialPostsEditor businessId={business?.id || ""} />
         </div>
 
+        {/* ═══════ Plateformes de réservation ═══════ */}
+        <div id="section-booking" className="p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-4" style={{ scrollMarginTop: '160px' }}>
+          <div className="flex items-center justify-between">
+            <Label className="text-xl font-semibold">Plateformes de réservation</Label>
+            <Button type="button" variant="outline" size="sm" className="text-destructive hover:bg-destructive/10" onClick={() => setShowClearBooking(true)}>
+              <Trash2 className="h-3 w-3 mr-1" /> Tout effacer
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[
+              { key: "tripadvisor_url", label: "TripAdvisor", icon: <TripAdvisorIcon className="text-[#34E0A1]" />, placeholder: "https://tripadvisor.com/..." },
+              { key: "booking_url", label: "Booking.com", icon: <BookingIcon className="text-[#003580]" />, placeholder: "https://booking.com/..." },
+              { key: "airbnb_url", label: "Airbnb", icon: <AirbnbIcon className="text-[#FF5A5F]" />, placeholder: "https://airbnb.com/..." },
+              { key: "hotels_com_url", label: "Hotels.com", placeholder: "https://hotels.com/..." },
+              { key: "trivago_url", label: "Trivago", placeholder: "https://trivago.com/..." },
+              { key: "getyourguide_url", label: "GetYourGuide", placeholder: "https://getyourguide.com/..." },
+              { key: "viator_url", label: "Viator", placeholder: "https://viator.com/..." },
+              { key: "tourradar_url", label: "TourRadar", placeholder: "https://tourradar.com/..." },
+            ].map(({ key, label, icon, placeholder }) => (
+              <div key={key} className="space-y-1">
+                <Label className="flex items-center gap-2 text-sm">
+                  {icon || null}
+                  {(formData as any)[key] ? (
+                    <a href={(formData as any)[key]} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">{label} ↗</a>
+                  ) : label}
+                </Label>
+                <div className="flex gap-1">
+                  <Input value={(formData as any)[key] || ""} onChange={(e) => handleChange(key, e.target.value)} placeholder={placeholder} className="flex-1" />
+                  {(formData as any)[key] && (
+                    <Button type="button" variant="ghost" size="icon" className="h-10 w-10 text-muted-foreground hover:text-destructive shrink-0" onClick={() => handleChange(key, "")}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+            <div className="space-y-1">
+              <Label className="text-sm">Autre plateforme</Label>
+              <div className="flex gap-2">
+                <Input value={(formData as any).other_booking_name || ""} onChange={(e) => handleChange("other_booking_name", e.target.value)} placeholder="Nom" className="w-32" />
+                <Input value={(formData as any).other_booking_url || ""} onChange={(e) => handleChange("other_booking_url", e.target.value)} placeholder="URL" className="flex-1" />
+                {(formData as any).other_booking_url && (
+                  <Button type="button" variant="ghost" size="icon" className="h-10 w-10 text-muted-foreground hover:text-destructive shrink-0" onClick={() => { handleChange("other_booking_name", ""); handleChange("other_booking_url", ""); }}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label className="flex items-center gap-2 text-sm"><img src={glovoLogo} alt="Glovo" className="h-4 w-4 object-contain" /> Glovo</Label>
+              <div className="flex gap-1">
+                <Input value={(formData as any).glovo_url || ""} onChange={(e) => handleChange("glovo_url", e.target.value)} placeholder="https://glovoapp.com/..." className="flex-1" />
+                {(formData as any).glovo_url && (
+                  <Button type="button" variant="ghost" size="icon" className="h-10 w-10 text-muted-foreground hover:text-destructive shrink-0" onClick={() => handleChange("glovo_url", "")}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* ═══════ Avis clients ═══════ */}
         <div id="section-avis" className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg space-y-4" style={{ scrollMarginTop: '160px' }}>
           <div className="flex items-center justify-between">
-            <Label className="text-xl font-semibold">Avis clients & Plateformes de réservation</Label>
+            <Label className="text-xl font-semibold">Avis clients</Label>
             <div className="flex gap-2">
-              <Button type="button" variant="outline" size="sm" className="text-destructive hover:bg-destructive/10" onClick={() => setShowClearBooking(true)}>
-                <Trash2 className="h-3 w-3 mr-1" /> Réservation
-              </Button>
               <Button type="button" variant="outline" size="sm" className="text-destructive hover:bg-destructive/10" onClick={() => setShowClearReviews(true)}>
-                <Trash2 className="h-3 w-3 mr-1" /> Avis
+                <Trash2 className="h-3 w-3 mr-1" /> Tout effacer
               </Button>
             </div>
           </div>
           <div className="space-y-1">
             <Label className="text-sm font-medium">Note manuelle (/20)</Label>
-            <Input type="number" step="0.1" min="0" max="20" value={(formData as any).rating || ""} onChange={(e) => handleChange("rating", e.target.value)} placeholder="Ex: 16.5" className="w-32" />
-          </div>
-          <div className="space-y-3">
-            <Label className="text-base font-semibold">Plateformes de réservation</Label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                { key: "tripadvisor_url", label: "TripAdvisor", icon: <TripAdvisorIcon className="text-[#34E0A1]" />, placeholder: "https://tripadvisor.com/..." },
-                { key: "booking_url", label: "Booking.com", icon: <BookingIcon className="text-[#003580]" />, placeholder: "https://booking.com/..." },
-                { key: "airbnb_url", label: "Airbnb", icon: <AirbnbIcon className="text-[#FF5A5F]" />, placeholder: "https://airbnb.com/..." },
-                { key: "hotels_com_url", label: "Hotels.com", placeholder: "https://hotels.com/..." },
-                { key: "trivago_url", label: "Trivago", placeholder: "https://trivago.com/..." },
-                { key: "getyourguide_url", label: "GetYourGuide", placeholder: "https://getyourguide.com/..." },
-                { key: "viator_url", label: "Viator", placeholder: "https://viator.com/..." },
-                { key: "tourradar_url", label: "TourRadar", placeholder: "https://tourradar.com/..." },
-              ].map(({ key, label, icon, placeholder }) => (
-                <div key={key} className="space-y-1">
-                  <Label className="flex items-center gap-2 text-sm">
-                    {icon || null}
-                    {(formData as any)[key] ? (
-                      <a href={(formData as any)[key]} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">{label} ↗</a>
-                    ) : label}
-                  </Label>
-                  <Input value={(formData as any)[key] || ""} onChange={(e) => handleChange(key, e.target.value)} placeholder={placeholder} />
-                </div>
-              ))}
-              <div className="space-y-1">
-                <Label className="text-sm">Autre plateforme</Label>
-                <div className="flex gap-2">
-                  <Input value={(formData as any).other_booking_name || ""} onChange={(e) => handleChange("other_booking_name", e.target.value)} placeholder="Nom" className="w-32" />
-                  <Input value={(formData as any).other_booking_url || ""} onChange={(e) => handleChange("other_booking_url", e.target.value)} placeholder="URL" className="flex-1" />
-                </div>
-              </div>
-              <div className="space-y-1">
-                <Label className="flex items-center gap-2 text-sm"><img src={glovoLogo} alt="Glovo" className="h-4 w-4 object-contain" /> Glovo</Label>
-                <Input value={(formData as any).glovo_url || ""} onChange={(e) => handleChange("glovo_url", e.target.value)} placeholder="https://glovoapp.com/..." />
-              </div>
+            <div className="flex items-center gap-3">
+              <Input type="number" step="0.1" min="0" max="20" value={(formData as any).rating || ""} onChange={(e) => handleChange("rating", e.target.value)} placeholder="Ex: 16.5" className="w-32" />
+              {(() => {
+                const fd = formData as any;
+                const sources = collectRatingSources({
+                  google_rating: fd.google_rating ? Number(fd.google_rating) : null,
+                  google_review_count: fd.google_review_count ? Number(fd.google_review_count) : null,
+                  tripadvisor_rating: fd.tripadvisor_rating ? Number(fd.tripadvisor_rating) : null,
+                  tripadvisor_review_count: fd.tripadvisor_review_count ? Number(fd.tripadvisor_review_count) : null,
+                  restaurant_guru_rating: fd.restaurant_guru_rating ? Number(fd.restaurant_guru_rating) : null,
+                  restaurant_guru_review_count: fd.restaurant_guru_review_count ? Number(fd.restaurant_guru_review_count) : null,
+                  getyourguide_rating: fd.getyourguide_rating ? Number(fd.getyourguide_rating) : null,
+                  getyourguide_review_count: fd.getyourguide_review_count ? Number(fd.getyourguide_review_count) : null,
+                  viator_rating: fd.viator_rating ? Number(fd.viator_rating) : null,
+                  viator_review_count: fd.viator_review_count ? Number(fd.viator_review_count) : null,
+                  avis_verifies_rating: fd.avis_verifies_rating ? Number(fd.avis_verifies_rating) : null,
+                  avis_verifies_review_count: fd.avis_verifies_review_count ? Number(fd.avis_verifies_review_count) : null,
+                  trustpilot_rating: fd.trustpilot_rating ? Number(fd.trustpilot_rating) : null,
+                  trustpilot_review_count: fd.trustpilot_review_count ? Number(fd.trustpilot_review_count) : null,
+                  tourradar_rating: fd.tourradar_rating ? Number(fd.tourradar_rating) : null,
+                  tourradar_review_count: fd.tourradar_review_count ? Number(fd.tourradar_review_count) : null,
+                });
+                const avg = computeWeightedRatingOn20(sources);
+                const total = getTotalReviewCount({
+                  google_review_count: fd.google_review_count ? Number(fd.google_review_count) : null,
+                  tripadvisor_review_count: fd.tripadvisor_review_count ? Number(fd.tripadvisor_review_count) : null,
+                  restaurant_guru_review_count: fd.restaurant_guru_review_count ? Number(fd.restaurant_guru_review_count) : null,
+                  getyourguide_review_count: fd.getyourguide_review_count ? Number(fd.getyourguide_review_count) : null,
+                  viator_review_count: fd.viator_review_count ? Number(fd.viator_review_count) : null,
+                  avis_verifies_review_count: fd.avis_verifies_review_count ? Number(fd.avis_verifies_review_count) : null,
+                  trustpilot_review_count: fd.trustpilot_review_count ? Number(fd.trustpilot_review_count) : null,
+                  tourradar_review_count: fd.tourradar_review_count ? Number(fd.tourradar_review_count) : null,
+                });
+                return (
+                  <div className="flex items-center gap-2">
+                    {avg !== null && (
+                      <span className="flex items-center gap-1 text-amber-600 font-semibold text-sm">
+                        <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+                        Calculée : {avg}/20 ({total} avis)
+                      </span>
+                    )}
+                    {avg !== null && (
+                      <Button type="button" variant="outline" size="sm" onClick={() => {
+                        handleChange("computed_rating" as any, avg);
+                        handleChange("total_review_count" as any, total);
+                        toast({ title: `Note calculée : ${avg}/20 (${total} avis)` });
+                      }}>
+                        <Save className="h-3 w-3 mr-1" /> Sauvegarder le calcul
+                      </Button>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           </div>
-          <div className="space-y-3">
-            <Label className="text-base font-semibold">Notes & avis par plateforme</Label>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[
-                { urlKey: "google_reviews_url", ratingKey: "google_rating", countKey: "google_review_count", label: "Google", icon: <GoogleMapsIcon className="text-[#4285F4]" /> },
-                { urlKey: "tripadvisor_review_url", ratingKey: "tripadvisor_rating", countKey: "tripadvisor_review_count", label: "TripAdvisor", icon: <TripAdvisorIcon className="text-[#34E0A1]" /> },
-                { urlKey: "restaurant_guru_url", ratingKey: "restaurant_guru_rating", countKey: "restaurant_guru_review_count", label: "Restaurant Guru", icon: <img src={restaurantGuruLogo} alt="RG" className="h-4 w-4 object-contain" /> },
-                { urlKey: "getyourguide_url", ratingKey: "getyourguide_rating", countKey: "getyourguide_review_count", label: "GetYourGuide" },
-                { urlKey: "viator_url", ratingKey: "viator_rating", countKey: "viator_review_count", label: "Viator" },
-                { urlKey: "tourradar_url", ratingKey: "tourradar_rating", countKey: "tourradar_review_count", label: "TourRadar" },
-                { urlKey: "avis_verifies_url", ratingKey: "avis_verifies_rating", countKey: "avis_verifies_review_count", label: "Avis Vérifiés" },
-                { urlKey: "trustpilot_url", ratingKey: "trustpilot_rating", countKey: "trustpilot_review_count", label: "Trustpilot" },
-              ].map(({ urlKey, ratingKey, countKey, label, icon }) => (
-                <div key={ratingKey} className="p-3 border rounded-lg bg-white/50 space-y-2">
-                  <Label className="flex items-center gap-2 text-sm font-medium">{icon || null} {label}</Label>
-                  <div className="space-y-1">
-                    <Input value={(formData as any)[urlKey] || ""} onChange={(e) => handleChange(urlKey, e.target.value)} placeholder="URL avis" className="text-xs" />
-                    <div className="flex gap-2">
-                      <Input type="number" step="0.1" min="0" max="5" value={(formData as any)[ratingKey] ?? ""} onChange={(e) => handleChange(ratingKey as any, e.target.value)} placeholder="Note /5" className="w-20 text-xs" />
-                      <Input type="number" min="0" value={(formData as any)[countKey] ?? ""} onChange={(e) => handleChange(countKey as any, e.target.value)} placeholder="Nb avis" className="w-20 text-xs" />
-                    </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              { urlKey: "google_reviews_url", ratingKey: "google_rating", countKey: "google_review_count", label: "Google", icon: <GoogleMapsIcon className="text-[#4285F4]" /> },
+              { urlKey: "tripadvisor_review_url", ratingKey: "tripadvisor_rating", countKey: "tripadvisor_review_count", label: "TripAdvisor", icon: <TripAdvisorIcon className="text-[#34E0A1]" /> },
+              { urlKey: "restaurant_guru_url", ratingKey: "restaurant_guru_rating", countKey: "restaurant_guru_review_count", label: "Restaurant Guru", icon: <img src={restaurantGuruLogo} alt="RG" className="h-4 w-4 object-contain" /> },
+              { urlKey: "getyourguide_url", ratingKey: "getyourguide_rating", countKey: "getyourguide_review_count", label: "GetYourGuide" },
+              { urlKey: "viator_url", ratingKey: "viator_rating", countKey: "viator_review_count", label: "Viator" },
+              { urlKey: "tourradar_url", ratingKey: "tourradar_rating", countKey: "tourradar_review_count", label: "TourRadar" },
+              { urlKey: "avis_verifies_url", ratingKey: "avis_verifies_rating", countKey: "avis_verifies_review_count", label: "Avis Vérifiés" },
+              { urlKey: "trustpilot_url", ratingKey: "trustpilot_rating", countKey: "trustpilot_review_count", label: "Trustpilot" },
+            ].map(({ urlKey, ratingKey, countKey, label, icon }) => (
+              <div key={ratingKey} className="p-3 border rounded-lg bg-white/50 space-y-2">
+                <Label className="flex items-center gap-2 text-sm font-medium">{icon || null} {label}</Label>
+                <div className="space-y-1">
+                  <div className="flex gap-1">
+                    <Input value={(formData as any)[urlKey] || ""} onChange={(e) => handleChange(urlKey, e.target.value)} placeholder="URL avis" className="text-xs flex-1" />
+                    {(formData as any)[urlKey] && (
+                      <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0" onClick={() => handleChange(urlKey, "")}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Input type="number" step="0.1" min="0" max="5" value={(formData as any)[ratingKey] ?? ""} onChange={(e) => handleChange(ratingKey as any, e.target.value)} placeholder="Note /5" className="w-20 text-xs" />
+                    <Input type="number" min="0" value={(formData as any)[countKey] ?? ""} onChange={(e) => handleChange(countKey as any, e.target.value)} placeholder="Nb avis" className="w-20 text-xs" />
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
 
