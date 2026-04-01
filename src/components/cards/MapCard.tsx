@@ -6,6 +6,7 @@ interface MapCardProps {
   tallHeight?: boolean;
   animationDelay?: string;
   className?: string;
+  onClick?: () => void;
 }
 
 const extractMarkerCoordsFromMapsUrl = (url: string): { lat: number; lng: number } | null => {
