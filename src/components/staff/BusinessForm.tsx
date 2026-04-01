@@ -3202,14 +3202,14 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           <DndContext collisionDetection={closestCenter} onDragEnd={(event) => {
             const { active, over } = event;
             if (over && active.id !== over.id) {
-              const oldIdx = menuDocs.findIndex((_, i) => `menu-${i}` === active.id);
-              const newIdx = menuDocs.findIndex((_, i) => `menu-${i}` === over.id);
+              const oldIdx = menuDocs.findIndex((d) => d._uid === active.id);
+              const newIdx = menuDocs.findIndex((d) => d._uid === over.id);
               if (oldIdx !== -1 && newIdx !== -1) setMenuDocs(prev => arrayMove(prev, oldIdx, newIdx));
             }
           }}>
-            <SortableContext items={menuDocs.map((_, i) => `menu-${i}`)} strategy={verticalListSortingStrategy}>
+            <SortableContext items={menuDocs.map((d) => d._uid)} strategy={verticalListSortingStrategy}>
               {menuDocs.map((doc, idx) => (
-                <SortableDocRow key={`menu-${idx}`} id={`menu-${idx}`}>
+                <SortableDocRow key={doc._uid} id={doc._uid}>
               <div className="relative shrink-0 group">
                 {doc.icon ? (
                   <img src={getDocIconSrc(doc.icon)} alt="" className="h-9 w-9 object-contain rounded border border-input p-0.5 cursor-pointer" />
