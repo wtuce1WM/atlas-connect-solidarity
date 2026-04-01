@@ -48,7 +48,7 @@ const ExternalLinksFlipCard = ({
     <button
       key={link.id}
       onClick={(e) => { e.stopPropagation(); handleClick(link); }}
-      className="flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 transition-colors overflow-hidden cursor-pointer"
+      className="flex items-center justify-center rounded-lg bg-white/30 hover:bg-white/45 transition-colors overflow-hidden cursor-pointer"
     >
       {link.icon ? (
         <img
