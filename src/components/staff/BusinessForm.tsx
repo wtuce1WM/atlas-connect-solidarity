@@ -3177,25 +3177,41 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 ({formData.city})
               </span>
             </Label>
-            <div className="flex flex-wrap gap-2">
-              {poiBusinessesForCity.map((biz) => {
-                const isSelected = selectedPoiBusinessIds.includes(biz.id);
-                return (
-                  <Badge
-                    key={biz.id}
-                    variant={isSelected ? "default" : "outline"}
-                    className="cursor-pointer transition-colors"
-                    onClick={() => {
-                      setSelectedPoiBusinessIds(prev =>
-                        isSelected ? prev.filter(id => id !== biz.id) : [...prev, biz.id]
-                      );
-                      setIsDirty(true);
-                    }}
-                  >
-                    {biz.name}
-                  </Badge>
-                );
-              })}
+            <div className="space-y-3">
+              {(() => {
+                const grouped: Record<string, typeof poiBusinessesForCity> = {};
+                poiBusinessesForCity.forEach((biz) => {
+                  const key = biz.neighborhood || "Autre";
+                  if (!grouped[key]) grouped[key] = [];
+                  grouped[key].push(biz);
+                });
+                const sortedKeys = Object.keys(grouped).sort((a, b) => a === "Autre" ? 1 : b === "Autre" ? -1 : a.localeCompare(b));
+                return sortedKeys.map((neighborhood) => (
+                  <div key={neighborhood}>
+                    <p className="text-xs font-medium text-muted-foreground mb-1">{neighborhood}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {grouped[neighborhood].map((biz) => {
+                        const isSelected = selectedPoiBusinessIds.includes(biz.id);
+                        return (
+                          <Badge
+                            key={biz.id}
+                            variant={isSelected ? "default" : "outline"}
+                            className="cursor-pointer transition-colors"
+                            onClick={() => {
+                              setSelectedPoiBusinessIds(prev =>
+                                isSelected ? prev.filter(id => id !== biz.id) : [...prev, biz.id]
+                              );
+                              setIsDirty(true);
+                            }}
+                          >
+                            {biz.name}
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ));
+              })()}
             </div>
           </div>
         )}
