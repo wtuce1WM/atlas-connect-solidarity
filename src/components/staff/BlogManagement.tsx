@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, ExternalLink, Calendar, User, Eye, EyeOff } from "lucide-react";
+import { Loader2, ExternalLink, Calendar, User, Eye, EyeOff, Layout } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -57,6 +58,22 @@ const BlogManagement = () => {
           </p>
         </div>
       </div>
+
+      {/* Liens rapides vers les pages internes */}
+      <Card>
+        <CardContent className="p-4">
+          <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">Pages internes</h3>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/staff/carousel-nav-demo">
+              <Button variant="outline" size="sm" className="gap-2">
+                <Layout className="h-3.5 w-3.5" />
+                Démo Navigation Carrousel
+                <ExternalLink className="h-3 w-3 text-muted-foreground" />
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
 
       {posts.length === 0 ? (
         <Card>
