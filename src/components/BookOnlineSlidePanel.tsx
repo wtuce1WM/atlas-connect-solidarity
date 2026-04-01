@@ -1135,6 +1135,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   businessName={business.name}
                   tallHeight={noBottomCarousel}
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
+                  onClick={() => setShowPoiMapOverlay(true)}
                 />
               )}
               {/* Card 4: Menu Summary */}
