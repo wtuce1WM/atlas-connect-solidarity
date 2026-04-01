@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { ExternalLink, ChevronRight } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 
 interface ExternalLinkItem {
   id: string;
@@ -22,17 +21,9 @@ const ExternalLinksFlipCard = ({
   className = "",
   onOpenUrl,
 }: ExternalLinksFlipCardProps) => {
-  const [flipped, setFlipped] = useState(false);
-
-  const frontLinks = links.slice(0, 3);
-  const backLinks = links.slice(3, 6);
-  const hasBack = backLinks.length > 0;
-
-  // Derive title from the description (category) of links
   const deriveTitle = () => {
     const desc = links[0]?.description?.toLowerCase() || "";
     if (desc === "partenaires") return "Ils nous font confiance";
-    // Presse or Media
     if (desc === "presse" || desc === "media") return "Ils parlent de nous";
     return "+ d'infos";
   };
@@ -46,84 +37,44 @@ const ExternalLinksFlipCard = ({
     }
   };
 
-  const renderLink = (link: ExternalLinkItem) => (
-    <button
-      key={link.id}
-      onClick={(e) => { e.stopPropagation(); handleClick(link); }}
-      className="flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 transition-colors overflow-hidden group cursor-pointer h-[4.5rem] w-full"
-    >
-      {link.icon ? (
-        <img
-          src={link.icon}
-          alt={link.name || ""}
-          className="w-full h-full object-contain p-2"
-          loading="lazy"
-        />
-      ) : (
-        <ExternalLink className="w-6 h-6 text-white/40" />
-      )}
-    </button>
-  );
+  // Determine grid: up to 10 items, use a 2-col x 5-row grid
+  const cols = links.length <= 4 ? 2 : links.length <= 6 ? 3 : links.length <= 8 ? 4 : 5;
 
   return (
     <div
       className={`snap-start shrink-0 w-[20rem] h-[18em] md:h-[24em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 ${className}`}
-      style={{ perspective: "1000px", animationDelay, animationFillMode: "forwards" }}
+      style={{ animationDelay, animationFillMode: "forwards" }}
     >
-      <div
-        className="relative w-full h-full transition-transform duration-500"
-        style={{
-          transformStyle: "preserve-3d",
-          transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
-        }}
-      >
-        {/* FRONT */}
-        <div
-          className="absolute inset-0 rounded-2xl p-4 text-white overflow-y-auto"
-          style={{ backfaceVisibility: "hidden" }}
-        >
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-              <ExternalLink className="w-4 h-4" />
-              {cardTitle}
-            </h3>
-            {hasBack && (
-              <button
-                onClick={() => setFlipped(true)}
-                className="text-[10px] text-white/50 hover:text-white/80 transition-colors"
-              >
-                +{backLinks.length} de plus →
-              </button>
-            )}
-          </div>
-          <div className="flex flex-col gap-2">
-            {frontLinks.map(renderLink)}
-          </div>
+      <div className="flex flex-col h-full p-4 text-white">
+        <div className="flex items-center mb-2">
+          <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+            <ExternalLink className="w-4 h-4" />
+            {cardTitle}
+          </h3>
         </div>
-
-        {/* BACK */}
-        {hasBack && (
-          <div
-            className="absolute inset-0 rounded-2xl p-4 text-white overflow-y-auto"
-            style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
-          >
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                <ExternalLink className="w-4 h-4" />
-                {cardTitle}
-              </h3>
-              <button
-                onClick={() => setFlipped(false)}
-                className="text-[10px] text-white/50 hover:text-white/80 transition-colors"
-              >
-                ← Retour
-              </button>
-            </div>
-            <div className="flex flex-col gap-2">
-              {backLinks.map(renderLink)}
-            </div>
-          </div>
-        )}
+        <div
+          className="flex-1 grid gap-1.5 auto-rows-fr"
+          style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
+        >
+          {links.map((link) => (
+            <button
+              key={link.id}
+              onClick={(e) => { e.stopPropagation(); handleClick(link); }}
+              className="flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 transition-colors overflow-hidden cursor-pointer"
+            >
+              {link.icon ? (
+                <img
+                  src={link.icon}
+                  alt={link.name || ""}
+                  className="w-full h-full object-contain p-1.5"
+                  loading="lazy"
+                />
+              ) : (
+                <ExternalLink className="w-5 h-5 text-white/40" />
+              )}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
