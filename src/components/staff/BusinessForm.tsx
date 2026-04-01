@@ -1295,6 +1295,82 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     return { avg, total };
   };
 
+  const reviewFetchFieldKeys = [
+    "google_rating",
+    "google_review_count",
+    "tripadvisor_rating",
+    "tripadvisor_review_count",
+    "restaurant_guru_rating",
+    "restaurant_guru_review_count",
+    "getyourguide_rating",
+    "getyourguide_review_count",
+    "viator_rating",
+    "viator_review_count",
+  ] as const;
+
+  const applyFetchedReviewsToForm = (fd: any, fetched: Record<string, unknown>) => {
+    const next = { ...fd };
+    for (const key of reviewFetchFieldKeys) {
+      const raw = fetched[key];
+      if (raw === null || raw === undefined) continue;
+      const parsed = Number(raw);
+      if (Number.isFinite(parsed)) {
+        next[key] = String(parsed);
+      }
+    }
+    return next;
+  };
+
+  const handleFetchReviewsAndSaveCalculation = async () => {
+    if (!business?.id) {
+      toast({ title: "Enregistre d'abord l'établissement", variant: "destructive" });
+      return;
+    }
+
+    setIsReviewCalcLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("fetch-reviews", {
+        body: { business_id: business.id },
+      });
+
+      if (error) throw new Error(error.message);
+      if (!data?.success) throw new Error(data?.error || "Impossible de récupérer les avis");
+
+      const mergedFormData = applyFetchedReviewsToForm(formData as any, (data.data || {}) as Record<string, unknown>);
+      const { avg, total } = computeReviewsFromForm(mergedFormData);
+
+      setFormData((prev) => ({
+        ...prev,
+        ...mergedFormData,
+        computed_rating: avg !== null ? String(avg) : "",
+        total_review_count: String(total),
+      }));
+      setIsDirty(true);
+
+      const { error: saveError } = await supabase
+        .from("businesses")
+        .update({
+          computed_rating: avg,
+          total_review_count: total,
+        })
+        .eq("id", business.id);
+
+      if (saveError) throw saveError;
+
+      toast({
+        title: "Avis récupérés",
+        description: avg !== null
+          ? `Calcul sauvegardé : ${avg}/20 (${total} avis)`
+          : `Aucune note récupérée (${total} avis)`,
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erreur inconnue";
+      toast({ title: "Erreur récupération avis", description: message, variant: "destructive" });
+    } finally {
+      setIsReviewCalcLoading(false);
+    }
+  };
+
   const handleCategoryToggle = (category: string) => {
     setFormData((prev) => {
       const currentCategories = prev.categories;
