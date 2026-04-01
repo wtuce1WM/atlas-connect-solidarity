@@ -1254,6 +1254,47 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     setIsDirty(true);
   };
 
+  const toNullableNumber = (value: unknown): number | null => {
+    if (value === null || value === undefined || value === "") return null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  };
+
+  const computeReviewsFromForm = (fd: any) => {
+    const sources = collectRatingSources({
+      google_rating: toNullableNumber(fd.google_rating),
+      google_review_count: toNullableNumber(fd.google_review_count),
+      tripadvisor_rating: toNullableNumber(fd.tripadvisor_rating),
+      tripadvisor_review_count: toNullableNumber(fd.tripadvisor_review_count),
+      restaurant_guru_rating: toNullableNumber(fd.restaurant_guru_rating),
+      restaurant_guru_review_count: toNullableNumber(fd.restaurant_guru_review_count),
+      getyourguide_rating: toNullableNumber(fd.getyourguide_rating),
+      getyourguide_review_count: toNullableNumber(fd.getyourguide_review_count),
+      viator_rating: toNullableNumber(fd.viator_rating),
+      viator_review_count: toNullableNumber(fd.viator_review_count),
+      avis_verifies_rating: toNullableNumber(fd.avis_verifies_rating),
+      avis_verifies_review_count: toNullableNumber(fd.avis_verifies_review_count),
+      trustpilot_rating: toNullableNumber(fd.trustpilot_rating),
+      trustpilot_review_count: toNullableNumber(fd.trustpilot_review_count),
+      tourradar_rating: toNullableNumber(fd.tourradar_rating),
+      tourradar_review_count: toNullableNumber(fd.tourradar_review_count),
+    });
+
+    const avg = computeWeightedRatingOn20(sources);
+    const total = getTotalReviewCount({
+      google_review_count: toNullableNumber(fd.google_review_count),
+      tripadvisor_review_count: toNullableNumber(fd.tripadvisor_review_count),
+      restaurant_guru_review_count: toNullableNumber(fd.restaurant_guru_review_count),
+      getyourguide_review_count: toNullableNumber(fd.getyourguide_review_count),
+      viator_review_count: toNullableNumber(fd.viator_review_count),
+      avis_verifies_review_count: toNullableNumber(fd.avis_verifies_review_count),
+      trustpilot_review_count: toNullableNumber(fd.trustpilot_review_count),
+      tourradar_review_count: toNullableNumber(fd.tourradar_review_count),
+    });
+
+    return { avg, total };
+  };
+
   const handleCategoryToggle = (category: string) => {
     setFormData((prev) => {
       const currentCategories = prev.categories;
