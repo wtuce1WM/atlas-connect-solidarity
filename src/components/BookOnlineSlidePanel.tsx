@@ -1941,6 +1941,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 } as PoiMapItem)),
               ]}
               selectedPoiId={null}
+              center={business?.latitude && business?.longitude ? { lat: business.latitude, lng: business.longitude } : undefined}
               onPoiClick={(poiId) => {
                 if (poiId.startsWith("self-")) return;
                 poiOpenedFromMapRef.current = true;
