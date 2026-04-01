@@ -1,4 +1,4 @@
-import { X, Loader2 } from "lucide-react";
+import { X, ExternalLink } from "lucide-react";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 
 interface DocumentOverlayProps {
@@ -23,6 +23,15 @@ const DocumentOverlay = ({ url, name, type, ts, onClose }: DocumentOverlayProps)
           </button>
           <span className="text-sm font-semibold truncate">{name}</span>
         </div>
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 text-xs text-primary hover:underline shrink-0"
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+          Ouvrir
+        </a>
       </div>
       <div className="flex-1 relative pb-16 bg-background">
         {type === "flipbook" ? (
@@ -33,26 +42,19 @@ const DocumentOverlay = ({ url, name, type, ts, onClose }: DocumentOverlayProps)
             title={name}
           />
         ) : (
-          <>
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-0">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">Chargement du document…</span>
-              <a
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 text-xs text-primary underline hover:no-underline"
-              >
-                Ouvrir dans un nouvel onglet
-              </a>
-            </div>
-            <iframe
-              key={`${url}-gview-${ts}`}
-              src={`https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`}
-              className="relative z-10 h-full w-full border-0 bg-transparent"
-              title={name}
+          <object
+            key={`${url}-pdf-${ts}`}
+            data={`${url}#toolbar=1&navpanes=0`}
+            type="application/pdf"
+            className="h-full w-full border-0"
+            title={name}
+          >
+            <embed
+              src={`${url}#toolbar=1&navpanes=0`}
+              type="application/pdf"
+              className="h-full w-full border-0"
             />
-          </>
+          </object>
         )}
       </div>
     </div>
