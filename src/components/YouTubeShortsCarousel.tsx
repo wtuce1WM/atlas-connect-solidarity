@@ -165,7 +165,7 @@ function VideoRow({ videos, scrollRef, activeVideoId, onPlay, onScroll, isShort,
               <img
                 src={video.thumbnail}
                 alt={video.title}
-                className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover"
+                className="absolute inset-0 w-full h-full object-cover"
               />
               <div className={`absolute inset-0 flex items-center justify-center transition-colors ${
                 isActive ? "bg-black/50" : "bg-black/20 group-hover/card:bg-black/40"
@@ -184,10 +184,9 @@ function VideoRow({ videos, scrollRef, activeVideoId, onPlay, onScroll, isShort,
                   </div>
                 )}
               </div>
-               <p className="absolute bottom-0 left-0 right-0 px-2 py-1.5 text-[10px] leading-tight text-white font-medium bg-gradient-to-t from-black/80 to-transparent line-clamp-2">
-                 {video.title}
-               </p>
-              </div>
+              <p className="absolute bottom-0 left-0 right-0 px-2 py-1.5 text-[10px] leading-tight text-white font-medium bg-gradient-to-t from-black/80 to-transparent line-clamp-2">
+                {video.title}
+              </p>
             </div>
           );
         })}
