@@ -3574,9 +3574,32 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   required
                 />
                 {doc.url && (
-                  <a href={doc.url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-muted-foreground hover:text-primary" title="Ouvrir le lien">
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
+                  <>
+                    <a href={doc.url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-muted-foreground hover:text-primary" title="Ouvrir le lien">
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                    <button
+                      type="button"
+                      className="shrink-0 text-muted-foreground hover:text-primary"
+                      title="Tester iframe"
+                      onClick={async () => {
+                        try {
+                          const { data, error } = await supabase.functions.invoke("check-links", { body: { urls: [doc.url] } });
+                          if (error) throw error;
+                          const result = data?.results?.[doc.url];
+                          if (result?.ok) {
+                            toast({ title: "✅ iframe OK", description: `${doc.url} peut s'afficher en iframe.` });
+                          } else {
+                            toast({ title: "🚫 iframe bloquée", description: result?.error || `HTTP ${result?.status}`, variant: "destructive" });
+                          }
+                        } catch (err: any) {
+                          toast({ title: "Erreur test iframe", description: err.message, variant: "destructive" });
+                        }
+                      }}
+                    >
+                      <Monitor className="h-4 w-4" />
+                    </button>
+                  </>
                 )}
               </div>
               <select
