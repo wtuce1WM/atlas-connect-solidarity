@@ -3865,109 +3865,22 @@ serve(async (req) => {
           }
 
           // THEN: Post-filter by services:
-          // - If multiple DISTINCT service concepts detected (e.g. "Viande" + "Au feu de bois") → AND
-          // - If single concept with synonym candidates (e.g. Glacier, Glaces, Glaces / Sorbets) → OR
-          // Determine if multiple detected services are truly distinct concepts or variants of the same keyword
-          // e.g. "Vin", "Cave à vin", "Cave à vin d'exception" are all from keyword "vin" → use OR
-          // e.g. "Viande" + "Au feu de bois" are distinct concepts → use AND
-          const areDistinctConcepts = detectedServices.length > 1 && (() => {
-            // Services are variants (not distinct) if they ALL share at least one common significant word
-            // e.g. "Vin", "Cave à vin", "Cave à vin d'exception" all share "vin" → variants
-            const stopWords = new Set(['à', 'de', 'des', 'du', 'la', 'le', 'les', 'un', 'une', 'aux', 'en', 'd']);
-            const serviceWordSets = detectedServices.map(ds => 
-              new Set(ds.toLowerCase().split(/[\s''`]+/).filter(w => w.length > 1 && !stopWords.has(w)))
-            );
-            // Find if any word from the first service appears in ALL other services
-            const firstSet = serviceWordSets[0];
-            for (const word of firstSet) {
-              if (serviceWordSets.every(s => {
-                for (const sw of s) {
-                  if (sw.includes(word) || word.includes(sw)) return true;
-                }
-                return false;
-              })) {
-                console.log(`Services share common word "${word}" → treating as variants (OR)`);
-                return false;
-              }
-            }
-            // Also check: if all services were triggered by the same query word(s),
-            // they are variants, not distinct concepts.
-            // e.g. "tapis" triggers both "Tapis" (name match) and "Artisanat marocain" (keyword match)
-            if (serviceMatchWordsForInjection.length > 0) {
-              const normalizeServiceToken = (w: string): string => {
-                const lower = (w || "").toLowerCase();
-                const singular = lower.endsWith("aux")
-                  ? `${lower.slice(0, -3)}al`
-                  : lower.endsWith("eaux")
-                    ? `${lower.slice(0, -4)}eau`
-                    : lower.endsWith("s")
-                      ? lower.slice(0, -1)
-                      : lower;
-                return singular.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-              };
-              const triggerWordsNorm = [...new Set(serviceMatchWordsForInjection.map((w) => normalizeServiceToken(w)))];
-              // Check if all detected services map to the SAME trigger word (variants of one concept)
-              // e.g. "tapis" → "Tapis" + "Artisanat marocain" → both from "tapis" → variants (OR)
-              // But "cours" → "Cours", "surf" → "Surf" → different triggers → distinct concepts (AND)
-              const serviceTriggerMap = detectedServices.map(ds => {
-                const dsNorm = normalizeServiceToken(ds);
-                // Check service name
-                const nameMatches = triggerWordsNorm.filter(tw => dsNorm.includes(tw) || tw.includes(dsNorm));
-                if (nameMatches.length > 0) return nameMatches;
-                // Also check service keywords — a service matched via keyword "balade à vélo"
-                // should be linked to trigger words "balade", "velo"
-                const svcKws = serviceKeywordsLookup.get(ds);
-                if (svcKws) {
-                  const kwsNorm = svcKws.map(k => normalizeServiceToken(k)).join(" ");
-                  return triggerWordsNorm.filter(tw => kwsNorm.includes(tw));
-                }
-                return [];
-              });
-              // Find trigger words common to ALL services
-              const commonTriggers = serviceTriggerMap.length > 0
-                ? serviceTriggerMap.reduce((common, triggers) => common.filter(t => triggers.includes(t)), serviceTriggerMap[0])
-                : [];
-              if (commonTriggers.length > 0) {
-                console.log(`Services share common trigger word(s) [${commonTriggers.join(", ")}] → treating as variants (OR)`);
-                return false;
-              }
-            }
-            return true;
-          })();
+          // If multiple services are detected, enforce strict AND across service names.
+          const shouldUseMultiServiceAnd = detectedServices.length > 1;
 
-          if (detectedServices.length > 1 && areDistinctConcepts) {
+          if (shouldUseMultiServiceAnd) {
             // AND logic: business must have ALL distinct detected services
             const beforeCount = businesses.length;
             businesses = businesses.filter((b: any) => {
-              const bServices = (b.services || []).map((s: string) => s.toLowerCase());
-              return detectedServices.every(ds => 
-                bServices.some(bs => bs === ds.toLowerCase() || bs.includes(ds.toLowerCase()) || ds.toLowerCase().includes(bs))
-              );
+              const businessServices = (b.services || []).map((s: string) => normalizeMatchingText(s));
+              return detectedServices.every((ds) => {
+                const normalizedDetected = normalizeMatchingText(ds);
+                return businessServices.some((serviceName) => serviceName === normalizedDetected);
+              });
             });
             console.log(`Multi-service AND post-filter [${detectedServices.join(", ")}]: ${beforeCount} → ${businesses.length}`);
-            
-            // When multi-service AND filter gives 0, fallback to OR among detected services
-            if (businesses.length === 0 && beforeCount > 0) {
-              const orFallback = data.map((b: any) => ({
-                ...b,
-                distance_km: latitude && longitude && b.latitude && b.longitude
-                  ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
-              })).filter((b: any) => {
-                const bServices = (b.services || []).map((s: string) => s.toLowerCase());
-                return detectedServices.some(ds => 
-                  bServices.some(bs => bs.includes(ds.toLowerCase()) || ds.toLowerCase().includes(bs))
-                );
-              });
-              if (orFallback.length > 0) {
-                businesses = orFallback;
-                console.log(`Multi-service AND→OR fallback: ${orFallback.length} results`);
-              } else {
-                console.log(`Multi-service AND filter returned 0 results — no OR fallback either`);
-              }
-            }
-          } else if (allCandidateServiceNames.length > 0 || (detectedServices.length > 1 && !areDistinctConcepts)) {
+          } else if (allCandidateServiceNames.length > 0) {
             // OR logic: business must have at least ONE of the candidate services
-            // Also used when multiple detected services are variants of the same concept (e.g. Vin, Cave à vin)
             // BUT always keep businesses whose name closely matches the ORIGINAL query
             // Also include original matched keywords as valid service names (e.g. "tapis" keyword → also accept "Tapis" service)
             const extendedCandidates = [...allCandidateServiceNames];
