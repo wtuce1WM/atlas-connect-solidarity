@@ -3498,14 +3498,14 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           <DndContext collisionDetection={closestCenter} onDragEnd={(event) => {
             const { active, over } = event;
             if (over && active.id !== over.id) {
-              const oldIdx = externalLinkDocs.findIndex((_, i) => `ext-${i}` === active.id);
-              const newIdx = externalLinkDocs.findIndex((_, i) => `ext-${i}` === over.id);
+              const oldIdx = externalLinkDocs.findIndex((d) => d._uid === active.id);
+              const newIdx = externalLinkDocs.findIndex((d) => d._uid === over.id);
               if (oldIdx !== -1 && newIdx !== -1) setExternalLinkDocs(prev => arrayMove(prev, oldIdx, newIdx));
             }
           }}>
-            <SortableContext items={externalLinkDocs.map((_, i) => `ext-${i}`)} strategy={verticalListSortingStrategy}>
+            <SortableContext items={externalLinkDocs.map((d) => d._uid)} strategy={verticalListSortingStrategy}>
               {externalLinkDocs.map((doc, idx) => (
-                <SortableDocRow key={`ext-${idx}`} id={`ext-${idx}`}>
+                <SortableDocRow key={doc._uid} id={doc._uid}>
               {/* Image upload thumbnail */}
               <label className="shrink-0 cursor-pointer relative group">
                 {doc.image_url ? (
