@@ -38,7 +38,9 @@ const DisplayParam = ({ label, value, preview }: { label: string; value: string;
 const StaffMaster = () => {
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab") || "dashboard";
+  const [activeTab, setActiveTab] = useState(initialTab);
   const navigate = useNavigate();
 
   useEffect(() => {
