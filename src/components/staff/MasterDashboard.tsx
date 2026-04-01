@@ -201,8 +201,8 @@ const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {shortcuts.map((s) => (
               <button
-                key={s.tab}
-                onClick={() => onNavigateTab(s.tab)}
+                key={s.tab || s.href}
+                onClick={() => s.href ? navigate(s.href) : s.tab && onNavigateTab(s.tab)}
                 className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors text-left"
               >
                 <s.icon className="h-5 w-5 text-muted-foreground shrink-0" />
