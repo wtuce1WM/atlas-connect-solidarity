@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { X, ExternalLink } from "lucide-react";
+import { X, ExternalLink, Loader2 } from "lucide-react";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 
 interface DocumentOverlayProps {
@@ -10,20 +9,7 @@ interface DocumentOverlayProps {
   onClose: () => void;
 }
 
-const isMobileDevice = () =>
-  /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
 const DocumentOverlay = ({ url, name, type, ts, onClose }: DocumentOverlayProps) => {
-  const [nativeFailed, setNativeFailed] = useState(false);
-
-  // On mobile, go straight to Google Docs viewer; on desktop try native first
-  const useMobile = isMobileDevice();
-  const useGoogleViewer = type === "pdf" && (useMobile || nativeFailed);
-
-  const pdfSrc = useGoogleViewer
-    ? `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`
-    : `${url}#toolbar=1&navpanes=0`;
-
   return (
     <div className="absolute inset-0 -top-[3.3rem] z-[60] bg-white flex flex-col animate-fade-in overflow-hidden">
       <div className="flex items-center justify-between px-4 py-2 border-b bg-white">
@@ -56,26 +42,18 @@ const DocumentOverlay = ({ url, name, type, ts, onClose }: DocumentOverlayProps)
             title={name}
           />
         ) : (
-          <iframe
-            key={`${url}-pdf-${ts}-${useGoogleViewer ? "gv" : "native"}`}
-            src={pdfSrc}
-            className="h-full w-full border-0"
-            title={name}
-            onError={() => !useGoogleViewer && setNativeFailed(true)}
-            onLoad={(e) => {
-              // If native iframe loads but shows blank (cross-origin), fallback
-              if (!useGoogleViewer && !nativeFailed) {
-                try {
-                  const doc = (e.target as HTMLIFrameElement).contentDocument;
-                  if (doc && doc.body && doc.body.childElementCount === 0) {
-                    setNativeFailed(true);
-                  }
-                } catch {
-                  // cross-origin — PDF is rendering natively, that's fine
-                }
-              }
-            }}
-          />
+          <>
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-0">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Chargement du document…</span>
+            </div>
+            <iframe
+              key={`${url}-gview-${ts}`}
+              src={`https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`}
+              className="relative z-10 h-full w-full border-0 bg-transparent"
+              title={name}
+            />
+          </>
         )}
       </div>
     </div>
