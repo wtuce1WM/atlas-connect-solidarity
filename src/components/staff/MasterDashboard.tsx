@@ -81,6 +81,8 @@ const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
         aiKnowledgeCount: aiKnowRes.data?.length || 0,
         sponsorsActive: sponsors.filter((s: any) => s.is_active).length,
         affiliatesActive: affiliates.filter((a: any) => a.is_active).length,
+        blogTotal: blogPosts.length,
+        blogPublished: blogPosts.filter((b: any) => b.is_published).length,
       });
       setLoading(false);
     };
