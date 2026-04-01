@@ -1648,7 +1648,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                 >
                   <ShoppingBag className="h-4 w-4" />
-                  {ctaLabel}
+                  {shopCtaLabel}
                   <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
                 </a>
               ) : (
