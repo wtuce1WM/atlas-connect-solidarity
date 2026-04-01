@@ -1634,7 +1634,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366' }}
                 >
                   <CalendarCheck className="h-4 w-4" />
-                  {ctaLabel}
+                  {bookingCtaLabel}
                 </button>
               )
             )}
