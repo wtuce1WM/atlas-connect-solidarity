@@ -37,8 +37,7 @@ const ExternalLinksFlipCard = ({
     }
   };
 
-  // Determine grid: up to 10 items, use a 2-col x 5-row grid
-  const cols = links.length <= 4 ? 2 : links.length <= 6 ? 3 : links.length <= 8 ? 4 : 5;
+  const displayLinks = links.slice(0, 9);
 
   return (
     <div
@@ -52,11 +51,8 @@ const ExternalLinksFlipCard = ({
             {cardTitle}
           </h3>
         </div>
-        <div
-          className="flex-1 grid gap-1.5 auto-rows-fr"
-          style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
-        >
-          {links.map((link) => (
+        <div className="flex-1 grid grid-cols-3 grid-rows-3 gap-1.5">
+          {displayLinks.map((link) => (
             <button
               key={link.id}
               onClick={(e) => { e.stopPropagation(); handleClick(link); }}
