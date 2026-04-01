@@ -57,6 +57,7 @@ import IconPreview from "./pages/IconPreview";
 import BlogPresentation from "./pages/BlogPresentation";
 import BlogPresentationFR from "./pages/BlogPresentationFR";
 import Unsubscribe from "./pages/Unsubscribe";
+import CarouselNavDemo from "./pages/CarouselNavDemo";
 
 const queryClient = new QueryClient();
 
@@ -110,6 +111,7 @@ const AppContent = () => {
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/essaouira-vue-mer" element={<EssaouiraSeaView />} />
               <Route path="/staff/animations" element={<StaffRouteGuard><BlogAnimations /></StaffRouteGuard>} />
+              <Route path="/staff/carousel-nav-demo" element={<StaffRouteGuard><CarouselNavDemo /></StaffRouteGuard>} />
               <Route path="/blog/ancien-accueil" element={<AncienAccueil />} />
               <Route path="/blog/typographie" element={<BlogTypography />} />
               <Route path="/staff/brummell" element={<StaffRouteGuard><BlogBrummellTypography /></StaffRouteGuard>} />
