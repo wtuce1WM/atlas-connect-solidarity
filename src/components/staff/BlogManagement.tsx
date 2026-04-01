@@ -30,6 +30,7 @@ const BlogManagement = () => {
       const { data } = await supabase
         .from("blog_posts")
         .select("id, title_fr, title_en, title_ar, slug, excerpt_fr, cover_image_url, author_name, published_at, created_at, is_published")
+        .eq("is_published", false)
         .order("created_at", { ascending: false });
       if (data) setPosts(data);
       setIsLoading(false);
@@ -45,16 +46,14 @@ const BlogManagement = () => {
     );
   }
 
-  const published = posts.filter(p => p.is_published);
-  const drafts = posts.filter(p => !p.is_published);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold">Articles de Blog</h2>
+          <h2 className="text-xl font-bold">Ressources (non publiées)</h2>
           <p className="text-sm text-muted-foreground">
-            {published.length} publiés · {drafts.length} brouillons · {posts.length} total
+            {posts.length} brouillon{posts.length > 1 ? "s" : ""}
           </p>
         </div>
       </div>
