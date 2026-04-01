@@ -62,6 +62,7 @@ const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
       const eggs = eggRes.data || [];
       const sponsors = sponsorRes.data || [];
       const affiliates = affRes.data || [];
+      const blogPosts = blogRes.data || [];
 
       setHealth({
         synonymsTotal: synonyms.length,
