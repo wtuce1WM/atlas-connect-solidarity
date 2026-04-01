@@ -37,8 +37,7 @@ const ExternalLinksFlipCard = ({
     }
   };
 
-  // Determine grid: up to 10 items, use a 2-col x 5-row grid
-  const cols = links.length <= 4 ? 2 : links.length <= 6 ? 3 : links.length <= 8 ? 4 : 5;
+  const displayLinks = links.slice(0, 9);
 
   return (
     <div
