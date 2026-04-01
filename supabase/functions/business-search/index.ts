@@ -554,7 +554,7 @@ function expandQuery(query: string): string {
   // Split on whitespace AND hyphens so "Restaurant-galerie" → ["restaurant", "galerie"]
   // Filter out French stop words AND noise adjectives to stay consistent with the search_vector trigger
   // which also strips these words (e.g. "sur" in "Vue sur mer") — prevents tsquery/tsvector mismatch
-  const FTS_STOP_WORDS = new Set(["sur", "dans", "pour", "par", "avec", "sans", "plus", "entre", "vers", "chez"]);
+  const FTS_STOP_WORDS = new Set(["le", "la", "les", "un", "une", "des", "du", "de", "d", "l", "au", "aux", "en", "sur", "dans", "pour", "par", "avec", "sans", "plus", "entre", "vers", "chez"]);
   const words = query.toLowerCase().split(/[\s\-]+/).filter(w => w.length > 0 && !NOISE_ADJECTIVES.has(w) && !FTS_STOP_WORDS.has(w));
 
   const groups = words.map(word => {
