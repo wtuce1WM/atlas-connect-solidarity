@@ -4124,34 +4124,10 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                       {isReviewCalcLoading ? (
                         <Loader2 className="h-3 w-3 mr-1 animate-spin" />
                       ) : (
-                        <ArrowDown className="h-3 w-3 mr-1" />
+                        <Save className="h-3 w-3 mr-1" />
                       )}
-                      Récupérer les avis + calculer
+                      Récupérer les avis &amp; sauvegarder
                     </Button>
-                    {avg !== null && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={isReviewCalcLoading}
-                        onClick={async () => {
-                          handleChange("computed_rating" as any, String(avg));
-                          handleChange("total_review_count" as any, String(total));
-                          if (business?.id) {
-                            await supabase
-                              .from("businesses")
-                              .update({
-                                computed_rating: avg,
-                                total_review_count: total,
-                              })
-                              .eq("id", business.id);
-                          }
-                          toast({ title: `Note calculée et sauvegardée : ${avg}/20 (${total} avis)` });
-                        }}
-                      >
-                        <Save className="h-3 w-3 mr-1" /> Sauvegarder le calcul
-                      </Button>
-                    )}
                   </div>
                 );
               })()}
