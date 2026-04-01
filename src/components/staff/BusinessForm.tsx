@@ -872,7 +872,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     account_type: (business as any)?.account_type || "",
     zone_chalandise: (business as any)?.zone_chalandise || "locale",
     is_visible_locale: (business as any)?.is_visible_locale ?? true,
-    presentation_mode: (business as any)?.presentation_mode || "acheter_en_ligne",
+    presentation_mode: (business as any)?.presentation_mode || "reserver_en_ligne",
     languages: (business as any)?.languages || [],
     affiliate_id: (business as any)?.affiliate_id || "",
     internal_notes: (business as any)?.internal_notes || "",
@@ -955,7 +955,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     reserve_now_force_external: (business as any)?.reserve_now_force_external ?? false,
     online_shop_force_external: (business as any)?.online_shop_force_external ?? false,
     youtube_force_external: (business as any)?.youtube_force_external ?? false,
-    website_presentation_mode: (business as any)?.website_presentation_mode || "acheter_en_ligne",
+    website_presentation_mode: (business as any)?.website_presentation_mode || "plus_informations",
     online_shop_presentation_mode: (business as any)?.online_shop_presentation_mode || "acheter_en_ligne",
   });
 
@@ -1492,7 +1492,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       account_type: formData.account_type || null,
       zone_chalandise: (formData as any).zone_chalandise || null,
       is_visible_locale: (formData as any).is_visible_locale ?? false,
-      presentation_mode: (formData as any).presentation_mode || "acheter_en_ligne",
+      presentation_mode: (formData as any).presentation_mode || "reserver_en_ligne",
       zone_city_ids: (formData as any).zone_chalandise === "nationale" && (formData as any).zone_city_ids?.length > 0 ? (formData as any).zone_city_ids : [],
       languages: (formData as any).languages?.length > 0 ? (formData as any).languages : [],
       affiliate_id: (formData as any).affiliate_id || null,
@@ -1574,7 +1574,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       reserve_now_force_external: (formData as any).reserve_now_force_external ?? false,
       online_shop_force_external: (formData as any).online_shop_force_external ?? false,
       youtube_force_external: (formData as any).youtube_force_external ?? false,
-      website_presentation_mode: (formData as any).website_presentation_mode || "acheter_en_ligne",
+      website_presentation_mode: (formData as any).website_presentation_mode || "plus_informations",
       online_shop_presentation_mode: (formData as any).online_shop_presentation_mode || "acheter_en_ligne",
     };
 
@@ -2539,7 +2539,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 </Button>
               )}
               <Select
-                value={(formData as any).website_presentation_mode || "acheter_en_ligne"}
+                value={(formData as any).website_presentation_mode || "plus_informations"}
                 onValueChange={(value) => handleChange("website_presentation_mode", value)}
               >
                 <SelectTrigger className="w-48 shrink-0">
@@ -2599,7 +2599,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 </Button>
               )}
               <Select
-                value={(formData as any).presentation_mode || "acheter_en_ligne"}
+                value={(formData as any).presentation_mode || "reserver_en_ligne"}
                 onValueChange={(value) => handleChange("presentation_mode", value)}
               >
                 <SelectTrigger className="w-48 shrink-0">
