@@ -3195,7 +3195,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         <div id="section-menu" className="space-y-2" style={{ scrollMarginTop: '160px' }}>
           <div className="flex items-center justify-between">
             <Label className="text-base font-semibold">Menu (URL)</Label>
-            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setMenuDocs(prev => [...prev, { url: "", name: "", language: "", icon: "" }])}>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setMenuDocs(prev => [...prev, { _uid: crypto.randomUUID(), url: "", name: "", language: "", icon: "" }])}>
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
