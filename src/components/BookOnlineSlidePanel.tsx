@@ -895,10 +895,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           )
         ) : effectiveMedia?.kind === "matterport" ? (
           <iframe
-            key={effectiveMedia.url + (cardsHidden ? '-clean' : '')}
-            src={cardsHidden
-              ? (effectiveMedia.url + (effectiveMedia.url.includes('?') ? '&' : '?') + 'qs=0&hr=0&brand=0&help=0&gt=0&f=0&dh=0&title=0')
-              : effectiveMedia.url}
+            key={effectiveMedia.url}
+            src={effectiveMedia.url + (effectiveMedia.url.includes('?') ? '&' : '?') + 'qs=0&hr=0&brand=0&help=0&gt=0&f=0&dh=0&title=0'}
             className="w-full h-full border-0"
             allow="xr-spatial-tracking"
             allowFullScreen
