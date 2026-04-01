@@ -126,7 +126,7 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
 
       {/* Carousel — pinned to bottom */}
       {business.youtube_url && business.youtube_force_external && (
-        <div className="shrink-0 overflow-y-auto px-3 pb-6 pt-2 border-t border-white/10 max-h-[45%]">
+        <div className="shrink-0 overflow-hidden px-3 pb-6 pt-2 border-t border-white/10">
           <YouTubeShortsCarousel
             youtubeUrl={business.youtube_url}
             onVideoCount={() => {}}
