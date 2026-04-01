@@ -169,7 +169,7 @@ const StaffMaster = () => {
             </TabsTrigger>
             <TabsTrigger value="blog" className="gap-2">
               <FileText className="h-4 w-4" />
-              Blog
+              Ressources
             </TabsTrigger>
             {isAdmin && (
               <TabsTrigger value="users" className="gap-2">

@@ -53,9 +53,9 @@ const BlogManagement = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold">Articles de Blog</h2>
+          <h2 className="text-xl font-bold">Ressources (non publiées)</h2>
           <p className="text-sm text-muted-foreground">
-            {published.length} publiés · {drafts.length} brouillons · {posts.length} total
+            {posts.length} brouillon{posts.length > 1 ? "s" : ""}
           </p>
         </div>
       </div>
