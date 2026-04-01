@@ -22,10 +22,11 @@ interface YouTubeShortsCarouselProps {
   activeVideoId?: string | null;
   shortsOnly?: boolean;
   hideLabel?: boolean;
+  hideHeader?: boolean;
   size?: "default" | "large";
 }
 
-const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange, onSelectVideo, onVideosLoaded, activeVideoId, shortsOnly, hideLabel, size = "default" }: YouTubeShortsCarouselProps) => {
+const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange, onSelectVideo, onVideosLoaded, activeVideoId, shortsOnly, hideLabel, hideHeader, size = "default" }: YouTubeShortsCarouselProps) => {
   const { language } = useLanguage();
   const [videos, setVideos] = useState<YouTubeVideo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
