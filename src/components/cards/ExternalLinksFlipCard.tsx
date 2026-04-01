@@ -50,28 +50,18 @@ const ExternalLinksFlipCard = ({
     <button
       key={link.id}
       onClick={(e) => { e.stopPropagation(); handleClick(link); }}
-      className="flex items-center w-full text-left rounded-xl bg-white/10 hover:bg-white/20 transition-colors overflow-hidden group cursor-pointer normal-case tracking-normal h-[4.5rem]"
+      className="flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 transition-colors overflow-hidden group cursor-pointer h-[4.5rem] w-full"
     >
-      {/* Left half: logo/icon */}
-      <div className="w-1/2 h-full flex items-center justify-center bg-white/5 shrink-0">
-        {link.icon ? (
-          <img
-            src={link.icon}
-            alt=""
-            className="w-full h-full object-contain p-2"
-            loading="lazy"
-          />
-        ) : (
-          <ExternalLink className="w-6 h-6 text-white/40" />
-        )}
-      </div>
-      {/* Right half: title */}
-      <div className="w-1/2 h-full flex items-center px-3">
-        <span className="text-xs leading-tight text-white/90 group-hover:text-white line-clamp-3 flex-1" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-          {link.name || "Lien externe"}
-        </span>
-        <ChevronRight className="w-3.5 h-3.5 text-white/40 shrink-0 ml-1" />
-      </div>
+      {link.icon ? (
+        <img
+          src={link.icon}
+          alt={link.name || ""}
+          className="w-full h-full object-contain p-2"
+          loading="lazy"
+        />
+      ) : (
+        <ExternalLink className="w-6 h-6 text-white/40" />
+      )}
     </button>
   );
 
