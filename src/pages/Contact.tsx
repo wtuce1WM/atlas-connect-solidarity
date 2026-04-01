@@ -1,16 +1,54 @@
+import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Mail, Phone, MapPin, MessageCircle } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Contact = () => {
   const { t } = useLanguage();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
+
   useSEO({
     title: "Contact",
     description: "Contactez ONE WORLD MOROCCO pour toute question sur nos services, adresses ou partenariats au Maroc.",
     canonical: "/contact",
   });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !email.trim() || !message.trim()) {
+      toast.error("Veuillez remplir tous les champs.");
+      return;
+    }
+    setSending(true);
+    try {
+      const idempotencyKey = `contact-${Date.now()}-${crypto.randomUUID()}`;
+      const { error } = await supabase.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "contact-form",
+          recipientEmail: "jf@oneworldmorocco.com",
+          idempotencyKey,
+          templateData: { name: name.trim(), email: email.trim(), message: message.trim() },
+        },
+      });
+      if (error) throw error;
+      toast.success("Votre message a bien été envoyé !");
+      setName("");
+      setEmail("");
+      setMessage("");
+    } catch (err) {
+      console.error("Contact form error:", err);
+      toast.error("Erreur lors de l'envoi du message. Veuillez réessayer.");
+    } finally {
+      setSending(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -75,18 +113,26 @@ const Contact = () => {
               <h2 className="text-xl font-semibold text-foreground mb-4">
                 Envoyez-nous un message
               </h2>
-              <form className="space-y-4">
+              <form className="space-y-4" onSubmit={handleSubmit}>
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1">Nom</label>
                   <input 
-                    type="text" 
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    maxLength={100}
                     className="w-full px-4 py-2 border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-gold"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1">Email</label>
                   <input 
-                    type="email" 
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    maxLength={255}
                     className="w-full px-4 py-2 border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-gold"
                   />
                 </div>
@@ -94,14 +140,19 @@ const Contact = () => {
                   <label className="block text-sm font-medium text-foreground mb-1">Message</label>
                   <textarea 
                     rows={4}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    required
+                    maxLength={2000}
                     className="w-full px-4 py-2 border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-gold resize-none"
                   />
                 </div>
                 <button 
                   type="submit"
-                  className="w-full bg-gold text-gold-foreground py-2 rounded-lg font-semibold hover:bg-gold/90 transition-colors"
+                  disabled={sending}
+                  className="w-full bg-gold text-gold-foreground py-2 rounded-lg font-semibold hover:bg-gold/90 transition-colors disabled:opacity-50"
                 >
-                  Envoyer
+                  {sending ? "Envoi en cours..." : "Envoyer"}
                 </button>
               </form>
             </div>
