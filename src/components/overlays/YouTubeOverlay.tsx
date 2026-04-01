@@ -133,7 +133,6 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
             onPlayingChange={onPlayingChange}
             onSelectVideo={handleSelectVideo}
             activeVideoId={activeVideo?.videoId ?? null}
-            size="large"
           />
         </div>
       )}
