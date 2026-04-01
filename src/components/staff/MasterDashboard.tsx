@@ -38,6 +38,7 @@ interface ConfigHealth {
 const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
   const [loading, setLoading] = useState(true);
   const [health, setHealth] = useState<ConfigHealth | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -112,7 +113,6 @@ const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
     alerts.push({ message: `${health.bundlesInactive} bundle(s) désactivé(s)`, tab: "search-config", severity: "info" });
   }
 
-  const navigate = useNavigate();
 
   const shortcuts: { label: string; tab?: string; href?: string; icon: any; count: string | null }[] = [
     { label: "Recherche", tab: "search-config", icon: Search, count: `${health.synonymsActive} syn · ${health.bundlesActive} bundles` },
