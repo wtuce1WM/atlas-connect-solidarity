@@ -10,8 +10,8 @@ interface DocumentOverlayProps {
   onClose: () => void;
 }
 
-const getGoogleViewerUrl = (url: string) =>
-  `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
+const getDirectPdfUrl = (pdfUrl: string) =>
+  `${pdfUrl}${pdfUrl.includes("#") ? "" : "#toolbar=1&navpanes=0"}`;
 
 const DocumentOverlay = ({ url, name, type, ts, onClose }: DocumentOverlayProps) => {
   const [pdfSrc, setPdfSrc] = useState<string>("");
@@ -34,10 +34,18 @@ const DocumentOverlay = ({ url, name, type, ts, onClose }: DocumentOverlayProps)
         const response = await fetch(url, {
           signal: abortController.signal,
           cache: "no-store",
+          headers: {
+            Accept: "application/pdf",
+          },
         });
 
         if (!response.ok) {
           throw new Error(`Unable to fetch PDF (${response.status})`);
+        }
+
+        const contentType = response.headers.get("content-type") || "";
+        if (!contentType.toLowerCase().includes("application/pdf")) {
+          throw new Error("Response is not a PDF");
         }
 
         const blob = await response.blob();
@@ -48,7 +56,7 @@ const DocumentOverlay = ({ url, name, type, ts, onClose }: DocumentOverlayProps)
         }
       } catch {
         if (!cancelled) {
-          setPdfSrc(getGoogleViewerUrl(url));
+          setPdfSrc(getDirectPdfUrl(url));
         }
       } finally {
         if (!cancelled) {
