@@ -963,6 +963,7 @@ export type Database = {
           name: string
           neighborhood: string | null
           online_shop_force_external: boolean
+          online_shop_presentation_mode: string
           online_shop_url: string | null
           opening_hours: Json | null
           other_booking_name: string | null
@@ -1019,6 +1020,7 @@ export type Database = {
           vimeo_url: string | null
           website: string | null
           website_force_external: boolean
+          website_presentation_mode: string
           whatsapp: string | null
           wtuce_status: Database["public"]["Enums"]["wtuce_status"] | null
           youtube_force_external: boolean
@@ -1105,6 +1107,7 @@ export type Database = {
           name: string
           neighborhood?: string | null
           online_shop_force_external?: boolean
+          online_shop_presentation_mode?: string
           online_shop_url?: string | null
           opening_hours?: Json | null
           other_booking_name?: string | null
@@ -1161,6 +1164,7 @@ export type Database = {
           vimeo_url?: string | null
           website?: string | null
           website_force_external?: boolean
+          website_presentation_mode?: string
           whatsapp?: string | null
           wtuce_status?: Database["public"]["Enums"]["wtuce_status"] | null
           youtube_force_external?: boolean
@@ -1247,6 +1251,7 @@ export type Database = {
           name?: string
           neighborhood?: string | null
           online_shop_force_external?: boolean
+          online_shop_presentation_mode?: string
           online_shop_url?: string | null
           opening_hours?: Json | null
           other_booking_name?: string | null
@@ -1303,6 +1308,7 @@ export type Database = {
           vimeo_url?: string | null
           website?: string | null
           website_force_external?: boolean
+          website_presentation_mode?: string
           whatsapp?: string | null
           wtuce_status?: Database["public"]["Enums"]["wtuce_status"] | null
           youtube_force_external?: boolean
@@ -3946,6 +3952,7 @@ export type Database = {
               name: string
               neighborhood: string | null
               online_shop_force_external: boolean
+              online_shop_presentation_mode: string
               online_shop_url: string | null
               opening_hours: Json | null
               other_booking_name: string | null
@@ -4002,6 +4009,7 @@ export type Database = {
               vimeo_url: string | null
               website: string | null
               website_force_external: boolean
+              website_presentation_mode: string
               whatsapp: string | null
               wtuce_status: Database["public"]["Enums"]["wtuce_status"] | null
               youtube_force_external: boolean
@@ -4104,6 +4112,7 @@ export type Database = {
               name: string
               neighborhood: string | null
               online_shop_force_external: boolean
+              online_shop_presentation_mode: string
               online_shop_url: string | null
               opening_hours: Json | null
               other_booking_name: string | null
@@ -4160,6 +4169,7 @@ export type Database = {
               vimeo_url: string | null
               website: string | null
               website_force_external: boolean
+              website_presentation_mode: string
               whatsapp: string | null
               wtuce_status: Database["public"]["Enums"]["wtuce_status"] | null
               youtube_force_external: boolean
