@@ -30,6 +30,8 @@ interface ConfigHealth {
   aiKnowledgeCount: number;
   sponsorsActive: number;
   affiliatesActive: number;
+  blogTotal: number;
+  blogPublished: number;
 }
 
 const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
