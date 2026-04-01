@@ -973,10 +973,10 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   });
 
   // --- Business documents (menus, flipbooks, external links & videos) ---
-  type DocEntry = { id?: string; url: string; name: string; language: string; icon: string };
+  type DocEntry = { id?: string; _uid: string; url: string; name: string; language: string; icon: string };
   const [menuDocs, setMenuDocs] = useState<DocEntry[]>([]);
   const [flipbookDocs, setFlipbookDocs] = useState<DocEntry[]>([]);
-  type ExternalLinkEntry = { id?: string; url: string; name: string; language: string; image_url: string };
+  type ExternalLinkEntry = { id?: string; _uid: string; url: string; name: string; language: string; image_url: string };
   const [externalLinkDocs, setExternalLinkDocs] = useState<ExternalLinkEntry[]>([]);
   const [videoDocs, setVideoDocs] = useState<VideoDocEntry[]>([]);
   const [videoDescDialogIdx, setVideoDescDialogIdx] = useState<number | null>(null);
@@ -995,9 +995,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         .eq("business_id", business.id)
         .order("sort_order");
       if (data) {
-        setMenuDocs((data as any[]).filter((d: any) => d.type === "menu").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "" })));
-        setFlipbookDocs((data as any[]).filter((d: any) => d.type === "flipbook").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "" })));
-        setExternalLinkDocs((data as any[]).filter((d: any) => d.type === "external_link").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", image_url: d.icon || "" })));
+        setMenuDocs((data as any[]).filter((d: any) => d.type === "menu").map((d: any) => ({ id: d.id, _uid: d.id || crypto.randomUUID(), url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "" })));
+        setFlipbookDocs((data as any[]).filter((d: any) => d.type === "flipbook").map((d: any) => ({ id: d.id, _uid: d.id || crypto.randomUUID(), url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "" })));
+        setExternalLinkDocs((data as any[]).filter((d: any) => d.type === "external_link").map((d: any) => ({ id: d.id, _uid: d.id || crypto.randomUUID(), url: d.url, name: d.name || "", language: d.language || "", image_url: d.icon || "" })));
         setVideoDocs((data as any[]).filter((d: any) => d.type === "video").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null })));
       }
     };
@@ -3195,21 +3195,21 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         <div id="section-menu" className="space-y-2" style={{ scrollMarginTop: '160px' }}>
           <div className="flex items-center justify-between">
             <Label className="text-base font-semibold">Menu (URL)</Label>
-            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setMenuDocs(prev => [...prev, { url: "", name: "", language: "", icon: "" }])}>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setMenuDocs(prev => [...prev, { _uid: crypto.randomUUID(), url: "", name: "", language: "", icon: "" }])}>
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
           <DndContext collisionDetection={closestCenter} onDragEnd={(event) => {
             const { active, over } = event;
             if (over && active.id !== over.id) {
-              const oldIdx = menuDocs.findIndex((_, i) => `menu-${i}` === active.id);
-              const newIdx = menuDocs.findIndex((_, i) => `menu-${i}` === over.id);
+              const oldIdx = menuDocs.findIndex((d) => d._uid === active.id);
+              const newIdx = menuDocs.findIndex((d) => d._uid === over.id);
               if (oldIdx !== -1 && newIdx !== -1) setMenuDocs(prev => arrayMove(prev, oldIdx, newIdx));
             }
           }}>
-            <SortableContext items={menuDocs.map((_, i) => `menu-${i}`)} strategy={verticalListSortingStrategy}>
+            <SortableContext items={menuDocs.map((d) => d._uid)} strategy={verticalListSortingStrategy}>
               {menuDocs.map((doc, idx) => (
-                <SortableDocRow key={`menu-${idx}`} id={`menu-${idx}`}>
+                <SortableDocRow key={doc._uid} id={doc._uid}>
               <div className="relative shrink-0 group">
                 {doc.icon ? (
                   <img src={getDocIconSrc(doc.icon)} alt="" className="h-9 w-9 object-contain rounded border border-input p-0.5 cursor-pointer" />
@@ -3416,21 +3416,21 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label className="text-base font-semibold">📖 Flipbook (Issuu, Calaméo…)</Label>
-            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setFlipbookDocs(prev => [...prev, { url: "", name: "", language: "", icon: "" }])}>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setFlipbookDocs(prev => [...prev, { _uid: crypto.randomUUID(), url: "", name: "", language: "", icon: "" }])}>
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
           <DndContext collisionDetection={closestCenter} onDragEnd={(event) => {
             const { active, over } = event;
             if (over && active.id !== over.id) {
-              const oldIdx = flipbookDocs.findIndex((_, i) => `flip-${i}` === active.id);
-              const newIdx = flipbookDocs.findIndex((_, i) => `flip-${i}` === over.id);
+              const oldIdx = flipbookDocs.findIndex((d) => d._uid === active.id);
+              const newIdx = flipbookDocs.findIndex((d) => d._uid === over.id);
               if (oldIdx !== -1 && newIdx !== -1) setFlipbookDocs(prev => arrayMove(prev, oldIdx, newIdx));
             }
           }}>
-            <SortableContext items={flipbookDocs.map((_, i) => `flip-${i}`)} strategy={verticalListSortingStrategy}>
+            <SortableContext items={flipbookDocs.map((d) => d._uid)} strategy={verticalListSortingStrategy}>
               {flipbookDocs.map((doc, idx) => (
-                <SortableDocRow key={`flip-${idx}`} id={`flip-${idx}`}>
+                <SortableDocRow key={doc._uid} id={doc._uid}>
               <div className="relative shrink-0 group">
                 {doc.icon ? (
                   <img src={getDocIconSrc(doc.icon)} alt="" className="h-9 w-9 object-contain rounded border border-input p-0.5 cursor-pointer" />
@@ -3491,21 +3491,21 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label className="text-base font-semibold">🔗 Liens Externes</Label>
-            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setExternalLinkDocs(prev => [...prev, { url: "", name: "", language: "", image_url: "" }])}>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setExternalLinkDocs(prev => [...prev, { _uid: crypto.randomUUID(), url: "", name: "", language: "", image_url: "" }])}>
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
           <DndContext collisionDetection={closestCenter} onDragEnd={(event) => {
             const { active, over } = event;
             if (over && active.id !== over.id) {
-              const oldIdx = externalLinkDocs.findIndex((_, i) => `ext-${i}` === active.id);
-              const newIdx = externalLinkDocs.findIndex((_, i) => `ext-${i}` === over.id);
+              const oldIdx = externalLinkDocs.findIndex((d) => d._uid === active.id);
+              const newIdx = externalLinkDocs.findIndex((d) => d._uid === over.id);
               if (oldIdx !== -1 && newIdx !== -1) setExternalLinkDocs(prev => arrayMove(prev, oldIdx, newIdx));
             }
           }}>
-            <SortableContext items={externalLinkDocs.map((_, i) => `ext-${i}`)} strategy={verticalListSortingStrategy}>
+            <SortableContext items={externalLinkDocs.map((d) => d._uid)} strategy={verticalListSortingStrategy}>
               {externalLinkDocs.map((doc, idx) => (
-                <SortableDocRow key={`ext-${idx}`} id={`ext-${idx}`}>
+                <SortableDocRow key={doc._uid} id={doc._uid}>
               {/* Image upload thumbnail */}
               <label className="shrink-0 cursor-pointer relative group">
                 {doc.image_url ? (
