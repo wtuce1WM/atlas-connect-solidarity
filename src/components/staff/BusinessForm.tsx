@@ -2666,7 +2666,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
           <div className="flex flex-wrap gap-6">
             <label className="flex items-center gap-2 text-sm">
-              <Switch checked={formData.show_videos} onCheckedChange={(checked) => { handleChange("show_videos", checked); if (checked) handleChange("prioritize_images", false); }} />
+              <Switch checked={formData.show_videos} onCheckedChange={(checked) => { handleChange("show_videos", checked); handleChange("prioritize_images", !checked); }} />
               <span>🎬 Carrousel vidéo</span>
             </label>
             <label className="flex items-center gap-2 text-sm">
