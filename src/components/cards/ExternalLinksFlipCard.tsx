@@ -6,6 +6,7 @@ interface ExternalLinkItem {
   name: string | null;
   url: string;
   icon: string | null;
+  description: string | null;
 }
 
 interface ExternalLinksFlipCardProps {
