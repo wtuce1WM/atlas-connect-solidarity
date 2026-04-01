@@ -1225,12 +1225,12 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     const fetchPoiBusinesses = async () => {
       const { data } = await supabase
         .from("businesses")
-        .select("id, name")
+        .select("id, name, neighborhood")
         .eq("city", formData.city)
         .eq("is_poi", true)
         .eq("is_active", true)
         .order("name");
-      setPoiBusinessesForCity((data || []).filter(b => b.id !== business?.id));
+      setPoiBusinessesForCity((data || []).filter(b => b.id !== business?.id).map(b => ({ id: b.id, name: b.name, neighborhood: b.neighborhood || null })));
     };
     fetchPoiBusinesses();
   }, [formData.city, business?.id]);
