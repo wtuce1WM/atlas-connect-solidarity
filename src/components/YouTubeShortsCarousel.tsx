@@ -162,7 +162,7 @@ function VideoRow({ videos, scrollRef, activeVideoId, onPlay, onScroll, isShort,
               className={`flex-shrink-0 rounded-xl bg-black relative cursor-pointer group/card transition-all w-44 ${isActive ? "ring-2 ring-offset-1 ring-offset-black ring-red-500 opacity-100" : "opacity-90 hover:opacity-100"}`}
               onClick={() => onPlay(video)}
             >
-             <div className="rounded-xl overflow-hidden">
+             <div className="relative rounded-xl overflow-hidden">
               <img
                 src={video.thumbnail}
                 alt={video.title}
