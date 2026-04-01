@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { X, ExternalLink, Loader2 } from "lucide-react";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 
@@ -9,7 +10,68 @@ interface DocumentOverlayProps {
   onClose: () => void;
 }
 
+const getGoogleViewerUrl = (url: string) =>
+  `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
+
 const DocumentOverlay = ({ url, name, type, ts, onClose }: DocumentOverlayProps) => {
+  const [pdfSrc, setPdfSrc] = useState<string>("");
+  const [isPreparingPdf, setIsPreparingPdf] = useState(false);
+  const [isIframeLoaded, setIsIframeLoaded] = useState(false);
+
+  useEffect(() => {
+    if (type !== "pdf") return;
+
+    let cancelled = false;
+    let objectUrl: string | null = null;
+    const abortController = new AbortController();
+
+    setIsPreparingPdf(true);
+    setIsIframeLoaded(false);
+    setPdfSrc("");
+
+    const preparePdf = async () => {
+      try {
+        const response = await fetch(url, {
+          signal: abortController.signal,
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          throw new Error(`Unable to fetch PDF (${response.status})`);
+        }
+
+        const blob = await response.blob();
+        objectUrl = URL.createObjectURL(blob);
+
+        if (!cancelled) {
+          setPdfSrc(objectUrl);
+        }
+      } catch {
+        if (!cancelled) {
+          setPdfSrc(getGoogleViewerUrl(url));
+        }
+      } finally {
+        if (!cancelled) {
+          setIsPreparingPdf(false);
+        }
+      }
+    };
+
+    void preparePdf();
+
+    return () => {
+      cancelled = true;
+      abortController.abort();
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [type, url, ts]);
+
+  useEffect(() => {
+    setIsIframeLoaded(false);
+  }, [pdfSrc, ts]);
+
   return (
     <div className="absolute inset-0 -top-[3.3rem] z-[60] bg-white flex flex-col animate-fade-in overflow-hidden">
       <div className="flex items-center justify-between px-4 py-2 border-b bg-white">
@@ -44,15 +106,18 @@ const DocumentOverlay = ({ url, name, type, ts, onClose }: DocumentOverlayProps)
         ) : (
           <>
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-0">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <Loader2 className={`h-6 w-6 text-muted-foreground ${isPreparingPdf || !isIframeLoaded ? "animate-spin" : "opacity-0"}`} />
               <span className="text-xs text-muted-foreground">Chargement du document…</span>
             </div>
-            <iframe
-              key={`${url}-gview-${ts}`}
-              src={`https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`}
-              className="relative z-10 h-full w-full border-0 bg-transparent"
-              title={name}
-            />
+            {pdfSrc && (
+              <iframe
+                key={`${pdfSrc}-${ts}`}
+                src={pdfSrc}
+                className="relative z-10 h-full w-full border-0 bg-transparent"
+                title={name}
+                onLoad={() => setIsIframeLoaded(true)}
+              />
+            )}
           </>
         )}
       </div>
