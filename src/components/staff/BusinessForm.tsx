@@ -976,7 +976,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   type DocEntry = { id?: string; _uid: string; url: string; name: string; language: string; icon: string };
   const [menuDocs, setMenuDocs] = useState<DocEntry[]>([]);
   const [flipbookDocs, setFlipbookDocs] = useState<DocEntry[]>([]);
-  type ExternalLinkEntry = { id?: string; _uid: string; url: string; name: string; language: string; image_url: string };
+  type ExternalLinkEntry = { id?: string; _uid: string; url: string; name: string; language: string; image_url: string; description: string };
   const [externalLinkDocs, setExternalLinkDocs] = useState<ExternalLinkEntry[]>([]);
   const [videoDocs, setVideoDocs] = useState<VideoDocEntry[]>([]);
   const [videoDescDialogIdx, setVideoDescDialogIdx] = useState<number | null>(null);
