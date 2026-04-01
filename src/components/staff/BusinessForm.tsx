@@ -3420,8 +3420,17 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
-          {flipbookDocs.map((doc, idx) => (
-            <div key={idx} className="flex items-center gap-2">
+          <DndContext collisionDetection={closestCenter} onDragEnd={(event) => {
+            const { active, over } = event;
+            if (over && active.id !== over.id) {
+              const oldIdx = flipbookDocs.findIndex((_, i) => `flip-${i}` === active.id);
+              const newIdx = flipbookDocs.findIndex((_, i) => `flip-${i}` === over.id);
+              if (oldIdx !== -1 && newIdx !== -1) setFlipbookDocs(prev => arrayMove(prev, oldIdx, newIdx));
+            }
+          }}>
+            <SortableContext items={flipbookDocs.map((_, i) => `flip-${i}`)} strategy={verticalListSortingStrategy}>
+              {flipbookDocs.map((doc, idx) => (
+                <SortableDocRow key={`flip-${idx}`} id={`flip-${idx}`}>
               <div className="relative shrink-0 group">
                 {doc.icon ? (
                   <img src={getDocIconSrc(doc.icon)} alt="" className="h-9 w-9 object-contain rounded border border-input p-0.5 cursor-pointer" />
@@ -3470,8 +3479,10 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setFlipbookDocs(prev => prev.filter((_, i) => i !== idx))}>
                 <Trash2 className="h-4 w-4" />
               </Button>
-            </div>
-          ))}
+                </SortableDocRow>
+              ))}
+            </SortableContext>
+          </DndContext>
           {flipbookDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucun flipbook ajouté.</p>}
           <p className="text-xs text-muted-foreground">Collez l'URL de la publication Issuu ou Calaméo. Elle sera intégrée dans le panneau de l'établissement.</p>
         </div>
