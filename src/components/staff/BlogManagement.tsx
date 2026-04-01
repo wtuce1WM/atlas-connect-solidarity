@@ -30,6 +30,7 @@ const BlogManagement = () => {
       const { data } = await supabase
         .from("blog_posts")
         .select("id, title_fr, title_en, title_ar, slug, excerpt_fr, cover_image_url, author_name, published_at, created_at, is_published")
+        .eq("is_published", false)
         .order("created_at", { ascending: false });
       if (data) setPosts(data);
       setIsLoading(false);
