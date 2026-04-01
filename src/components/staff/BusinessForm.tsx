@@ -668,6 +668,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [showClearSocial, setShowClearSocial] = useState(false);
   const [showClearBooking, setShowClearBooking] = useState(false);
   const [showClearReviews, setShowClearReviews] = useState(false);
+  const [isReviewCalcLoading, setIsReviewCalcLoading] = useState(false);
   const [quickAddDialog, setQuickAddDialog] = useState<{ type: "certification" | "engagement" | "commodite" | "badge"; value: string } | null>(null);
   // Track all custom items ever added so they remain visible even when deselected
   const [customCerts, setCustomCerts] = useState<string[]>([]);
@@ -1251,6 +1252,47 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   const handleChange = (field: string, value: string | boolean | string[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setIsDirty(true);
+  };
+
+  const toNullableNumber = (value: unknown): number | null => {
+    if (value === null || value === undefined || value === "") return null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  };
+
+  const computeReviewsFromForm = (fd: any) => {
+    const sources = collectRatingSources({
+      google_rating: toNullableNumber(fd.google_rating),
+      google_review_count: toNullableNumber(fd.google_review_count),
+      tripadvisor_rating: toNullableNumber(fd.tripadvisor_rating),
+      tripadvisor_review_count: toNullableNumber(fd.tripadvisor_review_count),
+      restaurant_guru_rating: toNullableNumber(fd.restaurant_guru_rating),
+      restaurant_guru_review_count: toNullableNumber(fd.restaurant_guru_review_count),
+      getyourguide_rating: toNullableNumber(fd.getyourguide_rating),
+      getyourguide_review_count: toNullableNumber(fd.getyourguide_review_count),
+      viator_rating: toNullableNumber(fd.viator_rating),
+      viator_review_count: toNullableNumber(fd.viator_review_count),
+      avis_verifies_rating: toNullableNumber(fd.avis_verifies_rating),
+      avis_verifies_review_count: toNullableNumber(fd.avis_verifies_review_count),
+      trustpilot_rating: toNullableNumber(fd.trustpilot_rating),
+      trustpilot_review_count: toNullableNumber(fd.trustpilot_review_count),
+      tourradar_rating: toNullableNumber(fd.tourradar_rating),
+      tourradar_review_count: toNullableNumber(fd.tourradar_review_count),
+    });
+
+    const avg = computeWeightedRatingOn20(sources);
+    const total = getTotalReviewCount({
+      google_review_count: toNullableNumber(fd.google_review_count),
+      tripadvisor_review_count: toNullableNumber(fd.tripadvisor_review_count),
+      restaurant_guru_review_count: toNullableNumber(fd.restaurant_guru_review_count),
+      getyourguide_review_count: toNullableNumber(fd.getyourguide_review_count),
+      viator_review_count: toNullableNumber(fd.viator_review_count),
+      avis_verifies_review_count: toNullableNumber(fd.avis_verifies_review_count),
+      trustpilot_review_count: toNullableNumber(fd.trustpilot_review_count),
+      tourradar_review_count: toNullableNumber(fd.tourradar_review_count),
+    });
+
+    return { avg, total };
   };
 
   const handleCategoryToggle = (category: string) => {
@@ -1916,20 +1958,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 if (fd.rating) {
                   display = `${fd.rating}/20`;
                 } else {
-                  const avg = computeWeightedRatingOn20(collectRatingSources({
-                    google_rating: fd.google_rating ? Number(fd.google_rating) : null,
-                    google_review_count: fd.google_review_count ? Number(fd.google_review_count) : null,
-                    tripadvisor_rating: fd.tripadvisor_rating ? Number(fd.tripadvisor_rating) : null,
-                    tripadvisor_review_count: fd.tripadvisor_review_count ? Number(fd.tripadvisor_review_count) : null,
-                    restaurant_guru_rating: fd.restaurant_guru_rating ? Number(fd.restaurant_guru_rating) : null,
-                    restaurant_guru_review_count: fd.restaurant_guru_review_count ? Number(fd.restaurant_guru_review_count) : null,
-                    getyourguide_rating: fd.getyourguide_rating ? Number(fd.getyourguide_rating) : null,
-                    getyourguide_review_count: fd.getyourguide_review_count ? Number(fd.getyourguide_review_count) : null,
-                    viator_rating: fd.viator_rating ? Number(fd.viator_rating) : null,
-                    viator_review_count: fd.viator_review_count ? Number(fd.viator_review_count) : null,
-                    tourradar_rating: fd.tourradar_rating ? Number(fd.tourradar_rating) : null,
-                    tourradar_review_count: fd.tourradar_review_count ? Number(fd.tourradar_review_count) : null,
-                  }));
+                  const { avg } = computeReviewsFromForm(fd);
                   if (avg !== null) {
                     display = `${avg}/20`;
                   }
