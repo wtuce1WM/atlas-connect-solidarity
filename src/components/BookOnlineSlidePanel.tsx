@@ -1163,8 +1163,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   links={externalLinks}
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(menuDocs.length > 0) + Number(hasReviewsCard)) * 120}ms`}
                   onOpenUrl={(url, linkTitle) => openDocOrBooking(url, linkTitle)}
-                  logoUrl={business?.logo_url}
-                  logoBackground={business?.logo_bg}
                 />
               )}
               {/* Card 7: Social Links */}
