@@ -4150,9 +4150,14 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <div className="flex gap-1">
                     <Input value={(formData as any)[urlKey] || ""} onChange={(e) => handleChange(urlKey, e.target.value)} placeholder="URL avis" className="text-xs flex-1" />
                     {(formData as any)[urlKey] && (
-                      <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0" onClick={() => handleChange(urlKey, "")}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                      <>
+                        <a href={(formData as any)[urlKey]} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:text-primary shrink-0">
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </a>
+                        <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0" onClick={() => handleChange(urlKey, "")}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </>
                     )}
                   </div>
                   <div className="flex gap-2">
