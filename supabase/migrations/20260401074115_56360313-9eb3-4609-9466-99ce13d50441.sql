@@ -1,0 +1,2 @@
+ALTER TABLE public.businesses ADD COLUMN website_presentation_mode text NOT NULL DEFAULT 'acheter_en_ligne';
+ALTER TABLE public.businesses ADD COLUMN online_shop_presentation_mode text NOT NULL DEFAULT 'acheter_en_ligne';

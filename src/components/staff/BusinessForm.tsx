@@ -955,6 +955,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     reserve_now_force_external: (business as any)?.reserve_now_force_external ?? false,
     online_shop_force_external: (business as any)?.online_shop_force_external ?? false,
     youtube_force_external: (business as any)?.youtube_force_external ?? false,
+    website_presentation_mode: (business as any)?.website_presentation_mode || "acheter_en_ligne",
+    online_shop_presentation_mode: (business as any)?.online_shop_presentation_mode || "acheter_en_ligne",
   });
 
   // --- Business documents (menus, flipbooks, external links & videos) ---
@@ -1572,6 +1574,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       reserve_now_force_external: (formData as any).reserve_now_force_external ?? false,
       online_shop_force_external: (formData as any).online_shop_force_external ?? false,
       youtube_force_external: (formData as any).youtube_force_external ?? false,
+      website_presentation_mode: (formData as any).website_presentation_mode || "acheter_en_ligne",
+      online_shop_presentation_mode: (formData as any).online_shop_presentation_mode || "acheter_en_ligne",
     };
 
     try {
@@ -2506,27 +2510,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         <div id="section-presentation" className="p-4 border rounded-lg bg-green-50 space-y-4" style={{ scrollMarginTop: '160px' }}>
           <h3 className="text-sm font-semibold text-green-800">🎨 Présentation</h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Mode de présentation (CTA) */}
-            <div className="space-y-2">
-              <Label>Mode CTA</Label>
-              <Select
-                value={(formData as any).presentation_mode || "acheter_en_ligne"}
-                onValueChange={(value) => handleChange("presentation_mode", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-background z-50">
-                  <SelectItem value="acheter_en_ligne">Acheter en ligne</SelectItem>
-                  <SelectItem value="reserver_en_ligne">Réserver en ligne</SelectItem>
-                  <SelectItem value="consulter_offre">Consulter notre offre</SelectItem>
-                  <SelectItem value="plus_informations">Plus d'informations</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
           {/* Site web */}
           <div className="space-y-1">
             <div className="flex items-center gap-2">
@@ -2550,6 +2533,20 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 placeholder="https://"
                 className="flex-1"
               />
+              <Select
+                value={(formData as any).website_presentation_mode || "acheter_en_ligne"}
+                onValueChange={(value) => handleChange("website_presentation_mode", value)}
+              >
+                <SelectTrigger className="w-48 shrink-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  <SelectItem value="acheter_en_ligne">Acheter en ligne</SelectItem>
+                  <SelectItem value="reserver_en_ligne">Réserver en ligne</SelectItem>
+                  <SelectItem value="consulter_offre">Consulter notre offre</SelectItem>
+                  <SelectItem value="plus_informations">Plus d'informations</SelectItem>
+                </SelectContent>
+              </Select>
               {formData.website && (
                 <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("website", "")}>
                   <Trash2 className="h-4 w-4" />
@@ -2595,6 +2592,20 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 placeholder="https://"
                 className="flex-1"
               />
+              <Select
+                value={(formData as any).presentation_mode || "acheter_en_ligne"}
+                onValueChange={(value) => handleChange("presentation_mode", value)}
+              >
+                <SelectTrigger className="w-48 shrink-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  <SelectItem value="acheter_en_ligne">Acheter en ligne</SelectItem>
+                  <SelectItem value="reserver_en_ligne">Réserver en ligne</SelectItem>
+                  <SelectItem value="consulter_offre">Consulter notre offre</SelectItem>
+                  <SelectItem value="plus_informations">Plus d'informations</SelectItem>
+                </SelectContent>
+              </Select>
               {formData.reserve_now_url && (
                 <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("reserve_now_url", "")}>
                   <Trash2 className="h-4 w-4" />
@@ -2626,6 +2637,20 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 placeholder="https://"
                 className="flex-1"
               />
+              <Select
+                value={(formData as any).online_shop_presentation_mode || "acheter_en_ligne"}
+                onValueChange={(value) => handleChange("online_shop_presentation_mode", value)}
+              >
+                <SelectTrigger className="w-48 shrink-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  <SelectItem value="acheter_en_ligne">Acheter en ligne</SelectItem>
+                  <SelectItem value="reserver_en_ligne">Réserver en ligne</SelectItem>
+                  <SelectItem value="consulter_offre">Consulter notre offre</SelectItem>
+                  <SelectItem value="plus_informations">Plus d'informations</SelectItem>
+                </SelectContent>
+              </Select>
               {formData.online_shop_url && (
                 <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("online_shop_url", "")}>
                   <Trash2 className="h-4 w-4" />
