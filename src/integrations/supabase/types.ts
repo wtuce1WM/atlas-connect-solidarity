@@ -978,7 +978,6 @@ export type Database = {
           pinterest_url: string | null
           poi_description: string | null
           poi_hook: string | null
-          poissonnerie_details: Json | null
           presentation_mode: string
           prioritize_images: boolean
           priority_score: number | null
@@ -1122,7 +1121,6 @@ export type Database = {
           pinterest_url?: string | null
           poi_description?: string | null
           poi_hook?: string | null
-          poissonnerie_details?: Json | null
           presentation_mode?: string
           prioritize_images?: boolean
           priority_score?: number | null
@@ -1266,7 +1264,6 @@ export type Database = {
           pinterest_url?: string | null
           poi_description?: string | null
           poi_hook?: string | null
-          poissonnerie_details?: Json | null
           presentation_mode?: string
           prioritize_images?: boolean
           priority_score?: number | null
@@ -3498,7 +3495,6 @@ export type Database = {
           pinterest_url: string | null
           poi_description: string | null
           poi_hook: string | null
-          poissonnerie_details: Json | null
           priority_score: number | null
           rating: number | null
           region: string | null
@@ -3614,7 +3610,6 @@ export type Database = {
           pinterest_url?: string | null
           poi_description?: string | null
           poi_hook?: string | null
-          poissonnerie_details?: Json | null
           priority_score?: number | null
           rating?: number | null
           region?: string | null
@@ -3730,7 +3725,6 @@ export type Database = {
           pinterest_url?: string | null
           poi_description?: string | null
           poi_hook?: string | null
-          poissonnerie_details?: Json | null
           priority_score?: number | null
           rating?: number | null
           region?: string | null
@@ -3967,7 +3961,6 @@ export type Database = {
               pinterest_url: string | null
               poi_description: string | null
               poi_hook: string | null
-              poissonnerie_details: Json | null
               presentation_mode: string
               prioritize_images: boolean
               priority_score: number | null
@@ -4127,7 +4120,6 @@ export type Database = {
               pinterest_url: string | null
               poi_description: string | null
               poi_hook: string | null
-              poissonnerie_details: Json | null
               presentation_mode: string
               prioritize_images: boolean
               priority_score: number | null
