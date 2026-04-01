@@ -3495,8 +3495,17 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
-          {externalLinkDocs.map((doc, idx) => (
-            <div key={idx} className="flex items-center gap-2 flex-nowrap">
+          <DndContext collisionDetection={closestCenter} onDragEnd={(event) => {
+            const { active, over } = event;
+            if (over && active.id !== over.id) {
+              const oldIdx = externalLinkDocs.findIndex((_, i) => `ext-${i}` === active.id);
+              const newIdx = externalLinkDocs.findIndex((_, i) => `ext-${i}` === over.id);
+              if (oldIdx !== -1 && newIdx !== -1) setExternalLinkDocs(prev => arrayMove(prev, oldIdx, newIdx));
+            }
+          }}>
+            <SortableContext items={externalLinkDocs.map((_, i) => `ext-${i}`)} strategy={verticalListSortingStrategy}>
+              {externalLinkDocs.map((doc, idx) => (
+                <SortableDocRow key={`ext-${idx}`} id={`ext-${idx}`}>
               {/* Image upload thumbnail */}
               <label className="shrink-0 cursor-pointer relative group">
                 {doc.image_url ? (
@@ -3559,8 +3568,10 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setExternalLinkDocs(prev => prev.filter((_, i) => i !== idx))}>
                 <Trash2 className="h-4 w-4" />
               </Button>
-            </div>
-          ))}
+                </SortableDocRow>
+              ))}
+            </SortableContext>
+          </DndContext>
           {externalLinkDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucun lien externe ajouté.</p>}
         </div>
 
