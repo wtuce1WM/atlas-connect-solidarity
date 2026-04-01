@@ -165,7 +165,7 @@ function VideoRow({ videos, scrollRef, activeVideoId, onPlay, onScroll, isShort,
               <img
                 src={video.thumbnail}
                 alt={video.title}
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover scale-[1.35]"
               />
               <div className={`absolute inset-0 flex items-center justify-center transition-colors ${
                 isActive ? "bg-black/50" : "bg-black/20 group-hover/card:bg-black/40"
