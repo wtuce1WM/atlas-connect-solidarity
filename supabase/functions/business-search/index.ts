@@ -3906,10 +3906,6 @@ serve(async (req) => {
                 return singular.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
               };
               const triggerWordsNorm = [...new Set(serviceMatchWordsForInjection.map((w) => normalizeServiceToken(w)))];
-              if (triggerWordsNorm.length === 1) {
-                console.log(`Services triggered by a single query word [${serviceMatchWordsForInjection.join(", ")}] → treating as variants (OR)`);
-                return false;
-              }
               // Check if all detected services map to the SAME trigger word (variants of one concept)
               // e.g. "tapis" → "Tapis" + "Artisanat marocain" → both from "tapis" → variants (OR)
               // But "cours" → "Cours", "surf" → "Surf" → different triggers → distinct concepts (AND)
