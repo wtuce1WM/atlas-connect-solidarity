@@ -46,8 +46,6 @@ const BlogManagement = () => {
     );
   }
 
-  const published = posts.filter(p => p.is_published);
-  const drafts = posts.filter(p => !p.is_published);
 
   return (
     <div className="space-y-6">
