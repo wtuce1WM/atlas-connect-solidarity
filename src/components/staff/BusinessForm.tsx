@@ -1190,9 +1190,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   );
 
   // Merge global + current business + newly added custom items
-  const allCustomCerts = [...new Set([...globalCustomOptions.certifications, ...currentBusinessCustomOptions.certifications, ...customCerts])];
-  const allCustomEngs = [...new Set([...globalCustomOptions.engagements, ...currentBusinessCustomOptions.engagements, ...customEngs])];
-  const allCustomCommodites = [...new Set([...globalCustomOptions.commodites, ...currentBusinessCustomOptions.commodites, ...customCommodites])];
+  const allCustomCerts = [...new Set([...globalCustomOptions.certifications, ...currentBusinessCustomOptions.certifications, ...customCerts])].sort((a, b) => a.localeCompare(b, "fr"));
+  const allCustomEngs = [...new Set([...globalCustomOptions.engagements, ...currentBusinessCustomOptions.engagements, ...customEngs])].sort((a, b) => a.localeCompare(b, "fr"));
+  const allCustomCommodites = [...new Set([...globalCustomOptions.commodites, ...currentBusinessCustomOptions.commodites, ...customCommodites])].sort((a, b) => a.localeCompare(b, "fr"));
 
   // Business labels state (managed separately)
   const [businessLabels, setBusinessLabels] = useState<Array<{ id?: string; label_id: string; custom_url: string }>>([]);
@@ -3993,14 +3993,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
         {/* ═══════ Avis clients ═══════ */}
         <div id="section-avis" className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg space-y-4" style={{ scrollMarginTop: '160px' }}>
-          <div className="flex items-center justify-between">
-            <Label className="text-xl font-semibold">Avis clients</Label>
-            <div className="flex gap-2">
-              <Button type="button" variant="outline" size="sm" className="text-destructive hover:bg-destructive/10" onClick={() => setShowClearReviews(true)}>
-                <Trash2 className="h-3 w-3 mr-1" /> Tout effacer
-              </Button>
-            </div>
-          </div>
+          <Label className="text-xl font-semibold">Avis clients</Label>
           <div className="space-y-1">
             <Label className="text-sm font-medium">Note manuelle (/20)</Label>
             <div className="flex items-center gap-3">
@@ -4045,10 +4038,16 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                       </span>
                     )}
                     {avg !== null && (
-                      <Button type="button" variant="outline" size="sm" onClick={() => {
+                      <Button type="button" variant="outline" size="sm" onClick={async () => {
                         handleChange("computed_rating" as any, String(avg));
                         handleChange("total_review_count" as any, String(total));
-                        toast({ title: `Note calculée : ${avg}/20 (${total} avis)` });
+                        if (business?.id) {
+                          await supabase.from("businesses").update({
+                            computed_rating: avg,
+                            total_review_count: total,
+                          }).eq("id", business.id);
+                        }
+                        toast({ title: `Note calculée et sauvegardée : ${avg}/20 (${total} avis)` });
                       }}>
                         <Save className="h-3 w-3 mr-1" /> Sauvegarder le calcul
                       </Button>
@@ -4111,7 +4110,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               })}
             </div>
             <div className="flex items-center gap-2">
-              <Input placeholder="Ajouter une certification..." className="h-8 text-sm flex-1 max-w-xs" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const val = (e.target as HTMLInputElement).value.trim(); if (val) { setQuickAddDialog({ type: "certification", value: val }); (e.target as HTMLInputElement).value = ""; } } }} />
+              <Input id="input-add-cert" placeholder="Ajouter une certification..." className="h-8 text-sm flex-1 max-w-xs" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const val = (e.target as HTMLInputElement).value.trim(); if (val) { setQuickAddDialog({ type: "certification", value: val }); (e.target as HTMLInputElement).value = ""; } } }} />
+              <Button type="button" variant="outline" size="sm" className="h-8 px-3" onClick={() => { const el = document.getElementById("input-add-cert") as HTMLInputElement; const val = el?.value.trim(); if (val) { setQuickAddDialog({ type: "certification", value: val }); el.value = ""; } }}><Plus className="h-3.5 w-3.5 mr-1" /> Créer</Button>
             </div>
           </div>
           <div className="space-y-2">
@@ -4131,7 +4131,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               })}
             </div>
             <div className="flex items-center gap-2">
-              <Input placeholder="Ajouter un engagement..." className="h-8 text-sm flex-1 max-w-xs" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const val = (e.target as HTMLInputElement).value.trim(); if (val) { setQuickAddDialog({ type: "engagement", value: val }); (e.target as HTMLInputElement).value = ""; } } }} />
+              <Input id="input-add-eng" placeholder="Ajouter un engagement..." className="h-8 text-sm flex-1 max-w-xs" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const val = (e.target as HTMLInputElement).value.trim(); if (val) { setQuickAddDialog({ type: "engagement", value: val }); (e.target as HTMLInputElement).value = ""; } } }} />
+              <Button type="button" variant="outline" size="sm" className="h-8 px-3" onClick={() => { const el = document.getElementById("input-add-eng") as HTMLInputElement; const val = el?.value.trim(); if (val) { setQuickAddDialog({ type: "engagement", value: val }); el.value = ""; } }}><Plus className="h-3.5 w-3.5 mr-1" /> Créer</Button>
             </div>
           </div>
           <div className="space-y-2">
@@ -4152,7 +4153,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               })}
             </div>
             <div className="flex items-center gap-2">
-              <Input placeholder="Ajouter une commodité..." className="h-8 text-sm flex-1 max-w-xs" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const val = (e.target as HTMLInputElement).value.trim(); if (val) { setQuickAddDialog({ type: "commodite", value: val }); (e.target as HTMLInputElement).value = ""; } } }} />
+              <Input id="input-add-comm" placeholder="Ajouter une commodité..." className="h-8 text-sm flex-1 max-w-xs" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const val = (e.target as HTMLInputElement).value.trim(); if (val) { setQuickAddDialog({ type: "commodite", value: val }); (e.target as HTMLInputElement).value = ""; } } }} />
+              <Button type="button" variant="outline" size="sm" className="h-8 px-3" onClick={() => { const el = document.getElementById("input-add-comm") as HTMLInputElement; const val = el?.value.trim(); if (val) { setQuickAddDialog({ type: "commodite", value: val }); el.value = ""; } }}><Plus className="h-3.5 w-3.5 mr-1" /> Créer</Button>
             </div>
           </div>
           {((formData as any).engagements || []).length > 0 && (
