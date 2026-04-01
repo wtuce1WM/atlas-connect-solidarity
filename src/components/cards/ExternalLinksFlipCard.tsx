@@ -78,25 +78,48 @@ const ExternalLinksFlipCard = ({
       >
         {/* FRONT — First 4 links */}
         <div
-          className="absolute inset-0 rounded-2xl p-4 text-white overflow-y-auto"
+          className="absolute inset-0 rounded-2xl text-white overflow-hidden flex flex-col"
           style={{ backfaceVisibility: "hidden" }}
         >
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-              <ExternalLink className="w-4 h-4" />
-              + d'infos
-            </h3>
-            {hasBack && (
-              <button
-                onClick={() => setFlipped(true)}
-                className="text-[10px] text-white/50 hover:text-white/80 transition-colors"
+          {/* Top half: Logo */}
+          <div className="h-1/2 flex items-center justify-center bg-white/5 rounded-t-2xl">
+            {logoUrl ? (
+              <div
+                className="w-24 h-24 md:w-28 md:h-28 rounded-xl overflow-hidden flex items-center justify-center"
+                style={{ backgroundColor: logoBackground === 'transparent' ? 'transparent' : (logoBackground || '#fff') }}
               >
-                +{backLinks.length} de plus →
-              </button>
+                <img
+                  src={logoUrl}
+                  alt=""
+                  className={`w-full h-full object-contain ${logoBackground === 'transparent' ? '' : 'p-2'}`}
+                  loading="lazy"
+                />
+              </div>
+            ) : (
+              <div className="w-24 h-24 md:w-28 md:h-28 rounded-xl bg-white/10 flex items-center justify-center">
+                <ExternalLink className="w-10 h-10 text-white/30" />
+              </div>
             )}
           </div>
-          <div className="flex flex-col gap-2">
-            {frontLinks.map(renderLink)}
+          {/* Bottom half: Title + links summary */}
+          <div className="h-1/2 p-4 flex flex-col">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                <ExternalLink className="w-4 h-4" />
+                + d'infos
+              </h3>
+              {hasBack && (
+                <button
+                  onClick={() => setFlipped(true)}
+                  className="text-[10px] text-white/50 hover:text-white/80 transition-colors"
+                >
+                  +{backLinks.length} de plus →
+                </button>
+              )}
+            </div>
+            <div className="flex flex-col gap-1.5 overflow-y-auto flex-1">
+              {frontLinks.map(renderLink)}
+            </div>
           </div>
         </div>
 
