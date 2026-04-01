@@ -2660,7 +2660,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 </SelectContent>
               </Select>
             </div>
-            </div>
             {(formData as any).online_shop_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
             <BrokenUrlBadge url={formData.online_shop_url} />
           </div>
