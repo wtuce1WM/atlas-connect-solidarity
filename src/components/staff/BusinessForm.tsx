@@ -1190,9 +1190,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   );
 
   // Merge global + current business + newly added custom items
-  const allCustomCerts = [...new Set([...globalCustomOptions.certifications, ...currentBusinessCustomOptions.certifications, ...customCerts])];
-  const allCustomEngs = [...new Set([...globalCustomOptions.engagements, ...currentBusinessCustomOptions.engagements, ...customEngs])];
-  const allCustomCommodites = [...new Set([...globalCustomOptions.commodites, ...currentBusinessCustomOptions.commodites, ...customCommodites])];
+  const allCustomCerts = [...new Set([...globalCustomOptions.certifications, ...currentBusinessCustomOptions.certifications, ...customCerts])].sort((a, b) => a.localeCompare(b, "fr"));
+  const allCustomEngs = [...new Set([...globalCustomOptions.engagements, ...currentBusinessCustomOptions.engagements, ...customEngs])].sort((a, b) => a.localeCompare(b, "fr"));
+  const allCustomCommodites = [...new Set([...globalCustomOptions.commodites, ...currentBusinessCustomOptions.commodites, ...customCommodites])].sort((a, b) => a.localeCompare(b, "fr"));
 
   // Business labels state (managed separately)
   const [businessLabels, setBusinessLabels] = useState<Array<{ id?: string; label_id: string; custom_url: string }>>([]);
