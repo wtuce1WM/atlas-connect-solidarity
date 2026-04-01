@@ -3568,6 +3568,16 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setExternalLinkDocs(prev => prev.filter((_, i) => i !== idx))}>
                 <Trash2 className="h-4 w-4" />
               </Button>
+              <select
+                value={doc.description}
+                onChange={(e) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, description: e.target.value } : d))}
+                className="h-9 rounded-md border border-input bg-background px-3 text-sm w-32 shrink-0"
+                title="Titre section"
+              >
+                <option value="presse">Presse</option>
+                <option value="media">Media</option>
+                <option value="partenaires">Partenaires</option>
+              </select>
                 </SortableDocRow>
               ))}
             </SortableContext>
