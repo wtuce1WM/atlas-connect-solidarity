@@ -4044,8 +4044,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     )}
                     {avg !== null && (
                       <Button type="button" variant="outline" size="sm" onClick={() => {
-                        handleChange("computed_rating" as any, avg);
-                        handleChange("total_review_count" as any, total);
+                        handleChange("computed_rating" as any, String(avg));
+                        handleChange("total_review_count" as any, String(total));
                         toast({ title: `Note calculée : ${avg}/20 (${total} avis)` });
                       }}>
                         <Save className="h-3 w-3 mr-1" /> Sauvegarder le calcul
