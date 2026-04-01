@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Search, BookOpen, Egg, Star, UserCheck, BarChart3, FlaskConical, Sparkles, Brain,
-  AlertTriangle, CheckCircle2, XCircle, Loader2, ArrowRight,
+  AlertTriangle, CheckCircle2, XCircle, Loader2, ArrowRight, FileText,
 } from "lucide-react";
 import BatchThumbnailGenerator from "./BatchThumbnailGenerator";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,6 +31,8 @@ interface ConfigHealth {
   aiKnowledgeCount: number;
   sponsorsActive: number;
   affiliatesActive: number;
+  blogTotal: number;
+  blogPublished: number;
 }
 
 const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
@@ -41,7 +44,7 @@ const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
       setLoading(true);
       const [
         synRes, bundleRes, intentRes, eggRes, aiRes,
-        knowRes, aiKnowRes, sponsorRes, affRes,
+        knowRes, aiKnowRes, sponsorRes, affRes, blogRes,
       ] = await Promise.all([
         supabase.from("search_synonyms").select("id, is_active, subcategory_names"),
         supabase.from("search_bundles").select("id, is_active"),
@@ -52,6 +55,7 @@ const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
         supabase.from("knowledge_entries").select("id, category").in("category", ["general", "tourisme", "culture", "gastronomie"]),
         supabase.from("sponsors").select("id, is_active"),
         supabase.from("affiliates").select("id, is_active"),
+        supabase.from("blog_posts").select("id, is_published"),
       ]);
 
       const synonyms = synRes.data || [];
@@ -59,6 +63,7 @@ const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
       const eggs = eggRes.data || [];
       const sponsors = sponsorRes.data || [];
       const affiliates = affRes.data || [];
+      const blogPosts = blogRes.data || [];
 
       setHealth({
         synonymsTotal: synonyms.length,
@@ -77,6 +82,8 @@ const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
         aiKnowledgeCount: aiKnowRes.data?.length || 0,
         sponsorsActive: sponsors.filter((s: any) => s.is_active).length,
         affiliatesActive: affiliates.filter((a: any) => a.is_active).length,
+        blogTotal: blogPosts.length,
+        blogPublished: blogPosts.filter((b: any) => b.is_published).length,
       });
       setLoading(false);
     };
@@ -105,9 +112,12 @@ const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
     alerts.push({ message: `${health.bundlesInactive} bundle(s) désactivé(s)`, tab: "search-config", severity: "info" });
   }
 
-  const shortcuts = [
+  const navigate = useNavigate();
+
+  const shortcuts: { label: string; tab?: string; href?: string; icon: any; count: string | null }[] = [
     { label: "Recherche", tab: "search-config", icon: Search, count: `${health.synonymsActive} syn · ${health.bundlesActive} bundles` },
     { label: "IA", tab: "ai-config", icon: Sparkles, count: `${health.aiConfigCount} clés` },
+    { label: "Articles Blog", href: "/blog", icon: FileText, count: `${health.blogPublished}/${health.blogTotal} publiés` },
     { label: "Affiliés", tab: "affiliates", icon: UserCheck, count: `${health.affiliatesActive} actifs` },
     { label: "Sponsors", tab: "sponsors", icon: Star, count: `${health.sponsorsActive} actifs` },
     { label: "Search Analytics", tab: "analytics", icon: BarChart3, count: null },
@@ -191,8 +201,8 @@ const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {shortcuts.map((s) => (
               <button
-                key={s.tab}
-                onClick={() => onNavigateTab(s.tab)}
+                key={s.tab || s.href}
+                onClick={() => s.href ? navigate(s.href) : s.tab && onNavigateTab(s.tab)}
                 className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors text-left"
               >
                 <s.icon className="h-5 w-5 text-muted-foreground shrink-0" />
