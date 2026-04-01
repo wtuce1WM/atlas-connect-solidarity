@@ -6,6 +6,7 @@ interface ExternalLinkItem {
   name: string | null;
   url: string;
   icon: string | null;
+  description: string | null;
 }
 
 interface ExternalLinksFlipCardProps {
@@ -26,6 +27,16 @@ const ExternalLinksFlipCard = ({
   const frontLinks = links.slice(0, 3);
   const backLinks = links.slice(3, 6);
   const hasBack = backLinks.length > 0;
+
+  // Derive title from the description (category) of links
+  const deriveTitle = () => {
+    const desc = links[0]?.description?.toLowerCase() || "";
+    if (desc === "partenaires") return "Ils nous font confiance";
+    // Presse or Media
+    if (desc === "presse" || desc === "media") return "Ils parlent de nous";
+    return "+ d'infos";
+  };
+  const cardTitle = deriveTitle();
 
   const handleClick = (link: ExternalLinkItem) => {
     if (onOpenUrl) {
@@ -84,7 +95,7 @@ const ExternalLinksFlipCard = ({
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
               <ExternalLink className="w-4 h-4" />
-              + d'infos
+              {cardTitle}
             </h3>
             {hasBack && (
               <button
@@ -109,7 +120,7 @@ const ExternalLinksFlipCard = ({
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                 <ExternalLink className="w-4 h-4" />
-                + d'infos
+                {cardTitle}
               </h3>
               <button
                 onClick={() => setFlipped(false)}
