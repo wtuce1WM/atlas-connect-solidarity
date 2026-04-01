@@ -23,8 +23,8 @@ const ExternalLinksFlipCard = ({
 }: ExternalLinksFlipCardProps) => {
   const [flipped, setFlipped] = useState(false);
 
-  const frontLinks = links.slice(0, 5);
-  const backLinks = links.slice(5, 10);
+  const frontLinks = links.slice(0, 3);
+  const backLinks = links.slice(3, 6);
   const hasBack = backLinks.length > 0;
 
   const handleClick = (link: ExternalLinkItem) => {
@@ -39,24 +39,28 @@ const ExternalLinksFlipCard = ({
     <button
       key={link.id}
       onClick={(e) => { e.stopPropagation(); handleClick(link); }}
-      className="flex items-center gap-2.5 w-full text-left rounded-xl bg-white/10 hover:bg-white/20 transition-colors p-2 group cursor-pointer normal-case tracking-normal"
+      className="flex items-center w-full text-left rounded-xl bg-white/10 hover:bg-white/20 transition-colors overflow-hidden group cursor-pointer normal-case tracking-normal h-[4.5rem]"
     >
-      {link.icon ? (
-        <img
-          src={link.icon}
-          alt=""
-          className="w-10 h-10 rounded-lg object-cover shrink-0"
-          loading="lazy"
-        />
-      ) : (
-        <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-          <ExternalLink className="w-4 h-4 text-white/60" />
-        </div>
-      )}
-      <span className="text-xs leading-tight text-white/90 group-hover:text-white line-clamp-2 flex-1" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-        {link.name || "Lien externe"}
-      </span>
-      <ChevronRight className="w-3.5 h-3.5 text-white/40 shrink-0" />
+      {/* Left half: logo/icon */}
+      <div className="w-1/2 h-full flex items-center justify-center bg-white/5 shrink-0">
+        {link.icon ? (
+          <img
+            src={link.icon}
+            alt=""
+            className="w-full h-full object-contain p-2"
+            loading="lazy"
+          />
+        ) : (
+          <ExternalLink className="w-6 h-6 text-white/40" />
+        )}
+      </div>
+      {/* Right half: title */}
+      <div className="w-1/2 h-full flex items-center px-3">
+        <span className="text-xs leading-tight text-white/90 group-hover:text-white line-clamp-3 flex-1" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+          {link.name || "Lien externe"}
+        </span>
+        <ChevronRight className="w-3.5 h-3.5 text-white/40 shrink-0 ml-1" />
+      </div>
     </button>
   );
 
@@ -72,54 +76,31 @@ const ExternalLinksFlipCard = ({
           transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
         }}
       >
-        {/* FRONT — First 4 links */}
+        {/* FRONT */}
         <div
-          className="absolute inset-0 rounded-2xl text-white overflow-hidden flex flex-col"
+          className="absolute inset-0 rounded-2xl p-4 text-white overflow-y-auto"
           style={{ backfaceVisibility: "hidden" }}
         >
-          {/* Top half: Logo */}
-          <div className="h-1/2 flex items-center justify-center bg-white/5 rounded-t-2xl">
-            {logoUrl ? (
-              <div
-                className="w-24 h-24 md:w-28 md:h-28 rounded-xl overflow-hidden flex items-center justify-center"
-                style={{ backgroundColor: logoBackground === 'transparent' ? 'transparent' : (logoBackground || '#fff') }}
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+              <ExternalLink className="w-4 h-4" />
+              + d'infos
+            </h3>
+            {hasBack && (
+              <button
+                onClick={() => setFlipped(true)}
+                className="text-[10px] text-white/50 hover:text-white/80 transition-colors"
               >
-                <img
-                  src={logoUrl}
-                  alt=""
-                  className={`w-full h-full object-contain ${logoBackground === 'transparent' ? '' : 'p-2'}`}
-                  loading="lazy"
-                />
-              </div>
-            ) : (
-              <div className="w-24 h-24 md:w-28 md:h-28 rounded-xl bg-white/10 flex items-center justify-center">
-                <ExternalLink className="w-10 h-10 text-white/30" />
-              </div>
+                +{backLinks.length} de plus →
+              </button>
             )}
           </div>
-          {/* Bottom half: Title + links summary */}
-          <div className="h-1/2 p-4 flex flex-col">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                <ExternalLink className="w-4 h-4" />
-                + d'infos
-              </h3>
-              {hasBack && (
-                <button
-                  onClick={() => setFlipped(true)}
-                  className="text-[10px] text-white/50 hover:text-white/80 transition-colors"
-                >
-                  +{backLinks.length} de plus →
-                </button>
-              )}
-            </div>
-            <div className="flex flex-col gap-1.5 overflow-y-auto flex-1">
-              {frontLinks.map(renderLink)}
-            </div>
+          <div className="flex flex-col gap-2">
+            {frontLinks.map(renderLink)}
           </div>
         </div>
 
-        {/* BACK — Next 4 links */}
+        {/* BACK */}
         {hasBack && (
           <div
             className="absolute inset-0 rounded-2xl p-4 text-white overflow-y-auto"
