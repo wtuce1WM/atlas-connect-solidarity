@@ -641,12 +641,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     const matterportItems: MediaItem[] = business?.matterport_url
       ? [{ kind: "matterport" as const, url: business.matterport_url }]
       : [];
-    // When prioritize_images is on, show images first (as background) instead of videos
+    // Média prioritaire: show_videos → vidéos d'abord, prioritize_images → images d'abord, les deux à false → matterport d'abord
     if (business?.prioritize_images) {
       return [...imageItems, ...videoItems, ...matterportItems];
     }
-    return [...videoItems, ...imageItems, ...matterportItems];
-  }, [videos, images, videoDocs, business?.prioritize_images, business?.matterport_url]);
+    if (business?.show_videos) {
+      return [...videoItems, ...imageItems, ...matterportItems];
+    }
+    // Visite 3D prioritaire (both false)
+    return [...matterportItems, ...videoItems, ...imageItems];
+  }, [videos, images, videoDocs, business?.prioritize_images, business?.show_videos, business?.matterport_url]);
 
   const totalMedia = mediaItems.length;
   const safeIndex = totalMedia > 0 ? currentMediaIndex % totalMedia : 0;
