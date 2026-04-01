@@ -3584,16 +3584,20 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                       title="Tester iframe"
                       onClick={async () => {
                         try {
-                          const { data, error } = await supabase.functions.invoke("check-links", { body: { urls: [doc.url] } });
-                          if (error) throw error;
-                          const result = data?.results?.[doc.url];
-                          if (result?.ok) {
-                            toast({ title: "✅ iframe OK", description: `${doc.url} peut s'afficher en iframe.` });
+                          const domain = new URL(doc.url).hostname;
+                          const { data } = await supabase
+                            .from("blocked_domains")
+                            .select("domain, reason")
+                            .eq("domain", domain)
+                            .eq("is_active", true)
+                            .maybeSingle();
+                          if (data) {
+                            toast({ title: "🚫 iframe bloquée", description: `${domain} — ${data.reason}`, variant: "destructive" });
                           } else {
-                            toast({ title: "🚫 iframe bloquée", description: result?.error || `HTTP ${result?.status}`, variant: "destructive" });
+                            toast({ title: "✅ iframe OK", description: `${domain} n'est pas dans la liste des domaines bloqués.` });
                           }
                         } catch (err: any) {
-                          toast({ title: "Erreur test iframe", description: err.message, variant: "destructive" });
+                          toast({ title: "Erreur", description: err.message, variant: "destructive" });
                         }
                       }}
                     >
