@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
 import { DndContext, closestCenter } from "@dnd-kit/core";
-import { SortableContext, rectSortingStrategy, useSortable } from "@dnd-kit/sortable";
+import { SortableContext, rectSortingStrategy, verticalListSortingStrategy, arrayMove, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { businessUrl } from "@/lib/businessUrl";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -25,7 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle, Copy, ExternalLink, Globe, Star, Plus, Merge, ArrowRight, Loader2, FileText, X, Upload, Image as ImageIcon, ChevronUp, ChevronDown } from "lucide-react";
+import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle, Copy, ExternalLink, Globe, Star, Plus, Merge, ArrowRight, Loader2, FileText, X, Upload, Image as ImageIcon, ChevronUp, ChevronDown, GripVertical } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import type { Tables } from "@/integrations/supabase/types";
@@ -451,6 +451,19 @@ interface SortableVideoCardProps {
   onOpenDesc: () => void;
   onDelete: () => void;
 }
+
+const SortableDocRow = ({ id, children }: { id: string; children: React.ReactNode }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1, zIndex: isDragging ? 50 : undefined };
+  return (
+    <div ref={setNodeRef} style={style} className="flex items-center gap-1">
+      <button type="button" {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing shrink-0 text-muted-foreground hover:text-foreground touch-none">
+        <GripVertical className="h-4 w-4" />
+      </button>
+      <div className="flex-1 flex items-center gap-2">{children}</div>
+    </div>
+  );
+};
 
 const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinessesForCity, dbDestinations, allBusinessesForVideo, videoBusinessSearch, setVideoBusinessSearch, dbSubcategories, dbCities, dbNeighborhoods, business, toast, onOpenDesc, onDelete }: SortableVideoCardProps) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
@@ -3186,8 +3199,17 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
-          {menuDocs.map((doc, idx) => (
-            <div key={idx} className="flex items-center gap-2">
+          <DndContext collisionDetection={closestCenter} onDragEnd={(event) => {
+            const { active, over } = event;
+            if (over && active.id !== over.id) {
+              const oldIdx = menuDocs.findIndex((_, i) => `menu-${i}` === active.id);
+              const newIdx = menuDocs.findIndex((_, i) => `menu-${i}` === over.id);
+              if (oldIdx !== -1 && newIdx !== -1) setMenuDocs(prev => arrayMove(prev, oldIdx, newIdx));
+            }
+          }}>
+            <SortableContext items={menuDocs.map((_, i) => `menu-${i}`)} strategy={verticalListSortingStrategy}>
+              {menuDocs.map((doc, idx) => (
+                <SortableDocRow key={`menu-${idx}`} id={`menu-${idx}`}>
               <div className="relative shrink-0 group">
                 {doc.icon ? (
                   <img src={getDocIconSrc(doc.icon)} alt="" className="h-9 w-9 object-contain rounded border border-input p-0.5 cursor-pointer" />
@@ -3289,8 +3311,10 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setMenuDocs(prev => prev.filter((_, i) => i !== idx))}>
                 <Trash2 className="h-4 w-4" />
               </Button>
-            </div>
-          ))}
+                </SortableDocRow>
+              ))}
+            </SortableContext>
+          </DndContext>
           {menuDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucun menu ajouté.</p>}
 
           {/* Menu Summaries - Multiple */}
@@ -3396,8 +3420,17 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
-          {flipbookDocs.map((doc, idx) => (
-            <div key={idx} className="flex items-center gap-2">
+          <DndContext collisionDetection={closestCenter} onDragEnd={(event) => {
+            const { active, over } = event;
+            if (over && active.id !== over.id) {
+              const oldIdx = flipbookDocs.findIndex((_, i) => `flip-${i}` === active.id);
+              const newIdx = flipbookDocs.findIndex((_, i) => `flip-${i}` === over.id);
+              if (oldIdx !== -1 && newIdx !== -1) setFlipbookDocs(prev => arrayMove(prev, oldIdx, newIdx));
+            }
+          }}>
+            <SortableContext items={flipbookDocs.map((_, i) => `flip-${i}`)} strategy={verticalListSortingStrategy}>
+              {flipbookDocs.map((doc, idx) => (
+                <SortableDocRow key={`flip-${idx}`} id={`flip-${idx}`}>
               <div className="relative shrink-0 group">
                 {doc.icon ? (
                   <img src={getDocIconSrc(doc.icon)} alt="" className="h-9 w-9 object-contain rounded border border-input p-0.5 cursor-pointer" />
@@ -3446,8 +3479,10 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setFlipbookDocs(prev => prev.filter((_, i) => i !== idx))}>
                 <Trash2 className="h-4 w-4" />
               </Button>
-            </div>
-          ))}
+                </SortableDocRow>
+              ))}
+            </SortableContext>
+          </DndContext>
           {flipbookDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucun flipbook ajouté.</p>}
           <p className="text-xs text-muted-foreground">Collez l'URL de la publication Issuu ou Calaméo. Elle sera intégrée dans le panneau de l'établissement.</p>
         </div>
@@ -3460,8 +3495,17 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
-          {externalLinkDocs.map((doc, idx) => (
-            <div key={idx} className="flex items-center gap-2 flex-nowrap">
+          <DndContext collisionDetection={closestCenter} onDragEnd={(event) => {
+            const { active, over } = event;
+            if (over && active.id !== over.id) {
+              const oldIdx = externalLinkDocs.findIndex((_, i) => `ext-${i}` === active.id);
+              const newIdx = externalLinkDocs.findIndex((_, i) => `ext-${i}` === over.id);
+              if (oldIdx !== -1 && newIdx !== -1) setExternalLinkDocs(prev => arrayMove(prev, oldIdx, newIdx));
+            }
+          }}>
+            <SortableContext items={externalLinkDocs.map((_, i) => `ext-${i}`)} strategy={verticalListSortingStrategy}>
+              {externalLinkDocs.map((doc, idx) => (
+                <SortableDocRow key={`ext-${idx}`} id={`ext-${idx}`}>
               {/* Image upload thumbnail */}
               <label className="shrink-0 cursor-pointer relative group">
                 {doc.image_url ? (
@@ -3524,8 +3568,10 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setExternalLinkDocs(prev => prev.filter((_, i) => i !== idx))}>
                 <Trash2 className="h-4 w-4" />
               </Button>
-            </div>
-          ))}
+                </SortableDocRow>
+              ))}
+            </SortableContext>
+          </DndContext>
           {externalLinkDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucun lien externe ajouté.</p>}
         </div>
 
