@@ -1958,20 +1958,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 if (fd.rating) {
                   display = `${fd.rating}/20`;
                 } else {
-                  const avg = computeWeightedRatingOn20(collectRatingSources({
-                    google_rating: fd.google_rating ? Number(fd.google_rating) : null,
-                    google_review_count: fd.google_review_count ? Number(fd.google_review_count) : null,
-                    tripadvisor_rating: fd.tripadvisor_rating ? Number(fd.tripadvisor_rating) : null,
-                    tripadvisor_review_count: fd.tripadvisor_review_count ? Number(fd.tripadvisor_review_count) : null,
-                    restaurant_guru_rating: fd.restaurant_guru_rating ? Number(fd.restaurant_guru_rating) : null,
-                    restaurant_guru_review_count: fd.restaurant_guru_review_count ? Number(fd.restaurant_guru_review_count) : null,
-                    getyourguide_rating: fd.getyourguide_rating ? Number(fd.getyourguide_rating) : null,
-                    getyourguide_review_count: fd.getyourguide_review_count ? Number(fd.getyourguide_review_count) : null,
-                    viator_rating: fd.viator_rating ? Number(fd.viator_rating) : null,
-                    viator_review_count: fd.viator_review_count ? Number(fd.viator_review_count) : null,
-                    tourradar_rating: fd.tourradar_rating ? Number(fd.tourradar_rating) : null,
-                    tourradar_review_count: fd.tourradar_review_count ? Number(fd.tourradar_review_count) : null,
-                  }));
+                  const { avg } = computeReviewsFromForm(fd);
                   if (avg !== null) {
                     display = `${avg}/20`;
                   }
