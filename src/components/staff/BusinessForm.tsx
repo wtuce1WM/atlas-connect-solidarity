@@ -3993,14 +3993,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
         {/* ═══════ Avis clients ═══════ */}
         <div id="section-avis" className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg space-y-4" style={{ scrollMarginTop: '160px' }}>
-          <div className="flex items-center justify-between">
-            <Label className="text-xl font-semibold">Avis clients</Label>
-            <div className="flex gap-2">
-              <Button type="button" variant="outline" size="sm" className="text-destructive hover:bg-destructive/10" onClick={() => setShowClearReviews(true)}>
-                <Trash2 className="h-3 w-3 mr-1" /> Tout effacer
-              </Button>
-            </div>
-          </div>
+          <Label className="text-xl font-semibold">Avis clients</Label>
           <div className="space-y-1">
             <Label className="text-sm font-medium">Note manuelle (/20)</Label>
             <div className="flex items-center gap-3">
