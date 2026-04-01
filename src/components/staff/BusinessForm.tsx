@@ -2533,6 +2533,11 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 placeholder="https://"
                 className="flex-1"
               />
+              {formData.website && (
+                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("website", "")}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
               <Select
                 value={(formData as any).website_presentation_mode || "acheter_en_ligne"}
                 onValueChange={(value) => handleChange("website_presentation_mode", value)}
@@ -2548,11 +2553,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <SelectItem value="contactez_nous">Contactez nous</SelectItem>
                 </SelectContent>
               </Select>
-              {formData.website && (
-                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("website", "")}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              )}
             </div>
             {(formData as any).website_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
             <BrokenUrlBadge url={formData.website} />
