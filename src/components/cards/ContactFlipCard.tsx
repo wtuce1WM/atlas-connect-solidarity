@@ -64,16 +64,25 @@ const ContactFlipCard = ({
           style={{ backfaceVisibility: "hidden" }}
         >
           <div className="space-y-2.5 text-sm">
-            {business.google_maps_url && hasHotelMapping && (
-              <button
-                onClick={() => setActiveView("dates")}
-                className="flex items-center justify-center w-full mb-1"
-              >
-                <MapPin
-                  className="h-10 w-10 drop-shadow-lg hover:scale-110 transition-transform text-white"
-                  style={{ animation: "map-pin-drop 0.5s ease-out 0.4s both" }}
-                />
-              </button>
+            {business.google_maps_url && (
+              hasHotelMapping ? (
+                <button
+                  onClick={() => setActiveView("dates")}
+                  className="flex items-center justify-center w-full mb-1"
+                >
+                  <MapPin
+                    className="h-10 w-10 drop-shadow-lg hover:scale-110 transition-transform text-white"
+                    style={{ animation: "map-pin-drop 0.5s ease-out 0.4s both" }}
+                  />
+                </button>
+              ) : (
+                <div className="flex items-center justify-center w-full mb-1">
+                  <MapPin
+                    className="h-10 w-10 drop-shadow-lg text-white/60"
+                    style={{ animation: "map-pin-drop 0.5s ease-out 0.4s both" }}
+                  />
+                </div>
+              )
             )}
             {business.address && (
               <div className="flex items-start gap-2">
