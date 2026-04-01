@@ -53,8 +53,14 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
   return (
     <div className="absolute inset-0 -top-[3.3rem] z-[60] bg-black/85 backdrop-blur-sm flex flex-col animate-slide-up-from-bottom overflow-hidden">
       {/* Header bar */}
-      <div className="flex items-center justify-between px-4 py-3 flex-shrink-0">
-        <div className="flex items-center gap-2 flex-1 min-w-0">
+      <div className="relative flex items-center justify-center px-4 py-3 flex-shrink-0">
+        <button
+          onClick={onClose}
+          className="absolute left-4 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+        >
+          <X className="h-4 w-4 text-white" />
+        </button>
+        <div className="flex items-center gap-2 min-w-0 max-w-[70%]">
           <div className="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
             <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 text-white fill-white"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
           </div>
@@ -68,12 +74,6 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
             </p>
           )}
         </div>
-        <button
-          onClick={onClose}
-          className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors flex-shrink-0 ml-2"
-        >
-          <X className="h-4 w-4 text-white" />
-        </button>
       </div>
 
       {/* Video player area */}
