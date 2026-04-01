@@ -2605,6 +2605,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <SelectItem value="reserver_en_ligne">Réserver en ligne</SelectItem>
                   <SelectItem value="consulter_offre">Consulter notre offre</SelectItem>
                   <SelectItem value="plus_informations">Plus d'informations</SelectItem>
+                  <SelectItem value="contactez_nous">Contactez nous</SelectItem>
                 </SelectContent>
               </Select>
               {formData.reserve_now_url && (
