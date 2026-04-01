@@ -43,7 +43,7 @@ const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
       setLoading(true);
       const [
         synRes, bundleRes, intentRes, eggRes, aiRes,
-        knowRes, aiKnowRes, sponsorRes, affRes,
+        knowRes, aiKnowRes, sponsorRes, affRes, blogRes,
       ] = await Promise.all([
         supabase.from("search_synonyms").select("id, is_active, subcategory_names"),
         supabase.from("search_bundles").select("id, is_active"),
@@ -54,6 +54,7 @@ const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
         supabase.from("knowledge_entries").select("id, category").in("category", ["general", "tourisme", "culture", "gastronomie"]),
         supabase.from("sponsors").select("id, is_active"),
         supabase.from("affiliates").select("id, is_active"),
+        supabase.from("blog_posts").select("id, is_published"),
       ]);
 
       const synonyms = synRes.data || [];
