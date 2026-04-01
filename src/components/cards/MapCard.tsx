@@ -40,12 +40,13 @@ const MapCard = ({
 
   return (
     <div
-      className={`snap-start shrink-0 w-[20rem] ${tallHeight ? 'h-[21.6em] md:h-[28.8em]' : 'h-[18em] md:h-[24em]'} mb-4 rounded-2xl overflow-hidden border border-white/10 animate-slide-in-left opacity-0 ${className}`}
+      className={`snap-start shrink-0 w-[20rem] ${tallHeight ? 'h-[21.6em] md:h-[28.8em]' : 'h-[18em] md:h-[24em]'} mb-4 rounded-2xl overflow-hidden border border-white/10 animate-slide-in-left opacity-0 relative ${onClick ? 'cursor-pointer' : ''} ${className}`}
       style={{ animationDelay, animationFillMode: "forwards" }}
+      onClick={onClick}
     >
       <iframe
         src={embedUrl}
-        className="w-full h-full border-0"
+        className={`w-full h-full border-0 ${onClick ? 'pointer-events-none' : ''}`}
         allowFullScreen
         loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"
