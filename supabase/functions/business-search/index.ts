@@ -3940,8 +3940,9 @@ serve(async (req) => {
             const beforeCount = businesses.length;
             businesses = businesses.filter((b: any) => {
               const bServices = (b.services || []).map((s: string) => s.toLowerCase());
-              const allTags = collectBusinessTags(b);
-              return detectedServices.every(ds => tagsMatchCandidate(ds, allTags));
+              return detectedServices.every(ds => 
+                bServices.some(bs => bs === ds.toLowerCase() || bs.includes(ds.toLowerCase()) || ds.toLowerCase().includes(bs))
+              );
             });
             console.log(`Multi-service AND post-filter [${detectedServices.join(", ")}]: ${beforeCount} → ${businesses.length}`);
             
