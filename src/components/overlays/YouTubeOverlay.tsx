@@ -51,7 +51,7 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
   }, [onSelectVideo]);
 
   return (
-    <div className="absolute inset-0 z-[60] bg-black/85 backdrop-blur-sm flex flex-col animate-slide-up-from-bottom overflow-hidden">
+    <div className="absolute inset-0 -top-[3.3rem] z-[60] bg-black/85 backdrop-blur-sm flex flex-col animate-slide-up-from-bottom overflow-hidden">
       {/* Header bar */}
       <div className="flex items-center justify-between px-4 py-3 flex-shrink-0">
         <div className="flex items-center gap-2 flex-1 min-w-0">
