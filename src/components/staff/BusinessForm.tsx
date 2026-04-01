@@ -2666,7 +2666,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
           <div className="flex flex-wrap gap-6">
             <label className="flex items-center gap-2 text-sm">
-              <Switch checked={formData.show_videos} onCheckedChange={(checked) => { handleChange("show_videos", checked); if (checked) handleChange("prioritize_images", false); }} />
+              <Switch checked={formData.show_videos} onCheckedChange={(checked) => { handleChange("show_videos", checked); handleChange("prioritize_images", !checked); }} />
               <span>🎬 Carrousel vidéo</span>
             </label>
             <label className="flex items-center gap-2 text-sm">
@@ -2674,7 +2674,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <span>🔊 Son par défaut</span>
             </label>
             <label className="flex items-center gap-2 text-sm">
-              <Switch checked={formData.prioritize_images} onCheckedChange={(checked) => { handleChange("prioritize_images", checked); if (checked) handleChange("show_videos", false); }} />
+              <Switch checked={formData.prioritize_images} onCheckedChange={(checked) => { handleChange("prioritize_images", checked); handleChange("show_videos", !checked); }} />
               <span>🖼️ Prioriser images</span>
             </label>
           </div>
@@ -3535,7 +3535,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             <div className="flex items-center gap-3">
               <Label className="text-base font-semibold">🎬 Vidéos</Label>
               <div className="flex items-center gap-2">
-                <Switch checked={formData.show_videos} onCheckedChange={(checked) => { handleChange("show_videos", checked); if (checked) handleChange("prioritize_images", false); }} />
+                <Switch checked={formData.show_videos} onCheckedChange={(checked) => { handleChange("show_videos", checked); handleChange("prioritize_images", !checked); }} />
                 <span className="text-xs text-muted-foreground">{formData.show_videos ? "Activé" : "Désactivé"} — Active le Carrousel vidéo</span>
               </div>
               <div className="flex items-center gap-2 ml-4">
@@ -3740,7 +3740,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           <div className="flex items-center justify-between">
             <Label className="text-base font-semibold">Images (max 30)</Label>
             <div className="flex items-center gap-2">
-              <Switch checked={formData.prioritize_images} onCheckedChange={(checked) => { handleChange("prioritize_images", checked); if (checked) handleChange("show_videos", false); }} />
+              <Switch checked={formData.prioritize_images} onCheckedChange={(checked) => { handleChange("prioritize_images", checked); handleChange("show_videos", !checked); }} />
               <span className="text-xs text-muted-foreground">Prioriser les images en fond de fiche produit</span>
             </div>
           </div>
