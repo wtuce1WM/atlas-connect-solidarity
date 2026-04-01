@@ -52,8 +52,7 @@ const ExternalLinksFlipCard = ({
           </h3>
         </div>
         <div className="flex-1 grid grid-cols-3 grid-rows-3 gap-1.5">
-        >
-          {links.map((link) => (
+          {displayLinks.map((link) => (
             <button
               key={link.id}
               onClick={(e) => { e.stopPropagation(); handleClick(link); }}
