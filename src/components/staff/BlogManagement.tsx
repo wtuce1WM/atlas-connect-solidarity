@@ -74,6 +74,8 @@ const BlogManagement = () => {
           </div>
         </CardContent>
       </Card>
+
+      {posts.length === 0 ? (
         <Card>
           <CardContent className="py-10 text-center text-muted-foreground">
             Aucun article trouvé.
