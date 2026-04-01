@@ -2599,7 +2599,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 </Button>
               )}
               <Select
-                value={(formData as any).presentation_mode || "acheter_en_ligne"}
+                value={(formData as any).presentation_mode || "reserver_en_ligne"}
                 onValueChange={(value) => handleChange("presentation_mode", value)}
               >
                 <SelectTrigger className="w-48 shrink-0">
