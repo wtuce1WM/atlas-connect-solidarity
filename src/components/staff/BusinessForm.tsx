@@ -2527,6 +2527,115 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             </div>
           </div>
 
+          {/* Site web */}
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              {formData.website ? (
+                <Label htmlFor="website_pres"><a href={formData.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Site web ↗</a></Label>
+              ) : (
+                <Label htmlFor="website_pres">Site web</Label>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={(formData as any).website_force_external}
+                onCheckedChange={(checked) => handleChange("website_force_external", checked)}
+                title="Ouvrir en lien externe"
+                className="shrink-0"
+              />
+              <Input
+                id="website_pres"
+                value={formData.website}
+                onChange={(e) => handleChange("website", e.target.value)}
+                placeholder="https://"
+                className="flex-1"
+              />
+              {formData.website && (
+                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("website", "")}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            {(formData as any).website_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
+            <BrokenUrlBadge url={formData.website} />
+            {formData.website && (
+              <button
+                type="button"
+                className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded px-2 py-1 transition-colors mt-1"
+                title="Copier l'URL du site web vers Réserver maintenant"
+                onClick={() => {
+                  handleChange("reserve_now_url", formData.website);
+                  toast({ title: "URL copiée vers \"Réserver maintenant\"" });
+                }}
+              >
+                <ArrowDown className="h-4 w-4" />
+                <span>↓ Copier vers Réserver maintenant</span>
+              </button>
+            )}
+          </div>
+
+          {/* Réserver maintenant */}
+          <div className="space-y-1">
+            {formData.reserve_now_url ? (
+              <Label htmlFor="reserve_now_pres"><a href={formData.reserve_now_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Lien "Réserver maintenant" ↗</a></Label>
+            ) : (
+              <Label htmlFor="reserve_now_pres">Lien "Réserver maintenant"</Label>
+            )}
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={(formData as any).reserve_now_force_external}
+                onCheckedChange={(checked) => handleChange("reserve_now_force_external", checked)}
+                title="Ouvrir en lien externe"
+                className="shrink-0"
+              />
+              <Input
+                id="reserve_now_pres"
+                value={formData.reserve_now_url}
+                onChange={(e) => handleChange("reserve_now_url", e.target.value)}
+                placeholder="https://"
+                className="flex-1"
+              />
+              {formData.reserve_now_url && (
+                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("reserve_now_url", "")}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            {(formData as any).reserve_now_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
+            <BrokenUrlBadge url={formData.reserve_now_url} />
+          </div>
+
+          {/* Boutique en ligne */}
+          <div className="space-y-1">
+            {formData.online_shop_url ? (
+              <Label htmlFor="online_shop_pres"><a href={formData.online_shop_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Boutique en ligne ↗</a></Label>
+            ) : (
+              <Label htmlFor="online_shop_pres">Boutique en ligne</Label>
+            )}
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={(formData as any).online_shop_force_external}
+                onCheckedChange={(checked) => handleChange("online_shop_force_external", checked)}
+                title="Ouvrir en lien externe"
+                className="shrink-0"
+              />
+              <Input
+                id="online_shop_pres"
+                value={formData.online_shop_url}
+                onChange={(e) => handleChange("online_shop_url", e.target.value)}
+                placeholder="https://"
+                className="flex-1"
+              />
+              {formData.online_shop_url && (
+                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("online_shop_url", "")}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            {(formData as any).online_shop_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
+            <BrokenUrlBadge url={formData.online_shop_url} />
+          </div>
+
           <div className="flex flex-wrap gap-6">
             <label className="flex items-center gap-2 text-sm">
               <Switch checked={formData.show_videos} onCheckedChange={(checked) => { handleChange("show_videos", checked); if (checked) handleChange("prioritize_images", false); }} />
@@ -2827,111 +2936,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 placeholder=""
               />
             </div>
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              {formData.website ? (
-                <Label htmlFor="website_top"><a href={formData.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Site web ↗</a></Label>
-              ) : (
-                <Label htmlFor="website_top">Site web</Label>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <Switch
-                checked={(formData as any).website_force_external}
-                onCheckedChange={(checked) => handleChange("website_force_external", checked)}
-                title="Ouvrir en lien externe"
-                className="shrink-0"
-              />
-              <Input
-                id="website_top"
-                value={formData.website}
-                onChange={(e) => handleChange("website", e.target.value)}
-                placeholder="https://"
-                className="flex-1"
-              />
-              {formData.website && (
-                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("website", "")}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-            {(formData as any).website_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
-            <BrokenUrlBadge url={formData.website} />
-            {formData.website && (
-              <button
-                type="button"
-                className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded px-2 py-1 transition-colors mt-1"
-                title="Copier l'URL du site web vers Réserver maintenant"
-                onClick={() => {
-                  handleChange("reserve_now_url", formData.website);
-                  toast({ title: "URL copiée vers \"Réserver maintenant\"" });
-                }}
-              >
-                <ArrowDown className="h-4 w-4" />
-                <span>↓ Copier vers Réserver maintenant</span>
-              </button>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            {formData.reserve_now_url ? (
-              <Label htmlFor="reserve_now_url_top"><a href={formData.reserve_now_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Lien "Réserver maintenant" ↗</a></Label>
-            ) : (
-              <Label htmlFor="reserve_now_url_top">Lien "Réserver maintenant"</Label>
-            )}
-            <div className="flex items-center gap-2">
-              <Switch
-                checked={(formData as any).reserve_now_force_external}
-                onCheckedChange={(checked) => handleChange("reserve_now_force_external", checked)}
-                title="Ouvrir en lien externe"
-                className="shrink-0"
-              />
-              <Input
-                id="reserve_now_url_top"
-                value={formData.reserve_now_url}
-                onChange={(e) => handleChange("reserve_now_url", e.target.value)}
-                placeholder="https://"
-                className="flex-1"
-              />
-              {formData.reserve_now_url && (
-                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("reserve_now_url", "")}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-            {(formData as any).reserve_now_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
-            <BrokenUrlBadge url={formData.reserve_now_url} />
-          </div>
-
-          <div className="space-y-2">
-            {formData.online_shop_url ? (
-              <Label htmlFor="online_shop_url_top"><a href={formData.online_shop_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Boutique en ligne ↗</a></Label>
-            ) : (
-              <Label htmlFor="online_shop_url_top">Boutique en ligne</Label>
-            )}
-            <div className="flex items-center gap-2">
-              <Switch
-                checked={(formData as any).online_shop_force_external}
-                onCheckedChange={(checked) => handleChange("online_shop_force_external", checked)}
-                title="Ouvrir en lien externe"
-                className="shrink-0"
-              />
-              <Input
-                id="online_shop_url_top"
-                value={formData.online_shop_url}
-                onChange={(e) => handleChange("online_shop_url", e.target.value)}
-                placeholder="https://"
-                className="flex-1"
-              />
-              {formData.online_shop_url && (
-                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("online_shop_url", "")}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-            {(formData as any).online_shop_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
-            <BrokenUrlBadge url={formData.online_shop_url} />
           </div>
         </div>
 
