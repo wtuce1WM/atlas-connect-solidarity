@@ -3423,14 +3423,14 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           <DndContext collisionDetection={closestCenter} onDragEnd={(event) => {
             const { active, over } = event;
             if (over && active.id !== over.id) {
-              const oldIdx = flipbookDocs.findIndex((_, i) => `flip-${i}` === active.id);
-              const newIdx = flipbookDocs.findIndex((_, i) => `flip-${i}` === over.id);
+              const oldIdx = flipbookDocs.findIndex((d) => d._uid === active.id);
+              const newIdx = flipbookDocs.findIndex((d) => d._uid === over.id);
               if (oldIdx !== -1 && newIdx !== -1) setFlipbookDocs(prev => arrayMove(prev, oldIdx, newIdx));
             }
           }}>
-            <SortableContext items={flipbookDocs.map((_, i) => `flip-${i}`)} strategy={verticalListSortingStrategy}>
+            <SortableContext items={flipbookDocs.map((d) => d._uid)} strategy={verticalListSortingStrategy}>
               {flipbookDocs.map((doc, idx) => (
-                <SortableDocRow key={`flip-${idx}`} id={`flip-${idx}`}>
+                <SortableDocRow key={doc._uid} id={doc._uid}>
               <div className="relative shrink-0 group">
                 {doc.icon ? (
                   <img src={getDocIconSrc(doc.icon)} alt="" className="h-9 w-9 object-contain rounded border border-input p-0.5 cursor-pointer" />
