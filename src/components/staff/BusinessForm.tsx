@@ -2520,6 +2520,47 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         </div>
 
 
+        {/* ── Présentation (SlidePanel options) ── */}
+        <div id="section-presentation" className="p-4 border rounded-lg bg-green-50 space-y-4" style={{ scrollMarginTop: '160px' }}>
+          <h3 className="text-sm font-semibold text-green-800">🎨 Présentation</h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Mode de présentation (CTA) */}
+            <div className="space-y-2">
+              <Label>Mode CTA</Label>
+              <Select
+                value={(formData as any).presentation_mode || "acheter_en_ligne"}
+                onValueChange={(value) => handleChange("presentation_mode", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  <SelectItem value="acheter_en_ligne">Acheter en ligne</SelectItem>
+                  <SelectItem value="reserver_en_ligne">Réserver en ligne</SelectItem>
+                  <SelectItem value="consulter_offre">Consulter notre offre</SelectItem>
+                  <SelectItem value="plus_informations">Plus d'informations</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-6">
+            <label className="flex items-center gap-2 text-sm">
+              <Switch checked={formData.show_videos} onCheckedChange={(checked) => { handleChange("show_videos", checked); if (checked) handleChange("prioritize_images", false); }} />
+              <span>🎬 Carrousel vidéo</span>
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <Switch checked={formData.default_sound_on} onCheckedChange={(checked) => handleChange("default_sound_on", checked)} />
+              <span>🔊 Son par défaut</span>
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <Switch checked={formData.prioritize_images} onCheckedChange={(checked) => { handleChange("prioritize_images", checked); if (checked) handleChange("show_videos", false); }} />
+              <span>🖼️ Prioriser images</span>
+            </label>
+          </div>
+        </div>
+
         <div id="section-contact" className="p-4 border rounded-lg bg-orange-50 space-y-4" style={{ scrollMarginTop: '160px' }}>
           <h3 className="text-sm font-semibold text-orange-800">📍 Contact & Localisation</h3>
           
