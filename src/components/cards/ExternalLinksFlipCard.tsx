@@ -110,7 +110,7 @@ const ExternalLinksFlipCard = ({
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                 <ExternalLink className="w-4 h-4" />
-                + d'infos
+                {cardTitle}
               </h3>
               <button
                 onClick={() => setFlipped(false)}
