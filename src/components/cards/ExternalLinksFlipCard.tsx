@@ -28,6 +28,16 @@ const ExternalLinksFlipCard = ({
   const backLinks = links.slice(3, 6);
   const hasBack = backLinks.length > 0;
 
+  // Derive title from the description (category) of links
+  const deriveTitle = () => {
+    const desc = links[0]?.description?.toLowerCase() || "";
+    if (desc === "partenaires") return "Ils nous font confiance";
+    // Presse or Media
+    if (desc === "presse" || desc === "media") return "Ils parlent de nous";
+    return "+ d'infos";
+  };
+  const cardTitle = deriveTitle();
+
   const handleClick = (link: ExternalLinkItem) => {
     if (onOpenUrl) {
       onOpenUrl(link.url, link.name || undefined);

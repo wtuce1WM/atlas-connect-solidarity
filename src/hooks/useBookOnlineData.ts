@@ -185,7 +185,7 @@ export function useBookOnlineData(businessId: string) {
           .limit(3),
         supabase
           .from("business_documents")
-          .select("id, name, url, icon")
+          .select("id, name, url, icon, description")
           .eq("business_id", businessId)
           .eq("type", "external_link")
           .order("sort_order"),
