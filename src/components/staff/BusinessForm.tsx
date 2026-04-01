@@ -4153,7 +4153,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               })}
             </div>
             <div className="flex items-center gap-2">
-              <Input placeholder="Ajouter une commodité..." className="h-8 text-sm flex-1 max-w-xs" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const val = (e.target as HTMLInputElement).value.trim(); if (val) { setQuickAddDialog({ type: "commodite", value: val }); (e.target as HTMLInputElement).value = ""; } } }} />
+              <Input id="input-add-comm" placeholder="Ajouter une commodité..." className="h-8 text-sm flex-1 max-w-xs" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const val = (e.target as HTMLInputElement).value.trim(); if (val) { setQuickAddDialog({ type: "commodite", value: val }); (e.target as HTMLInputElement).value = ""; } } }} />
+              <Button type="button" variant="outline" size="sm" className="h-8 px-3" onClick={() => { const el = document.getElementById("input-add-comm") as HTMLInputElement; const val = el?.value.trim(); if (val) { setQuickAddDialog({ type: "commodite", value: val }); el.value = ""; } }}><Plus className="h-3.5 w-3.5 mr-1" /> Créer</Button>
             </div>
           </div>
           {((formData as any).engagements || []).length > 0 && (
