@@ -38,6 +38,7 @@ interface ConfigHealth {
 const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
   const [loading, setLoading] = useState(true);
   const [health, setHealth] = useState<ConfigHealth | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAll = async () => {
