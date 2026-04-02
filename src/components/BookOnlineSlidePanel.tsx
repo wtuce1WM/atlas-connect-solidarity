@@ -617,16 +617,21 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   }, [business?.carousel_badge, business?.name, language]);
 
   type BottomTab = { id: "videos" | "youtube" | "kp" | "dest" | "poi"; label: string; hasContent: boolean };
+  const hasKpCode = !!(business?.kp_regroupement?.trim() || business?.kp_regroupement_2?.trim());
   const bottomTabs = useMemo<BottomTab[]>(() => {
     const tabs: BottomTab[] = [];
-    // Always show Vidéo tab
-    tabs.push({ id: "videos", label: videoTabLabel, hasContent: hasVideosCarousel });
+    // Show Vidéo tab only when 2+ videos
+    if (videoDocs.length >= 2) {
+      tabs.push({ id: "videos", label: videoTabLabel, hasContent: hasVideosCarousel });
+    }
     // YouTube tab only when configured
     if (hasYoutubeBottomCarousel) {
       tabs.push({ id: "youtube", label: "YouTube", hasContent: hasYoutubeReady || hasYoutubeBottomCarousel });
     }
-    // Always show Autres établissements tab
-    tabs.push({ id: "kp", label: language === "en" ? "Other establishments" : "Autres établissements", hasContent: hasKpCarousel });
+    // Show Autres établissements tab only when KP code exists
+    if (hasKpCode) {
+      tabs.push({ id: "kp", label: language === "en" ? "Other establishments" : "Autres établissements", hasContent: hasKpCarousel });
+    }
     // Destinations tab only when content exists
     if (hasDestCarousel) {
       tabs.push({ id: "dest", label: "Destinations", hasContent: true });
@@ -636,7 +641,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       tabs.push({ id: "poi", label: language === "en" ? "Points of interest" : "Points d'intérêt", hasContent: true });
     }
     return tabs;
-  }, [videoTabLabel, hasVideosCarousel, hasYoutubeBottomCarousel, hasYoutubeReady, hasKpCarousel, hasDestCarousel, hasPoiCarousel, language]);
+  }, [videoTabLabel, hasVideosCarousel, hasYoutubeBottomCarousel, hasYoutubeReady, hasKpCarousel, hasKpCode, hasDestCarousel, hasPoiCarousel, language, videoDocs.length]);
 
   const [activeBottomTab, setActiveBottomTab] = useState<string>("videos");
   // Reset tab when business changes
