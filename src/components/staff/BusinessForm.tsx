@@ -2133,6 +2133,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   { id: "section-social", label: "Réseaux" },
                   { id: "section-avis", label: "Avis" },
                   { id: "section-services", label: "Engagements" },
+                  { id: "section-badges", label: "Badges" },
                   { id: "section-taxonomie", label: "Taxonomie" },
                   { id: "section-keywords", label: "Mots clés" },
                   { id: "section-horaires", label: "Horaires" },
