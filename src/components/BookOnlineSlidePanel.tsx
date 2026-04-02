@@ -1054,7 +1054,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               <div className="flex items-start gap-2">
                 <h2 className={`text-base md:text-xl font-bold uppercase min-w-0 flex-1 line-clamp-2 md:truncate`} style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>{business.name}</h2>
                 {/* Mobile: badges stacked vertically */}
-                <div className="md:hidden shrink-0 flex flex-col items-end gap-1 pt-0.5">
+                <div className="md:hidden shrink-0 flex flex-col items-center gap-1 pt-0.5">
                   {avgOn20 !== null && avgOn20 > 0 && (
                     <div className="flex items-center gap-0.5 bg-black/40 backdrop-blur-sm rounded-full py-0.5 px-1.5">
                       <Star className="h-3 w-3 text-gold fill-gold" />
@@ -1063,7 +1063,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     </div>
                   )}
                   {openBadgeInfo.text && (
-                    <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider ${openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"}`}>
+                    <div className={`flex items-center gap-0.5 rounded-full py-0.5 px-1.5 text-[9px] font-bold uppercase tracking-wider ${openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"}`}>
                       <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
                       {openBadgeInfo.text}
                     </div>
