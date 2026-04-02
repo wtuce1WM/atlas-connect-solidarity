@@ -644,8 +644,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   }, [videoTabLabel, hasVideosCarousel, hasYoutubeBottomCarousel, hasYoutubeReady, hasKpCarousel, hasKpCode, hasDestCarousel, hasPoiCarousel, language, videoDocs.length]);
 
   const [activeBottomTab, setActiveBottomTab] = useState<string>("videos");
+  const bottomTabInitialRef = useRef(true);
   // Reset tab when business changes
-  useEffect(() => { setActiveBottomTab("videos"); }, [businessId]);
+  useEffect(() => { setActiveBottomTab("videos"); bottomTabInitialRef.current = true; }, [businessId]);
+  const handleBottomTabChange = (tabId: string) => {
+    bottomTabInitialRef.current = false;
+    setActiveBottomTab(tabId);
+  };
+  const slideInClass = bottomTabInitialRef.current ? "animate-slide-in-left opacity-0" : "";
 
   const noBottomCarousel = false; // Tabs are always shown
 
