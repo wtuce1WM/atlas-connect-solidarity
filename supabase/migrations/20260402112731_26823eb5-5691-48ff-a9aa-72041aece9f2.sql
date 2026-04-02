@@ -1,0 +1,1 @@
+ALTER TABLE public.subcategories ADD COLUMN show_google_map boolean NOT NULL DEFAULT true;
