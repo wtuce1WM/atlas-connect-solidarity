@@ -1313,14 +1313,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                         </div>
                       )}
                     </div>
-                    {vid.city && (
-                      <div className="px-1.5 py-1.5">
-                        <div className="flex items-center justify-center gap-1 text-[10px] text-white/80 truncate">
-                          <MapPin className="w-3 h-3 text-gold shrink-0" />
-                          <span className="truncate">{vid.city}{vid.price_type ? ` · ${vid.price_type}` : ""}</span>
-                        </div>
-                      </div>
-                    )}
+                    <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
+                      {vid.name || vid.city || `Vidéo ${index + 1}`}
+                    </p>
                   </div>
                 );
               })}
