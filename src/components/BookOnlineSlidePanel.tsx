@@ -1263,7 +1263,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           {bottomTabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveBottomTab(tab.id)}
+              onClick={() => handleBottomTabChange(tab.id)}
               className={`px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-all ${
                 activeBottomTab === tab.id
                   ? "bg-black text-white"
