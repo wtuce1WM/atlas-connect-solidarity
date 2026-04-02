@@ -1329,6 +1329,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     "avis_verifies_review_count",
     "trustpilot_rating",
     "trustpilot_review_count",
+    "kayak_rating",
+    "kayak_review_count",
     "tourradar_rating",
     "tourradar_review_count",
   ] as const;
