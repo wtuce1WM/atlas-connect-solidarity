@@ -975,6 +975,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     youtube_force_external: (business as any)?.youtube_force_external ?? false,
     website_presentation_mode: (business as any)?.website_presentation_mode || "plus_informations",
     online_shop_presentation_mode: (business as any)?.online_shop_presentation_mode || "acheter_en_ligne",
+    carousel_badge: (business as any)?.carousel_badge || "",
   });
 
   // --- Business documents (menus, flipbooks, external links & videos) ---
