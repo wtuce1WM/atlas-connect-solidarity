@@ -939,6 +939,9 @@ export type Database = {
           is_poi: boolean
           is_regulated_activity: boolean | null
           is_visible_locale: boolean
+          kayak_rating: number | null
+          kayak_review_count: number | null
+          kayak_url: string | null
           keywords: string[] | null
           kp_active: boolean
           kp_regroupement: string | null
@@ -1083,6 +1086,9 @@ export type Database = {
           is_poi?: boolean
           is_regulated_activity?: boolean | null
           is_visible_locale?: boolean
+          kayak_rating?: number | null
+          kayak_review_count?: number | null
+          kayak_url?: string | null
           keywords?: string[] | null
           kp_active?: boolean
           kp_regroupement?: string | null
@@ -1227,6 +1233,9 @@ export type Database = {
           is_poi?: boolean
           is_regulated_activity?: boolean | null
           is_visible_locale?: boolean
+          kayak_rating?: number | null
+          kayak_review_count?: number | null
+          kayak_url?: string | null
           keywords?: string[] | null
           kp_active?: boolean
           kp_regroupement?: string | null
@@ -3925,6 +3934,9 @@ export type Database = {
               is_poi: boolean
               is_regulated_activity: boolean | null
               is_visible_locale: boolean
+              kayak_rating: number | null
+              kayak_review_count: number | null
+              kayak_url: string | null
               keywords: string[] | null
               kp_active: boolean
               kp_regroupement: string | null
@@ -4085,6 +4097,9 @@ export type Database = {
               is_poi: boolean
               is_regulated_activity: boolean | null
               is_visible_locale: boolean
+              kayak_rating: number | null
+              kayak_review_count: number | null
+              kayak_url: string | null
               keywords: string[] | null
               kp_active: boolean
               kp_regroupement: string | null

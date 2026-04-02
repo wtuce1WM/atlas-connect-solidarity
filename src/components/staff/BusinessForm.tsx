@@ -932,6 +932,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     trustpilot_url: (business as any)?.trustpilot_url || "",
     trustpilot_rating: (business as any)?.trustpilot_rating ?? "",
     trustpilot_review_count: (business as any)?.trustpilot_review_count ?? "",
+    kayak_url: (business as any)?.kayak_url || "",
+    kayak_rating: (business as any)?.kayak_rating ?? "",
+    kayak_review_count: (business as any)?.kayak_review_count ?? "",
     tourradar_url: (business as any)?.tourradar_url || "",
     tourradar_rating: (business as any)?.tourradar_rating ?? "",
     tourradar_review_count: (business as any)?.tourradar_review_count ?? "",
@@ -1289,6 +1292,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       avis_verifies_review_count: toNullableNumber(fd.avis_verifies_review_count),
       trustpilot_rating: toNullableNumber(fd.trustpilot_rating),
       trustpilot_review_count: toNullableNumber(fd.trustpilot_review_count),
+      kayak_rating: toNullableNumber(fd.kayak_rating),
+      kayak_review_count: toNullableNumber(fd.kayak_review_count),
       tourradar_rating: toNullableNumber(fd.tourradar_rating),
       tourradar_review_count: toNullableNumber(fd.tourradar_review_count),
     });
@@ -1302,6 +1307,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       viator_review_count: toNullableNumber(fd.viator_review_count),
       avis_verifies_review_count: toNullableNumber(fd.avis_verifies_review_count),
       trustpilot_review_count: toNullableNumber(fd.trustpilot_review_count),
+      kayak_review_count: toNullableNumber(fd.kayak_review_count),
       tourradar_review_count: toNullableNumber(fd.tourradar_review_count),
     });
 
@@ -1323,6 +1329,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     "avis_verifies_review_count",
     "trustpilot_rating",
     "trustpilot_review_count",
+    "kayak_rating",
+    "kayak_review_count",
     "tourradar_rating",
     "tourradar_review_count",
   ] as const;
@@ -1700,6 +1708,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       trustpilot_url: (formData as any).trustpilot_url || null,
       trustpilot_rating: (formData as any).trustpilot_rating !== "" ? parseFloat((formData as any).trustpilot_rating) : null,
       trustpilot_review_count: (formData as any).trustpilot_review_count !== "" ? parseInt((formData as any).trustpilot_review_count) : null,
+      kayak_url: (formData as any).kayak_url || null,
+      kayak_rating: (formData as any).kayak_rating !== "" ? parseFloat((formData as any).kayak_rating) : null,
+      kayak_review_count: (formData as any).kayak_review_count !== "" ? parseInt((formData as any).kayak_review_count) : null,
       other_booking_url: formData.other_booking_url || null,
       other_booking_name: formData.other_booking_name || null,
       glovo_url: (formData as any).glovo_url || null,
@@ -4215,6 +4226,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               { urlKey: "tourradar_url", ratingKey: "tourradar_rating", countKey: "tourradar_review_count", label: "TourRadar" },
               { urlKey: "avis_verifies_url", ratingKey: "avis_verifies_rating", countKey: "avis_verifies_review_count", label: "Avis Vérifiés" },
               { urlKey: "trustpilot_url", ratingKey: "trustpilot_rating", countKey: "trustpilot_review_count", label: "Trustpilot" },
+              { urlKey: "kayak_url", ratingKey: "kayak_rating", countKey: "kayak_review_count", label: "Kayak" },
             ].map(({ urlKey, ratingKey, countKey, label, icon }) => (
               <div key={ratingKey} className="p-3 border rounded-lg bg-white/50 space-y-2">
                 <Label className="flex items-center gap-2 text-sm font-medium">{icon || null} {label}</Label>
