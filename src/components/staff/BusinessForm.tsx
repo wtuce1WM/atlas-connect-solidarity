@@ -2825,6 +2825,25 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Switch checked={formData.default_sound_on} onCheckedChange={(checked) => handleChange("default_sound_on", checked)} />
               <span>🔊 Son par défaut</span>
             </label>
+            <div className="flex items-center gap-2">
+              <Label className="text-sm whitespace-nowrap">🏷️ Badge Carrousel</Label>
+              <Select
+                value={(formData as any).carousel_badge || "__none__"}
+                onValueChange={(value) => handleChange("carousel_badge", value === "__none__" ? null : value)}
+              >
+                <SelectTrigger className="w-64 shrink-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  <SelectItem value="__none__">Aucun</SelectItem>
+                  <SelectItem value="nos_offres">Nos offres</SelectItem>
+                  <SelectItem value="immergez_vous">Immergez-vous</SelectItem>
+                  <SelectItem value="bienvenue_a">Bienvenue à "{formData.name}"</SelectItem>
+                  <SelectItem value="bienvenue_au">Bienvenue au "{formData.name}"</SelectItem>
+                  <SelectItem value="bienvenue_chez">Bienvenue chez "{formData.name}"</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
