@@ -62,6 +62,21 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Single-URL test mode: { url: "https://..." }
+  try {
+    const body = await req.json().catch(() => null);
+    if (body?.url) {
+      const result = await checkUrl(body.url);
+      return new Response(JSON.stringify({
+        blocked: result.blocked,
+        reason: result.reason || result.error || "",
+        httpStatus: result.httpStatus,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+  } catch { /* fall through to batch mode */ }
+
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
