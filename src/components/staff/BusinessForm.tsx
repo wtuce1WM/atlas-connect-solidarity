@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { toast as sonnerToast } from "sonner";
 import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle, Copy, ExternalLink, Globe, Star, Plus, Merge, ArrowRight, Loader2, FileText, X, Upload, Image as ImageIcon, ChevronUp, ChevronDown, GripVertical, Monitor } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
@@ -3772,21 +3773,37 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                       onClick={async () => {
                         const testUrl = doc.url;
                         if (!testUrl) return;
-                        const toastRef = toast({ title: "⏳ Test en cours…", description: testUrl, duration: 30000 });
+                        const loadingToastId = sonnerToast.loading("⏳ Test en cours…", {
+                          description: testUrl,
+                          duration: 30000,
+                        });
+
                         try {
                           const { data: fnData, error: fnError } = await supabase.functions.invoke("check-iframe-blocked", {
                             body: { url: testUrl },
                           });
-                          toastRef.dismiss();
+
                           if (fnError) throw fnError;
+
                           if (fnData?.blocked) {
-                            toast({ title: "🚫 iframe bloquée", description: `${fnData.reason}${fnData.httpStatus ? ` (HTTP ${fnData.httpStatus})` : ''}`, variant: "destructive", duration: 8000 });
+                            sonnerToast.error("🚫 iframe bloquée", {
+                              id: loadingToastId,
+                              description: `${fnData.reason}${fnData.httpStatus ? ` (HTTP ${fnData.httpStatus})` : ""}`,
+                              duration: 8000,
+                            });
                           } else {
-                            toast({ title: "✅ iframe OK", description: `Ce site autorise l'affichage en iframe.${fnData?.httpStatus ? ` (HTTP ${fnData.httpStatus})` : ''}`, duration: 8000 });
+                            sonnerToast.success("✅ iframe OK", {
+                              id: loadingToastId,
+                              description: `Ce site autorise l'affichage en iframe.${fnData?.httpStatus ? ` (HTTP ${fnData.httpStatus})` : ""}`,
+                              duration: 8000,
+                            });
                           }
                         } catch (err: any) {
-                          toastRef.dismiss();
-                          toast({ title: "Erreur", description: err.message, variant: "destructive", duration: 8000 });
+                          sonnerToast.error("Erreur", {
+                            id: loadingToastId,
+                            description: err?.message || "Erreur inconnue",
+                            duration: 8000,
+                          });
                         }
                       }}
                     >
