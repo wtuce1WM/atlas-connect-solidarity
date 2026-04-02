@@ -54,6 +54,9 @@ export function collectRatingSources(business: {
   if (business.trustpilot_rating && business.trustpilot_review_count) {
     sources.push({ rating: business.trustpilot_rating, count: business.trustpilot_review_count });
   }
+  if (business.kayak_rating && business.kayak_review_count) {
+    sources.push({ rating: business.kayak_rating, count: business.kayak_review_count });
+  }
   if (business.tourradar_rating && business.tourradar_review_count) {
     sources.push({ rating: business.tourradar_rating, count: business.tourradar_review_count });
   }
