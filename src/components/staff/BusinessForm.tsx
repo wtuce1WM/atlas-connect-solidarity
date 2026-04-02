@@ -1319,6 +1319,12 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     "getyourguide_review_count",
     "viator_rating",
     "viator_review_count",
+    "avis_verifies_rating",
+    "avis_verifies_review_count",
+    "trustpilot_rating",
+    "trustpilot_review_count",
+    "tourradar_rating",
+    "tourradar_review_count",
   ] as const;
 
   const applyFetchedReviewsToForm = (fd: any, fetched: Record<string, unknown>) => {
