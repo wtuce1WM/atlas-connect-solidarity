@@ -638,7 +638,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     }
     // POI tab only when content exists
     if (hasPoiCarousel) {
-      tabs.push({ id: "poi", label: language === "en" ? "Points of interest" : "Points d'intérêt", hasContent: true });
+      tabs.push({ id: "poi", label: language === "en" ? "Nearby" : "À proximité", hasContent: true });
     }
     return tabs;
   }, [videoTabLabel, hasVideosCarousel, hasYoutubeBottomCarousel, hasYoutubeReady, hasKpCarousel, hasKpCode, hasDestCarousel, hasPoiCarousel, language, videoDocs.length]);
