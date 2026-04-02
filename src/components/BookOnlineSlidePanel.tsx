@@ -1220,11 +1220,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           <div className="flex justify-center mt-3 md:mt-6 mb-1.5 pointer-events-auto">
             <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
               {(() => {
-                const cb = business.carousel_badge;
-                if (cb === "immergez_vous") return language === "en" ? "Immerse yourself" : "Immergez-vous";
-                if (cb === "bienvenue_a") return `${language === "en" ? "Welcome to" : "Bienvenue à"} ${business.name}`;
-                if (cb === "bienvenue_au") return `${language === "en" ? "Welcome to" : "Bienvenue au"} ${business.name}`;
-                if (cb === "bienvenue_chez") return `${language === "en" ? "Welcome to" : "Bienvenue chez"} ${business.name}`;
+                if (business.show_videos && business.carousel_badge) {
+                  const cb = business.carousel_badge;
+                  if (cb === "immergez_vous") return language === "en" ? "Immerse yourself" : "Immergez-vous";
+                  if (cb === "bienvenue_a") return `${language === "en" ? "Welcome to" : "Bienvenue à"} ${business.name}`;
+                  if (cb === "bienvenue_au") return `${language === "en" ? "Welcome to" : "Bienvenue au"} ${business.name}`;
+                  if (cb === "bienvenue_chez") return `${language === "en" ? "Welcome to" : "Bienvenue chez"} ${business.name}`;
+                  if (cb === "nos_offres") return language === "en" ? "Our offers" : "Nos offres";
+                }
                 return language === "en" ? "Our offers" : "Nos offres";
               })()}
             </h3>
