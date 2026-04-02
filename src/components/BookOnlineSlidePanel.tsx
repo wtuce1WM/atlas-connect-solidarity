@@ -1284,7 +1284,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 return (
                   <div
                     key={`vid-${index}`}
-                    className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 cursor-pointer hover:border-white/30 transition-colors ${business?.carousel_badge !== "Nos offres" ? "flex flex-col" : ""}`}
+                    className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 cursor-pointer hover:border-white/30 transition-colors"
                     onClick={() => {
                       setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description });
                     }}
