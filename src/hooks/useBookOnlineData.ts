@@ -289,6 +289,7 @@ export function useBookOnlineData(businessId: string) {
       const fetchKpRelated = async () => {
         const kp1Val = biz?.kp_regroupement?.trim() || "";
         const kp2Val = biz?.kp_regroupement_2?.trim() || "";
+        const isMaster = biz?.is_master === true;
 
         if (!kp1Val && !kp2Val) {
           if (!isCancelled) {
