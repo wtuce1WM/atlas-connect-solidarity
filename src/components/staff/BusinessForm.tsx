@@ -3759,32 +3759,23 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                       className="shrink-0 text-muted-foreground hover:text-primary"
                       title="Tester iframe"
                       onClick={async () => {
+                        const testUrl = doc.url;
+                        if (!testUrl) return;
+                        const toastRef = toast({ title: "⏳ Test en cours…", description: testUrl, duration: 30000 });
                         try {
-                          const testUrl = doc.url;
-                          toast({ title: "⏳ Test en cours…", description: testUrl });
-                          const controller = new AbortController();
-                          const timeout = setTimeout(() => controller.abort(), 10000);
-                          const resp = await fetch(testUrl, {
-                            method: "HEAD",
-                            mode: "cors",
-                            redirect: "follow",
-                            signal: controller.signal,
-                          }).catch(() => null);
-                          clearTimeout(timeout);
-                          // If CORS blocks the HEAD request we can't read headers client-side,
-                          // so fall back to the edge function for a reliable server-side check.
                           const { data: fnData, error: fnError } = await supabase.functions.invoke("check-iframe-blocked", {
                             body: { url: testUrl },
                           });
+                          toastRef.dismiss();
                           if (fnError) throw fnError;
-                          // The function now accepts a single-url mode
                           if (fnData?.blocked) {
-                            toast({ title: "🚫 iframe bloquée", description: `${fnData.reason}`, variant: "destructive" });
+                            toast({ title: "🚫 iframe bloquée", description: `${fnData.reason}${fnData.httpStatus ? ` (HTTP ${fnData.httpStatus})` : ''}`, variant: "destructive", duration: 8000 });
                           } else {
-                            toast({ title: "✅ iframe OK", description: `Ce site autorise l'affichage en iframe.` });
+                            toast({ title: "✅ iframe OK", description: `Ce site autorise l'affichage en iframe.${fnData?.httpStatus ? ` (HTTP ${fnData.httpStatus})` : ''}`, duration: 8000 });
                           }
                         } catch (err: any) {
-                          toast({ title: "Erreur", description: err.message, variant: "destructive" });
+                          toastRef.dismiss();
+                          toast({ title: "Erreur", description: err.message, variant: "destructive", duration: 8000 });
                         }
                       }}
                     >
