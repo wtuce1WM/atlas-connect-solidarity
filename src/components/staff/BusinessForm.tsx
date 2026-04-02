@@ -1571,10 +1571,10 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       return;
     }
 
-    // External links: title + URL are required when a row is filled
+    // External links: title is required when a row is filled
     const hasInvalidExternalLink = externalLinkDocs.some((d) => {
       const hasAnyValue = !!(d.name.trim() || d.url.trim() || d.image_url.trim() || d.language.trim());
-      return hasAnyValue && (!d.name.trim() || !d.url.trim());
+      return hasAnyValue && !d.name.trim();
     });
 
     if (hasInvalidExternalLink) {
