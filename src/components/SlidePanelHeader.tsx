@@ -34,8 +34,8 @@ const SlidePanelHeader = ({
       : "bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity";
 
   const baseClass = mobileTransparent
-    ? "absolute top-0 left-0 right-0 lg:relative flex items-center justify-between px-4 py-2 bg-transparent lg:bg-card lg:border-b lg:border-border z-40"
-    : "shrink-0 flex items-center justify-between px-4 py-2 bg-card border-b border-border z-40 relative";
+    ? "absolute top-0 left-0 right-0 lg:relative flex items-center justify-between px-4 py-2 bg-transparent lg:bg-card lg:border-b lg:border-border z-40 overflow-visible"
+    : "shrink-0 flex items-center justify-between px-4 py-2 bg-card border-b border-border z-40 relative overflow-visible";
 
   return (
     <div className={baseClass}>
