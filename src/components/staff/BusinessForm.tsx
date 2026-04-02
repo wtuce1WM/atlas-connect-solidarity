@@ -1186,19 +1186,21 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   };
 
   // Capture initial engagements once so unchecking doesn't remove items from the list
-  const initialEngagementsRef = useRef<string[] | null>(null);
-  if (initialEngagementsRef.current === null && ((formData as any).engagements || []).length > 0) {
-    initialEngagementsRef.current = [...((formData as any).engagements || [])];
-  }
+  const [initialEngagements, setInitialEngagements] = useState<string[]>([]);
+  useEffect(() => {
+    const engs = ((formData as any).engagements || []) as string[];
+    if (engs.length > 0 && initialEngagements.length === 0) {
+      setInitialEngagements([...engs]);
+    }
+  }, [(formData as any).engagements]);
 
   const currentBusinessCustomOptions = useMemo(
     () => {
       const current = ((formData as any).engagements || []) as string[];
-      const initial = initialEngagementsRef.current || [];
-      const merged = [...new Set([...current, ...initial])];
+      const merged = [...new Set([...current, ...initialEngagements])];
       return extractCustomOptionsFromEngagements(merged);
     },
-    [(formData as any).engagements]
+    [(formData as any).engagements, initialEngagements]
   );
 
   // Merge global + current business + newly added custom items
