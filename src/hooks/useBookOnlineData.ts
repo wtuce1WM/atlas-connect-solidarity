@@ -233,15 +233,17 @@ export function useBookOnlineData(businessId: string) {
       const fetchCategoryIcon = async () => {
         const mainCat = biz?.main_category;
         if (!mainCat) {
-          if (!isCancelled) setCategoryIcon(null);
+          if (!isCancelled) { setCategoryIcon(null); setShowGoogleMap(true); }
           return;
         }
-        const { data: catData } = await supabase
-          .from("categories")
-          .select("icon")
-          .eq("name_fr", mainCat)
-          .maybeSingle();
-        if (!isCancelled) setCategoryIcon(catData?.icon || null);
+        const [catRes, subRes] = await Promise.all([
+          supabase.from("categories").select("icon").eq("name_fr", mainCat).maybeSingle(),
+          supabase.from("subcategories").select("show_google_map").eq("name_fr", mainCat).maybeSingle(),
+        ]);
+        if (!isCancelled) {
+          setCategoryIcon(catRes.data?.icon || null);
+          setShowGoogleMap((subRes.data as any)?.show_google_map !== false);
+        }
       };
 
       const fetchDestinations = async () => {
