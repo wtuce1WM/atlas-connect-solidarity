@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { X } from "lucide-react";
+import { X, Phone } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { whatsappUrl } from "@/lib/phoneUtils";
 
@@ -8,9 +8,10 @@ interface BookingOverlayProps {
   title?: string;
   onClose: () => void;
   whatsapp?: string | null;
+  phone?: string | null;
 }
 
-const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp }: BookingOverlayProps) => {
+const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp, phone }: BookingOverlayProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   return (
@@ -25,7 +26,7 @@ const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp }: BookingOverlay
           <X className="h-4 w-4" />
         </button>
         <span className="text-sm font-semibold ml-2">{title || "Réservation"}</span>
-        {whatsapp && (
+        {whatsapp ? (
           <a
             href={whatsappUrl(whatsapp)}
             target="_blank"
@@ -37,7 +38,16 @@ const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp }: BookingOverlay
           >
             <WhatsAppIcon className="h-4 w-4" />
           </a>
-        )}
+        ) : phone ? (
+          <a
+            href={`tel:${phone}`}
+            className="absolute left-1/2 -translate-x-1/2 h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background hover:opacity-90 transition-opacity"
+            title="Appeler"
+            aria-label="Appeler par téléphone"
+          >
+            <Phone className="h-4 w-4" />
+          </a>
+        ) : null}
       </div>
 
       <iframe

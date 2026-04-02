@@ -1883,6 +1883,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             title={bookingOverlayUrl ? bookingOverlayTitle : undefined}
             onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); }}
             whatsapp={business?.whatsapp}
+            phone={business?.phone}
           />
         );
       })()}
