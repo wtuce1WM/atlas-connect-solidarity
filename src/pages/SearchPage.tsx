@@ -1204,8 +1204,11 @@ const SearchPage = () => {
   // Compute distance between user coords and a business
   const getDistanceKm = useCallback((b: Business): number | null => {
     if (!geo.isEnabled || !geo.coords || b.latitude == null || b.longitude == null) return null;
+    // Hide distance if any of the business's subcategories has show_google_map disabled
+    const bizCats = b.categories || [];
+    if (bizCats.length > 0 && subcategories.some(sc => bizCats.includes(sc.name_fr) && sc.show_google_map === false)) return null;
     return haversineKm(geo.coords.lat, geo.coords.lng, b.latitude, b.longitude);
-  }, [geo.isEnabled, geo.coords]);
+  }, [geo.isEnabled, geo.coords, subcategories]);
 
   // Sort: WTUCE verified first (by rating desc), then non-verified (by rating desc)
   const sortWtuceAndRating = (a: Business, b: Business) => {
