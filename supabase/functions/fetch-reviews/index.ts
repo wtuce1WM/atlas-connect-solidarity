@@ -233,7 +233,7 @@ async function searchGooglePlace(
   return null;
 }
 
-async function fetchGoogleReviews(businessName: string, city: string | null, googleMapsUrl: string | null): Promise<{ rating: number | null; count: number | null; reviews: ReviewText[] }> {
+async function fetchGoogleReviews(businessName: string, city: string | null, googleMapsUrl: string | null, dbLatitude?: number | null, dbLongitude?: number | null): Promise<{ rating: number | null; count: number | null; reviews: ReviewText[] }> {
   const apiKey = Deno.env.get('GOOGLE_MAPS_API_KEY');
   if (!apiKey) {
     console.error('GOOGLE_MAPS_API_KEY not configured');
