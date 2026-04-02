@@ -421,6 +421,7 @@ export function useBookOnlineData(businessId: string) {
     videoDocs,
     allVideoUrls,
     categoryIcon,
+    showGoogleMap,
     kpRelated,
     isKp1Only,
     liteApiHotelId,
