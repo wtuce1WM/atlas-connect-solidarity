@@ -27,6 +27,8 @@ export function collectRatingSources(business: {
   avis_verifies_review_count?: number | null;
   trustpilot_rating?: number | null;
   trustpilot_review_count?: number | null;
+  kayak_rating?: number | null;
+  kayak_review_count?: number | null;
   tourradar_rating?: number | null;
   tourradar_review_count?: number | null;
 }): RatingSource[] {
