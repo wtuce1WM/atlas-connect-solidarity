@@ -3777,30 +3777,42 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                           description: testUrl,
                           duration: 30000,
                         });
+                        let timeoutId: number | undefined;
 
                         try {
-                          const { data: fnData, error: fnError } = await supabase.functions.invoke("check-iframe-blocked", {
-                            body: { url: testUrl },
+                          const timeoutPromise = new Promise<{ data: null; error: Error }>((resolve) => {
+                            timeoutId = window.setTimeout(() => {
+                              resolve({ data: null, error: new Error("Le test a expiré. Réessayez.") });
+                            }, 10000);
                           });
+
+                          const { data: fnData, error: fnError } = await Promise.race([
+                            supabase.functions.invoke("check-iframe-blocked", {
+                              body: { url: testUrl },
+                            }),
+                            timeoutPromise,
+                          ]);
+
+                          if (timeoutId) window.clearTimeout(timeoutId);
+                          sonnerToast.dismiss(loadingToastId);
 
                           if (fnError) throw fnError;
 
                           if (fnData?.blocked) {
                             sonnerToast.error("🚫 iframe bloquée", {
-                              id: loadingToastId,
                               description: `${fnData.reason}${fnData.httpStatus ? ` (HTTP ${fnData.httpStatus})` : ""}`,
                               duration: 8000,
                             });
                           } else {
                             sonnerToast.success("✅ iframe OK", {
-                              id: loadingToastId,
                               description: `Ce site autorise l'affichage en iframe.${fnData?.httpStatus ? ` (HTTP ${fnData.httpStatus})` : ""}`,
                               duration: 8000,
                             });
                           }
                         } catch (err: any) {
+                          if (timeoutId) window.clearTimeout(timeoutId);
+                          sonnerToast.dismiss(loadingToastId);
                           sonnerToast.error("Erreur", {
-                            id: loadingToastId,
                             description: err?.message || "Erreur inconnue",
                             duration: 8000,
                           });
