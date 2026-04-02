@@ -4226,6 +4226,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               { urlKey: "tourradar_url", ratingKey: "tourradar_rating", countKey: "tourradar_review_count", label: "TourRadar" },
               { urlKey: "avis_verifies_url", ratingKey: "avis_verifies_rating", countKey: "avis_verifies_review_count", label: "Avis Vérifiés" },
               { urlKey: "trustpilot_url", ratingKey: "trustpilot_rating", countKey: "trustpilot_review_count", label: "Trustpilot" },
+              { urlKey: "kayak_url", ratingKey: "kayak_rating", countKey: "kayak_review_count", label: "Kayak" },
             ].map(({ urlKey, ratingKey, countKey, label, icon }) => (
               <div key={ratingKey} className="p-3 border rounded-lg bg-white/50 space-y-2">
                 <Label className="flex items-center gap-2 text-sm font-medium">{icon || null} {label}</Label>
