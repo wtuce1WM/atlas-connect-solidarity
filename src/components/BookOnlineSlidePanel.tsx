@@ -1313,10 +1313,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                         </div>
                       )}
                     </div>
-                    {business?.carousel_badge === "Nos offres" && (
+                    {business?.carousel_badge === "Nos offres" ? (
                       <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
                         {vid.name || vid.city || `Vidéo ${index + 1}`}
                       </p>
+                    ) : (
+                      <div className="py-1.5" aria-hidden="true">&nbsp;</div>
                     )}
                   </div>
                 );
