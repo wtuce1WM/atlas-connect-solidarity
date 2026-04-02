@@ -380,6 +380,22 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   } = useDragToHide();
   useEffect(() => { hideCardsRef.current = hideCards; }, [hideCards]);
 
+  // Track recently viewed when business loads in slide panel
+  useEffect(() => {
+    if (business) {
+      window.dispatchEvent(new CustomEvent("track-business-view", {
+        detail: {
+          id: business.id,
+          name: business.name,
+          images: business.images,
+          logo_url: business.logo_url,
+          city: business.city,
+          slug: (business as any).slug || business.id,
+        },
+      }));
+    }
+  }, [business?.id]);
+
   // Reset UI state when switching business
   useEffect(() => {
     resetDrag();
