@@ -3314,29 +3314,38 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 });
                 const sortedKeys = Object.keys(grouped).sort((a, b) => a === "Autre" ? 1 : b === "Autre" ? -1 : a.localeCompare(b));
                 return sortedKeys.map((neighborhood) => {
-                  const neighborhoodIds = grouped[neighborhood].map(b => b.id);
-                  const allSelected = neighborhoodIds.every(id => selectedPoiBusinessIds.includes(id));
-                  const someSelected = !allSelected && neighborhoodIds.some(id => selectedPoiBusinessIds.includes(id));
+                  const neighborhoodIds = grouped[neighborhood].map((b) => b.id);
+                  const allSelected = neighborhoodIds.every((id) => selectedPoiBusinessIds.includes(id));
+                  const someSelected = !allSelected && neighborhoodIds.some((id) => selectedPoiBusinessIds.includes(id));
+                  const toggleNeighborhoodSelection = () => {
+                    setSelectedPoiBusinessIds((prev) => {
+                      if (allSelected) {
+                        return prev.filter((id) => !neighborhoodIds.includes(id));
+                      }
+                      return [...new Set([...prev, ...neighborhoodIds])];
+                    });
+                    setIsDirty(true);
+                  };
+
                   return (
                   <div key={neighborhood}>
-                    <button
-                      type="button"
-                      className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground mb-1 hover:text-foreground transition-colors group"
-                      onClick={() => {
-                        setSelectedPoiBusinessIds(prev => {
-                          if (allSelected) {
-                            return prev.filter(id => !neighborhoodIds.includes(id));
-                          }
-                          return [...new Set([...prev, ...neighborhoodIds])];
-                        });
-                        setIsDirty(true);
-                      }}
-                      title={allSelected ? "Désélectionner tout le quartier" : "Sélectionner tout le quartier"}
-                    >
-                      <Checkbox checked={allSelected ? true : someSelected ? "indeterminate" : false} className="h-3.5 w-3.5 pointer-events-none" tabIndex={-1} />
-                      {neighborhood}
-                      <span className="text-[10px] opacity-60">({neighborhoodIds.length})</span>
-                    </button>
+                    <div className="mb-1 flex items-center gap-2">
+                      <Checkbox
+                        checked={allSelected ? true : someSelected ? "indeterminate" : false}
+                        onCheckedChange={toggleNeighborhoodSelection}
+                        aria-label={allSelected ? `Désélectionner tout le quartier ${neighborhood}` : `Sélectionner tout le quartier ${neighborhood}`}
+                        className="h-3.5 w-3.5 shrink-0"
+                      />
+                      <button
+                        type="button"
+                        className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors group"
+                        onClick={toggleNeighborhoodSelection}
+                        title={allSelected ? "Désélectionner tout le quartier" : "Sélectionner tout le quartier"}
+                      >
+                        {neighborhood}
+                        <span className="text-[10px] opacity-60">({neighborhoodIds.length})</span>
+                      </button>
+                    </div>
                     <div className="flex flex-wrap gap-2">
                       {grouped[neighborhood].map((biz) => {
                         const isSelected = selectedPoiBusinessIds.includes(biz.id);
