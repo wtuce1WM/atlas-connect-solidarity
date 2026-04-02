@@ -1261,7 +1261,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               className={`px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-all ${
                 activeBottomTab === tab.id
                   ? "bg-black text-white"
-                  : "bg-white/50 text-black hover:bg-white/60"
+                  : "bg-white/70 text-black hover:bg-white/80"
               } ${!tab.hasContent ? "opacity-50" : ""}`}
             >
               {tab.label}
