@@ -86,6 +86,7 @@ interface Subcategory {
   keywords: string[] | null;
   tab_title: string | null;
   description_fr: string | null;
+  show_google_map: boolean;
 }
 
 interface Service {
