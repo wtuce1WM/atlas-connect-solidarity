@@ -233,14 +233,15 @@ async function searchGooglePlace(
   return null;
 }
 
-async function fetchGoogleReviews(businessName: string, city: string | null, googleMapsUrl: string | null): Promise<{ rating: number | null; count: number | null; reviews: ReviewText[] }> {
+async function fetchGoogleReviews(businessName: string, city: string | null, googleMapsUrl: string | null, dbLatitude?: number | null, dbLongitude?: number | null): Promise<{ rating: number | null; count: number | null; reviews: ReviewText[] }> {
   const apiKey = Deno.env.get('GOOGLE_MAPS_API_KEY');
   if (!apiKey) {
     console.error('GOOGLE_MAPS_API_KEY not configured');
     return { rating: null, count: null, reviews: [] };
   }
 
-  const exactCoords = extractExactCoordsFromGoogleUrl(googleMapsUrl);
+  const exactCoords = extractExactCoordsFromGoogleUrl(googleMapsUrl)
+    || (dbLatitude != null && dbLongitude != null ? { lat: dbLatitude, lng: dbLongitude } : null);
   const urlPlaceName = extractPlaceNameFromGoogleUrl(googleMapsUrl);
   const placeRef = extractGooglePlaceRef(googleMapsUrl);
 
@@ -279,6 +280,20 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
     } catch (e) {
       console.log(`Strategy 0 failed: ${e}`);
     }
+  }
+
+  // Strategy 0b: GPS-first — search by business name with very tight location restriction using DB coords
+  if (exactCoords) {
+    const q0b = `${businessName}${cityQuerySuffix}`;
+    console.log(`Strategy 0b: GPS-first "${q0b}" with tight restriction @${exactCoords.lat},${exactCoords.lng} (50m)`);
+    const place = await searchGooglePlace(q0b, exactCoords, 50.0, apiKey, true, []);
+    if (place) {
+      console.log(`Found via GPS: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
+      const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
+      if (reviews.length > 0) console.log(`Got ${reviews.length} Google review texts`);
+      return { rating: place.rating ?? null, count: place.count ?? null, reviews };
+    }
+    console.log('Strategy 0b failed, continuing');
   }
 
   if (urlPlaceName && exactCoords) {
@@ -607,7 +622,7 @@ Deno.serve(async (req) => {
     const promises: Promise<void>[] = [];
 
     promises.push(
-      fetchGoogleReviews(business.name, business.city, business.google_maps_url).then(r => {
+      fetchGoogleReviews(business.name, business.city, business.google_maps_url, business.latitude, business.longitude).then(r => {
         results.google_rating = r.rating;
         results.google_review_count = r.count;
         googleReviewTexts = r.reviews;
