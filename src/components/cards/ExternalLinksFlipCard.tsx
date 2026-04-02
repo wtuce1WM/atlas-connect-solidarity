@@ -49,23 +49,30 @@ const ExternalLinksFlipCard = ({
   const hasBack = backLinks.length > 0;
 
   const renderLinkButton = (link: ExternalLinkItem) => (
-    <button
-      key={link.id}
-      onClick={(e) => { e.stopPropagation(); handleClick(link); }}
-      className="flex items-center justify-center rounded-lg bg-white/30 hover:bg-white/45 transition-colors overflow-hidden cursor-pointer"
-    >
-      {link.icon ? (
-        <img
-          src={link.icon}
-          alt={link.name || link.url}
-          title={link.name || ""}
-          className="w-full h-full object-contain p-1.5"
-          loading="lazy"
-        />
-      ) : (
-        <ExternalLink className="w-5 h-5 text-white/40" />
+    <Tooltip key={link.id}>
+      <TooltipTrigger asChild>
+        <button
+          onClick={(e) => { e.stopPropagation(); handleClick(link); }}
+          className="flex items-center justify-center rounded-lg bg-white/30 hover:bg-white/45 transition-colors overflow-hidden cursor-pointer"
+        >
+          {link.icon ? (
+            <img
+              src={link.icon}
+              alt={link.name || link.url}
+              className="w-full h-full object-contain p-1.5"
+              loading="lazy"
+            />
+          ) : (
+            <ExternalLink className="w-5 h-5 text-white/40" />
+          )}
+        </button>
+      </TooltipTrigger>
+      {link.name && (
+        <TooltipContent side="top" className="max-w-[200px] text-center text-xs">
+          {link.name}
+        </TooltipContent>
       )}
-    </button>
+    </Tooltip>
   );
 
   return (
