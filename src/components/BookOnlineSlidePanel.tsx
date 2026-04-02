@@ -1292,7 +1292,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 return (
                   <div
                     key={`vid-${index}`}
-                    className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                    className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors"
                     style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
                     onClick={() => {
                       setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description });
@@ -1366,7 +1366,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 return (
                   <div
                     key={dest.id}
-                    className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                    className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors"
                     style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
                     onClick={() => setSelectedDestinationId(dest.id)}
                   >
@@ -1385,7 +1385,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               })}
               {poiBusinesses.length > 0 && business?.latitude && business?.longitude && (
                 <div
-                  className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                  className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors"
                   style={{ animationDelay: `${destinations.length * 120}ms`, animationFillMode: 'forwards' }}
                   onClick={() => setShowPoiMapOverlay(true)}
                 >
@@ -1410,7 +1410,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 return (
                   <div
                     key={poi.id}
-                    className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                    className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors"
                     style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
                     onClick={() => setSelectedPoiBusinessId(poi.id)}
                   >
@@ -1429,7 +1429,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               })}
               {business?.latitude && business?.longitude && (
                 <div
-                  className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                  className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors"
                   style={{ animationDelay: `${poiBusinesses.length * 120}ms`, animationFillMode: 'forwards' }}
                   onClick={() => setShowPoiMapOverlay(true)}
                 >
@@ -1454,7 +1454,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 return (
                   <div
                     key={rel.id}
-                    className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                    className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors"
                     style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
                     onClick={() => setActiveBusinessId(rel.id)}
                   >
@@ -1474,7 +1474,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               })}
               {poiBusinesses.length > 0 && business?.latitude && business?.longitude && (
                 <div
-                  className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                  className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors"
                   style={{ animationDelay: `${kpRelated.length * 120}ms`, animationFillMode: 'forwards' }}
                   onClick={() => setShowPoiMapOverlay(true)}
                 >
