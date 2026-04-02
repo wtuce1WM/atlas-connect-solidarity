@@ -647,6 +647,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const bottomTabInitialRef = useRef(true);
   // Reset tab when business changes
   useEffect(() => { setActiveBottomTab("videos"); bottomTabInitialRef.current = true; }, [businessId]);
+  // Auto-select first available tab when current tab doesn't exist
+  useEffect(() => {
+    if (bottomTabs.length > 0 && !bottomTabs.find(t => t.id === activeBottomTab)) {
+      setActiveBottomTab(bottomTabs[0].id);
+    }
+  }, [bottomTabs, activeBottomTab]);
   const handleBottomTabChange = (tabId: string) => {
     bottomTabInitialRef.current = false;
     setActiveBottomTab(tabId);
