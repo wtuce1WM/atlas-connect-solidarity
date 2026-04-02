@@ -282,6 +282,20 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
     }
   }
 
+  // Strategy 0b: GPS-first — search by business name with very tight location restriction using DB coords
+  if (exactCoords) {
+    const q0b = `${businessName}${cityQuerySuffix}`;
+    console.log(`Strategy 0b: GPS-first "${q0b}" with tight restriction @${exactCoords.lat},${exactCoords.lng} (50m)`);
+    const place = await searchGooglePlace(q0b, exactCoords, 50.0, apiKey, true, []);
+    if (place) {
+      console.log(`Found via GPS: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
+      const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
+      if (reviews.length > 0) console.log(`Got ${reviews.length} Google review texts`);
+      return { rating: place.rating ?? null, count: place.count ?? null, reviews };
+    }
+    console.log('Strategy 0b failed, continuing');
+  }
+
   if (urlPlaceName && exactCoords) {
     const q1 = `${urlPlaceName}${cityQuerySuffix}`;
     console.log(`Strategy 1: URL place name "${q1}" with restriction @${exactCoords.lat},${exactCoords.lng} (200m)`);
