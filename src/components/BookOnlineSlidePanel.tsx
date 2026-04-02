@@ -595,7 +595,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     return { text: closedLabel, isOpen: false };
   }, [business, language]);
 
-  // Priority-based bottom carousel
+  // Tabs-based bottom carousels — always show Vidéo and Autres établissements
   const hasVideosCarousel = !!(business?.show_videos && videoDocs.length > 0);
   const hasYoutubeBottomCarousel = !!(business?.youtube_url && business?.youtube_force_external && youtubeVideoCount !== 0);
   const hasYoutubeReady = !!(youtubeVideoCount && youtubeVideoCount > 0);
@@ -603,16 +603,46 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const hasDestCarousel = destinations.length > 0;
   const hasPoiCarousel = poiBusinesses.length > 0;
 
-  const activeBottomCarousel: "videos" | "youtube" | "kp" | "dest" | "poi" | "none" =
-    hasVideosCarousel ? "videos" :
-    (hasYoutubeBottomCarousel && hasYoutubeReady) ? "youtube" :
-    hasYoutubeBottomCarousel ? "youtube" :
-    hasKpCarousel ? "kp" :
-    hasDestCarousel ? "dest" :
-    hasPoiCarousel ? "poi" :
-    "none";
+  // Video tab label from carousel_badge
+  const videoTabLabel = useMemo(() => {
+    if (business?.carousel_badge) {
+      const cb = business.carousel_badge;
+      if (cb === "immergez_vous") return language === "en" ? "Immerse yourself" : "Immergez-vous";
+      if (cb === "bienvenue_a") return `${language === "en" ? "Welcome to" : "Bienvenue à"} ${business.name}`;
+      if (cb === "bienvenue_au") return `${language === "en" ? "Welcome to" : "Bienvenue au"} ${business.name}`;
+      if (cb === "bienvenue_chez") return `${language === "en" ? "Welcome to" : "Bienvenue chez"} ${business.name}`;
+      if (cb === "nos_offres") return language === "en" ? "Our offers" : "Nos offres";
+    }
+    return language === "en" ? "Our offers" : "Nos offres";
+  }, [business?.carousel_badge, business?.name, language]);
 
-  const noBottomCarousel = activeBottomCarousel === "none";
+  type BottomTab = { id: "videos" | "youtube" | "kp" | "dest" | "poi"; label: string; hasContent: boolean };
+  const bottomTabs = useMemo<BottomTab[]>(() => {
+    const tabs: BottomTab[] = [];
+    // Always show Vidéo tab
+    tabs.push({ id: "videos", label: videoTabLabel, hasContent: hasVideosCarousel });
+    // YouTube tab only when configured
+    if (hasYoutubeBottomCarousel) {
+      tabs.push({ id: "youtube", label: "YouTube", hasContent: hasYoutubeReady || hasYoutubeBottomCarousel });
+    }
+    // Always show Autres établissements tab
+    tabs.push({ id: "kp", label: language === "en" ? "Other establishments" : "Autres établissements", hasContent: hasKpCarousel });
+    // Destinations tab only when content exists
+    if (hasDestCarousel) {
+      tabs.push({ id: "dest", label: "Destinations", hasContent: true });
+    }
+    // POI tab only when content exists
+    if (hasPoiCarousel) {
+      tabs.push({ id: "poi", label: language === "en" ? "Points of interest" : "Points d'intérêt", hasContent: true });
+    }
+    return tabs;
+  }, [videoTabLabel, hasVideosCarousel, hasYoutubeBottomCarousel, hasYoutubeReady, hasKpCarousel, hasDestCarousel, hasPoiCarousel, language]);
+
+  const [activeBottomTab, setActiveBottomTab] = useState<string>("videos");
+  // Reset tab when business changes
+  useEffect(() => { setActiveBottomTab("videos"); }, [businessId]);
+
+  const noBottomCarousel = false; // Tabs are always shown
 
   const hookText = useMemo(() => {
     if (!business) return null;
