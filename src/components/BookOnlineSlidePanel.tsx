@@ -1106,18 +1106,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               <div className={`snap-start shrink-0 w-[20rem] md:w-[30rem] ${noBottomCarousel ? 'h-[21.6em] md:h-[28.8em]' : 'h-[18em] md:h-[24em]'} mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10`}
                   style={{ animationFillMode: 'forwards' }}
                 >
-                  {openBadgeInfo.text && (
-                    <div className="flex justify-center mb-3">
-                      <div
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider ${
-                          openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"
-                        }`}
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
-                        {openBadgeInfo.text}
-                      </div>
-                    </div>
-                  )}
                   <div
                     className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17] [&_h2]:!font-bold [&_h3]:!font-bold"
                     dangerouslySetInnerHTML={{ __html: woDescription }}
