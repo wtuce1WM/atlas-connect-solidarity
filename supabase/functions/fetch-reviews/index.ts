@@ -240,7 +240,8 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
     return { rating: null, count: null, reviews: [] };
   }
 
-  const exactCoords = extractExactCoordsFromGoogleUrl(googleMapsUrl);
+  const exactCoords = extractExactCoordsFromGoogleUrl(googleMapsUrl)
+    || (dbLatitude != null && dbLongitude != null ? { lat: dbLatitude, lng: dbLongitude } : null);
   const urlPlaceName = extractPlaceNameFromGoogleUrl(googleMapsUrl);
   const placeRef = extractGooglePlaceRef(googleMapsUrl);
 
