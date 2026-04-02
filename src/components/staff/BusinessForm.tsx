@@ -3761,17 +3761,28 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                       title="Tester iframe"
                       onClick={async () => {
                         try {
-                          const domain = new URL(doc.url).hostname;
-                          const { data } = await supabase
-                            .from("blocked_domains")
-                            .select("domain, reason")
-                            .eq("domain", domain)
-                            .eq("is_active", true)
-                            .maybeSingle();
-                          if (data) {
-                            toast({ title: "🚫 iframe bloquée", description: `${domain} — ${data.reason}`, variant: "destructive" });
+                          const testUrl = doc.url;
+                          toast({ title: "⏳ Test en cours…", description: testUrl });
+                          const controller = new AbortController();
+                          const timeout = setTimeout(() => controller.abort(), 10000);
+                          const resp = await fetch(testUrl, {
+                            method: "HEAD",
+                            mode: "cors",
+                            redirect: "follow",
+                            signal: controller.signal,
+                          }).catch(() => null);
+                          clearTimeout(timeout);
+                          // If CORS blocks the HEAD request we can't read headers client-side,
+                          // so fall back to the edge function for a reliable server-side check.
+                          const { data: fnData, error: fnError } = await supabase.functions.invoke("check-iframe-blocked", {
+                            body: { url: testUrl },
+                          });
+                          if (fnError) throw fnError;
+                          // The function now accepts a single-url mode
+                          if (fnData?.blocked) {
+                            toast({ title: "🚫 iframe bloquée", description: `${fnData.reason}`, variant: "destructive" });
                           } else {
-                            toast({ title: "✅ iframe OK", description: `${domain} n'est pas dans la liste des domaines bloqués.` });
+                            toast({ title: "✅ iframe OK", description: `Ce site autorise l'affichage en iframe.` });
                           }
                         } catch (err: any) {
                           toast({ title: "Erreur", description: err.message, variant: "destructive" });
