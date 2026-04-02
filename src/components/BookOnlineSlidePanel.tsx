@@ -1697,7 +1697,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 </button>
               )
             )}
-            {business.latitude && business.longitude && (
+            {showGoogleMap && business.latitude && business.longitude && (
               <button
                 onClick={() => setShowDirections(true)}
                 className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-primary text-primary-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-primary/90 transition-colors normal-case tracking-normal animate-slide-in-left"
