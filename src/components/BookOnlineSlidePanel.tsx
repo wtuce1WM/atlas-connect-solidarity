@@ -1494,11 +1494,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             </div>
           </div>
         )}
-        {activeBottomTab === "kp" && !hasKpCarousel && (
-          <div className="flex items-center justify-center py-6 pointer-events-auto">
-            <p className="text-xs text-white/40 italic">{language === "en" ? "No other establishment" : "Aucun autre établissement"}</p>
-          </div>
-        )}
           </>
         )}
 
