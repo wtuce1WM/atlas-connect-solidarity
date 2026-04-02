@@ -76,66 +76,68 @@ const ExternalLinksFlipCard = ({
   );
 
   return (
-    <div
-      className={`snap-start shrink-0 w-[20rem] h-[18em] md:h-[24em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 ${className}`}
-      style={{ perspective: "1000px", animationDelay, animationFillMode: "forwards" }}
-    >
+    <TooltipProvider delayDuration={300}>
       <div
-        className="relative w-full h-full transition-transform duration-500"
-        style={{
-          transformStyle: "preserve-3d",
-          transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
-        }}
+        className={`snap-start shrink-0 w-[20rem] h-[18em] md:h-[24em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 ${className}`}
+        style={{ perspective: "1000px", animationDelay, animationFillMode: "forwards" }}
       >
-        {/* FRONT */}
         <div
-          className="absolute inset-0 rounded-2xl p-4 text-white flex flex-col"
-          style={{ backfaceVisibility: "hidden" }}
+          className="relative w-full h-full transition-transform duration-500"
+          style={{
+            transformStyle: "preserve-3d",
+            transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
+          }}
         >
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-              <ExternalLink className="w-4 h-4" />
-              {cardTitle}
-            </h3>
-            {hasBack && (
-              <button
-                onClick={() => setFlipped(true)}
-                className="text-[10px] text-white/50 hover:text-white/80 transition-colors"
-              >
-                +{backLinks.length} →
-              </button>
-            )}
-          </div>
-          <div className="flex-1 grid grid-cols-3 grid-rows-3 gap-1.5">
-            {frontLinks.map(renderLinkButton)}
-          </div>
-        </div>
-
-        {/* BACK */}
-        {hasBack && (
+          {/* FRONT */}
           <div
             className="absolute inset-0 rounded-2xl p-4 text-white flex flex-col"
-            style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+            style={{ backfaceVisibility: "hidden" }}
           >
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                 <ExternalLink className="w-4 h-4" />
                 {cardTitle}
               </h3>
-              <button
-                onClick={() => setFlipped(false)}
-                className="text-[10px] text-white/50 hover:text-white/80 transition-colors"
-              >
-                ← Retour
-              </button>
+              {hasBack && (
+                <button
+                  onClick={() => setFlipped(true)}
+                  className="text-[10px] text-white/50 hover:text-white/80 transition-colors"
+                >
+                  +{backLinks.length} →
+                </button>
+              )}
             </div>
             <div className="flex-1 grid grid-cols-3 grid-rows-3 gap-1.5">
-              {backLinks.map(renderLinkButton)}
+              {frontLinks.map(renderLinkButton)}
             </div>
           </div>
-        )}
+
+          {/* BACK */}
+          {hasBack && (
+            <div
+              className="absolute inset-0 rounded-2xl p-4 text-white flex flex-col"
+              style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                  <ExternalLink className="w-4 h-4" />
+                  {cardTitle}
+                </h3>
+                <button
+                  onClick={() => setFlipped(false)}
+                  className="text-[10px] text-white/50 hover:text-white/80 transition-colors"
+                >
+                  ← Retour
+                </button>
+              </div>
+              <div className="flex-1 grid grid-cols-3 grid-rows-3 gap-1.5">
+                {backLinks.map(renderLinkButton)}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 };
 
