@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN carousel_badge text DEFAULT null;
