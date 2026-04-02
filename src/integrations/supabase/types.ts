@@ -897,6 +897,7 @@ export type Database = {
           badge_id: string | null
           booking_url: string | null
           business_type: string | null
+          carousel_badge: string | null
           categories: string[] | null
           city: string | null
           computed_rating: number | null
@@ -1040,6 +1041,7 @@ export type Database = {
           badge_id?: string | null
           booking_url?: string | null
           business_type?: string | null
+          carousel_badge?: string | null
           categories?: string[] | null
           city?: string | null
           computed_rating?: number | null
@@ -1183,6 +1185,7 @@ export type Database = {
           badge_id?: string | null
           booking_url?: string | null
           business_type?: string | null
+          carousel_badge?: string | null
           categories?: string[] | null
           city?: string | null
           computed_rating?: number | null
@@ -3880,6 +3883,7 @@ export type Database = {
               badge_id: string | null
               booking_url: string | null
               business_type: string | null
+              carousel_badge: string | null
               categories: string[] | null
               city: string | null
               computed_rating: number | null
@@ -4039,6 +4043,7 @@ export type Database = {
               badge_id: string | null
               booking_url: string | null
               business_type: string | null
+              carousel_badge: string | null
               categories: string[] | null
               city: string | null
               computed_rating: number | null
