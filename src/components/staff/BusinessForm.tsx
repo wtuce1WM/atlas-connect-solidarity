@@ -1581,7 +1581,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       toast({
         variant: "destructive",
         title: "Liens Externes incomplets",
-        description: "Le Titre et l’URL sont obligatoires pour chaque lien externe.",
+        description: "Le Titre est obligatoire pour chaque lien externe.",
       });
       return;
     }
