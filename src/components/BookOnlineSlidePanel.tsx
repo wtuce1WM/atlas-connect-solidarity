@@ -1248,7 +1248,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         </div>
 
         {/* Tabs bar */}
-        <div className="flex gap-1 px-1 pt-2 overflow-x-auto scrollbar-hide pointer-events-auto">
+        <div className="flex justify-center gap-1 px-1 pt-2 overflow-x-auto scrollbar-hide pointer-events-auto">
           {bottomTabs.map((tab) => (
             <button
               key={tab.id}
