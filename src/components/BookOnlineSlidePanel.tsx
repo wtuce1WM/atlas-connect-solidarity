@@ -1051,22 +1051,32 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               </div>
             )}
             <div className="min-w-0 flex-1 text-center md:text-left md:pr-28">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h2 className={`text-base md:text-xl font-bold uppercase${business.name.length > 18 ? ' line-clamp-3 md:line-clamp-2 lg:truncate' : ' truncate'}`} style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>{business.name}</h2>
                 {openBadgeInfo.text && (
-                  <div className={`shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider ${openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"}`}>
+                  <div className={`hidden md:inline-flex shrink-0 items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider ${openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"}`}>
                     <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
                     {openBadgeInfo.text}
                   </div>
                 )}
-                {avgOn20 !== null && avgOn20 > 0 && (
-                  <div className="md:hidden shrink-0 flex items-center gap-0.5 bg-black/40 backdrop-blur-sm rounded-full py-0.5 px-1.5">
-                    <Star className="h-3 w-3 text-gold fill-gold" />
-                    <span className="text-xs font-bold text-white">{avgOn20}</span>
-                    <span className="text-[9px] text-white/60">/20</span>
-                  </div>
-                )}
               </div>
+              {(avgOn20 !== null && avgOn20 > 0 || openBadgeInfo.text) && (
+                <div className="md:hidden flex items-center gap-2 justify-center mt-0.5">
+                  {avgOn20 !== null && avgOn20 > 0 && (
+                    <div className="shrink-0 flex items-center gap-0.5 bg-black/40 backdrop-blur-sm rounded-full py-0.5 px-1.5">
+                      <Star className="h-3 w-3 text-gold fill-gold" />
+                      <span className="text-xs font-bold text-white">{avgOn20}</span>
+                      <span className="text-[9px] text-white/60">/20</span>
+                    </div>
+                  )}
+                  {openBadgeInfo.text && (
+                    <div className={`shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider ${openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"}`}>
+                      <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
+                      {openBadgeInfo.text}
+                    </div>
+                  )}
+                </div>
+              )}
               {(business.city || business.neighborhood || business.address) && (
                 <p className={`text-xs md:text-sm text-white/80 flex items-center gap-1 mt-0.5 justify-center md:justify-start truncate${business.name.length > 18 ? ' hidden lg:flex' : ''}`}>
                   <MapPin className="h-3.5 w-3.5 shrink-0" />
