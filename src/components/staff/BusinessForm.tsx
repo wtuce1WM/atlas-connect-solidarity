@@ -3815,6 +3815,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 <option value="presse">Presse</option>
                 <option value="media">Media</option>
                 <option value="partenaires">Partenaires</option>
+                <option value="recompenses">Récompenses</option>
               </select>
                 </SortableDocRow>
               ))}

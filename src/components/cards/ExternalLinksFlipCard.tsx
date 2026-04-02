@@ -27,6 +27,7 @@ const ExternalLinksFlipCard = ({
   const deriveTitle = () => {
     const desc = links[0]?.description?.toLowerCase() || "";
     if (desc === "partenaires") return "Ils nous font confiance";
+    if (desc === "recompenses") return "Nous sommes reconnus par :";
     if (desc === "presse" || desc === "media") return "Ils parlent de nous";
     return "+ d'infos";
   };
