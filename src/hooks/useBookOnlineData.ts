@@ -150,6 +150,7 @@ export function useBookOnlineData(businessId: string) {
   const [menuDocsRaw, setMenuDocsRaw] = useState<MenuDoc[]>([]);
   const [videoDocs, setVideoDocs] = useState<VideoDoc[]>([]);
   const [categoryIcon, setCategoryIcon] = useState<string | null>(null);
+  const [showGoogleMap, setShowGoogleMap] = useState(true);
   const [kpRelated, setKpRelated] = useState<KpRelatedBusiness[]>([]);
   const [isKp1Only, setIsKp1Only] = useState(false);
   const [liteApiHotelId, setLiteApiHotelId] = useState<string | null>(null);
