@@ -956,7 +956,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         onTouchEnd={onTouchEnd}
       >
         {/* Top bar: toggle, flags, rating */}
-        <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex flex-col items-center pb-3 pointer-events-auto animate-[slide-in-top_0.35s_ease-out_both]">
+        <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex flex-col items-center pb-3 pointer-events-auto animate-[slide-in-top_0.35s_ease-out_both] mt-3 md:mt-0">
           {cardsHidden ? (
             <div className="flex items-center gap-3">
               {totalMedia > 1 && (
