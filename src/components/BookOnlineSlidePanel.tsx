@@ -911,24 +911,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         {effectiveMedia?.kind !== "video" && effectiveMedia?.kind !== "matterport" && (
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
         )}
-        {/* Carousel badge */}
-        {business.carousel_badge && (() => {
-          const badgeLabels: Record<string, string> = {
-            nos_offres: language === "en" ? "Our offers" : "Nos offres",
-            immergez_vous: language === "en" ? "Immerse yourself" : "Immergez-vous",
-            bienvenue_a: `${language === "en" ? "Welcome to" : "Bienvenue à"} ${business.name}`,
-            bienvenue_au: `${language === "en" ? "Welcome to" : "Bienvenue au"} ${business.name}`,
-            bienvenue_chez: `${language === "en" ? "Welcome to" : "Bienvenue chez"} ${business.name}`,
-          };
-          const label = badgeLabels[business.carousel_badge];
-          return label ? (
-            <div className="absolute top-14 md:top-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-              <span className="inline-block bg-gold text-black text-[11px] md:text-xs font-semibold rounded-full px-4 py-1 shadow-lg backdrop-blur-sm whitespace-nowrap" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                {label}
-              </span>
-            </div>
-          ) : null;
-        })()}
       </div>
 
       {totalMedia > 1 && cardsHidden && (
