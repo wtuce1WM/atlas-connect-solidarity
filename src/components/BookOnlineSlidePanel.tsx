@@ -1537,7 +1537,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     textColor: "#000000",
                   });
                 }
-                if (business.latitude && business.longitude) {
+                if (showGoogleMap && business.latitude && business.longitude) {
                   actionCards.push({
                     icon: <MapPin className="h-5 w-5" />,
                     label: language === "en" ? "Directions" : "Vous rendre sur place",
