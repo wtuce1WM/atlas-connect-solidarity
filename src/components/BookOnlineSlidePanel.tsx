@@ -1028,15 +1028,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Masquer</span>
                 <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
               </button>
-              {avgOn20 !== null && avgOn20 > 0 && (
-                <div className="md:hidden absolute right-0 z-50 flex flex-col items-center bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2.5 animate-slide-in-right">
-                  <div className="flex items-center gap-1">
-                    <Star className="h-3.5 w-3.5 text-gold fill-gold" />
-                    <span className="text-base font-bold text-white">{avgOn20}</span>
-                    <span className="text-[10px] text-white/60">/20</span>
-                  </div>
-                </div>
-              )}
             </div>
           )}
         </div>
@@ -1060,7 +1051,22 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               </div>
             )}
             <div className="min-w-0 flex-1 text-center md:text-left md:pr-28">
-              <h2 className={`text-base md:text-xl font-bold uppercase${business.name.length > 18 ? ' line-clamp-3 md:line-clamp-2 lg:truncate' : ' truncate'}`} style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>{business.name}</h2>
+              <div className="flex items-center gap-2">
+                <h2 className={`text-base md:text-xl font-bold uppercase${business.name.length > 18 ? ' line-clamp-3 md:line-clamp-2 lg:truncate' : ' truncate'}`} style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>{business.name}</h2>
+                {openBadgeInfo.text && (
+                  <div className={`shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider ${openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"}`}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
+                    {openBadgeInfo.text}
+                  </div>
+                )}
+                {avgOn20 !== null && avgOn20 > 0 && (
+                  <div className="md:hidden shrink-0 flex items-center gap-0.5 bg-black/40 backdrop-blur-sm rounded-full py-0.5 px-1.5">
+                    <Star className="h-3 w-3 text-gold fill-gold" />
+                    <span className="text-xs font-bold text-white">{avgOn20}</span>
+                    <span className="text-[9px] text-white/60">/20</span>
+                  </div>
+                )}
+              </div>
               {(business.city || business.neighborhood || business.address) && (
                 <p className={`text-xs md:text-sm text-white/80 flex items-center gap-1 mt-0.5 justify-center md:justify-start truncate${business.name.length > 18 ? ' hidden lg:flex' : ''}`}>
                   <MapPin className="h-3.5 w-3.5 shrink-0" />
@@ -1106,18 +1112,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               <div className={`snap-start shrink-0 w-[20rem] md:w-[30rem] ${noBottomCarousel ? 'h-[21.6em] md:h-[28.8em]' : 'h-[18em] md:h-[24em]'} mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10`}
                   style={{ animationFillMode: 'forwards' }}
                 >
-                  {openBadgeInfo.text && (
-                    <div className="flex justify-center mb-3">
-                      <div
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider ${
-                          openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"
-                        }`}
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
-                        {openBadgeInfo.text}
-                      </div>
-                    </div>
-                  )}
                   <div
                     className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17] [&_h2]:!font-bold [&_h3]:!font-bold"
                     dangerouslySetInnerHTML={{ __html: woDescription }}
