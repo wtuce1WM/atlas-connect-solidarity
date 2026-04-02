@@ -644,8 +644,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   }, [videoTabLabel, hasVideosCarousel, hasYoutubeBottomCarousel, hasYoutubeReady, hasKpCarousel, hasKpCode, hasDestCarousel, hasPoiCarousel, language, videoDocs.length]);
 
   const [activeBottomTab, setActiveBottomTab] = useState<string>("videos");
+  const bottomTabInitialRef = useRef(true);
   // Reset tab when business changes
-  useEffect(() => { setActiveBottomTab("videos"); }, [businessId]);
+  useEffect(() => { setActiveBottomTab("videos"); bottomTabInitialRef.current = true; }, [businessId]);
+  const handleBottomTabChange = (tabId: string) => {
+    bottomTabInitialRef.current = false;
+    setActiveBottomTab(tabId);
+  };
+  const slideInClass = bottomTabInitialRef.current ? "animate-slide-in-left opacity-0" : "";
 
   const noBottomCarousel = false; // Tabs are always shown
 
@@ -1257,7 +1263,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           {bottomTabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveBottomTab(tab.id)}
+              onClick={() => handleBottomTabChange(tab.id)}
               className={`px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-all ${
                 activeBottomTab === tab.id
                   ? "bg-black text-white"
@@ -1286,8 +1292,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 return (
                   <div
                     key={`vid-${index}`}
-                    className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
-                    style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
+                    className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                    style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' } : undefined}
                     onClick={() => {
                       setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description });
                     }}
@@ -1360,8 +1366,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 return (
                   <div
                     key={dest.id}
-                    className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
-                    style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
+                    className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                    style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' } : undefined}
                     onClick={() => setSelectedDestinationId(dest.id)}
                   >
                     {destImg ? (
@@ -1379,8 +1385,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               })}
               {poiBusinesses.length > 0 && business?.latitude && business?.longitude && (
                 <div
-                  className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
-                  style={{ animationDelay: `${destinations.length * 120}ms`, animationFillMode: 'forwards' }}
+                  className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                  style={bottomTabInitialRef.current ? { animationDelay: `${destinations.length * 120}ms`, animationFillMode: 'forwards' } : undefined}
                   onClick={() => setShowPoiMapOverlay(true)}
                 >
                   <img src={poiNearbyImg} alt="Points d'intérêt" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
@@ -1404,8 +1410,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 return (
                   <div
                     key={poi.id}
-                    className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
-                    style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
+                    className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                    style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' } : undefined}
                     onClick={() => setSelectedPoiBusinessId(poi.id)}
                   >
                     {poiImg ? (
@@ -1423,8 +1429,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               })}
               {business?.latitude && business?.longitude && (
                 <div
-                  className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
-                  style={{ animationDelay: `${poiBusinesses.length * 120}ms`, animationFillMode: 'forwards' }}
+                  className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                  style={bottomTabInitialRef.current ? { animationDelay: `${poiBusinesses.length * 120}ms`, animationFillMode: 'forwards' } : undefined}
                   onClick={() => setShowPoiMapOverlay(true)}
                 >
                   <img src={poiNearbyImg} alt="Points d'intérêt" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
@@ -1448,8 +1454,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 return (
                   <div
                     key={rel.id}
-                    className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
-                    style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
+                    className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                    style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' } : undefined}
                     onClick={() => setActiveBusinessId(rel.id)}
                   >
                     {relImg ? (
@@ -1468,8 +1474,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               })}
               {poiBusinesses.length > 0 && business?.latitude && business?.longitude && (
                 <div
-                  className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
-                  style={{ animationDelay: `${kpRelated.length * 120}ms`, animationFillMode: 'forwards' }}
+                  className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                  style={bottomTabInitialRef.current ? { animationDelay: `${kpRelated.length * 120}ms`, animationFillMode: 'forwards' } : undefined}
                   onClick={() => setShowPoiMapOverlay(true)}
                 >
                   <img src={poiNearbyImg} alt="Points d'intérêt" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
