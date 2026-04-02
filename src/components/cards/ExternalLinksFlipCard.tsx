@@ -56,7 +56,8 @@ const ExternalLinksFlipCard = ({
       {link.icon ? (
         <img
           src={link.icon}
-          alt={link.name || ""}
+          alt={link.name || link.url}
+          title={link.name || ""}
           className="w-full h-full object-contain p-1.5"
           loading="lazy"
         />
