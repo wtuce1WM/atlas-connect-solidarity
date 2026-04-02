@@ -66,6 +66,7 @@ export interface SubcategoryRef {
   id: string;
   name_fr: string;
   sort_order?: number | null;
+  show_google_map?: boolean;
 }
 
 export interface BadgeSubcategoryRef {
