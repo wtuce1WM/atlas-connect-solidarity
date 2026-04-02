@@ -911,9 +911,26 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         {effectiveMedia?.kind !== "video" && effectiveMedia?.kind !== "matterport" && (
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
         )}
+        {/* Carousel badge */}
+        {business.carousel_badge && (() => {
+          const badgeLabels: Record<string, string> = {
+            nos_offres: language === "en" ? "Our offers" : "Nos offres",
+            immergez_vous: language === "en" ? "Immerse yourself" : "Immergez-vous",
+            bienvenue_a: `${language === "en" ? "Welcome to" : "Bienvenue à"} ${business.name}`,
+            bienvenue_au: `${language === "en" ? "Welcome to" : "Bienvenue au"} ${business.name}`,
+            bienvenue_chez: `${language === "en" ? "Welcome to" : "Bienvenue chez"} ${business.name}`,
+          };
+          const label = badgeLabels[business.carousel_badge];
+          return label ? (
+            <div className="absolute top-14 md:top-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+              <span className="inline-block bg-gold text-black text-[11px] md:text-xs font-semibold rounded-full px-4 py-1 shadow-lg backdrop-blur-sm whitespace-nowrap" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                {label}
+              </span>
+            </div>
+          ) : null;
+        })()}
       </div>
 
-      {/* Left / Right arrows — desktop */}
       {totalMedia > 1 && cardsHidden && (
         <>
           <button onClick={() => goMedia(-1)} className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
@@ -1202,7 +1219,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           <>
           <div className="flex justify-center mt-3 md:mt-6 mb-1.5 pointer-events-auto">
             <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-              {language === "en" ? "Our offers" : "Nos offres"}
+              {(() => {
+                const cb = business.carousel_badge;
+                if (cb === "immergez_vous") return language === "en" ? "Immerse yourself" : "Immergez-vous";
+                if (cb === "bienvenue_a") return `${language === "en" ? "Welcome to" : "Bienvenue à"} ${business.name}`;
+                if (cb === "bienvenue_au") return `${language === "en" ? "Welcome to" : "Bienvenue au"} ${business.name}`;
+                if (cb === "bienvenue_chez") return `${language === "en" ? "Welcome to" : "Bienvenue chez"} ${business.name}`;
+                return language === "en" ? "Our offers" : "Nos offres";
+              })()}
             </h3>
           </div>
           <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
