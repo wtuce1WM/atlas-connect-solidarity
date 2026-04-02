@@ -1147,7 +1147,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 />
               )}
               {/* Card 3: Map */}
-              {business && (business.latitude || business.google_maps_url) && (
+              {showGoogleMap && business && (business.latitude || business.google_maps_url) && (
                 <MapCard
                   latitude={business.latitude}
                   longitude={business.longitude}
