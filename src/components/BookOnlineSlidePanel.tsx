@@ -71,7 +71,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const {
     business, woDescription, destinations, poiBusinesses, isLoading,
     reviewTexts, externalLinks, menuSummaries, menuDocs, videoDocs,
-    allVideoUrls, categoryIcon, kpRelated, isKp1Only, liteApiHotelId, serpApiMapping, isHotelWithPrice,
+    allVideoUrls, categoryIcon, showGoogleMap, kpRelated, isKp1Only, liteApiHotelId, serpApiMapping, isHotelWithPrice,
   } = useBookOnlineData(businessId);
 
   // UI state
@@ -1147,7 +1147,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 />
               )}
               {/* Card 3: Map */}
-              {business && (business.latitude || business.google_maps_url) && (
+              {showGoogleMap && business && (business.latitude || business.google_maps_url) && (
                 <MapCard
                   latitude={business.latitude}
                   longitude={business.longitude}
