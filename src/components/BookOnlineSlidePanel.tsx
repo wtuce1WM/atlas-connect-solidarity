@@ -596,7 +596,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   }, [business, language]);
 
   // Tabs-based bottom carousels — always show Vidéo and Autres établissements
-  const hasVideosCarousel = !!(business?.show_videos && videoDocs.length > 0);
+  const hasVideosCarousel = videoDocs.length > 0;
   const hasYoutubeBottomCarousel = !!(business?.youtube_url && business?.youtube_force_external && youtubeVideoCount !== 0);
   const hasYoutubeReady = !!(youtubeVideoCount && youtubeVideoCount > 0);
   const hasKpCarousel = kpRelated.length > 0;
