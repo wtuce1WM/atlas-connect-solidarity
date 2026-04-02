@@ -68,7 +68,7 @@ const ExternalLinksFlipCard = ({
         </button>
       </TooltipTrigger>
       {link.name && (
-        <TooltipContent side="top" className="max-w-[200px] text-center text-xs">
+        <TooltipContent side="top" align="center" className="max-w-[200px] text-center text-xs z-[100]">
           {link.name}
         </TooltipContent>
       )}
