@@ -1571,17 +1571,17 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       return;
     }
 
-    // External links: title + URL are required when a row is filled
+    // External links: title is required when a row is filled
     const hasInvalidExternalLink = externalLinkDocs.some((d) => {
       const hasAnyValue = !!(d.name.trim() || d.url.trim() || d.image_url.trim() || d.language.trim());
-      return hasAnyValue && (!d.name.trim() || !d.url.trim());
+      return hasAnyValue && !d.name.trim();
     });
 
     if (hasInvalidExternalLink) {
       toast({
         variant: "destructive",
         title: "Liens Externes incomplets",
-        description: "Le Titre et l’URL sont obligatoires pour chaque lien externe.",
+        description: "Le Titre est obligatoire pour chaque lien externe.",
       });
       return;
     }
@@ -3746,9 +3746,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 <Input
                   value={doc.url}
                   onChange={(e) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
-                  placeholder="URL du lien *"
+                  placeholder="URL du lien"
                   className="flex-1"
-                  required
                 />
                 {doc.url && (
                   <>
