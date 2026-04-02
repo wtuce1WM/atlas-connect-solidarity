@@ -1247,25 +1247,27 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           </div>
         </div>
 
-        {/* Videos carousel */}
-        {activeBottomCarousel === "videos" && (
-          <>
-          <div className="flex justify-center mt-3 md:mt-6 mb-1.5 pointer-events-auto">
-            <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-              {(() => {
-                if (business.show_videos && business.carousel_badge) {
-                  const cb = business.carousel_badge;
-                  if (cb === "immergez_vous") return language === "en" ? "Immerse yourself" : "Immergez-vous";
-                  if (cb === "bienvenue_a") return `${language === "en" ? "Welcome to" : "Bienvenue à"} ${business.name}`;
-                  if (cb === "bienvenue_au") return `${language === "en" ? "Welcome to" : "Bienvenue au"} ${business.name}`;
-                  if (cb === "bienvenue_chez") return `${language === "en" ? "Welcome to" : "Bienvenue chez"} ${business.name}`;
-                  if (cb === "nos_offres") return language === "en" ? "Our offers" : "Nos offres";
-                }
-                return language === "en" ? "Our offers" : "Nos offres";
-              })()}
-            </h3>
-          </div>
-          <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
+        {/* Tabs bar */}
+        <div className="flex gap-1 px-1 pt-2 overflow-x-auto scrollbar-hide pointer-events-auto">
+          {bottomTabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveBottomTab(tab.id)}
+              className={`px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-all ${
+                activeBottomTab === tab.id
+                  ? "bg-white text-black"
+                  : "bg-white/10 text-white/60 hover:bg-white/20"
+              } ${!tab.hasContent ? "opacity-50" : ""}`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Tab content */}
+        {/* Videos tab */}
+        {activeBottomTab === "videos" && hasVideosCarousel && (
+          <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
             <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
               <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
               {videoDocs.map((vid, index) => {
@@ -1320,12 +1322,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               <div className="shrink-0 w-6" aria-hidden="true" />
             </div>
           </div>
-          </>
+        )}
+        {activeBottomTab === "videos" && !hasVideosCarousel && (
+          <div className="flex items-center justify-center py-6 pointer-events-auto">
+            <p className="text-xs text-white/40 italic">{language === "en" ? "No video available" : "Aucune vidéo disponible"}</p>
+          </div>
         )}
 
-        {/* YouTube Shorts strip */}
-        {activeBottomCarousel === "youtube" && business?.youtube_url && business?.youtube_force_external && youtubeVideoCount !== 0 && (
-          <div className="pointer-events-auto -mr-4 md:-mr-6">
+        {/* YouTube tab */}
+        {activeBottomTab === "youtube" && business?.youtube_url && business?.youtube_force_external && youtubeVideoCount !== 0 && (
+          <div className="pointer-events-auto -mr-4 md:-mr-6 mt-2">
             <YouTubeShortsCarousel
               youtubeUrl={business.youtube_url}
               onVideoCount={setYoutubeVideoCount}
@@ -1339,15 +1345,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           </div>
         )}
 
-        {/* Destinations carousel */}
-        {activeBottomCarousel === "dest" && (
-          <>
-          <div className="flex justify-center mt-3 md:mt-6 mb-1.5 pointer-events-auto">
-            <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-              {`${business.name} vous emmène à :`}
-            </h3>
-          </div>
-          <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
+        {/* Destinations tab */}
+        {activeBottomTab === "dest" && hasDestCarousel && (
+          <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
             <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
               <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
               {destinations.map((dest, index) => {
@@ -1387,18 +1387,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               <div className="shrink-0 w-6" aria-hidden="true" />
             </div>
           </div>
-          </>
         )}
 
-        {/* POI carousel */}
-        {activeBottomCarousel === "poi" && (
-          <>
-          <div className="flex justify-center mt-3 md:mt-6 mb-1.5 pointer-events-auto">
-            <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-              {language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité"}
-            </h3>
-          </div>
-          <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
+        {/* POI tab */}
+        {activeBottomTab === "poi" && hasPoiCarousel && (
+          <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
             <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
               <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
               {poiBusinesses.map((poi, index) => {
@@ -1438,18 +1431,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               <div className="shrink-0 w-6" aria-hidden="true" />
             </div>
           </div>
-          </>
         )}
 
-        {/* KP Related carousel */}
-        {activeBottomCarousel === "kp" && (
-          <>
-          <div className="flex justify-center mt-3 md:mt-4 mb-1.5 pointer-events-auto">
-            <h3 className="text-xs font-medium text-white/90 rounded-lg py-1 px-3 bg-black/40 backdrop-blur-sm border border-white/10" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-              {language === "en" ? "Other establishments" : "Autres établissements"}
-            </h3>
-          </div>
-          <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
+        {/* KP Related tab */}
+        {activeBottomTab === "kp" && hasKpCarousel && (
+          <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
             <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
               <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
               {kpRelated.map((rel, index) => {
@@ -1490,7 +1476,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               <div className="shrink-0 w-6" aria-hidden="true" />
             </div>
           </div>
-          </>
+        )}
+        {activeBottomTab === "kp" && !hasKpCarousel && (
+          <div className="flex items-center justify-center py-6 pointer-events-auto">
+            <p className="text-xs text-white/40 italic">{language === "en" ? "No other establishment" : "Aucun autre établissement"}</p>
+          </div>
         )}
           </>
         )}
