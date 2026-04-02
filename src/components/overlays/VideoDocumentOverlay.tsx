@@ -236,6 +236,7 @@ const VideoDocumentOverlay = ({
         </div>
       )}
     </div>
+    </div>
   );
 };
 
