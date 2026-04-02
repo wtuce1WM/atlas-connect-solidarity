@@ -1307,6 +1307,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       viator_review_count: toNullableNumber(fd.viator_review_count),
       avis_verifies_review_count: toNullableNumber(fd.avis_verifies_review_count),
       trustpilot_review_count: toNullableNumber(fd.trustpilot_review_count),
+      kayak_review_count: toNullableNumber(fd.kayak_review_count),
       tourradar_review_count: toNullableNumber(fd.tourradar_review_count),
     });
 
