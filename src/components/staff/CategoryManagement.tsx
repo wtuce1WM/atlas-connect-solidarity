@@ -836,6 +836,18 @@ const CategoryManagement = () => {
                                 )}
                               </div>
                               
+                              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()} title="Activer la Google Maps">
+                                <span className="text-[10px] text-muted-foreground">Maps</span>
+                                <Switch
+                                  checked={sub.show_google_map}
+                                  onCheckedChange={async (checked) => {
+                                    await supabase.from("subcategories").update({ show_google_map: checked } as any).eq("id", sub.id);
+                                    setSubcategories(prev => prev.map(s => s.id === sub.id ? { ...s, show_google_map: checked } : s));
+                                    toast.success(checked ? "Google Maps activée" : "Google Maps désactivée");
+                                  }}
+                                  className="h-4 w-8 [&>span]:h-3 [&>span]:w-3 data-[state=checked]:[&>span]:translate-x-4"
+                                />
+                              </div>
                               <Badge variant="outline" className="text-xs">{svcs.length} services</Badge>
                               {(sub.keywords?.length || 0) > 0 && (
                                 <Badge variant="outline" className="text-xs text-amber-600 border-amber-300">
