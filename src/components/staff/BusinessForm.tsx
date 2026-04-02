@@ -1740,6 +1740,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       online_shop_presentation_mode: (formData as any).online_shop_presentation_mode || "acheter_en_ligne",
       computed_rating: (formData as any).computed_rating !== "" && (formData as any).computed_rating != null ? parseFloat((formData as any).computed_rating) : null,
       total_review_count: (formData as any).total_review_count !== "" && (formData as any).total_review_count != null ? parseInt((formData as any).total_review_count) : null,
+      carousel_badge: (formData as any).carousel_badge || null,
     };
 
     try {
