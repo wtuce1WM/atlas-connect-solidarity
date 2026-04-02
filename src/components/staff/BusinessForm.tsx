@@ -1185,8 +1185,19 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     }
   };
 
+  // Capture initial engagements once so unchecking doesn't remove items from the list
+  const initialEngagementsRef = useRef<string[] | null>(null);
+  if (initialEngagementsRef.current === null && ((formData as any).engagements || []).length > 0) {
+    initialEngagementsRef.current = [...((formData as any).engagements || [])];
+  }
+
   const currentBusinessCustomOptions = useMemo(
-    () => extractCustomOptionsFromEngagements(((formData as any).engagements || []) as string[]),
+    () => {
+      const current = ((formData as any).engagements || []) as string[];
+      const initial = initialEngagementsRef.current || [];
+      const merged = [...new Set([...current, ...initial])];
+      return extractCustomOptionsFromEngagements(merged);
+    },
     [(formData as any).engagements]
   );
 
