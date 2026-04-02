@@ -622,7 +622,7 @@ Deno.serve(async (req) => {
     const promises: Promise<void>[] = [];
 
     promises.push(
-      fetchGoogleReviews(business.name, business.city, business.google_maps_url).then(r => {
+      fetchGoogleReviews(business.name, business.city, business.google_maps_url, business.latitude, business.longitude).then(r => {
         results.google_rating = r.rating;
         results.google_review_count = r.count;
         googleReviewTexts = r.reviews;
