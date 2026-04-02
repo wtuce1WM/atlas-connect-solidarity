@@ -628,9 +628,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     if (hasYoutubeBottomCarousel) {
       tabs.push({ id: "youtube", label: "YouTube", hasContent: hasYoutubeReady || hasYoutubeBottomCarousel });
     }
-    // Show Autres établissements tab only when KP code exists
-    if (hasKpCode) {
-      tabs.push({ id: "kp", label: language === "en" ? "Other establishments" : "Autres établissements", hasContent: hasKpCarousel });
+    // Show Autres établissements tab only when there are related businesses
+    if (hasKpCarousel) {
+      tabs.push({ id: "kp", label: language === "en" ? "Other establishments" : "Autres établissements", hasContent: true });
     }
     // Destinations tab only when content exists
     if (hasDestCarousel) {
