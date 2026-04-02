@@ -4273,6 +4273,52 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           )}
         </div>
 
+        {/* ═══════ Badges ═══════ */}
+        <div id="section-badges" className="p-4 bg-purple-50 border border-purple-200 rounded-lg space-y-4" style={{ scrollMarginTop: '160px' }}>
+          <Label className="text-xl font-semibold">Badges</Label>
+          <div className="space-y-2">
+            <Label className="text-base font-semibold">🏷️ Badges assignés ({selectedBadgeIds.length})</Label>
+            <div className="flex flex-wrap gap-x-4 gap-y-2">
+              {availableBadges.map(badge => {
+                const isChecked = selectedBadgeIds.includes(badge.id);
+                const isDefault = defaultBadgeId === badge.id;
+                return (
+                  <div key={badge.id} className="flex items-center gap-1.5">
+                    <Checkbox
+                      id={`badge-${badge.id}`}
+                      checked={isChecked}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          const next = [...selectedBadgeIds, badge.id];
+                          setSelectedBadgeIds(next);
+                          if (next.length === 1) setDefaultBadgeId(badge.id);
+                        } else {
+                          const next = selectedBadgeIds.filter(id => id !== badge.id);
+                          setSelectedBadgeIds(next);
+                          if (defaultBadgeId === badge.id) setDefaultBadgeId(next[0] || null);
+                        }
+                      }}
+                    />
+                    <label htmlFor={`badge-${badge.id}`} className="text-sm cursor-pointer select-none flex items-center gap-1">
+                      {badge.name_fr}
+                      {isChecked && (
+                        <button
+                          type="button"
+                          className={`ml-1 text-[10px] px-1.5 py-0.5 rounded-full border transition-colors ${isDefault ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted text-muted-foreground border-border hover:border-primary/50'}`}
+                          onClick={(e) => { e.preventDefault(); setDefaultBadgeId(badge.id); }}
+                          title="Définir comme badge par défaut"
+                        >
+                          {isDefault ? '★ défaut' : '☆'}
+                        </button>
+                      )}
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
         <div id="section-taxonomie" className="p-4 bg-orange-50 border border-orange-200 rounded-lg space-y-6" style={{ scrollMarginTop: '160px' }}>
           <Label className="text-xl font-semibold">Taxonomie</Label>
           
