@@ -3313,9 +3313,30 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   grouped[key].push(biz);
                 });
                 const sortedKeys = Object.keys(grouped).sort((a, b) => a === "Autre" ? 1 : b === "Autre" ? -1 : a.localeCompare(b));
-                return sortedKeys.map((neighborhood) => (
+                return sortedKeys.map((neighborhood) => {
+                  const neighborhoodIds = grouped[neighborhood].map(b => b.id);
+                  const allSelected = neighborhoodIds.every(id => selectedPoiBusinessIds.includes(id));
+                  const someSelected = !allSelected && neighborhoodIds.some(id => selectedPoiBusinessIds.includes(id));
+                  return (
                   <div key={neighborhood}>
-                    <p className="text-xs font-medium text-muted-foreground mb-1">{neighborhood}</p>
+                    <button
+                      type="button"
+                      className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground mb-1 hover:text-foreground transition-colors group"
+                      onClick={() => {
+                        setSelectedPoiBusinessIds(prev => {
+                          if (allSelected) {
+                            return prev.filter(id => !neighborhoodIds.includes(id));
+                          }
+                          return [...new Set([...prev, ...neighborhoodIds])];
+                        });
+                        setIsDirty(true);
+                      }}
+                      title={allSelected ? "Désélectionner tout le quartier" : "Sélectionner tout le quartier"}
+                    >
+                      <Checkbox checked={allSelected ? true : someSelected ? "indeterminate" : false} className="h-3.5 w-3.5 pointer-events-none" tabIndex={-1} />
+                      {neighborhood}
+                      <span className="text-[10px] opacity-60">({neighborhoodIds.length})</span>
+                    </button>
                     <div className="flex flex-wrap gap-2">
                       {grouped[neighborhood].map((biz) => {
                         const isSelected = selectedPoiBusinessIds.includes(biz.id);
@@ -3337,7 +3358,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                       })}
                     </div>
                   </div>
-                ));
+                  );
+                });
               })()}
             </div>
           </div>
