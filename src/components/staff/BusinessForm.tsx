@@ -3746,9 +3746,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 <Input
                   value={doc.url}
                   onChange={(e) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
-                  placeholder="URL du lien *"
+                  placeholder="URL du lien"
                   className="flex-1"
-                  required
                 />
                 {doc.url && (
                   <>
