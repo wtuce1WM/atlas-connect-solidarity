@@ -1287,13 +1287,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               key={tab.id}
               onClick={() => handleBottomTabChange(tab.id)}
               className={`px-3 py-1.5 rounded-full whitespace-nowrap transition-colors border border-transparent ${
-                tab.id === "videos" ? "overflow-hidden text-ellipsis" : ""
+                tab.id === "videos" ? "max-w-[min(60vw,240px)] md:max-w-none overflow-hidden text-ellipsis md:overflow-visible md:text-clip" : ""
               } ${
                 activeBottomTab === tab.id
                   ? "bg-black text-white"
                   : "bg-white/70 text-black hover:bg-white/80"
               } ${!tab.hasContent ? "opacity-50" : ""}`}
-              style={{ fontFamily: 'Josefin Sans, sans-serif', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase', fontSize: '11px', lineHeight: '16px', padding: '6px 12px', ...(tab.id === "videos" ? { maxWidth: 'min(60vw, 240px)', flexShrink: 0 } : {}) }}
+              style={{ fontFamily: 'Josefin Sans, sans-serif', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase', fontSize: '11px', lineHeight: '16px', padding: '6px 12px' }}
             >
               {tab.label}
             </button>
