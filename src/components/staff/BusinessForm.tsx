@@ -2966,7 +2966,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={!formData.city || !formData.neighborhood || !business?.id || assigningPoi}
+                disabled={!formData.is_poi || !formData.city || !formData.neighborhood || !business?.id || assigningPoi}
                 onClick={async () => {
                   if (!business?.id || !formData.city || !formData.neighborhood) return;
                   setAssigningPoi(true);
