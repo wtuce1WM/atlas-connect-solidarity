@@ -247,10 +247,16 @@ function isValidTripAdvisorDetail(
   businessLatitude: number | null,
   businessLongitude: number | null,
   requireTightGeoMatch: boolean,
+  skipGeoCheck = false,
 ): boolean {
   const detailName = typeof detailData?.name === 'string' ? detailData.name : '';
   if (!isStrictPlaceNameMatch(detailName, [businessName])) {
     return false;
+  }
+
+  // When the location ID was explicitly extracted from a user-provided URL, trust it
+  if (skipGeoCheck) {
+    return true;
   }
 
   const detailLatitude = toNullableCoordinate(detailData?.latitude);
@@ -529,7 +535,7 @@ async function fetchTripAdvisorReviews(businessName: string, city: string, tripa
       }
 
       const detailData = await detailRes.json();
-      if (isValidTripAdvisorDetail(detailData, businessName, latitude, longitude, requireTightGeoMatch)) {
+      if (isValidTripAdvisorDetail(detailData, businessName, latitude, longitude, requireTightGeoMatch, !!urlLocationId)) {
         return {
           rating: detailData.rating ? parseFloat(detailData.rating) : null,
           count: detailData.num_reviews ? parseInt(detailData.num_reviews) : null,
