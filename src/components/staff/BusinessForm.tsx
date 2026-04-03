@@ -2968,9 +2968,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={!formData.city || !formData.neighborhood || !businessId || assigningPoi}
+                disabled={!formData.city || !formData.neighborhood || !business?.id || assigningPoi}
                 onClick={async () => {
-                  if (!businessId || !formData.city || !formData.neighborhood) return;
+                  if (!business?.id || !formData.city || !formData.neighborhood) return;
                   setAssigningPoi(true);
                   try {
                     // Find all active businesses in the same city + neighborhood (exclude self)
@@ -2980,7 +2980,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                       .eq("city", formData.city)
                       .eq("neighborhood", formData.neighborhood)
                       .eq("is_active", true)
-                      .neq("id", businessId);
+                      .neq("id", business.id);
                     if (fetchErr) throw fetchErr;
                     if (!targets || targets.length === 0) {
                       sonnerToast.info("Aucun autre établissement trouvé dans ce quartier.");
@@ -2990,11 +2990,11 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     const { data: existing } = await supabase
                       .from("business_poi_businesses" as any)
                       .select("business_id")
-                      .eq("poi_business_id", businessId);
+                      .eq("poi_business_id", business.id);
                     const existingSet = new Set((existing || []).map((e: any) => e.business_id));
                     const toInsert = targets
                       .filter(t => !existingSet.has(t.id))
-                      .map(t => ({ business_id: t.id, poi_business_id: businessId }));
+                      .map(t => ({ business_id: t.id, poi_business_id: business.id }));
                     if (toInsert.length === 0) {
                       sonnerToast.info("Déjà affecté comme POI à tous les établissements du quartier.");
                       return;
