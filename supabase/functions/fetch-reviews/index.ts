@@ -133,6 +133,23 @@ function tokenizeDistinctivePlaceName(value: string): string[] {
   return tokenizePlaceName(value).filter((token) => !genericBusinessTokens.has(token));
 }
 
+function toNullableCoordinate(value: unknown): number | null {
+  if (value == null || value === '') return null;
+  const parsed = typeof value === 'number' ? value : parseFloat(String(value));
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function calculateDistanceMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const earthRadiusMeters = 6371000;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+
+  return 2 * earthRadiusMeters * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 function isStrongPlaceNameMatch(candidateName: string, expectedNames: string[]): boolean {
   if (!candidateName || expectedNames.length === 0) return true;
 
@@ -197,6 +214,38 @@ function isStrictPlaceNameMatch(candidateName: string, expectedNames: string[]):
   }
 
   return false;
+}
+
+function isValidTripAdvisorDetail(
+  detailData: any,
+  businessName: string,
+  businessLatitude: number | null,
+  businessLongitude: number | null,
+  requireTightGeoMatch: boolean,
+): boolean {
+  const detailName = typeof detailData?.name === 'string' ? detailData.name : '';
+  if (!isStrictPlaceNameMatch(detailName, [businessName])) {
+    return false;
+  }
+
+  const detailLatitude = toNullableCoordinate(detailData?.latitude);
+  const detailLongitude = toNullableCoordinate(detailData?.longitude);
+
+  if (businessLatitude == null || businessLongitude == null || detailLatitude == null || detailLongitude == null) {
+    return true;
+  }
+
+  const maxDistanceMeters = requireTightGeoMatch ? 120 : 250;
+  const distanceMeters = calculateDistanceMeters(businessLatitude, businessLongitude, detailLatitude, detailLongitude);
+
+  if (distanceMeters > maxDistanceMeters) {
+    console.log(
+      `TripAdvisor detail rejected for "${businessName}": ${distanceMeters.toFixed(1)}m away (max ${maxDistanceMeters}m)`
+    );
+    return false;
+  }
+
+  return true;
 }
 
 function pickMatchingPlace(
@@ -424,6 +473,7 @@ async function fetchTripAdvisorReviews(businessName: string, city: string, tripa
   try {
     const urlLocationId = extractTripAdvisorLocationId(tripadvisorReviewUrl) || extractTripAdvisorLocationId(tripadvisorUrl);
     let locationId = urlLocationId || tripadvisorLocationId;
+    const requireTightGeoMatch = !tripadvisorReviewUrl && !tripadvisorUrl;
 
     if (urlLocationId && tripadvisorLocationId && urlLocationId !== tripadvisorLocationId) {
       console.log(`TripAdvisor: URL location ID (${urlLocationId}) differs from cached (${tripadvisorLocationId}), using URL`);
@@ -445,7 +495,7 @@ async function fetchTripAdvisorReviews(businessName: string, city: string, tripa
       }
 
       const detailData = await detailRes.json();
-      if (isStrictPlaceNameMatch(detailData.name || '', [businessName])) {
+      if (isValidTripAdvisorDetail(detailData, businessName, latitude, longitude, requireTightGeoMatch)) {
         return {
           rating: detailData.rating ? parseFloat(detailData.rating) : null,
           count: detailData.num_reviews ? parseInt(detailData.num_reviews) : null,
@@ -501,7 +551,7 @@ async function fetchTripAdvisorReviews(businessName: string, city: string, tripa
     }
 
     const detailData = await detailRes.json();
-    if (!isStrictPlaceNameMatch(detailData.name || '', [businessName])) {
+    if (!isValidTripAdvisorDetail(detailData, businessName, latitude, longitude, requireTightGeoMatch)) {
       console.log(`TripAdvisor details name mismatch after search for "${businessName}": got "${detailData.name || '?'}" (ID: ${locationId})`);
       return { rating: null, count: null, locationId: null };
     }
