@@ -249,14 +249,14 @@ function isValidTripAdvisorDetail(
   requireTightGeoMatch: boolean,
   skipGeoCheck = false,
 ): boolean {
+  // When the location ID was explicitly extracted from a user-provided URL, trust it entirely
+  if (skipGeoCheck) {
+    return true;
+  }
+
   const detailName = typeof detailData?.name === 'string' ? detailData.name : '';
   if (!isStrictPlaceNameMatch(detailName, [businessName])) {
     return false;
-  }
-
-  // When the location ID was explicitly extracted from a user-provided URL, trust it
-  if (skipGeoCheck) {
-    return true;
   }
 
   const detailLatitude = toNullableCoordinate(detailData?.latitude);
