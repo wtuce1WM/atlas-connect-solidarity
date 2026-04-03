@@ -419,6 +419,51 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
       console.log(`Accepting Google URL place name alias "${trustedUrlPlaceName}" for "${businessName}" thanks to tight GPS match`);
     }
 
+    // ── Strategy 0-direct: Resolve short URL → extract ftid → lookup via Places API ──
+    // The user explicitly linked to this place, so we trust it completely.
+    if (googleMapsUrl) {
+      const resolvedUrl = await resolveGoogleMapsShortUrl(googleMapsUrl);
+      const ftid = extractFtid(resolvedUrl);
+      const resolvedUrlPlaceName = extractPlaceNameFromGoogleUrl(resolvedUrl);
+      const resolvedCoords = extractExactCoordsFromGoogleUrl(resolvedUrl);
+
+      if (ftid) {
+        console.log(`Strategy 0-direct: ftid "${ftid}" from resolved URL`);
+        // Search with ftid as text query — Google resolves it
+        const searchRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': apiKey,
+            'X-Goog-FieldMask': 'places.id,places.rating,places.userRatingCount,places.displayName',
+          },
+          body: JSON.stringify({ textQuery: ftid }),
+        });
+        const searchData = await searchRes.json();
+        if (searchData.places && searchData.places.length > 0) {
+          const place = searchData.places[0]; // Trust ftid — it's a unique identifier
+          console.log(`Found via ftid: "${place.displayName?.text}" - rating=${place.rating}, count=${place.userRatingCount}`);
+          const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
+          if (reviews.length > 0) console.log(`Got ${reviews.length} Google review texts`);
+          return { rating: place.rating ?? null, count: place.userRatingCount ?? null, reviews };
+        }
+        console.log('Strategy 0-direct ftid search returned no results');
+      }
+
+      // If we got a place name from the resolved URL, search with it + coords, trust first result
+      if (resolvedUrlPlaceName && resolvedCoords) {
+        console.log(`Strategy 0-direct-name: URL place "${resolvedUrlPlaceName}" @${resolvedCoords.lat},${resolvedCoords.lng} (50m)`);
+        const place = await searchGooglePlace(resolvedUrlPlaceName, resolvedCoords, 50.0, apiKey, true, []);
+        if (place) {
+          console.log(`Found via resolved URL name: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
+          const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
+          if (reviews.length > 0) console.log(`Got ${reviews.length} Google review texts`);
+          return { rating: place.rating ?? null, count: place.count ?? null, reviews };
+        }
+        console.log('Strategy 0-direct-name failed');
+      }
+    }
+
     if (placeRef) {
       console.log(`Strategy 0: Direct place ref "${placeRef}" from URL`);
       try {
