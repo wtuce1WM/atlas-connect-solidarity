@@ -122,6 +122,17 @@ function tokenizePlaceName(value: string): string[] {
     .filter((token) => token.length > 2 && !stopWords.has(token));
 }
 
+function tokenizeDistinctivePlaceName(value: string): string[] {
+  const genericBusinessTokens = new Set([
+    'hotel', 'hotels', 'riad', 'riads', 'restaurant', 'restaurants', 'cafe', 'cafes',
+    'bar', 'bars', 'spa', 'resort', 'resorts', 'club', 'clubs', 'market', 'markets',
+    'shop', 'shops', 'store', 'stores', 'park', 'parks', 'parc', 'parcs', 'museum', 'musee',
+    'museums', 'lodge', 'lodges',
+  ]);
+
+  return tokenizePlaceName(value).filter((token) => !genericBusinessTokens.has(token));
+}
+
 function isStrongPlaceNameMatch(candidateName: string, expectedNames: string[]): boolean {
   if (!candidateName || expectedNames.length === 0) return true;
 
@@ -138,7 +149,6 @@ function isStrongPlaceNameMatch(candidateName: string, expectedNames: string[]):
     if (candidateNormalized === expectedNormalized) return true;
 
     const minLength = Math.min(candidateNormalized.length, expectedNormalized.length);
-    // Only allow substring match if the shorter string is at least 70% of the longer one
     const maxLength = Math.max(candidateNormalized.length, expectedNormalized.length);
     if (minLength >= 8 && minLength / maxLength >= 0.7 && (candidateNormalized.includes(expectedNormalized) || expectedNormalized.includes(candidateNormalized))) {
       return true;
@@ -158,6 +168,37 @@ function isStrongPlaceNameMatch(candidateName: string, expectedNames: string[]):
   return false;
 }
 
+function isStrictPlaceNameMatch(candidateName: string, expectedNames: string[]): boolean {
+  if (!candidateName || expectedNames.length === 0) return true;
+
+  const candidateNormalized = normalizePlaceName(candidateName);
+  const candidateDistinctiveTokens = tokenizeDistinctivePlaceName(candidateName);
+  const candidateDistinctiveSet = new Set(candidateDistinctiveTokens);
+
+  for (const expectedName of expectedNames) {
+    if (!expectedName) continue;
+
+    const expectedNormalized = normalizePlaceName(expectedName);
+    if (!expectedNormalized) continue;
+    if (candidateNormalized === expectedNormalized) return true;
+
+    const expectedDistinctiveTokens = tokenizeDistinctivePlaceName(expectedName);
+    if (expectedDistinctiveTokens.length > 0) {
+      const matchedDistinctiveCount = expectedDistinctiveTokens.filter((token) => candidateDistinctiveSet.has(token)).length;
+      if (matchedDistinctiveCount === expectedDistinctiveTokens.length) {
+        return true;
+      }
+      continue;
+    }
+
+    if (isStrongPlaceNameMatch(candidateName, [expectedName])) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function pickMatchingPlace(
   places: any[] | undefined,
   expectedNames: string[],
@@ -165,7 +206,7 @@ function pickMatchingPlace(
   if (!places || places.length === 0) return null;
 
   const selected = expectedNames.length > 0
-    ? places.find((place) => isStrongPlaceNameMatch(place.displayName?.text || '', expectedNames))
+    ? places.find((place) => isStrictPlaceNameMatch(place.displayName?.text || '', expectedNames))
     : places[0];
 
   if (!selected) return null;
@@ -233,126 +274,135 @@ async function searchGooglePlace(
   return null;
 }
 
-async function fetchGoogleReviews(businessName: string, city: string | null, googleMapsUrl: string | null, dbLatitude?: number | null, dbLongitude?: number | null): Promise<{ rating: number | null; count: number | null; reviews: ReviewText[] }> {
+async function fetchGoogleReviews(businessName: string, city: string | null, googleMapsUrl: string | null, dbLatitude?: number | null, dbLongitude?: number | null): Promise<{ rating: number | null | undefined; count: number | null | undefined; reviews: ReviewText[] }> {
   const apiKey = Deno.env.get('GOOGLE_MAPS_API_KEY');
   if (!apiKey) {
     console.error('GOOGLE_MAPS_API_KEY not configured');
-    return { rating: null, count: null, reviews: [] };
+    return { rating: undefined, count: undefined, reviews: [] };
   }
 
-  const exactCoords = extractExactCoordsFromGoogleUrl(googleMapsUrl)
-    || (dbLatitude != null && dbLongitude != null ? { lat: dbLatitude, lng: dbLongitude } : null);
-  const urlPlaceName = extractPlaceNameFromGoogleUrl(googleMapsUrl);
-  const placeRef = extractGooglePlaceRef(googleMapsUrl);
+  try {
+    const exactCoords = extractExactCoordsFromGoogleUrl(googleMapsUrl)
+      || (dbLatitude != null && dbLongitude != null ? { lat: dbLatitude, lng: dbLongitude } : null);
+    const urlPlaceName = extractPlaceNameFromGoogleUrl(googleMapsUrl);
+    const trustedUrlPlaceName = urlPlaceName && isStrictPlaceNameMatch(urlPlaceName, [businessName]) ? urlPlaceName : null;
+    const placeRef = extractGooglePlaceRef(googleMapsUrl);
 
-  const cityStr = city || '';
-  const cityQuerySuffix = cityStr ? ` ${cityStr}` : '';
-  const expectedNames = [urlPlaceName, businessName].filter(Boolean) as string[];
+    const cityStr = city || '';
+    const cityQuerySuffix = cityStr ? ` ${cityStr}` : '';
+    const expectedNames = [businessName, trustedUrlPlaceName].filter(Boolean) as string[];
 
-  // Strategy 0: Direct Place ID from URL (/g/XXXXX)
-  if (placeRef) {
-    console.log(`Strategy 0: Direct place ref "${placeRef}" from URL`);
-    try {
-      const searchRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Goog-Api-Key': apiKey,
-          'X-Goog-FieldMask': 'places.id,places.rating,places.userRatingCount,places.displayName',
-        },
-        body: JSON.stringify({ textQuery: placeRef }),
-      });
-      const searchData = await searchRes.json();
-      if (searchData.places && searchData.places.length > 0) {
-        // Trust the first result from a direct KG ID lookup — no name filtering
-        const p = searchData.places[0];
-        const place = {
-          id: p.id,
-          rating: p.rating ?? null,
-          count: p.userRatingCount ?? null,
-          displayName: p.displayName?.text || '?',
-        };
-        console.log(`Found via place ref: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
+    if (urlPlaceName && !trustedUrlPlaceName) {
+      console.log(`Ignoring Google URL place name "${urlPlaceName}" because it does not match business name "${businessName}"`);
+    }
+
+    if (placeRef) {
+      console.log(`Strategy 0: Direct place ref "${placeRef}" from URL`);
+      try {
+        const searchRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': apiKey,
+            'X-Goog-FieldMask': 'places.id,places.rating,places.userRatingCount,places.displayName',
+          },
+          body: JSON.stringify({ textQuery: placeRef }),
+        });
+        const searchData = await searchRes.json();
+        if (searchData.places && searchData.places.length > 0) {
+          const place = pickMatchingPlace(searchData.places, expectedNames);
+          if (place) {
+            console.log(`Found via place ref: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
+            const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
+            if (reviews.length > 0) console.log(`Got ${reviews.length} Google review texts`);
+            return { rating: place.rating ?? null, count: place.count ?? null, reviews };
+          }
+
+          const candidates = searchData.places
+            .map((p: any) => p.displayName?.text)
+            .filter(Boolean)
+            .slice(0, 3)
+            .join(' | ');
+          console.log(`Strategy 0 rejected direct place ref for "${businessName}". Candidates: ${candidates || 'none'}`);
+        }
+      } catch (e) {
+        console.log(`Strategy 0 failed: ${e}`);
+      }
+    }
+
+    if (exactCoords) {
+      const q0b = `${businessName}${cityQuerySuffix}`;
+      console.log(`Strategy 0b: GPS-first "${q0b}" with tight restriction @${exactCoords.lat},${exactCoords.lng} (50m)`);
+      const place = await searchGooglePlace(q0b, exactCoords, 50.0, apiKey, true, expectedNames);
+      if (place) {
+        console.log(`Found via GPS: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
         const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
         if (reviews.length > 0) console.log(`Got ${reviews.length} Google review texts`);
         return { rating: place.rating ?? null, count: place.count ?? null, reviews };
       }
-    } catch (e) {
-      console.log(`Strategy 0 failed: ${e}`);
+      console.log('Strategy 0b failed, continuing');
     }
-  }
 
-  // Strategy 0b: GPS-first — search by business name with very tight location restriction using DB coords
-  if (exactCoords) {
-    const q0b = `${businessName}${cityQuerySuffix}`;
-    console.log(`Strategy 0b: GPS-first "${q0b}" with tight restriction @${exactCoords.lat},${exactCoords.lng} (50m)`);
-    const place = await searchGooglePlace(q0b, exactCoords, 50.0, apiKey, true, expectedNames);
-    if (place) {
-      console.log(`Found via GPS: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
-      const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
-      if (reviews.length > 0) console.log(`Got ${reviews.length} Google review texts`);
-      return { rating: place.rating ?? null, count: place.count ?? null, reviews };
+    if (trustedUrlPlaceName && exactCoords) {
+      const q1 = `${trustedUrlPlaceName}${cityQuerySuffix}`;
+      console.log(`Strategy 1: URL place name "${q1}" with restriction @${exactCoords.lat},${exactCoords.lng} (200m)`);
+      const place = await searchGooglePlace(q1, exactCoords, 200.0, apiKey, true, expectedNames);
+      if (place) {
+        console.log(`Found: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
+        const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
+        if (reviews.length > 0) console.log(`Got ${reviews.length} Google review texts`);
+        return { rating: place.rating, count: place.count, reviews };
+      }
+      console.log('Strategy 1 failed, trying strategy 2');
     }
-    console.log('Strategy 0b failed, continuing');
-  }
 
-  if (urlPlaceName && exactCoords) {
-    const q1 = `${urlPlaceName}${cityQuerySuffix}`;
-    console.log(`Strategy 1: URL place name "${q1}" with restriction @${exactCoords.lat},${exactCoords.lng} (200m)`);
-    const place = await searchGooglePlace(q1, exactCoords, 200.0, apiKey, true, expectedNames);
-    if (place) {
-      console.log(`Found: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
-      const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
-      if (reviews.length > 0) console.log(`Got ${reviews.length} Google review texts`);
-      return { rating: place.rating, count: place.count, reviews };
+    if (exactCoords) {
+      const q2 = `${businessName}${cityQuerySuffix}`;
+      console.log(`Strategy 2: DB name "${businessName}" with exact coords @${exactCoords.lat},${exactCoords.lng} (100m radius)`);
+      const place = await searchGooglePlace(q2, exactCoords, 100.0, apiKey, false, expectedNames);
+      if (place) {
+        console.log(`Found: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
+        const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
+        if (reviews.length > 0) console.log(`Got ${reviews.length} Google review texts`);
+        return { rating: place.rating, count: place.count, reviews };
+      }
+      console.log('Strategy 2 failed, trying strategy 3');
     }
-    console.log('Strategy 1 failed, trying strategy 2');
-  }
 
-  if (exactCoords) {
-    const q2 = `${businessName}${cityQuerySuffix}`;
-    console.log(`Strategy 2: DB name "${businessName}" with exact coords @${exactCoords.lat},${exactCoords.lng} (100m radius)`);
-    const place = await searchGooglePlace(q2, exactCoords, 100.0, apiKey, false, expectedNames);
-    if (place) {
-      console.log(`Found: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
-      const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
-      if (reviews.length > 0) console.log(`Got ${reviews.length} Google review texts`);
-      return { rating: place.rating, count: place.count, reviews };
+    const simplifiedName = businessName.replace(/\s+by\s+.*/i, '').trim();
+    const queries = [
+      `${businessName}${cityQuerySuffix}`,
+      `${simplifiedName}${cityQuerySuffix}`,
+    ];
+
+    for (const q of queries) {
+      console.log(`Strategy 3 [Fallback]: "${q}"`);
+      const place = await searchGooglePlace(q, exactCoords, 500.0, apiKey, false, expectedNames);
+      if (place) {
+        console.log(`[Fallback] Found: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
+        const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
+        if (reviews.length > 0) console.log(`[Fallback] Got ${reviews.length} Google review texts`);
+        return { rating: place.rating, count: place.count, reviews };
+      }
     }
-    console.log('Strategy 2 failed, trying strategy 3');
-  }
 
-  const simplifiedName = businessName.replace(/\s+by\s+.*/i, '').trim();
-  const queries = [
-    `${businessName}${cityQuerySuffix}`,
-    `${simplifiedName}${cityQuerySuffix}`,
-  ];
-
-  for (const q of queries) {
-    console.log(`Strategy 3 [Fallback]: "${q}"`);
-    const place = await searchGooglePlace(q, exactCoords, 500.0, apiKey, false, expectedNames);
-    if (place) {
-      console.log(`[Fallback] Found: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
-      const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
-      if (reviews.length > 0) console.log(`[Fallback] Got ${reviews.length} Google review texts`);
-      return { rating: place.rating, count: place.count, reviews };
+    if (trustedUrlPlaceName) {
+      console.log(`Strategy 4 [No-location]: "${trustedUrlPlaceName}"`);
+      const place = await searchGooglePlace(trustedUrlPlaceName, null, 0, apiKey, false, expectedNames);
+      if (place) {
+        console.log(`[No-location] Found: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
+        const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
+        if (reviews.length > 0) console.log(`[No-location] Got ${reviews.length} Google review texts`);
+        return { rating: place.rating, count: place.count, reviews };
+      }
     }
-  }
 
-  // Strategy 4: Search without any location constraint
-  if (urlPlaceName) {
-    console.log(`Strategy 4 [No-location]: "${urlPlaceName}"`);
-    const place = await searchGooglePlace(urlPlaceName, null, 0, apiKey, false, expectedNames);
-    if (place) {
-      console.log(`[No-location] Found: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
-      const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
-      if (reviews.length > 0) console.log(`[No-location] Got ${reviews.length} Google review texts`);
-      return { rating: place.rating, count: place.count, reviews };
-    }
+    console.log(`No Google Place found for: ${businessName}${cityQuerySuffix}`);
+    return { rating: null, count: null, reviews: [] };
+  } catch (error) {
+    console.error('Google Places API error:', error);
+    return { rating: undefined, count: undefined, reviews: [] };
   }
-
-  console.log(`No Google Place found for: ${businessName}${cityQuerySuffix}`);
-  return { rating: null, count: null, reviews: [] };
 }
 
 function extractTripAdvisorLocationId(url: string | null): string | null {
@@ -364,15 +414,14 @@ function extractTripAdvisorLocationId(url: string | null): string | null {
   return null;
 }
 
-async function fetchTripAdvisorReviews(businessName: string, city: string, tripadvisorLocationId: string | null, latitude: number | null, longitude: number | null, tripadvisorReviewUrl: string | null, tripadvisorUrl: string | null): Promise<{ rating: number | null; count: number | null; locationId: string | null }> {
+async function fetchTripAdvisorReviews(businessName: string, city: string, tripadvisorLocationId: string | null, latitude: number | null, longitude: number | null, tripadvisorReviewUrl: string | null, tripadvisorUrl: string | null): Promise<{ rating: number | null | undefined; count: number | null | undefined; locationId: string | null | undefined }> {
   const apiKey = Deno.env.get('TRIPADVISOR_API_KEY');
   if (!apiKey) {
     console.error('TRIPADVISOR_API_KEY not configured');
-    return { rating: null, count: null, locationId: null };
+    return { rating: undefined, count: undefined, locationId: undefined };
   }
 
   try {
-    // URL is the source of truth — extract location ID from it first
     const urlLocationId = extractTripAdvisorLocationId(tripadvisorReviewUrl) || extractTripAdvisorLocationId(tripadvisorUrl);
     let locationId = urlLocationId || tripadvisorLocationId;
 
@@ -383,34 +432,63 @@ async function fetchTripAdvisorReviews(businessName: string, city: string, tripa
       console.log(`Extracted TripAdvisor location ID from URL: ${locationId}`);
     }
 
-    // Search for location if still no ID
-    if (!locationId) {
-      const searchQuery = `${businessName} ${city}`;
-      const searchUrl = new URL('https://api.content.tripadvisor.com/api/v1/location/search');
-      searchUrl.searchParams.set('key', apiKey);
-      searchUrl.searchParams.set('searchQuery', searchQuery);
-      searchUrl.searchParams.set('language', 'fr');
-      if (latitude && longitude) {
-        searchUrl.searchParams.set('latLong', `${latitude},${longitude}`);
+    if (locationId) {
+      const detailUrl = new URL(`https://api.content.tripadvisor.com/api/v1/location/${locationId}/details`);
+      detailUrl.searchParams.set('key', apiKey);
+      detailUrl.searchParams.set('language', 'fr');
+
+      const detailRes = await fetch(detailUrl.toString(), { headers: { 'Accept': 'application/json' } });
+      if (!detailRes.ok) {
+        const errText = await detailRes.text();
+        console.error(`TripAdvisor details error ${detailRes.status}: ${errText}`);
+        return { rating: undefined, count: undefined, locationId: undefined };
       }
 
-      console.log(`TripAdvisor search: "${searchQuery}"`);
-      const searchRes = await fetch(searchUrl.toString(), { headers: { 'Accept': 'application/json' } });
-      if (!searchRes.ok) {
-        const errText = await searchRes.text();
-        console.error(`TripAdvisor search error ${searchRes.status}: ${errText}`);
-        return { rating: null, count: null, locationId: null };
+      const detailData = await detailRes.json();
+      if (isStrictPlaceNameMatch(detailData.name || '', [businessName])) {
+        return {
+          rating: detailData.rating ? parseFloat(detailData.rating) : null,
+          count: detailData.num_reviews ? parseInt(detailData.num_reviews) : null,
+          locationId,
+        };
       }
-      const searchData = await searchRes.json();
-      if (!searchData?.data?.length) {
-        console.log(`No TripAdvisor location found for: ${searchQuery}`);
-        return { rating: null, count: null, locationId: null };
-      }
-      locationId = searchData.data[0].location_id;
-      console.log(`Found TripAdvisor location: "${searchData.data[0].name}" (ID: ${locationId})`);
+
+      console.log(`TripAdvisor details name mismatch for "${businessName}": got "${detailData.name || '?'}" (ID: ${locationId})`);
+      locationId = null;
     }
 
-    // Get details
+    const searchQuery = `${businessName} ${city}`;
+    const searchUrl = new URL('https://api.content.tripadvisor.com/api/v1/location/search');
+    searchUrl.searchParams.set('key', apiKey);
+    searchUrl.searchParams.set('searchQuery', searchQuery);
+    searchUrl.searchParams.set('language', 'fr');
+    if (latitude && longitude) {
+      searchUrl.searchParams.set('latLong', `${latitude},${longitude}`);
+    }
+
+    console.log(`TripAdvisor search: "${searchQuery}"`);
+    const searchRes = await fetch(searchUrl.toString(), { headers: { 'Accept': 'application/json' } });
+    if (!searchRes.ok) {
+      const errText = await searchRes.text();
+      console.error(`TripAdvisor search error ${searchRes.status}: ${errText}`);
+      return { rating: undefined, count: undefined, locationId: undefined };
+    }
+
+    const searchData = await searchRes.json();
+    const matchedLocation = searchData?.data?.find((item: any) => isStrictPlaceNameMatch(item.name || '', [businessName]));
+    if (!matchedLocation) {
+      const candidates = (searchData?.data || [])
+        .map((item: any) => item?.name)
+        .filter(Boolean)
+        .slice(0, 5)
+        .join(' | ');
+      console.log(`No strict TripAdvisor location match for "${searchQuery}". Candidates: ${candidates || 'none'}`);
+      return { rating: null, count: null, locationId: null };
+    }
+
+    locationId = matchedLocation.location_id;
+    console.log(`Found TripAdvisor location: "${matchedLocation.name}" (ID: ${locationId})`);
+
     const detailUrl = new URL(`https://api.content.tripadvisor.com/api/v1/location/${locationId}/details`);
     detailUrl.searchParams.set('key', apiKey);
     detailUrl.searchParams.set('language', 'fr');
@@ -419,9 +497,14 @@ async function fetchTripAdvisorReviews(businessName: string, city: string, tripa
     if (!detailRes.ok) {
       const errText = await detailRes.text();
       console.error(`TripAdvisor details error ${detailRes.status}: ${errText}`);
-      return { rating: null, count: null, locationId };
+      return { rating: undefined, count: undefined, locationId: undefined };
     }
+
     const detailData = await detailRes.json();
+    if (!isStrictPlaceNameMatch(detailData.name || '', [businessName])) {
+      console.log(`TripAdvisor details name mismatch after search for "${businessName}": got "${detailData.name || '?'}" (ID: ${locationId})`);
+      return { rating: null, count: null, locationId: null };
+    }
 
     return {
       rating: detailData.rating ? parseFloat(detailData.rating) : null,
@@ -430,7 +513,7 @@ async function fetchTripAdvisorReviews(businessName: string, city: string, tripa
     };
   } catch (e) {
     console.error('TripAdvisor API error:', e);
-    return { rating: null, count: null, locationId: null };
+    return { rating: undefined, count: undefined, locationId: undefined };
   }
 }
 
@@ -623,18 +706,18 @@ Deno.serve(async (req) => {
 
     promises.push(
       fetchGoogleReviews(business.name, business.city, business.google_maps_url, business.latitude, business.longitude).then(r => {
-        results.google_rating = r.rating;
-        results.google_review_count = r.count;
+        if (r.rating !== undefined) results.google_rating = r.rating;
+        if (r.count !== undefined) results.google_review_count = r.count;
         googleReviewTexts = r.reviews;
       })
     );
 
-    let tripadvisorLocationId: string | null = null;
+    let tripadvisorLocationId: string | null | undefined = undefined;
     if (!google_only) {
       promises.push(
         fetchTripAdvisorReviews(business.name, business.city || '', business.tripadvisor_location_id, business.latitude, business.longitude, business.tripadvisor_review_url, business.tripadvisor_url).then(r => {
-          results.tripadvisor_rating = r.rating;
-          results.tripadvisor_review_count = r.count;
+          if (r.rating !== undefined) results.tripadvisor_rating = r.rating;
+          if (r.count !== undefined) results.tripadvisor_review_count = r.count;
           tripadvisorLocationId = r.locationId;
         })
       );
@@ -672,11 +755,11 @@ Deno.serve(async (req) => {
     console.log('Results:', JSON.stringify(results));
 
     const updateData: Record<string, any> = {};
-    if (results.google_rating != null) updateData.google_rating = results.google_rating;
-    if (results.google_review_count != null) updateData.google_review_count = results.google_review_count;
-    if (results.tripadvisor_rating != null) updateData.tripadvisor_rating = results.tripadvisor_rating;
-    if (results.tripadvisor_review_count != null) updateData.tripadvisor_review_count = results.tripadvisor_review_count;
-    if (tripadvisorLocationId && !business.tripadvisor_location_id) updateData.tripadvisor_location_id = tripadvisorLocationId;
+    if (results.google_rating !== undefined) updateData.google_rating = results.google_rating;
+    if (results.google_review_count !== undefined) updateData.google_review_count = results.google_review_count;
+    if (results.tripadvisor_rating !== undefined) updateData.tripadvisor_rating = results.tripadvisor_rating;
+    if (results.tripadvisor_review_count !== undefined) updateData.tripadvisor_review_count = results.tripadvisor_review_count;
+    if (tripadvisorLocationId !== undefined) updateData.tripadvisor_location_id = tripadvisorLocationId;
     if (results.restaurant_guru_rating != null) updateData.restaurant_guru_rating = results.restaurant_guru_rating;
     if (results.restaurant_guru_review_count != null) updateData.restaurant_guru_review_count = results.restaurant_guru_review_count;
     if (results.getyourguide_rating != null) updateData.getyourguide_rating = results.getyourguide_rating;
