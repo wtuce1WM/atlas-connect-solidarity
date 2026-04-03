@@ -429,6 +429,17 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
         if (reviews.length > 0) console.log(`Got ${reviews.length} Google review texts`);
         return { rating: place.rating ?? null, count: place.count ?? null, reviews };
       }
+
+      // Strategy 0b-relaxed: within 50m, accept first result even without strict name match
+      // (tight GPS area makes a false positive extremely unlikely)
+      console.log(`Strategy 0b-relaxed: same query, accepting first result within 50m`);
+      const placeRelaxed = await searchGooglePlace(q0b, exactCoords, 50.0, apiKey, true, []);
+      if (placeRelaxed) {
+        console.log(`Found via GPS (relaxed): "${placeRelaxed.displayName}" - rating=${placeRelaxed.rating}, count=${placeRelaxed.count}`);
+        const reviews = await fetchReviewsFromPlaceId(placeRelaxed.id, apiKey);
+        if (reviews.length > 0) console.log(`Got ${reviews.length} Google review texts`);
+        return { rating: placeRelaxed.rating ?? null, count: placeRelaxed.count ?? null, reviews };
+      }
       console.log('Strategy 0b failed, continuing');
     }
 
