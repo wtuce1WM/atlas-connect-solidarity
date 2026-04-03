@@ -286,7 +286,7 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
   if (exactCoords) {
     const q0b = `${businessName}${cityQuerySuffix}`;
     console.log(`Strategy 0b: GPS-first "${q0b}" with tight restriction @${exactCoords.lat},${exactCoords.lng} (50m)`);
-    const place = await searchGooglePlace(q0b, exactCoords, 50.0, apiKey, true, []);
+    const place = await searchGooglePlace(q0b, exactCoords, 50.0, apiKey, true, expectedNames);
     if (place) {
       console.log(`Found via GPS: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
       const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
