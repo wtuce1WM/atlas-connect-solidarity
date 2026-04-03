@@ -535,7 +535,7 @@ async function fetchTripAdvisorReviews(businessName: string, city: string, tripa
       }
 
       const detailData = await detailRes.json();
-      if (isValidTripAdvisorDetail(detailData, businessName, latitude, longitude, requireTightGeoMatch)) {
+      if (isValidTripAdvisorDetail(detailData, businessName, latitude, longitude, requireTightGeoMatch, !!urlLocationId)) {
         return {
           rating: detailData.rating ? parseFloat(detailData.rating) : null,
           count: detailData.num_reviews ? parseInt(detailData.num_reviews) : null,
