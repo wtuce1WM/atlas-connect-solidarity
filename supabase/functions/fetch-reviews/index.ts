@@ -122,6 +122,17 @@ function tokenizePlaceName(value: string): string[] {
     .filter((token) => token.length > 2 && !stopWords.has(token));
 }
 
+function tokenizeDistinctivePlaceName(value: string): string[] {
+  const genericBusinessTokens = new Set([
+    'hotel', 'hotels', 'riad', 'riads', 'restaurant', 'restaurants', 'cafe', 'cafes',
+    'bar', 'bars', 'spa', 'resort', 'resorts', 'club', 'clubs', 'market', 'markets',
+    'shop', 'shops', 'store', 'stores', 'park', 'parks', 'parc', 'parcs', 'museum', 'musee',
+    'museums', 'lodge', 'lodges',
+  ]);
+
+  return tokenizePlaceName(value).filter((token) => !genericBusinessTokens.has(token));
+}
+
 function isStrongPlaceNameMatch(candidateName: string, expectedNames: string[]): boolean {
   if (!candidateName || expectedNames.length === 0) return true;
 
@@ -138,7 +149,6 @@ function isStrongPlaceNameMatch(candidateName: string, expectedNames: string[]):
     if (candidateNormalized === expectedNormalized) return true;
 
     const minLength = Math.min(candidateNormalized.length, expectedNormalized.length);
-    // Only allow substring match if the shorter string is at least 70% of the longer one
     const maxLength = Math.max(candidateNormalized.length, expectedNormalized.length);
     if (minLength >= 8 && minLength / maxLength >= 0.7 && (candidateNormalized.includes(expectedNormalized) || expectedNormalized.includes(candidateNormalized))) {
       return true;
@@ -158,6 +168,37 @@ function isStrongPlaceNameMatch(candidateName: string, expectedNames: string[]):
   return false;
 }
 
+function isStrictPlaceNameMatch(candidateName: string, expectedNames: string[]): boolean {
+  if (!candidateName || expectedNames.length === 0) return true;
+
+  const candidateNormalized = normalizePlaceName(candidateName);
+  const candidateDistinctiveTokens = tokenizeDistinctivePlaceName(candidateName);
+  const candidateDistinctiveSet = new Set(candidateDistinctiveTokens);
+
+  for (const expectedName of expectedNames) {
+    if (!expectedName) continue;
+
+    const expectedNormalized = normalizePlaceName(expectedName);
+    if (!expectedNormalized) continue;
+    if (candidateNormalized === expectedNormalized) return true;
+
+    const expectedDistinctiveTokens = tokenizeDistinctivePlaceName(expectedName);
+    if (expectedDistinctiveTokens.length > 0) {
+      const matchedDistinctiveCount = expectedDistinctiveTokens.filter((token) => candidateDistinctiveSet.has(token)).length;
+      if (matchedDistinctiveCount === expectedDistinctiveTokens.length) {
+        return true;
+      }
+      continue;
+    }
+
+    if (isStrongPlaceNameMatch(candidateName, [expectedName])) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function pickMatchingPlace(
   places: any[] | undefined,
   expectedNames: string[],
@@ -165,7 +206,7 @@ function pickMatchingPlace(
   if (!places || places.length === 0) return null;
 
   const selected = expectedNames.length > 0
-    ? places.find((place) => isStrongPlaceNameMatch(place.displayName?.text || '', expectedNames))
+    ? places.find((place) => isStrictPlaceNameMatch(place.displayName?.text || '', expectedNames))
     : places[0];
 
   if (!selected) return null;
