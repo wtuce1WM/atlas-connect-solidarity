@@ -74,6 +74,40 @@ function extractGooglePlaceRef(url: string | null): string | null {
   return null;
 }
 
+/**
+ * Resolve a short Google Maps URL (maps.app.goo.gl/...) to its full form
+ * by following HTTP redirects.
+ */
+async function resolveGoogleMapsShortUrl(url: string): Promise<string> {
+  if (!url.includes('goo.gl/') && !url.includes('/maps.app.goo.gl/')) {
+    return url; // Already a full URL
+  }
+  try {
+    let currentUrl = url;
+    for (let i = 0; i < 10; i++) {
+      const response = await fetch(currentUrl, { redirect: 'manual' });
+      const location = response.headers.get('location');
+      try { await response.body?.cancel(); } catch { /* ignore */ }
+      if (location && response.status >= 300 && response.status < 400) {
+        currentUrl = location.startsWith('http') ? location : new URL(location, currentUrl).href;
+      } else {
+        break;
+      }
+    }
+    return currentUrl;
+  } catch (_) {
+    return url;
+  }
+}
+
+/**
+ * Extract ftid (0x...:0x...) from a resolved Google Maps URL.
+ */
+function extractFtid(url: string): string | null {
+  const match = url.match(/!1s(0x[0-9a-fA-F]+:0x[0-9a-fA-F]+)/);
+  return match ? match[1] : null;
+}
+
 async function fetchReviewsFromPlaceId(placeId: string, apiKey: string): Promise<ReviewText[]> {
   const reviewTexts: ReviewText[] = [];
   try {
@@ -383,6 +417,51 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
       console.log(`Ignoring Google URL place name "${urlPlaceName}" because it does not match business name "${businessName}"`);
     } else if (trustedUrlPlaceName && !isStrictPlaceNameMatch(trustedUrlPlaceName, [businessName])) {
       console.log(`Accepting Google URL place name alias "${trustedUrlPlaceName}" for "${businessName}" thanks to tight GPS match`);
+    }
+
+    // ── Strategy 0-direct: Resolve short URL → extract ftid → lookup via Places API ──
+    // The user explicitly linked to this place, so we trust it completely.
+    if (googleMapsUrl) {
+      const resolvedUrl = await resolveGoogleMapsShortUrl(googleMapsUrl);
+      const ftid = extractFtid(resolvedUrl);
+      const resolvedUrlPlaceName = extractPlaceNameFromGoogleUrl(resolvedUrl);
+      const resolvedCoords = extractExactCoordsFromGoogleUrl(resolvedUrl);
+
+      if (ftid) {
+        console.log(`Strategy 0-direct: ftid "${ftid}" from resolved URL`);
+        // Search with ftid as text query — Google resolves it
+        const searchRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': apiKey,
+            'X-Goog-FieldMask': 'places.id,places.rating,places.userRatingCount,places.displayName',
+          },
+          body: JSON.stringify({ textQuery: ftid }),
+        });
+        const searchData = await searchRes.json();
+        if (searchData.places && searchData.places.length > 0) {
+          const place = searchData.places[0]; // Trust ftid — it's a unique identifier
+          console.log(`Found via ftid: "${place.displayName?.text}" - rating=${place.rating}, count=${place.userRatingCount}`);
+          const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
+          if (reviews.length > 0) console.log(`Got ${reviews.length} Google review texts`);
+          return { rating: place.rating ?? null, count: place.userRatingCount ?? null, reviews };
+        }
+        console.log('Strategy 0-direct ftid search returned no results');
+      }
+
+      // If we got a place name from the resolved URL, search with it + coords, trust first result
+      if (resolvedUrlPlaceName && resolvedCoords) {
+        console.log(`Strategy 0-direct-name: URL place "${resolvedUrlPlaceName}" @${resolvedCoords.lat},${resolvedCoords.lng} (50m)`);
+        const place = await searchGooglePlace(resolvedUrlPlaceName, resolvedCoords, 50.0, apiKey, true, []);
+        if (place) {
+          console.log(`Found via resolved URL name: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
+          const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
+          if (reviews.length > 0) console.log(`Got ${reviews.length} Google review texts`);
+          return { rating: place.rating ?? null, count: place.count ?? null, reviews };
+        }
+        console.log('Strategy 0-direct-name failed');
+      }
     }
 
     if (placeRef) {
