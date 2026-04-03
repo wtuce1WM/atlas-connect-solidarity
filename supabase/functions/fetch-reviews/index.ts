@@ -414,15 +414,14 @@ function extractTripAdvisorLocationId(url: string | null): string | null {
   return null;
 }
 
-async function fetchTripAdvisorReviews(businessName: string, city: string, tripadvisorLocationId: string | null, latitude: number | null, longitude: number | null, tripadvisorReviewUrl: string | null, tripadvisorUrl: string | null): Promise<{ rating: number | null; count: number | null; locationId: string | null }> {
+async function fetchTripAdvisorReviews(businessName: string, city: string, tripadvisorLocationId: string | null, latitude: number | null, longitude: number | null, tripadvisorReviewUrl: string | null, tripadvisorUrl: string | null): Promise<{ rating: number | null | undefined; count: number | null | undefined; locationId: string | null | undefined }> {
   const apiKey = Deno.env.get('TRIPADVISOR_API_KEY');
   if (!apiKey) {
     console.error('TRIPADVISOR_API_KEY not configured');
-    return { rating: null, count: null, locationId: null };
+    return { rating: undefined, count: undefined, locationId: undefined };
   }
 
   try {
-    // URL is the source of truth — extract location ID from it first
     const urlLocationId = extractTripAdvisorLocationId(tripadvisorReviewUrl) || extractTripAdvisorLocationId(tripadvisorUrl);
     let locationId = urlLocationId || tripadvisorLocationId;
 
@@ -433,34 +432,63 @@ async function fetchTripAdvisorReviews(businessName: string, city: string, tripa
       console.log(`Extracted TripAdvisor location ID from URL: ${locationId}`);
     }
 
-    // Search for location if still no ID
-    if (!locationId) {
-      const searchQuery = `${businessName} ${city}`;
-      const searchUrl = new URL('https://api.content.tripadvisor.com/api/v1/location/search');
-      searchUrl.searchParams.set('key', apiKey);
-      searchUrl.searchParams.set('searchQuery', searchQuery);
-      searchUrl.searchParams.set('language', 'fr');
-      if (latitude && longitude) {
-        searchUrl.searchParams.set('latLong', `${latitude},${longitude}`);
+    if (locationId) {
+      const detailUrl = new URL(`https://api.content.tripadvisor.com/api/v1/location/${locationId}/details`);
+      detailUrl.searchParams.set('key', apiKey);
+      detailUrl.searchParams.set('language', 'fr');
+
+      const detailRes = await fetch(detailUrl.toString(), { headers: { 'Accept': 'application/json' } });
+      if (!detailRes.ok) {
+        const errText = await detailRes.text();
+        console.error(`TripAdvisor details error ${detailRes.status}: ${errText}`);
+        return { rating: undefined, count: undefined, locationId: undefined };
       }
 
-      console.log(`TripAdvisor search: "${searchQuery}"`);
-      const searchRes = await fetch(searchUrl.toString(), { headers: { 'Accept': 'application/json' } });
-      if (!searchRes.ok) {
-        const errText = await searchRes.text();
-        console.error(`TripAdvisor search error ${searchRes.status}: ${errText}`);
-        return { rating: null, count: null, locationId: null };
+      const detailData = await detailRes.json();
+      if (isStrictPlaceNameMatch(detailData.name || '', [businessName])) {
+        return {
+          rating: detailData.rating ? parseFloat(detailData.rating) : null,
+          count: detailData.num_reviews ? parseInt(detailData.num_reviews) : null,
+          locationId,
+        };
       }
-      const searchData = await searchRes.json();
-      if (!searchData?.data?.length) {
-        console.log(`No TripAdvisor location found for: ${searchQuery}`);
-        return { rating: null, count: null, locationId: null };
-      }
-      locationId = searchData.data[0].location_id;
-      console.log(`Found TripAdvisor location: "${searchData.data[0].name}" (ID: ${locationId})`);
+
+      console.log(`TripAdvisor details name mismatch for "${businessName}": got "${detailData.name || '?'}" (ID: ${locationId})`);
+      locationId = null;
     }
 
-    // Get details
+    const searchQuery = `${businessName} ${city}`;
+    const searchUrl = new URL('https://api.content.tripadvisor.com/api/v1/location/search');
+    searchUrl.searchParams.set('key', apiKey);
+    searchUrl.searchParams.set('searchQuery', searchQuery);
+    searchUrl.searchParams.set('language', 'fr');
+    if (latitude && longitude) {
+      searchUrl.searchParams.set('latLong', `${latitude},${longitude}`);
+    }
+
+    console.log(`TripAdvisor search: "${searchQuery}"`);
+    const searchRes = await fetch(searchUrl.toString(), { headers: { 'Accept': 'application/json' } });
+    if (!searchRes.ok) {
+      const errText = await searchRes.text();
+      console.error(`TripAdvisor search error ${searchRes.status}: ${errText}`);
+      return { rating: undefined, count: undefined, locationId: undefined };
+    }
+
+    const searchData = await searchRes.json();
+    const matchedLocation = searchData?.data?.find((item: any) => isStrictPlaceNameMatch(item.name || '', [businessName]));
+    if (!matchedLocation) {
+      const candidates = (searchData?.data || [])
+        .map((item: any) => item?.name)
+        .filter(Boolean)
+        .slice(0, 5)
+        .join(' | ');
+      console.log(`No strict TripAdvisor location match for "${searchQuery}". Candidates: ${candidates || 'none'}`);
+      return { rating: null, count: null, locationId: null };
+    }
+
+    locationId = matchedLocation.location_id;
+    console.log(`Found TripAdvisor location: "${matchedLocation.name}" (ID: ${locationId})`);
+
     const detailUrl = new URL(`https://api.content.tripadvisor.com/api/v1/location/${locationId}/details`);
     detailUrl.searchParams.set('key', apiKey);
     detailUrl.searchParams.set('language', 'fr');
@@ -469,9 +497,14 @@ async function fetchTripAdvisorReviews(businessName: string, city: string, tripa
     if (!detailRes.ok) {
       const errText = await detailRes.text();
       console.error(`TripAdvisor details error ${detailRes.status}: ${errText}`);
-      return { rating: null, count: null, locationId };
+      return { rating: undefined, count: undefined, locationId: undefined };
     }
+
     const detailData = await detailRes.json();
+    if (!isStrictPlaceNameMatch(detailData.name || '', [businessName])) {
+      console.log(`TripAdvisor details name mismatch after search for "${businessName}": got "${detailData.name || '?'}" (ID: ${locationId})`);
+      return { rating: null, count: null, locationId: null };
+    }
 
     return {
       rating: detailData.rating ? parseFloat(detailData.rating) : null,
@@ -480,7 +513,7 @@ async function fetchTripAdvisorReviews(businessName: string, city: string, tripa
     };
   } catch (e) {
     console.error('TripAdvisor API error:', e);
-    return { rating: null, count: null, locationId: null };
+    return { rating: undefined, count: undefined, locationId: undefined };
   }
 }
 
