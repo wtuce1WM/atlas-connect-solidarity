@@ -703,6 +703,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [videoBusinessSearch, setVideoBusinessSearch] = useState<Record<number, string>>({});
   const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>([]);
   const [defaultBadgeId, setDefaultBadgeId] = useState<string | null>(null);
+  const [assigningPoi, setAssigningPoi] = useState(false);
   const [intentWords, setIntentWords] = useState<Array<{ id: string; word: string; category_name: string; merge_on_conflict: boolean; is_active: boolean }>>([]);
   const [intentsLoading, setIntentsLoading] = useState(true);
   const [newIntentWord, setNewIntentWord] = useState("");
@@ -2868,9 +2869,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         <div id="section-contact" className="p-4 border rounded-lg bg-orange-50 space-y-4" style={{ scrollMarginTop: '160px' }}>
           <h3 className="text-sm font-semibold text-orange-800">📍 Contact & Localisation</h3>
           
-          {/* Adresse, Ville, Région, Quartier */}
-          <div className="grid grid-cols-1 md:grid-cols-8 gap-4">
-            <div className="space-y-2 md:col-span-4">
+          {/* Adresse, Ville, Région, Quartier, POI */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+            <div className="space-y-2 md:col-span-3">
               <Label htmlFor="address_top">Adresse</Label>
               <Input
                 id="address_top"
@@ -2878,7 +2879,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 onChange={(e) => handleChange("address", e.target.value)}
               />
             </div>
-            <div className="space-y-2 md:col-span-1">
+            <div className="space-y-2 md:col-span-2">
               <Label htmlFor="city_top">Ville</Label>
               <Select
                 value={formData.city || "__none__"}
@@ -2929,7 +2930,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2 md:col-span-1">
+            <div className="space-y-2 md:col-span-2">
               <Label htmlFor="neighborhood_top">Quartier</Label>
               <Select
                 value={formData.neighborhood || "__none__"}
@@ -2953,14 +2954,64 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   ))}
                 </SelectContent>
               </Select>
-              <div className="flex items-center gap-2 pt-1">
-                <Checkbox
-                  id="is_poi"
-                  checked={(formData as any).is_poi || false}
-                  onCheckedChange={(checked) => handleChange("is_poi", !!checked)}
-                />
-                <Label htmlFor="is_poi" className="text-xs cursor-pointer">Points d'intérêt</Label>
-              </div>
+            </div>
+            <div className="md:col-span-3 flex items-center gap-3 pb-1">
+              <Checkbox
+                id="is_poi"
+                checked={(formData as any).is_poi || false}
+                onCheckedChange={(checked) => handleChange("is_poi", !!checked)}
+              />
+              <Label htmlFor="is_poi" className="text-xs cursor-pointer whitespace-nowrap">POI</Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={!formData.city || !formData.neighborhood || !business?.id || assigningPoi}
+                onClick={async () => {
+                  if (!business?.id || !formData.city || !formData.neighborhood) return;
+                  setAssigningPoi(true);
+                  try {
+                    // Find all active businesses in the same city + neighborhood (exclude self)
+                    const { data: targets, error: fetchErr } = await supabase
+                      .from("businesses")
+                      .select("id")
+                      .eq("city", formData.city)
+                      .eq("neighborhood", formData.neighborhood)
+                      .eq("is_active", true)
+                      .neq("id", business.id);
+                    if (fetchErr) throw fetchErr;
+                    if (!targets || targets.length === 0) {
+                      sonnerToast.info("Aucun autre établissement trouvé dans ce quartier.");
+                      return;
+                    }
+                    // Get existing POI links for this business as poi_business_id
+                    const { data: existing } = await supabase
+                      .from("business_poi_businesses" as any)
+                      .select("business_id")
+                      .eq("poi_business_id", business.id);
+                    const existingSet = new Set((existing || []).map((e: any) => e.business_id));
+                    const toInsert = targets
+                      .filter(t => !existingSet.has(t.id))
+                      .map(t => ({ business_id: t.id, poi_business_id: business.id }));
+                    if (toInsert.length === 0) {
+                      sonnerToast.info("Déjà affecté comme POI à tous les établissements du quartier.");
+                      return;
+                    }
+                    const { error: insertErr } = await supabase
+                      .from("business_poi_businesses" as any)
+                      .insert(toInsert);
+                    if (insertErr) throw insertErr;
+                    sonnerToast.success(`POI affecté à ${toInsert.length} établissement(s) dans ${formData.neighborhood}.`);
+                  } catch (err: any) {
+                    sonnerToast.error("Erreur : " + (err?.message || "inconnue"));
+                  } finally {
+                    setAssigningPoi(false);
+                  }
+                }}
+              >
+                {assigningPoi ? <Loader2 className="h-3 w-3 animate-spin" /> : <MapPinned className="h-3 w-3" />}
+                Affecter POI
+              </Button>
             </div>
           </div>
 
