@@ -1287,7 +1287,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               key={tab.id}
               onClick={() => handleBottomTabChange(tab.id)}
               className={`px-3 py-1.5 rounded-full whitespace-nowrap transition-colors border border-transparent ${
-                tab.id === "videos" ? "truncate max-w-[60vw] md:max-w-none" : ""
+                tab.id === "videos" ? "overflow-hidden text-ellipsis" : ""
               } ${
                 activeBottomTab === tab.id
                   ? "bg-black text-white"
