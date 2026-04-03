@@ -74,6 +74,40 @@ function extractGooglePlaceRef(url: string | null): string | null {
   return null;
 }
 
+/**
+ * Resolve a short Google Maps URL (maps.app.goo.gl/...) to its full form
+ * by following HTTP redirects.
+ */
+async function resolveGoogleMapsShortUrl(url: string): Promise<string> {
+  if (!url.includes('goo.gl/') && !url.includes('/maps.app.goo.gl/')) {
+    return url; // Already a full URL
+  }
+  try {
+    let currentUrl = url;
+    for (let i = 0; i < 10; i++) {
+      const response = await fetch(currentUrl, { redirect: 'manual' });
+      const location = response.headers.get('location');
+      try { await response.body?.cancel(); } catch { /* ignore */ }
+      if (location && response.status >= 300 && response.status < 400) {
+        currentUrl = location.startsWith('http') ? location : new URL(location, currentUrl).href;
+      } else {
+        break;
+      }
+    }
+    return currentUrl;
+  } catch (_) {
+    return url;
+  }
+}
+
+/**
+ * Extract ftid (0x...:0x...) from a resolved Google Maps URL.
+ */
+function extractFtid(url: string): string | null {
+  const match = url.match(/!1s(0x[0-9a-fA-F]+:0x[0-9a-fA-F]+)/);
+  return match ? match[1] : null;
+}
+
 async function fetchReviewsFromPlaceId(placeId: string, apiKey: string): Promise<ReviewText[]> {
   const reviewTexts: ReviewText[] = [];
   try {
