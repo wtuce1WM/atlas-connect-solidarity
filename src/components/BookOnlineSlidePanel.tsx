@@ -1293,7 +1293,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   ? "bg-black text-white"
                   : "bg-white/70 text-black hover:bg-white/80"
               } ${!tab.hasContent ? "opacity-50" : ""}`}
-              style={{ fontFamily: 'Josefin Sans, sans-serif', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase', fontSize: '11px', lineHeight: '16px', padding: '6px 12px', ...(tab.id === "videos" ? { maxWidth: window.innerWidth < 768 ? 'min(60vw, 240px)' : 'none', flexShrink: 0 } : {}) }}
+              style={{ fontFamily: 'Josefin Sans, sans-serif', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase', fontSize: '11px', lineHeight: '16px', padding: '6px 12px' }}
             >
               {tab.label}
             </button>
