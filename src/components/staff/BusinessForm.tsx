@@ -703,6 +703,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [videoBusinessSearch, setVideoBusinessSearch] = useState<Record<number, string>>({});
   const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>([]);
   const [defaultBadgeId, setDefaultBadgeId] = useState<string | null>(null);
+  const [assigningPoi, setAssigningPoi] = useState(false);
   const [intentWords, setIntentWords] = useState<Array<{ id: string; word: string; category_name: string; merge_on_conflict: boolean; is_active: boolean }>>([]);
   const [intentsLoading, setIntentsLoading] = useState(true);
   const [newIntentWord, setNewIntentWord] = useState("");
