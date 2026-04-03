@@ -3012,6 +3012,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 {assigningPoi ? <Loader2 className="h-3 w-3 animate-spin" /> : <MapPinned className="h-3 w-3" />}
                 Affecter POI
               </Button>
+              {!formData.is_poi && (
+                <span className="text-xs text-muted-foreground">Activez POI d'abord</span>
+              )}
             </div>
           </div>
 
