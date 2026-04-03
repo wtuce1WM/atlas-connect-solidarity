@@ -4124,7 +4124,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           <div className="flex items-center justify-between">
             <Label className="text-base font-semibold">Images (max 30)</Label>
             <div className="flex items-center gap-2">
-              <Switch checked={formData.prioritize_images} onCheckedChange={(checked) => { handleChange("prioritize_images", checked); handleChange("show_videos", !checked); }} />
+              <Switch checked={formData.prioritize_images} onCheckedChange={(checked) => { handleChange("prioritize_images", checked); if (checked) handleChange("show_videos", false); }} />
               <span className="text-xs text-muted-foreground">Prioriser les images en fond de fiche produit</span>
             </div>
           </div>
