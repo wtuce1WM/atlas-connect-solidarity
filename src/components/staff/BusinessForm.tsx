@@ -2955,15 +2955,13 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 </SelectContent>
               </Select>
             </div>
-            <div className="md:col-span-1 flex items-center gap-2 pb-1">
+            <div className="md:col-span-3 flex items-center gap-3 pb-1">
               <Checkbox
                 id="is_poi"
                 checked={(formData as any).is_poi || false}
                 onCheckedChange={(checked) => handleChange("is_poi", !!checked)}
               />
               <Label htmlFor="is_poi" className="text-xs cursor-pointer whitespace-nowrap">POI</Label>
-            </div>
-            <div className="md:col-span-12">
               <Button
                 type="button"
                 variant="outline"
