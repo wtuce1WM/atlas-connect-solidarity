@@ -133,6 +133,31 @@ function tokenizeDistinctivePlaceName(value: string): string[] {
   return tokenizePlaceName(value).filter((token) => !genericBusinessTokens.has(token));
 }
 
+function isGeoTrustedGoogleUrlPlaceName(
+  urlPlaceName: string,
+  businessName: string,
+  urlCoords: { lat: number; lng: number } | null,
+  dbLatitude: number | null | undefined,
+  dbLongitude: number | null | undefined,
+): boolean {
+  if (isStrictPlaceNameMatch(urlPlaceName, [businessName])) return true;
+  if (!urlCoords || dbLatitude == null || dbLongitude == null) return false;
+
+  const distanceMeters = calculateDistanceMeters(urlCoords.lat, urlCoords.lng, dbLatitude, dbLongitude);
+  if (distanceMeters > 35) return false;
+
+  const candidateTokens = tokenizePlaceName(urlPlaceName);
+  const expectedTokens = tokenizePlaceName(businessName);
+  const candidateDistinctiveTokens = tokenizeDistinctivePlaceName(urlPlaceName);
+  const expectedDistinctiveSet = new Set(tokenizeDistinctivePlaceName(businessName));
+  const expectedTokenSet = new Set(expectedTokens);
+
+  if (candidateTokens.length < 2 || candidateDistinctiveTokens.length === 0) return false;
+
+  return candidateTokens.every((token) => expectedTokenSet.has(token))
+    && candidateDistinctiveTokens.every((token) => expectedDistinctiveSet.has(token));
+}
+
 function toNullableCoordinate(value: unknown): number | null {
   if (value == null || value === '') return null;
   const parsed = typeof value === 'number' ? value : parseFloat(String(value));
@@ -331,10 +356,17 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
   }
 
   try {
-    const exactCoords = extractExactCoordsFromGoogleUrl(googleMapsUrl)
+    const urlCoords = extractExactCoordsFromGoogleUrl(googleMapsUrl);
+    const exactCoords = urlCoords
       || (dbLatitude != null && dbLongitude != null ? { lat: dbLatitude, lng: dbLongitude } : null);
     const urlPlaceName = extractPlaceNameFromGoogleUrl(googleMapsUrl);
-    const trustedUrlPlaceName = urlPlaceName && isStrictPlaceNameMatch(urlPlaceName, [businessName]) ? urlPlaceName : null;
+    const trustedUrlPlaceName = urlPlaceName && isGeoTrustedGoogleUrlPlaceName(
+      urlPlaceName,
+      businessName,
+      urlCoords,
+      dbLatitude,
+      dbLongitude,
+    ) ? urlPlaceName : null;
     const placeRef = extractGooglePlaceRef(googleMapsUrl);
 
     const cityStr = city || '';
@@ -343,6 +375,8 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
 
     if (urlPlaceName && !trustedUrlPlaceName) {
       console.log(`Ignoring Google URL place name "${urlPlaceName}" because it does not match business name "${businessName}"`);
+    } else if (trustedUrlPlaceName && !isStrictPlaceNameMatch(trustedUrlPlaceName, [businessName])) {
+      console.log(`Accepting Google URL place name alias "${trustedUrlPlaceName}" for "${businessName}" thanks to tight GPS match`);
     }
 
     if (placeRef) {
