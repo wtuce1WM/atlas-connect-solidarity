@@ -2966,7 +2966,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={!formData.city || !formData.neighborhood || !business?.id || assigningPoi}
+                disabled={!formData.is_poi || !formData.city || !formData.neighborhood || !business?.id || assigningPoi}
                 onClick={async () => {
                   if (!business?.id || !formData.city || !formData.neighborhood) return;
                   setAssigningPoi(true);
@@ -3012,6 +3012,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 {assigningPoi ? <Loader2 className="h-3 w-3 animate-spin" /> : <MapPinned className="h-3 w-3" />}
                 Affecter POI
               </Button>
+              {!formData.is_poi && (
+                <span className="text-xs text-muted-foreground">Activez POI d'abord</span>
+              )}
             </div>
           </div>
 
