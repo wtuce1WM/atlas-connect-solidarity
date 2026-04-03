@@ -706,18 +706,18 @@ Deno.serve(async (req) => {
 
     promises.push(
       fetchGoogleReviews(business.name, business.city, business.google_maps_url, business.latitude, business.longitude).then(r => {
-        results.google_rating = r.rating;
-        results.google_review_count = r.count;
+        if (r.rating !== undefined) results.google_rating = r.rating;
+        if (r.count !== undefined) results.google_review_count = r.count;
         googleReviewTexts = r.reviews;
       })
     );
 
-    let tripadvisorLocationId: string | null = null;
+    let tripadvisorLocationId: string | null | undefined = undefined;
     if (!google_only) {
       promises.push(
         fetchTripAdvisorReviews(business.name, business.city || '', business.tripadvisor_location_id, business.latitude, business.longitude, business.tripadvisor_review_url, business.tripadvisor_url).then(r => {
-          results.tripadvisor_rating = r.rating;
-          results.tripadvisor_review_count = r.count;
+          if (r.rating !== undefined) results.tripadvisor_rating = r.rating;
+          if (r.count !== undefined) results.tripadvisor_review_count = r.count;
           tripadvisorLocationId = r.locationId;
         })
       );
@@ -755,11 +755,11 @@ Deno.serve(async (req) => {
     console.log('Results:', JSON.stringify(results));
 
     const updateData: Record<string, any> = {};
-    if (results.google_rating != null) updateData.google_rating = results.google_rating;
-    if (results.google_review_count != null) updateData.google_review_count = results.google_review_count;
-    if (results.tripadvisor_rating != null) updateData.tripadvisor_rating = results.tripadvisor_rating;
-    if (results.tripadvisor_review_count != null) updateData.tripadvisor_review_count = results.tripadvisor_review_count;
-    if (tripadvisorLocationId && !business.tripadvisor_location_id) updateData.tripadvisor_location_id = tripadvisorLocationId;
+    if (results.google_rating !== undefined) updateData.google_rating = results.google_rating;
+    if (results.google_review_count !== undefined) updateData.google_review_count = results.google_review_count;
+    if (results.tripadvisor_rating !== undefined) updateData.tripadvisor_rating = results.tripadvisor_rating;
+    if (results.tripadvisor_review_count !== undefined) updateData.tripadvisor_review_count = results.tripadvisor_review_count;
+    if (tripadvisorLocationId !== undefined) updateData.tripadvisor_location_id = tripadvisorLocationId;
     if (results.restaurant_guru_rating != null) updateData.restaurant_guru_rating = results.restaurant_guru_rating;
     if (results.restaurant_guru_review_count != null) updateData.restaurant_guru_review_count = results.restaurant_guru_review_count;
     if (results.getyourguide_rating != null) updateData.getyourguide_rating = results.getyourguide_rating;

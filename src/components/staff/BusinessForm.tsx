@@ -1341,7 +1341,11 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     const next = { ...fd };
     for (const key of reviewFetchFieldKeys) {
       const raw = fetched[key];
-      if (raw === null || raw === undefined) continue;
+      if (raw === undefined) continue;
+      if (raw === null) {
+        next[key] = "";
+        continue;
+      }
       const parsed = Number(raw);
       if (Number.isFinite(parsed)) {
         next[key] = String(parsed);
