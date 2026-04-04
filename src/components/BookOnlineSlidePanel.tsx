@@ -1383,6 +1383,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               activeVideoId={activeYoutubeVideo?.videoId ?? null}
                shortsOnly
                hideLabel
+               hideHeader
                size="match-tabs"
             />
           </div>
