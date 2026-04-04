@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
-import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, CalendarCheck, ShoppingBag, Star, Minimize2, Loader2, Volume2, VolumeX, Play, Pause, Phone, ArrowLeft } from "lucide-react";
+import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, CalendarCheck, ShoppingBag, Star, Minimize2, Loader2, Volume2, VolumeX, Play, Pause, Phone } from "lucide-react";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 import { supabase } from "@/integrations/supabase/client";
 import { isCurrentlyOpen } from "@/lib/formatOpeningHours";
@@ -128,10 +128,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     if (fallbackPanelData) fallbackDataRef.current = fallbackPanelData;
   }, [fallbackPanelData]);
 
-  // Expose close interceptor: when navigated from fallback, reopen fallback list instead of closing panel
+  // Expose close interceptor: when navigated from fallback or from video owner, go back instead of closing
   useEffect(() => {
     if (!interceptCloseRef) return;
-    if (cameFromFallback && fallbackDataRef.current) {
+    if (previousBusinessId) {
+      interceptCloseRef.current = () => {
+        setActiveBusinessIdRaw(previousBusinessId);
+        setPreviousBusinessId(null);
+        return true; // intercepted
+      };
+    } else if (cameFromFallback && fallbackDataRef.current) {
       interceptCloseRef.current = () => {
         if (!fallbackPanelData && fallbackDataRef.current) {
           setFallbackPanelData(fallbackDataRef.current);
@@ -143,7 +149,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     } else {
       interceptCloseRef.current = null;
     }
-  }, [cameFromFallback, fallbackPanelData, interceptCloseRef]);
+  }, [previousBusinessId, cameFromFallback, fallbackPanelData, interceptCloseRef]);
   const hideCardsRef = useRef<() => void>(() => {});
 
   // Whether this business has a SerpAPI mapping
@@ -1044,15 +1050,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex flex-col items-center pb-3 md:pb-3 pointer-events-auto animate-[slide-in-top_0.35s_ease-out_both] mt-1 md:mt-0">
           {cardsHidden ? (
             <div className="flex items-center gap-3">
-              {previousBusinessId && (
-                <button
-                  onClick={() => { setActiveBusinessIdRaw(previousBusinessId); setPreviousBusinessId(null); }}
-                  className="w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
-                  aria-label="Retour"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                </button>
-              )}
               {totalMedia > 1 && (
                 <button onClick={() => goMedia(-1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
                   <ChevronLeft className="h-4 w-4" />
@@ -1079,15 +1076,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             </div>
           ) : (
             <div className="relative w-full flex items-center justify-center">
-              {previousBusinessId && (
-                <button
-                  onClick={() => { setActiveBusinessIdRaw(previousBusinessId); setPreviousBusinessId(null); }}
-                  className="absolute right-0 z-50 w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
-                  aria-label="Retour"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                </button>
-              )}
               {languages.length > 0 && (
                 <div className={`absolute left-0 z-50 flex items-center gap-0.5 md:gap-1.5 bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2 md:px-2.5 md:rounded-full md:py-1 md:flex-wrap md:justify-center md:overflow-visible ${languages.length > 5 ? 'max-w-[7rem] overflow-x-auto' : ''} ${languages.length > 4 ? 'md:max-w-none md:overflow-visible' : ''}`} style={languages.length > 5 ? { scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties : undefined}>
                   {languages.map((lang, i) => {
