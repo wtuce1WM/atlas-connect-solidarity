@@ -454,11 +454,32 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   }, [businessId, resetDrag]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoPaused, setVideoPaused] = useState(true);
+  const [videoMuted, setVideoMuted] = useState(true);
   const keepMutedRef = useRef(false);
   const muteLockSrcRef = useRef<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const iframeSrcRef = useRef<string>("");
   const overlayWasOpenRef = useRef(false);
+
+  // Sync video state with DOM events for instant icon updates
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const onPlay = () => setVideoPaused(false);
+    const onPause = () => setVideoPaused(true);
+    const onVolChange = () => setVideoMuted(v.muted);
+    v.addEventListener("play", onPlay);
+    v.addEventListener("pause", onPause);
+    v.addEventListener("volumechange", onVolChange);
+    setVideoPaused(v.paused);
+    setVideoMuted(v.muted);
+    return () => {
+      v.removeEventListener("play", onPlay);
+      v.removeEventListener("pause", onPause);
+      v.removeEventListener("volumechange", onVolChange);
+    };
+  });
 
   // Reset media mute/overlay refs when business changes (new search result).
   useEffect(() => {
