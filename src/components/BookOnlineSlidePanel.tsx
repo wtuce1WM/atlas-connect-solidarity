@@ -1382,7 +1382,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               onPlayingChange={setYoutubeIsPlaying}
               onSelectVideo={(v) => { setActiveYoutubeVideo(v); if (v) setShowYoutubeOverlay(true); }}
               activeVideoId={activeYoutubeVideo?.videoId ?? null}
-               shortsOnly
+               
                hideLabel
                hideHeader
                size="match-tabs"
