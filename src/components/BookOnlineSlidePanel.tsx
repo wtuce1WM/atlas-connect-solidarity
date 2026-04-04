@@ -2297,12 +2297,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       {/* Logo Big overlay — inside slide panel (transparent, video stays visible) */}
       {logoBigOverlay && (
         <div
-          className={`absolute inset-0 -top-[3.3rem] z-[80] flex items-center justify-center pointer-events-auto ${logoBigFadingOut ? 'animate-fullscreen-logo-out' : ''}`}
+          className={`absolute inset-0 -top-[3.3rem] z-[80] flex flex-col items-center justify-center pointer-events-auto ${logoBigFadingOut ? 'animate-fullscreen-logo-out' : ''}`}
           onClick={() => { logoBigTimersRef.current.forEach(clearTimeout); logoBigTimersRef.current = []; setLogoBigOverlay(null); setLogoBigFadingOut(false); }}
         >
-          {/* Logo with silver halo glow — no circle, no lightning */}
-          <button
-            onClick={(e) => { e.stopPropagation(); setLogoBigOverlay(null); setActiveBusinessId(logoBigOverlay.ownerId); }}
+          {/* Logo with silver halo glow */}
+          <div
+            onClick={(e) => { e.stopPropagation(); }}
             className="relative animate-logo-big-full-reveal [perspective:1000px] z-10"
             style={{ width: 'min(65%, 340px)', height: 'min(65%, 340px)' }}
           >
@@ -2312,14 +2312,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               className="w-full h-full object-contain"
               style={{ filter: 'drop-shadow(0 0 30px hsla(220,15%,85%,0.7)) drop-shadow(0 0 60px hsla(220,15%,85%,0.4)) drop-shadow(0 0 100px hsla(220,15%,85%,0.2))' }}
             />
-          </button>
-          {/* Owner name */}
-          <span
-            className="absolute bottom-[12%] text-white/80 text-sm tracking-widest"
+          </div>
+          {/* Owner name — clickable to navigate */}
+          <button
+            onClick={(e) => { e.stopPropagation(); logoBigTimersRef.current.forEach(clearTimeout); logoBigTimersRef.current = []; setLogoBigOverlay(null); setActiveBusinessId(logoBigOverlay.ownerId); }}
+            className="mt-4 text-white/80 text-sm tracking-widest hover:text-white transition-colors"
             style={{ fontFamily: "'Josefin Sans', sans-serif", animation: 'slideInUp 0.8s ease-out 0.6s both', textShadow: '0 2px 8px rgba(0,0,0,0.6)' }}
           >
             {logoBigOverlay.name}
-          </span>
+          </button>
         </div>
       )}
     </div>
