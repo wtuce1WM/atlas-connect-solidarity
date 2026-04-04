@@ -1641,35 +1641,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               const bigLogo = currentVideoDoc.owner_logo_big;
               return (
                 <div className="self-center flex flex-col items-center gap-3 pointer-events-auto">
-                  {bigLogo && (
-                    <button
-                      key={currentVideoDoc.owner_business_id + '-biglogo'}
-                      onClick={() => setActiveBusinessId(currentVideoDoc.owner_business_id!)}
-                      className="relative animate-logo-big-reveal [perspective:800px]"
-                      style={{ width: 'min(45vw, 220px)', height: 'min(45vw, 220px)' }}
-                    >
-                      <img
-                        src={bigLogo}
-                        alt={currentVideoDoc.owner_name || ''}
-                        className="w-full h-full object-contain rounded-2xl"
-                      />
-                      {/* Shine sweep overlay */}
-                      <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
-                        <div
-                          className="absolute inset-0"
-                          style={{
-                            background: 'linear-gradient(105deg, transparent 30%, hsla(43,75%,75%,0.35) 45%, hsla(0,0%,100%,0.5) 50%, hsla(43,75%,75%,0.35) 55%, transparent 70%)',
-                            animation: 'logoBigShine 5s ease-in-out 1.5s infinite',
-                          }}
-                        />
-                      </div>
-                    </button>
-                  )}
                   <button
                     onClick={() => setActiveBusinessId(currentVideoDoc.owner_business_id!)}
                     className="flex items-center gap-2.5 rounded-full bg-black/50 backdrop-blur-sm border border-white/15 px-3 py-1.5 hover:bg-black/70 transition-colors animate-slide-up-from-bottom"
                   >
-                    {!bigLogo && currentVideoDoc.owner_logo ? (
+                    {currentVideoDoc.owner_logo ? (
                       <img src={currentVideoDoc.owner_logo} alt="" className="h-6 w-6 rounded-full object-contain bg-white/90 shrink-0" />
                     ) : null}
                     <span className="text-xs font-medium text-white truncate max-w-[180px]" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
