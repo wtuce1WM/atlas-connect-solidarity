@@ -1787,7 +1787,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             })()}
             {/* Video controls — below CTAs */}
             {!cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type === "file" && (
-              <div className="flex items-center gap-6 md:gap-10 mt-2 md:mt-3">
+              <div className="flex items-center gap-6 md:gap-10 mt-2 md:mt-3 animate-slide-up-from-bottom">
                 <button
                   type="button"
                   onClick={() => {
@@ -1817,7 +1817,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             )}
             {/* YouTube iframe controls — below CTAs */}
             {!cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" && (
-              <div className="flex items-center gap-6 md:gap-10 mt-2 md:mt-3">
+              <div className="flex items-center gap-6 md:gap-10 mt-2 md:mt-3 animate-slide-up-from-bottom">
                 <button
                   type="button"
                   onClick={() => {
