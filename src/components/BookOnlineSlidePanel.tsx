@@ -669,7 +669,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       if (bottomTabInitialRef.current) {
         if (!isLoading) {
           setActiveBottomTab(bottomTabs[0].id);
-          bottomTabInitialRef.current = false;
+          // Delay resetting the ref so the slide-in animation has time to render
+          requestAnimationFrame(() => {
+            setTimeout(() => { bottomTabInitialRef.current = false; }, 600);
+          });
         }
       } else if (!bottomTabs.find(t => t.id === activeBottomTab)) {
         setActiveBottomTab(bottomTabs[0].id);
