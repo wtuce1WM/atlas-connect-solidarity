@@ -953,6 +953,7 @@ export type Database = {
           linkedin_url: string | null
           logo_2_url: string | null
           logo_bg: string | null
+          logo_big_url: string | null
           logo_url: string | null
           longitude: number | null
           main_category: string | null
@@ -1101,6 +1102,7 @@ export type Database = {
           linkedin_url?: string | null
           logo_2_url?: string | null
           logo_bg?: string | null
+          logo_big_url?: string | null
           logo_url?: string | null
           longitude?: number | null
           main_category?: string | null
@@ -1249,6 +1251,7 @@ export type Database = {
           linkedin_url?: string | null
           logo_2_url?: string | null
           logo_bg?: string | null
+          logo_big_url?: string | null
           logo_url?: string | null
           longitude?: number | null
           main_category?: string | null
@@ -3954,6 +3957,7 @@ export type Database = {
               linkedin_url: string | null
               logo_2_url: string | null
               logo_bg: string | null
+              logo_big_url: string | null
               logo_url: string | null
               longitude: number | null
               main_category: string | null
@@ -4118,6 +4122,7 @@ export type Database = {
               linkedin_url: string | null
               logo_2_url: string | null
               logo_bg: string | null
+              logo_big_url: string | null
               logo_url: string | null
               longitude: number | null
               main_category: string | null
