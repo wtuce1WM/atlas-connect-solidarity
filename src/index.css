@@ -374,3 +374,50 @@ html.hide-scrollbar-panel-open::-webkit-scrollbar {
 .animate-slide-out-bottom {
   animation: slideOutToBottom 0.35s ease-in forwards;
 }
+
+/* Logo Big cinematic reveal in "Afficher" mode */
+@keyframes logoBigReveal {
+  0% {
+    opacity: 0;
+    transform: scale(3) rotateY(90deg) translateY(30px);
+    filter: brightness(2) drop-shadow(0 0 60px hsla(43, 75%, 55%, 0.9));
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.15) rotateY(-10deg) translateY(-8px);
+    filter: brightness(1.3) drop-shadow(0 0 40px hsla(43, 75%, 55%, 0.6));
+  }
+  60% {
+    transform: scale(0.95) rotateY(5deg) translateY(4px);
+    filter: brightness(1.1) drop-shadow(0 0 25px hsla(43, 75%, 55%, 0.4));
+  }
+  80% {
+    transform: scale(1.02) rotateY(-2deg) translateY(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotateY(0deg) translateY(0);
+    filter: brightness(1) drop-shadow(0 0 15px hsla(43, 75%, 55%, 0.25));
+  }
+}
+
+@keyframes logoBigFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 12px hsla(43, 75%, 55%, 0.2));
+  }
+  50% {
+    transform: translateY(-6px) scale(1.01);
+    filter: drop-shadow(0 0 25px hsla(43, 75%, 55%, 0.45)) drop-shadow(0 0 50px hsla(43, 75%, 55%, 0.15));
+  }
+}
+
+@keyframes logoBigShine {
+  0%, 100% { transform: translateX(-150%) rotate(25deg); }
+  50% { transform: translateX(150%) rotate(25deg); }
+}
+
+.animate-logo-big-reveal {
+  animation: logoBigReveal 1s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+             logoBigFloat 4s ease-in-out 1.2s infinite;
+}
