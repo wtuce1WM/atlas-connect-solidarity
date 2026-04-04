@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import snapchatIcon from "@/assets/snapchat-icon.webp";
 
 interface IconProps {
   className?: string;
