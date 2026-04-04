@@ -1757,7 +1757,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-black [&_*]:text-black normal-case tracking-normal animate-slide-in-right"
                       style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366' }}
                     >
-                      <ShoppingBag className="h-4 w-4" />
+                      <ShoppingBag className="h-4 w-4 hidden md:block" />
                       <span className="truncate">{shopCtaLabel}</span>
                     </button>
                   )
