@@ -55,6 +55,7 @@ import {
   PinterestIcon,
   SkypeIcon,
   VimeoIcon,
+  SnapchatIcon,
 } from "./SocialMediaIcons";
 import {
   AlertDialog,
