@@ -302,7 +302,12 @@ export function useBookOnlineData(businessId: string) {
       setMenuSummaries((menuSumRes.data || []) as MenuSummary[]);
       setMenuDocsRaw((menuDocsRes.data || []) as MenuDoc[]);
 
-      const vDocs = (videoDocsRes.data || []) as VideoDoc[];
+      const vDocs = ((videoDocsRes.data || []) as any[]).map(d => ({
+        ...d,
+        owner_business_id: d.business_id || businessId,
+        owner_name: null as string | null,
+        owner_logo: null as string | null,
+      })) as VideoDoc[];
       setVideoDocs(vDocs.filter((d) => d.url));
 
       // Important: render panel as soon as core data is ready
