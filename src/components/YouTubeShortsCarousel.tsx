@@ -23,7 +23,7 @@ interface YouTubeShortsCarouselProps {
   shortsOnly?: boolean;
   hideLabel?: boolean;
   hideHeader?: boolean;
-  size?: "default" | "large";
+  size?: "default" | "large" | "match-tabs";
 }
 
 const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange, onSelectVideo, onVideosLoaded, activeVideoId, shortsOnly, hideLabel, hideHeader, size = "default" }: YouTubeShortsCarouselProps) => {
