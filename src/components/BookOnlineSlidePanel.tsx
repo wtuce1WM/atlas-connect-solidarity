@@ -397,6 +397,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     onTouchStart, onTouchMove, onTouchEnd, onMouseDownDrag,
   } = useDragToHide();
   useEffect(() => { hideCardsRef.current = hideCards; }, [hideCards]);
+  useEffect(() => { currentCardsHiddenRef.current = cardsHidden; }, [cardsHidden]);
 
   // Track recently viewed when business loads in slide panel
   useEffect(() => {
