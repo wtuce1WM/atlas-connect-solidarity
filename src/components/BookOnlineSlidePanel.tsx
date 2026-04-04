@@ -454,11 +454,32 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   }, [businessId, resetDrag]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoPaused, setVideoPaused] = useState(true);
+  const [videoMuted, setVideoMuted] = useState(true);
   const keepMutedRef = useRef(false);
   const muteLockSrcRef = useRef<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const iframeSrcRef = useRef<string>("");
   const overlayWasOpenRef = useRef(false);
+
+  // Sync video state with DOM events for instant icon updates
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const onPlay = () => setVideoPaused(false);
+    const onPause = () => setVideoPaused(true);
+    const onVolChange = () => setVideoMuted(v.muted);
+    v.addEventListener("play", onPlay);
+    v.addEventListener("pause", onPause);
+    v.addEventListener("volumechange", onVolChange);
+    setVideoPaused(v.paused);
+    setVideoMuted(v.muted);
+    return () => {
+      v.removeEventListener("play", onPlay);
+      v.removeEventListener("pause", onPause);
+      v.removeEventListener("volumechange", onVolChange);
+    };
+  });
 
   // Reset media mute/overlay refs when business changes (new search result).
   useEffect(() => {
@@ -1893,9 +1914,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     }
                   }}
                   className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                  aria-label={videoRef.current?.paused ? "Play" : "Pause"}
+                  aria-label={videoPaused ? "Play" : "Pause"}
                 >
-                  {videoRef.current?.paused ? <Play className="h-5 w-5 md:h-6 md:w-6" /> : <Pause className="h-5 w-5 md:h-6 md:w-6" />}
+                  {videoPaused ? <Play className="h-5 w-5 md:h-6 md:w-6" /> : <Pause className="h-5 w-5 md:h-6 md:w-6" />}
                 </button>
                 <button
                   type="button"
@@ -1905,9 +1926,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     }
                   }}
                   className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                  aria-label={videoRef.current?.muted ? "Unmute" : "Mute"}
+                  aria-label={videoMuted ? "Unmute" : "Mute"}
                 >
-                  {videoRef.current?.muted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
+                  {videoMuted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
                 </button>
               </div>
             )}
@@ -1963,9 +1984,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     }
                   }}
                   className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                  aria-label={videoRef.current?.paused ? "Play" : "Pause"}
+                  aria-label={videoPaused ? "Play" : "Pause"}
                 >
-                  {videoRef.current?.paused ? <Play className="h-5 w-5 md:h-6 md:w-6" /> : <Pause className="h-5 w-5 md:h-6 md:w-6" />}
+                  {videoPaused ? <Play className="h-5 w-5 md:h-6 md:w-6" /> : <Pause className="h-5 w-5 md:h-6 md:w-6" />}
                 </button>
                 <button
                   type="button"
@@ -1975,9 +1996,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     }
                   }}
                   className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                  aria-label={videoRef.current?.muted ? "Unmute" : "Mute"}
+                  aria-label={videoMuted ? "Unmute" : "Mute"}
                 >
-                  {videoRef.current?.muted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
+                  {videoMuted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
                 </button>
               </div>
             </div>
