@@ -284,7 +284,7 @@ export function useBookOnlineData(businessId: string) {
           .order("sort_order"),
         supabase
           .from("business_documents")
-          .select("url, name, city, price, price_type, description, thumbnail_url")
+          .select("url, name, city, price, price_type, description, thumbnail_url, business_id")
           .eq("business_id", businessId)
           .eq("type", "video")
           .order("sort_order"),
