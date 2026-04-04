@@ -2104,7 +2104,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
       {/* Fallback hotels overlay — covers toolbar */}
       {fallbackPanelData && showFallbackOverlay && (
-        <div className="absolute inset-0 -top-[3.3rem] z-[76] bg-white overflow-y-auto animate-slide-in-left">
+        <div className="absolute inset-0 -top-[3.3rem] z-[76] overflow-hidden">
+          <div className="w-full h-full bg-white overflow-y-auto animate-slide-in-left">
           <FallbackHotelsPanel
             data={fallbackPanelData}
             selectedHotelId={selectedFallbackHotelId}
