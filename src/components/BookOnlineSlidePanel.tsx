@@ -1491,7 +1491,51 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           </div>
         )}
 
-        {/* KP Related tab */}
+        {/* KP Subcategory tab (multi-master KP2) */}
+        {activeBottomTab === "kp_subcat" && hasKpSubcatCarousel && (
+          <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
+            <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
+              <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
+              {kpSubcategoryItems.map((rel, index) => {
+                const relImg = rel.images?.filter(Boolean)?.[0] || rel.logo_url;
+                return (
+                  <div
+                    key={rel.id}
+                    className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                    style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' } : undefined}
+                    onClick={() => setActiveBusinessId(rel.id)}
+                  >
+                    {relImg ? (
+                      <img src={relImg} alt={rel.name} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                    ) : (
+                      <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
+                        <MapPin className="h-5 w-5 text-white/40" />
+                      </div>
+                    )}
+                    <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
+                      {rel.is_master && <span className="text-gold mr-1">★</span>}
+                      {rel.name}
+                    </p>
+                  </div>
+                );
+              })}
+              {poiBusinesses.length > 0 && business?.latitude && business?.longitude && (
+                <div
+                  className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                  style={bottomTabInitialRef.current ? { animationDelay: `${kpSubcategoryItems.length * 120}ms`, animationFillMode: 'forwards' } : undefined}
+                  onClick={() => setShowPoiMapOverlay(true)}
+                >
+                  <img src={poiNearbyImg} alt="Points d'intérêt" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                  <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
+                    {language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité"}
+                  </p>
+                </div>
+              )}
+              <div className="shrink-0 w-6" aria-hidden="true" />
+            </div>
+          </div>
+        )}
+
         {activeBottomTab === "kp" && hasKpCarousel && (
           <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
             <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
