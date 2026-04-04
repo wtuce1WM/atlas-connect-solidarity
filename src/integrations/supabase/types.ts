@@ -999,6 +999,7 @@ export type Database = {
           show_youtube_tab: boolean
           skype: string | null
           slug: string
+          snapchat_url: string | null
           telegram: string | null
           tiktok_url: string | null
           total_review_count: number | null
@@ -1147,6 +1148,7 @@ export type Database = {
           show_youtube_tab?: boolean
           skype?: string | null
           slug: string
+          snapchat_url?: string | null
           telegram?: string | null
           tiktok_url?: string | null
           total_review_count?: number | null
@@ -1295,6 +1297,7 @@ export type Database = {
           show_youtube_tab?: boolean
           skype?: string | null
           slug?: string
+          snapchat_url?: string | null
           telegram?: string | null
           tiktok_url?: string | null
           total_review_count?: number | null
@@ -4000,6 +4003,7 @@ export type Database = {
               show_youtube_tab: boolean
               skype: string | null
               slug: string
+              snapchat_url: string | null
               telegram: string | null
               tiktok_url: string | null
               total_review_count: number | null
@@ -4164,6 +4168,7 @@ export type Database = {
               show_youtube_tab: boolean
               skype: string | null
               slug: string
+              snapchat_url: string | null
               telegram: string | null
               tiktok_url: string | null
               total_review_count: number | null
