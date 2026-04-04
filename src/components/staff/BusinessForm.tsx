@@ -918,6 +918,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     show_videos: (business as any)?.show_videos ?? false,
     default_sound_on: (business as any)?.default_sound_on ?? true,
     prioritize_images: (business as any)?.prioritize_images ?? false,
+    show_youtube_tab: (business as any)?.show_youtube_tab ?? false,
     is_open_24h: (business as any)?.is_open_24h ?? false,
     vacation_dates: ((business as any)?.vacation_dates || []) as VacationPeriod[],
     hotels_com_url: (business as any)?.hotels_com_url || "",
