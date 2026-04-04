@@ -62,9 +62,13 @@ type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | 
 const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand, externalOverlayActive, forceMuted, interceptCloseRef }: BookOnlineSlidePanelProps) => {
   const [activeBusinessId, setActiveBusinessIdRaw] = useState(propBusinessId);
   const [previousBusinessId, setPreviousBusinessId] = useState<string | null>(null);
+  const previousCardsHiddenRef = useRef(false);
   const setActiveBusinessId = useCallback((id: string) => {
     setActiveBusinessIdRaw(prev => {
-      if (prev !== id) setPreviousBusinessId(prev);
+      if (prev !== id) {
+        setPreviousBusinessId(prev);
+        previousCardsHiddenRef.current = cardsHiddenRef.current;
+      }
       return id;
     });
   }, []);
