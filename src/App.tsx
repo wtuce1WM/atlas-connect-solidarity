@@ -47,7 +47,7 @@ const LogoEffectsDemo = lazy(() => import("./pages/LogoEffectsDemo"));
 const AIEffectsDemo = lazy(() => import("./pages/AIEffectsDemo"));
 import CGF from "./pages/CGF";
 import SearchAnalytics from "./pages/SearchAnalytics";
-import StaffMaster from "./pages/StaffMaster";
+const StaffMaster = lazy(() => import("./pages/StaffMaster"));
 import StaffB2B from "./pages/StaffB2B";
 import DestinationPage from "./pages/DestinationPage";
 import SearchLayoutDemo from "./pages/SearchLayoutDemo";
@@ -99,7 +99,7 @@ const AppContent = () => {
               <Route path="/staff/backoffice" element={<StaffHub />} />
               <Route path="/staff/catalogue" element={<StaffBackoffice />} />
               <Route path="/staff/crm" element={<StaffCRM />} />
-              <Route path="/staff/master" element={<StaffRouteGuard><StaffMaster /></StaffRouteGuard>} />
+              <Route path="/staff/master" element={<StaffRouteGuard><Suspense fallback={null}><StaffMaster /></Suspense></StaffRouteGuard>} />
               <Route path="/staff/b2b" element={<StaffB2B />} />
               <Route path="/affiliates" element={<AffiliatesLogin />} />
               <Route path="/affiliates/reset-password" element={<AffiliatesResetPassword />} />
