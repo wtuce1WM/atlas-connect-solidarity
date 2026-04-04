@@ -313,12 +313,16 @@ export function useBookOnlineData(businessId: string) {
         if (!kp1Val && !kp2Val) {
           if (!isCancelled) {
             setKpRelated([]);
+            setKpSubcategoryItems([]);
+            setKpSubcategoryLabel(null);
             setIsKp1Only(false);
           }
           return;
         }
 
         let kpResults: KpRelatedBusiness[] = [];
+        let subcatItems: KpRelatedBusiness[] = [];
+        let subcatLabel: string | null = null;
 
         if (kp1Val) {
           const { data: kp1Data } = await supabase
@@ -330,38 +334,68 @@ export function useBookOnlineData(businessId: string) {
           kpResults = (kp1Data || []) as KpRelatedBusiness[];
 
           if (kp2Val) {
-            const existingIds = new Set([businessId, ...kpResults.map((r) => r.id)]);
-            const { data: kp2Masters } = await supabase
+            // Fetch ALL KP2 members (not just masters) to detect multi-master scenario
+            const { data: kp2All } = await supabase
               .from("businesses")
               .select("id, name, slug, logo_url, images, is_master, computed_rating")
               .eq("kp_regroupement_2", kp2Val)
-              .eq("is_master", true)
-              .eq("is_active", true);
+              .eq("is_active", true)
+              .neq("id", businessId);
 
-            for (const m of (kp2Masters || []) as KpRelatedBusiness[]) {
-              if (!existingIds.has(m.id)) {
-                kpResults.push(m);
-                existingIds.add(m.id);
+            const kp2Members = (kp2All || []) as KpRelatedBusiness[];
+            const kp2MasterCount = kp2Members.filter(m => m.is_master).length;
+            // Count current business as a master too if applicable
+            const totalKp2Masters = kp2MasterCount + (isMaster ? 1 : 0);
+
+            if (totalKp2Masters > 1) {
+              // Multi-master KP2: separate into subcategory tab
+              const existingIds = new Set(kpResults.map(r => r.id));
+              subcatItems = kp2Members.filter(m => !existingIds.has(m.id));
+              subcatLabel = biz?.categories?.[0] || null;
+            } else {
+              // Single master KP2: merge masters into kpResults as before
+              const existingIds = new Set([businessId, ...kpResults.map((r) => r.id)]);
+              for (const m of kp2Members) {
+                if (m.is_master && !existingIds.has(m.id)) {
+                  kpResults.push(m);
+                  existingIds.add(m.id);
+                }
               }
             }
           }
-        } else if (kp2Val && isMaster) {
+        } else if (kp2Val) {
+          // No KP1 — fetch all KP2 members
           const { data: kp2Data } = await supabase
             .from("businesses")
             .select("id, name, slug, logo_url, images, is_master, computed_rating")
             .eq("kp_regroupement_2", kp2Val)
             .eq("is_active", true)
             .neq("id", businessId);
-          kpResults = (kp2Data || []) as KpRelatedBusiness[];
+          const kp2Members = (kp2Data || []) as KpRelatedBusiness[];
+          const kp2MasterCount = kp2Members.filter(m => m.is_master).length;
+          const totalKp2Masters = kp2MasterCount + (isMaster ? 1 : 0);
+
+          if (totalKp2Masters > 1) {
+            // Multi-master KP2 without KP1: all go to subcategory tab
+            subcatItems = kp2Members;
+            subcatLabel = biz?.categories?.[0] || null;
+          } else {
+            // Single/no master: keep as regular kp tab
+            kpResults = kp2Members;
+          }
         }
 
-        kpResults.sort((a, b) => {
+        const sortFn = (a: KpRelatedBusiness, b: KpRelatedBusiness) => {
           if (a.is_master !== b.is_master) return a.is_master ? -1 : 1;
           return (b.computed_rating ?? 0) - (a.computed_rating ?? 0);
-        });
+        };
+        kpResults.sort(sortFn);
+        subcatItems.sort(sortFn);
 
         if (!isCancelled) {
           setKpRelated(kpResults);
+          setKpSubcategoryItems(subcatItems);
+          setKpSubcategoryLabel(subcatLabel);
           setIsKp1Only(!!(kp1Val && !kp2Val));
         }
       };
