@@ -153,6 +153,8 @@ export function useBookOnlineData(businessId: string) {
   const [categoryIcon, setCategoryIcon] = useState<string | null>(null);
   const [showGoogleMap, setShowGoogleMap] = useState(true);
   const [kpRelated, setKpRelated] = useState<KpRelatedBusiness[]>([]);
+  const [kpSubcategoryItems, setKpSubcategoryItems] = useState<KpRelatedBusiness[]>([]);
+  const [kpSubcategoryLabel, setKpSubcategoryLabel] = useState<string | null>(null);
   const [isKp1Only, setIsKp1Only] = useState(false);
   const [liteApiHotelId, setLiteApiHotelId] = useState<string | null>(null);
   const [serpApiMapping, setSerpApiMapping] = useState<{ serpHotelName: string; city: string } | null>(null);
