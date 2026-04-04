@@ -71,7 +71,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const {
     business, woDescription, destinations, poiBusinesses, isLoading,
     reviewTexts, externalLinks, menuSummaries, menuDocs, videoDocs,
-    allVideoUrls, categoryIcon, showGoogleMap, kpRelated, isKp1Only, liteApiHotelId, serpApiMapping, isHotelWithPrice,
+    allVideoUrls, categoryIcon, showGoogleMap, kpRelated, kpSubcategoryItems, kpSubcategoryLabel, isKp1Only, liteApiHotelId, serpApiMapping, isHotelWithPrice,
   } = useBookOnlineData(businessId);
 
   // UI state
