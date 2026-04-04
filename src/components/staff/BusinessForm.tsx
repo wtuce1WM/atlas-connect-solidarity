@@ -870,6 +870,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     is_active: business ? ((business as any)?.is_active ?? true) : false,
     priority_score: business?.priority_score?.toString() || "0",
     logo_url: business?.logo_url || "",
+    logo_big_url: (business as any)?.logo_big_url || "",
     _initialLogoUrl: business?.logo_url || "",
     
     ice: (business as any)?.ice || "",
