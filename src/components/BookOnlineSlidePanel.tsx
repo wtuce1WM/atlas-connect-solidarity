@@ -128,6 +128,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [showFallbackOverlay, setShowFallbackOverlay] = useState(false);
   const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
+  const [logoBigOverlay, setLogoBigOverlay] = useState<{ src: string; name: string; ownerId: string } | null>(null);
+  const [logoBigFadingOut, setLogoBigFadingOut] = useState(false);
+  const logoBigShownForRef = useRef<string | null>(null);
   const fallbackDataRef = useRef<FallbackPanelData | null>(null);
   useEffect(() => {
     if (fallbackPanelData) fallbackDataRef.current = fallbackPanelData;
@@ -403,6 +406,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   } = useDragToHide();
   useEffect(() => { hideCardsRef.current = hideCards; }, [hideCards]);
   useEffect(() => { currentCardsHiddenRef.current = cardsHidden; }, [cardsHidden]);
+
+
 
   // Track recently viewed when business loads in slide panel
   useEffect(() => {
@@ -783,6 +788,24 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const matterportItem = useMemo(() => mediaItems.find(m => m.kind === "matterport") || null, [mediaItems]);
   const effectiveMedia = (cardsHidden && matterportItem) ? matterportItem : currentMedia;
 
+  // Fullscreen logo big overlay — show once per owner when entering Afficher mode on their video
+  useEffect(() => {
+    if (!cardsHidden) { logoBigShownForRef.current = null; return; }
+    const cm = mediaItems[currentMediaIndex];
+    if (cm?.kind !== 'video') return;
+    const doc = videoDocs.find(d => d.url === cm.url);
+    if (!doc?.owner_business_id || doc.owner_business_id === businessId) return;
+    if (!doc.owner_logo_big) return;
+    const key = doc.owner_business_id + ':' + businessId;
+    if (logoBigShownForRef.current === key) return;
+    logoBigShownForRef.current = key;
+    setLogoBigFadingOut(false);
+    setLogoBigOverlay({ src: doc.owner_logo_big, name: doc.owner_name || '', ownerId: doc.owner_business_id });
+    const fadeTimer = setTimeout(() => setLogoBigFadingOut(true), 4400);
+    const hideTimer = setTimeout(() => { setLogoBigOverlay(null); setLogoBigFadingOut(false); }, 5000);
+    return () => { clearTimeout(fadeTimer); clearTimeout(hideTimer); };
+  }, [cardsHidden, currentMediaIndex, mediaItems, videoDocs, businessId]);
+
   const goMedia = useCallback((dir: 1 | -1) => {
     if (totalMedia <= 1) return;
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
@@ -1068,7 +1091,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           </button>
         </>
       )}
-
 
       {/* Overlaid content — always visible, carousels toggle */}
       <div
@@ -1641,35 +1663,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               const bigLogo = currentVideoDoc.owner_logo_big;
               return (
                 <div className="self-center flex flex-col items-center gap-3 pointer-events-auto">
-                  {bigLogo && (
-                    <button
-                      key={currentVideoDoc.owner_business_id + '-biglogo'}
-                      onClick={() => setActiveBusinessId(currentVideoDoc.owner_business_id!)}
-                      className="relative animate-logo-big-reveal [perspective:800px]"
-                      style={{ width: 'min(45vw, 220px)', height: 'min(45vw, 220px)' }}
-                    >
-                      <img
-                        src={bigLogo}
-                        alt={currentVideoDoc.owner_name || ''}
-                        className="w-full h-full object-contain rounded-2xl"
-                      />
-                      {/* Shine sweep overlay */}
-                      <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
-                        <div
-                          className="absolute inset-0"
-                          style={{
-                            background: 'linear-gradient(105deg, transparent 30%, hsla(43,75%,75%,0.35) 45%, hsla(0,0%,100%,0.5) 50%, hsla(43,75%,75%,0.35) 55%, transparent 70%)',
-                            animation: 'logoBigShine 5s ease-in-out 1.5s infinite',
-                          }}
-                        />
-                      </div>
-                    </button>
-                  )}
                   <button
                     onClick={() => setActiveBusinessId(currentVideoDoc.owner_business_id!)}
                     className="flex items-center gap-2.5 rounded-full bg-black/50 backdrop-blur-sm border border-white/15 px-3 py-1.5 hover:bg-black/70 transition-colors animate-slide-up-from-bottom"
                   >
-                    {!bigLogo && currentVideoDoc.owner_logo ? (
+                    {currentVideoDoc.owner_logo ? (
                       <img src={currentVideoDoc.owner_logo} alt="" className="h-6 w-6 rounded-full object-contain bg-white/90 shrink-0" />
                     ) : null}
                     <span className="text-xs font-medium text-white truncate max-w-[180px]" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
@@ -2290,6 +2288,46 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             inline
           />
           </div>
+        </div>
+      )}
+
+      {/* Fullscreen Logo Big overlay */}
+      {logoBigOverlay && (
+        <div
+          className={`fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md ${logoBigFadingOut ? 'animate-fullscreen-logo-out' : ''}`}
+          onClick={() => { setLogoBigOverlay(null); setLogoBigFadingOut(false); }}
+        >
+          {/* Silver halo ring */}
+          <div className="absolute rounded-full animate-silver-halo" style={{ width: 'min(85vw, 500px)', height: 'min(85vw, 500px)' }} />
+          {/* Logo */}
+          <button
+            onClick={(e) => { e.stopPropagation(); setLogoBigOverlay(null); setActiveBusinessId(logoBigOverlay.ownerId); }}
+            className="relative animate-logo-big-full-reveal [perspective:1000px] z-10"
+            style={{ width: 'min(70vw, 400px)', height: 'min(70vw, 400px)' }}
+          >
+            <img
+              src={logoBigOverlay.src}
+              alt={logoBigOverlay.name}
+              className="w-full h-full object-contain"
+            />
+            {/* Shine sweep */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: 'linear-gradient(105deg, transparent 25%, hsla(220,10%,90%,0.3) 40%, hsla(0,0%,100%,0.5) 50%, hsla(220,10%,90%,0.3) 60%, transparent 75%)',
+                  animation: 'logoBigFullShine 4s ease-in-out 1.5s infinite',
+                }}
+              />
+            </div>
+          </button>
+          {/* Owner name */}
+          <span
+            className="absolute bottom-[15%] text-white/80 text-sm tracking-widest"
+            style={{ fontFamily: "'Josefin Sans', sans-serif", animation: 'slideInUp 0.8s ease-out 0.6s both' }}
+          >
+            {logoBigOverlay.name}
+          </span>
         </div>
       )}
     </div>
