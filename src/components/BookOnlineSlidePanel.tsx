@@ -1295,7 +1295,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               } ${
                 activeBottomTab === tab.id
                   ? "bg-black text-white"
-                  : "bg-white/70 text-black hover:bg-white/80"
+                  : tab.id === "youtube"
+                    ? "bg-[#FF0000] text-white hover:bg-[#CC0000]"
+                    : "bg-white/70 text-black hover:bg-white/80"
               } ${!tab.hasContent ? "opacity-50" : ""}`}
               style={{ fontFamily: 'Josefin Sans, sans-serif', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase', fontSize: '11px', lineHeight: '16px', padding: '6px 12px' }}
             >
