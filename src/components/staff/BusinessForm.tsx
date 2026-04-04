@@ -2849,7 +2849,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <span>🔊 Son par défaut</span>
             </label>
             <label className="flex items-center gap-2 text-sm">
-              <Switch checked={(formData as any).show_youtube_tab ?? false} onCheckedChange={(checked) => handleChange("show_youtube_tab", checked)} />
+              <Switch checked={formData.show_youtube_tab ?? false} onCheckedChange={(checked) => handleChange("show_youtube_tab", checked)} />
               <span>▶️ Onglet YouTube</span>
             </label>
             <div className="flex items-center gap-2">
