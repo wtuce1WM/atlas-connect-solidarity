@@ -2308,7 +2308,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             <img
               src={logoBigOverlay.src}
               alt={logoBigOverlay.name}
-              className="w-full h-full object-contain"
+              className="w-full h-full object-contain drop-shadow-[0_0_30px_hsla(0,0%,100%,0.8)]"
+              style={{ filter: 'drop-shadow(0 0 20px hsla(220,10%,90%,0.6))' }}
             />
             {/* Shine sweep */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
