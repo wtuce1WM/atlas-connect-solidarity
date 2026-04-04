@@ -168,6 +168,8 @@ export function useBookOnlineData(businessId: string) {
       setDestinations([]);
       setPoiBusinesses([]);
       setKpRelated([]);
+      setKpSubcategoryItems([]);
+      setKpSubcategoryLabel(null);
       setIsKp1Only(false);
       setVideoDocs([]);
       setReviewTexts([]);
