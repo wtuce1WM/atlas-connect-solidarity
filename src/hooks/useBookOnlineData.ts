@@ -495,6 +495,25 @@ export function useBookOnlineData(businessId: string) {
     };
   }, [businessId]);
 
+  // Persist to cache once all data is loaded (including secondary fetches)
+  const cacheWrittenRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (isLoading || !business || cacheWrittenRef.current === businessId) return;
+    // Debounce slightly to ensure secondary fetches have settled
+    const timer = setTimeout(() => {
+      if (cacheWrittenRef.current === businessId) return;
+      cacheWrittenRef.current = businessId;
+      setCacheEntry(businessId, {
+        business, woDescription, destinations, poiBusinesses,
+        reviewTexts, externalLinks, menuSummaries, menuDocsRaw,
+        videoDocs, categoryIcon, showGoogleMap, kpRelated,
+        kpSubcategoryItems, kpSubcategoryLabel, isKp1Only,
+        liteApiHotelId, serpApiMapping,
+      });
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [isLoading, business, businessId, woDescription, destinations, poiBusinesses, reviewTexts, externalLinks, menuSummaries, menuDocsRaw, videoDocs, categoryIcon, showGoogleMap, kpRelated, kpSubcategoryItems, kpSubcategoryLabel, isKp1Only, liteApiHotelId, serpApiMapping]);
+
   const menuDocs = useMemo(() => {
     if (!brokenLinksLoaded) return menuDocsRaw;
     return menuDocsRaw.filter((d) => !brokenLinksSet.has(d.url));
