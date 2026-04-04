@@ -162,6 +162,20 @@ export function useBookOnlineData(businessId: string) {
 
     const fetchData = async () => {
       setIsLoading(true);
+      // Reset all secondary state to prevent stale data flash from previous business
+      setDestinations([]);
+      setPoiBusinesses([]);
+      setKpRelated([]);
+      setIsKp1Only(false);
+      setVideoDocs([]);
+      setReviewTexts([]);
+      setExternalLinks([]);
+      setMenuSummaries([]);
+      setMenuDocsRaw([]);
+      setCategoryIcon(null);
+      setShowGoogleMap(true);
+      setLiteApiHotelId(null);
+      setSerpApiMapping(null);
 
       const [bizRes, woRes, destLinksRes, reviewsRes, extLinksRes, menuSumRes, menuDocsRes, videoDocsRes] = await Promise.all([
         supabase
