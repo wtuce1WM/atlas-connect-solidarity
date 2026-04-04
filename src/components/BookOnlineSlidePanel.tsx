@@ -137,9 +137,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   useEffect(() => {
     if (!interceptCloseRef) return;
     if (previousBusinessId) {
+      const shouldRestoreHidden = previousCardsHiddenRef.current;
       interceptCloseRef.current = () => {
         setActiveBusinessIdRaw(previousBusinessId);
         setPreviousBusinessId(null);
+        if (shouldRestoreHidden) {
+          // Restore cardsHidden after the new business loads
+          setTimeout(() => { hideCardsRef.current?.(); }, 100);
+        }
         return true; // intercepted
       };
     } else if (cameFromFallback && fallbackDataRef.current) {
