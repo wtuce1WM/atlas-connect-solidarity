@@ -308,6 +308,7 @@ export function useBookOnlineData(businessId: string) {
         owner_business_id: d.business_id || businessId,
         owner_name: null as string | null,
         owner_logo: null as string | null,
+        owner_logo_big: null as string | null,
       })) as VideoDoc[];
       setVideoDocs(vDocs.filter((d) => d.url));
 
