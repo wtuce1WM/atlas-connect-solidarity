@@ -1575,7 +1575,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   const isExternal = business.reserve_now_force_external;
                   actionCards.push({
                     icon: <CalendarCheck className="h-5 w-5" />,
-                    label: language === "en" ? "Book online" : "Réservez en ligne",
+                    label: ctaModeLabels[business.presentation_mode]?.[language === "en" ? "en" : "fr"] || (language === "en" ? "Book online" : "Réservez en ligne"),
                     onClick: () => {
                       if (isExternal) {
                         window.open(business.reserve_now_url!, "_blank");
