@@ -2234,6 +2234,14 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               onChange={(url) => handleChange("logo_url", url)}
               businessId={business?.id}
             />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-base font-semibold">Logo Big <span className="text-xs text-muted-foreground font-normal">(mode Afficher)</span></Label>
+            <LogoUploader
+              logoUrl={(formData as any).logo_big_url}
+              onChange={(url) => handleChange("logo_big_url", url)}
+              businessId={business?.id}
+            />
             {/* Logo background color selector */}
             <div className="mt-2">
               <Label className="text-xs text-muted-foreground mb-1 block">Fond du logo (affichage front)</Label>
