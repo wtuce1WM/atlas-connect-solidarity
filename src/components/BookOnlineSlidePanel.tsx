@@ -629,7 +629,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       if (cb === "bienvenue_chez") return `${language === "en" ? "Welcome to" : "Bienvenue chez"} ${business.name}`;
       if (cb === "nos_offres") return language === "en" ? "Our offers" : "Nos offres";
     }
-    return language === "en" ? "Our offers" : "Nos offres";
+    return `${language === "en" ? "Welcome to" : "Bienvenue à"} ${business?.name || ""}`;
   }, [business?.carousel_badge, business?.name, language]);
 
   type BottomTab = { id: "videos" | "youtube" | "kp" | "dest" | "poi"; label: string; hasContent: boolean };
