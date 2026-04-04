@@ -1,4 +1,4 @@
-import { FacebookIcon, InstagramIcon, TikTokIcon, YouTubeIcon, TwitterIcon, LinkedInIcon, PinterestIcon, VimeoIcon } from "@/components/staff/SocialMediaIcons";
+import { FacebookIcon, InstagramIcon, TikTokIcon, YouTubeIcon, TwitterIcon, LinkedInIcon, PinterestIcon, VimeoIcon, SnapchatIcon } from "@/components/staff/SocialMediaIcons";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 
 interface SocialLink {
@@ -18,11 +18,12 @@ interface SocialLinksCardProps {
   pinterest?: string | null;
   vimeo?: string | null;
   whatsapp?: string | null;
+  snapchat?: string | null;
   animationDelay?: string;
 }
 
 const SocialLinksCard = ({
-  facebook, instagram, tiktok, youtube, twitter, linkedin, pinterest, vimeo, whatsapp,
+  facebook, instagram, tiktok, youtube, twitter, linkedin, pinterest, vimeo, whatsapp, snapchat,
   animationDelay = "0ms",
 }: SocialLinksCardProps) => {
   const links: SocialLink[] = [
@@ -34,6 +35,7 @@ const SocialLinksCard = ({
     linkedin && { name: "LinkedIn", url: linkedin, icon: <LinkedInIcon className="h-6 w-6" />, color: "#0A66C2" },
     pinterest && { name: "Pinterest", url: pinterest, icon: <PinterestIcon className="h-4 w-4" />, color: "#BD081C" },
     vimeo && { name: "Vimeo", url: vimeo, icon: <VimeoIcon className="h-4 w-4" />, color: "#1AB7EA" },
+    snapchat && { name: "Snapchat", url: snapchat, icon: <SnapchatIcon className="h-4 w-4" />, color: "#FFFC00" },
     whatsapp && { name: "WhatsApp", url: `https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}`, icon: <WhatsAppIcon className="h-4 w-4" />, color: "#25D366" },
   ].filter(Boolean) as SocialLink[];
 
