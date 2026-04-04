@@ -1276,7 +1276,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   pinterest={business.pinterest_url}
                   vimeo={business.vimeo_url}
                   whatsapp={business.whatsapp}
-                  snapchat={(business as any).snapchat_url}
+                  snapchat={business.snapchat_url}
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(menuDocs.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0)) * 120}ms`}
                 />
               )}
