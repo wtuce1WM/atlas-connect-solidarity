@@ -162,7 +162,7 @@ function VideoRow({ videos, scrollRef, activeVideoId, onPlay, onScroll, isShort,
           return (
             <div
               key={video.videoId}
-              className={`flex-shrink-0 rounded-xl overflow-hidden relative cursor-pointer group/card transition-all ${isShort ? "w-44 h-[7rem] md:h-[10rem] lg:h-[15rem]" : "w-56 md:w-64 lg:w-72 h-[7rem] md:h-[9rem] lg:h-[10rem]"} ${isActive ? "ring-2 ring-offset-1 ring-offset-black ring-red-500 opacity-100" : "opacity-90 hover:opacity-100"}`}
+              className={`flex-shrink-0 rounded-xl overflow-hidden relative cursor-pointer group/card transition-all ${size === "match-tabs" ? "w-44 h-[8.5rem] md:h-[11.5rem] lg:h-[16.5rem]" : isShort ? "w-44 h-[7rem] md:h-[10rem] lg:h-[15rem]" : "w-56 md:w-64 lg:w-72 h-[7rem] md:h-[9rem] lg:h-[10rem]"} ${isActive ? "ring-2 ring-offset-1 ring-offset-black ring-red-500 opacity-100" : "opacity-90 hover:opacity-100"}`}
               onClick={() => onPlay(video)}
             >
               <img
