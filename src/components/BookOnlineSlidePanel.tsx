@@ -63,11 +63,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [activeBusinessId, setActiveBusinessIdRaw] = useState(propBusinessId);
   const [previousBusinessId, setPreviousBusinessId] = useState<string | null>(null);
   const previousCardsHiddenRef = useRef(false);
+  const currentCardsHiddenRef = useRef(false);
   const setActiveBusinessId = useCallback((id: string) => {
     setActiveBusinessIdRaw(prev => {
       if (prev !== id) {
         setPreviousBusinessId(prev);
-        previousCardsHiddenRef.current = cardsHiddenRef.current;
+        previousCardsHiddenRef.current = currentCardsHiddenRef.current;
       }
       return id;
     });
