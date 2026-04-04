@@ -71,6 +71,7 @@ export interface BookOnlineBusiness {
   linkedin_url: string | null;
   pinterest_url: string | null;
   vimeo_url: string | null;
+  snapchat_url: string | null;
   menu_url: string | null;
   menu_name: string | null;
   menu_language: string | null;
