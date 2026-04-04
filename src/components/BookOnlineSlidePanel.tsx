@@ -802,9 +802,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     logoBigShownForRef.current = key;
     setLogoBigFadingOut(false);
     setLogoBigOverlay({ src: doc.owner_logo_big, name: doc.owner_name || '', ownerId: doc.owner_business_id });
+    logoBigTimersRef.current.forEach(clearTimeout);
     const fadeTimer = setTimeout(() => setLogoBigFadingOut(true), 4400);
-    const hideTimer = setTimeout(() => { setLogoBigOverlay(null); setLogoBigFadingOut(false); }, 5000);
-    return () => { clearTimeout(fadeTimer); clearTimeout(hideTimer); };
+    const hideTimer = setTimeout(() => { setLogoBigOverlay(null); setLogoBigFadingOut(false); logoBigTimersRef.current = []; }, 5000);
+    logoBigTimersRef.current = [fadeTimer, hideTimer];
+    return () => { logoBigTimersRef.current.forEach(clearTimeout); logoBigTimersRef.current = []; };
   }, [cardsHidden, currentMediaIndex, mediaItems, videoDocs, businessId]);
 
   const goMedia = useCallback((dir: 1 | -1) => {
