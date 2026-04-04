@@ -128,10 +128,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     if (fallbackPanelData) fallbackDataRef.current = fallbackPanelData;
   }, [fallbackPanelData]);
 
-  // Expose close interceptor: when navigated from fallback, reopen fallback list instead of closing panel
+  // Expose close interceptor: when navigated from fallback or from video owner, go back instead of closing
   useEffect(() => {
     if (!interceptCloseRef) return;
-    if (cameFromFallback && fallbackDataRef.current) {
+    if (previousBusinessId) {
+      interceptCloseRef.current = () => {
+        setActiveBusinessIdRaw(previousBusinessId);
+        setPreviousBusinessId(null);
+        return true; // intercepted
+      };
+    } else if (cameFromFallback && fallbackDataRef.current) {
       interceptCloseRef.current = () => {
         if (!fallbackPanelData && fallbackDataRef.current) {
           setFallbackPanelData(fallbackDataRef.current);
@@ -143,7 +149,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     } else {
       interceptCloseRef.current = null;
     }
-  }, [cameFromFallback, fallbackPanelData, interceptCloseRef]);
+  }, [previousBusinessId, cameFromFallback, fallbackPanelData, interceptCloseRef]);
   const hideCardsRef = useRef<() => void>(() => {});
 
   // Whether this business has a SerpAPI mapping
