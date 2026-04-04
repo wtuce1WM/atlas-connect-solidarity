@@ -616,6 +616,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const hasYoutubeBottomCarousel = !!(business?.youtube_url && business?.show_youtube_tab && youtubeVideoCount !== 0);
   const hasYoutubeReady = !!(youtubeVideoCount && youtubeVideoCount > 0);
   const hasKpCarousel = kpRelated.length > 0;
+  const hasKpSubcatCarousel = kpSubcategoryItems.length > 0;
   const hasDestCarousel = destinations.length > 0;
   const hasPoiCarousel = poiBusinesses.length >= 2;
 
@@ -632,7 +633,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     return `${language === "en" ? "Welcome to" : "Bienvenue à"} ${business?.name || ""}`;
   }, [business?.carousel_badge, business?.name, language]);
 
-  type BottomTab = { id: "videos" | "youtube" | "kp" | "dest" | "poi"; label: string; hasContent: boolean };
+  type BottomTab = { id: "videos" | "youtube" | "kp" | "kp_subcat" | "dest" | "poi"; label: string; hasContent: boolean };
   const hasKpCode = !!(business?.kp_regroupement?.trim() || business?.kp_regroupement_2?.trim());
   const bottomTabs = useMemo<BottomTab[]>(() => {
     const tabs: BottomTab[] = [];
@@ -648,6 +649,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     if (hasDestCarousel) {
       tabs.push({ id: "dest", label: "Destinations", hasContent: true });
     }
+    // KP subcategory tab (multi-master KP2)
+    if (hasKpSubcatCarousel) {
+      tabs.push({ id: "kp_subcat", label: kpSubcategoryLabel || (language === "en" ? "Category" : "Catégorie"), hasContent: true });
+    }
     // Show Autres établissements tab only when there are related businesses
     if (hasKpCarousel) {
       tabs.push({ id: "kp", label: language === "en" ? "Other establishments" : "Autres établissements", hasContent: true });
@@ -657,7 +662,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       tabs.push({ id: "poi", label: language === "en" ? "Nearby" : "À proximité", hasContent: true });
     }
     return tabs;
-  }, [videoTabLabel, hasVideosCarousel, hasYoutubeBottomCarousel, hasYoutubeReady, hasKpCarousel, hasKpCode, hasDestCarousel, hasPoiCarousel, language, videoDocs.length]);
+  }, [videoTabLabel, hasVideosCarousel, hasYoutubeBottomCarousel, hasYoutubeReady, hasKpCarousel, hasKpSubcatCarousel, kpSubcategoryLabel, hasKpCode, hasDestCarousel, hasPoiCarousel, language, videoDocs.length]);
 
   const [activeBottomTab, setActiveBottomTab] = useState<string>("videos");
   const bottomTabInitialRef = useRef(true);
