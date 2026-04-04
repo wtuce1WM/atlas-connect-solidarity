@@ -137,6 +137,39 @@ export interface VideoDoc {
   thumbnail_url: string | null;
 }
 
+// In-memory cache to avoid re-fetching data for previously viewed businesses
+interface CachedBusinessData {
+  business: BookOnlineBusiness | null;
+  woDescription: string | null;
+  destinations: Destination[];
+  poiBusinesses: PoiBusiness[];
+  reviewTexts: ReviewText[];
+  externalLinks: ExternalLinkItem[];
+  menuSummaries: MenuSummary[];
+  menuDocsRaw: MenuDoc[];
+  videoDocs: VideoDoc[];
+  categoryIcon: string | null;
+  showGoogleMap: boolean;
+  kpRelated: KpRelatedBusiness[];
+  kpSubcategoryItems: KpRelatedBusiness[];
+  kpSubcategoryLabel: string | null;
+  isKp1Only: boolean;
+  liteApiHotelId: string | null;
+  serpApiMapping: { serpHotelName: string; city: string } | null;
+}
+
+const businessDataCache = new Map<string, CachedBusinessData>();
+const MAX_CACHE_SIZE = 15;
+
+function setCacheEntry(id: string, data: CachedBusinessData) {
+  if (businessDataCache.size >= MAX_CACHE_SIZE) {
+    // Evict oldest entry
+    const firstKey = businessDataCache.keys().next().value;
+    if (firstKey) businessDataCache.delete(firstKey);
+  }
+  businessDataCache.set(id, data);
+}
+
 export function useBookOnlineData(businessId: string) {
   const { language } = useLanguage();
   const { brokenUrls: brokenLinksSet, loaded: brokenLinksLoaded } = useBrokenLinks();
@@ -162,6 +195,30 @@ export function useBookOnlineData(businessId: string) {
 
   useEffect(() => {
     let isCancelled = false;
+
+    // Check cache first — restore immediately without network round-trip
+    const cached = businessDataCache.get(businessId);
+    if (cached) {
+      setBusiness(cached.business);
+      setWoDescription(cached.woDescription);
+      setDestinations(cached.destinations);
+      setPoiBusinesses(cached.poiBusinesses);
+      setReviewTexts(cached.reviewTexts);
+      setExternalLinks(cached.externalLinks);
+      setMenuSummaries(cached.menuSummaries);
+      setMenuDocsRaw(cached.menuDocsRaw);
+      setVideoDocs(cached.videoDocs);
+      setCategoryIcon(cached.categoryIcon);
+      setShowGoogleMap(cached.showGoogleMap);
+      setKpRelated(cached.kpRelated);
+      setKpSubcategoryItems(cached.kpSubcategoryItems);
+      setKpSubcategoryLabel(cached.kpSubcategoryLabel);
+      setIsKp1Only(cached.isKp1Only);
+      setLiteApiHotelId(cached.liteApiHotelId);
+      setSerpApiMapping(cached.serpApiMapping);
+      setIsLoading(false);
+      return;
+    }
 
     const fetchData = async () => {
       setIsLoading(true);
