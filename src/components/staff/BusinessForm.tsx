@@ -976,7 +976,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     website_force_external: (business as any)?.website_force_external ?? false,
     reserve_now_force_external: (business as any)?.reserve_now_force_external ?? false,
     online_shop_force_external: (business as any)?.online_shop_force_external ?? false,
-    youtube_force_external: (business as any)?.youtube_force_external ?? false,
+    
     website_presentation_mode: (business as any)?.website_presentation_mode || "plus_informations",
     online_shop_presentation_mode: (business as any)?.online_shop_presentation_mode || "acheter_en_ligne",
     carousel_badge: (business as any)?.carousel_badge || "",
@@ -1746,7 +1746,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       website_force_external: (formData as any).website_force_external ?? false,
       reserve_now_force_external: (formData as any).reserve_now_force_external ?? false,
       online_shop_force_external: (formData as any).online_shop_force_external ?? false,
-      youtube_force_external: (formData as any).youtube_force_external ?? false,
+      
       website_presentation_mode: (formData as any).website_presentation_mode || "plus_informations",
       online_shop_presentation_mode: (formData as any).online_shop_presentation_mode || "acheter_en_ligne",
       computed_rating: (formData as any).computed_rating !== "" && (formData as any).computed_rating != null ? parseFloat((formData as any).computed_rating) : null,
@@ -2832,18 +2832,17 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             <div className="flex items-center gap-2">
               <Label className="text-sm whitespace-nowrap">📺 Média prioritaire</Label>
               <select
-                value={formData.show_videos ? "videos" : formData.prioritize_images ? "images" : ((formData as any).youtube_force_external === false && formData.youtube_url ? "youtube" : (formData.matterport_url ? "matterport" : "images"))}
+                value={formData.show_videos ? "videos" : formData.prioritize_images ? "images" : (formData.matterport_url ? "matterport" : "images")}
                 onChange={(e) => {
                   const v = e.target.value;
                   handleChange("show_videos", v === "videos");
                   handleChange("prioritize_images", v === "images");
-                  handleChange("youtube_force_external", v !== "youtube");
                 }}
                 className="h-9 rounded-md border border-input bg-background px-3 text-sm w-48"
               >
                 <option value="videos">🎬 Carrousel vidéo</option>
                 <option value="images">🖼️ Prioriser images</option>
-                <option value="youtube">▶️ YouTube</option>
+                
                 <option value="matterport">🏠 Visite virtuelle 3D</option>
               </select>
             </div>
