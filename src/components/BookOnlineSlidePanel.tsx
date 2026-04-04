@@ -1074,24 +1074,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         </>
       )}
 
-  // Fullscreen logo big overlay — show once per owner when entering Afficher mode on their video
-  useEffect(() => {
-    if (!cardsHidden) { logoBigShownForRef.current = null; return; }
-    const cm = mediaItems[currentMediaIndex];
-    if (cm?.kind !== 'video') return;
-    const doc = videoDocs.find(d => d.url === cm.url);
-    if (!doc?.owner_business_id || doc.owner_business_id === businessId) return;
-    if (!doc.owner_logo_big) return;
-    const key = doc.owner_business_id + ':' + businessId;
-    if (logoBigShownForRef.current === key) return;
-    logoBigShownForRef.current = key;
-    setLogoBigFadingOut(false);
-    setLogoBigOverlay({ src: doc.owner_logo_big, name: doc.owner_name || '', ownerId: doc.owner_business_id });
-    const fadeTimer = setTimeout(() => setLogoBigFadingOut(true), 4400);
-    const hideTimer = setTimeout(() => { setLogoBigOverlay(null); setLogoBigFadingOut(false); }, 5000);
-    return () => { clearTimeout(fadeTimer); clearTimeout(hideTimer); };
-  }, [cardsHidden, currentMediaIndex, mediaItems, videoDocs, businessId]);
-
       {/* Overlaid content — always visible, carousels toggle */}
       <div
         className={`relative z-10 flex flex-col overflow-y-auto overscroll-contain h-full p-4 pt-12 md:p-6 md:pt-16 lg:pt-6 ${cardsHidden ? 'pb-0' : 'pb-8'} ${effectiveMedia?.kind === "matterport" ? "pointer-events-none" : ""}`}
