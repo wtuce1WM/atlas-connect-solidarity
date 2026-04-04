@@ -1778,7 +1778,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               }
               if (ctaItems.length === 0) return null;
               return (
-                <div className={`w-[92%] md:w-3/4 grid gap-2 ${ctaItems.length === 1 ? 'grid-cols-1' : ctaItems.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                <div className="w-[92%] md:w-3/4 grid grid-cols-3 gap-2">
                   {ctaItems}
                 </div>
               );
