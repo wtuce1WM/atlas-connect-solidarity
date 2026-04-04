@@ -1044,6 +1044,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex flex-col items-center pb-3 md:pb-3 pointer-events-auto animate-[slide-in-top_0.35s_ease-out_both] mt-1 md:mt-0">
           {cardsHidden ? (
             <div className="flex items-center gap-3">
+              {previousBusinessId && (
+                <button
+                  onClick={() => { setActiveBusinessIdRaw(previousBusinessId); setPreviousBusinessId(null); }}
+                  className="w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
+                  aria-label="Retour"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </button>
+              )}
               {totalMedia > 1 && (
                 <button onClick={() => goMedia(-1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
                   <ChevronLeft className="h-4 w-4" />
