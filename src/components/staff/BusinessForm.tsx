@@ -918,6 +918,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     show_videos: (business as any)?.show_videos ?? false,
     default_sound_on: (business as any)?.default_sound_on ?? true,
     prioritize_images: (business as any)?.prioritize_images ?? false,
+    show_youtube_tab: (business as any)?.show_youtube_tab ?? false,
     is_open_24h: (business as any)?.is_open_24h ?? false,
     vacation_dates: ((business as any)?.vacation_dates || []) as VacationPeriod[],
     hotels_com_url: (business as any)?.hotels_com_url || "",
@@ -1687,7 +1688,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       show_videos: formData.show_videos,
       default_sound_on: formData.default_sound_on,
       prioritize_images: formData.prioritize_images,
-      show_youtube_tab: (formData as any).show_youtube_tab ?? false,
+      show_youtube_tab: formData.show_youtube_tab ?? false,
       is_open_24h: formData.is_open_24h,
       vacation_dates: formData.vacation_dates.length > 0 ? JSON.parse(JSON.stringify(formData.vacation_dates)) : [],
       hotels_com_url: formData.hotels_com_url || null,
@@ -2848,7 +2849,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <span>🔊 Son par défaut</span>
             </label>
             <label className="flex items-center gap-2 text-sm">
-              <Switch checked={(formData as any).show_youtube_tab ?? false} onCheckedChange={(checked) => handleChange("show_youtube_tab", checked)} />
+              <Switch checked={formData.show_youtube_tab ?? false} onCheckedChange={(checked) => handleChange("show_youtube_tab", checked)} />
               <span>▶️ Onglet YouTube</span>
             </label>
             <div className="flex items-center gap-2">
