@@ -2121,6 +2121,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             }}
             inline
           />
+          </div>
         </div>
       )}
     </div>
