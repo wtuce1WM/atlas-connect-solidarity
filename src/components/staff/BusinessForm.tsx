@@ -2832,12 +2832,11 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             <div className="flex items-center gap-2">
               <Label className="text-sm whitespace-nowrap">📺 Média prioritaire</Label>
               <select
-                value={formData.show_videos ? "videos" : formData.prioritize_images ? "images" : ((formData as any).youtube_force_external === false && formData.youtube_url ? "youtube" : (formData.matterport_url ? "matterport" : "images"))}
+                value={formData.show_videos ? "videos" : formData.prioritize_images ? "images" : (formData.matterport_url ? "matterport" : "images")}
                 onChange={(e) => {
                   const v = e.target.value;
                   handleChange("show_videos", v === "videos");
                   handleChange("prioritize_images", v === "images");
-                  handleChange("youtube_force_external", v !== "youtube");
                 }}
                 className="h-9 rounded-md border border-input bg-background px-3 text-sm w-48"
               >
