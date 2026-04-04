@@ -60,8 +60,15 @@ interface BookOnlineSlidePanelProps {
 type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string } | { kind: "matterport"; url: string };
 
 const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand, externalOverlayActive, forceMuted, interceptCloseRef }: BookOnlineSlidePanelProps) => {
-  const [activeBusinessId, setActiveBusinessId] = useState(propBusinessId);
-  useEffect(() => { setActiveBusinessId(propBusinessId); setSerpApiOverlayCtx(null); setCameFromFallback(false); }, [propBusinessId]);
+  const [activeBusinessId, setActiveBusinessIdRaw] = useState(propBusinessId);
+  const [previousBusinessId, setPreviousBusinessId] = useState<string | null>(null);
+  const setActiveBusinessId = useCallback((id: string) => {
+    setActiveBusinessIdRaw(prev => {
+      if (prev !== id) setPreviousBusinessId(prev);
+      return id;
+    });
+  }, []);
+  useEffect(() => { setActiveBusinessIdRaw(propBusinessId); setPreviousBusinessId(null); setSerpApiOverlayCtx(null); setCameFromFallback(false); }, [propBusinessId]);
   const businessId = activeBusinessId;
   const [cameFromFallback, setCameFromFallback] = useState(false);
   const { language } = useLanguage();
