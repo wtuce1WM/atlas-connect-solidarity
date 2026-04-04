@@ -458,6 +458,23 @@ export function useBookOnlineData(businessId: string) {
         }
       };
 
+      const fetchLinkedVideos = async () => {
+        const { data: linkedVids } = await supabase
+          .from("business_documents")
+          .select("url, name, city, price, price_type, description, thumbnail_url")
+          .eq("linked_business_id", businessId)
+          .eq("type", "video")
+          .order("sort_order");
+        if (!isCancelled && linkedVids && linkedVids.length > 0) {
+          const linked = (linkedVids as VideoDoc[]).filter((d) => d.url);
+          setVideoDocs((prev) => {
+            const existingUrls = new Set(prev.map((v) => v.url));
+            const newVids = linked.filter((v) => !existingUrls.has(v.url));
+            return newVids.length > 0 ? [...newVids, ...prev] : prev;
+          });
+        }
+      };
+
       const fetchLiteApiMapping = async () => {
         const { data: mapping } = await supabase
           .from("hotel_api_mappings")
