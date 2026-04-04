@@ -1746,7 +1746,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       website_force_external: (formData as any).website_force_external ?? false,
       reserve_now_force_external: (formData as any).reserve_now_force_external ?? false,
       online_shop_force_external: (formData as any).online_shop_force_external ?? false,
-      youtube_force_external: (formData as any).youtube_force_external ?? false,
+      
       website_presentation_mode: (formData as any).website_presentation_mode || "plus_informations",
       online_shop_presentation_mode: (formData as any).online_shop_presentation_mode || "acheter_en_ligne",
       computed_rating: (formData as any).computed_rating !== "" && (formData as any).computed_rating != null ? parseFloat((formData as any).computed_rating) : null,

@@ -1373,7 +1373,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         )}
 
         {/* YouTube tab — always mounted to preload, hidden when not active */}
-        {business?.youtube_url && business?.youtube_force_external && (
+        {business?.youtube_url && business?.show_youtube_tab && (
           <div className={`pointer-events-auto -mr-4 md:-mr-6 mt-2 ${activeBottomTab !== "youtube" ? "hidden" : ""}`}>
             <YouTubeShortsCarousel
               youtubeUrl={business.youtube_url}

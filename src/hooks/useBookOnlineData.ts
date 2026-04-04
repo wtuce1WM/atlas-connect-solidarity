@@ -81,7 +81,6 @@ export interface BookOnlineBusiness {
   presentation_mode: string | null;
   // Fields previously accessed via `as any`
   show_videos: boolean;
-  youtube_force_external: boolean;
   computed_rating: number | null;
   total_review_count: number | null;
   kp_regroupement_2: string | null;
