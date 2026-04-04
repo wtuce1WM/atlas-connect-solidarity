@@ -1522,16 +1522,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         )}
 
         {/* Hidden YouTube count probe — always mounted */}
-        {business?.youtube_url && business?.youtube_force_external && youtubeVideoCount === null && (
-          <div className="hidden">
-            <YouTubeShortsCarousel
-              youtubeUrl={business.youtube_url}
-              onVideoCount={setYoutubeVideoCount}
-              shortsOnly
-              hideLabel
-            />
-          </div>
-        )}
 
         {/* Spacer + availability zone when cards hidden */}
         {cardsHidden && (
