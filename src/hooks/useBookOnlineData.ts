@@ -483,6 +483,8 @@ export function useBookOnlineData(businessId: string) {
     categoryIcon,
     showGoogleMap,
     kpRelated,
+    kpSubcategoryItems,
+    kpSubcategoryLabel,
     isKp1Only,
     liteApiHotelId,
     serpApiMapping,
