@@ -1588,6 +1588,27 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         {/* Spacer + availability zone when cards hidden */}
         {cardsHidden && (
           <div className={`flex-1 w-full flex flex-col justify-center gap-3 px-0 md:px-8 overflow-y-auto ${effectiveMedia?.kind === "matterport" ? "pointer-events-none" : "pointer-events-auto"}`}>
+            {/* Master business link */}
+            {!business?.is_master && (() => {
+              const master = kpRelated.find(r => r.is_master);
+              if (!master) return null;
+              return (
+                <button
+                  onClick={() => setActiveBusinessId(master.id)}
+                  className="self-center flex items-center gap-2.5 rounded-full bg-black/50 backdrop-blur-sm border border-white/15 px-3 py-1.5 hover:bg-black/70 transition-colors pointer-events-auto animate-slide-up-from-bottom"
+                >
+                  {master.logo_url ? (
+                    <img src={master.logo_url} alt="" className="h-6 w-6 rounded-full object-contain bg-white/90 shrink-0" />
+                  ) : master.images?.filter(Boolean)?.[0] ? (
+                    <img src={master.images.filter(Boolean)[0]} alt="" className="h-6 w-6 rounded-full object-cover shrink-0" />
+                  ) : null}
+                  <span className="text-xs font-medium text-white truncate max-w-[180px]" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                    {master.name}
+                  </span>
+                  <ChevronRight className="h-3.5 w-3.5 text-white/60 shrink-0" />
+                </button>
+              );
+            })()}
             {hotelSearchLoading && (
               <div className="flex items-center justify-center gap-2 text-white/80">
                 <Loader2 className="h-5 w-5 animate-spin" />
