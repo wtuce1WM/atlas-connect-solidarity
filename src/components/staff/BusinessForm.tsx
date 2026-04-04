@@ -55,6 +55,7 @@ import {
   PinterestIcon,
   SkypeIcon,
   VimeoIcon,
+  SnapchatIcon,
 } from "./SocialMediaIcons";
 import {
   AlertDialog,
@@ -902,6 +903,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     pinterest_url: (business as any)?.pinterest_url || "",
     skype: (business as any)?.skype || "",
     vimeo_url: (business as any)?.vimeo_url || "",
+    snapchat_url: (business as any)?.snapchat_url || "",
     images: (business as any)?.images || [] as string[],
     _initialImages: (business as any)?.images || [] as string[], // track original images for cleanup
     pdf_url: (business as any)?.pdf_url || "",
@@ -1673,6 +1675,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       pinterest_url: formData.pinterest_url || null,
       skype: formData.skype || null,
       vimeo_url: formData.vimeo_url || null,
+      snapchat_url: (formData as any).snapchat_url || null,
       images: formData.images.length > 0 ? formData.images : [],
       pdf_url: formData.pdf_url || null,
       pdf_name: (formData as any).pdf_name?.slice(0, 100) || null,
@@ -4188,6 +4191,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               { key: "tiktok_url", label: "TikTok", icon: <TikTokIcon />, placeholder: "https://tiktok.com/@..." },
               { key: "pinterest_url", label: "Pinterest", icon: <PinterestIcon className="text-[#E60023]" />, placeholder: "https://pinterest.com/..." },
               { key: "vimeo_url", label: "Vimeo", icon: <VimeoIcon className="text-[#1AB7EA]" />, placeholder: "https://vimeo.com/..." },
+              { key: "snapchat_url", label: "Snapchat", icon: <SnapchatIcon className="text-[#FFFC00]" />, placeholder: "https://snapchat.com/add/..." },
             ].map(({ key, label, icon, placeholder }) => (
               <div key={key} className="space-y-1">
                 <Label className="flex items-center gap-2 text-sm">
@@ -5074,7 +5078,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Non</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => { handleChange("facebook_url", ""); handleChange("instagram_url", ""); handleChange("twitter_url", ""); handleChange("linkedin_url", ""); handleChange("youtube_url", ""); handleChange("tiktok_url", ""); handleChange("pinterest_url", ""); handleChange("vimeo_url", ""); toast({ title: "Réseaux sociaux effacés" }); }}>Oui, effacer</AlertDialogAction>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => { handleChange("facebook_url", ""); handleChange("instagram_url", ""); handleChange("twitter_url", ""); handleChange("linkedin_url", ""); handleChange("youtube_url", ""); handleChange("tiktok_url", ""); handleChange("pinterest_url", ""); handleChange("vimeo_url", ""); handleChange("snapchat_url", ""); toast({ title: "Réseaux sociaux effacés" }); }}>Oui, effacer</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

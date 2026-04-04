@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN snapchat_url text;
