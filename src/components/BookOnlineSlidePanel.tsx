@@ -1079,6 +1079,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             </div>
           ) : (
             <div className="relative w-full flex items-center justify-center">
+              {previousBusinessId && (
+                <button
+                  onClick={() => { setActiveBusinessIdRaw(previousBusinessId); setPreviousBusinessId(null); }}
+                  className="absolute right-0 z-50 w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
+                  aria-label="Retour"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </button>
+              )}
               {languages.length > 0 && (
                 <div className={`absolute left-0 z-50 flex items-center gap-0.5 md:gap-1.5 bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2 md:px-2.5 md:rounded-full md:py-1 md:flex-wrap md:justify-center md:overflow-visible ${languages.length > 5 ? 'max-w-[7rem] overflow-x-auto' : ''} ${languages.length > 4 ? 'md:max-w-none md:overflow-visible' : ''}`} style={languages.length > 5 ? { scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties : undefined}>
                   {languages.map((lang, i) => {
