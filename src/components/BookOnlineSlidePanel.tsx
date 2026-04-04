@@ -62,9 +62,14 @@ type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | 
 const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand, externalOverlayActive, forceMuted, interceptCloseRef }: BookOnlineSlidePanelProps) => {
   const [activeBusinessId, setActiveBusinessIdRaw] = useState(propBusinessId);
   const [previousBusinessId, setPreviousBusinessId] = useState<string | null>(null);
+  const previousCardsHiddenRef = useRef(false);
+  const currentCardsHiddenRef = useRef(false);
   const setActiveBusinessId = useCallback((id: string) => {
     setActiveBusinessIdRaw(prev => {
-      if (prev !== id) setPreviousBusinessId(prev);
+      if (prev !== id) {
+        setPreviousBusinessId(prev);
+        previousCardsHiddenRef.current = currentCardsHiddenRef.current;
+      }
       return id;
     });
   }, []);
@@ -132,9 +137,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   useEffect(() => {
     if (!interceptCloseRef) return;
     if (previousBusinessId) {
+      const shouldRestoreHidden = previousCardsHiddenRef.current;
       interceptCloseRef.current = () => {
         setActiveBusinessIdRaw(previousBusinessId);
         setPreviousBusinessId(null);
+        if (shouldRestoreHidden) {
+          // Restore cardsHidden after the new business loads
+          setTimeout(() => { hideCardsRef.current?.(); }, 100);
+        }
         return true; // intercepted
       };
     } else if (cameFromFallback && fallbackDataRef.current) {
@@ -392,6 +402,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     onTouchStart, onTouchMove, onTouchEnd, onMouseDownDrag,
   } = useDragToHide();
   useEffect(() => { hideCardsRef.current = hideCards; }, [hideCards]);
+  useEffect(() => { currentCardsHiddenRef.current = cardsHidden; }, [cardsHidden]);
 
   // Track recently viewed when business loads in slide panel
   useEffect(() => {
