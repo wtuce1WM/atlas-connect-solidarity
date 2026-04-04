@@ -2298,7 +2298,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       {logoBigOverlay && (
         <div
           className={`absolute inset-0 -top-[3.3rem] z-[80] flex items-center justify-center pointer-events-auto ${logoBigFadingOut ? 'animate-fullscreen-logo-out' : ''}`}
-          onClick={() => { setLogoBigOverlay(null); setLogoBigFadingOut(false); }}
+          onClick={() => { logoBigTimersRef.current.forEach(clearTimeout); logoBigTimersRef.current = []; setLogoBigOverlay(null); setLogoBigFadingOut(false); }}
         >
           {/* Logo with silver halo glow — no circle, no lightning */}
           <button
