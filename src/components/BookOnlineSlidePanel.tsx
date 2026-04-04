@@ -71,7 +71,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const {
     business, woDescription, destinations, poiBusinesses, isLoading,
     reviewTexts, externalLinks, menuSummaries, menuDocs, videoDocs,
-    allVideoUrls, categoryIcon, showGoogleMap, kpRelated, isKp1Only, liteApiHotelId, serpApiMapping, isHotelWithPrice,
+    allVideoUrls, categoryIcon, showGoogleMap, kpRelated, kpSubcategoryItems, kpSubcategoryLabel, isKp1Only, liteApiHotelId, serpApiMapping, isHotelWithPrice,
   } = useBookOnlineData(businessId);
 
   // UI state
@@ -616,6 +616,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const hasYoutubeBottomCarousel = !!(business?.youtube_url && business?.show_youtube_tab && youtubeVideoCount !== 0);
   const hasYoutubeReady = !!(youtubeVideoCount && youtubeVideoCount > 0);
   const hasKpCarousel = kpRelated.length > 0;
+  const hasKpSubcatCarousel = kpSubcategoryItems.length > 0;
   const hasDestCarousel = destinations.length > 0;
   const hasPoiCarousel = poiBusinesses.length >= 2;
 
@@ -632,7 +633,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     return `${language === "en" ? "Welcome to" : "Bienvenue à"} ${business?.name || ""}`;
   }, [business?.carousel_badge, business?.name, language]);
 
-  type BottomTab = { id: "videos" | "youtube" | "kp" | "dest" | "poi"; label: string; hasContent: boolean };
+  type BottomTab = { id: "videos" | "youtube" | "kp" | "kp_subcat" | "dest" | "poi"; label: string; hasContent: boolean };
   const hasKpCode = !!(business?.kp_regroupement?.trim() || business?.kp_regroupement_2?.trim());
   const bottomTabs = useMemo<BottomTab[]>(() => {
     const tabs: BottomTab[] = [];
@@ -648,6 +649,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     if (hasDestCarousel) {
       tabs.push({ id: "dest", label: "Destinations", hasContent: true });
     }
+    // KP subcategory tab (multi-master KP2)
+    if (hasKpSubcatCarousel) {
+      tabs.push({ id: "kp_subcat", label: kpSubcategoryLabel || (language === "en" ? "Category" : "Catégorie"), hasContent: true });
+    }
     // Show Autres établissements tab only when there are related businesses
     if (hasKpCarousel) {
       tabs.push({ id: "kp", label: language === "en" ? "Other establishments" : "Autres établissements", hasContent: true });
@@ -657,7 +662,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       tabs.push({ id: "poi", label: language === "en" ? "Nearby" : "À proximité", hasContent: true });
     }
     return tabs;
-  }, [videoTabLabel, hasVideosCarousel, hasYoutubeBottomCarousel, hasYoutubeReady, hasKpCarousel, hasKpCode, hasDestCarousel, hasPoiCarousel, language, videoDocs.length]);
+  }, [videoTabLabel, hasVideosCarousel, hasYoutubeBottomCarousel, hasYoutubeReady, hasKpCarousel, hasKpSubcatCarousel, kpSubcategoryLabel, hasKpCode, hasDestCarousel, hasPoiCarousel, language, videoDocs.length]);
 
   const [activeBottomTab, setActiveBottomTab] = useState<string>("videos");
   const bottomTabInitialRef = useRef(true);
@@ -1486,7 +1491,51 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           </div>
         )}
 
-        {/* KP Related tab */}
+        {/* KP Subcategory tab (multi-master KP2) */}
+        {activeBottomTab === "kp_subcat" && hasKpSubcatCarousel && (
+          <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
+            <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
+              <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
+              {kpSubcategoryItems.map((rel, index) => {
+                const relImg = rel.images?.filter(Boolean)?.[0] || rel.logo_url;
+                return (
+                  <div
+                    key={rel.id}
+                    className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                    style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' } : undefined}
+                    onClick={() => setActiveBusinessId(rel.id)}
+                  >
+                    {relImg ? (
+                      <img src={relImg} alt={rel.name} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                    ) : (
+                      <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
+                        <MapPin className="h-5 w-5 text-white/40" />
+                      </div>
+                    )}
+                    <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
+                      {rel.is_master && <span className="text-gold mr-1">★</span>}
+                      {rel.name}
+                    </p>
+                  </div>
+                );
+              })}
+              {poiBusinesses.length > 0 && business?.latitude && business?.longitude && (
+                <div
+                  className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                  style={bottomTabInitialRef.current ? { animationDelay: `${kpSubcategoryItems.length * 120}ms`, animationFillMode: 'forwards' } : undefined}
+                  onClick={() => setShowPoiMapOverlay(true)}
+                >
+                  <img src={poiNearbyImg} alt="Points d'intérêt" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                  <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
+                    {language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité"}
+                  </p>
+                </div>
+              )}
+              <div className="shrink-0 w-6" aria-hidden="true" />
+            </div>
+          </div>
+        )}
+
         {activeBottomTab === "kp" && hasKpCarousel && (
           <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
             <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
