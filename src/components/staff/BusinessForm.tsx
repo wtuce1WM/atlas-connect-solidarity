@@ -1687,6 +1687,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       show_videos: formData.show_videos,
       default_sound_on: formData.default_sound_on,
       prioritize_images: formData.prioritize_images,
+      show_youtube_tab: (formData as any).show_youtube_tab ?? false,
       is_open_24h: formData.is_open_24h,
       vacation_dates: formData.vacation_dates.length > 0 ? JSON.parse(JSON.stringify(formData.vacation_dates)) : [],
       hotels_com_url: formData.hotels_com_url || null,
@@ -2845,6 +2846,10 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             <label className="flex items-center gap-2 text-sm">
               <Switch checked={formData.default_sound_on} onCheckedChange={(checked) => handleChange("default_sound_on", checked)} />
               <span>🔊 Son par défaut</span>
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <Switch checked={(formData as any).show_youtube_tab ?? false} onCheckedChange={(checked) => handleChange("show_youtube_tab", checked)} />
+              <span>▶️ Onglet YouTube</span>
             </label>
             <div className="flex items-center gap-2">
               <Label className="text-sm whitespace-nowrap">🏷️ Badge Carrousel</Label>
