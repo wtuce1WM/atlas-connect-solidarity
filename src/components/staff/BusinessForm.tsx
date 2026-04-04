@@ -1688,7 +1688,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       show_videos: formData.show_videos,
       default_sound_on: formData.default_sound_on,
       prioritize_images: formData.prioritize_images,
-      show_youtube_tab: (formData as any).show_youtube_tab ?? false,
+      show_youtube_tab: formData.show_youtube_tab ?? false,
       is_open_24h: formData.is_open_24h,
       vacation_dates: formData.vacation_dates.length > 0 ? JSON.parse(JSON.stringify(formData.vacation_dates)) : [],
       hotels_com_url: formData.hotels_com_url || null,
