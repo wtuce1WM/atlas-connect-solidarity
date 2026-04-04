@@ -783,9 +783,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   }, [shopUrl, business?.online_shop_force_external]);
 
   const ctaModeLabels: Record<string, { fr: string; en: string }> = {
-    acheter_en_ligne: { fr: 'Achetez en ligne', en: 'Shop Online' },
-    reserver_en_ligne: { fr: 'Réservez en ligne', en: 'Book Online' },
-    consulter_offre: { fr: 'Consultez notre offre', en: 'View Our Offer' },
+    acheter_en_ligne: { fr: 'Acheter en ligne', en: 'Shop Online' },
+    reserver_en_ligne: { fr: 'Réserver en ligne', en: 'Book Online' },
+    consulter_offre: { fr: 'Consulter notre offre', en: 'View Our Offer' },
     plus_informations: { fr: "Plus d'informations", en: 'More Information' },
     contactez_nous: { fr: 'Contactez nous', en: 'Contact Us' },
   };
