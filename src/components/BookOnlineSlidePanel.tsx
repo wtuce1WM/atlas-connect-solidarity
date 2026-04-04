@@ -131,6 +131,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [logoBigOverlay, setLogoBigOverlay] = useState<{ src: string; name: string; ownerId: string } | null>(null);
   const [logoBigFadingOut, setLogoBigFadingOut] = useState(false);
   const logoBigShownForRef = useRef<string | null>(null);
+  const logoBigTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const fallbackDataRef = useRef<FallbackPanelData | null>(null);
   useEffect(() => {
     if (fallbackPanelData) fallbackDataRef.current = fallbackPanelData;
@@ -801,9 +802,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     logoBigShownForRef.current = key;
     setLogoBigFadingOut(false);
     setLogoBigOverlay({ src: doc.owner_logo_big, name: doc.owner_name || '', ownerId: doc.owner_business_id });
+    logoBigTimersRef.current.forEach(clearTimeout);
     const fadeTimer = setTimeout(() => setLogoBigFadingOut(true), 4400);
-    const hideTimer = setTimeout(() => { setLogoBigOverlay(null); setLogoBigFadingOut(false); }, 5000);
-    return () => { clearTimeout(fadeTimer); clearTimeout(hideTimer); };
+    const hideTimer = setTimeout(() => { setLogoBigOverlay(null); setLogoBigFadingOut(false); logoBigTimersRef.current = []; }, 5000);
+    logoBigTimersRef.current = [fadeTimer, hideTimer];
+    return () => { logoBigTimersRef.current.forEach(clearTimeout); logoBigTimersRef.current = []; };
   }, [cardsHidden, currentMediaIndex, mediaItems, videoDocs, businessId]);
 
   const goMedia = useCallback((dir: 1 | -1) => {
@@ -2295,7 +2298,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       {logoBigOverlay && (
         <div
           className={`absolute inset-0 -top-[3.3rem] z-[80] flex items-center justify-center pointer-events-auto ${logoBigFadingOut ? 'animate-fullscreen-logo-out' : ''}`}
-          onClick={() => { setLogoBigOverlay(null); setLogoBigFadingOut(false); }}
+          onClick={() => { logoBigTimersRef.current.forEach(clearTimeout); logoBigTimersRef.current = []; setLogoBigOverlay(null); setLogoBigFadingOut(false); }}
         >
           {/* Logo with silver halo glow — no circle, no lightning */}
           <button
