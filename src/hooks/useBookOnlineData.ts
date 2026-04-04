@@ -95,6 +95,7 @@ export interface BookOnlineBusiness {
   default_service: string | null;
   matterport_url: string | null;
   carousel_badge: string | null;
+  show_youtube_tab: boolean;
 }
 
 export interface KpRelatedBusiness {
