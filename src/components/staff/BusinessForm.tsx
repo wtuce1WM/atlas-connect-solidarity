@@ -2846,6 +2846,10 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Switch checked={formData.default_sound_on} onCheckedChange={(checked) => handleChange("default_sound_on", checked)} />
               <span>🔊 Son par défaut</span>
             </label>
+            <label className="flex items-center gap-2 text-sm">
+              <Switch checked={(formData as any).show_youtube_tab ?? false} onCheckedChange={(checked) => handleChange("show_youtube_tab", checked)} />
+              <span>▶️ Onglet YouTube</span>
+            </label>
             <div className="flex items-center gap-2">
               <Label className="text-sm whitespace-nowrap">🏷️ Badge Carrousel</Label>
               <Select
