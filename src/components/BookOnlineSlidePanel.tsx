@@ -407,7 +407,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   useEffect(() => { hideCardsRef.current = hideCards; }, [hideCards]);
   useEffect(() => { currentCardsHiddenRef.current = cardsHidden; }, [cardsHidden]);
 
-  // (logo big overlay effect moved below mediaItems declaration)
+
 
   // Track recently viewed when business loads in slide panel
   useEffect(() => {
