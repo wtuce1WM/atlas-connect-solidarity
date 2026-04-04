@@ -2842,7 +2842,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               >
                 <option value="videos">🎬 Carrousel vidéo</option>
                 <option value="images">🖼️ Prioriser images</option>
-                <option value="youtube">▶️ YouTube</option>
+                
                 <option value="matterport">🏠 Visite virtuelle 3D</option>
               </select>
             </div>
