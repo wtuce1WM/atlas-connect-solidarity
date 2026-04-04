@@ -47,7 +47,7 @@ const LogoEffectsDemo = lazy(() => import("./pages/LogoEffectsDemo"));
 const AIEffectsDemo = lazy(() => import("./pages/AIEffectsDemo"));
 import CGF from "./pages/CGF";
 import SearchAnalytics from "./pages/SearchAnalytics";
-import StaffMaster from "./pages/StaffMaster";
+const StaffMaster = lazy(() => import("./pages/StaffMaster"));
 import StaffB2B from "./pages/StaffB2B";
 import DestinationPage from "./pages/DestinationPage";
 import SearchLayoutDemo from "./pages/SearchLayoutDemo";
