@@ -1306,7 +1306,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           ))}
         </div>
 
-        {/* Tab content */}
+        {/* Tab content — fixed height container for stable CTA positioning */}
+        <div className="shrink-0 h-[9.5rem] md:h-[12.5rem] lg:h-[17.5rem]">
         {/* Videos tab */}
         {activeBottomTab === "videos" && hasVideosCarousel && (
           <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
