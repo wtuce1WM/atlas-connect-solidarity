@@ -2291,19 +2291,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         </div>
       )}
 
-      {/* Fullscreen Logo Big overlay */}
+      {/* Logo Big overlay — inside slide panel */}
       {logoBigOverlay && (
         <div
-          className={`fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md ${logoBigFadingOut ? 'animate-fullscreen-logo-out' : ''}`}
+          className={`absolute inset-0 -top-[3.3rem] z-[80] flex items-center justify-center bg-black/70 backdrop-blur-sm ${logoBigFadingOut ? 'animate-fullscreen-logo-out' : ''}`}
           onClick={() => { setLogoBigOverlay(null); setLogoBigFadingOut(false); }}
         >
           {/* Silver halo ring */}
-          <div className="absolute rounded-full animate-silver-halo" style={{ width: 'min(85vw, 500px)', height: 'min(85vw, 500px)' }} />
+          <div className="absolute rounded-full animate-silver-halo" style={{ width: 'min(80%, 420px)', height: 'min(80%, 420px)' }} />
           {/* Logo */}
           <button
             onClick={(e) => { e.stopPropagation(); setLogoBigOverlay(null); setActiveBusinessId(logoBigOverlay.ownerId); }}
             className="relative animate-logo-big-full-reveal [perspective:1000px] z-10"
-            style={{ width: 'min(70vw, 400px)', height: 'min(70vw, 400px)' }}
+            style={{ width: 'min(65%, 340px)', height: 'min(65%, 340px)' }}
           >
             <img
               src={logoBigOverlay.src}
@@ -2323,7 +2323,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           </button>
           {/* Owner name */}
           <span
-            className="absolute bottom-[15%] text-white/80 text-sm tracking-widest"
+            className="absolute bottom-[12%] text-white/80 text-sm tracking-widest"
             style={{ fontFamily: "'Josefin Sans', sans-serif", animation: 'slideInUp 0.8s ease-out 0.6s both' }}
           >
             {logoBigOverlay.name}
