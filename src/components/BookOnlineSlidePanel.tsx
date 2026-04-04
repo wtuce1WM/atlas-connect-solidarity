@@ -665,13 +665,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   useEffect(() => { bottomTabInitialRef.current = true; }, [businessId]);
   useEffect(() => {
     if (bottomTabs.length > 0) {
-      // Always select the first tab on mount or when tabs change and current is invalid
-      if (bottomTabInitialRef.current || !bottomTabs.find(t => t.id === activeBottomTab)) {
+      // Only commit to a tab selection once loading is complete to avoid selecting a partial first tab
+      if (bottomTabInitialRef.current) {
+        if (!isLoading) {
+          setActiveBottomTab(bottomTabs[0].id);
+          bottomTabInitialRef.current = false;
+        }
+      } else if (!bottomTabs.find(t => t.id === activeBottomTab)) {
         setActiveBottomTab(bottomTabs[0].id);
-        bottomTabInitialRef.current = false;
       }
     }
-  }, [bottomTabs, businessId]);
+  }, [bottomTabs, businessId, isLoading]);
   const handleBottomTabChange = (tabId: string) => {
     bottomTabInitialRef.current = false;
     setActiveBottomTab(tabId);
