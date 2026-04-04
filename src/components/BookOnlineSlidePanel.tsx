@@ -1705,64 +1705,84 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
         {/* CTAs + video controls */}
         <div className={`shrink-0 py-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto ${cardsHidden && effectiveMedia?.kind === "matterport" ? 'mb-24' : ''} ${cardsHidden ? '' : noBottomCarousel ? 'lg:mt-auto' : ''}`} style={(cardsHidden && fallbackPanelData && (() => { const ch = fallbackPanelData.hotels.find(h => h.isCurrentHotel); return !!ch; })()) ? { display: 'none' } : undefined}>
-            {bookingCta && (
-              bookingCta.forceExternal ? (
-                <a
-                  href={bookingCta.fullUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-right"
-                  style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-                >
-                  <CalendarCheck className="h-4 w-4" />
-                  {bookingCtaLabel}
-                  <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
-                </a>
-              ) : (
-                <button
-                  onClick={() => { setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setShowBookingOverlay(true); }}
-                  className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-right"
-                  style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366' }}
-                >
-                  <CalendarCheck className="h-4 w-4" />
-                  {bookingCtaLabel}
-                </button>
-              )
-            )}
-            {shopCta && (
-              shopCta.forceExternal ? (
-                <a
-                  href={shopCta.fullUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-right"
-                  style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-                >
-                  <ShoppingBag className="h-4 w-4" />
-                  {shopCtaLabel}
-                  <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
-                </a>
-              ) : (
-                <button
-                  onClick={() => { setBookingOverlayUrl(shopCta.fullUrl); setBookingOverlayTitle(shopCtaLabel); setShowBookingOverlay(true); }}
-                  className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-black [&_*]:text-black normal-case tracking-normal animate-slide-in-right"
-                  style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366' }}
-                >
-                  <ShoppingBag className="h-4 w-4" />
-                  {shopCtaLabel}
-                </button>
-              )
-            )}
-            {showGoogleMap && business.latitude && business.longitude && (
-              <button
-                onClick={() => setShowDirections(true)}
-                className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-primary text-primary-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-primary/90 transition-colors normal-case tracking-normal animate-slide-in-left"
-                style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-              >
-                <MapPin className="h-4 w-4" />
-                {language === "en" ? "Directions" : "Itinéraire"}
-              </button>
-            )}
+            {(() => {
+              const ctaItems: React.ReactNode[] = [];
+              if (bookingCta) {
+                ctaItems.push(
+                  bookingCta.forceExternal ? (
+                    <a
+                      key="booking"
+                      href={bookingCta.fullUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-right"
+                      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                    >
+                      <CalendarCheck className="h-4 w-4" />
+                      <span className="truncate">{bookingCtaLabel}</span>
+                      <ExternalLink className="h-3.5 w-3.5 ml-0.5 shrink-0" />
+                    </a>
+                  ) : (
+                    <button
+                      key="booking"
+                      onClick={() => { setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setShowBookingOverlay(true); }}
+                      className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-right"
+                      style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366' }}
+                    >
+                      <CalendarCheck className="h-4 w-4" />
+                      <span className="truncate">{bookingCtaLabel}</span>
+                    </button>
+                  )
+                );
+              }
+              if (shopCta) {
+                ctaItems.push(
+                  shopCta.forceExternal ? (
+                    <a
+                      key="shop"
+                      href={shopCta.fullUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-right"
+                      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                    >
+                      <ShoppingBag className="h-4 w-4" />
+                      <span className="truncate">{shopCtaLabel}</span>
+                      <ExternalLink className="h-3.5 w-3.5 ml-0.5 shrink-0" />
+                    </a>
+                  ) : (
+                    <button
+                      key="shop"
+                      onClick={() => { setBookingOverlayUrl(shopCta.fullUrl); setBookingOverlayTitle(shopCtaLabel); setShowBookingOverlay(true); }}
+                      className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-black [&_*]:text-black normal-case tracking-normal animate-slide-in-right"
+                      style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366' }}
+                    >
+                      <ShoppingBag className="h-4 w-4" />
+                      <span className="truncate">{shopCtaLabel}</span>
+                    </button>
+                  )
+                );
+              }
+              if (showGoogleMap && business.latitude && business.longitude) {
+                ctaItems.push(
+                  <button
+                    key="directions"
+                    onClick={() => setShowDirections(true)}
+                    className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-primary text-primary-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-primary/90 transition-colors normal-case tracking-normal animate-slide-in-left"
+                    style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                  >
+                    <MapPin className="h-4 w-4" />
+                    <span className="truncate">{language === "en" ? "Directions" : "Itinéraire"}</span>
+                  </button>
+                );
+              }
+              if (ctaItems.length === 0) return null;
+              return (
+                <div className={`w-[92%] md:w-3/4 grid gap-2 ${ctaItems.length === 1 ? 'grid-cols-1' : ctaItems.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                  {ctaItems}
+                </div>
+              );
+            })()}
             {/* Video controls — below CTAs */}
             {!cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type === "file" && (
               <div className="flex items-center gap-6 md:gap-10 mt-2 md:mt-3">
