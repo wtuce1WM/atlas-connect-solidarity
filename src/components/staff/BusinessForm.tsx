@@ -1674,6 +1674,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       pinterest_url: formData.pinterest_url || null,
       skype: formData.skype || null,
       vimeo_url: formData.vimeo_url || null,
+      snapchat_url: (formData as any).snapchat_url || null,
       images: formData.images.length > 0 ? formData.images : [],
       pdf_url: formData.pdf_url || null,
       pdf_name: (formData as any).pdf_name?.slice(0, 100) || null,
