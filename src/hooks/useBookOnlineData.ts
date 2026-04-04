@@ -135,6 +135,9 @@ export interface VideoDoc {
   price_type: string | null;
   description: string | null;
   thumbnail_url: string | null;
+  owner_business_id: string | null;
+  owner_name: string | null;
+  owner_logo: string | null;
 }
 
 // In-memory cache to avoid re-fetching data for previously viewed businesses
