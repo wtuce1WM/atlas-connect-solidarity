@@ -500,6 +500,7 @@ export function useBookOnlineData(businessId: string) {
         fetchDestinations(),
         fetchPoiBusinesses(),
         fetchKpRelated(),
+        fetchLinkedVideos(),
         fetchLiteApiMapping(),
         fetchSerpApiMapping(),
       ]);
