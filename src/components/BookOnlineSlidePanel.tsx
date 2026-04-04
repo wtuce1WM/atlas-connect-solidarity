@@ -1779,7 +1779,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               if (ctaItems.length === 0) return null;
               return (
                 <div className="w-[92%] md:w-3/4 flex justify-center gap-2">
-                  {ctaItems}
+                  {ctaItems.map((item, i) => (
+                    <div key={i} className="w-1/3">{item}</div>
+                  ))}
                 </div>
               );
             })()}
