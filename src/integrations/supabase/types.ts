@@ -996,6 +996,7 @@ export type Database = {
           services: string[] | null
           show_opening_hours: boolean | null
           show_videos: boolean
+          show_youtube_tab: boolean
           skype: string | null
           slug: string
           telegram: string | null
@@ -1143,6 +1144,7 @@ export type Database = {
           services?: string[] | null
           show_opening_hours?: boolean | null
           show_videos?: boolean
+          show_youtube_tab?: boolean
           skype?: string | null
           slug: string
           telegram?: string | null
@@ -1290,6 +1292,7 @@ export type Database = {
           services?: string[] | null
           show_opening_hours?: boolean | null
           show_videos?: boolean
+          show_youtube_tab?: boolean
           skype?: string | null
           slug?: string
           telegram?: string | null
@@ -3994,6 +3997,7 @@ export type Database = {
               services: string[] | null
               show_opening_hours: boolean | null
               show_videos: boolean
+              show_youtube_tab: boolean
               skype: string | null
               slug: string
               telegram: string | null
@@ -4157,6 +4161,7 @@ export type Database = {
               services: string[] | null
               show_opening_hours: boolean | null
               show_videos: boolean
+              show_youtube_tab: boolean
               skype: string | null
               slug: string
               telegram: string | null

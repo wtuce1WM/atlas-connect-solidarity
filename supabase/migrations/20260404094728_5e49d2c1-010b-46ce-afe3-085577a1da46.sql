@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN show_youtube_tab boolean NOT NULL DEFAULT false;
