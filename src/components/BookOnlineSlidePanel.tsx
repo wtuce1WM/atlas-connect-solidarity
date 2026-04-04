@@ -1715,7 +1715,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       href={bookingCta.fullUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-right"
+                      className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-up-from-bottom"
                       style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                     >
                       <CalendarCheck className="h-4 w-4 hidden md:block" />
@@ -1726,7 +1726,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     <button
                       key="booking"
                       onClick={() => { setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setShowBookingOverlay(true); }}
-                      className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-right"
+                      className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-up-from-bottom"
                       style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366' }}
                     >
                       <CalendarCheck className="h-4 w-4 hidden md:block" />
@@ -1743,7 +1743,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       href={shopCta.fullUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-right"
+                      className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-up-from-bottom"
                       style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                     >
                       <ShoppingBag className="h-4 w-4 hidden md:block" />
@@ -1754,7 +1754,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     <button
                       key="shop"
                       onClick={() => { setBookingOverlayUrl(shopCta.fullUrl); setBookingOverlayTitle(shopCtaLabel); setShowBookingOverlay(true); }}
-                      className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-black [&_*]:text-black normal-case tracking-normal animate-slide-in-right"
+                      className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-black [&_*]:text-black normal-case tracking-normal animate-slide-up-from-bottom"
                       style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366' }}
                     >
                       <ShoppingBag className="h-4 w-4 hidden md:block" />
@@ -1768,7 +1768,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   <button
                     key="directions"
                     onClick={() => setShowDirections(true)}
-                    className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-gold text-gold-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-gold/90 transition-colors normal-case tracking-normal animate-slide-in-left"
+                    className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-gold text-gold-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-gold/90 transition-colors normal-case tracking-normal animate-slide-up-from-bottom"
                     style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                   >
                     <MapPin className="h-4 w-4 hidden md:block" />
