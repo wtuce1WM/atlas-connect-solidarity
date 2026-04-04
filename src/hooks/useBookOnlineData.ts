@@ -135,6 +135,9 @@ export interface VideoDoc {
   price_type: string | null;
   description: string | null;
   thumbnail_url: string | null;
+  owner_business_id: string | null;
+  owner_name: string | null;
+  owner_logo: string | null;
 }
 
 // In-memory cache to avoid re-fetching data for previously viewed businesses
@@ -281,7 +284,7 @@ export function useBookOnlineData(businessId: string) {
           .order("sort_order"),
         supabase
           .from("business_documents")
-          .select("url, name, city, price, price_type, description, thumbnail_url")
+          .select("url, name, city, price, price_type, description, thumbnail_url, business_id")
           .eq("business_id", businessId)
           .eq("type", "video")
           .order("sort_order"),
@@ -299,7 +302,12 @@ export function useBookOnlineData(businessId: string) {
       setMenuSummaries((menuSumRes.data || []) as MenuSummary[]);
       setMenuDocsRaw((menuDocsRes.data || []) as MenuDoc[]);
 
-      const vDocs = (videoDocsRes.data || []) as VideoDoc[];
+      const vDocs = ((videoDocsRes.data || []) as any[]).map(d => ({
+        ...d,
+        owner_business_id: d.business_id || businessId,
+        owner_name: null as string | null,
+        owner_logo: null as string | null,
+      })) as VideoDoc[];
       setVideoDocs(vDocs.filter((d) => d.url));
 
       // Important: render panel as soon as core data is ready
@@ -461,12 +469,36 @@ export function useBookOnlineData(businessId: string) {
       const fetchLinkedVideos = async () => {
         const { data: linkedVids } = await supabase
           .from("business_documents")
-          .select("url, name, city, price, price_type, description, thumbnail_url")
+          .select("url, name, city, price, price_type, description, thumbnail_url, business_id")
           .eq("linked_business_id", businessId)
           .eq("type", "video")
           .order("sort_order");
         if (!isCancelled && linkedVids && linkedVids.length > 0) {
-          const linked = (linkedVids as VideoDoc[]).filter((d) => d.url);
+          // Fetch owner info for each unique business_id
+          const ownerIds = [...new Set((linkedVids as any[]).map(v => v.business_id).filter(Boolean))];
+          const ownerMap = new Map<string, { name: string; logo_url: string | null }>();
+          if (ownerIds.length > 0) {
+            const { data: owners } = await supabase
+              .from("businesses")
+              .select("id, name, logo_url")
+              .in("id", ownerIds);
+            if (owners) {
+              for (const o of owners) ownerMap.set(o.id, { name: o.name, logo_url: o.logo_url });
+            }
+          }
+          const linked = (linkedVids as any[])
+            .filter((d) => d.url)
+            .map(d => {
+              const owner = ownerMap.get(d.business_id);
+              return {
+                url: d.url, name: d.name, city: d.city, price: d.price,
+                price_type: d.price_type, description: d.description,
+                thumbnail_url: d.thumbnail_url,
+                owner_business_id: d.business_id,
+                owner_name: owner?.name || null,
+                owner_logo: owner?.logo_url || null,
+              } as VideoDoc;
+            });
           setVideoDocs((prev) => {
             const existingUrls = new Set(prev.map((v) => v.url));
             const newVids = linked.filter((v) => !existingUrls.has(v.url));
