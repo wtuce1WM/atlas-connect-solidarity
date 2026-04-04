@@ -131,6 +131,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [logoBigOverlay, setLogoBigOverlay] = useState<{ src: string; name: string; ownerId: string } | null>(null);
   const [logoBigFadingOut, setLogoBigFadingOut] = useState(false);
   const logoBigShownForRef = useRef<string | null>(null);
+  const logoBigTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const fallbackDataRef = useRef<FallbackPanelData | null>(null);
   useEffect(() => {
     if (fallbackPanelData) fallbackDataRef.current = fallbackPanelData;
