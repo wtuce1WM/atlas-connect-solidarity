@@ -139,7 +139,7 @@ interface VideoRowProps {
   onPlay: (video: YouTubeVideo) => void;
   onScroll: (dir: number) => void;
   isShort: boolean;
-  size?: "default" | "large";
+  size?: "default" | "large" | "match-tabs";
 }
 
 function VideoRow({ videos, scrollRef, activeVideoId, onPlay, onScroll, isShort, size = "default" }: VideoRowProps) {
