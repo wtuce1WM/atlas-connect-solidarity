@@ -2290,6 +2290,46 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           </div>
         </div>
       )}
+
+      {/* Fullscreen Logo Big overlay */}
+      {logoBigOverlay && (
+        <div
+          className={`fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md ${logoBigFadingOut ? 'animate-fullscreen-logo-out' : ''}`}
+          onClick={() => { setLogoBigOverlay(null); setLogoBigFadingOut(false); }}
+        >
+          {/* Silver halo ring */}
+          <div className="absolute rounded-full animate-silver-halo" style={{ width: 'min(85vw, 500px)', height: 'min(85vw, 500px)' }} />
+          {/* Logo */}
+          <button
+            onClick={(e) => { e.stopPropagation(); setLogoBigOverlay(null); setActiveBusinessId(logoBigOverlay.ownerId); }}
+            className="relative animate-logo-big-full-reveal [perspective:1000px] z-10"
+            style={{ width: 'min(70vw, 400px)', height: 'min(70vw, 400px)' }}
+          >
+            <img
+              src={logoBigOverlay.src}
+              alt={logoBigOverlay.name}
+              className="w-full h-full object-contain"
+            />
+            {/* Shine sweep */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: 'linear-gradient(105deg, transparent 25%, hsla(220,10%,90%,0.3) 40%, hsla(0,0%,100%,0.5) 50%, hsla(220,10%,90%,0.3) 60%, transparent 75%)',
+                  animation: 'logoBigFullShine 4s ease-in-out 1.5s infinite',
+                }}
+              />
+            </div>
+          </button>
+          {/* Owner name */}
+          <span
+            className="absolute bottom-[15%] text-white/80 text-sm tracking-widest"
+            style={{ fontFamily: "'Josefin Sans', sans-serif", animation: 'slideInUp 0.8s ease-out 0.6s both' }}
+          >
+            {logoBigOverlay.name}
+          </span>
+        </div>
+      )}
     </div>
   );
 };
