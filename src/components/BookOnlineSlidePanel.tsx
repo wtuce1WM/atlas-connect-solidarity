@@ -1369,9 +1369,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           </div>
         )}
 
-        {/* YouTube tab */}
-        {activeBottomTab === "youtube" && business?.youtube_url && business?.youtube_force_external && youtubeVideoCount !== 0 && (
-          <div className="pointer-events-auto -mr-4 md:-mr-6 mt-2">
+        {/* YouTube tab — always mounted to preload, hidden when not active */}
+        {business?.youtube_url && business?.youtube_force_external && (
+          <div className={`pointer-events-auto -mr-4 md:-mr-6 mt-2 ${activeBottomTab !== "youtube" ? "hidden" : ""}`}>
             <YouTubeShortsCarousel
               youtubeUrl={business.youtube_url}
               onVideoCount={setYoutubeVideoCount}
@@ -1522,16 +1522,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         )}
 
         {/* Hidden YouTube count probe — always mounted */}
-        {business?.youtube_url && business?.youtube_force_external && youtubeVideoCount === null && (
-          <div className="hidden">
-            <YouTubeShortsCarousel
-              youtubeUrl={business.youtube_url}
-              onVideoCount={setYoutubeVideoCount}
-              shortsOnly
-              hideLabel
-            />
-          </div>
-        )}
 
         {/* Spacer + availability zone when cards hidden */}
         {cardsHidden && (
