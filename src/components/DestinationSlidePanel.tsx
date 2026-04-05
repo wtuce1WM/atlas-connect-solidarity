@@ -741,6 +741,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                         <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
                         {cityVideos.map((cv, index) => {
                           const info = getVideoInfo(cv.url);
+                          const cardLabel = cv.name || cv.ownerName || `${language === "en" ? "Video" : "Vidéo"} ${index + 1}`;
                           return (
                             <div
                               key={index}
@@ -748,37 +749,24 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                               style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: "forwards" } : undefined}
                               onClick={() => setFullscreenVideo(cv.url)}
                             >
-                              {cv.thumbnailUrl ? (
-                                <div className="relative w-full h-[7rem] md:h-[10rem] lg:h-[15rem]">
-                                  <img src={cv.thumbnailUrl} alt={cv.name || ""} className="w-full h-full object-cover" />
-                                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                                    <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
-                                      <span className="text-white text-lg">▶</span>
-                                    </div>
+                              <div className="relative">
+                                {cv.thumbnailUrl ? (
+                                  <img src={cv.thumbnailUrl} alt={cardLabel} loading="lazy" decoding="async" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                                ) : info.thumbnail ? (
+                                  <img src={info.thumbnail} alt={cardLabel} loading="lazy" decoding="async" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                                ) : info.type === "file" ? (
+                                  <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
+                                    <span className="text-2xl">▶</span>
                                   </div>
-                                </div>
-                              ) : info.type === "file" ? (
-                                <video src={cv.url} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" muted playsInline preload="metadata" />
-                              ) : info.thumbnail ? (
-                                <div className="relative w-full h-[7rem] md:h-[10rem] lg:h-[15rem]">
-                                  <img src={info.thumbnail} alt="" className="w-full h-full object-cover" />
-                                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                                    <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
-                                      <span className="text-white text-lg">▶</span>
-                                    </div>
+                                ) : (
+                                  <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
+                                    <span className="text-2xl">▶</span>
                                   </div>
-                                </div>
-                              ) : (
-                                <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
-                                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                                    <span className="text-white text-lg">▶</span>
-                                  </div>
-                                </div>
-                              )}
-                              <div className="px-1.5 py-1.5">
-                                <p className="text-xs font-medium text-white truncate">{cv.name || cv.ownerName}</p>
-                                {cv.name && <p className="text-[10px] text-white/60 truncate">{cv.ownerName}</p>}
+                                )}
                               </div>
+                              <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
+                                {cardLabel}
+                              </p>
                             </div>
                           );
                         })}
@@ -790,35 +778,44 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                   {/* YouTube tab */}
                   {currentTab === "youtube" && hasYoutubeTab && (
                     <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
-                      <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                        <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
+                      <div className="flex w-max gap-3 overflow-x-auto scrollbar-hide scroll-smooth pt-1 pb-1 pl-1 -mt-1">
                         {videos.map((videoUrl, index) => {
                           const info = getVideoInfo(videoUrl);
+                          const cardLabel = info.type === "youtube"
+                            ? `YouTube ${index + 1}`
+                            : info.type === "vimeo"
+                              ? `Vimeo ${index + 1}`
+                              : `${language === "en" ? "Video" : "Vidéo"} ${index + 1}`;
                           return (
                             <div
                               key={index}
-                              className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                              className={`flex-shrink-0 rounded-xl overflow-hidden relative cursor-pointer group/card transition-all w-44 h-[8.5rem] md:h-[11.5rem] lg:h-[16.5rem] ${slideInClass}`}
                               style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: "forwards" } : undefined}
                               onClick={() => setFullscreenVideo(videoUrl)}
                             >
                               {info.thumbnail ? (
-                                <div className="relative w-full h-[7rem] md:h-[10rem] lg:h-[15rem]">
-                                  <img src={info.thumbnail} alt="" className="w-full h-full object-cover" />
-                                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                                    <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
-                                      <span className="text-white text-lg">▶</span>
-                                    </div>
-                                  </div>
-                                </div>
+                                <img
+                                  src={info.thumbnail}
+                                  alt={cardLabel}
+                                  loading="lazy"
+                                  decoding="async"
+                                  className="absolute inset-0 w-full h-full object-cover scale-[1.35]"
+                                />
                               ) : info.type === "file" ? (
-                                <video src={videoUrl} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" muted playsInline preload="metadata" />
+                                <video src={videoUrl} className="absolute inset-0 w-full h-full object-cover" muted playsInline preload="metadata" />
                               ) : (
-                                <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
-                                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                                    <span className="text-white text-lg">▶</span>
-                                  </div>
+                                <div className="absolute inset-0 w-full h-full bg-white/10 flex items-center justify-center">
+                                  <span className="text-2xl">▶</span>
                                 </div>
                               )}
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover/card:bg-black/40 transition-colors">
+                                <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
+                                  <Play className="h-5 w-5 text-white fill-white ml-0.5" />
+                                </div>
+                              </div>
+                              <p className="absolute bottom-0 left-0 right-0 px-2 py-1 text-[10px] leading-tight text-white font-medium bg-gradient-to-t from-black/80 to-transparent line-clamp-2">
+                                {cardLabel}
+                              </p>
                             </div>
                           );
                         })}
@@ -834,7 +831,6 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                         <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
                         {exclusiveBusinesses.map((biz, index) => {
                           const bizImg = biz.images && biz.images.length > 0 ? biz.images[0] : null;
-                          const avg = biz.computed_rating ?? biz.rating;
                           return (
                             <a
                               key={biz.id}
@@ -851,15 +847,9 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                                   <MapPin className="h-5 w-5 text-white/40" />
                                 </div>
                               )}
-                              <div className="px-1.5 py-1.5">
-                                <p className="text-xs font-medium text-white truncate">{biz.name}</p>
-                                {avg != null && (
-                                  <div className="flex items-center gap-1 mt-0.5">
-                                    <Star className="h-3 w-3 text-gold fill-gold" />
-                                    <span className="text-[10px] text-white/80">{avg}/20</span>
-                                  </div>
-                                )}
-                              </div>
+                              <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
+                                {biz.name}
+                              </p>
                             </a>
                           );
                         })}
