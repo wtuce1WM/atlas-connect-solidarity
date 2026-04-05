@@ -188,7 +188,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
     fetchExclusiveBusinesses();
   }, [destinationId]);
 
-
+  const playWoosh = useCallback(() => {
     try { new Audio(wooshSfx).play(); } catch {}
   }, []);
 
