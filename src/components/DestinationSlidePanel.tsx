@@ -83,6 +83,11 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoPaused, setVideoPaused] = useState(true);
   const [videoMuted, setVideoMuted] = useState(true);
+  const {
+    cardsHidden, dragOffsetY, isDragging,
+    showCards, hideCards,
+    onTouchStart: onDragTouchStart, onTouchMove: onDragTouchMove, onTouchEnd: onDragTouchEnd, onMouseDownDrag,
+  } = useDragToHide();
 
   useEffect(() => {
     if (!showDirections) return;
