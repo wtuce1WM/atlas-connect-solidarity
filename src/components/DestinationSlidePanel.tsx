@@ -211,6 +211,18 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
 
   const matterportUrl = destination?.matterport_url || null;
 
+  const getVideoInfo = (url: string) => {
+    const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
+    if (ytMatch) {
+      return { type: "youtube" as const, id: ytMatch[1], thumbnail: `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` };
+    }
+    const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+    if (vimeoMatch) {
+      return { type: "vimeo" as const, id: vimeoMatch[1], thumbnail: `https://vumbnail.com/${vimeoMatch[1]}.jpg` };
+    }
+    return { type: "file" as const, id: null, thumbnail: null };
+  };
+
   type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string } | { kind: "matterport"; url: string };
   const fileVideos = videos.filter((v) => {
     const info = getVideoInfo(v);
