@@ -495,7 +495,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                     <ChevronLeft className="h-4 w-4" />
                   </button>
                   <h3 className="text-sm font-semibold truncate">
-                    {language === "en" ? "Region" : "Région"}
+                    {destination?.region && destination.region.length > 0 ? destination.region.join(" · ") : (language === "en" ? "Region" : "Région")}
                   </h3>
                 </div>
                 {/* Map */}
