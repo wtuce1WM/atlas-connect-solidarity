@@ -100,6 +100,23 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
       interceptCloseRef.current = null;
     }
   }, [activeBusinessId, interceptCloseRef]);
+
+  // --- Cosmetic URL rewriting (replaceState) ---
+  const savedDestUrlRef = useRef(window.location.pathname + window.location.search);
+
+  useEffect(() => {
+    if (!destination?.name_fr) return;
+    if (!activeBusinessId) {
+      window.history.replaceState(null, "", `/destination/${encodeURIComponent(destination.name_fr)}`);
+    }
+  }, [destination?.name_fr, activeBusinessId]);
+
+  // Restore URL on unmount
+  useEffect(() => {
+    const saved = savedDestUrlRef.current;
+    return () => { window.history.replaceState(null, "", saved); };
+  }, []);
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoPaused, setVideoPaused] = useState(true);
   const [videoMuted, setVideoMuted] = useState(true);
