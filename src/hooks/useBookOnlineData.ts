@@ -138,6 +138,7 @@ export interface VideoDoc {
   owner_business_id: string | null;
   owner_name: string | null;
   owner_logo: string | null;
+  owner_instagram: string | null;
 }
 
 // In-memory cache to avoid re-fetching data for previously viewed businesses
@@ -307,6 +308,7 @@ export function useBookOnlineData(businessId: string) {
         owner_business_id: d.business_id || businessId,
         owner_name: null as string | null,
         owner_logo: null as string | null,
+        owner_instagram: null as string | null,
       })) as VideoDoc[];
       setVideoDocs(vDocs.filter((d) => d.url));
 
@@ -476,14 +478,14 @@ export function useBookOnlineData(businessId: string) {
         if (!isCancelled && linkedVids && linkedVids.length > 0) {
           // Fetch owner info for each unique business_id
           const ownerIds = [...new Set((linkedVids as any[]).map(v => v.business_id).filter(Boolean))];
-          const ownerMap = new Map<string, { name: string; logo_url: string | null }>();
+          const ownerMap = new Map<string, { name: string; logo_url: string | null; instagram_url: string | null }>();
           if (ownerIds.length > 0) {
             const { data: owners } = await supabase
               .from("businesses")
-              .select("id, name, logo_url")
+              .select("id, name, logo_url, instagram_url")
               .in("id", ownerIds);
             if (owners) {
-              for (const o of owners) ownerMap.set(o.id, { name: o.name, logo_url: o.logo_url });
+              for (const o of owners) ownerMap.set(o.id, { name: o.name, logo_url: o.logo_url, instagram_url: (o as any).instagram_url });
             }
           }
           const linked = (linkedVids as any[])
@@ -497,6 +499,7 @@ export function useBookOnlineData(businessId: string) {
                 owner_business_id: d.business_id,
                 owner_name: owner?.name || null,
                 owner_logo: owner?.logo_url || null,
+                owner_instagram: owner?.instagram_url || null,
               } as VideoDoc;
             });
           setVideoDocs((prev) => {

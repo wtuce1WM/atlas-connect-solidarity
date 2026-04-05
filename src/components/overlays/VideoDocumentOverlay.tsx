@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from "react";
-import { X, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Play, Pause, Volume2, VolumeX, ExternalLink } from "lucide-react";
+import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import type { VideoDoc } from "@/hooks/useBookOnlineData";
 
@@ -241,35 +242,68 @@ const VideoDocumentOverlay = ({
       </div>
 
       {/* Description card */}
-      {(activeVideo.description || activeVideo.name) && (
-        <div className="absolute left-3 right-3 md:left-[15%] md:right-[15%] top-20 md:top-14 bottom-5 md:bottom-auto z-10 pointer-events-auto overflow-hidden flex flex-col">
-          <div className="rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-full md:max-h-none overflow-y-auto md:overflow-y-visible">
-            <div className="flex items-center gap-3">
-              <div className="min-w-0 flex-1">
-                <h2 className="text-base font-bold drop-shadow-lg uppercase line-clamp-3 md:line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em' }}>
-                  {activeVideo.name || "Détails"}
-                </h2>
+      {(() => {
+        const currentVideoDoc = videoDocs.find(d => d.url === vidUrl);
+        const isExternalOwner = currentVideoDoc?.owner_business_id && currentVideoDoc.owner_business_id !== businessId;
+        const hasContent = activeVideo.description || activeVideo.name;
+        const showOwnerFallback = !activeVideo.name && isExternalOwner && currentVideoDoc?.owner_name;
+
+        if (!hasContent && !showOwnerFallback) return null;
+
+        return (
+          <div className="absolute left-3 right-3 md:left-[15%] md:right-[15%] top-20 md:top-14 bottom-5 md:bottom-auto z-10 pointer-events-auto overflow-hidden flex flex-col">
+            <div className="rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-full md:max-h-none overflow-y-auto md:overflow-y-visible">
+              <div className="flex items-center gap-3">
+                <div className="min-w-0 flex-1">
+                  {activeVideo.name ? (
+                    <h2 className="text-base font-bold drop-shadow-lg uppercase line-clamp-3 md:line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em' }}>
+                      {activeVideo.name}
+                    </h2>
+                  ) : showOwnerFallback ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-base font-bold drop-shadow-lg uppercase" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em' }}>
+                        {currentVideoDoc!.owner_name} <span className="text-lg">©</span>
+                      </span>
+                      {currentVideoDoc!.owner_instagram && (
+                        <a
+                          href={currentVideoDoc!.owner_instagram}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 ml-2 text-white/80 hover:text-white transition-colors"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <InstagramIcon className="h-4 w-4 text-white/80" />
+                          <ExternalLink className="h-3 w-3 text-white/60" />
+                        </a>
+                      )}
+                    </div>
+                  ) : (
+                    <h2 className="text-base font-bold drop-shadow-lg uppercase line-clamp-3 md:line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em' }}>
+                      Détails
+                    </h2>
+                  )}
+                </div>
+                {activeVideo.description && (
+                  <button
+                    onClick={() => setDescExpanded(p => !p)}
+                    className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors shrink-0"
+                    aria-label={descExpanded ? "Replier" : "Déplier"}
+                  >
+                    {descExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+                  </button>
+                )}
               </div>
-              {activeVideo.description && (
-                <button
-                  onClick={() => setDescExpanded(p => !p)}
-                  className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors shrink-0"
-                  aria-label={descExpanded ? "Replier" : "Déplier"}
-                >
-                  {descExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-                </button>
+              {activeVideo.description && descExpanded && (
+                <div
+                  className="mt-3 text-sm leading-relaxed pr-1 prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
+                  style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: '0.02em' }}
+                  dangerouslySetInnerHTML={{ __html: activeVideo.description }}
+                />
               )}
             </div>
-            {activeVideo.description && descExpanded && (
-              <div
-                className="mt-3 text-sm leading-relaxed pr-1 prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
-                style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: '0.02em' }}
-                dangerouslySetInnerHTML={{ __html: activeVideo.description }}
-              />
-            )}
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
     </div>
   );
