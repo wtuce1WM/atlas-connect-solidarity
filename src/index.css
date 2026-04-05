@@ -431,13 +431,14 @@ html.hide-scrollbar-panel-open::-webkit-scrollbar {
   100% { opacity: 0; pointer-events: none; }
 }
 
-.animate-logo-big-full-reveal {
-  animation: logoBigFullReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards,
-             logoBigFullFloat 3.5s ease-in-out 1.4s infinite;
+@keyframes logoZoomOut {
+  0% { transform: scale(2.5); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
-.animate-silver-halo {
-  animation: silverHaloPulse 3s ease-in-out infinite;
+.animate-logo-big-full-reveal {
+  animation: logoZoomOut 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-fullscreen-logo-out {
