@@ -849,25 +849,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const matterportItem = useMemo(() => mediaItems.find(m => m.kind === "matterport") || null, [mediaItems]);
   const effectiveMedia = (cardsHidden && matterportItem) ? matterportItem : currentMedia;
 
-  // Fullscreen logo big overlay — show once per owner when entering Afficher mode on their video
-  useEffect(() => {
-     if (!cardsHidden) { logoBigShownForRef.current.clear(); setLogoBigOverlay(null); setLogoBigFadingOut(false); logoBigTimersRef.current.forEach(clearTimeout); logoBigTimersRef.current = []; return; }
-     const cm = mediaItems[currentMediaIndex];
-     if (cm?.kind !== 'video') return;
-     const doc = videoDocs.find(d => d.url === cm.url);
-     if (!doc?.owner_business_id || doc.owner_business_id === businessId) return;
-      if (!doc.owner_logo) return;
-      const key = doc.owner_business_id + ':' + cm.url;
-      if (logoBigShownForRef.current.has(key)) return;
-      logoBigShownForRef.current.add(key);
-     setLogoBigFadingOut(false);
-     setLogoBigOverlay({ src: doc.owner_logo, name: doc.owner_name || '', ownerId: doc.owner_business_id });
-    logoBigTimersRef.current.forEach(clearTimeout);
-    const fadeTimer = setTimeout(() => setLogoBigFadingOut(true), 4400);
-    const hideTimer = setTimeout(() => { setLogoBigOverlay(null); setLogoBigFadingOut(false); logoBigTimersRef.current = []; }, 5000);
-    logoBigTimersRef.current = [fadeTimer, hideTimer];
-    return () => { logoBigTimersRef.current.forEach(clearTimeout); logoBigTimersRef.current = []; };
-  }, [cardsHidden, currentMediaIndex, mediaItems, videoDocs, businessId]);
+  // Owner logo overlay hook
+  const { logoBigOverlay, logoBigFadingOut } = useOwnerLogo(cardsHidden, currentMediaIndex, mediaItems, videoDocs, businessId);
 
   const goMedia = useCallback((dir: 1 | -1) => {
     if (totalMedia <= 1) return;
