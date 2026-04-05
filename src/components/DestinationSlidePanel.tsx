@@ -641,11 +641,13 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
 
           {/* Bottom tabs — same layout as BookOnlineSlidePanel */}
           {(() => {
-            const hasVideosTab = videos.length > 0;
+            const hasCityVideosTab = cityVideos.length > 0;
+            const hasYoutubeTab = videos.length > 0;
             const hasBizTab = exclusiveBusinesses.length > 0;
             type DestTab = { id: string; label: string };
             const tabs: DestTab[] = [];
-            if (hasVideosTab) tabs.push({ id: "videos", label: "YouTube" });
+            if (hasCityVideosTab) tabs.push({ id: "cityVideos", label: language === "en" ? "Videos" : "Vidéos" });
+            if (hasYoutubeTab) tabs.push({ id: "youtube", label: "YouTube" });
             if (hasBizTab) tabs.push({ id: "businesses", label: language === "en" ? "Establishments" : "Établissements" });
             if (tabs.length === 0 || flipped) return null;
             const currentTab = tabs.find(t => t.id === activeBottomTab) ? activeBottomTab : tabs[0]?.id;
@@ -664,7 +666,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                         className={`px-3 py-1.5 rounded-full transition-colors border border-transparent whitespace-nowrap ${
                           currentTab === tab.id
                             ? "bg-black text-white"
-                            : tab.id === "videos"
+                            : tab.id === "youtube"
                               ? "bg-[#FF0000] text-white hover:bg-[#CC0000]"
                               : "bg-white/70 text-black hover:bg-white/80"
                         }`}
@@ -679,8 +681,61 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
 
                 {/* Tab content */}
                 <div className="shrink-0 h-[9.5rem] md:h-[12.5rem] lg:h-[17.5rem]">
-                  {/* Videos tab */}
-                  {currentTab === "videos" && hasVideosTab && (
+                  {/* City Videos tab */}
+                  {currentTab === "cityVideos" && hasCityVideosTab && (
+                    <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
+                      <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                        <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
+                        {cityVideos.map((cv, index) => {
+                          const info = getVideoInfo(cv.url);
+                          return (
+                            <div
+                              key={index}
+                              className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                              style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: "forwards" } : undefined}
+                              onClick={() => setFullscreenVideo(cv.url)}
+                            >
+                              {cv.thumbnailUrl ? (
+                                <div className="relative w-full h-[7rem] md:h-[10rem] lg:h-[15rem]">
+                                  <img src={cv.thumbnailUrl} alt={cv.name || ""} className="w-full h-full object-cover" />
+                                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                                    <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
+                                      <span className="text-white text-lg">▶</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : info.type === "file" ? (
+                                <video src={cv.url} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" muted playsInline preload="metadata" />
+                              ) : info.thumbnail ? (
+                                <div className="relative w-full h-[7rem] md:h-[10rem] lg:h-[15rem]">
+                                  <img src={info.thumbnail} alt="" className="w-full h-full object-cover" />
+                                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                                    <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
+                                      <span className="text-white text-lg">▶</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
+                                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                                    <span className="text-white text-lg">▶</span>
+                                  </div>
+                                </div>
+                              )}
+                              <div className="px-1.5 py-1.5">
+                                <p className="text-xs font-medium text-white truncate">{cv.name || cv.ownerName}</p>
+                                {cv.name && <p className="text-[10px] text-white/60 truncate">{cv.ownerName}</p>}
+                              </div>
+                            </div>
+                          );
+                        })}
+                        <div className="shrink-0 w-6" aria-hidden="true" />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* YouTube tab */}
+                  {currentTab === "youtube" && hasYoutubeTab && (
                     <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
                       <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
                         <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
