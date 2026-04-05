@@ -264,7 +264,7 @@ const VideoDocumentOverlay = ({
                       <span className="text-base font-bold drop-shadow-lg uppercase" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em' }}>
                         {currentVideoDoc!.owner_name} <span className="text-lg">©</span>
                       </span>
-                      {currentVideoDoc!.owner_instagram && (
+                        {currentVideoDoc!.owner_instagram && (
                         <a
                           href={currentVideoDoc!.owner_instagram}
                           target="_blank"
@@ -273,7 +273,6 @@ const VideoDocumentOverlay = ({
                           onClick={(e) => e.stopPropagation()}
                         >
                           <InstagramIcon className="h-4 w-4 text-white/80" />
-                          <ExternalLink className="h-3 w-3 text-white/60" />
                         </a>
                       )}
                     </div>
