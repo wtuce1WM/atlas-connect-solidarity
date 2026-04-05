@@ -829,7 +829,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
               )}
             </div>
           )}
-          </>}
+          
         </div>
       </div>
     </div>
