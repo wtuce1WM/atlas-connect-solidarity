@@ -300,6 +300,50 @@ const LocationManagement = () => {
 
   const { toast } = useToast();
 
+  const downloadBusinessImages = async (label: string, filterFn: () => Promise<string[]>) => {
+    toast({ title: "Chargement des images…" });
+    try {
+      const urls = await filterFn();
+      if (urls.length === 0) {
+        toast({ variant: "destructive", title: "Aucune image", description: "Aucune image trouvée." });
+        return;
+      }
+      const blob = new Blob([urls.join("\n")], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `images-${label.replace(/[^a-zA-Z0-9]/g, "-")}.txt`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      toast({ title: `${urls.length} image(s) exportées` });
+    } catch {
+      toast({ variant: "destructive", title: "Erreur lors de l'export" });
+    }
+  };
+
+  const fetchCityImages = (cityName: string) => downloadBusinessImages(cityName, async () => {
+    const { data } = await supabase.from("businesses").select("images").eq("city", cityName).eq("is_active", true);
+    return (data || []).flatMap((b: any) => b.images || []).filter(Boolean);
+  });
+
+  const fetchNeighborhoodImages = (neighborhoodName: string, cityName: string) => downloadBusinessImages(`${neighborhoodName}-${cityName}`, async () => {
+    const { data } = await supabase.from("businesses").select("images").eq("neighborhood", neighborhoodName).eq("city", cityName).eq("is_active", true);
+    return (data || []).flatMap((b: any) => b.images || []).filter(Boolean);
+  });
+
+  const fetchDestinationImages = (destId: string, destName: string) => downloadBusinessImages(destName, async () => {
+    const { data } = await supabase.from("business_destinations" as any).select("business_id, businesses!inner(images)").eq("destination_id", destId) as any;
+    return (data || []).flatMap((r: any) => r.businesses?.images || []).filter(Boolean);
+  });
+
+  const fetchPoiImages = (poiId: string, poiName: string) => downloadBusinessImages(poiName, async () => {
+    const { data } = await supabase.from("business_points_of_interest" as any).select("business_id, businesses:business_id(images)").eq("point_of_interest_id", poiId) as any;
+    return (data || []).flatMap((r: any) => {
+      const biz = r.businesses;
+      if (Array.isArray(biz)) return biz.flatMap((b: any) => b.images || []);
+      return biz?.images || [];
+    }).filter(Boolean);
+  });
+
   const destVideoSensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
