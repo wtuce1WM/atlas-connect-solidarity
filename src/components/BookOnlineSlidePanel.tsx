@@ -1831,7 +1831,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           if (!currentVideoDoc?.owner_business_id || currentVideoDoc.owner_business_id === businessId) return null;
           if (!currentVideoDoc.owner_name) return null;
           return (
-            <div className="shrink-0 flex justify-center pointer-events-auto pb-3">
+            <div className="shrink-0 flex justify-center pointer-events-auto pb-10">
               <button
                 onClick={() => setActiveBusinessId(currentVideoDoc.owner_business_id!)}
                 className="flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 hover:bg-black/85 transition-colors"
