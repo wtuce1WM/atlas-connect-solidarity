@@ -80,7 +80,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const [flipped, setFlipped] = useState(false);
   const [regionDestinations, setRegionDestinations] = useState<PoiMapItem[]>([]);
   const [exclusiveBusinesses, setExclusiveBusinesses] = useState<{ id: string; name: string; slug: string; city: string | null; neighborhood: string | null; images: string[] | null; computed_rating: number | null; rating: number | null; }[]>([]);
-  const [cityVideos, setCityVideos] = useState<{ url: string; name: string | null; ownerName: string; thumbnailUrl: string | null; businessId: string }[]>([]);
+  const [cityVideos, setCityVideos] = useState<{ url: string; name: string | null; ownerName: string; thumbnailUrl: string | null; businessId: string; ownerLogo: string | null; ownerSlug: string | null }[]>([]);
   const [activeBottomTab, setActiveBottomTab] = useState<string>("cityVideos");
   const bottomTabInitialRef = React.useRef(true);
   const videoRef = useRef<HTMLVideoElement>(null);
