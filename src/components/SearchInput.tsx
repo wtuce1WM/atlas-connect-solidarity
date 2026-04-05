@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
@@ -9,7 +9,6 @@ import { useToast } from "@/hooks/use-toast";
 import SearchSuggestionsDropdown from "@/components/SearchSuggestionsDropdown";
 import TextSuggestionsDropdown from "@/components/TextSuggestionsDropdown";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Search, Mic, MicOff, Loader } from "lucide-react";
 
 export type SearchInputVariant = "hero" | "floating";
@@ -48,6 +47,63 @@ interface SearchInputProps {
   };
 }
 
+interface SearchInputSuggestionsProps {
+  inputValue: string;
+  suggestionMode: "business" | "text";
+  position: "top" | "bottom";
+  language: "fr" | "en" | "ar";
+  onTextSelect: (text: string) => void;
+}
+
+const SearchInputSuggestions = ({
+  inputValue,
+  suggestionMode,
+  position,
+  language,
+  onTextSelect,
+}: SearchInputSuggestionsProps) => {
+  const { suggestions: businessSuggestions } = useSearchSuggestions(
+    inputValue,
+    suggestionMode === "business",
+  );
+  const { suggestions: popularSuggestions } = usePopularSearches(
+    inputValue,
+    suggestionMode === "text",
+  );
+  const { history, deleteEntry, clearHistory } = useSearchHistory();
+
+  const recentForDropdown = (!inputValue || inputValue.trim().length < 2)
+    ? history.slice(0, 5).map((entry) => ({ id: entry.id, query: entry.query }))
+    : [];
+
+  const recentLabel = language === "fr" ? "Recherches récentes" : language === "ar" ? "عمليات البحث الأخيرة" : "Recent searches";
+  const clearLabel = language === "fr" ? "Effacer" : language === "ar" ? "مسح" : "Clear";
+
+  if (suggestionMode === "text") {
+    return (
+      <TextSuggestionsDropdown
+        suggestions={popularSuggestions.map((suggestion) => suggestion.query)}
+        visible={popularSuggestions.length > 0 || recentForDropdown.length > 0}
+        onSelect={onTextSelect}
+        position={position}
+        recentSearches={recentForDropdown}
+        onDeleteRecent={deleteEntry}
+        onClearRecent={clearHistory}
+        recentLabel={recentLabel}
+        clearLabel={clearLabel}
+      />
+    );
+  }
+
+  return (
+    <SearchSuggestionsDropdown
+      suggestions={businessSuggestions}
+      visible={businessSuggestions.length > 0}
+      position={position}
+    />
+  );
+};
+
 const SearchInput = ({
   variant = "floating",
   placeholder: customPlaceholder,
@@ -82,10 +138,10 @@ const SearchInput = ({
       if (onVoiceTranscript) {
         onVoiceTranscript(keywords, spoken, detectedCategory, timeKeyword);
       } else {
-      const params = new URLSearchParams({ q: keywords, spoken });
-      if (detectedCategory) params.set("category", detectedCategory);
-      if (timeKeyword) params.set("timeKeyword", timeKeyword);
-      go(`/search?${params.toString()}`);
+        const params = new URLSearchParams({ q: keywords, spoken });
+        if (detectedCategory) params.set("category", detectedCategory);
+        if (timeKeyword) params.set("timeKeyword", timeKeyword);
+        go(`/search?${params.toString()}`);
       }
     },
     onError: (message) => {
@@ -95,27 +151,6 @@ const SearchInput = ({
 
   const voiceStatus = voiceControl?.status ?? internalVoice.status;
   const toggleRecording = voiceControl?.toggleRecording ?? internalVoice.toggleRecording;
-
-  // Autocomplete suggestions — business mode
-  const { suggestions: businessSuggestions } = useSearchSuggestions(
-    inputValue,
-    showSuggestions && isFocused && suggestionMode === "business"
-  );
-  // Autocomplete suggestions — text mode (popular searches)
-  const { suggestions: popularSuggestions } = usePopularSearches(
-    inputValue,
-    showSuggestions && isFocused && suggestionMode === "text"
-  );
-
-  // Recent search history (shown when input is empty)
-  const { history, deleteEntry, clearHistory } = useSearchHistory();
-  const recentForDropdown = (showSuggestions && isFocused && (!inputValue || inputValue.trim().length < 2))
-    ? history.slice(0, 5).map(e => ({ id: e.id, query: e.query }))
-    : [];
-
-  const recentLabel = language === "fr" ? "Recherches récentes" : language === "ar" ? "عمليات البحث الأخيرة" : "Recent searches";
-  const clearLabel = language === "fr" ? "Effacer" : language === "ar" ? "مسح" : "Clear";
-
   const shouldClear = clearOnSubmit ?? !isControlled;
 
   const handleSubmit = () => {
@@ -206,29 +241,18 @@ const SearchInput = ({
             onBlur={() => setIsFocused(false)}
             className={`w-full ${isHero ? "pl-5 pr-16 py-7 text-lg" : "pl-5 pr-16 py-6 text-base"} bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-xl shadow-lg`}
           />
-          {/* Mic inside input, right side */}
           <div className="absolute right-3 top-1/2 -translate-y-1/2 overflow-visible">
             {inlineMicButton}
           </div>
-          {suggestionMode === "text" ? (
-            <TextSuggestionsDropdown
-              suggestions={popularSuggestions.map(s => s.query)}
-              visible={isFocused && (popularSuggestions.length > 0 || recentForDropdown.length > 0)}
-              onSelect={(text) => setInputValue(text)}
+          {showSuggestions && isFocused ? (
+            <SearchInputSuggestions
+              inputValue={inputValue}
+              suggestionMode={suggestionMode}
               position={suggestionsPosition}
-              recentSearches={recentForDropdown}
-              onDeleteRecent={deleteEntry}
-              onClearRecent={clearHistory}
-              recentLabel={recentLabel}
-              clearLabel={clearLabel}
+              language={language}
+              onTextSelect={setInputValue}
             />
-          ) : (
-            <SearchSuggestionsDropdown
-              suggestions={businessSuggestions}
-              visible={isFocused && businessSuggestions.length > 0}
-              position={suggestionsPosition}
-            />
-          )}
+          ) : null}
         </div>
         {searchButton}
       </div>
@@ -247,27 +271,16 @@ const SearchInput = ({
             onBlur={() => setIsFocused(false)}
             className={`w-full ${isHero ? "pl-4 pr-4 py-6 text-base" : "pl-4 pr-4 py-5 text-sm"} bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-xl shadow-lg`}
           />
-          {suggestionMode === "text" ? (
-            <TextSuggestionsDropdown
-              suggestions={popularSuggestions.map(s => s.query)}
-              visible={isFocused && (popularSuggestions.length > 0 || recentForDropdown.length > 0)}
-              onSelect={(text) => setInputValue(text)}
+          {showSuggestions && isFocused ? (
+            <SearchInputSuggestions
+              inputValue={inputValue}
+              suggestionMode={suggestionMode}
               position={suggestionsPosition}
-              recentSearches={recentForDropdown}
-              onDeleteRecent={deleteEntry}
-              onClearRecent={clearHistory}
-              recentLabel={recentLabel}
-              clearLabel={clearLabel}
+              language={language}
+              onTextSelect={setInputValue}
             />
-          ) : (
-            <SearchSuggestionsDropdown
-              suggestions={businessSuggestions}
-              visible={isFocused && businessSuggestions.length > 0}
-              position={suggestionsPosition}
-            />
-          )}
+          ) : null}
         </div>
-        {/* Mic + Search buttons below input */}
         <div className="flex items-center justify-center gap-6">
           {inlineMicButton}
           <button
