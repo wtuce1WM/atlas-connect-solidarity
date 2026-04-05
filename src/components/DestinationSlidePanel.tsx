@@ -502,7 +502,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                   <div className="min-w-0 flex-1">
                     <h2 className="text-xl font-bold truncate drop-shadow-lg">{destName}</h2>
                     {destination.hook && (
-                      <p className="text-sm text-white/70 mt-1 line-clamp-2">{destination.hook}</p>
+                      <p className="text-sm text-white mt-1 line-clamp-2">{destination.hook}</p>
                     )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
