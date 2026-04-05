@@ -99,6 +99,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [selectedKpBusinessId, setSelectedKpBusinessId] = useState<string | null>(null);
   const [showPoiMapOverlay, setShowPoiMapOverlay] = useState(false);
   const poiOpenedFromMapRef = useRef(false);
+  const [nearbyFallback, setNearbyFallback] = useState<PoiMapItem[]>([]);
   const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ url: string; name: string | null; description: string | null } | null>(null);
   const [videoOverlayClosing, setVideoOverlayClosing] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
