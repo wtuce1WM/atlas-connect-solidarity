@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBrokenLinks } from "@/hooks/useBrokenLinks";
@@ -221,7 +221,7 @@ export function useBookOnlineData(businessId: string) {
       setLiteApiHotelId(cached.liteApiHotelId);
       setSerpApiMapping(cached.serpApiMapping);
       setIsLoading(false);
-      return;
+      // Don't return — continue to re-fetch fresh data in background
     }
 
     const fetchData = async () => {
@@ -549,13 +549,10 @@ export function useBookOnlineData(businessId: string) {
   }, [businessId]);
 
   // Persist to cache once all data is loaded (including secondary fetches)
-  const cacheWrittenRef = useRef<string | null>(null);
   useEffect(() => {
-    if (isLoading || !business || cacheWrittenRef.current === businessId) return;
+    if (isLoading || !business) return;
     // Debounce slightly to ensure secondary fetches have settled
     const timer = setTimeout(() => {
-      if (cacheWrittenRef.current === businessId) return;
-      cacheWrittenRef.current = businessId;
       setCacheEntry(businessId, {
         business, woDescription, destinations, poiBusinesses,
         reviewTexts, externalLinks, menuSummaries, menuDocsRaw,
