@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { businessUrl } from "@/lib/businessUrl";
-import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation, Minimize2, Map as MapIcon, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { MapPin, ChevronLeft, ChevronDown, ChevronUp, X, Navigation, Minimize2, Map as MapIcon, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton } from "@/components/CardsVisibilityToggle";
 import BottomTabsCarousel, { TabScrollRail, TabVideoCard, TabYouTubeCard, TabCard, type BottomTabConfig } from "@/components/BottomTabsCarousel";
 import { useDragToHide } from "@/hooks/useDragToHide";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
@@ -534,20 +535,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
         </div>
 
         {/* Left / Right arrows — desktop */}
-        {totalMedia > 1 && (
-          <>
-            {cardsHidden && (
-              <button onClick={() => goMedia(-1)} className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-            )}
-            {cardsHidden && (
-              <button onClick={() => goMedia(1)} className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
-                <ChevronRight className="h-5 w-5" />
-              </button>
-            )}
-          </>
-        )}
+        <DesktopMediaArrows totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} />
 
         {/* Overlaid content */}
         <div
@@ -558,52 +546,10 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
           onTouchEnd={onDragTouchEnd}
         >
           {/* Media counter + arrows on mobile */}
-          {totalMedia > 1 && (
-            <div className="flex items-center justify-center gap-3 pb-2">
-              {cardsHidden && (
-                <button onClick={() => goMedia(-1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-              )}
-              <span className="text-white/80 text-xs font-medium bg-black/30 rounded-full px-3 py-1">
-                {safeIndex + 1} / {totalMedia}
-              </span>
-              {cardsHidden && (
-                <button onClick={() => goMedia(1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-          )}
+          <MediaCounterBar currentIndex={safeIndex} totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} />
 
           {/* Afficher / Masquer toggle */}
-          <div className="shrink-0 flex items-center justify-center pb-2 pointer-events-auto">
-            {cardsHidden ? (
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm hover:bg-background transition-colors"
-                  onClick={(e) => { e.stopPropagation(); showCards(); }}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onTouchStart={(e) => e.stopPropagation()}
-                >
-                  <ChevronUp className="h-3.5 w-3.5" />
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Afficher</span>
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:bg-background transition-colors"
-                onClick={(e) => { e.stopPropagation(); hideCards(); }}
-                onMouseDown={(e) => { e.stopPropagation(); onMouseDownDrag(e); }}
-                onTouchStart={(e) => e.stopPropagation()}
-              >
-                <ChevronDown className="h-3.5 w-3.5" />
-                <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Masquer</span>
-              </button>
-            )}
-          </div>
+          <CardsToggleButton cardsHidden={cardsHidden} showCards={showCards} hideCards={hideCards} onMouseDownDrag={onMouseDownDrag} />
 
           {/* Flip card container — hidden when cards are hidden */}
           {!cardsHidden && (

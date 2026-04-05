@@ -1,0 +1,254 @@
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
+
+/* ------------------------------------------------------------------ */
+/*  MediaCounterBar – media index counter with optional nav chevrons  */
+/* ------------------------------------------------------------------ */
+
+interface MediaCounterBarProps {
+  currentIndex: number;
+  totalMedia: number;
+  cardsHidden: boolean;
+  onPrev: () => void;
+  onNext: () => void;
+  /** Optional content rendered between the chevrons (e.g. a toggle button). When provided, replaces the default counter pill. */
+  children?: React.ReactNode;
+}
+
+export const MediaCounterBar = ({ currentIndex, totalMedia, cardsHidden, onPrev, onNext, children }: MediaCounterBarProps) => {
+  if (totalMedia <= 1 && !children) return null;
+  return (
+    <div className="flex items-center justify-center gap-3 pb-2">
+      {cardsHidden && totalMedia > 1 && (
+        <button onClick={onPrev} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+      )}
+      {children || (
+        <span className="text-white/80 text-xs font-medium bg-black/30 rounded-full px-3 py-1">
+          {currentIndex + 1} / {totalMedia}
+        </span>
+      )}
+      {cardsHidden && totalMedia > 1 && (
+        <button onClick={onNext} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      )}
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/*  DesktopMediaArrows – left/right arrows on desktop (cardsHidden)   */
+/* ------------------------------------------------------------------ */
+
+interface DesktopMediaArrowsProps {
+  totalMedia: number;
+  cardsHidden: boolean;
+  onPrev: () => void;
+  onNext: () => void;
+}
+
+export const DesktopMediaArrows = ({ totalMedia, cardsHidden, onPrev, onNext }: DesktopMediaArrowsProps) => {
+  if (totalMedia <= 1 || !cardsHidden) return null;
+  return (
+    <>
+      <button onClick={onPrev} className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
+        <ChevronLeft className="h-5 w-5" />
+      </button>
+      <button onClick={onNext} className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
+        <ChevronRight className="h-5 w-5" />
+      </button>
+    </>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/*  CardsToggleButton – Afficher / Masquer toggle                     */
+/* ------------------------------------------------------------------ */
+
+interface CardsToggleButtonProps {
+  cardsHidden: boolean;
+  showCards: () => void;
+  hideCards: () => void;
+  onMouseDownDrag: (e: React.MouseEvent) => void;
+  /** Optional content rendered to the left in "Afficher" (show) mode — e.g. language flags */
+  leftSlot?: React.ReactNode;
+}
+
+export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDownDrag, leftSlot }: CardsToggleButtonProps) => {
+  return (
+    <div className="shrink-0 flex items-center justify-center pb-2 pointer-events-auto">
+      {cardsHidden ? (
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm hover:bg-background transition-colors"
+            title="Afficher les cartes"
+            aria-label="Afficher les cartes"
+            onClick={(e) => { e.stopPropagation(); showCards(); }}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
+            <ChevronUp className="h-3.5 w-3.5" />
+            <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Afficher</span>
+            <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
+          </button>
+        </div>
+      ) : (
+        <div className="relative w-full flex items-center justify-center">
+          {leftSlot}
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:bg-background transition-colors"
+            title="Masquer les cartes"
+            aria-label="Masquer les cartes"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                hideCards();
+              }
+            }}
+            onClick={(e) => { e.stopPropagation(); hideCards(); }}
+            onMouseDown={(e) => { e.stopPropagation(); onMouseDownDrag(e); }}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
+            <ChevronDown className="h-3.5 w-3.5" />
+            <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Masquer</span>
+            <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/*  useOwnerLogo – manages the cinematic logo overlay state           */
+/* ------------------------------------------------------------------ */
+
+interface VideoDocInfo {
+  url: string;
+  owner_business_id?: string | null;
+  owner_logo?: string | null;
+  owner_name?: string | null;
+}
+
+interface LogoBigState {
+  src: string;
+  name: string;
+  ownerId: string;
+}
+
+export function useOwnerLogo(
+  cardsHidden: boolean,
+  currentMediaIndex: number,
+  mediaItems: { kind: string; url: string }[],
+  videoDocs: VideoDocInfo[],
+  currentBusinessId: string,
+) {
+  const [logoBigOverlay, setLogoBigOverlay] = useState<LogoBigState | null>(null);
+  const [logoBigFadingOut, setLogoBigFadingOut] = useState(false);
+  const logoBigShownForRef = useRef<Set<string>>(new Set());
+  const logoBigTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  useEffect(() => {
+    if (!cardsHidden) {
+      logoBigShownForRef.current.clear();
+      setLogoBigOverlay(null);
+      setLogoBigFadingOut(false);
+      logoBigTimersRef.current.forEach(clearTimeout);
+      logoBigTimersRef.current = [];
+      return;
+    }
+    const cm = mediaItems[currentMediaIndex];
+    if (cm?.kind !== "video") return;
+    const doc = videoDocs.find((d) => d.url === cm.url);
+    if (!doc?.owner_business_id || doc.owner_business_id === currentBusinessId) return;
+    if (!doc.owner_logo) return;
+    const key = doc.owner_business_id + ":" + cm.url;
+    if (logoBigShownForRef.current.has(key)) return;
+    logoBigShownForRef.current.add(key);
+    setLogoBigFadingOut(false);
+    setLogoBigOverlay({ src: doc.owner_logo, name: doc.owner_name || "", ownerId: doc.owner_business_id });
+    logoBigTimersRef.current.forEach(clearTimeout);
+    const fadeTimer = setTimeout(() => setLogoBigFadingOut(true), 4400);
+    const hideTimer = setTimeout(() => {
+      setLogoBigOverlay(null);
+      setLogoBigFadingOut(false);
+      logoBigTimersRef.current = [];
+    }, 5000);
+    logoBigTimersRef.current = [fadeTimer, hideTimer];
+    return () => {
+      logoBigTimersRef.current.forEach(clearTimeout);
+      logoBigTimersRef.current = [];
+    };
+  }, [cardsHidden, currentMediaIndex, mediaItems, videoDocs, currentBusinessId]);
+
+  return { logoBigOverlay, logoBigFadingOut };
+}
+
+/* ------------------------------------------------------------------ */
+/*  OwnerLogoOverlay – the cinematic animated logo                    */
+/* ------------------------------------------------------------------ */
+
+interface OwnerLogoOverlayProps {
+  logoBigOverlay: LogoBigState | null;
+  logoBigFadingOut: boolean;
+  cardsHidden: boolean;
+  /** Current media must be a video from a different owner to show */
+  currentMediaUrl?: string;
+  videoDocs: VideoDocInfo[];
+  currentBusinessId: string;
+}
+
+export const OwnerLogoOverlay = ({ logoBigOverlay, logoBigFadingOut, cardsHidden, currentMediaUrl, videoDocs, currentBusinessId }: OwnerLogoOverlayProps) => {
+  if (!cardsHidden || !logoBigOverlay || logoBigFadingOut) return null;
+  const currentVideoDoc = videoDocs.find((d) => d.url === currentMediaUrl);
+  if (!currentVideoDoc?.owner_business_id || currentVideoDoc.owner_business_id === currentBusinessId) return null;
+  return (
+    <div className="shrink-0 flex justify-center pointer-events-none pb-4">
+      <div className="animate-logo-big-full-reveal" style={{ width: "120px" }}>
+        <img
+          src={logoBigOverlay.src}
+          alt={logoBigOverlay.name}
+          className="w-full h-auto object-contain"
+          style={{ filter: "drop-shadow(0 0 20px hsla(0,0%,0%,0.6))" }}
+        />
+      </div>
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/*  OwnerBadge – the © navigation badge above CTAs                    */
+/* ------------------------------------------------------------------ */
+
+interface OwnerBadgeProps {
+  cardsHidden: boolean;
+  currentMediaKind?: string;
+  currentMediaUrl?: string;
+  videoDocs: VideoDocInfo[];
+  currentBusinessId: string;
+  onNavigateToOwner: (ownerId: string) => void;
+}
+
+export const OwnerBadge = ({ cardsHidden, currentMediaKind, currentMediaUrl, videoDocs, currentBusinessId, onNavigateToOwner }: OwnerBadgeProps) => {
+  if (!cardsHidden || currentMediaKind !== "video") return null;
+  const currentVideoDoc = videoDocs.find((d) => d.url === currentMediaUrl);
+  if (!currentVideoDoc?.owner_business_id || currentVideoDoc.owner_business_id === currentBusinessId) return null;
+  if (!currentVideoDoc.owner_name) return null;
+  return (
+    <div className="shrink-0 flex justify-center pointer-events-auto pb-4">
+      <button
+        onClick={() => onNavigateToOwner(currentVideoDoc.owner_business_id!)}
+        className="flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 hover:bg-black/85 transition-colors"
+      >
+        <span className="text-xs font-medium text-white truncate max-w-[180px]" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+          {currentVideoDoc.owner_name} <span className="text-base">©</span>
+        </span>
+        <ChevronRight className="h-3.5 w-3.5 text-white/60 shrink-0" />
+      </button>
+    </div>
+  );
+};

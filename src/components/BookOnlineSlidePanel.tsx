@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton, useOwnerLogo, OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
 import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, CalendarCheck, ShoppingBag, Star, Minimize2, Loader2, Volume2, VolumeX, Play, Pause, Phone } from "lucide-react";
@@ -131,10 +132,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [showFallbackOverlay, setShowFallbackOverlay] = useState(false);
   const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
-  const [logoBigOverlay, setLogoBigOverlay] = useState<{ src: string; name: string; ownerId: string } | null>(null);
-  const [logoBigFadingOut, setLogoBigFadingOut] = useState(false);
-  const logoBigShownForRef = useRef<Set<string>>(new Set());
-  const logoBigTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  // logoBig state is now in useOwnerLogo hook (see below)
   const fallbackDataRef = useRef<FallbackPanelData | null>(null);
   useEffect(() => {
     if (fallbackPanelData) fallbackDataRef.current = fallbackPanelData;
@@ -851,25 +849,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const matterportItem = useMemo(() => mediaItems.find(m => m.kind === "matterport") || null, [mediaItems]);
   const effectiveMedia = (cardsHidden && matterportItem) ? matterportItem : currentMedia;
 
-  // Fullscreen logo big overlay — show once per owner when entering Afficher mode on their video
-  useEffect(() => {
-     if (!cardsHidden) { logoBigShownForRef.current.clear(); setLogoBigOverlay(null); setLogoBigFadingOut(false); logoBigTimersRef.current.forEach(clearTimeout); logoBigTimersRef.current = []; return; }
-     const cm = mediaItems[currentMediaIndex];
-     if (cm?.kind !== 'video') return;
-     const doc = videoDocs.find(d => d.url === cm.url);
-     if (!doc?.owner_business_id || doc.owner_business_id === businessId) return;
-      if (!doc.owner_logo) return;
-      const key = doc.owner_business_id + ':' + cm.url;
-      if (logoBigShownForRef.current.has(key)) return;
-      logoBigShownForRef.current.add(key);
-     setLogoBigFadingOut(false);
-     setLogoBigOverlay({ src: doc.owner_logo, name: doc.owner_name || '', ownerId: doc.owner_business_id });
-    logoBigTimersRef.current.forEach(clearTimeout);
-    const fadeTimer = setTimeout(() => setLogoBigFadingOut(true), 4400);
-    const hideTimer = setTimeout(() => { setLogoBigOverlay(null); setLogoBigFadingOut(false); logoBigTimersRef.current = []; }, 5000);
-    logoBigTimersRef.current = [fadeTimer, hideTimer];
-    return () => { logoBigTimersRef.current.forEach(clearTimeout); logoBigTimersRef.current = []; };
-  }, [cardsHidden, currentMediaIndex, mediaItems, videoDocs, businessId]);
+  // Owner logo overlay hook
+  const { logoBigOverlay, logoBigFadingOut } = useOwnerLogo(cardsHidden, currentMediaIndex, mediaItems, videoDocs, businessId);
 
   const goMedia = useCallback((dir: 1 | -1) => {
     if (totalMedia <= 1) return;
@@ -1146,16 +1127,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         )}
       </div>
 
-      {totalMedia > 1 && cardsHidden && (
-        <>
-          <button onClick={() => goMedia(-1)} className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <button onClick={() => goMedia(1)} className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </>
-      )}
+      <DesktopMediaArrows totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} />
 
       {/* Overlaid content — always visible, carousels toggle */}
       <div
@@ -1168,12 +1140,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         {/* Top bar: toggle, flags, rating */}
         <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex flex-col items-center pb-3 md:pb-3 pointer-events-auto animate-[slide-in-top_0.35s_ease-out_both] mt-1 md:mt-0">
           {cardsHidden ? (
-            <div className="flex items-center gap-3">
-              {totalMedia > 1 && (
-                <button onClick={() => goMedia(-1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-              )}
+            <MediaCounterBar currentIndex={safeIndex} totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)}>
               <button
                 type="button"
                 className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm hover:bg-background transition-colors"
@@ -1187,15 +1154,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Afficher</span>
                 <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
               </button>
-              {totalMedia > 1 && (
-                <button onClick={() => goMedia(1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              )}
-            </div>
+            </MediaCounterBar>
           ) : (
-            <div className="relative w-full flex items-center justify-center">
-              {languages.length > 0 && (
+            <CardsToggleButton
+              cardsHidden={cardsHidden}
+              showCards={showCards}
+              hideCards={hideCards}
+              onMouseDownDrag={onMouseDownDrag}
+              leftSlot={languages.length > 0 ? (
                 <div className={`absolute left-0 z-50 flex items-center gap-0.5 md:gap-1.5 bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2 md:px-2.5 md:rounded-full md:py-1 md:flex-wrap md:justify-center md:overflow-visible ${languages.length > 5 ? 'max-w-[7rem] overflow-x-auto' : ''} ${languages.length > 4 ? 'md:max-w-none md:overflow-visible' : ''}`} style={languages.length > 5 ? { scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties : undefined}>
                   {languages.map((lang, i) => {
                     const langAlt = getLangAlt(lang);
@@ -1218,27 +1184,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     );
                   })}
                 </div>
-              )}
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:bg-background transition-colors"
-                title="Masquer les cartes"
-                aria-label="Masquer les cartes"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    hideCards();
-                  }
-                }}
-                onClick={(e) => { e.stopPropagation(); hideCards(); }}
-                onMouseDown={(e) => e.stopPropagation()}
-                onTouchStart={(e) => e.stopPropagation()}
-              >
-                <ChevronDown className="h-3.5 w-3.5" />
-                <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Masquer</span>
-                <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
-              </button>
-            </div>
+              ) : undefined}
+            />
           )}
         </div>
 
@@ -1891,42 +1838,24 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         )}
 
         {/* Owner logo – above badge */}
-        {cardsHidden && logoBigOverlay && !logoBigFadingOut && (() => {
-          const currentVideoDoc = videoDocs.find(d => d.url === effectiveMedia?.url);
-          if (!currentVideoDoc?.owner_business_id || currentVideoDoc.owner_business_id === businessId) return null;
-          return (
-            <div className="shrink-0 flex justify-center pointer-events-none pb-4">
-              <div className="animate-logo-big-full-reveal" style={{ width: '120px' }}>
-                <img
-                  src={logoBigOverlay.src}
-                  alt={logoBigOverlay.name}
-                  className="w-full h-auto object-contain"
-                  style={{ filter: 'drop-shadow(0 0 20px hsla(0,0%,0%,0.6))' }}
-                />
-              </div>
-            </div>
-          );
-        })()}
+        <OwnerLogoOverlay
+          logoBigOverlay={logoBigOverlay}
+          logoBigFadingOut={logoBigFadingOut}
+          cardsHidden={cardsHidden}
+          currentMediaUrl={effectiveMedia?.url}
+          videoDocs={videoDocs}
+          currentBusinessId={businessId}
+        />
 
         {/* Video owner badge – just above CTAs */}
-        {cardsHidden && effectiveMedia?.kind === "video" && (() => {
-          const currentVideoDoc = videoDocs.find(d => d.url === effectiveMedia.url);
-          if (!currentVideoDoc?.owner_business_id || currentVideoDoc.owner_business_id === businessId) return null;
-          if (!currentVideoDoc.owner_name) return null;
-          return (
-            <div className="shrink-0 flex justify-center pointer-events-auto pb-4">
-              <button
-                onClick={() => setActiveBusinessId(currentVideoDoc.owner_business_id!)}
-                className="flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 hover:bg-black/85 transition-colors"
-              >
-                <span className="text-xs font-medium text-white truncate max-w-[180px]" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                  {currentVideoDoc.owner_name} <span className="text-base">©</span>
-                </span>
-                <ChevronRight className="h-3.5 w-3.5 text-white/60 shrink-0" />
-              </button>
-            </div>
-          );
-        })()}
+        <OwnerBadge
+          cardsHidden={cardsHidden}
+          currentMediaKind={effectiveMedia?.kind}
+          currentMediaUrl={effectiveMedia?.url}
+          videoDocs={videoDocs}
+          currentBusinessId={businessId}
+          onNavigateToOwner={setActiveBusinessId}
+        />
 
         {/* CTAs + video controls */}
         <div className={`shrink-0 py-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto ${cardsHidden && effectiveMedia?.kind === "matterport" ? 'mb-24' : ''} ${cardsHidden ? '' : noBottomCarousel ? 'lg:mt-auto' : ''}`} style={(cardsHidden && fallbackPanelData && (() => { const ch = fallbackPanelData.hotels.find(h => h.isCurrentHotel); return !!ch; })()) ? { display: 'none' } : undefined}>
