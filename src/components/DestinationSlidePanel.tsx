@@ -12,6 +12,7 @@ import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLigh
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
+import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 
 
 interface DestinationSlidePanelProps {
