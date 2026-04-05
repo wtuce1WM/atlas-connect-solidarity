@@ -222,16 +222,21 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
       const ownerIds = [...new Set(docs.map(d => d.business_id))];
       const { data: owners } = await supabase
         .from("businesses")
-        .select("id, name")
+        .select("id, name, logo_url, slug")
         .in("id", ownerIds);
-      const ownerMap = new Map((owners || []).map(o => [o.id, o.name]));
-      setCityVideos(docs.map(d => ({
-        url: d.url,
-        name: d.name,
-        ownerName: ownerMap.get(d.business_id) || "",
-        thumbnailUrl: d.thumbnail_url,
-        businessId: d.business_id,
-      })));
+      const ownerMap = new Map((owners || []).map(o => [o.id, o]));
+      setCityVideos(docs.map(d => {
+        const owner = ownerMap.get(d.business_id);
+        return {
+          url: d.url,
+          name: d.name,
+          ownerName: owner?.name || "",
+          thumbnailUrl: d.thumbnail_url,
+          businessId: d.business_id,
+          ownerLogo: owner?.logo_url || null,
+          ownerSlug: owner?.slug || null,
+        };
+      }));
     };
     fetchCityVideos();
   }, [destination?.name_fr]);
