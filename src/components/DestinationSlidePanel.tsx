@@ -73,7 +73,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const [showMosaic, setShowMosaic] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [flipped, setFlipped] = useState(false);
-  const [regionDestinations, setRegionDestinations] = useState<PoiMapItem[]>([]);
+  const [exclusiveBusinesses, setExclusiveBusinesses] = useState<{ id: string; name: string; slug: string; city: string | null; neighborhood: string | null; images: string[] | null; computed_rating: number | null; rating: number | null; }[]>([]);
 
   useEffect(() => {
     if (!showDirections) return;
