@@ -449,7 +449,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                     <h2 className="text-xl font-bold truncate drop-shadow-lg">{destName}</h2>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    {linkedBusinesses.length > 0 && (
+                    {regionDestinations.length > 0 && (
                       <button
                         onClick={() => { playWoosh(); setFlipped(true); }}
                         className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
