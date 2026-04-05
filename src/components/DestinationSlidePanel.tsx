@@ -490,7 +490,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
             >
               {/* FRONT — Description */}
               <div
-                className="rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 flex flex-col gap-5 text-white overflow-y-auto max-h-full"
+                className="rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 flex h-full min-h-0 flex-col gap-5 text-white"
                 style={{ backfaceVisibility: "hidden" }}
               >
                 {/* Name + toggle */}
@@ -524,7 +524,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                 {/* Description — collapsible */}
                 {description && descExpanded && (
                   <div
-                    className="min-h-0 max-h-[180px] md:max-h-[250px] lg:max-h-[320px] overflow-y-auto pr-1 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words prose-josefin-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
+                    className="min-h-0 flex-1 overflow-y-auto pr-2 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words prose-josefin-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
                     dangerouslySetInnerHTML={{ __html: description }}
                   />
                 )}
