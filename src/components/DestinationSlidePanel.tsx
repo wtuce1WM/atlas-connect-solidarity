@@ -532,7 +532,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                 {description && descExpanded && (
                   <div
                     className="min-h-0 overflow-y-auto pr-2 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words prose-josefin-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
-                    style={{ maxHeight: "calc(50vh - 4rem)" }}
+                    style={{ maxHeight: "min(35vh, 280px)" }}
                     dangerouslySetInnerHTML={{ __html: description }}
                   />
                 )}
