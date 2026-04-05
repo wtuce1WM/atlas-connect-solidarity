@@ -549,13 +549,10 @@ export function useBookOnlineData(businessId: string) {
   }, [businessId]);
 
   // Persist to cache once all data is loaded (including secondary fetches)
-  const cacheWrittenRef = useRef<string | null>(null);
   useEffect(() => {
-    if (isLoading || !business || cacheWrittenRef.current === businessId) return;
+    if (isLoading || !business) return;
     // Debounce slightly to ensure secondary fetches have settled
     const timer = setTimeout(() => {
-      if (cacheWrittenRef.current === businessId) return;
-      cacheWrittenRef.current = businessId;
       setCacheEntry(businessId, {
         business, woDescription, destinations, poiBusinesses,
         reviewTexts, externalLinks, menuSummaries, menuDocsRaw,
