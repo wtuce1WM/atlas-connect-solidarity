@@ -710,7 +710,6 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
           {!cardsHidden && !flipped && (() => {
             const hasCityVideosTab = cityVideos.length > 0;
             const hasYoutubeTab = videos.length > 0;
-            const hasBizTab = exclusiveBusinesses.length > 0;
             const tabs: BottomTabConfig[] = [];
 
             if (hasCityVideosTab) tabs.push({
@@ -768,28 +767,31 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
               ),
             });
 
-            if (hasBizTab) tabs.push({
-              id: "businesses",
-              label: language === "en" ? "Establishments" : "Établissements",
-              renderContent: (animate, animCls) => (
-                <TabScrollRail>
-                  {exclusiveBusinesses.map((biz, index) => {
-                    const bizImg = biz.images && biz.images.length > 0 ? biz.images[0] : null;
-                    return (
-                      <TabCard
-                        key={biz.id}
-                        imageUrl={bizImg}
-                        label={biz.name}
-                        href={businessUrl(biz)}
-                        animate={animate}
-                        animationClass={animCls}
-                        animationDelay={index * 120}
-                      />
-                    );
-                  })}
-                </TabScrollRail>
-              ),
-            });
+            // One tab per front_structure entry with matching businesses
+            for (const ft of frontTabs) {
+              tabs.push({
+                id: `fs-${ft.id}`,
+                label: ft.name,
+                renderContent: (animate, animCls) => (
+                  <TabScrollRail>
+                    {ft.businesses.map((biz, index) => {
+                      const bizImg = biz.images && biz.images.length > 0 ? biz.images[0] : null;
+                      return (
+                        <TabCard
+                          key={biz.id}
+                          imageUrl={bizImg}
+                          label={biz.name}
+                          href={businessUrl(biz)}
+                          animate={animate}
+                          animationClass={animCls}
+                          animationDelay={index * 120}
+                        />
+                      );
+                    })}
+                  </TabScrollRail>
+                ),
+              });
+            }
 
             if (tabs.length === 0) return null;
 
