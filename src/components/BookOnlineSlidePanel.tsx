@@ -1668,11 +1668,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 <div className="self-center flex flex-col items-center gap-3 pointer-events-auto">
                   <button
                     onClick={() => setActiveBusinessId(currentVideoDoc.owner_business_id!)}
-                    className="flex items-center gap-2.5 rounded-full bg-black/50 backdrop-blur-sm border border-white/15 px-3 py-1.5 hover:bg-black/70 transition-colors animate-slide-up-from-bottom"
+                    className="flex items-center gap-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/15 px-3 py-1.5 hover:bg-black/70 transition-colors animate-slide-up-from-bottom"
                   >
-                    {currentVideoDoc.owner_logo ? (
-                      <img src={currentVideoDoc.owner_logo} alt="" className="h-6 w-6 rounded-full object-contain bg-white/90 shrink-0" />
-                    ) : null}
                     <span className="text-xs font-medium text-white truncate max-w-[180px]" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                       {currentVideoDoc.owner_name}
                     </span>
