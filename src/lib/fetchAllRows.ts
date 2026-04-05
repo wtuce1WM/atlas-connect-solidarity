@@ -20,6 +20,7 @@ export async function fetchAllRows<T = Record<string, unknown>>(
       .from(table as any)
       .select(select)
       .order(orderColumn)
+      .order("id")
       .range(offset, offset + batchSize - 1) as any);
 
     if (error) throw error;
