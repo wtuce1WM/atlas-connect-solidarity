@@ -267,17 +267,6 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
     };
   }, [currentMedia]);
 
-  const getVideoInfo = (url: string) => {
-    const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
-    if (ytMatch) {
-      return { type: "youtube" as const, id: ytMatch[1], thumbnail: `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` };
-    }
-    const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-    if (vimeoMatch) {
-      return { type: "vimeo" as const, id: vimeoMatch[1], thumbnail: `https://vumbnail.com/${vimeoMatch[1]}.jpg` };
-    }
-    return { type: "file" as const, id: null, thumbnail: null };
-  };
 
   if (isLoading) {
     return (
