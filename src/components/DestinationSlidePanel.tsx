@@ -1,10 +1,12 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation, Minimize2 } from "lucide-react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation, Minimize2, Map } from "lucide-react";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
+import wooshSfx from "@/assets/woosh.wav";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 
 
 interface DestinationSlidePanelProps {
@@ -27,6 +29,34 @@ interface DestinationFull {
   longitude: number | null;
 }
 
+const GOLD = { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" };
+
+const MemoizedDestMap = React.memo(({ destination, linkedBusinesses }: { destination: DestinationFull; linkedBusinesses: PoiMapItem[] }) => {
+  const pois = useMemo(() => [
+    ...(destination.latitude && destination.longitude ? [{
+      id: destination.id, name: destination.name_fr, latitude: destination.latitude, longitude: destination.longitude,
+      city: null, neighborhood: null, images: destination.images,
+      markerColor: GOLD,
+    }] : []),
+    ...linkedBusinesses,
+  ], [destination.id, destination.latitude, destination.longitude, destination.name_fr, destination.images, linkedBusinesses]);
+
+  const center = useMemo(
+    () => destination.latitude && destination.longitude ? { lat: destination.latitude, lng: destination.longitude } : undefined,
+    [destination.latitude, destination.longitude]
+  );
+
+  return (
+    <PoiGoogleMap
+      pois={pois}
+      selectedPoiId={destination.id}
+      highlightColor={GOLD}
+      center={center}
+      fitToMarkers
+    />
+  );
+});
+
 const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: DestinationSlidePanelProps) => {
   const { language } = useLanguage();
   const slideAnim = slideFrom === "bottom" ? "animate-slide-up-from-bottom" : "animate-slide-in-right";
@@ -40,6 +70,8 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const [fullscreenVideo, setFullscreenVideo] = useState<string | null>(null);
   const [showMosaic, setShowMosaic] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [flipped, setFlipped] = useState(false);
+  const [linkedBusinesses, setLinkedBusinesses] = useState<PoiMapItem[]>([]);
 
   useEffect(() => {
     if (!showDirections) return;
@@ -56,6 +88,8 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
     setCurrentMediaIndex(0);
     setDescExpanded(true);
     setShowDirections(false);
+    setFlipped(false);
+    setLinkedBusinesses([]);
   }, [destinationId]);
 
   useEffect(() => {
@@ -71,6 +105,43 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
     };
     fetchDestination();
   }, [destinationId]);
+
+  // Fetch businesses linked to this destination
+  useEffect(() => {
+    const fetchLinked = async () => {
+      const { data: links } = await supabase
+        .from("business_destinations")
+        .select("business_id")
+        .eq("destination_id", destinationId);
+      if (!links || links.length === 0) return;
+      const ids = [...new Set(links.map((l) => l.business_id))];
+      const { data: businesses } = await supabase
+        .from("businesses")
+        .select("id, name, latitude, longitude, images, city, neighborhood, rating, main_category")
+        .in("id", ids)
+        .eq("is_active", true);
+      if (businesses) {
+        setLinkedBusinesses(
+          businesses.map((b) => ({
+            id: b.id,
+            name: b.name,
+            latitude: b.latitude,
+            longitude: b.longitude,
+            images: b.images,
+            city: b.city,
+            neighborhood: b.neighborhood,
+            rating: b.rating ? Number(b.rating) : null,
+            subcategory: b.main_category,
+          }))
+        );
+      }
+    };
+    fetchLinked();
+  }, [destinationId]);
+
+  const playWoosh = useCallback(() => {
+    try { new Audio(wooshSfx).play(); } catch {}
+  }, []);
 
   const destName = destination
     ? (language === "en" && destination.name_en ? destination.name_en : destination.name_fr)
@@ -256,7 +327,6 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                     key={`v-${item.idx}`}
                     className="relative aspect-square cursor-pointer overflow-hidden bg-black/40"
                     onClick={() => {
-                      // Open in lightbox at the correct index
                       const lbIdx = allImages.length + videos.indexOf(item.url);
                       setLightboxIndex(lbIdx);
                     }}
@@ -359,37 +429,88 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
             </div>
           )}
 
-          {/* Centered content block */}
-          <div className="flex-1 flex items-start justify-center overflow-hidden min-h-0">
-            <div className="w-[95%] md:w-[90%] lg:w-[70%] max-h-full overflow-hidden rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 flex flex-col gap-5 text-white">
-              {/* Name + toggle */}
-              <div className="flex items-end gap-4">
-                <div className="min-w-0 flex-1">
-                  <h2 className="text-xl font-bold truncate drop-shadow-lg">{destName}</h2>
+          {/* Flip card container */}
+          <div className="flex-1 flex items-start justify-center overflow-hidden min-h-0" style={{ perspective: "1200px" }}>
+            <div
+              className={`w-[95%] md:w-[90%] lg:w-[85%] relative ${flipped ? "h-[calc(100%-2rem)]" : "max-h-full"}`}
+              style={{
+                transformStyle: "preserve-3d",
+                transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+                transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
+              }}
+            >
+              {/* FRONT — Description */}
+              <div
+                className="rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 flex flex-col gap-5 text-white overflow-hidden max-h-full"
+                style={{ backfaceVisibility: "hidden" }}
+              >
+                {/* Name + toggle */}
+                <div className="flex items-end gap-4">
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-xl font-bold truncate drop-shadow-lg">{destName}</h2>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {linkedBusinesses.length > 0 && (
+                      <button
+                        onClick={() => { playWoosh(); setFlipped(true); }}
+                        className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                        aria-label="Voir la carte"
+                        title={language === "en" ? "View on map" : "Voir sur la carte"}
+                      >
+                        <Map className="h-4 w-4" />
+                      </button>
+                    )}
+                    {description && (
+                      <button
+                        onClick={() => setDescExpanded((p) => !p)}
+                        className="shrink-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                        aria-label={descExpanded ? "Replier" : "Déplier"}
+                      >
+                        {descExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+                      </button>
+                    )}
+                  </div>
                 </div>
-                {description && (
-                  <button
-                    onClick={() => setDescExpanded((p) => !p)}
-                    className="shrink-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-                    aria-label={descExpanded ? "Replier" : "Déplier"}
-                  >
-                    {descExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-                  </button>
+
+                {/* Description — collapsible */}
+                {description && descExpanded && (
+                  <div
+                    className="min-h-0 max-h-[460px] md:max-h-[600px] lg:max-h-[730px] overflow-y-auto pr-1 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words prose-josefin-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
+                    dangerouslySetInnerHTML={{ __html: description }}
+                  />
                 )}
               </div>
 
-              {/* Description — collapsible */}
-              {description && descExpanded && (
-                <div
-                  className="min-h-0 max-h-[460px] md:max-h-[600px] lg:max-h-[730px] overflow-y-auto pr-1 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words prose-josefin-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
-                  dangerouslySetInnerHTML={{ __html: description }}
-                />
-              )}
+              {/* BACK — Google Map */}
+              <div
+                className="absolute inset-0 rounded-2xl bg-black/60 backdrop-blur-sm overflow-hidden flex flex-col"
+                style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+              >
+                {/* Back header */}
+                <div className="flex items-center gap-3 p-4 text-white">
+                  <button
+                    onClick={() => { playWoosh(); setFlipped(false); }}
+                    className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                    aria-label="Retourner"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  <h3 className="text-sm font-semibold truncate">
+                    {language === "en" ? "Nearby" : "À proximité"}
+                  </h3>
+                </div>
+                {/* Map */}
+                <div className="flex-1 min-h-0">
+                  {flipped && destination && (
+                    <MemoizedDestMap destination={destination} linkedBusinesses={linkedBusinesses} />
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Videos horizontal scroll */}
-          {videos.length > 0 && (
+          {videos.length > 0 && !flipped && (
             <div className="shrink-0 mb-4">
               <div className="flex gap-2.5 overflow-x-auto px-4 pb-1 scrollbar-hide">
                 {videos.map((videoUrl, index) => {
