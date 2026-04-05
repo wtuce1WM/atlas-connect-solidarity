@@ -2282,8 +2282,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               center={business?.latitude && business?.longitude ? { lat: business.latitude, lng: business.longitude } : undefined}
               onPoiClick={(poiId) => {
                 if (poiId.startsWith("self-")) return;
-                poiOpenedFromMapRef.current = true;
-                setSelectedPoiBusinessId(poiId);
+                if (poiBusinesses.length > 0) {
+                  poiOpenedFromMapRef.current = true;
+                  setSelectedPoiBusinessId(poiId);
+                } else {
+                  // Nearby fallback: open as KP business (regular slide panel)
+                  setSelectedKpBusinessId(poiId);
+                }
               }}
               fitToMarkers
             />
