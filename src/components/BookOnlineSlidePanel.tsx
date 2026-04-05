@@ -670,7 +670,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const hasYoutubeReady = !!(youtubeVideoCount && youtubeVideoCount > 0);
   const hasKpCarousel = kpRelated.length > 0;
   const hasKpSubcatCarousel = kpSubcategoryItems.length > 0;
-  const hasDestCarousel = destinations.length > 0;
+  const hasDestCarousel = destinations.length > 1;
   const hasPoiCarousel = poiBusinesses.length >= 2;
 
   // Video tab label from carousel_badge
