@@ -27,6 +27,7 @@ interface DestinationFull {
   matterport_url: string | null;
   latitude: number | null;
   longitude: number | null;
+  region: string[] | null;
 }
 
 const GOLD = { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" };
