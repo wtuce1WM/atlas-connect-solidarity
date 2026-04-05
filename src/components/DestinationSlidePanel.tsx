@@ -110,7 +110,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
     setShowDirections(false);
     setFlipped(false);
     setRegionDestinations([]);
-    setExclusiveBusinesses([]);
+    setFrontTabs([]);
     setCityVideos([]);
     bottomTabInitialRef.current = true;
   }, [destinationId]);
