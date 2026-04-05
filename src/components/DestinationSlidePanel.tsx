@@ -490,7 +490,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
             >
               {/* FRONT — Description */}
               <div
-                className="rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 flex flex-col gap-5 text-white overflow-hidden max-h-full"
+                className="rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 flex flex-col gap-5 text-white overflow-y-auto max-h-full"
                 style={{ backfaceVisibility: "hidden" }}
               >
                 {/* Name + toggle */}
