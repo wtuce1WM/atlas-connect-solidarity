@@ -141,7 +141,54 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
     fetchRegionDests();
   }, [destination?.region, destinationId]);
 
-  const playWoosh = useCallback(() => {
+  // Fetch businesses linked ONLY to this destination (not linked to multiple destinations)
+  useEffect(() => {
+    const fetchExclusiveBusinesses = async () => {
+      // 1. Get all business_ids linked to this destination
+      const { data: links } = await (supabase
+        .from("business_destinations" as any)
+        .select("business_id")
+        .eq("destination_id", destinationId) as any);
+      if (!links || links.length === 0) { setExclusiveBusinesses([]); return; }
+
+      const bizIds = (links as any[]).map((l: any) => l.business_id as string);
+
+      // 2. For each business, check if it has links to other destinations
+      // Fetch all business_destinations for these businesses
+      const { data: allLinks } = await (supabase
+        .from("business_destinations" as any)
+        .select("business_id, destination_id")
+        .in("business_id", bizIds) as any);
+
+      // Keep only businesses that appear exactly once (only this destination)
+      const countMap = new Map<string, number>();
+      if (allLinks) {
+        for (const link of allLinks as any[]) {
+          countMap.set(link.business_id, (countMap.get(link.business_id) || 0) + 1);
+        }
+      }
+      const exclusiveIds = bizIds.filter(id => (countMap.get(id) || 0) === 1);
+      if (exclusiveIds.length === 0) { setExclusiveBusinesses([]); return; }
+
+      // 3. Fetch business details
+      const all: any[] = [];
+      for (let i = 0; i < exclusiveIds.length; i += 500) {
+        const chunk = exclusiveIds.slice(i, i + 500);
+        const { data } = await supabase
+          .from("businesses")
+          .select("id, name, slug, city, neighborhood, images, computed_rating, rating")
+          .eq("is_active", true)
+          .in("id", chunk);
+        if (data) all.push(...data);
+      }
+      // Sort by rating desc
+      all.sort((a, b) => ((b.computed_rating ?? b.rating ?? 0) - (a.computed_rating ?? a.rating ?? 0)));
+      setExclusiveBusinesses(all);
+    };
+    fetchExclusiveBusinesses();
+  }, [destinationId]);
+
+
     try { new Audio(wooshSfx).play(); } catch {}
   }, []);
 
