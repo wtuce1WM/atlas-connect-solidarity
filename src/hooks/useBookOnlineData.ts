@@ -482,10 +482,10 @@ export function useBookOnlineData(businessId: string) {
           if (ownerIds.length > 0) {
             const { data: owners } = await supabase
               .from("businesses")
-              .select("id, name, logo_url")
+              .select("id, name, logo_url, instagram_url")
               .in("id", ownerIds);
             if (owners) {
-              for (const o of owners) ownerMap.set(o.id, { name: o.name, logo_url: o.logo_url });
+              for (const o of owners) ownerMap.set(o.id, { name: o.name, logo_url: o.logo_url, instagram_url: (o as any).instagram_url });
             }
           }
           const linked = (linkedVids as any[])
