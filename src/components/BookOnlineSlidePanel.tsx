@@ -726,7 +726,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const hasKpCarousel = kpRelated.length > 0;
   const hasKpSubcatCarousel = kpSubcategoryItems.length > 0;
   const hasDestCarousel = destinations.length > 1;
-  const hasPoiCarousel = poiBusinesses.length >= 2;
+  const hasPoiCarousel = poiBusinesses.length >= 2 || nearbyFallback.length > 0;
 
   // Video tab label from carousel_badge
   const videoTabLabel = useMemo(() => {
@@ -770,7 +770,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       tabs.push({ id: "poi", label: language === "en" ? "Nearby" : "À proximité", hasContent: true });
     }
     return tabs;
-  }, [videoTabLabel, hasVideosCarousel, hasYoutubeBottomCarousel, hasYoutubeReady, hasKpCarousel, hasKpSubcatCarousel, kpSubcategoryLabel, hasKpCode, hasDestCarousel, hasPoiCarousel, language, videoDocs.length]);
+  }, [videoTabLabel, hasVideosCarousel, hasYoutubeBottomCarousel, hasYoutubeReady, hasKpCarousel, hasKpSubcatCarousel, kpSubcategoryLabel, hasKpCode, hasDestCarousel, hasPoiCarousel, language, videoDocs.length, nearbyFallback.length]);
 
   const [activeBottomTab, setActiveBottomTab] = useState<string>("videos");
   const bottomTabInitialRef = useRef(true);
@@ -1554,7 +1554,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   </div>
                 );
               })}
-              {poiBusinesses.length > 0 && business?.latitude && business?.longitude && (
+              {(poiBusinesses.length > 0 || nearbyFallback.length > 0) && business?.latitude && business?.longitude && (
                 <div
                   className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
                   style={bottomTabInitialRef.current ? { animationDelay: `${destinations.length * 120}ms`, animationFillMode: 'forwards' } : undefined}
@@ -1562,7 +1562,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 >
                   <img src={poiNearbyImg} alt="Points d'intérêt" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
                   <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
-                    {language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité"}
+                    {poiBusinesses.length > 0
+                      ? (language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité")
+                      : (language === "en" ? "Nearby establishments" : "Établissements à proximité")}
                   </p>
                 </div>
               )}
@@ -1576,14 +1578,21 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
             <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
               <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
-              {poiBusinesses.map((poi, index) => {
-                const poiImg = poi.images?.filter(Boolean)?.[0] || poi.logo_url;
+              {/* Show POI businesses if available, otherwise show nearby fallback */}
+              {(poiBusinesses.length > 0 ? poiBusinesses : nearbyFallback).map((poi, index) => {
+                const poiImg = poi.images?.filter(Boolean)?.[0] || (poi as any).logo_url;
                 return (
                   <div
                     key={poi.id}
                     className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
                     style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' } : undefined}
-                    onClick={() => setSelectedPoiBusinessId(poi.id)}
+                    onClick={() => {
+                      if (poiBusinesses.length > 0) {
+                        setSelectedPoiBusinessId(poi.id);
+                      } else {
+                        setSelectedKpBusinessId(poi.id);
+                      }
+                    }}
                   >
                     {poiImg ? (
                       <img src={poiImg} alt={poi.name} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
@@ -1601,12 +1610,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               {business?.latitude && business?.longitude && (
                 <div
                   className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
-                  style={bottomTabInitialRef.current ? { animationDelay: `${poiBusinesses.length * 120}ms`, animationFillMode: 'forwards' } : undefined}
+                  style={bottomTabInitialRef.current ? { animationDelay: `${(poiBusinesses.length > 0 ? poiBusinesses : nearbyFallback).length * 120}ms`, animationFillMode: 'forwards' } : undefined}
                   onClick={() => setShowPoiMapOverlay(true)}
                 >
                   <img src={poiNearbyImg} alt="Points d'intérêt" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
                   <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
-                    {language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité"}
+                    {poiBusinesses.length > 0
+                      ? (language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité")
+                      : (language === "en" ? "Nearby establishments" : "Établissements à proximité")}
                   </p>
                 </div>
               )}
