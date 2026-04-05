@@ -567,7 +567,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
             const hasBizTab = exclusiveBusinesses.length > 0;
             type DestTab = { id: string; label: string };
             const tabs: DestTab[] = [];
-            if (hasVideosTab) tabs.push({ id: "videos", label: language === "en" ? "Videos" : "Vidéos" });
+            if (hasVideosTab) tabs.push({ id: "videos", label: "YouTube" });
             if (hasBizTab) tabs.push({ id: "businesses", label: language === "en" ? "Establishments" : "Établissements" });
             if (tabs.length === 0 || flipped) return null;
             const currentTab = tabs.find(t => t.id === activeBottomTab) ? activeBottomTab : tabs[0]?.id;
@@ -586,7 +586,9 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                         className={`px-3 py-1.5 rounded-full transition-colors border border-transparent whitespace-nowrap ${
                           currentTab === tab.id
                             ? "bg-black text-white"
-                            : "bg-white/70 text-black hover:bg-white/80"
+                            : tab.id === "videos"
+                              ? "bg-[#FF0000] text-white hover:bg-[#CC0000]"
+                              : "bg-white/70 text-black hover:bg-white/80"
                         }`}
                         style={{ fontFamily: 'Josefin Sans, sans-serif', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase', fontSize: '11px', lineHeight: '16px', padding: '6px 12px' }}
                       >
