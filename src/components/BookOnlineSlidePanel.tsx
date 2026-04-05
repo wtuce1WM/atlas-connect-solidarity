@@ -132,7 +132,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [showFallbackOverlay, setShowFallbackOverlay] = useState(false);
   const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
-  // logoBig state is now in useOwnerLogo hook (see below)
+  
   const fallbackDataRef = useRef<FallbackPanelData | null>(null);
   useEffect(() => {
     if (fallbackPanelData) fallbackDataRef.current = fallbackPanelData;
