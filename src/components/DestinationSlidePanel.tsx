@@ -32,15 +32,15 @@ interface DestinationFull {
 
 const GOLD = { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" };
 
-const MemoizedDestMap = React.memo(({ destination, linkedBusinesses }: { destination: DestinationFull; linkedBusinesses: PoiMapItem[] }) => {
+const MemoizedDestMap = React.memo(({ destination, regionDestinations }: { destination: DestinationFull; regionDestinations: PoiMapItem[] }) => {
   const pois = useMemo(() => [
     ...(destination.latitude && destination.longitude ? [{
       id: destination.id, name: destination.name_fr, latitude: destination.latitude, longitude: destination.longitude,
       city: null, neighborhood: null, images: destination.images,
       markerColor: GOLD,
     }] : []),
-    ...linkedBusinesses,
-  ], [destination.id, destination.latitude, destination.longitude, destination.name_fr, destination.images, linkedBusinesses]);
+    ...regionDestinations.filter(d => d.id !== destination.id),
+  ], [destination.id, destination.latitude, destination.longitude, destination.name_fr, destination.images, regionDestinations]);
 
   const center = useMemo(
     () => destination.latitude && destination.longitude ? { lat: destination.latitude, lng: destination.longitude } : undefined,
