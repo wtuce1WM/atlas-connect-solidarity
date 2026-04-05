@@ -319,7 +319,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   if (!destination) return null;
 
   return (
-    <div className={`fixed inset-0 z-[70] bg-black overflow-hidden ${slideAnim}`}>
+    <div className={`absolute inset-0 z-[70] bg-black overflow-hidden ${slideAnim}`}>
       {/* Close button — hidden when fullscreen video is open */}
       {!fullscreenVideo && !showDirections && (
         <div className="absolute top-3 left-3 z-[80] flex items-center gap-2">
@@ -733,7 +733,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                 </div>
 
                 {/* Tab content */}
-                <div className="shrink-0 h-[9.5rem] md:h-[12.5rem] lg:h-[17.5rem]">
+                <div className="shrink-0 h-[10rem] md:h-[13rem] lg:h-[18rem]">
                   {/* City Videos tab */}
                   {currentTab === "cityVideos" && hasCityVideosTab && (
                     <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
@@ -749,7 +749,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                               onClick={() => setFullscreenVideo(cv.url)}
                             >
                               {cv.thumbnailUrl ? (
-                                <div className="relative w-full h-[7rem] md:h-[10rem] lg:h-[15rem]">
+                                <div className="relative w-full h-[8.5rem] md:h-[11.5rem] lg:h-[16.5rem]">
                                   <img src={cv.thumbnailUrl} alt={cv.name || ""} className="w-full h-full object-cover" />
                                   <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                                     <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
@@ -758,9 +758,9 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                                   </div>
                                 </div>
                               ) : info.type === "file" ? (
-                                <video src={cv.url} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" muted playsInline preload="metadata" />
+                                <video src={cv.url} className="w-full h-[8.5rem] md:h-[11.5rem] lg:h-[16.5rem] object-cover" muted playsInline preload="metadata" />
                               ) : info.thumbnail ? (
-                                <div className="relative w-full h-[7rem] md:h-[10rem] lg:h-[15rem]">
+                                <div className="relative w-full h-[8.5rem] md:h-[11.5rem] lg:h-[16.5rem]">
                                   <img src={info.thumbnail} alt="" className="w-full h-full object-cover" />
                                   <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                                     <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
@@ -769,7 +769,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                                   </div>
                                 </div>
                               ) : (
-                                <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
+                                <div className="w-full h-[8.5rem] md:h-[11.5rem] lg:h-[16.5rem] bg-white/10 flex items-center justify-center">
                                   <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
                                     <span className="text-white text-lg">▶</span>
                                   </div>
@@ -802,7 +802,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                               onClick={() => setFullscreenVideo(videoUrl)}
                             >
                               {info.thumbnail ? (
-                                <div className="relative w-full h-[7rem] md:h-[10rem] lg:h-[15rem]">
+                                <div className="relative w-full h-[8.5rem] md:h-[11.5rem] lg:h-[16.5rem]">
                                   <img src={info.thumbnail} alt="" className="w-full h-full object-cover" />
                                   <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                                     <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
@@ -811,9 +811,9 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                                   </div>
                                 </div>
                               ) : info.type === "file" ? (
-                                <video src={videoUrl} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" muted playsInline preload="metadata" />
+                                <video src={videoUrl} className="w-full h-[8.5rem] md:h-[11.5rem] lg:h-[16.5rem] object-cover" muted playsInline preload="metadata" />
                               ) : (
-                                <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
+                                <div className="w-full h-[8.5rem] md:h-[11.5rem] lg:h-[16.5rem] bg-white/10 flex items-center justify-center">
                                   <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
                                     <span className="text-white text-lg">▶</span>
                                   </div>
@@ -845,9 +845,9 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                               style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: "forwards" } : undefined}
                             >
                               {bizImg ? (
-                                <img src={bizImg} alt={biz.name} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                                <img src={bizImg} alt={biz.name} className="w-full h-[8.5rem] md:h-[11.5rem] lg:h-[16.5rem] object-cover" />
                               ) : (
-                                <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
+                                <div className="w-full h-[8.5rem] md:h-[11.5rem] lg:h-[16.5rem] bg-white/10 flex items-center justify-center">
                                   <MapPin className="h-5 w-5 text-white/40" />
                                 </div>
                               )}
