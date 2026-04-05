@@ -799,7 +799,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                           key={biz.id}
                           imageUrl={bizImg}
                           label={biz.name}
-                          href={businessUrl(biz)}
+                          onClick={() => setActiveBusinessId(biz.id)}
                           animate={animate}
                           animationClass={animCls}
                           animationDelay={index * 120}
