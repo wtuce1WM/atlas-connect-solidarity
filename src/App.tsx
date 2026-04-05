@@ -11,55 +11,57 @@ import StaffRouteGuard from "@/components/StaffRouteGuard";
 import FloatingClubButton from "@/components/FloatingClubButton";
 import FloatingWhatsAppButton from "@/components/FloatingWhatsAppButton";
 import Index from "./pages/Index";
-import BusinessDetail from "./pages/BusinessDetail";
-import CityMap from "./pages/CityMap";
-import CategoryPage from "./pages/CategoryPage";
-import ServicePage from "./pages/ServicePage";
-import SearchPage from "./pages/SearchPage";
-import StaffLogin from "./pages/StaffLogin";
-import StaffBackoffice from "./pages/StaffBackoffice";
-import StaffHub from "./pages/StaffHub";
-import StaffCRM from "./pages/StaffCRM";
-import AffiliatesLogin from "./pages/AffiliatesLogin";
-import AffiliatesResetPassword from "./pages/AffiliatesResetPassword";
-import AffiliatesDashboard from "./pages/AffiliatesDashboard";
-import AffiliatePresence from "./pages/AffiliatePresence";
-import BecomeAffiliate from "./pages/BecomeAffiliate";
-import Mission from "./pages/Mission";
-import Contact from "./pages/Contact";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
-import EssaouiraSeaView from "./pages/EssaouiraSeaView";
-import BlogAnimations from "./pages/BlogAnimations";
-import BlogTypography from "./pages/BlogTypography";
-import BlogBrummellTypography from "./pages/BlogBrummellTypography";
-import RatedBusinesses from "./pages/RatedBusinesses";
-import NeighborhoodPage from "./pages/NeighborhoodPage";
-import AllBusinessesMap from "./pages/AllBusinessesMap";
-import SubcategoryPage from "./pages/SubcategoryPage";
-import NotFound from "./pages/NotFound";
-import AncienAccueil from "./pages/AncienAccueil";
-import HotelSearch from "./pages/HotelSearch";
-import Club from "./pages/Club";
 import ScrollToTop from "./components/ScrollToTop";
 import RouteTransition from "./components/RouteTransition";
+const BusinessDetail = lazy(() => import("./pages/BusinessDetail"));
+const CityMap = lazy(() => import("./pages/CityMap"));
+const CategoryPage = lazy(() => import("./pages/CategoryPage"));
+const ServicePage = lazy(() => import("./pages/ServicePage"));
+const SearchPage = lazy(() => import("./pages/SearchPage"));
+const StaffLogin = lazy(() => import("./pages/StaffLogin"));
+const StaffBackoffice = lazy(() => import("./pages/StaffBackoffice"));
+const StaffHub = lazy(() => import("./pages/StaffHub"));
+const StaffCRM = lazy(() => import("./pages/StaffCRM"));
+const AffiliatesLogin = lazy(() => import("./pages/AffiliatesLogin"));
+const AffiliatesResetPassword = lazy(() => import("./pages/AffiliatesResetPassword"));
+const AffiliatesDashboard = lazy(() => import("./pages/AffiliatesDashboard"));
+const AffiliatePresence = lazy(() => import("./pages/AffiliatePresence"));
+const BecomeAffiliate = lazy(() => import("./pages/BecomeAffiliate"));
+const Mission = lazy(() => import("./pages/Mission"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
+const EssaouiraSeaView = lazy(() => import("./pages/EssaouiraSeaView"));
+const BlogAnimations = lazy(() => import("./pages/BlogAnimations"));
+const BlogTypography = lazy(() => import("./pages/BlogTypography"));
+const BlogBrummellTypography = lazy(() => import("./pages/BlogBrummellTypography"));
+const RatedBusinesses = lazy(() => import("./pages/RatedBusinesses"));
+const NeighborhoodPage = lazy(() => import("./pages/NeighborhoodPage"));
+const AllBusinessesMap = lazy(() => import("./pages/AllBusinessesMap"));
+const SubcategoryPage = lazy(() => import("./pages/SubcategoryPage"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const AncienAccueil = lazy(() => import("./pages/AncienAccueil"));
+const HotelSearch = lazy(() => import("./pages/HotelSearch"));
+const Club = lazy(() => import("./pages/Club"));
 const LogoEffectsDemo = lazy(() => import("./pages/LogoEffectsDemo"));
 const AIEffectsDemo = lazy(() => import("./pages/AIEffectsDemo"));
-import CGF from "./pages/CGF";
-import SearchAnalytics from "./pages/SearchAnalytics";
+const CGF = lazy(() => import("./pages/CGF"));
+const SearchAnalytics = lazy(() => import("./pages/SearchAnalytics"));
 const StaffMaster = lazy(() => import("./pages/StaffMaster"));
-import StaffB2B from "./pages/StaffB2B";
-import DestinationPage from "./pages/DestinationPage";
-import SearchLayoutDemo from "./pages/SearchLayoutDemo";
-import SearchPageCopy from "./pages/SearchPageCopy";
-import StrictModePage from "./pages/StrictModePage";
-import IconPreview from "./pages/IconPreview";
-import BlogPresentation from "./pages/BlogPresentation";
-import BlogPresentationFR from "./pages/BlogPresentationFR";
-import Unsubscribe from "./pages/Unsubscribe";
-import CarouselNavDemo from "./pages/CarouselNavDemo";
+const StaffB2B = lazy(() => import("./pages/StaffB2B"));
+const DestinationPage = lazy(() => import("./pages/DestinationPage"));
+const SearchLayoutDemo = lazy(() => import("./pages/SearchLayoutDemo"));
+const SearchPageCopy = lazy(() => import("./pages/SearchPageCopy"));
+const StrictModePage = lazy(() => import("./pages/StrictModePage"));
+const IconPreview = lazy(() => import("./pages/IconPreview"));
+const BlogPresentation = lazy(() => import("./pages/BlogPresentation"));
+const BlogPresentationFR = lazy(() => import("./pages/BlogPresentationFR"));
+const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
+const CarouselNavDemo = lazy(() => import("./pages/CarouselNavDemo"));
 
 const queryClient = new QueryClient();
+
+const renderLazyRoute = (page: JSX.Element) => <Suspense fallback={null}>{page}</Suspense>;
 
 const GlobalFloatingSearchBar = () => {
   const location = useLocation();
@@ -90,52 +92,52 @@ const AppContent = () => {
           <RouteTransition>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/business/:slug" element={<BusinessDetail />} />
-              <Route path="/city/:city" element={<CityMap />} />
-              <Route path="/category/:categoryName" element={<CategoryPage />} />
-              <Route path="/service/*" element={<ServicePage />} />
-              <Route path="/search" element={<SearchPage />} />
-              <Route path="/staff/login" element={<StaffLogin />} />
-              <Route path="/staff/backoffice" element={<StaffHub />} />
-              <Route path="/staff/catalogue" element={<StaffBackoffice />} />
-              <Route path="/staff/crm" element={<StaffCRM />} />
-              <Route path="/staff/master" element={<StaffRouteGuard><Suspense fallback={null}><StaffMaster /></Suspense></StaffRouteGuard>} />
-              <Route path="/staff/b2b" element={<StaffB2B />} />
-              <Route path="/affiliates" element={<AffiliatesLogin />} />
-              <Route path="/affiliates/reset-password" element={<AffiliatesResetPassword />} />
-              <Route path="/affiliates/dashboard" element={<AffiliatesDashboard />} />
-              <Route path="/affiliates/presence" element={<AffiliatePresence />} />
-              <Route path="/devenir-affilie" element={<BecomeAffiliate />} />
-              <Route path="/mission" element={<Mission />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/essaouira-vue-mer" element={<EssaouiraSeaView />} />
-              <Route path="/staff/animations" element={<StaffRouteGuard><BlogAnimations /></StaffRouteGuard>} />
-              <Route path="/staff/carousel-nav-demo" element={<StaffRouteGuard><CarouselNavDemo /></StaffRouteGuard>} />
-              <Route path="/blog/ancien-accueil" element={<AncienAccueil />} />
-              <Route path="/blog/typographie" element={<BlogTypography />} />
-              <Route path="/staff/brummell" element={<StaffRouteGuard><BlogBrummellTypography /></StaffRouteGuard>} />
-              <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route path="/staff/etablissements-notes" element={<StaffRouteGuard><RatedBusinesses /></StaffRouteGuard>} />
-              <Route path="/neighborhood/:neighborhood" element={<NeighborhoodPage />} />
-              <Route path="/carte" element={<AllBusinessesMap />} />
-              <Route path="/subcategory/:subcategoryName" element={<SubcategoryPage />} />
-              <Route path="/hotels" element={<HotelSearch />} />
-              <Route path="/club" element={<Club />} />
-              <Route path="/staff/demo-effects" element={<StaffRouteGuard><Suspense fallback={null}><LogoEffectsDemo /></Suspense></StaffRouteGuard>} />
-              <Route path="/search-analytics" element={<SearchAnalytics />} />
-              <Route path="/destination/:destinationName" element={<DestinationPage />} />
-              <Route path="/conditions-generales" element={<CGF />} />
-              <Route path="/staff/search-layouts" element={<StaffRouteGuard><SearchLayoutDemo /></StaffRouteGuard>} />
-              <Route path="/blog/search-copy" element={<SearchPageCopy />} />
-              <Route path="/staff/mode-strict" element={<StaffRouteGuard><StrictModePage /></StaffRouteGuard>} />
-              <Route path="/staff/ai-effects" element={<StaffRouteGuard><Suspense fallback={null}><AIEffectsDemo /></Suspense></StaffRouteGuard>} />
-              <Route path="/blog/icon-preview" element={<IconPreview />} />
-              <Route path="/staff/presentation" element={<StaffRouteGuard><BlogPresentation /></StaffRouteGuard>} />
-              <Route path="/staff/presentation-fr" element={<StaffRouteGuard><BlogPresentationFR /></StaffRouteGuard>} />
-              <Route path="/unsubscribe" element={<Unsubscribe />} />
+              <Route path="/business/:slug" element={renderLazyRoute(<BusinessDetail />)} />
+              <Route path="/city/:city" element={renderLazyRoute(<CityMap />)} />
+              <Route path="/category/:categoryName" element={renderLazyRoute(<CategoryPage />)} />
+              <Route path="/service/*" element={renderLazyRoute(<ServicePage />)} />
+              <Route path="/search" element={renderLazyRoute(<SearchPage />)} />
+              <Route path="/staff/login" element={renderLazyRoute(<StaffLogin />)} />
+              <Route path="/staff/backoffice" element={renderLazyRoute(<StaffHub />)} />
+              <Route path="/staff/catalogue" element={renderLazyRoute(<StaffBackoffice />)} />
+              <Route path="/staff/crm" element={renderLazyRoute(<StaffCRM />)} />
+              <Route path="/staff/master" element={<StaffRouteGuard>{renderLazyRoute(<StaffMaster />)}</StaffRouteGuard>} />
+              <Route path="/staff/b2b" element={renderLazyRoute(<StaffB2B />)} />
+              <Route path="/affiliates" element={renderLazyRoute(<AffiliatesLogin />)} />
+              <Route path="/affiliates/reset-password" element={renderLazyRoute(<AffiliatesResetPassword />)} />
+              <Route path="/affiliates/dashboard" element={renderLazyRoute(<AffiliatesDashboard />)} />
+              <Route path="/affiliates/presence" element={renderLazyRoute(<AffiliatePresence />)} />
+              <Route path="/devenir-affilie" element={renderLazyRoute(<BecomeAffiliate />)} />
+              <Route path="/mission" element={renderLazyRoute(<Mission />)} />
+              <Route path="/contact" element={renderLazyRoute(<Contact />)} />
+              <Route path="/blog" element={renderLazyRoute(<Blog />)} />
+              <Route path="/blog/essaouira-vue-mer" element={renderLazyRoute(<EssaouiraSeaView />)} />
+              <Route path="/staff/animations" element={<StaffRouteGuard>{renderLazyRoute(<BlogAnimations />)}</StaffRouteGuard>} />
+              <Route path="/staff/carousel-nav-demo" element={<StaffRouteGuard>{renderLazyRoute(<CarouselNavDemo />)}</StaffRouteGuard>} />
+              <Route path="/blog/ancien-accueil" element={renderLazyRoute(<AncienAccueil />)} />
+              <Route path="/blog/typographie" element={renderLazyRoute(<BlogTypography />)} />
+              <Route path="/staff/brummell" element={<StaffRouteGuard>{renderLazyRoute(<BlogBrummellTypography />)}</StaffRouteGuard>} />
+              <Route path="/blog/:slug" element={renderLazyRoute(<BlogPost />)} />
+              <Route path="/staff/etablissements-notes" element={<StaffRouteGuard>{renderLazyRoute(<RatedBusinesses />)}</StaffRouteGuard>} />
+              <Route path="/neighborhood/:neighborhood" element={renderLazyRoute(<NeighborhoodPage />)} />
+              <Route path="/carte" element={renderLazyRoute(<AllBusinessesMap />)} />
+              <Route path="/subcategory/:subcategoryName" element={renderLazyRoute(<SubcategoryPage />)} />
+              <Route path="/hotels" element={renderLazyRoute(<HotelSearch />)} />
+              <Route path="/club" element={renderLazyRoute(<Club />)} />
+              <Route path="/staff/demo-effects" element={<StaffRouteGuard>{renderLazyRoute(<LogoEffectsDemo />)}</StaffRouteGuard>} />
+              <Route path="/search-analytics" element={renderLazyRoute(<SearchAnalytics />)} />
+              <Route path="/destination/:destinationName" element={renderLazyRoute(<DestinationPage />)} />
+              <Route path="/conditions-generales" element={renderLazyRoute(<CGF />)} />
+              <Route path="/staff/search-layouts" element={<StaffRouteGuard>{renderLazyRoute(<SearchLayoutDemo />)}</StaffRouteGuard>} />
+              <Route path="/blog/search-copy" element={renderLazyRoute(<SearchPageCopy />)} />
+              <Route path="/staff/mode-strict" element={<StaffRouteGuard>{renderLazyRoute(<StrictModePage />)}</StaffRouteGuard>} />
+              <Route path="/staff/ai-effects" element={<StaffRouteGuard>{renderLazyRoute(<AIEffectsDemo />)}</StaffRouteGuard>} />
+              <Route path="/blog/icon-preview" element={renderLazyRoute(<IconPreview />)} />
+              <Route path="/staff/presentation" element={<StaffRouteGuard>{renderLazyRoute(<BlogPresentation />)}</StaffRouteGuard>} />
+              <Route path="/staff/presentation-fr" element={<StaffRouteGuard>{renderLazyRoute(<BlogPresentationFR />)}</StaffRouteGuard>} />
+              <Route path="/unsubscribe" element={renderLazyRoute(<Unsubscribe />)} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
+              <Route path="*" element={renderLazyRoute(<NotFound />)} />
             </Routes>
           </RouteTransition>
           <GlobalFloatingSearchBar />
