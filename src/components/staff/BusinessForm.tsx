@@ -870,7 +870,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     is_active: business ? ((business as any)?.is_active ?? true) : false,
     priority_score: business?.priority_score?.toString() || "0",
     logo_url: business?.logo_url || "",
-    logo_big_url: (business as any)?.logo_big_url || "",
     _initialLogoUrl: business?.logo_url || "",
     
     ice: (business as any)?.ice || "",
@@ -1643,7 +1642,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       is_active: formData.is_active,
       priority_score: parseInt(formData.priority_score) || 0,
       logo_url: formData.logo_url || null,
-      logo_big_url: (formData as any).logo_big_url || null,
       
       ice: formData.ice || null,
       kp_regroupement: formData.kp_regroupement || null,
@@ -2232,14 +2230,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             <LogoUploader
               logoUrl={formData.logo_url}
               onChange={(url) => handleChange("logo_url", url)}
-              businessId={business?.id}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-base font-semibold">Logo Big <span className="text-xs text-muted-foreground font-normal">(mode Afficher)</span></Label>
-            <LogoUploader
-              logoUrl={(formData as any).logo_big_url}
-              onChange={(url) => handleChange("logo_big_url", url)}
               businessId={business?.id}
             />
             {/* Logo background color selector */}

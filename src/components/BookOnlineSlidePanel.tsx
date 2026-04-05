@@ -796,12 +796,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
      if (cm?.kind !== 'video') return;
      const doc = videoDocs.find(d => d.url === cm.url);
      if (!doc?.owner_business_id || doc.owner_business_id === businessId) return;
-     if (!doc.owner_logo_big) return;
-     const key = doc.owner_business_id + ':' + cm.url;
-     if (logoBigShownForRef.current.has(key)) return;
-     logoBigShownForRef.current.add(key);
-    setLogoBigFadingOut(false);
-    setLogoBigOverlay({ src: doc.owner_logo_big, name: doc.owner_name || '', ownerId: doc.owner_business_id });
+      if (!doc.owner_logo) return;
+      const key = doc.owner_business_id + ':' + cm.url;
+      if (logoBigShownForRef.current.has(key)) return;
+      logoBigShownForRef.current.add(key);
+     setLogoBigFadingOut(false);
+     setLogoBigOverlay({ src: doc.owner_logo, name: doc.owner_name || '', ownerId: doc.owner_business_id });
     logoBigTimersRef.current.forEach(clearTimeout);
     const fadeTimer = setTimeout(() => setLogoBigFadingOut(true), 4400);
     const hideTimer = setTimeout(() => { setLogoBigOverlay(null); setLogoBigFadingOut(false); logoBigTimersRef.current = []; }, 5000);
