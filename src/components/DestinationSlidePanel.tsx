@@ -739,6 +739,36 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                 <Navigation className="h-4 w-4" />
                 {language === "en" ? "Directions" : "Itinéraire"}
               </button>
+              {/* Video controls — Play/Pause + Sound */}
+              {currentMedia?.kind === "video" && (
+                <div className="flex items-center gap-6 md:gap-10 mt-1 animate-slide-up-from-bottom">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (videoRef.current) {
+                        if (videoRef.current.paused) videoRef.current.play();
+                        else videoRef.current.pause();
+                      }
+                    }}
+                    className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                    aria-label={videoPaused ? "Play" : "Pause"}
+                  >
+                    {videoPaused ? <Play className="h-5 w-5 md:h-6 md:w-6" /> : <Pause className="h-5 w-5 md:h-6 md:w-6" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (videoRef.current) {
+                        videoRef.current.muted = !videoRef.current.muted;
+                      }
+                    }}
+                    className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                    aria-label={videoMuted ? "Unmute" : "Mute"}
+                  >
+                    {videoMuted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
