@@ -791,7 +791,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
   // Fullscreen logo big overlay — show once per owner when entering Afficher mode on their video
   useEffect(() => {
-     if (!cardsHidden) { logoBigShownForRef.current.clear(); return; }
+     if (!cardsHidden) { logoBigShownForRef.current.clear(); setLogoBigOverlay(null); setLogoBigFadingOut(false); logoBigTimersRef.current.forEach(clearTimeout); logoBigTimersRef.current = []; return; }
      const cm = mediaItems[currentMediaIndex];
      if (cm?.kind !== 'video') return;
      const doc = videoDocs.find(d => d.url === cm.url);
@@ -2292,7 +2292,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       )}
 
       {/* Logo Big overlay — inside slide panel (transparent, video stays visible) */}
-      {logoBigOverlay && (
+      {cardsHidden && logoBigOverlay && (
         <div
           className={`absolute inset-0 -top-[3.3rem] z-[80] flex flex-col items-center justify-center pointer-events-none ${logoBigFadingOut ? 'animate-fullscreen-logo-out' : ''}`}
         >
