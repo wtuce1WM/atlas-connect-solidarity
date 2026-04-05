@@ -506,7 +506,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                         aria-label="Voir la carte"
                         title={language === "en" ? "View on map" : "Voir sur la carte"}
                       >
-                        <Map className="h-4 w-4" />
+                        <MapIcon className="h-4 w-4" />
                       </button>
                     )}
                     {description && (
