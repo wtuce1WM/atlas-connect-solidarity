@@ -197,6 +197,35 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
     fetchExclusiveBusinesses();
   }, [destinationId]);
 
+  // Fetch city-linked videos from business_documents
+  useEffect(() => {
+    const fetchCityVideos = async () => {
+      if (!destination?.name_fr) return;
+      const { data: docs } = await supabase
+        .from("business_documents")
+        .select("url, name, thumbnail_url, business_id")
+        .eq("type", "video")
+        .eq("city", destination.name_fr)
+        .order("sort_order", { ascending: true });
+      if (!docs || docs.length === 0) { setCityVideos([]); return; }
+      // Fetch owner names
+      const ownerIds = [...new Set(docs.map(d => d.business_id))];
+      const { data: owners } = await supabase
+        .from("businesses")
+        .select("id, name")
+        .in("id", ownerIds);
+      const ownerMap = new Map((owners || []).map(o => [o.id, o.name]));
+      setCityVideos(docs.map(d => ({
+        url: d.url,
+        name: d.name,
+        ownerName: ownerMap.get(d.business_id) || "",
+        thumbnailUrl: d.thumbnail_url,
+        businessId: d.business_id,
+      })));
+    };
+    fetchCityVideos();
+  }, [destination?.name_fr]);
+
   const playWoosh = useCallback(() => {
     try { new Audio(wooshSfx).play(); } catch {}
   }, []);
