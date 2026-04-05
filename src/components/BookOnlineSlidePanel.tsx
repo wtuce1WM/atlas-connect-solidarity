@@ -2177,7 +2177,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         </div>
       )}
 
-      {/* POI Google Map overlay */}
+      {/* KP business detail overlay */}
+      {selectedKpBusinessId && (
+        <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[70] animate-slide-up-from-bottom bg-background">
+          <BookOnlineSlidePanel
+            businessId={selectedKpBusinessId}
+            onClose={() => setSelectedKpBusinessId(null)}
+          />
+        </div>
+      )}
+
+
       {showPoiMapOverlay && (
         <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[60] bg-background flex flex-col animate-slide-in-right">
           <div className="shrink-0 flex items-center px-4 py-2 border-b bg-background gap-2">
