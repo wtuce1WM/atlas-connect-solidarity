@@ -11,6 +11,8 @@ interface MediaCounterBarProps {
   cardsHidden: boolean;
   onPrev: () => void;
   onNext: () => void;
+  /** Optional content rendered between the chevrons (e.g. a toggle button). When provided, replaces the default counter pill. */
+  children?: React.ReactNode;
 }
 
 export const MediaCounterBar = ({ currentIndex, totalMedia, cardsHidden, onPrev, onNext }: MediaCounterBarProps) => {
