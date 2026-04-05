@@ -285,7 +285,17 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const safeIndex = totalMedia > 0 ? currentMediaIndex % totalMedia : 0;
   const currentMedia = totalMedia > 0 ? mediaItems[safeIndex] : null;
 
-  // Build full lightbox items (images + videos + matterport)
+  // Build videoDocs-compatible array for owner logo/badge
+  const ownerVideoDocs = useMemo(() => cityVideos.map(cv => ({
+    url: cv.url,
+    owner_business_id: cv.businessId,
+    owner_logo: cv.ownerLogo,
+    owner_name: cv.ownerName || null,
+  })), [cityVideos]);
+
+  // Owner logo overlay hook — destinationId acts as "current business" so all city videos show owner info
+  const { logoBigOverlay, logoBigFadingOut } = useOwnerLogo(cardsHidden, currentMediaIndex, mediaItems, ownerVideoDocs, destinationId);
+
   const lightboxItems: LightboxMediaItem[] = [
     ...allImages.map((url) => ({ type: "image" as const, src: url, alt: destName })),
     ...videos.map((url) => ({ type: "video" as const, src: url, alt: destName })),
