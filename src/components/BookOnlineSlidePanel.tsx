@@ -435,6 +435,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     setDescExpanded(true);
     setSelectedDestinationId(null);
     setSelectedPoiBusinessId(null);
+    setSelectedKpBusinessId(null);
     setShowBookingOverlay(false);
     setDocOverlay(null);
     setIsLightboxOpen(false);
