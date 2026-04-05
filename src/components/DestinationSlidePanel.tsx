@@ -19,6 +19,7 @@ interface DestinationSlidePanelProps {
   destinationId: string;
   onClose: () => void;
   slideFrom?: "right" | "bottom";
+  interceptCloseRef?: React.MutableRefObject<(() => boolean) | null>;
 }
 
 interface DestinationFull {
@@ -65,7 +66,7 @@ const MemoizedDestMap = React.memo(({ destination, regionDestinations }: { desti
   );
 });
 
-const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: DestinationSlidePanelProps) => {
+const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", interceptCloseRef }: DestinationSlidePanelProps) => {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const slideAnim = slideFrom === "bottom" ? "animate-slide-up-from-bottom" : "animate-slide-in-right";
@@ -86,6 +87,19 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const [activeBottomTab, setActiveBottomTab] = useState<string>("cityVideos");
   const [activeBusinessId, setActiveBusinessId] = useState<string | null>(null);
   const bottomTabInitialRef = React.useRef(true);
+
+  // Expose close interceptor: when a business is open, close it first
+  React.useEffect(() => {
+    if (!interceptCloseRef) return;
+    if (activeBusinessId) {
+      interceptCloseRef.current = () => {
+        setActiveBusinessId(null);
+        return true;
+      };
+    } else {
+      interceptCloseRef.current = null;
+    }
+  }, [activeBusinessId, interceptCloseRef]);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoPaused, setVideoPaused] = useState(true);
   const [videoMuted, setVideoMuted] = useState(true);
