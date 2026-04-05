@@ -1658,26 +1658,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         {/* Spacer + availability zone when cards hidden */}
         {cardsHidden && (
           <div className={`flex-1 w-full flex flex-col justify-center gap-3 px-0 md:px-8 overflow-y-auto ${effectiveMedia?.kind === "matterport" ? "pointer-events-none" : "pointer-events-auto"}`}>
-            {/* Video owner business link */}
-            {effectiveMedia?.kind === "video" && (() => {
-              const currentVideoDoc = videoDocs.find(d => d.url === effectiveMedia.url);
-              if (!currentVideoDoc?.owner_business_id || currentVideoDoc.owner_business_id === businessId) return null;
-              if (!currentVideoDoc.owner_name) return null;
-              const bigLogo = currentVideoDoc.owner_logo_big;
-              return (
-                <div className="self-center flex flex-col items-center gap-3 pointer-events-auto">
-                  <button
-                    onClick={() => setActiveBusinessId(currentVideoDoc.owner_business_id!)}
-                    className="flex items-center gap-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/15 px-3 py-1.5 hover:bg-black/70 transition-colors animate-slide-up-from-bottom"
-                  >
-                    <span className="text-xs font-medium text-white truncate max-w-[180px]" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                      {currentVideoDoc.owner_name}
-                    </span>
-                    <ChevronRight className="h-3.5 w-3.5 text-white/60 shrink-0" />
-                  </button>
-                </div>
-              );
-            })()}
             {hotelSearchLoading && (
               <div className="flex items-center justify-center gap-2 text-white/80">
                 <Loader2 className="h-5 w-5 animate-spin" />
