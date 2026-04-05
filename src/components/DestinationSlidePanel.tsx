@@ -567,7 +567,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
             const hasBizTab = exclusiveBusinesses.length > 0;
             type DestTab = { id: string; label: string };
             const tabs: DestTab[] = [];
-            if (hasVideosTab) tabs.push({ id: "videos", label: language === "en" ? "Videos" : "Vidéos" });
+            if (hasVideosTab) tabs.push({ id: "videos", label: "YouTube" });
             if (hasBizTab) tabs.push({ id: "businesses", label: language === "en" ? "Establishments" : "Établissements" });
             if (tabs.length === 0 || flipped) return null;
             const currentTab = tabs.find(t => t.id === activeBottomTab) ? activeBottomTab : tabs[0]?.id;
