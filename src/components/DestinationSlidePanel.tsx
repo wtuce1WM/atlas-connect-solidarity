@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { businessUrl } from "@/lib/businessUrl";
 import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation, Minimize2, Map as MapIcon, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import BottomTabsCarousel, { TabScrollRail, TabVideoCard, TabYouTubeCard, TabCard, type BottomTabConfig } from "@/components/BottomTabsCarousel";
 import { useDragToHide } from "@/hooks/useDragToHide";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import wooshSfx from "@/assets/woosh.wav";
@@ -692,173 +693,97 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
           )}
 
           {/* Bottom tabs — same layout as BookOnlineSlidePanel */}
-          {!cardsHidden && <>
-          {(() => {
+          {!cardsHidden && !flipped && (() => {
             const hasCityVideosTab = cityVideos.length > 0;
             const hasYoutubeTab = videos.length > 0;
             const hasBizTab = exclusiveBusinesses.length > 0;
-            type DestTab = { id: string; label: string };
-            const tabs: DestTab[] = [];
-            if (hasCityVideosTab) tabs.push({ id: "cityVideos", label: language === "en" ? "Videos" : "Vidéos" });
-            if (hasYoutubeTab) tabs.push({ id: "youtube", label: "YouTube" });
-            if (hasBizTab) tabs.push({ id: "businesses", label: language === "en" ? "Establishments" : "Établissements" });
-            if (tabs.length === 0 || flipped) return null;
-            const currentTab = tabs.find(t => t.id === activeBottomTab) ? activeBottomTab : tabs[0]?.id;
-            const slideInClass = bottomTabInitialRef.current ? "animate-slide-in-left opacity-0" : "";
-            const handleTabChange = (id: string) => { bottomTabInitialRef.current = false; setActiveBottomTab(id); };
+            const tabs: BottomTabConfig[] = [];
+
+            if (hasCityVideosTab) tabs.push({
+              id: "cityVideos",
+              label: language === "en" ? "Videos" : "Vidéos",
+              renderContent: (animate, animCls) => (
+                <TabScrollRail>
+                  {cityVideos.map((cv, index) => {
+                    const info = getVideoInfo(cv.url);
+                    return (
+                      <TabVideoCard
+                        key={index}
+                        thumbnailUrl={cv.thumbnailUrl}
+                        platformThumbnailUrl={info.thumbnail}
+                        label={cv.name || cv.ownerName || `${language === "en" ? "Video" : "Vidéo"} ${index + 1}`}
+                        onClick={() => setFullscreenVideo(cv.url)}
+                        animate={animate}
+                        animationClass={animCls}
+                        animationDelay={index * 120}
+                      />
+                    );
+                  })}
+                </TabScrollRail>
+              ),
+            });
+
+            if (hasYoutubeTab) tabs.push({
+              id: "youtube",
+              label: "YouTube",
+              tabStyle: "youtube",
+              renderContent: (animate, animCls) => (
+                <TabScrollRail gap="gap-3">
+                  {videos.map((videoUrl, index) => {
+                    const info = getVideoInfo(videoUrl);
+                    const cardLabel = info.type === "youtube"
+                      ? `YouTube ${index + 1}`
+                      : info.type === "vimeo"
+                        ? `Vimeo ${index + 1}`
+                        : `${language === "en" ? "Video" : "Vidéo"} ${index + 1}`;
+                    return (
+                      <TabYouTubeCard
+                        key={index}
+                        thumbnailUrl={info.thumbnail}
+                        videoPreviewUrl={info.type === "file" ? videoUrl : undefined}
+                        label={cardLabel}
+                        onClick={() => setFullscreenVideo(videoUrl)}
+                        animate={animate}
+                        animationClass={animCls}
+                        animationDelay={index * 120}
+                      />
+                    );
+                  })}
+                </TabScrollRail>
+              ),
+            });
+
+            if (hasBizTab) tabs.push({
+              id: "businesses",
+              label: language === "en" ? "Establishments" : "Établissements",
+              renderContent: (animate, animCls) => (
+                <TabScrollRail>
+                  {exclusiveBusinesses.map((biz, index) => {
+                    const bizImg = biz.images && biz.images.length > 0 ? biz.images[0] : null;
+                    return (
+                      <TabCard
+                        key={biz.id}
+                        imageUrl={bizImg}
+                        label={biz.name}
+                        href={businessUrl(biz)}
+                        animate={animate}
+                        animationClass={animCls}
+                        animationDelay={index * 120}
+                      />
+                    );
+                  })}
+                </TabScrollRail>
+              ),
+            });
+
+            if (tabs.length === 0) return null;
+
             return (
-              <>
-                {/* Tab bar */}
-                <div className="shrink-0 overflow-x-auto scrollbar-hide pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 pt-2 pb-1">
-                  <div className="flex gap-1 w-max">
-                    <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
-                    {tabs.map((tab) => (
-                      <button
-                        key={tab.id}
-                        onClick={() => handleTabChange(tab.id)}
-                        className={`px-3 py-1.5 rounded-full transition-colors border border-transparent whitespace-nowrap ${
-                          currentTab === tab.id
-                            ? "bg-black text-white"
-                            : tab.id === "youtube"
-                              ? "bg-[#FF0000] text-white hover:bg-[#CC0000]"
-                              : "bg-white/70 text-black hover:bg-white/80"
-                        }`}
-                        style={{ fontFamily: 'Josefin Sans, sans-serif', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase', fontSize: '11px', lineHeight: '16px', padding: '6px 12px' }}
-                      >
-                        {tab.label}
-                      </button>
-                    ))}
-                    <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
-                  </div>
-                </div>
-
-                {/* Tab content */}
-                <div className="shrink-0 h-[9.5rem] md:h-[12.5rem] lg:h-[17.5rem]">
-                  {/* City Videos tab */}
-                  {currentTab === "cityVideos" && hasCityVideosTab && (
-                    <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
-                      <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                        <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
-                        {cityVideos.map((cv, index) => {
-                          const info = getVideoInfo(cv.url);
-                          const cardLabel = cv.name || cv.ownerName || `${language === "en" ? "Video" : "Vidéo"} ${index + 1}`;
-                          return (
-                            <div
-                              key={index}
-                              className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
-                              style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: "forwards" } : undefined}
-                              onClick={() => setFullscreenVideo(cv.url)}
-                            >
-                              <div className="relative">
-                                {cv.thumbnailUrl ? (
-                                  <img src={cv.thumbnailUrl} alt={cardLabel} loading="lazy" decoding="async" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
-                                ) : info.thumbnail ? (
-                                  <img src={info.thumbnail} alt={cardLabel} loading="lazy" decoding="async" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
-                                ) : info.type === "file" ? (
-                                  <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
-                                    <span className="text-2xl">▶</span>
-                                  </div>
-                                ) : (
-                                  <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
-                                    <span className="text-2xl">▶</span>
-                                  </div>
-                                )}
-                              </div>
-                              <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
-                                {cardLabel}
-                              </p>
-                            </div>
-                          );
-                        })}
-                        <div className="shrink-0 w-6" aria-hidden="true" />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* YouTube tab */}
-                  {currentTab === "youtube" && hasYoutubeTab && (
-                    <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
-                      <div className="flex w-max gap-3 overflow-x-auto scrollbar-hide scroll-smooth pt-1 pb-1 pl-1 -mt-1">
-                        {videos.map((videoUrl, index) => {
-                          const info = getVideoInfo(videoUrl);
-                          const cardLabel = info.type === "youtube"
-                            ? `YouTube ${index + 1}`
-                            : info.type === "vimeo"
-                              ? `Vimeo ${index + 1}`
-                              : `${language === "en" ? "Video" : "Vidéo"} ${index + 1}`;
-                          return (
-                            <div
-                              key={index}
-                              className={`flex-shrink-0 rounded-xl overflow-hidden relative cursor-pointer group/card transition-all w-44 h-[8.5rem] md:h-[11.5rem] lg:h-[16.5rem] ${slideInClass}`}
-                              style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: "forwards" } : undefined}
-                              onClick={() => setFullscreenVideo(videoUrl)}
-                            >
-                              {info.thumbnail ? (
-                                <img
-                                  src={info.thumbnail}
-                                  alt={cardLabel}
-                                  loading="lazy"
-                                  decoding="async"
-                                  className="absolute inset-0 w-full h-full object-cover scale-[1.35]"
-                                />
-                              ) : info.type === "file" ? (
-                                <video src={videoUrl} className="absolute inset-0 w-full h-full object-cover" muted playsInline preload="metadata" />
-                              ) : (
-                                <div className="absolute inset-0 w-full h-full bg-white/10 flex items-center justify-center">
-                                  <span className="text-2xl">▶</span>
-                                </div>
-                              )}
-                              <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover/card:bg-black/40 transition-colors">
-                                <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
-                                  <Play className="h-5 w-5 text-white fill-white ml-0.5" />
-                                </div>
-                              </div>
-                              <p className="absolute bottom-0 left-0 right-0 px-2 py-1 text-[10px] leading-tight text-white font-medium bg-gradient-to-t from-black/80 to-transparent line-clamp-2">
-                                {cardLabel}
-                              </p>
-                            </div>
-                          );
-                        })}
-                        <div className="shrink-0 w-6" aria-hidden="true" />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Businesses tab */}
-                  {currentTab === "businesses" && hasBizTab && (
-                    <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
-                      <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                        <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
-                        {exclusiveBusinesses.map((biz, index) => {
-                          const bizImg = biz.images && biz.images.length > 0 ? biz.images[0] : null;
-                          return (
-                            <a
-                              key={biz.id}
-                              href={businessUrl(biz)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
-                              style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: "forwards" } : undefined}
-                            >
-                              {bizImg ? (
-                                <img src={bizImg} alt={biz.name} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
-                              ) : (
-                                <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
-                                  <MapPin className="h-5 w-5 text-white/40" />
-                                </div>
-                              )}
-                              <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
-                                {biz.name}
-                              </p>
-                            </a>
-                          );
-                        })}
-                        <div className="shrink-0 w-6" aria-hidden="true" />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </>
+              <BottomTabsCarousel
+                tabs={tabs}
+                activeTab={activeBottomTab}
+                onTabChange={(id) => { bottomTabInitialRef.current = false; setActiveBottomTab(id); }}
+              />
             );
           })()}
 
@@ -904,7 +829,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
               )}
             </div>
           )}
-          </>}
+          
         </div>
       </div>
     </div>
