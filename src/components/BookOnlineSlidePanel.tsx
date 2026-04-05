@@ -465,6 +465,58 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoPaused, setVideoPaused] = useState(true);
   const [videoMuted, setVideoMuted] = useState(true);
+  // Fallback: fetch nearby businesses within 5km when no POIs are linked
+  useEffect(() => {
+    if (poiBusinesses.length > 0 || !business?.latitude || !business?.longitude) {
+      setNearbyFallback([]);
+      return;
+    }
+    let cancelled = false;
+    const fetchNearby = async () => {
+      const lat = business.latitude!;
+      const lng = business.longitude!;
+      // Rough bounding box for 5km
+      const delta = 5 / 111;
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name, latitude, longitude, images, city, neighborhood, is_master, kp_regroupement")
+        .eq("is_active", true)
+        .gte("latitude", lat - delta)
+        .lte("latitude", lat + delta)
+        .gte("longitude", lng - delta)
+        .lte("longitude", lng + delta)
+        .neq("id", business.id);
+      if (cancelled || !data) return;
+      // Filter to exact 5km radius
+      const inRadius = data.filter((b: any) =>
+        b.latitude && b.longitude && haversineKm(lat, lng, b.latitude, b.longitude) <= 5
+      );
+      // Deduplicate by GPS coordinates: keep is_master when multiple share same coords
+      const coordMap = new Map<string, any>();
+      for (const b of inRadius) {
+        const key = `${b.latitude?.toFixed(6)},${b.longitude?.toFixed(6)}`;
+        const existing = coordMap.get(key);
+        if (!existing) {
+          coordMap.set(key, b);
+        } else if (b.is_master && !existing.is_master) {
+          coordMap.set(key, b);
+        }
+      }
+      const deduped = Array.from(coordMap.values()).map((b: any) => ({
+        id: b.id,
+        name: b.name,
+        latitude: b.latitude,
+        longitude: b.longitude,
+        images: b.images,
+        city: b.city,
+        neighborhood: b.neighborhood,
+      } as PoiMapItem));
+      if (!cancelled) setNearbyFallback(deduped);
+    };
+    fetchNearby();
+    return () => { cancelled = true; };
+  }, [poiBusinesses.length, business?.id, business?.latitude, business?.longitude]);
+
   const keepMutedRef = useRef(false);
   const muteLockSrcRef = useRef<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
