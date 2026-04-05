@@ -96,6 +96,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook'; ts: number } | null>(null);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
+  const [selectedKpBusinessId, setSelectedKpBusinessId] = useState<string | null>(null);
   const [showPoiMapOverlay, setShowPoiMapOverlay] = useState(false);
   const poiOpenedFromMapRef = useRef(false);
   const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ url: string; name: string | null; description: string | null } | null>(null);
@@ -434,6 +435,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     setDescExpanded(true);
     setSelectedDestinationId(null);
     setSelectedPoiBusinessId(null);
+    setSelectedKpBusinessId(null);
     setShowBookingOverlay(false);
     setDocOverlay(null);
     setIsLightboxOpen(false);
@@ -514,7 +516,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
   // Pause/resume background media when overlays open/close
   useEffect(() => {
-    const overlayOpen = !!selectedDestinationId || !!selectedPoiBusinessId || !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic || !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay || showFallbackOverlay;
+    const overlayOpen = !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId || !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic || !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay || showFallbackOverlay;
 
     if (overlayOpen) {
       overlayWasOpenRef.current = true;
@@ -551,7 +553,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     if (videoRef.current && videoRef.current.paused) {
       videoRef.current.play().catch(() => {});
     }
-  }, [selectedDestinationId, selectedPoiBusinessId, docOverlay, showBookingOverlay, showYoutubeOverlay, showMosaic, externalOverlayActive, showPoiMapOverlay, activeVideoOverlay, showFallbackOverlay]);
+  }, [selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId, docOverlay, showBookingOverlay, showYoutubeOverlay, showMosaic, externalOverlayActive, showPoiMapOverlay, activeVideoOverlay, showFallbackOverlay]);
 
   const bookUrl = business?.reserve_now_url || null;
   const shopUrl = business?.online_shop_url || null;
@@ -968,7 +970,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       )}
       {/* Portal WhatsApp/Phone icon into center */}
       {toolbarCenterPortal && (() => {
-        const anyOverlay = showDirections || showBookingOverlay || !!docOverlay || !!selectedDestinationId || !!selectedPoiBusinessId || showPoiMapOverlay || !!activeVideoOverlay || isLightboxOpen || showMosaic || showYoutubeOverlay || !!availabilityOverlayCtx || !!serpApiOverlayCtx || showFallbackOverlay || !!externalOverlayActive;
+        const anyOverlay = showDirections || showBookingOverlay || !!docOverlay || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId || showPoiMapOverlay || !!activeVideoOverlay || isLightboxOpen || showMosaic || showYoutubeOverlay || !!availabilityOverlayCtx || !!serpApiOverlayCtx || showFallbackOverlay || !!externalOverlayActive;
         return createPortal(
           <div className="flex items-center gap-6">
             {business.whatsapp ? (
@@ -1575,7 +1577,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     key={rel.id}
                     className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
                     style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' } : undefined}
-                    onClick={() => setActiveBusinessId(rel.id)}
+                    onClick={() => setSelectedKpBusinessId(rel.id)}
                   >
                     {relImg ? (
                       <img src={relImg} alt={rel.name} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
@@ -1619,7 +1621,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     key={rel.id}
                     className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
                     style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' } : undefined}
-                    onClick={() => setActiveBusinessId(rel.id)}
+                    onClick={() => setSelectedKpBusinessId(rel.id)}
                   >
                     {relImg ? (
                       <img src={relImg} alt={rel.name} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
@@ -2175,7 +2177,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         </div>
       )}
 
-      {/* POI Google Map overlay */}
+      {/* KP business detail overlay */}
+      {selectedKpBusinessId && (
+        <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[70] animate-slide-up-from-bottom bg-background">
+          <BookOnlineSlidePanel
+            businessId={selectedKpBusinessId}
+            onClose={() => setSelectedKpBusinessId(null)}
+          />
+        </div>
+      )}
+
+
       {showPoiMapOverlay && (
         <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[60] bg-background flex flex-col animate-slide-in-right">
           <div className="shrink-0 flex items-center px-4 py-2 border-b bg-background gap-2">
