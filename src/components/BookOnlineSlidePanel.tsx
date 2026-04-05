@@ -1825,6 +1825,26 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           </div>
         )}
 
+        {/* Video owner badge – just above CTAs */}
+        {cardsHidden && effectiveMedia?.kind === "video" && (() => {
+          const currentVideoDoc = videoDocs.find(d => d.url === effectiveMedia.url);
+          if (!currentVideoDoc?.owner_business_id || currentVideoDoc.owner_business_id === businessId) return null;
+          if (!currentVideoDoc.owner_name) return null;
+          return (
+            <div className="shrink-0 flex justify-center pointer-events-auto pb-1">
+              <button
+                onClick={() => setActiveBusinessId(currentVideoDoc.owner_business_id!)}
+                className="flex items-center gap-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/15 px-3 py-1.5 hover:bg-black/70 transition-colors animate-slide-up-from-bottom"
+              >
+                <span className="text-xs font-medium text-white truncate max-w-[180px]" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                  {currentVideoDoc.owner_name}
+                </span>
+                <ChevronRight className="h-3.5 w-3.5 text-white/60 shrink-0" />
+              </button>
+            </div>
+          );
+        })()}
+
         {/* CTAs + video controls */}
         <div className={`shrink-0 py-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto ${cardsHidden && effectiveMedia?.kind === "matterport" ? 'mb-24' : ''} ${cardsHidden ? '' : noBottomCarousel ? 'lg:mt-auto' : ''}`} style={(cardsHidden && fallbackPanelData && (() => { const ch = fallbackPanelData.hotels.find(h => h.isCurrentHotel); return !!ch; })()) ? { display: 'none' } : undefined}>
             {(() => {
