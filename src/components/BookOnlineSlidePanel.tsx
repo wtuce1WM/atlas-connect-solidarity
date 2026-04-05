@@ -1855,7 +1855,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 className="flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 hover:bg-black/85 transition-colors"
               >
                 <span className="text-xs font-medium text-white truncate max-w-[180px]" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                  {currentVideoDoc.owner_name}
+                  {currentVideoDoc.owner_name} ©
                 </span>
                 <ChevronRight className="h-3.5 w-3.5 text-white/60 shrink-0" />
               </button>
