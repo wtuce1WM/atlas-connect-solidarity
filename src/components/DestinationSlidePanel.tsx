@@ -22,6 +22,7 @@ interface DestinationFull {
   name_en: string | null;
   name_ar: string | null;
   description: string | null;
+  hook: string | null;
   image_url: string | null;
   images: string[] | null;
   videos: string[] | null;
@@ -104,7 +105,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
       setIsLoading(true);
       const { data } = await supabase
         .from("destinations")
-        .select("id, name_fr, name_en, name_ar, description, image_url, images, videos, matterport_url, latitude, longitude, region")
+        .select("id, name_fr, name_en, name_ar, description, hook, image_url, images, videos, matterport_url, latitude, longitude, region")
         .eq("id", destinationId)
         .maybeSingle();
       setDestination(data as DestinationFull | null);
@@ -500,6 +501,9 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                 <div className="flex items-end gap-4">
                   <div className="min-w-0 flex-1">
                     <h2 className="text-xl font-bold truncate drop-shadow-lg">{destName}</h2>
+                    {destination.hook && (
+                      <p className="text-sm text-white/70 mt-1 line-clamp-2">{destination.hook}</p>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     {regionDestinations.length > 0 && (
