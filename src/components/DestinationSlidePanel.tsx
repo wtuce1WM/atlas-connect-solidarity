@@ -602,7 +602,46 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
             </div>
           )}
 
-          {/* CTA Localiser */}
+          {/* Exclusive businesses carousel */}
+          {exclusiveBusinesses.length > 0 && !flipped && (
+            <div className="shrink-0 mb-2">
+              <div className="flex gap-2.5 overflow-x-auto px-4 pb-1 scrollbar-hide">
+                {exclusiveBusinesses.map((biz, index) => {
+                  const bizImg = biz.images && biz.images.length > 0 ? biz.images[0] : null;
+                  const avg = biz.computed_rating ?? biz.rating;
+                  return (
+                    <a
+                      key={biz.id}
+                      href={businessUrl(biz)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                      style={{ animationDelay: `${index * 120}ms`, animationFillMode: "forwards" }}
+                    >
+                      {bizImg ? (
+                        <img src={bizImg} alt={biz.name} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                      ) : (
+                        <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
+                          <MapPin className="h-5 w-5 text-white/40" />
+                        </div>
+                      )}
+                      <div className="px-1.5 py-1.5">
+                        <p className="text-xs font-medium text-white truncate">{biz.name}</p>
+                        {avg != null && (
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <Star className="h-3 w-3 text-gold fill-gold" />
+                            <span className="text-[10px] text-white/80">{avg}/20</span>
+                          </div>
+                        )}
+                      </div>
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+
           {destination.latitude && destination.longitude && (
             <div className="shrink-0 py-2 flex flex-col items-center gap-2">
               <button
