@@ -80,7 +80,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [flipped, setFlipped] = useState(false);
   const [regionDestinations, setRegionDestinations] = useState<PoiMapItem[]>([]);
-  const [exclusiveBusinesses, setExclusiveBusinesses] = useState<{ id: string; name: string; slug: string; city: string | null; neighborhood: string | null; images: string[] | null; computed_rating: number | null; rating: number | null; }[]>([]);
+  const [frontTabs, setFrontTabs] = useState<{ id: string; name: string; businesses: { id: string; name: string; slug: string; city: string | null; neighborhood: string | null; images: string[] | null; computed_rating: number | null; rating: number | null }[] }[]>([]);
   const [cityVideos, setCityVideos] = useState<{ url: string; name: string | null; ownerName: string; thumbnailUrl: string | null; businessId: string; ownerLogo: string | null; ownerSlug: string | null }[]>([]);
   const [activeBottomTab, setActiveBottomTab] = useState<string>("cityVideos");
   const bottomTabInitialRef = React.useRef(true);
@@ -110,7 +110,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
     setShowDirections(false);
     setFlipped(false);
     setRegionDestinations([]);
-    setExclusiveBusinesses([]);
+    setFrontTabs([]);
     setCityVideos([]);
     bottomTabInitialRef.current = true;
   }, [destinationId]);
@@ -160,51 +160,70 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
     fetchRegionDests();
   }, [destination?.region, destinationId]);
 
-  // Fetch businesses linked ONLY to this destination (not linked to multiple destinations)
+  // Fetch businesses linked to this destination, grouped by front_structure entries
   useEffect(() => {
-    const fetchExclusiveBusinesses = async () => {
+    const fetchFrontTabs = async () => {
       // 1. Get all business_ids linked to this destination
       const { data: links } = await (supabase
         .from("business_destinations" as any)
         .select("business_id")
         .eq("destination_id", destinationId) as any);
-      if (!links || links.length === 0) { setExclusiveBusinesses([]); return; }
+      if (!links || links.length === 0) { setFrontTabs([]); return; }
 
       const bizIds = (links as any[]).map((l: any) => l.business_id as string);
 
-      // 2. For each business, check if it has links to other destinations
-      // Fetch all business_destinations for these businesses
-      const { data: allLinks } = await (supabase
-        .from("business_destinations" as any)
-        .select("business_id, destination_id")
-        .in("business_id", bizIds) as any);
+      // 2. Fetch front_structure entries + their subcategory names
+      const [fsRes, fssRes, subsRes] = await Promise.all([
+        supabase.from("front_structure").select("id, name, sort_order").order("sort_order"),
+        supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
+        supabase.from("subcategories").select("id, name_fr, name_en, name_ar"),
+      ]);
+      const fsEntries = fsRes.data || [];
+      const fssLinks = fssRes.data || [];
+      const subMap = new Map((subsRes.data || []).map((s: any) => [s.id, s]));
 
-      // Keep only businesses that appear exactly once (only this destination)
-      const countMap = new Map<string, number>();
-      if (allLinks) {
-        for (const link of allLinks as any[]) {
-          countMap.set(link.business_id, (countMap.get(link.business_id) || 0) + 1);
-        }
+      // Build map: front_structure_id -> Set of subcategory names (all langs)
+      const fsSubNames = new Map<string, Set<string>>();
+      for (const link of fssLinks) {
+        const sub = subMap.get(link.subcategory_id);
+        if (!sub) continue;
+        if (!fsSubNames.has(link.front_structure_id)) fsSubNames.set(link.front_structure_id, new Set());
+        const s = fsSubNames.get(link.front_structure_id)!;
+        if (sub.name_fr) s.add(sub.name_fr);
+        if (sub.name_en) s.add(sub.name_en);
+        if (sub.name_ar) s.add(sub.name_ar);
       }
-      const exclusiveIds = bizIds.filter(id => (countMap.get(id) || 0) === 1);
-      if (exclusiveIds.length === 0) { setExclusiveBusinesses([]); return; }
 
-      // 3. Fetch business details
+      // 3. Fetch business details (with categories)
       const all: any[] = [];
-      for (let i = 0; i < exclusiveIds.length; i += 500) {
-        const chunk = exclusiveIds.slice(i, i + 500);
+      for (let i = 0; i < bizIds.length; i += 500) {
+        const chunk = bizIds.slice(i, i + 500);
         const { data } = await supabase
           .from("businesses")
-          .select("id, name, slug, city, neighborhood, images, computed_rating, rating")
+          .select("id, name, slug, city, neighborhood, images, computed_rating, rating, categories")
           .eq("is_active", true)
           .in("id", chunk);
         if (data) all.push(...data);
       }
-      // Sort by rating desc
-      all.sort((a, b) => ((b.computed_rating ?? b.rating ?? 0) - (a.computed_rating ?? a.rating ?? 0)));
-      setExclusiveBusinesses(all);
+
+      // 4. Group businesses by front_structure entry
+      const tabs: typeof frontTabs = [];
+      const usedBizIds = new Set<string>();
+      for (const fs of fsEntries) {
+        const subNames = fsSubNames.get(fs.id);
+        if (!subNames || subNames.size === 0) continue;
+        const matching = all.filter(biz =>
+          biz.categories?.some((cat: string) => subNames.has(cat))
+        );
+        if (matching.length === 0) continue;
+        matching.sort((a: any, b: any) => ((b.computed_rating ?? b.rating ?? 0) - (a.computed_rating ?? a.rating ?? 0)));
+        matching.forEach((b: any) => usedBizIds.add(b.id));
+        tabs.push({ id: fs.id, name: fs.name, businesses: matching });
+      }
+
+      setFrontTabs(tabs);
     };
-    fetchExclusiveBusinesses();
+    fetchFrontTabs();
   }, [destinationId]);
 
   // Fetch city-linked videos from business_documents
@@ -691,7 +710,6 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
           {!cardsHidden && !flipped && (() => {
             const hasCityVideosTab = cityVideos.length > 0;
             const hasYoutubeTab = videos.length > 0;
-            const hasBizTab = exclusiveBusinesses.length > 0;
             const tabs: BottomTabConfig[] = [];
 
             if (hasCityVideosTab) tabs.push({
@@ -749,28 +767,31 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
               ),
             });
 
-            if (hasBizTab) tabs.push({
-              id: "businesses",
-              label: language === "en" ? "Establishments" : "Établissements",
-              renderContent: (animate, animCls) => (
-                <TabScrollRail>
-                  {exclusiveBusinesses.map((biz, index) => {
-                    const bizImg = biz.images && biz.images.length > 0 ? biz.images[0] : null;
-                    return (
-                      <TabCard
-                        key={biz.id}
-                        imageUrl={bizImg}
-                        label={biz.name}
-                        href={businessUrl(biz)}
-                        animate={animate}
-                        animationClass={animCls}
-                        animationDelay={index * 120}
-                      />
-                    );
-                  })}
-                </TabScrollRail>
-              ),
-            });
+            // One tab per front_structure entry with matching businesses
+            for (const ft of frontTabs) {
+              tabs.push({
+                id: `fs-${ft.id}`,
+                label: ft.name,
+                renderContent: (animate, animCls) => (
+                  <TabScrollRail>
+                    {ft.businesses.map((biz, index) => {
+                      const bizImg = biz.images && biz.images.length > 0 ? biz.images[0] : null;
+                      return (
+                        <TabCard
+                          key={biz.id}
+                          imageUrl={bizImg}
+                          label={biz.name}
+                          href={businessUrl(biz)}
+                          animate={animate}
+                          animationClass={animCls}
+                          animationDelay={index * 120}
+                        />
+                      );
+                    })}
+                  </TabScrollRail>
+                ),
+              });
+            }
 
             if (tabs.length === 0) return null;
 
