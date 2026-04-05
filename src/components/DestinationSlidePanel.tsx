@@ -892,7 +892,6 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
               <BookOnlineSlidePanel
                 businessId={activeBusinessId}
                 onClose={() => setActiveBusinessId(null)}
-                slideFrom="bottom"
               />
             </div>
           )}
