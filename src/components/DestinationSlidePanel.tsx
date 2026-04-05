@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation, Minimize2, Map } from "lucide-react";
+import { businessUrl } from "@/lib/businessUrl";
+import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation, Minimize2, Map as MapIcon, Star } from "lucide-react";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import wooshSfx from "@/assets/woosh.wav";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
@@ -73,6 +74,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [flipped, setFlipped] = useState(false);
   const [regionDestinations, setRegionDestinations] = useState<PoiMapItem[]>([]);
+  const [exclusiveBusinesses, setExclusiveBusinesses] = useState<{ id: string; name: string; slug: string; city: string | null; neighborhood: string | null; images: string[] | null; computed_rating: number | null; rating: number | null; }[]>([]);
 
   useEffect(() => {
     if (!showDirections) return;
@@ -91,6 +93,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
     setShowDirections(false);
     setFlipped(false);
     setRegionDestinations([]);
+    setExclusiveBusinesses([]);
   }, [destinationId]);
 
   useEffect(() => {
@@ -137,6 +140,53 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
     };
     fetchRegionDests();
   }, [destination?.region, destinationId]);
+
+  // Fetch businesses linked ONLY to this destination (not linked to multiple destinations)
+  useEffect(() => {
+    const fetchExclusiveBusinesses = async () => {
+      // 1. Get all business_ids linked to this destination
+      const { data: links } = await (supabase
+        .from("business_destinations" as any)
+        .select("business_id")
+        .eq("destination_id", destinationId) as any);
+      if (!links || links.length === 0) { setExclusiveBusinesses([]); return; }
+
+      const bizIds = (links as any[]).map((l: any) => l.business_id as string);
+
+      // 2. For each business, check if it has links to other destinations
+      // Fetch all business_destinations for these businesses
+      const { data: allLinks } = await (supabase
+        .from("business_destinations" as any)
+        .select("business_id, destination_id")
+        .in("business_id", bizIds) as any);
+
+      // Keep only businesses that appear exactly once (only this destination)
+      const countMap = new Map<string, number>();
+      if (allLinks) {
+        for (const link of allLinks as any[]) {
+          countMap.set(link.business_id, (countMap.get(link.business_id) || 0) + 1);
+        }
+      }
+      const exclusiveIds = bizIds.filter(id => (countMap.get(id) || 0) === 1);
+      if (exclusiveIds.length === 0) { setExclusiveBusinesses([]); return; }
+
+      // 3. Fetch business details
+      const all: any[] = [];
+      for (let i = 0; i < exclusiveIds.length; i += 500) {
+        const chunk = exclusiveIds.slice(i, i + 500);
+        const { data } = await supabase
+          .from("businesses")
+          .select("id, name, slug, city, neighborhood, images, computed_rating, rating")
+          .eq("is_active", true)
+          .in("id", chunk);
+        if (data) all.push(...data);
+      }
+      // Sort by rating desc
+      all.sort((a, b) => ((b.computed_rating ?? b.rating ?? 0) - (a.computed_rating ?? a.rating ?? 0)));
+      setExclusiveBusinesses(all);
+    };
+    fetchExclusiveBusinesses();
+  }, [destinationId]);
 
   const playWoosh = useCallback(() => {
     try { new Audio(wooshSfx).play(); } catch {}
@@ -456,7 +506,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                         aria-label="Voir la carte"
                         title={language === "en" ? "View on map" : "Voir sur la carte"}
                       >
-                        <Map className="h-4 w-4" />
+                        <MapIcon className="h-4 w-4" />
                       </button>
                     )}
                     {description && (
@@ -552,7 +602,46 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
             </div>
           )}
 
-          {/* CTA Localiser */}
+          {/* Exclusive businesses carousel */}
+          {exclusiveBusinesses.length > 0 && !flipped && (
+            <div className="shrink-0 mb-2">
+              <div className="flex gap-2.5 overflow-x-auto px-4 pb-1 scrollbar-hide">
+                {exclusiveBusinesses.map((biz, index) => {
+                  const bizImg = biz.images && biz.images.length > 0 ? biz.images[0] : null;
+                  const avg = biz.computed_rating ?? biz.rating;
+                  return (
+                    <a
+                      key={biz.id}
+                      href={businessUrl(biz)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                      style={{ animationDelay: `${index * 120}ms`, animationFillMode: "forwards" }}
+                    >
+                      {bizImg ? (
+                        <img src={bizImg} alt={biz.name} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                      ) : (
+                        <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
+                          <MapPin className="h-5 w-5 text-white/40" />
+                        </div>
+                      )}
+                      <div className="px-1.5 py-1.5">
+                        <p className="text-xs font-medium text-white truncate">{biz.name}</p>
+                        {avg != null && (
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <Star className="h-3 w-3 text-gold fill-gold" />
+                            <span className="text-[10px] text-white/80">{avg}/20</span>
+                          </div>
+                        )}
+                      </div>
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+
           {destination.latitude && destination.longitude && (
             <div className="shrink-0 py-2 flex flex-col items-center gap-2">
               <button
