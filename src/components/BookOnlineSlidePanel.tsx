@@ -2304,7 +2304,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               src={logoBigOverlay.src}
               alt={logoBigOverlay.name}
               className="w-full h-full object-contain"
-              style={{ filter: 'drop-shadow(0 0 18px hsla(0,0%,100%,0.45))' }}
+              style={{ filter: 'drop-shadow(0 0 30px hsla(0,0%,100%,0.7)) drop-shadow(0 0 60px hsla(0,0%,100%,0.35))' }}
             />
           </div>
         </div>
