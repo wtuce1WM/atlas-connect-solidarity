@@ -2266,7 +2266,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   neighborhood: business.neighborhood,
                   markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
                 } as PoiMapItem] : []),
-                ...poiBusinesses.map(p => ({
+                ...((poiBusinesses.length > 0 ? poiBusinesses : nearbyFallback).map(p => ({
                   id: p.id,
                   name: p.name,
                   latitude: p.latitude,
@@ -2274,7 +2274,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   images: p.images,
                   city: p.city,
                   neighborhood: p.neighborhood,
-                } as PoiMapItem)),
+                } as PoiMapItem))),
               ]}
               selectedPoiId={null}
               center={business?.latitude && business?.longitude ? { lat: business.latitude, lng: business.longitude } : undefined}
