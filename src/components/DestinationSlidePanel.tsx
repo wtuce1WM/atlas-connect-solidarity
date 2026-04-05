@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { businessUrl } from "@/lib/businessUrl";
 import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation, Minimize2, Map } from "lucide-react";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import wooshSfx from "@/assets/woosh.wav";
