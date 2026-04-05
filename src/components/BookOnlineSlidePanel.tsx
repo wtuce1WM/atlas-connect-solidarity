@@ -2294,12 +2294,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       {/* Logo Big overlay — inside slide panel (transparent, video stays visible) */}
       {logoBigOverlay && (
         <div
-          className={`absolute inset-0 -top-[3.3rem] z-[80] flex flex-col items-center justify-center pointer-events-auto ${logoBigFadingOut ? 'animate-fullscreen-logo-out' : ''}`}
-          onClick={() => { logoBigTimersRef.current.forEach(clearTimeout); logoBigTimersRef.current = []; setLogoBigOverlay(null); setLogoBigFadingOut(false); }}
+          className={`absolute inset-0 -top-[3.3rem] z-[80] flex flex-col items-center justify-center pointer-events-none ${logoBigFadingOut ? 'animate-fullscreen-logo-out' : ''}`}
         >
           {/* Logo with silver halo glow */}
           <div
-            onClick={(e) => { e.stopPropagation(); }}
             className="relative animate-logo-big-full-reveal [perspective:1000px] z-10"
             style={{ width: 'min(65%, 340px)', height: 'min(65%, 340px)' }}
           >
