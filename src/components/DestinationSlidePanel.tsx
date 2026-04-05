@@ -12,6 +12,7 @@ import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLigh
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
+import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 
 
 interface DestinationSlidePanelProps {
@@ -83,6 +84,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const [frontTabs, setFrontTabs] = useState<{ id: string; name: string; businesses: { id: string; name: string; slug: string; city: string | null; neighborhood: string | null; images: string[] | null; computed_rating: number | null; rating: number | null }[] }[]>([]);
   const [cityVideos, setCityVideos] = useState<{ url: string; name: string | null; ownerName: string; thumbnailUrl: string | null; businessId: string; ownerLogo: string | null; ownerSlug: string | null }[]>([]);
   const [activeBottomTab, setActiveBottomTab] = useState<string>("cityVideos");
+  const [activeBusinessId, setActiveBusinessId] = useState<string | null>(null);
   const bottomTabInitialRef = React.useRef(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoPaused, setVideoPaused] = useState(true);
@@ -798,7 +800,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                           key={biz.id}
                           imageUrl={bizImg}
                           label={biz.name}
-                          href={businessUrl(biz)}
+                          onClick={() => setActiveBusinessId(biz.id)}
                           animate={animate}
                           animationClass={animCls}
                           animationDelay={index * 120}
@@ -882,6 +884,15 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                   </button>
                 </div>
               )}
+            </div>
+          )}
+          {/* Recursive business overlay */}
+          {activeBusinessId && (
+            <div className="absolute inset-0 -top-[3.3rem] z-[60]">
+              <BookOnlineSlidePanel
+                businessId={activeBusinessId}
+                onClose={() => setActiveBusinessId(null)}
+              />
             </div>
           )}
           
