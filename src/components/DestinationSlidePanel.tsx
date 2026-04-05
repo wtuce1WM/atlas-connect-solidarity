@@ -549,33 +549,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
           <MediaCounterBar currentIndex={safeIndex} totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} />
 
           {/* Afficher / Masquer toggle */}
-          <div className="shrink-0 flex items-center justify-center pb-2 pointer-events-auto">
-            {cardsHidden ? (
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm hover:bg-background transition-colors"
-                  onClick={(e) => { e.stopPropagation(); showCards(); }}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onTouchStart={(e) => e.stopPropagation()}
-                >
-                  <ChevronUp className="h-3.5 w-3.5" />
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Afficher</span>
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:bg-background transition-colors"
-                onClick={(e) => { e.stopPropagation(); hideCards(); }}
-                onMouseDown={(e) => { e.stopPropagation(); onMouseDownDrag(e); }}
-                onTouchStart={(e) => e.stopPropagation()}
-              >
-                <ChevronDown className="h-3.5 w-3.5" />
-                <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Masquer</span>
-              </button>
-            )}
-          </div>
+          <CardsToggleButton cardsHidden={cardsHidden} showCards={showCards} hideCards={hideCards} onMouseDownDrag={onMouseDownDrag} />
 
           {/* Flip card container — hidden when cards are hidden */}
           {!cardsHidden && (
