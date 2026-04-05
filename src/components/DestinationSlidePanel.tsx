@@ -767,7 +767,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
             currentBusinessId={destinationId}
             onNavigateToOwner={(ownerId) => {
               const cv = cityVideos.find(v => v.businessId === ownerId);
-              if (cv?.ownerSlug) navigate(businessUrl({ slug: cv.ownerSlug, city: null, neighborhood: null }));
+              if (cv?.ownerSlug) navigate(businessUrl({ id: cv.businessId, slug: cv.ownerSlug }));
             }}
           />
 
