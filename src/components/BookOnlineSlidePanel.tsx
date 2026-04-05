@@ -1452,11 +1452,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             </div>
           </div>
         )}
-        {activeBottomTab === "videos" && !hasVideosCarousel && (
-          <div className="flex items-center justify-center py-6 pointer-events-auto">
-            <p className="text-xs text-white/40 italic">{language === "en" ? "No video available" : "Aucune vidéo disponible"}</p>
-          </div>
-        )}
 
         {/* YouTube tab — always mounted to preload, hidden when not active */}
         {business?.youtube_url && business?.show_youtube_tab && (
