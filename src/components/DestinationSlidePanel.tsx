@@ -546,23 +546,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
           onTouchEnd={onDragTouchEnd}
         >
           {/* Media counter + arrows on mobile */}
-          {totalMedia > 1 && (
-            <div className="flex items-center justify-center gap-3 pb-2">
-              {cardsHidden && (
-                <button onClick={() => goMedia(-1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-              )}
-              <span className="text-white/80 text-xs font-medium bg-black/30 rounded-full px-3 py-1">
-                {safeIndex + 1} / {totalMedia}
-              </span>
-              {cardsHidden && (
-                <button onClick={() => goMedia(1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-          )}
+          <MediaCounterBar currentIndex={safeIndex} totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} />
 
           {/* Afficher / Masquer toggle */}
           <div className="shrink-0 flex items-center justify-center pb-2 pointer-events-auto">
