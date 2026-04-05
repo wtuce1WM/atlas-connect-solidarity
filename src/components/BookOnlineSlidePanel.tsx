@@ -688,8 +688,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const hasKpCode = !!(business?.kp_regroupement?.trim() || business?.kp_regroupement_2?.trim());
   const bottomTabs = useMemo<BottomTab[]>(() => {
     const tabs: BottomTab[] = [];
-    // Show Vidéo tab only when 2+ videos
-    if (videoDocs.length >= 2) {
+    // Show Vidéo tab only when 2+ videos and média prioritaire is not "Images"
+    if (videoDocs.length >= 2 && !business?.prioritize_images) {
       tabs.push({ id: "videos", label: videoTabLabel, hasContent: hasVideosCarousel });
     }
     // YouTube tab only when configured
