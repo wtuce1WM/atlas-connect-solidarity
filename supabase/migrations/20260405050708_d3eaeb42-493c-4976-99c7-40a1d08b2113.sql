@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses DROP COLUMN IF EXISTS logo_big_url;
