@@ -319,7 +319,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   if (!destination) return null;
 
   return (
-    <div className={`fixed inset-0 z-[70] bg-black overflow-hidden ${slideAnim}`}>
+    <div className={`absolute inset-0 z-[70] bg-black overflow-hidden ${slideAnim}`}>
       {/* Close button — hidden when fullscreen video is open */}
       {!fullscreenVideo && !showDirections && (
         <div className="absolute top-3 left-3 z-[80] flex items-center gap-2">
