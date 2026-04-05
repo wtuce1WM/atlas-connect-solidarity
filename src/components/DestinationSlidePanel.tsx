@@ -22,6 +22,7 @@ interface DestinationFull {
   name_en: string | null;
   name_ar: string | null;
   description: string | null;
+  hook: string | null;
   image_url: string | null;
   images: string[] | null;
   videos: string[] | null;
