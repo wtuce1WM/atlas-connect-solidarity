@@ -1569,6 +1569,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   </p>
                 </div>
               )}
+              {/* Show nearby map card in dest tab when no POI tab but nearby fallback exists */}
+              {hasNearbyMapOnly && !hasPoiCarousel && business?.latitude && business?.longitude && nearbyFallback.length > 0 && poiBusinesses.length === 0 && null}
               <div className="shrink-0 w-6" aria-hidden="true" />
             </div>
           </div>
