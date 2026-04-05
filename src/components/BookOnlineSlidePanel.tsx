@@ -489,8 +489,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         .lte("longitude", lng + delta)
         .neq("id", business.id);
       if (cancelled || !data) return;
+      // Exclude KP siblings of the current business
+      const currentKp = business.kp_regroupement;
+      const filtered = currentKp
+        ? data.filter((b: any) => b.kp_regroupement !== currentKp)
+        : data;
       // Filter to exact 5km radius
-      const inRadius = data.filter((b: any) =>
+      const inRadius = filtered.filter((b: any) =>
         b.latitude && b.longitude && haversineKm(lat, lng, b.latitude, b.longitude) <= 5
       );
       // Deduplicate by GPS coordinates: keep is_master when multiple share same coords
