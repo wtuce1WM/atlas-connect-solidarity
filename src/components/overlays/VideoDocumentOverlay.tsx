@@ -183,6 +183,37 @@ const VideoDocumentOverlay = ({
         )}
       </div>
 
+      {/* Owner logo + badge */}
+      {(() => {
+        const currentVideoDoc = videoDocs.find(d => d.url === vidUrl);
+        if (!currentVideoDoc?.owner_business_id || currentVideoDoc.owner_business_id === businessId) return null;
+        return (
+          <div className="absolute bottom-24 left-0 right-0 z-20 flex flex-col items-center gap-4 pointer-events-none">
+            {currentVideoDoc.owner_logo && (
+              <div className="animate-logo-big-full-reveal" style={{ width: '120px' }}>
+                <img
+                  src={currentVideoDoc.owner_logo}
+                  alt={currentVideoDoc.owner_name || ''}
+                  className="w-full h-auto object-contain"
+                  style={{ filter: 'drop-shadow(0 0 20px hsla(0,0%,0%,0.6))' }}
+                />
+              </div>
+            )}
+            {currentVideoDoc.owner_name && (
+              <button
+                onClick={() => onOwnerClick?.(currentVideoDoc.owner_business_id!)}
+                className="pointer-events-auto flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 hover:bg-black/85 transition-colors"
+              >
+                <span className="text-xs font-medium text-white truncate max-w-[180px]" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                  {currentVideoDoc.owner_name} <span className="text-base">©</span>
+                </span>
+                <ChevronRight className="h-3.5 w-3.5 text-white/60 shrink-0" />
+              </button>
+            )}
+          </div>
+        );
+      })()}
+
       {/* Custom Play/Pause + Mute controls */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-6 md:gap-10 z-20">
         <button
