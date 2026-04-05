@@ -750,6 +750,27 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
             );
           })()}
 
+          {/* Owner logo + badge */}
+          <OwnerLogoOverlay
+            logoBigOverlay={logoBigOverlay}
+            logoBigFadingOut={logoBigFadingOut}
+            cardsHidden={cardsHidden}
+            currentMediaUrl={currentMedia?.url}
+            videoDocs={ownerVideoDocs}
+            currentBusinessId={destinationId}
+          />
+          <OwnerBadge
+            cardsHidden={cardsHidden}
+            currentMediaKind={currentMedia?.kind}
+            currentMediaUrl={currentMedia?.url}
+            videoDocs={ownerVideoDocs}
+            currentBusinessId={destinationId}
+            onNavigateToOwner={(ownerId) => {
+              const cv = cityVideos.find(v => v.businessId === ownerId);
+              if (cv?.ownerSlug) navigate(businessUrl({ slug: cv.ownerSlug, city: null, neighborhood: null }));
+            }}
+          />
+
           {destination.latitude && destination.longitude && (
             <div className="shrink-0 py-2 flex flex-col items-center gap-2">
               <button
