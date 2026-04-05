@@ -1293,6 +1293,9 @@ const LocationManagement = () => {
                             <Button size="sm" variant="ghost" onClick={() => openEditCity(city)}>
                               <Edit className="h-4 w-4" />
                             </Button>
+                            <Button size="sm" variant="ghost" title="Télécharger les images" onClick={() => fetchCityImages(city.name_fr)}>
+                              <Download className="h-4 w-4" />
+                            </Button>
                           </TableCell>
                         </TableRow>
                         {isExpanded && (
