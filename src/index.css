@@ -432,9 +432,9 @@ html.hide-scrollbar-panel-open::-webkit-scrollbar {
 }
 
 @keyframes logoZoomOut {
-  0% { transform: scale(2.5); opacity: 0; }
+  0% { transform: scale(2.5) translateY(0); opacity: 0; }
   30% { opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
 }
 
 .animate-logo-big-full-reveal {

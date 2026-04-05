@@ -2294,16 +2294,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       {/* Logo Big overlay — inside slide panel (transparent, video stays visible) */}
       {cardsHidden && logoBigOverlay && (
         <div
-          className={`absolute inset-0 -top-[3.3rem] z-[80] flex flex-col items-center justify-center pointer-events-none ${logoBigFadingOut ? 'animate-fullscreen-logo-out' : ''}`}
+          className={`absolute left-0 right-0 bottom-[120px] z-[80] flex flex-col items-center pointer-events-none ${logoBigFadingOut ? 'animate-fullscreen-logo-out' : ''}`}
         >
           <div
             className="relative animate-logo-big-full-reveal z-10"
-            style={{ width: 'min(65%, 340px)', height: 'min(65%, 340px)' }}
+            style={{ width: '300px', maxWidth: '65%' }}
           >
             <img
               src={logoBigOverlay.src}
               alt={logoBigOverlay.name}
-              className="w-full h-full object-contain"
+              className="w-full h-auto object-contain"
               style={{ filter: 'drop-shadow(0 0 30px hsla(0,0%,0%,0.7)) drop-shadow(0 0 60px hsla(0,0%,0%,0.35))' }}
             />
           </div>
