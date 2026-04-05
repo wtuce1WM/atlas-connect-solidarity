@@ -1367,24 +1367,27 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         </div>
 
         {/* Tabs bar — hidden while data is loading to prevent tab recalculation flash */}
-        <div className={`shrink-0 flex justify-start gap-1 pr-1 pt-2 pb-1 overflow-x-auto scrollbar-hide pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 pl-2 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 md:pl-4 ${isLoading ? "invisible" : ""}`}>
-          {bottomTabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => handleBottomTabChange(tab.id)}
-              className={`px-3 py-1.5 rounded-full whitespace-nowrap transition-colors border border-transparent ${
-                ""} ${
-                activeBottomTab === tab.id
-                  ? "bg-black text-white"
-                  : tab.id === "youtube"
-                    ? "bg-[#FF0000] text-white hover:bg-[#CC0000]"
-                    : "bg-white/70 text-black hover:bg-white/80"
-              } ${!tab.hasContent ? "opacity-50" : ""}`}
-              style={{ fontFamily: 'Josefin Sans, sans-serif', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase', fontSize: '11px', lineHeight: '16px', padding: '6px 12px' }}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div className={`shrink-0 overflow-x-auto scrollbar-hide pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 pt-2 pb-1 ${isLoading ? "invisible" : ""}`}>
+          <div className="flex gap-1 w-max">
+            <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
+            {bottomTabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => handleBottomTabChange(tab.id)}
+                className={`px-3 py-1.5 rounded-full whitespace-nowrap transition-colors border border-transparent ${
+                  activeBottomTab === tab.id
+                    ? "bg-black text-white"
+                    : tab.id === "youtube"
+                      ? "bg-[#FF0000] text-white hover:bg-[#CC0000]"
+                      : "bg-white/70 text-black hover:bg-white/80"
+                } ${!tab.hasContent ? "opacity-50" : ""}`}
+                style={{ fontFamily: 'Josefin Sans, sans-serif', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase', fontSize: '11px', lineHeight: '16px', padding: '6px 12px' }}
+              >
+                {tab.label}
+              </button>
+            ))}
+            <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
+          </div>
         </div>
 
         {/* Tab content — fixed height container for stable CTA positioning */}
