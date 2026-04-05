@@ -886,6 +886,16 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
               )}
             </div>
           )}
+          {/* Recursive business overlay */}
+          {activeBusinessId && (
+            <div className="absolute inset-0 -top-[3.3rem] z-[60]">
+              <BookOnlineSlidePanel
+                businessId={activeBusinessId}
+                onClose={() => setActiveBusinessId(null)}
+                slideFrom="bottom"
+              />
+            </div>
+          )}
           
         </div>
       </div>
