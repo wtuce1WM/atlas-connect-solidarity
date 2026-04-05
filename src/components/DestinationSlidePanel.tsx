@@ -535,20 +535,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
         </div>
 
         {/* Left / Right arrows — desktop */}
-        {totalMedia > 1 && (
-          <>
-            {cardsHidden && (
-              <button onClick={() => goMedia(-1)} className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-            )}
-            {cardsHidden && (
-              <button onClick={() => goMedia(1)} className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
-                <ChevronRight className="h-5 w-5" />
-              </button>
-            )}
-          </>
-        )}
+        <DesktopMediaArrows totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} />
 
         {/* Overlaid content */}
         <div
