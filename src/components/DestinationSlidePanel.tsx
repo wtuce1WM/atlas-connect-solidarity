@@ -212,7 +212,12 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const matterportUrl = destination?.matterport_url || null;
 
   type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string } | { kind: "matterport"; url: string };
+  const fileVideos = videos.filter((v) => {
+    const info = getVideoInfo(v);
+    return info.type === "file";
+  });
   const mediaItems: MediaItem[] = [
+    ...fileVideos.map((v) => ({ kind: "video" as const, url: v })),
     ...allImages.map((i) => ({ kind: "image" as const, url: i })),
   ];
   const totalMedia = mediaItems.length;
