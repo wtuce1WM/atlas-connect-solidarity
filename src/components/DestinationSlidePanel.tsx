@@ -87,6 +87,19 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   const [activeBottomTab, setActiveBottomTab] = useState<string>("cityVideos");
   const [activeBusinessId, setActiveBusinessId] = useState<string | null>(null);
   const bottomTabInitialRef = React.useRef(true);
+
+  // Expose close interceptor: when a business is open, close it first
+  React.useEffect(() => {
+    if (!interceptCloseRef) return;
+    if (activeBusinessId) {
+      interceptCloseRef.current = () => {
+        setActiveBusinessId(null);
+        return true;
+      };
+    } else {
+      interceptCloseRef.current = null;
+    }
+  }, [activeBusinessId, interceptCloseRef]);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoPaused, setVideoPaused] = useState(true);
   const [videoMuted, setVideoMuted] = useState(true);
