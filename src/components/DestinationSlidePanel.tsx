@@ -501,7 +501,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                 {/* Map */}
                 <div className="flex-1 min-h-0">
                   {flipped && destination && (
-                    <MemoizedDestMap destination={destination} linkedBusinesses={linkedBusinesses} />
+                    <MemoizedDestMap destination={destination} regionDestinations={regionDestinations} />
                   )}
                 </div>
               </div>
