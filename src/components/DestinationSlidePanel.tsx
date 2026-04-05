@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { businessUrl } from "@/lib/businessUrl";
-import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation, Minimize2, Map as MapIcon, Star } from "lucide-react";
+import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation, Minimize2, Map as MapIcon, Star, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import wooshSfx from "@/assets/woosh.wav";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
@@ -78,6 +78,9 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const [exclusiveBusinesses, setExclusiveBusinesses] = useState<{ id: string; name: string; slug: string; city: string | null; neighborhood: string | null; images: string[] | null; computed_rating: number | null; rating: number | null; }[]>([]);
   const [activeBottomTab, setActiveBottomTab] = useState<string>("videos");
   const bottomTabInitialRef = React.useRef(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoPaused, setVideoPaused] = useState(true);
+  const [videoMuted, setVideoMuted] = useState(true);
 
   useEffect(() => {
     if (!showDirections) return;
@@ -209,7 +212,12 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const matterportUrl = destination?.matterport_url || null;
 
   type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string } | { kind: "matterport"; url: string };
+  const fileVideos = videos.filter((v) => {
+    const info = getVideoInfo(v);
+    return info.type === "file";
+  });
   const mediaItems: MediaItem[] = [
+    ...fileVideos.map((v) => ({ kind: "video" as const, url: v })),
     ...allImages.map((i) => ({ kind: "image" as const, url: i })),
   ];
   const totalMedia = mediaItems.length;
@@ -227,6 +235,25 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
     if (totalMedia <= 1) return;
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [totalMedia]);
+
+  // Sync video state with DOM events
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const onPlay = () => setVideoPaused(false);
+    const onPause = () => setVideoPaused(true);
+    const onVol = () => setVideoMuted(v.muted);
+    v.addEventListener("play", onPlay);
+    v.addEventListener("pause", onPause);
+    v.addEventListener("volumechange", onVol);
+    setVideoPaused(v.paused);
+    setVideoMuted(v.muted);
+    return () => {
+      v.removeEventListener("play", onPlay);
+      v.removeEventListener("pause", onPause);
+      v.removeEventListener("volumechange", onVol);
+    };
+  }, [currentMedia]);
 
   const getVideoInfo = (url: string) => {
     const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
@@ -443,7 +470,18 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
       <div className="relative w-full h-full">
         {/* Media background */}
         <div className="absolute inset-0">
-          {currentMedia?.kind === "image" ? (
+          {currentMedia?.kind === "video" ? (
+            <video
+              ref={videoRef}
+              key={currentMedia.url}
+              src={currentMedia.url}
+              className="w-full h-full object-cover"
+              autoPlay
+              loop
+              muted
+              playsInline
+            />
+          ) : currentMedia?.kind === "image" ? (
             <img src={currentMedia.url} alt={destName} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-muted">
@@ -701,6 +739,36 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                 <Navigation className="h-4 w-4" />
                 {language === "en" ? "Directions" : "Itinéraire"}
               </button>
+              {/* Video controls — Play/Pause + Sound */}
+              {currentMedia?.kind === "video" && (
+                <div className="flex items-center gap-6 md:gap-10 mt-1 animate-slide-up-from-bottom">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (videoRef.current) {
+                        if (videoRef.current.paused) videoRef.current.play();
+                        else videoRef.current.pause();
+                      }
+                    }}
+                    className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                    aria-label={videoPaused ? "Play" : "Pause"}
+                  >
+                    {videoPaused ? <Play className="h-5 w-5 md:h-6 md:w-6" /> : <Pause className="h-5 w-5 md:h-6 md:w-6" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (videoRef.current) {
+                        videoRef.current.muted = !videoRef.current.muted;
+                      }
+                    }}
+                    className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                    aria-label={videoMuted ? "Unmute" : "Mute"}
+                  >
+                    {videoMuted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
