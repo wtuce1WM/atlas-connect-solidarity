@@ -770,7 +770,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       tabs.push({ id: "poi", label: language === "en" ? "Nearby" : "À proximité", hasContent: true });
     }
     return tabs;
-  }, [videoTabLabel, hasVideosCarousel, hasYoutubeBottomCarousel, hasYoutubeReady, hasKpCarousel, hasKpSubcatCarousel, kpSubcategoryLabel, hasKpCode, hasDestCarousel, hasPoiCarousel, language, videoDocs.length]);
+  }, [videoTabLabel, hasVideosCarousel, hasYoutubeBottomCarousel, hasYoutubeReady, hasKpCarousel, hasKpSubcatCarousel, kpSubcategoryLabel, hasKpCode, hasDestCarousel, hasPoiCarousel, language, videoDocs.length, nearbyFallback.length]);
 
   const [activeBottomTab, setActiveBottomTab] = useState<string>("videos");
   const bottomTabInitialRef = useRef(true);
