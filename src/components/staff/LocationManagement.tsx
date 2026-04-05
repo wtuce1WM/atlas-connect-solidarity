@@ -1608,6 +1608,9 @@ const LocationManagement = () => {
                             <Button size="sm" variant="ghost" onClick={() => openEditNeighborhoodFull(n)}>
                               <Edit className="h-4 w-4" />
                             </Button>
+                            <Button size="sm" variant="ghost" title="Télécharger les images" onClick={() => fetchNeighborhoodImages(n.name, city?.name_fr || "")}>
+                              <Download className="h-4 w-4" />
+                            </Button>
                           </TableCell>
                         </TableRow>
                       );
