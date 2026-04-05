@@ -1367,7 +1367,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         </div>
 
         {/* Tabs bar — hidden while data is loading to prevent tab recalculation flash */}
-        <div className={`shrink-0 flex justify-start md:justify-center gap-1 pr-1 pt-2 pb-1 overflow-x-auto scrollbar-hide pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 pl-2 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 md:pl-4 ${isLoading ? "invisible" : ""}`}>
+        <div className={`shrink-0 flex justify-start gap-1 pr-1 pt-2 pb-1 overflow-x-auto scrollbar-hide pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 pl-2 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 md:pl-4 ${isLoading ? "invisible" : ""}`}>
           {bottomTabs.map((tab) => (
             <button
               key={tab.id}
