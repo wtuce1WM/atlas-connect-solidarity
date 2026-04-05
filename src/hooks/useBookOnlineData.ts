@@ -221,7 +221,7 @@ export function useBookOnlineData(businessId: string) {
       setLiteApiHotelId(cached.liteApiHotelId);
       setSerpApiMapping(cached.serpApiMapping);
       setIsLoading(false);
-      return;
+      // Don't return — continue to re-fetch fresh data in background
     }
 
     const fetchData = async () => {
