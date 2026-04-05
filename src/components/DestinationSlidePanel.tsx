@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { businessUrl } from "@/lib/businessUrl";
 import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation, Minimize2, Map as MapIcon, Star, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { useDragToHide } from "@/hooks/useDragToHide";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import wooshSfx from "@/assets/woosh.wav";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
@@ -82,6 +83,11 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoPaused, setVideoPaused] = useState(true);
   const [videoMuted, setVideoMuted] = useState(true);
+  const {
+    cardsHidden, dragOffsetY, isDragging,
+    showCards, hideCards,
+    onTouchStart: onDragTouchStart, onTouchMove: onDragTouchMove, onTouchEnd: onDragTouchEnd, onMouseDownDrag,
+  } = useDragToHide();
 
   useEffect(() => {
     if (!showDirections) return;
@@ -539,24 +545,64 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
         )}
 
         {/* Overlaid content */}
-        <div className="relative z-10 flex flex-col h-full p-4 md:p-6">
+        <div
+          className={`relative z-10 flex flex-col h-full p-4 md:p-6 ${cardsHidden ? 'pb-0' : ''}`}
+          style={isDragging ? { transform: `translateY(${dragOffsetY}px)`, transition: 'none' } : undefined}
+          onTouchStart={onDragTouchStart}
+          onTouchMove={onDragTouchMove}
+          onTouchEnd={onDragTouchEnd}
+        >
           {/* Media counter + arrows on mobile */}
           {totalMedia > 1 && (
-            <div className="flex items-center justify-center gap-3 pb-4">
-              <button onClick={() => goMedia(-1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
-                <ChevronLeft className="h-4 w-4" />
-              </button>
+            <div className="flex items-center justify-center gap-3 pb-2">
+              {cardsHidden && (
+                <button onClick={() => goMedia(-1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+              )}
               <span className="text-white/80 text-xs font-medium bg-black/30 rounded-full px-3 py-1">
                 {safeIndex + 1} / {totalMedia}
               </span>
-              <button onClick={() => goMedia(1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
-                <ChevronRight className="h-4 w-4" />
-              </button>
+              {cardsHidden && (
+                <button onClick={() => goMedia(1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              )}
             </div>
           )}
 
-          {/* Flip card container */}
-          <div className="shrink-0 flex items-start justify-center overflow-hidden min-h-0" style={{ perspective: "1200px", height: "max(12rem, calc(50vh - 4rem))" }}>
+          {/* Afficher / Masquer toggle */}
+          <div className="shrink-0 flex items-center justify-center pb-2 pointer-events-auto">
+            {cardsHidden ? (
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm hover:bg-background transition-colors"
+                  onClick={(e) => { e.stopPropagation(); showCards(); }}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
+                >
+                  <ChevronUp className="h-3.5 w-3.5" />
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Afficher</span>
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:bg-background transition-colors"
+                onClick={(e) => { e.stopPropagation(); hideCards(); }}
+                onMouseDown={(e) => { e.stopPropagation(); onMouseDownDrag(e); }}
+                onTouchStart={(e) => e.stopPropagation()}
+              >
+                <ChevronDown className="h-3.5 w-3.5" />
+                <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Masquer</span>
+              </button>
+            )}
+          </div>
+
+          {/* Flip card container — hidden when cards are hidden */}
+          {!cardsHidden && (
+          <div className="flex-1 flex items-start justify-center overflow-hidden min-h-0" style={{ perspective: "1200px" }}>
 
             <div
               className={`w-[95%] md:w-[90%] lg:w-[85%] relative ${flipped ? "h-[calc(100%-2rem)]" : "max-h-full"}`}
@@ -639,8 +685,10 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
               </div>
             </div>
           </div>
+          )}
 
           {/* Bottom tabs — same layout as BookOnlineSlidePanel */}
+          {!cardsHidden && <>
           {(() => {
             const hasCityVideosTab = cityVideos.length > 0;
             const hasYoutubeTab = videos.length > 0;
@@ -862,6 +910,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
               )}
             </div>
           )}
+          </>}
         </div>
       </div>
     </div>
