@@ -75,6 +75,8 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const [flipped, setFlipped] = useState(false);
   const [regionDestinations, setRegionDestinations] = useState<PoiMapItem[]>([]);
   const [exclusiveBusinesses, setExclusiveBusinesses] = useState<{ id: string; name: string; slug: string; city: string | null; neighborhood: string | null; images: string[] | null; computed_rating: number | null; rating: number | null; }[]>([]);
+  const [activeBottomTab, setActiveBottomTab] = useState<string>("videos");
+  const bottomTabInitialRef = React.useRef(true);
 
   useEffect(() => {
     if (!showDirections) return;
@@ -94,6 +96,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
     setFlipped(false);
     setRegionDestinations([]);
     setExclusiveBusinesses([]);
+    bottomTabInitialRef.current = true;
   }, [destinationId]);
 
   useEffect(() => {
@@ -558,89 +561,128 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
             </div>
           </div>
 
-          {/* Videos horizontal scroll */}
-          {videos.length > 0 && !flipped && (
-            <div className="shrink-0 mb-4">
-              <div className="flex gap-2.5 overflow-x-auto px-4 pb-1 scrollbar-hide">
-                {videos.map((videoUrl, index) => {
-                  const info = getVideoInfo(videoUrl);
-                  return (
-                    <div
-                      key={index}
-                      className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer"
-                      style={{ animationDelay: `${index * 120}ms`, animationFillMode: "forwards" }}
-                      onClick={() => setFullscreenVideo(videoUrl)}
-                    >
-                      {info.thumbnail ? (
-                        <div className="relative w-full h-28">
-                          <img src={info.thumbnail} alt="" className="w-full h-full object-cover" />
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                            <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
-                              <span className="text-white text-lg">▶</span>
+          {/* Bottom tabs — same layout as BookOnlineSlidePanel */}
+          {(() => {
+            const hasVideosTab = videos.length > 0;
+            const hasBizTab = exclusiveBusinesses.length > 0;
+            type DestTab = { id: string; label: string };
+            const tabs: DestTab[] = [];
+            if (hasVideosTab) tabs.push({ id: "videos", label: language === "en" ? "Videos" : "Vidéos" });
+            if (hasBizTab) tabs.push({ id: "businesses", label: language === "en" ? "Establishments" : "Établissements" });
+            if (tabs.length === 0 || flipped) return null;
+            const currentTab = tabs.find(t => t.id === activeBottomTab) ? activeBottomTab : tabs[0]?.id;
+            const slideInClass = bottomTabInitialRef.current ? "animate-slide-in-left opacity-0" : "";
+            const handleTabChange = (id: string) => { bottomTabInitialRef.current = false; setActiveBottomTab(id); };
+            return (
+              <>
+                {/* Tab bar */}
+                <div className="shrink-0 overflow-x-auto scrollbar-hide pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 pt-2 pb-1">
+                  <div className="flex gap-1 w-max">
+                    <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
+                    {tabs.map((tab) => (
+                      <button
+                        key={tab.id}
+                        onClick={() => handleTabChange(tab.id)}
+                        className={`px-3 py-1.5 rounded-full transition-colors border border-transparent whitespace-nowrap ${
+                          currentTab === tab.id
+                            ? "bg-black text-white"
+                            : "bg-white/70 text-black hover:bg-white/80"
+                        }`}
+                        style={{ fontFamily: 'Josefin Sans, sans-serif', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase', fontSize: '11px', lineHeight: '16px', padding: '6px 12px' }}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                    <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
+                  </div>
+                </div>
+
+                {/* Tab content */}
+                <div className="shrink-0 h-[9.5rem] md:h-[12.5rem] lg:h-[17.5rem]">
+                  {/* Videos tab */}
+                  {currentTab === "videos" && hasVideosTab && (
+                    <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
+                      <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                        <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
+                        {videos.map((videoUrl, index) => {
+                          const info = getVideoInfo(videoUrl);
+                          return (
+                            <div
+                              key={index}
+                              className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                              style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: "forwards" } : undefined}
+                              onClick={() => setFullscreenVideo(videoUrl)}
+                            >
+                              {info.thumbnail ? (
+                                <div className="relative w-full h-[7rem] md:h-[10rem] lg:h-[15rem]">
+                                  <img src={info.thumbnail} alt="" className="w-full h-full object-cover" />
+                                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                                    <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
+                                      <span className="text-white text-lg">▶</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : info.type === "file" ? (
+                                <video src={videoUrl} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" muted playsInline preload="metadata" />
+                              ) : (
+                                <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
+                                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                                    <span className="text-white text-lg">▶</span>
+                                  </div>
+                                </div>
+                              )}
                             </div>
-                          </div>
-                        </div>
-                      ) : info.type === "file" ? (
-                        <video
-                          src={videoUrl}
-                          className="w-full h-28 object-cover"
-                          muted
-                          playsInline
-                          preload="metadata"
-                        />
-                      ) : (
-                        <div className="w-full h-28 bg-white/10 flex items-center justify-center">
-                          <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                            <span className="text-white text-lg">▶</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Exclusive businesses carousel */}
-          {exclusiveBusinesses.length > 0 && !flipped && (
-            <div className="shrink-0 mb-2">
-              <div className="flex gap-2.5 overflow-x-auto px-4 pb-1 scrollbar-hide">
-                {exclusiveBusinesses.map((biz, index) => {
-                  const bizImg = biz.images && biz.images.length > 0 ? biz.images[0] : null;
-                  const avg = biz.computed_rating ?? biz.rating;
-                  return (
-                    <a
-                      key={biz.id}
-                      href={businessUrl(biz)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
-                      style={{ animationDelay: `${index * 120}ms`, animationFillMode: "forwards" }}
-                    >
-                      {bizImg ? (
-                        <img src={bizImg} alt={biz.name} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
-                      ) : (
-                        <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
-                          <MapPin className="h-5 w-5 text-white/40" />
-                        </div>
-                      )}
-                      <div className="px-1.5 py-1.5">
-                        <p className="text-xs font-medium text-white truncate">{biz.name}</p>
-                        {avg != null && (
-                          <div className="flex items-center gap-1 mt-0.5">
-                            <Star className="h-3 w-3 text-gold fill-gold" />
-                            <span className="text-[10px] text-white/80">{avg}/20</span>
-                          </div>
-                        )}
+                          );
+                        })}
+                        <div className="shrink-0 w-6" aria-hidden="true" />
                       </div>
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+                    </div>
+                  )}
 
+                  {/* Businesses tab */}
+                  {currentTab === "businesses" && hasBizTab && (
+                    <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
+                      <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                        <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
+                        {exclusiveBusinesses.map((biz, index) => {
+                          const bizImg = biz.images && biz.images.length > 0 ? biz.images[0] : null;
+                          const avg = biz.computed_rating ?? biz.rating;
+                          return (
+                            <a
+                              key={biz.id}
+                              href={businessUrl(biz)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                              style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: "forwards" } : undefined}
+                            >
+                              {bizImg ? (
+                                <img src={bizImg} alt={biz.name} className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                              ) : (
+                                <div className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] bg-white/10 flex items-center justify-center">
+                                  <MapPin className="h-5 w-5 text-white/40" />
+                                </div>
+                              )}
+                              <div className="px-1.5 py-1.5">
+                                <p className="text-xs font-medium text-white truncate">{biz.name}</p>
+                                {avg != null && (
+                                  <div className="flex items-center gap-1 mt-0.5">
+                                    <Star className="h-3 w-3 text-gold fill-gold" />
+                                    <span className="text-[10px] text-white/80">{avg}/20</span>
+                                  </div>
+                                )}
+                              </div>
+                            </a>
+                          );
+                        })}
+                        <div className="shrink-0 w-6" aria-hidden="true" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            );
+          })()}
 
           {destination.latitude && destination.longitude && (
             <div className="shrink-0 py-2 flex flex-col items-center gap-2">
