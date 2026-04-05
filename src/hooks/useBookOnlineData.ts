@@ -478,7 +478,7 @@ export function useBookOnlineData(businessId: string) {
         if (!isCancelled && linkedVids && linkedVids.length > 0) {
           // Fetch owner info for each unique business_id
           const ownerIds = [...new Set((linkedVids as any[]).map(v => v.business_id).filter(Boolean))];
-          const ownerMap = new Map<string, { name: string; logo_url: string | null }>();
+          const ownerMap = new Map<string, { name: string; logo_url: string | null; instagram_url: string | null }>();
           if (ownerIds.length > 0) {
             const { data: owners } = await supabase
               .from("businesses")
