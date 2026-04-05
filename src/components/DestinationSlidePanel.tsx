@@ -688,7 +688,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
           )}
 
           {/* Bottom tabs — same layout as BookOnlineSlidePanel */}
-          {!cardsHidden && (
+          {!cardsHidden && <>
           {(() => {
             const hasCityVideosTab = cityVideos.length > 0;
             const hasYoutubeTab = videos.length > 0;
