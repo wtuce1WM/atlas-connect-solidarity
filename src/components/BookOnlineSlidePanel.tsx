@@ -88,6 +88,33 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     allVideoUrls, categoryIcon, showGoogleMap, kpRelated, kpSubcategoryItems, kpSubcategoryLabel, isKp1Only, liteApiHotelId, serpApiMapping, isHotelWithPrice,
   } = useBookOnlineData(businessId);
 
+  // --- Cosmetic URL rewriting (replaceState) ---
+  const savedUrlRef = useRef(window.location.pathname + window.location.search);
+
+  // When business data loads and no sub-overlay is active, show /business/{slug}
+  useEffect(() => {
+    if (!business?.slug) return;
+    const hasSubOverlay = selectedDestinationId || selectedPoiBusinessId || selectedKpBusinessId;
+    if (!hasSubOverlay) {
+      window.history.replaceState(null, "", `/business/${business.slug}`);
+    }
+  }, [business?.slug, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId]);
+
+  // When a destination overlay is active, show /destination/{name}
+  useEffect(() => {
+    if (!selectedDestinationId) return;
+    const dest = destinations.find(d => d.id === selectedDestinationId);
+    if (dest) {
+      window.history.replaceState(null, "", `/destination/${encodeURIComponent(dest.name_fr)}`);
+    }
+  }, [selectedDestinationId, destinations]);
+
+  // Restore original URL on unmount
+  useEffect(() => {
+    const saved = savedUrlRef.current;
+    return () => { window.history.replaceState(null, "", saved); };
+  }, []);
+
   // UI state
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [descExpanded, setDescExpanded] = useState(true);
