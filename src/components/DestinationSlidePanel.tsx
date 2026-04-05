@@ -236,6 +236,25 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [totalMedia]);
 
+  // Sync video state with DOM events
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const onPlay = () => setVideoPaused(false);
+    const onPause = () => setVideoPaused(true);
+    const onVol = () => setVideoMuted(v.muted);
+    v.addEventListener("play", onPlay);
+    v.addEventListener("pause", onPause);
+    v.addEventListener("volumechange", onVol);
+    setVideoPaused(v.paused);
+    setVideoMuted(v.muted);
+    return () => {
+      v.removeEventListener("play", onPlay);
+      v.removeEventListener("pause", onPause);
+      v.removeEventListener("volumechange", onVol);
+    };
+  }, [currentMedia]);
+
   const getVideoInfo = (url: string) => {
     const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
     if (ytMatch) {
