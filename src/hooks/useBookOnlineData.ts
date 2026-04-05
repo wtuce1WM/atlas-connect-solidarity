@@ -476,28 +476,19 @@ export function useBookOnlineData(businessId: string) {
         if (!isCancelled && linkedVids && linkedVids.length > 0) {
           // Fetch owner info for each unique business_id
           const ownerIds = [...new Set((linkedVids as any[]).map(v => v.business_id).filter(Boolean))];
-          const ownerMap = new Map<string, { name: string; logo_url: string | null; logo_big_url: string | null }>();
+          const ownerMap = new Map<string, { name: string; logo_url: string | null }>();
           if (ownerIds.length > 0) {
             const { data: owners } = await supabase
               .from("businesses")
-              .select("id, name, logo_url, logo_big_url")
+              .select("id, name, logo_url")
               .in("id", ownerIds);
             if (owners) {
-              for (const o of owners) ownerMap.set(o.id, { name: o.name, logo_url: o.logo_url, logo_big_url: (o as any).logo_big_url });
+              for (const o of owners) ownerMap.set(o.id, { name: o.name, logo_url: o.logo_url });
             }
           }
-          const linked = (linkedVids as any[])
-            .filter((d) => d.url)
-            .map(d => {
-              const owner = ownerMap.get(d.business_id);
-              return {
-                url: d.url, name: d.name, city: d.city, price: d.price,
-                price_type: d.price_type, description: d.description,
-                thumbnail_url: d.thumbnail_url,
-                owner_business_id: d.business_id,
+...
                 owner_name: owner?.name || null,
                 owner_logo: owner?.logo_url || null,
-                owner_logo_big: owner?.logo_big_url || null,
               } as VideoDoc;
             });
           setVideoDocs((prev) => {
