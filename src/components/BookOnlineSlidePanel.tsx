@@ -2250,7 +2250,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               <X className="h-4 w-4" />
             </button>
             <span className="text-sm font-medium truncate">
-              {language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité"}
+              {poiBusinesses.length > 0
+                ? (language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité")
+                : (language === "en" ? "Nearby establishments" : "Établissements à proximité")}
             </span>
           </div>
           <div className="flex-1 min-h-0">
