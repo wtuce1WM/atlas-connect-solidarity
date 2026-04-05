@@ -613,11 +613,28 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
           onTouchMove={onDragTouchMove}
           onTouchEnd={onDragTouchEnd}
         >
-          {/* Media counter + arrows on mobile */}
-          <MediaCounterBar currentIndex={safeIndex} totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} />
-
-          {/* Afficher / Masquer toggle */}
-          <CardsToggleButton cardsHidden={cardsHidden} showCards={showCards} hideCards={hideCards} onMouseDownDrag={onMouseDownDrag} />
+          {/* Top bar: toggle / counter */}
+          <div className="relative z-40 overflow-visible flex flex-col items-center pb-3 pointer-events-auto mt-1 md:mt-0">
+            {cardsHidden ? (
+              <MediaCounterBar currentIndex={safeIndex} totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)}>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm hover:bg-background transition-colors"
+                  title="Afficher les cartes"
+                  aria-label="Afficher les cartes"
+                  onClick={(e) => { e.stopPropagation(); showCards(); }}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
+                >
+                  <ChevronUp className="h-3.5 w-3.5" />
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Afficher</span>
+                  <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
+                </button>
+              </MediaCounterBar>
+            ) : (
+              <CardsToggleButton cardsHidden={cardsHidden} showCards={showCards} hideCards={hideCards} onMouseDownDrag={onMouseDownDrag} />
+            )}
+          </div>
 
           {/* Flip card container — hidden when cards are hidden */}
           {!cardsHidden && (
