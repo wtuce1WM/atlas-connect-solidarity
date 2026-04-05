@@ -96,6 +96,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook'; ts: number } | null>(null);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
+  const [selectedKpBusinessId, setSelectedKpBusinessId] = useState<string | null>(null);
   const [showPoiMapOverlay, setShowPoiMapOverlay] = useState(false);
   const poiOpenedFromMapRef = useRef(false);
   const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ url: string; name: string | null; description: string | null } | null>(null);
