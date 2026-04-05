@@ -253,7 +253,39 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const mainImage = destination?.image_url;
   const allImages = mainImage && !images.includes(mainImage) ? [mainImage, ...images] : images;
   const videos = destination?.videos?.filter(Boolean) || [];
+  const [ytTitles, setYtTitles] = useState<Record<string, string>>({});
   const description = destination?.description || null;
+
+  // Fetch YouTube video titles via oEmbed (no API key needed)
+  useEffect(() => {
+    if (videos.length === 0) return;
+    const ytIds = videos
+      .map((v) => {
+        const m = v.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
+        return m ? { url: v, id: m[1] } : null;
+      })
+      .filter(Boolean) as { url: string; id: string }[];
+    if (ytIds.length === 0) return;
+
+    let cancelled = false;
+    const fetchTitles = async () => {
+      const results: Record<string, string> = {};
+      await Promise.all(
+        ytIds.map(async ({ url, id }) => {
+          try {
+            const res = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`);
+            if (res.ok) {
+              const data = await res.json();
+              if (data.title) results[url] = data.title;
+            }
+          } catch {}
+        })
+      );
+      if (!cancelled) setYtTitles(results);
+    };
+    fetchTitles();
+    return () => { cancelled = true; };
+  }, [videos.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const matterportUrl = destination?.matterport_url || null;
 
@@ -694,11 +726,12 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                 <TabScrollRail gap="gap-3">
                   {videos.map((videoUrl, index) => {
                     const info = getVideoInfo(videoUrl);
-                    const cardLabel = info.type === "youtube"
-                      ? `YouTube ${index + 1}`
-                      : info.type === "vimeo"
-                        ? `Vimeo ${index + 1}`
-                        : `${language === "en" ? "Video" : "Vidéo"} ${index + 1}`;
+                    const cardLabel = ytTitles[videoUrl]
+                      || (info.type === "youtube"
+                        ? `YouTube ${index + 1}`
+                        : info.type === "vimeo"
+                          ? `Vimeo ${index + 1}`
+                          : `${language === "en" ? "Video" : "Vidéo"} ${index + 1}`);
                     return (
                       <TabYouTubeCard
                         key={index}
