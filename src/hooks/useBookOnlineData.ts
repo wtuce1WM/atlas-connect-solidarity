@@ -499,6 +499,7 @@ export function useBookOnlineData(businessId: string) {
                 owner_business_id: d.business_id,
                 owner_name: owner?.name || null,
                 owner_logo: owner?.logo_url || null,
+                owner_instagram: owner?.instagram_url || null,
               } as VideoDoc;
             });
           setVideoDocs((prev) => {
