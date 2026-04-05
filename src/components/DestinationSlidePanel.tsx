@@ -726,11 +726,12 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                 <TabScrollRail gap="gap-3">
                   {videos.map((videoUrl, index) => {
                     const info = getVideoInfo(videoUrl);
-                    const cardLabel = info.type === "youtube"
-                      ? `YouTube ${index + 1}`
-                      : info.type === "vimeo"
-                        ? `Vimeo ${index + 1}`
-                        : `${language === "en" ? "Video" : "Vidéo"} ${index + 1}`;
+                    const cardLabel = ytTitles[videoUrl]
+                      || (info.type === "youtube"
+                        ? `YouTube ${index + 1}`
+                        : info.type === "vimeo"
+                          ? `Vimeo ${index + 1}`
+                          : `${language === "en" ? "Video" : "Vidéo"} ${index + 1}`);
                     return (
                       <TabYouTubeCard
                         key={index}
