@@ -138,10 +138,25 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     if (fallbackPanelData) fallbackDataRef.current = fallbackPanelData;
   }, [fallbackPanelData]);
 
+  // Ref for destination sub-overlay intercept
+  const destInterceptCloseRef = useRef<(() => boolean) | null>(null);
+
   // Expose close interceptor: when navigated from fallback or from video owner, go back instead of closing
   useEffect(() => {
     if (!interceptCloseRef) return;
-    if (previousBusinessId) {
+    // Priority: overlay intercepts first
+    if (selectedDestinationId || selectedPoiBusinessId || selectedKpBusinessId) {
+      interceptCloseRef.current = () => {
+        // Check if destination has its own sub-overlay to close first
+        if (selectedDestinationId && destInterceptCloseRef.current?.()) {
+          return true;
+        }
+        if (selectedDestinationId) { setSelectedDestinationId(null); return true; }
+        if (selectedPoiBusinessId) { setSelectedPoiBusinessId(null); return true; }
+        if (selectedKpBusinessId) { setSelectedKpBusinessId(null); return true; }
+        return false;
+      };
+    } else if (previousBusinessId) {
       const shouldRestoreHidden = previousCardsHiddenRef.current;
       interceptCloseRef.current = () => {
         setActiveBusinessIdRaw(previousBusinessId);
@@ -164,7 +179,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     } else {
       interceptCloseRef.current = null;
     }
-  }, [previousBusinessId, cameFromFallback, fallbackPanelData, interceptCloseRef]);
+  }, [previousBusinessId, cameFromFallback, fallbackPanelData, interceptCloseRef, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId]);
   const hideCardsRef = useRef<() => void>(() => {});
 
   // Whether this business has a SerpAPI mapping

@@ -19,6 +19,7 @@ interface DestinationSlidePanelProps {
   destinationId: string;
   onClose: () => void;
   slideFrom?: "right" | "bottom";
+  interceptCloseRef?: React.MutableRefObject<(() => boolean) | null>;
 }
 
 interface DestinationFull {
