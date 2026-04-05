@@ -1140,12 +1140,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         {/* Top bar: toggle, flags, rating */}
         <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex flex-col items-center pb-3 md:pb-3 pointer-events-auto animate-[slide-in-top_0.35s_ease-out_both] mt-1 md:mt-0">
           {cardsHidden ? (
-            <div className="flex items-center gap-3">
-              {totalMedia > 1 && (
-                <button onClick={() => goMedia(-1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-              )}
+            <MediaCounterBar currentIndex={safeIndex} totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)}>
               <button
                 type="button"
                 className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm hover:bg-background transition-colors"
@@ -1159,15 +1154,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Afficher</span>
                 <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
               </button>
-              {totalMedia > 1 && (
-                <button onClick={() => goMedia(1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              )}
-            </div>
+            </MediaCounterBar>
           ) : (
-            <div className="relative w-full flex items-center justify-center">
-              {languages.length > 0 && (
+            <CardsToggleButton
+              cardsHidden={cardsHidden}
+              showCards={showCards}
+              hideCards={hideCards}
+              onMouseDownDrag={onMouseDownDrag}
+              leftSlot={languages.length > 0 ? (
                 <div className={`absolute left-0 z-50 flex items-center gap-0.5 md:gap-1.5 bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2 md:px-2.5 md:rounded-full md:py-1 md:flex-wrap md:justify-center md:overflow-visible ${languages.length > 5 ? 'max-w-[7rem] overflow-x-auto' : ''} ${languages.length > 4 ? 'md:max-w-none md:overflow-visible' : ''}`} style={languages.length > 5 ? { scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties : undefined}>
                   {languages.map((lang, i) => {
                     const langAlt = getLangAlt(lang);
@@ -1190,27 +1184,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     );
                   })}
                 </div>
-              )}
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:bg-background transition-colors"
-                title="Masquer les cartes"
-                aria-label="Masquer les cartes"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    hideCards();
-                  }
-                }}
-                onClick={(e) => { e.stopPropagation(); hideCards(); }}
-                onMouseDown={(e) => e.stopPropagation()}
-                onTouchStart={(e) => e.stopPropagation()}
-              >
-                <ChevronDown className="h-3.5 w-3.5" />
-                <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Masquer</span>
-                <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
-              </button>
-            </div>
+              ) : undefined}
+            />
           )}
         </div>
 
