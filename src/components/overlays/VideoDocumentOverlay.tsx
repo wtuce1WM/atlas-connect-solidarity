@@ -20,9 +20,11 @@ const VideoDocumentOverlay = ({
   videoDocs,
   closing,
   defaultSoundOn = true,
+  businessId,
   onClose,
   onNavigate,
   onAnimationEnd,
+  onOwnerClick,
 }: VideoDocumentOverlayProps) => {
   const [descExpanded, setDescExpanded] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
