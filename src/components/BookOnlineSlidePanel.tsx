@@ -144,6 +144,27 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   // Ref for destination sub-overlay intercept
   const destInterceptCloseRef = useRef<(() => boolean) | null>(null);
 
+  // --- Cosmetic URL rewriting effects ---
+  useEffect(() => {
+    if (!business?.slug) return;
+    const hasSubOverlay = selectedDestinationId || selectedPoiBusinessId || selectedKpBusinessId;
+    if (!hasSubOverlay) {
+      window.history.replaceState(null, "", `/business/${business.slug}`);
+    }
+  }, [business?.slug, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId]);
+
+  useEffect(() => {
+    if (!selectedDestinationId) return;
+    const dest = destinations.find(d => d.id === selectedDestinationId);
+    if (dest) {
+      window.history.replaceState(null, "", `/destination/${encodeURIComponent(dest.name_fr)}`);
+    }
+  }, [selectedDestinationId, destinations]);
+
+  useEffect(() => {
+    const saved = savedUrlRef.current;
+    return () => { window.history.replaceState(null, "", saved); };
+  }, []);
   // Expose close interceptor: when navigated from fallback or from video owner, go back instead of closing
   useEffect(() => {
     if (!interceptCloseRef) return;
