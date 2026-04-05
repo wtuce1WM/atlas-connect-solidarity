@@ -540,7 +540,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
 
         {/* Overlaid content */}
         <div className="relative z-10 flex flex-col h-full p-4 md:p-6">
-          {/* Media counter + arrows on mobile — positioned in top half */}
+          {/* Media counter + arrows on mobile */}
           {totalMedia > 1 && (
             <div className="flex items-center justify-center gap-3 pb-4">
               <button onClick={() => goMedia(-1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
@@ -555,11 +555,9 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
             </div>
           )}
 
-          {/* Spacer to push content to bottom half */}
-          <div className="flex-1 min-h-0" style={{ maxHeight: "calc(50vh - 5rem)" }} />
+          {/* Flip card container */}
+          <div className="shrink-0 flex items-start justify-center overflow-hidden min-h-0" style={{ perspective: "1200px", height: "max(12rem, calc(50vh - 4rem))" }}>
 
-          {/* Flip card container — starts around viewport midpoint */}
-          <div className="flex-1 flex items-start justify-center overflow-hidden min-h-0" style={{ perspective: "1200px" }}>
             <div
               className={`w-[95%] md:w-[90%] lg:w-[85%] relative ${flipped ? "h-[calc(100%-2rem)]" : "max-h-full"}`}
               style={{
