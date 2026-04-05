@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { businessUrl } from "@/lib/businessUrl";
 import { MapPin, ChevronLeft, ChevronDown, ChevronUp, X, Navigation, Minimize2, Map as MapIcon, Play, Pause, Volume2, VolumeX } from "lucide-react";
-import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton } from "@/components/CardsVisibilityToggle";
+import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton, useOwnerLogo, OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
+import { useNavigate } from "react-router-dom";
 import BottomTabsCarousel, { TabScrollRail, TabVideoCard, TabYouTubeCard, TabCard, type BottomTabConfig } from "@/components/BottomTabsCarousel";
 import { useDragToHide } from "@/hooks/useDragToHide";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
@@ -65,6 +66,7 @@ const MemoizedDestMap = React.memo(({ destination, regionDestinations }: { desti
 
 const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: DestinationSlidePanelProps) => {
   const { language } = useLanguage();
+  const navigate = useNavigate();
   const slideAnim = slideFrom === "bottom" ? "animate-slide-up-from-bottom" : "animate-slide-in-right";
   const [destination, setDestination] = useState<DestinationFull | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -79,7 +81,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const [flipped, setFlipped] = useState(false);
   const [regionDestinations, setRegionDestinations] = useState<PoiMapItem[]>([]);
   const [exclusiveBusinesses, setExclusiveBusinesses] = useState<{ id: string; name: string; slug: string; city: string | null; neighborhood: string | null; images: string[] | null; computed_rating: number | null; rating: number | null; }[]>([]);
-  const [cityVideos, setCityVideos] = useState<{ url: string; name: string | null; ownerName: string; thumbnailUrl: string | null; businessId: string }[]>([]);
+  const [cityVideos, setCityVideos] = useState<{ url: string; name: string | null; ownerName: string; thumbnailUrl: string | null; businessId: string; ownerLogo: string | null; ownerSlug: string | null }[]>([]);
   const [activeBottomTab, setActiveBottomTab] = useState<string>("cityVideos");
   const bottomTabInitialRef = React.useRef(true);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -220,16 +222,21 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
       const ownerIds = [...new Set(docs.map(d => d.business_id))];
       const { data: owners } = await supabase
         .from("businesses")
-        .select("id, name")
+        .select("id, name, logo_url, slug")
         .in("id", ownerIds);
-      const ownerMap = new Map((owners || []).map(o => [o.id, o.name]));
-      setCityVideos(docs.map(d => ({
-        url: d.url,
-        name: d.name,
-        ownerName: ownerMap.get(d.business_id) || "",
-        thumbnailUrl: d.thumbnail_url,
-        businessId: d.business_id,
-      })));
+      const ownerMap = new Map((owners || []).map(o => [o.id, o]));
+      setCityVideos(docs.map(d => {
+        const owner = ownerMap.get(d.business_id);
+        return {
+          url: d.url,
+          name: d.name,
+          ownerName: owner?.name || "",
+          thumbnailUrl: d.thumbnail_url,
+          businessId: d.business_id,
+          ownerLogo: owner?.logo_url || null,
+          ownerSlug: owner?.slug || null,
+        };
+      }));
     };
     fetchCityVideos();
   }, [destination?.name_fr]);
@@ -278,7 +285,17 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const safeIndex = totalMedia > 0 ? currentMediaIndex % totalMedia : 0;
   const currentMedia = totalMedia > 0 ? mediaItems[safeIndex] : null;
 
-  // Build full lightbox items (images + videos + matterport)
+  // Build videoDocs-compatible array for owner logo/badge
+  const ownerVideoDocs = useMemo(() => cityVideos.map(cv => ({
+    url: cv.url,
+    owner_business_id: cv.businessId,
+    owner_logo: cv.ownerLogo,
+    owner_name: cv.ownerName || null,
+  })), [cityVideos]);
+
+  // Owner logo overlay hook — destinationId acts as "current business" so all city videos show owner info
+  const { logoBigOverlay, logoBigFadingOut } = useOwnerLogo(cardsHidden, currentMediaIndex, mediaItems, ownerVideoDocs, destinationId);
+
   const lightboxItems: LightboxMediaItem[] = [
     ...allImages.map((url) => ({ type: "image" as const, src: url, alt: destName })),
     ...videos.map((url) => ({ type: "video" as const, src: url, alt: destName })),
@@ -732,6 +749,27 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
               />
             );
           })()}
+
+          {/* Owner logo + badge */}
+          <OwnerLogoOverlay
+            logoBigOverlay={logoBigOverlay}
+            logoBigFadingOut={logoBigFadingOut}
+            cardsHidden={cardsHidden}
+            currentMediaUrl={currentMedia?.url}
+            videoDocs={ownerVideoDocs}
+            currentBusinessId={destinationId}
+          />
+          <OwnerBadge
+            cardsHidden={cardsHidden}
+            currentMediaKind={currentMedia?.kind}
+            currentMediaUrl={currentMedia?.url}
+            videoDocs={ownerVideoDocs}
+            currentBusinessId={destinationId}
+            onNavigateToOwner={(ownerId) => {
+              const cv = cityVideos.find(v => v.businessId === ownerId);
+              if (cv?.ownerSlug) navigate(businessUrl({ id: cv.businessId, slug: cv.ownerSlug }));
+            }}
+          />
 
           {destination.latitude && destination.longitude && (
             <div className="shrink-0 py-2 flex flex-col items-center gap-2">
