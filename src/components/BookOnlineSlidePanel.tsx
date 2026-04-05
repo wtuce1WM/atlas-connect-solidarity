@@ -2310,14 +2310,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               style={{ filter: 'drop-shadow(0 0 30px hsla(220,15%,85%,0.7)) drop-shadow(0 0 60px hsla(220,15%,85%,0.4)) drop-shadow(0 0 100px hsla(220,15%,85%,0.2))' }}
             />
           </div>
-          {/* Owner name — clickable to navigate */}
-          <button
-            onClick={(e) => { e.stopPropagation(); logoBigTimersRef.current.forEach(clearTimeout); logoBigTimersRef.current = []; setLogoBigOverlay(null); setActiveBusinessId(logoBigOverlay.ownerId); }}
-            className="mt-4 text-white/80 text-sm tracking-widest hover:text-white transition-colors"
-            style={{ fontFamily: "'Josefin Sans', sans-serif", animation: 'slideInUp 0.8s ease-out 0.6s both', textShadow: '0 2px 8px rgba(0,0,0,0.6)' }}
-          >
-            {logoBigOverlay.name}
-          </button>
         </div>
       )}
     </div>
