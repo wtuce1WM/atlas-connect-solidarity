@@ -88,6 +88,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     allVideoUrls, categoryIcon, showGoogleMap, kpRelated, kpSubcategoryItems, kpSubcategoryLabel, isKp1Only, liteApiHotelId, serpApiMapping, isHotelWithPrice,
   } = useBookOnlineData(businessId);
 
+  // --- Cosmetic URL rewriting (replaceState) ---
+  const savedUrlRef = useRef(window.location.pathname + window.location.search);
 
   // UI state
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
