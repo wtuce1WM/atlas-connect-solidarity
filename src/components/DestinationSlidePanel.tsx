@@ -27,19 +27,20 @@ interface DestinationFull {
   matterport_url: string | null;
   latitude: number | null;
   longitude: number | null;
+  region: string[] | null;
 }
 
 const GOLD = { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" };
 
-const MemoizedDestMap = React.memo(({ destination, linkedBusinesses }: { destination: DestinationFull; linkedBusinesses: PoiMapItem[] }) => {
+const MemoizedDestMap = React.memo(({ destination, regionDestinations }: { destination: DestinationFull; regionDestinations: PoiMapItem[] }) => {
   const pois = useMemo(() => [
     ...(destination.latitude && destination.longitude ? [{
       id: destination.id, name: destination.name_fr, latitude: destination.latitude, longitude: destination.longitude,
       city: null, neighborhood: null, images: destination.images,
       markerColor: GOLD,
     }] : []),
-    ...linkedBusinesses,
-  ], [destination.id, destination.latitude, destination.longitude, destination.name_fr, destination.images, linkedBusinesses]);
+    ...regionDestinations.filter(d => d.id !== destination.id),
+  ], [destination.id, destination.latitude, destination.longitude, destination.name_fr, destination.images, regionDestinations]);
 
   const center = useMemo(
     () => destination.latitude && destination.longitude ? { lat: destination.latitude, lng: destination.longitude } : undefined,
@@ -71,7 +72,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const [showMosaic, setShowMosaic] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [flipped, setFlipped] = useState(false);
-  const [linkedBusinesses, setLinkedBusinesses] = useState<PoiMapItem[]>([]);
+  const [regionDestinations, setRegionDestinations] = useState<PoiMapItem[]>([]);
 
   useEffect(() => {
     if (!showDirections) return;
@@ -89,7 +90,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
     setDescExpanded(true);
     setShowDirections(false);
     setFlipped(false);
-    setLinkedBusinesses([]);
+    setRegionDestinations([]);
   }, [destinationId]);
 
   useEffect(() => {
@@ -97,7 +98,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
       setIsLoading(true);
       const { data } = await supabase
         .from("destinations")
-        .select("id, name_fr, name_en, name_ar, description, image_url, images, videos, matterport_url, latitude, longitude")
+        .select("id, name_fr, name_en, name_ar, description, image_url, images, videos, matterport_url, latitude, longitude, region")
         .eq("id", destinationId)
         .maybeSingle();
       setDestination(data as DestinationFull | null);
@@ -106,38 +107,36 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
     fetchDestination();
   }, [destinationId]);
 
-  // Fetch businesses linked to this destination
+  // Fetch destinations in the same region
   useEffect(() => {
-    const fetchLinked = async () => {
-      const { data: links } = await supabase
-        .from("business_destinations")
-        .select("business_id")
-        .eq("destination_id", destinationId);
-      if (!links || links.length === 0) return;
-      const ids = [...new Set(links.map((l) => l.business_id))];
-      const { data: businesses } = await supabase
-        .from("businesses")
-        .select("id, name, latitude, longitude, images, city, neighborhood, rating, main_category")
-        .in("id", ids)
-        .eq("is_active", true);
-      if (businesses) {
-        setLinkedBusinesses(
-          businesses.map((b) => ({
-            id: b.id,
-            name: b.name,
-            latitude: b.latitude,
-            longitude: b.longitude,
-            images: b.images,
-            city: b.city,
-            neighborhood: b.neighborhood,
-            rating: b.rating ? Number(b.rating) : null,
-            subcategory: b.main_category,
+    const fetchRegionDests = async () => {
+      if (!destination?.region || destination.region.length === 0) return;
+      // Fetch all destinations, then filter by overlapping region
+      const { data: allDests } = await supabase
+        .from("destinations")
+        .select("id, name_fr, name_en, name_ar, latitude, longitude, images, image_url, region")
+        .neq("id", destinationId);
+      if (!allDests) return;
+      const myRegions = new Set(destination.region);
+      const matching = allDests.filter((d: any) =>
+        d.region && (d.region as string[]).some((r: string) => myRegions.has(r))
+      );
+      setRegionDestinations(
+        matching
+          .filter((d: any) => d.latitude && d.longitude)
+          .map((d: any) => ({
+            id: d.id,
+            name: d.name_fr,
+            latitude: d.latitude,
+            longitude: d.longitude,
+            images: d.images || (d.image_url ? [d.image_url] : null),
+            city: null,
+            neighborhood: null,
           }))
-        );
-      }
+      );
     };
-    fetchLinked();
-  }, [destinationId]);
+    fetchRegionDests();
+  }, [destination?.region, destinationId]);
 
   const playWoosh = useCallback(() => {
     try { new Audio(wooshSfx).play(); } catch {}
@@ -450,7 +449,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                     <h2 className="text-xl font-bold truncate drop-shadow-lg">{destName}</h2>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    {linkedBusinesses.length > 0 && (
+                    {regionDestinations.length > 0 && (
                       <button
                         onClick={() => { playWoosh(); setFlipped(true); }}
                         className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
@@ -496,13 +495,13 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                     <ChevronLeft className="h-4 w-4" />
                   </button>
                   <h3 className="text-sm font-semibold truncate">
-                    {language === "en" ? "Nearby" : "À proximité"}
+                    {language === "en" ? "Region" : "Région"}
                   </h3>
                 </div>
                 {/* Map */}
                 <div className="flex-1 min-h-0">
                   {flipped && destination && (
-                    <MemoizedDestMap destination={destination} linkedBusinesses={linkedBusinesses} />
+                    <MemoizedDestMap destination={destination} regionDestinations={regionDestinations} />
                   )}
                 </div>
               </div>
