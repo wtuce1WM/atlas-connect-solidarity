@@ -138,6 +138,7 @@ export interface VideoDoc {
   owner_business_id: string | null;
   owner_name: string | null;
   owner_logo: string | null;
+  owner_instagram: string | null;
 }
 
 // In-memory cache to avoid re-fetching data for previously viewed businesses
