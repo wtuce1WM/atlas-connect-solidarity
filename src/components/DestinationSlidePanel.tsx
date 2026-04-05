@@ -90,7 +90,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
     setDescExpanded(true);
     setShowDirections(false);
     setFlipped(false);
-    setLinkedBusinesses([]);
+    setRegionDestinations([]);
   }, [destinationId]);
 
   useEffect(() => {
