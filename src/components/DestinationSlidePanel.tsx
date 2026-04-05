@@ -107,38 +107,36 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
     fetchDestination();
   }, [destinationId]);
 
-  // Fetch businesses linked to this destination
+  // Fetch destinations in the same region
   useEffect(() => {
-    const fetchLinked = async () => {
-      const { data: links } = await supabase
-        .from("business_destinations")
-        .select("business_id")
-        .eq("destination_id", destinationId);
-      if (!links || links.length === 0) return;
-      const ids = [...new Set(links.map((l) => l.business_id))];
-      const { data: businesses } = await supabase
-        .from("businesses")
-        .select("id, name, latitude, longitude, images, city, neighborhood, rating, main_category")
-        .in("id", ids)
-        .eq("is_active", true);
-      if (businesses) {
-        setLinkedBusinesses(
-          businesses.map((b) => ({
-            id: b.id,
-            name: b.name,
-            latitude: b.latitude,
-            longitude: b.longitude,
-            images: b.images,
-            city: b.city,
-            neighborhood: b.neighborhood,
-            rating: b.rating ? Number(b.rating) : null,
-            subcategory: b.main_category,
+    const fetchRegionDests = async () => {
+      if (!destination?.region || destination.region.length === 0) return;
+      // Fetch all destinations, then filter by overlapping region
+      const { data: allDests } = await supabase
+        .from("destinations")
+        .select("id, name_fr, name_en, name_ar, latitude, longitude, images, image_url, region")
+        .neq("id", destinationId);
+      if (!allDests) return;
+      const myRegions = new Set(destination.region);
+      const matching = allDests.filter((d: any) =>
+        d.region && (d.region as string[]).some((r: string) => myRegions.has(r))
+      );
+      setRegionDestinations(
+        matching
+          .filter((d: any) => d.latitude && d.longitude)
+          .map((d: any) => ({
+            id: d.id,
+            name: d.name_fr,
+            latitude: d.latitude,
+            longitude: d.longitude,
+            images: d.images || (d.image_url ? [d.image_url] : null),
+            city: null,
+            neighborhood: null,
           }))
-        );
-      }
+      );
     };
-    fetchLinked();
-  }, [destinationId]);
+    fetchRegionDests();
+  }, [destination?.region, destinationId]);
 
   const playWoosh = useCallback(() => {
     try { new Audio(wooshSfx).play(); } catch {}
