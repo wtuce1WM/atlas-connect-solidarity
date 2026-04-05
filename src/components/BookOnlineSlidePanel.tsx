@@ -1825,13 +1825,31 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           </div>
         )}
 
+        {/* Owner logo – above badge */}
+        {cardsHidden && logoBigOverlay && !logoBigFadingOut && (() => {
+          const currentVideoDoc = videoDocs.find(d => d.url === effectiveMedia?.url);
+          if (!currentVideoDoc?.owner_business_id || currentVideoDoc.owner_business_id === businessId) return null;
+          return (
+            <div className="shrink-0 flex justify-center pointer-events-none mb-3">
+              <div className="animate-logo-big-full-reveal" style={{ width: '120px' }}>
+                <img
+                  src={logoBigOverlay.src}
+                  alt={logoBigOverlay.name}
+                  className="w-full h-auto object-contain"
+                  style={{ filter: 'drop-shadow(0 0 20px hsla(0,0%,0%,0.6))' }}
+                />
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Video owner badge – just above CTAs */}
         {cardsHidden && effectiveMedia?.kind === "video" && (() => {
           const currentVideoDoc = videoDocs.find(d => d.url === effectiveMedia.url);
           if (!currentVideoDoc?.owner_business_id || currentVideoDoc.owner_business_id === businessId) return null;
           if (!currentVideoDoc.owner_name) return null;
           return (
-            <div className="shrink-0 flex justify-center pointer-events-auto pb-10">
+            <div className="shrink-0 flex justify-center pointer-events-auto pb-4">
               <button
                 onClick={() => setActiveBusinessId(currentVideoDoc.owner_business_id!)}
                 className="flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 hover:bg-black/85 transition-colors"
