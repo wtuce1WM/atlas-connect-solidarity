@@ -1648,7 +1648,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   </div>
                 );
               })}
-              {poiBusinesses.length > 0 && business?.latitude && business?.longitude && (
+              {(poiBusinesses.length > 0 || nearbyFallback.length > 0) && business?.latitude && business?.longitude && (
                 <div
                   className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
                   style={bottomTabInitialRef.current ? { animationDelay: `${kpSubcategoryItems.length * 120}ms`, animationFillMode: 'forwards' } : undefined}
@@ -1656,7 +1656,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 >
                   <img src={poiNearbyImg} alt="Points d'intérêt" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
                   <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
-                    {language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité"}
+                    {poiBusinesses.length > 0
+                      ? (language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité")
+                      : (language === "en" ? "Nearby establishments" : "Établissements à proximité")}
                   </p>
                 </div>
               )}
