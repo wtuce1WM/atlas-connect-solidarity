@@ -1838,42 +1838,24 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         )}
 
         {/* Owner logo – above badge */}
-        {cardsHidden && logoBigOverlay && !logoBigFadingOut && (() => {
-          const currentVideoDoc = videoDocs.find(d => d.url === effectiveMedia?.url);
-          if (!currentVideoDoc?.owner_business_id || currentVideoDoc.owner_business_id === businessId) return null;
-          return (
-            <div className="shrink-0 flex justify-center pointer-events-none pb-4">
-              <div className="animate-logo-big-full-reveal" style={{ width: '120px' }}>
-                <img
-                  src={logoBigOverlay.src}
-                  alt={logoBigOverlay.name}
-                  className="w-full h-auto object-contain"
-                  style={{ filter: 'drop-shadow(0 0 20px hsla(0,0%,0%,0.6))' }}
-                />
-              </div>
-            </div>
-          );
-        })()}
+        <OwnerLogoOverlay
+          logoBigOverlay={logoBigOverlay}
+          logoBigFadingOut={logoBigFadingOut}
+          cardsHidden={cardsHidden}
+          currentMediaUrl={effectiveMedia?.url}
+          videoDocs={videoDocs}
+          currentBusinessId={businessId}
+        />
 
         {/* Video owner badge – just above CTAs */}
-        {cardsHidden && effectiveMedia?.kind === "video" && (() => {
-          const currentVideoDoc = videoDocs.find(d => d.url === effectiveMedia.url);
-          if (!currentVideoDoc?.owner_business_id || currentVideoDoc.owner_business_id === businessId) return null;
-          if (!currentVideoDoc.owner_name) return null;
-          return (
-            <div className="shrink-0 flex justify-center pointer-events-auto pb-4">
-              <button
-                onClick={() => setActiveBusinessId(currentVideoDoc.owner_business_id!)}
-                className="flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 hover:bg-black/85 transition-colors"
-              >
-                <span className="text-xs font-medium text-white truncate max-w-[180px]" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                  {currentVideoDoc.owner_name} <span className="text-base">©</span>
-                </span>
-                <ChevronRight className="h-3.5 w-3.5 text-white/60 shrink-0" />
-              </button>
-            </div>
-          );
-        })()}
+        <OwnerBadge
+          cardsHidden={cardsHidden}
+          currentMediaKind={effectiveMedia?.kind}
+          currentMediaUrl={effectiveMedia?.url}
+          videoDocs={videoDocs}
+          currentBusinessId={businessId}
+          onNavigateToOwner={setActiveBusinessId}
+        />
 
         {/* CTAs + video controls */}
         <div className={`shrink-0 py-2 lg:pb-2 flex flex-col items-center gap-2 pointer-events-auto ${cardsHidden && effectiveMedia?.kind === "matterport" ? 'mb-24' : ''} ${cardsHidden ? '' : noBottomCarousel ? 'lg:mt-auto' : ''}`} style={(cardsHidden && fallbackPanelData && (() => { const ch = fallbackPanelData.hotels.find(h => h.isCurrentHotel); return !!ch; })()) ? { display: 'none' } : undefined}>
