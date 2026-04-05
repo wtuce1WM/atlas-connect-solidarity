@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { businessUrl } from "@/lib/businessUrl";
-import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation, Minimize2, Map as MapIcon, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { MapPin, ChevronLeft, X, Navigation, Minimize2, Map as MapIcon, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton } from "@/components/CardsVisibilityToggle";
 import BottomTabsCarousel, { TabScrollRail, TabVideoCard, TabYouTubeCard, TabCard, type BottomTabConfig } from "@/components/BottomTabsCarousel";
 import { useDragToHide } from "@/hooks/useDragToHide";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
