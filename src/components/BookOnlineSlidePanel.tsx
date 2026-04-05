@@ -2296,17 +2296,32 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         <div
           className={`absolute inset-0 -top-[3.3rem] z-[80] flex flex-col items-center justify-center pointer-events-none ${logoBigFadingOut ? 'animate-fullscreen-logo-out' : ''}`}
         >
-          {/* Logo with silver halo glow */}
+          {/* Logo with Spin & Fade effect */}
           <div
-            className="relative animate-logo-big-full-reveal [perspective:1000px] z-10"
+            className="relative [perspective:800px] z-10"
             style={{ width: 'min(65%, 340px)', height: 'min(65%, 340px)' }}
           >
             <img
               src={logoBigOverlay.src}
               alt={logoBigOverlay.name}
               className="w-full h-full object-contain"
-              style={{ filter: 'drop-shadow(0 0 30px hsla(220,15%,85%,0.7)) drop-shadow(0 0 60px hsla(220,15%,85%,0.4)) drop-shadow(0 0 100px hsla(220,15%,85%,0.2))' }}
+              style={{
+                animation: 'coinSpin 1.2s cubic-bezier(0.16,1,0.3,1) forwards',
+                filter: 'drop-shadow(0 0 30px hsla(220,15%,85%,0.7)) drop-shadow(0 0 60px hsla(220,15%,85%,0.4)) drop-shadow(0 0 100px hsla(220,15%,85%,0.2))',
+              }}
             />
+            <div
+              className="absolute inset-0 pointer-events-none rounded-full overflow-hidden"
+              style={{ animation: 'coinSpin 1.2s cubic-bezier(0.16,1,0.3,1) forwards' }}
+            >
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: 'linear-gradient(105deg, transparent 25%, hsla(210,10%,85%,0.4) 40%, hsla(0,0%,100%,0.6) 50%, hsla(210,10%,85%,0.4) 60%, transparent 75%)',
+                  animation: 'shineSwipe 3s ease-in-out 1.5s infinite',
+                }}
+              />
+            </div>
           </div>
         </div>
       )}
