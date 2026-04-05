@@ -8,9 +8,11 @@ interface VideoDocumentOverlayProps {
   videoDocs: VideoDoc[];
   closing: boolean;
   defaultSoundOn?: boolean;
+  businessId?: string;
   onClose: () => void;
   onNavigate: (video: { url: string; name: string | null; description: string | null }) => void;
   onAnimationEnd: () => void;
+  onOwnerClick?: (ownerId: string) => void;
 }
 
 const VideoDocumentOverlay = ({
