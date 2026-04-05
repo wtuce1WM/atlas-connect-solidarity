@@ -78,7 +78,7 @@ interface CardsToggleButtonProps {
 
 export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDownDrag, leftSlot }: CardsToggleButtonProps) => {
   return (
-    <div className="shrink-0 flex items-center justify-center pb-2 pointer-events-auto">
+    <div className="shrink-0 flex items-center justify-center pb-2 pointer-events-auto relative z-20">
       {cardsHidden ? (
         <div className="flex items-center gap-3">
           <button
