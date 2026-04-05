@@ -78,6 +78,9 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const [exclusiveBusinesses, setExclusiveBusinesses] = useState<{ id: string; name: string; slug: string; city: string | null; neighborhood: string | null; images: string[] | null; computed_rating: number | null; rating: number | null; }[]>([]);
   const [activeBottomTab, setActiveBottomTab] = useState<string>("videos");
   const bottomTabInitialRef = React.useRef(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoPaused, setVideoPaused] = useState(true);
+  const [videoMuted, setVideoMuted] = useState(true);
 
   useEffect(() => {
     if (!showDirections) return;
