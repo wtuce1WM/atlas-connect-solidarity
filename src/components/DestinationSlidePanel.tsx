@@ -259,7 +259,10 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
     const info = getVideoInfo(v);
     return info.type === "file";
   });
+  // City videos (file type) for background
+  const cityFileVideos = cityVideos.filter((cv) => getVideoInfo(cv.url).type === "file");
   const mediaItems: MediaItem[] = [
+    ...cityFileVideos.map((cv) => ({ kind: "video" as const, url: cv.url })),
     ...fileVideos.map((v) => ({ kind: "video" as const, url: v })),
     ...allImages.map((i) => ({ kind: "image" as const, url: i })),
   ];
