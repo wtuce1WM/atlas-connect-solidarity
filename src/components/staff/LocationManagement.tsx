@@ -1740,6 +1740,9 @@ const LocationManagement = () => {
                           <Button size="sm" variant="ghost" onClick={() => openEditDestination(d)}>
                             <Edit className="h-4 w-4" />
                           </Button>
+                          <Button size="sm" variant="ghost" title="Télécharger les images" onClick={() => fetchDestinationImages(d.id, d.name_fr)}>
+                            <Download className="h-4 w-4" />
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
