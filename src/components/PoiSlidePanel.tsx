@@ -296,7 +296,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
                   <div className="min-w-0 flex-1">
                     <h2 className="text-xl font-bold uppercase truncate drop-shadow-lg" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>{poi.name}</h2>
                     {poi.poi_hook && (
-                      <p className="text-sm text-white mt-1 line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{poi.poi_hook}</p>
+                      <p className="text-sm md:text-lg text-white/90 mt-1 leading-relaxed line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{poi.poi_hook}</p>
                     )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
