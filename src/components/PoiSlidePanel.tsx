@@ -113,19 +113,36 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
     return () => { cancelled = true; };
   }, [businessId]);
 
-  // Fetch other POIs in the same city
+  // Fetch POI businesses linked to this POI
   useEffect(() => {
-    if (!poi?.city) { setLinkedPois([]); setCityPoisForTabs([]); return; }
     let cancelled = false;
-    const fetchCityPois = async () => {
+
+    const fetchLinkedPois = async () => {
+      const { data: poiLinks } = await supabase
+        .from("business_poi_businesses")
+        .select("poi_business_id")
+        .eq("business_id", businessId);
+
+      const poiIds = ((poiLinks || []) as { poi_business_id: string }[])
+        .map((link) => link.poi_business_id)
+        .filter((id) => id !== businessId);
+
+      if (cancelled || poiIds.length === 0) {
+        if (!cancelled) {
+          setLinkedPois([]);
+          setCityPoisForTabs([]);
+        }
+        return;
+      }
+
       const { data: pois } = await supabase
         .from("businesses")
         .select("id, name, slug, latitude, longitude, images, city, neighborhood, rating, main_category")
-        .eq("is_active", true)
-        .eq("is_poi", true)
-        .eq("city", poi.city!)
-        .neq("id", businessId);
+        .in("id", poiIds)
+        .eq("is_active", true);
+
       if (cancelled || !pois) return;
+
       setLinkedPois(
         pois.map((b) => ({
           id: b.id,
@@ -139,6 +156,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
           subcategory: b.main_category,
         }))
       );
+
       setCityPoisForTabs(
         pois.map((b) => ({
           id: b.id,
@@ -149,9 +167,10 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
         }))
       );
     };
-    fetchCityPois();
+
+    fetchLinkedPois();
     return () => { cancelled = true; };
-  }, [businessId, poi?.city]);
+  }, [businessId]);
 
   // Fetch videos linked to this POI (business_documents.poi_id)
   useEffect(() => {
