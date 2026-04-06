@@ -2240,17 +2240,33 @@ const LocationManagement = () => {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label>Ville</Label>
+                      <Label>Villes</Label>
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {destinationForm.city_ids.map((cid, i) => {
+                          const city = cities.find(c => c.id === cid);
+                          return (
+                            <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-sm">
+                              {city?.name_fr || cid}
+                              <button type="button" onClick={() => setDestinationForm(prev => ({ ...prev, city_ids: prev.city_ids.filter((_, j) => j !== i) }))} className="text-muted-foreground hover:text-destructive">
+                                <X className="h-3 w-3" />
+                              </button>
+                            </span>
+                          );
+                        })}
+                      </div>
                       <Select
-                        value={destinationForm.city_id || "none"}
-                        onValueChange={(value) => setDestinationForm(prev => ({ ...prev, city_id: value === "none" ? "" : value }))}
+                        value={undefined}
+                        onValueChange={(value) => {
+                          if (value && !destinationForm.city_ids.includes(value)) {
+                            setDestinationForm(prev => ({ ...prev, city_ids: [...prev.city_ids, value] }));
+                          }
+                        }}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Sélectionner une ville..." />
+                          <SelectValue placeholder="Ajouter une ville..." />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="none">— Aucune —</SelectItem>
-                          {cities.filter(c => c.is_active).sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr')).map((c) => (
+                          {cities.filter(c => c.is_active && !destinationForm.city_ids.includes(c.id)).sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr')).map((c) => (
                             <SelectItem key={c.id} value={c.id}>{c.name_fr}</SelectItem>
                           ))}
                         </SelectContent>
