@@ -184,15 +184,15 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
     };
     fetchVideos();
     return () => { cancelled = true; };
-  }, [poi?.city]);
+  }, [businessId]);
 
   const images = poi?.images?.filter(Boolean) || [];
   const ownVideos = poi?.video_1_url ? [poi.video_1_url] : [];
-  const cityFileVideos = linkedVideos.filter((v) => getVideoInfo(v.url).type === "file");
+  const poiFileVideos = linkedVideos.filter((v) => getVideoInfo(v.url).type === "file");
 
   type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
   const mediaItems: MediaItem[] = useMemo(() => [
-    ...cityFileVideos.map((cv) => ({ kind: "video" as const, url: cv.url })),
+    ...poiFileVideos.map((cv) => ({ kind: "video" as const, url: cv.url })),
     ...ownVideos.filter(v => getVideoInfo(v).type === "file").map((v) => ({ kind: "video" as const, url: v })),
     ...images.map((i) => ({ kind: "image" as const, url: i })),
   ], [cityFileVideos, ownVideos, images]);
