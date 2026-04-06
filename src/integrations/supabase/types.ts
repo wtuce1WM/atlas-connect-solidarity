@@ -1620,7 +1620,7 @@ export type Database = {
       }
       destinations: {
         Row: {
-          city_id: string | null
+          city_ids: string[] | null
           created_at: string | null
           description: string | null
           hook: string | null
@@ -1645,7 +1645,7 @@ export type Database = {
           wikipedia_fr: string | null
         }
         Insert: {
-          city_id?: string | null
+          city_ids?: string[] | null
           created_at?: string | null
           description?: string | null
           hook?: string | null
@@ -1670,7 +1670,7 @@ export type Database = {
           wikipedia_fr?: string | null
         }
         Update: {
-          city_id?: string | null
+          city_ids?: string[] | null
           created_at?: string | null
           description?: string | null
           hook?: string | null
@@ -1694,15 +1694,7 @@ export type Database = {
           wikipedia_en?: string | null
           wikipedia_fr?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "destinations_city_id_fkey"
-            columns: ["city_id"]
-            isOneToOne: false
-            referencedRelation: "cities"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       easter_eggs: {
         Row: {
