@@ -4802,7 +4802,10 @@ serve(async (req) => {
         const cityDetResult2 = await detectCityInQueryDynamic(query, supabase);
         const isJustACity = !!cityDetResult2 && stripAccentsGlobal(cityDetResult2.matchedTerm.toLowerCase().trim()) === qNormIso;
         
-        if (!isCityName && !isJustACity) {
+        // Skip name pinning when services were detected — the query is categorical, not a name lookup
+        // e.g. "location moto essaouira" matches business name but also service keyword "location moto"
+        const hasDetectedServicesForPinning = (detectedServices && detectedServices.length > 0) || serviceShortcutActivated;
+        if (!isCityName && !isJustACity && !hasDetectedServicesForPinning) {
           const beforeIso = businesses.length;
           // Keep the exact match + any business whose keywords match a DISTINCTIVE query word
           // Exclude generic words that are also common subcategory/category names (hotel, restaurant, etc.)
