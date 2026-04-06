@@ -503,6 +503,7 @@ export type Database = {
           poi_id: string | null
           price: string | null
           price_type: string | null
+          service_id: string | null
           sort_order: number
           subcategory_id: string | null
           thumbnail_url: string | null
@@ -524,6 +525,7 @@ export type Database = {
           poi_id?: string | null
           price?: string | null
           price_type?: string | null
+          service_id?: string | null
           sort_order?: number
           subcategory_id?: string | null
           thumbnail_url?: string | null
@@ -545,6 +547,7 @@ export type Database = {
           poi_id?: string | null
           price?: string | null
           price_type?: string | null
+          service_id?: string | null
           sort_order?: number
           subcategory_id?: string | null
           thumbnail_url?: string | null
@@ -599,6 +602,13 @@ export type Database = {
             columns: ["poi_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_documents_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
             referencedColumns: ["id"]
           },
           {
