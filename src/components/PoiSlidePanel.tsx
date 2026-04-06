@@ -59,6 +59,7 @@ const MemoizedPoiMap = React.memo(({ poi, linkedBusinesses }: { poi: PoiFull; li
 const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePanelProps) => {
   const { language } = useLanguage();
   const slideAnim = slideFrom === "bottom" ? "animate-slide-up-from-bottom" : "animate-slide-in-right";
+  const savedUrlRef = useRef(window.location.pathname + window.location.search);
   const [poi, setPoi] = useState<PoiFull | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
@@ -79,6 +80,19 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
     setFlipped(false);
     setLinkedBusinesses([]);
   }, [businessId]);
+
+  // Cosmetic URL rewriting
+  useEffect(() => {
+    if (poi?.name) {
+      window.history.replaceState(null, "", `/poi/${encodeURIComponent(poi.name)}`);
+    }
+  }, [poi?.name]);
+
+  // Restore URL on unmount
+  useEffect(() => {
+    const saved = savedUrlRef.current;
+    return () => { window.history.replaceState(null, "", saved); };
+  }, []);
 
   // Fetch businesses linked to this POI
   useEffect(() => {
