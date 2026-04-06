@@ -4804,7 +4804,7 @@ serve(async (req) => {
         
         // Skip name pinning when services were detected — the query is categorical, not a name lookup
         // e.g. "location moto essaouira" matches business name but also service keyword "location moto"
-        const hasDetectedServicesForPinning = detectedServices && detectedServices.length > 0;
+        const hasDetectedServicesForPinning = (detectedServices && detectedServices.length > 0) || serviceShortcutActivated;
         if (!isCityName && !isJustACity && !hasDetectedServicesForPinning) {
           const beforeIso = businesses.length;
           // Keep the exact match + any business whose keywords match a DISTINCTIVE query word
