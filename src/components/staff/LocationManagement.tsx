@@ -130,6 +130,7 @@ interface Destination {
   is_searchable: boolean;
   internal_notes: string | null;
   videos: string[] | null;
+  city_id: string | null;
 }
 
 interface PointOfInterest {
