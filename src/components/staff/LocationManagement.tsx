@@ -970,7 +970,7 @@ const LocationManagement = () => {
       images: destinationForm.images.length > 0 ? destinationForm.images : [],
       internal_notes: destinationForm.internal_notes.trim().slice(0, 5000) || null,
       videos: destinationForm.videos.length > 0 ? destinationForm.videos : [],
-      city_id: destinationForm.city_id || null,
+      city_ids: destinationForm.city_ids.length > 0 ? destinationForm.city_ids : [],
     };
     let error;
     if (editingDestination) {
