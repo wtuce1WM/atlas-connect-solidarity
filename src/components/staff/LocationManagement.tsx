@@ -261,7 +261,7 @@ const LocationManagement = () => {
     latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
     hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
     is_searchable: false, images: [] as string[], internal_notes: "", videos: [] as string[],
-    city_id: "",
+    city_ids: [] as string[],
   });
   const [destVideoUrlInput, setDestVideoUrlInput] = useState("");
   const [poiSectionOpen, setPoiSectionOpen] = useState(false);
