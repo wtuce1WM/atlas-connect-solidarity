@@ -114,6 +114,8 @@ export interface Destination {
   name_en: string | null;
   image_url: string | null;
   images: string[] | null;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 export interface PoiBusiness {
