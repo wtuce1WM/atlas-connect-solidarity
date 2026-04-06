@@ -295,6 +295,9 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
                 <div className="flex items-end gap-4">
                   <div className="min-w-0 flex-1">
                     <h2 className="text-xl font-bold uppercase truncate drop-shadow-lg" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>{poi.name}</h2>
+                    {poi.poi_hook && (
+                      <p className="text-sm md:text-lg leading-relaxed tracking-[0.02em] text-white/90 mt-1 line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{poi.poi_hook}</p>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     {linkedBusinesses.length > 0 && (
@@ -307,7 +310,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
                         <Map className="h-4 w-4" />
                       </button>
                     )}
-                    {(displayDescription || poi.poi_hook) && (
+                    {displayDescription && (
                       <button
                         onClick={() => setDescExpanded((p) => !p)}
                         className="shrink-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
@@ -319,23 +322,13 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
                   </div>
                 </div>
 
-                {/* Hook + description — collapsible */}
-                {(poi.poi_hook || displayDescription) && descExpanded && (
+                {/* Description — collapsible */}
+                {displayDescription && descExpanded && (
                   <div className="min-h-0 overflow-y-auto pr-2" style={{ maxHeight: "min(35vh, 280px)" }}>
-                    {poi.poi_hook && (
-                      <p
-                        className="mb-3 text-sm md:text-lg leading-relaxed tracking-[0.02em] text-white/90"
-                        style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-                      >
-                        {poi.poi_hook}
-                      </p>
-                    )}
-                    {displayDescription && (
-                      <div
-                        className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-gold [&_h2]:!font-bold [&_h3]:!font-bold"
-                        dangerouslySetInnerHTML={{ __html: displayDescription }}
-                      />
-                    )}
+                    <div
+                      className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-gold [&_h2]:!font-bold [&_h3]:!font-bold"
+                      dangerouslySetInnerHTML={{ __html: displayDescription }}
+                    />
                   </div>
                 )}
               </div>
