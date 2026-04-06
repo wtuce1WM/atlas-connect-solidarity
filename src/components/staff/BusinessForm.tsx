@@ -4063,7 +4063,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     allBusinessesForVideo={allBusinessesForVideo}
                     videoBusinessSearch={videoBusinessSearch}
                     setVideoBusinessSearch={setVideoBusinessSearch}
+                    dbCategories={dbCategories}
                     dbSubcategories={dbSubcategories}
+                    dbServices={dbServices}
                     dbCities={dbCities}
                     dbNeighborhoods={dbNeighborhoods}
                     business={business}
