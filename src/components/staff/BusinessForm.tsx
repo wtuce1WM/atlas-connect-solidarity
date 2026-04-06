@@ -469,7 +469,7 @@ const SortableDocRow = ({ id, children }: { id: string; children: React.ReactNod
   );
 };
 
-const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinessesForCity, dbDestinations, allBusinessesForVideo, videoBusinessSearch, setVideoBusinessSearch, dbSubcategories, dbCities, dbNeighborhoods, business, toast, onOpenDesc, onDelete }: SortableVideoCardProps) => {
+const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinessesForCity, dbDestinations, allBusinessesForVideo, videoBusinessSearch, setVideoBusinessSearch, dbCategories, dbSubcategories, dbServices, dbCities, dbNeighborhoods, business, toast, onOpenDesc, onDelete }: SortableVideoCardProps) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1, zIndex: isDragging ? 50 : undefined };
 
