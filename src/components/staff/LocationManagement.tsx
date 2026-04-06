@@ -1719,6 +1719,11 @@ const LocationManagement = () => {
                       </TableCell>
                       <TableCell className="font-medium">{d.name_fr}</TableCell>
                       <TableCell className="text-muted-foreground">{(d.region || []).join(", ") || "—"}</TableCell>
+                      <TableCell className="text-muted-foreground text-sm">
+                        {(d.city_ids && d.city_ids.length > 0)
+                          ? d.city_ids.map(cid => cities.find(c => c.id === cid)?.name_fr || cid).sort((a, b) => a.localeCompare(b, 'fr')).join(", ")
+                          : "—"}
+                      </TableCell>
                       <TableCell>
                         <div className={`w-3 h-3 rounded-full ${d.is_searchable ? 'bg-green-500' : 'bg-red-500'}`} title={d.is_searchable ? 'Oui' : 'Non'} />
                       </TableCell>
