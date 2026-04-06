@@ -154,7 +154,7 @@ interface PointOfInterest {
   keywords: string[] | null;
 }
 
-const MAX_DEST_VIDEOS = 5;
+const MAX_DEST_VIDEOS = 10;
 
 const getYouTubeId = (url: string) => {
   const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/);
