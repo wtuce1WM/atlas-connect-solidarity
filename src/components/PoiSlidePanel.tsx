@@ -81,6 +81,19 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
     setLinkedBusinesses([]);
   }, [businessId]);
 
+  // Cosmetic URL rewriting
+  useEffect(() => {
+    if (poi?.name) {
+      window.history.replaceState(null, "", `/poi/${encodeURIComponent(poi.name)}`);
+    }
+  }, [poi?.name]);
+
+  // Restore URL on unmount
+  useEffect(() => {
+    const saved = savedUrlRef.current;
+    return () => { window.history.replaceState(null, "", saved); };
+  }, []);
+
   // Fetch businesses linked to this POI
   useEffect(() => {
     const fetchLinked = async () => {
