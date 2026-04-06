@@ -113,25 +113,18 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
     return () => { cancelled = true; };
   }, [businessId]);
 
-  // Fetch POIs linked to this POI (via business_points_of_interest)
+  // Fetch other POIs in the same city
   useEffect(() => {
+    if (!poi?.city) { setLinkedPois([]); setCityPoisForTabs([]); return; }
     let cancelled = false;
-    const fetchLinkedPois = async () => {
-      // Get POI IDs linked to this business
-      const { data: links } = await supabase
-        .from("business_points_of_interest")
-        .select("point_of_interest_id")
-        .eq("business_id", businessId);
-      if (cancelled || !links || links.length === 0) {
-        if (!cancelled) { setLinkedPois([]); setCityPoisForTabs([]); }
-        return;
-      }
-      const poiIds = links.map(l => l.point_of_interest_id);
+    const fetchCityPois = async () => {
       const { data: pois } = await supabase
         .from("businesses")
         .select("id, name, slug, latitude, longitude, images, city, neighborhood, rating, main_category")
         .eq("is_active", true)
-        .in("id", poiIds);
+        .eq("is_poi", true)
+        .eq("city", poi.city!)
+        .neq("id", businessId);
       if (cancelled || !pois) return;
       setLinkedPois(
         pois.map((b) => ({
@@ -156,7 +149,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
         }))
       );
     };
-    fetchLinkedPois();
+    fetchCityPois();
     return () => { cancelled = true; };
   }, [businessId, poi?.city]);
 
