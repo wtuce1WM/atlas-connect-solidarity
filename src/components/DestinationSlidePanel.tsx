@@ -838,6 +838,12 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
                   <TabScrollRail>
                     {ft.businesses.map((biz, index) => {
                       const bizImg = biz.images && biz.images.length > 0 ? biz.images[0] : null;
+                      const ratingValue = biz.computed_rating ?? biz.rating ?? null;
+                      const ratingBadge = ratingValue ? (
+                        <span className="absolute top-1.5 right-1.5 bg-gold text-black text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-md leading-tight">
+                          {(Math.round(Number(ratingValue) * 10) / 10).toFixed(1)}
+                        </span>
+                      ) : null;
                       return (
                         <TabCard
                           key={biz.id}
@@ -847,6 +853,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
                           animate={animate}
                           animationClass={animCls}
                           animationDelay={index * 120}
+                          imageOverlay={ratingBadge}
                         />
                       );
                     })}
