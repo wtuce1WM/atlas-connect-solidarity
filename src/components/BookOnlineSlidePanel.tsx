@@ -2271,50 +2271,69 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[60] bg-background flex flex-col animate-slide-in-right">
           <div className="shrink-0 flex items-center px-4 py-2 border-b bg-background gap-2">
             <button
-              onClick={() => setShowPoiMapOverlay(false)}
+              onClick={() => { setShowPoiMapOverlay(false); setPoiMapMode("poi"); }}
               className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
               aria-label="Fermer"
             >
               <X className="h-4 w-4" />
             </button>
             <span className="text-sm font-medium truncate">
-              {poiBusinesses.length > 0
-                ? (language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité")
-                : (language === "en" ? "Nearby establishments" : "Établissements à proximité")}
+              {poiMapMode === "destinations"
+                ? (language === "en" ? "Where are you going?" : "Où allez-vous ?")
+                : poiBusinesses.length > 0
+                  ? (language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité")
+                  : (language === "en" ? "Nearby establishments" : "Établissements à proximité")}
             </span>
           </div>
           <div className="flex-1 min-h-0">
             <PoiGoogleMap
-              pois={[
-                ...(business?.latitude && business?.longitude ? [{
-                  id: `self-${business.id}`,
-                  name: business.name,
-                  latitude: business.latitude,
-                  longitude: business.longitude,
-                  images: business.images,
-                  city: business.city,
-                  neighborhood: business.neighborhood,
-                  markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
-                } as PoiMapItem] : []),
-                ...((poiBusinesses.length > 0 ? poiBusinesses : nearbyFallback).map(p => ({
-                  id: p.id,
-                  name: p.name,
-                  latitude: p.latitude,
-                  longitude: p.longitude,
-                  images: p.images,
-                  city: p.city,
-                  neighborhood: p.neighborhood,
-                } as PoiMapItem))),
-              ]}
+              pois={poiMapMode === "destinations"
+                ? [
+                    ...(business?.latitude && business?.longitude ? [{
+                      id: `self-${business.id}`,
+                      name: business.name,
+                      latitude: business.latitude,
+                      longitude: business.longitude,
+                      images: business.images,
+                      city: business.city,
+                      neighborhood: business.neighborhood,
+                      markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
+                    } as PoiMapItem] : []),
+                    ...nearbyDestinationsForMap,
+                  ]
+                : [
+                    ...(business?.latitude && business?.longitude ? [{
+                      id: `self-${business.id}`,
+                      name: business.name,
+                      latitude: business.latitude,
+                      longitude: business.longitude,
+                      images: business.images,
+                      city: business.city,
+                      neighborhood: business.neighborhood,
+                      markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
+                    } as PoiMapItem] : []),
+                    ...((poiBusinesses.length > 0 ? poiBusinesses : nearbyFallback).map(p => ({
+                      id: p.id,
+                      name: p.name,
+                      latitude: p.latitude,
+                      longitude: p.longitude,
+                      images: p.images,
+                      city: p.city,
+                      neighborhood: p.neighborhood,
+                    } as PoiMapItem))),
+                  ]
+              }
               selectedPoiId={null}
               center={business?.latitude && business?.longitude ? { lat: business.latitude, lng: business.longitude } : undefined}
               onPoiClick={(poiId) => {
                 if (poiId.startsWith("self-")) return;
-                if (poiBusinesses.length > 0) {
+                if (poiMapMode === "destinations") {
+                  // Open destination slide panel
+                  setSelectedDestinationId(poiId);
+                } else if (poiBusinesses.length > 0) {
                   poiOpenedFromMapRef.current = true;
                   setSelectedPoiBusinessId(poiId);
                 } else {
-                  // Nearby fallback: open as KP business (regular slide panel)
                   setSelectedKpBusinessId(poiId);
                 }
               }}
