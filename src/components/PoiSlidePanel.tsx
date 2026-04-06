@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef, useMemo, Suspense } fr
 import { MapPin, ChevronUp, X, Navigation, Minimize2, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton, useOwnerLogo, OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 import { useNavigate } from "react-router-dom";
+import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 import BottomTabsCarousel, { TabScrollRail, TabVideoCard, TabCard, type BottomTabConfig } from "@/components/BottomTabsCarousel";
 import { useDragToHide } from "@/hooks/useDragToHide";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
@@ -57,6 +58,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
   const [linkedVideos, setLinkedVideos] = useState<{ url: string; name: string | null; thumbnailUrl: string | null; businessId: string; ownerName: string; ownerLogo: string | null; ownerSlug: string | null }[]>([]);
   const [activeBottomTab, setActiveBottomTab] = useState<string>("videos");
   const [fullscreenVideo, setFullscreenVideo] = useState<string | null>(null);
+  const [openedPoiBusinessId, setOpenedPoiBusinessId] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoPaused, setVideoPaused] = useState(true);
@@ -416,7 +418,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
                   {cityPoisForTabs.map((p, index) => {
                     const img = p.images && p.images.length > 0 ? p.images[0] : null;
                     return (
-                      <TabCard key={p.id} imageUrl={img} label={p.name} onClick={() => navigate(`/poi/${encodeURIComponent(p.name)}`)} animate={animate} animationClass={animCls} animationDelay={index * 120} />
+                      <TabCard key={p.id} imageUrl={img} label={p.name} onClick={() => setOpenedPoiBusinessId(p.id)} animate={animate} animationClass={animCls} animationDelay={index * 120} />
                     );
                   })}
                 </TabScrollRail>
@@ -467,6 +469,16 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
           )}
         </div>
       </div>
+
+      {/* Recursive SlidePanel for selected POI */}
+      {openedPoiBusinessId && (
+        <div className="absolute inset-0 z-[75] animate-slide-up-from-bottom">
+          <BookOnlineSlidePanel
+            businessId={openedPoiBusinessId}
+            onClose={() => setOpenedPoiBusinessId(null)}
+          />
+        </div>
+      )}
     </div>
   );
 };
