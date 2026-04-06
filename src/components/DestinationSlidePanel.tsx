@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { businessUrl } from "@/lib/businessUrl";
-import { MapPin, ChevronLeft, ChevronDown, ChevronUp, X, Navigation, Minimize2, Map as MapIcon, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { MapPin, ChevronLeft, ChevronDown, ChevronUp, X, Navigation, Minimize2, Map as MapIcon, Play, Pause, Volume2, VolumeX, Star } from "lucide-react";
 import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton, useOwnerLogo, OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 import { useNavigate } from "react-router-dom";
 import BottomTabsCarousel, { TabScrollRail, TabVideoCard, TabYouTubeCard, TabCard, type BottomTabConfig } from "@/components/BottomTabsCarousel";
@@ -843,7 +843,8 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
                       const bizImg = biz.images && biz.images.length > 0 ? biz.images[0] : null;
                       const ratingValue = biz.computed_rating ?? biz.rating ?? null;
                       const ratingBadge = ratingValue ? (
-                        <span className="absolute top-1.5 right-1.5 bg-gold text-black text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-md leading-tight">
+                        <span className="absolute top-1.5 right-1.5 bg-gold text-black text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-md leading-tight flex items-center gap-0.5">
+                          <Star className="h-2.5 w-2.5" style={{ color: "#C04F17" }} />
                           {(Math.round(Number(ratingValue) * 10) / 10).toFixed(1)}
                         </span>
                       ) : null;
