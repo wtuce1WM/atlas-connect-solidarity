@@ -255,13 +255,13 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         ? all.filter(biz => biz.city && destCityNames.has(biz.city))
         : all;
 
-      // 4. Group businesses by front_structure entry
+      // 6. Group businesses by front_structure entry
       const tabs: typeof frontTabs = [];
       const usedBizIds = new Set<string>();
       for (const fs of fsEntries) {
         const subNames = fsSubNames.get(fs.id);
         if (!subNames || subNames.size === 0) continue;
-        const matching = all.filter(biz =>
+        const matching = filtered.filter(biz =>
           biz.categories?.some((cat: string) => subNames.has(cat))
         );
         if (matching.length === 0) continue;
