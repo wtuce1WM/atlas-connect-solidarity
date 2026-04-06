@@ -1,0 +1,1 @@
+ALTER TABLE public.business_documents ADD COLUMN service_id uuid REFERENCES public.services(id) ON DELETE SET NULL DEFAULT NULL;
