@@ -130,6 +130,7 @@ interface Destination {
   is_searchable: boolean;
   internal_notes: string | null;
   videos: string[] | null;
+  city_id: string | null;
 }
 
 interface PointOfInterest {
@@ -260,6 +261,7 @@ const LocationManagement = () => {
     latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
     hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
     is_searchable: false, images: [] as string[], internal_notes: "", videos: [] as string[],
+    city_id: "",
   });
   const [destVideoUrlInput, setDestVideoUrlInput] = useState("");
   const [poiSectionOpen, setPoiSectionOpen] = useState(false);
@@ -909,6 +911,7 @@ const LocationManagement = () => {
       latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
       hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
       is_searchable: false, images: [] as string[], internal_notes: "", videos: [] as string[],
+      city_id: "",
     });
     setDestVideoUrlInput("");
   };
@@ -926,6 +929,7 @@ const LocationManagement = () => {
       images: (d as any).images || [],
       internal_notes: d.internal_notes || "",
       videos: d.videos || [],
+      city_id: (d as any).city_id || "",
     });
     setShowDestinationForm(true);
     setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
@@ -966,6 +970,7 @@ const LocationManagement = () => {
       images: destinationForm.images.length > 0 ? destinationForm.images : [],
       internal_notes: destinationForm.internal_notes.trim().slice(0, 5000) || null,
       videos: destinationForm.videos.length > 0 ? destinationForm.videos : [],
+      city_id: destinationForm.city_id || null,
     };
     let error;
     if (editingDestination) {
@@ -2203,35 +2208,54 @@ const LocationManagement = () => {
                     <Label>Nom (FR) *</Label>
                     <Input value={destinationForm.name_fr} onChange={(e) => setDestinationForm({ ...destinationForm, name_fr: e.target.value })} />
                   </div>
-                  <div className="space-y-2">
-                    <Label>Régions <span className="text-destructive">*</span></Label>
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      {destinationForm.regions.map((r, i) => (
-                        <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-sm">
-                          {r}
-                          <button type="button" onClick={() => setDestinationForm(prev => ({ ...prev, regions: prev.regions.filter((_, j) => j !== i) }))} className="text-muted-foreground hover:text-destructive">
-                            <X className="h-3 w-3" />
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                    <Select
-                      value={undefined}
-                      onValueChange={(value) => {
-                        if (value && !destinationForm.regions.includes(value)) {
-                          setDestinationForm(prev => ({ ...prev, regions: [...prev.regions, value] }));
-                        }
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Ajouter une région..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableRegions.filter(r => !destinationForm.regions.includes(r)).map((r) => (
-                          <SelectItem key={r} value={r}>{r}</SelectItem>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Régions <span className="text-destructive">*</span></Label>
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {destinationForm.regions.map((r, i) => (
+                          <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-sm">
+                            {r}
+                            <button type="button" onClick={() => setDestinationForm(prev => ({ ...prev, regions: prev.regions.filter((_, j) => j !== i) }))} className="text-muted-foreground hover:text-destructive">
+                              <X className="h-3 w-3" />
+                            </button>
+                          </span>
                         ))}
-                      </SelectContent>
-                    </Select>
+                      </div>
+                      <Select
+                        value={undefined}
+                        onValueChange={(value) => {
+                          if (value && !destinationForm.regions.includes(value)) {
+                            setDestinationForm(prev => ({ ...prev, regions: [...prev.regions, value] }));
+                          }
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Ajouter une région..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableRegions.filter(r => !destinationForm.regions.includes(r)).map((r) => (
+                            <SelectItem key={r} value={r}>{r}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Ville</Label>
+                      <Select
+                        value={destinationForm.city_id || "none"}
+                        onValueChange={(value) => setDestinationForm(prev => ({ ...prev, city_id: value === "none" ? "" : value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner une ville..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">— Aucune —</SelectItem>
+                          {cities.filter(c => c.is_active).sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr')).map((c) => (
+                            <SelectItem key={c.id} value={c.id}>{c.name_fr}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                   <div className="pt-4 border-t">
                     <div className="flex items-center justify-between mb-3">

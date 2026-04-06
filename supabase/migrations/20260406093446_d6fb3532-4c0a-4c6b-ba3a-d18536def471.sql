@@ -1,0 +1,1 @@
+ALTER TABLE public.destinations ADD COLUMN city_id uuid REFERENCES public.cities(id) ON DELETE SET NULL DEFAULT NULL;
