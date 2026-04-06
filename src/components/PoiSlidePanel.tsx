@@ -418,7 +418,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
                   {cityPoisForTabs.map((p, index) => {
                     const img = p.images && p.images.length > 0 ? p.images[0] : null;
                     return (
-                      <TabCard key={p.id} imageUrl={img} label={p.name} onClick={() => navigate(`/poi/${encodeURIComponent(p.name)}`)} animate={animate} animationClass={animCls} animationDelay={index * 120} />
+                      <TabCard key={p.id} imageUrl={img} label={p.name} onClick={() => setOpenedPoiBusinessId(p.id)} animate={animate} animationClass={animCls} animationDelay={index * 120} />
                     );
                   })}
                 </TabScrollRail>
