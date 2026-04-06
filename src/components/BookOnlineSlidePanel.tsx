@@ -2299,7 +2299,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       neighborhood: business.neighborhood,
                       markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
                     } as PoiMapItem] : []),
-                    ...nearbyDestinationsForMap,
+                    ...destinations.filter(d => d.latitude && d.longitude).map(d => ({
+                      id: d.id,
+                      name: d.name_fr,
+                      latitude: d.latitude!,
+                      longitude: d.longitude!,
+                      images: (d.images && d.images.length > 0) ? d.images : (d.image_url ? [d.image_url] : null),
+                      city: null,
+                      neighborhood: null,
+                    } as PoiMapItem)),
                   ]
                 : [
                     ...(business?.latitude && business?.longitude ? [{
