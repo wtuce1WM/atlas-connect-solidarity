@@ -151,16 +151,16 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
     return () => { cancelled = true; };
   }, [businessId, poi?.city]);
 
-  // Fetch linked videos (business_documents)
+  // Fetch videos linked to this POI (business_documents.poi_id)
   useEffect(() => {
-    if (!poi?.city) return;
+    if (!businessId) return;
     let cancelled = false;
     const fetchVideos = async () => {
       const { data: docs } = await supabase
         .from("business_documents")
         .select("url, name, thumbnail_url, business_id")
         .eq("type", "video")
-        .eq("city", poi.city)
+        .eq("poi_id", businessId)
         .order("sort_order", { ascending: true });
       if (cancelled || !docs || docs.length === 0) { if (!cancelled) setLinkedVideos([]); return; }
       const ownerIds = [...new Set(docs.map(d => d.business_id))];
@@ -184,18 +184,18 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
     };
     fetchVideos();
     return () => { cancelled = true; };
-  }, [poi?.city]);
+  }, [businessId]);
 
   const images = poi?.images?.filter(Boolean) || [];
   const ownVideos = poi?.video_1_url ? [poi.video_1_url] : [];
-  const cityFileVideos = linkedVideos.filter((v) => getVideoInfo(v.url).type === "file");
+  const poiFileVideos = linkedVideos.filter((v) => getVideoInfo(v.url).type === "file");
 
   type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
   const mediaItems: MediaItem[] = useMemo(() => [
-    ...cityFileVideos.map((cv) => ({ kind: "video" as const, url: cv.url })),
+    ...poiFileVideos.map((cv) => ({ kind: "video" as const, url: cv.url })),
     ...ownVideos.filter(v => getVideoInfo(v).type === "file").map((v) => ({ kind: "video" as const, url: v })),
     ...images.map((i) => ({ kind: "image" as const, url: i })),
-  ], [cityFileVideos, ownVideos, images]);
+  ], [poiFileVideos, ownVideos, images]);
 
   const totalMedia = mediaItems.length;
   const safeIndex = totalMedia > 0 ? currentMediaIndex % totalMedia : 0;
