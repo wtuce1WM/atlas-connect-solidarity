@@ -307,7 +307,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
                         <Map className="h-4 w-4" />
                       </button>
                     )}
-                    {displayDescription && (
+                    {(displayDescription || poi.poi_hook) && (
                       <button
                         onClick={() => setDescExpanded((p) => !p)}
                         className="shrink-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
@@ -319,17 +319,24 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
                   </div>
                 </div>
 
-                {poi.poi_hook && (
-                  <p className="text-sm md:text-lg text-white/90 leading-relaxed line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{poi.poi_hook}</p>
-                )}
-
-                {/* Description — collapsible */}
-                {displayDescription && descExpanded && (
-                  <div
-                    className="min-h-0 overflow-y-auto pr-2 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words prose-josefin-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
-                    style={{ maxHeight: "min(35vh, 280px)" }}
-                    dangerouslySetInnerHTML={{ __html: displayDescription }}
-                  />
+                {/* Hook + description — collapsible */}
+                {(poi.poi_hook || displayDescription) && descExpanded && (
+                  <div className="min-h-0 overflow-y-auto pr-2" style={{ maxHeight: "min(35vh, 280px)" }}>
+                    {poi.poi_hook && (
+                      <p
+                        className="mb-3 text-sm md:text-lg leading-relaxed tracking-[0.02em] text-white/90"
+                        style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                      >
+                        {poi.poi_hook}
+                      </p>
+                    )}
+                    {displayDescription && (
+                      <div
+                        className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-gold [&_h2]:!font-bold [&_h3]:!font-bold"
+                        dangerouslySetInnerHTML={{ __html: displayDescription }}
+                      />
+                    )}
+                  </div>
                 )}
               </div>
 
