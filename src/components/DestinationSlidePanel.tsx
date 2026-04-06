@@ -233,7 +233,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         const chunk = bizIds.slice(i, i + 500);
         const { data } = await supabase
           .from("businesses")
-          .select("id, name, slug, city, neighborhood, images, computed_rating, rating, categories")
+          .select("id, name, slug, city, neighborhood, images, computed_rating, rating, total_review_count, categories")
           .eq("is_active", true)
           .in("id", chunk);
         if (data) all.push(...data);
@@ -249,7 +249,13 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
           biz.categories?.some((cat: string) => subNames.has(cat))
         );
         if (matching.length === 0) continue;
-        matching.sort((a: any, b: any) => ((b.computed_rating ?? b.rating ?? 0) - (a.computed_rating ?? a.rating ?? 0)));
+        matching.sort((a: any, b: any) => {
+          const aCount = a.total_review_count ?? 0;
+          const bCount = b.total_review_count ?? 0;
+          const aRating = aCount >= 10 ? (a.computed_rating ?? a.rating ?? 0) : -1;
+          const bRating = bCount >= 10 ? (b.computed_rating ?? b.rating ?? 0) : -1;
+          return bRating - aRating;
+        });
         matching.forEach((b: any) => usedBizIds.add(b.id));
         tabs.push({ id: fs.id, name: fs.name, businesses: matching });
       }
