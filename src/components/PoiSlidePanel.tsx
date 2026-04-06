@@ -292,7 +292,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
             >
               {/* FRONT — Description */}
               <div
-                className="rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 flex flex-col gap-5 text-white overflow-hidden max-h-full"
+                className="rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 flex h-full min-h-0 flex-col gap-5 text-white"
                 style={{ backfaceVisibility: "hidden" }}
               >
                 {/* Name + toggle */}
@@ -300,7 +300,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
                   <div className="min-w-0 flex-1">
                     <h2 className="text-xl font-bold uppercase truncate drop-shadow-lg" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>{poi.name}</h2>
                     {poi.poi_hook && (
-                      <p className="text-sm text-white/70 mt-1 line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{poi.poi_hook}</p>
+                      <p className="text-sm text-white mt-1 line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{poi.poi_hook}</p>
                     )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
@@ -317,7 +317,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
                     {displayDescription && (
                       <button
                         onClick={() => setDescExpanded((p) => !p)}
-                        className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                        className="shrink-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
                         aria-label={descExpanded ? "Replier" : "Déplier"}
                       >
                         {descExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
@@ -326,10 +326,11 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
                   </div>
                 </div>
 
-                {/* Description */}
+                {/* Description — collapsible */}
                 {displayDescription && descExpanded && (
                   <div
-                    className="min-h-0 max-h-[460px] md:max-h-[600px] lg:max-h-[730px] overflow-y-auto pr-1 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words prose-josefin-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
+                    className="min-h-0 overflow-y-auto pr-2 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words prose-josefin-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
+                    style={{ maxHeight: "min(35vh, 280px)" }}
                     dangerouslySetInnerHTML={{ __html: displayDescription }}
                   />
                 )}
