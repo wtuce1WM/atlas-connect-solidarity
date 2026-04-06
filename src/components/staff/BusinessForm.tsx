@@ -612,11 +612,33 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
             </div>
             <div>
               <label className="text-[9px] text-muted-foreground">Sous-catégorie</label>
-              <Select value={doc.subcategory_id || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, subcategory_id: v === "__none__" ? null : v } : d))}>
+              <Select value={doc.subcategory_id || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, subcategory_id: v === "__none__" ? null : v, service_id: null } : d))}>
                 <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__none__">— Aucune</SelectItem>
-                  {dbSubcategories.slice().sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr')).map(s => <SelectItem key={s.id} value={s.id}>{s.name_fr}</SelectItem>)}
+                  {dbSubcategories.slice().sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr')).map(s => {
+                    const cat = dbCategories.find(c => c.id === s.category_id);
+                    return <SelectItem key={s.id} value={s.id}>{s.name_fr}{cat ? ` / ${cat.name_fr}` : ''}</SelectItem>;
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-[9px] text-muted-foreground">Service</label>
+              <Select value={doc.service_id || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, service_id: v === "__none__" ? null : v } : d))}>
+                <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">— Aucun</SelectItem>
+                  {doc.subcategory_id
+                    ? dbServices.filter(srv => srv.subcategory_id === doc.subcategory_id).sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr')).map(srv => {
+                        const sub = dbSubcategories.find(s => s.id === srv.subcategory_id);
+                        return <SelectItem key={srv.id} value={srv.id}>{srv.name_fr}{sub ? ` / ${sub.name_fr}` : ''}</SelectItem>;
+                      })
+                    : dbServices.slice().sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr')).map(srv => {
+                        const sub = dbSubcategories.find(s => s.id === srv.subcategory_id);
+                        return <SelectItem key={srv.id} value={srv.id}>{srv.name_fr}{sub ? ` / ${sub.name_fr}` : ''}</SelectItem>;
+                      })
+                  }
                 </SelectContent>
               </Select>
             </div>
