@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from "react";
 import { businessUrl } from "@/lib/businessUrl";
 import { MapPin, ChevronLeft, ChevronDown, ChevronUp, X, Navigation, Minimize2, Map as MapIcon, Play, Pause, Volume2, VolumeX, Star } from "lucide-react";
 import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton, useOwnerLogo, OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
@@ -7,13 +7,14 @@ import BottomTabsCarousel, { TabScrollRail, TabVideoCard, TabYouTubeCard, TabCar
 import { useDragToHide } from "@/hooks/useDragToHide";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import wooshSfx from "@/assets/woosh.wav";
-import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
+import type { PoiMapItem } from "@/components/PoiGoogleMap";
 import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
-
+import { GOLD, getVideoInfo, playWoosh } from "@/lib/overlayConstants";
+import OverlayFlipCard from "@/components/overlays/OverlayFlipCard";
+import { LazyFullscreenLightbox } from "@/components/overlays/LazyOverlays";
 
 interface DestinationSlidePanelProps {
   destinationId: string;
@@ -39,34 +40,6 @@ interface DestinationFull {
   city_ids: string[] | null;
 }
 
-const GOLD = { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" };
-
-const MemoizedDestMap = React.memo(({ destination, regionDestinations }: { destination: DestinationFull; regionDestinations: PoiMapItem[] }) => {
-  const pois = useMemo(() => [
-    ...(destination.latitude && destination.longitude ? [{
-      id: destination.id, name: destination.name_fr, latitude: destination.latitude, longitude: destination.longitude,
-      city: null, neighborhood: null, images: destination.images,
-      markerColor: GOLD,
-    }] : []),
-    ...regionDestinations.filter(d => d.id !== destination.id),
-  ], [destination.id, destination.latitude, destination.longitude, destination.name_fr, destination.images, regionDestinations]);
-
-  const center = useMemo(
-    () => destination.latitude && destination.longitude ? { lat: destination.latitude, lng: destination.longitude } : undefined,
-    [destination.latitude, destination.longitude]
-  );
-
-  return (
-    <PoiGoogleMap
-      pois={pois}
-      selectedPoiId={destination.id}
-      highlightColor={GOLD}
-      center={center}
-      fitToMarkers
-    />
-  );
-});
-
 const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", interceptCloseRef }: DestinationSlidePanelProps) => {
   const { language } = useLanguage();
   const navigate = useNavigate();
@@ -88,31 +61,23 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   const [activeBottomTab, setActiveBottomTab] = useState<string>("cityVideos");
   const [activeBusinessId, setActiveBusinessId] = useState<string | null>(null);
   const bottomTabInitialRef = React.useRef(true);
+  const [ytTitles, setYtTitles] = useState<Record<string, string>>({});
 
-  // Expose close interceptor: when a business is open, close it first
+  // Expose close interceptor
   React.useEffect(() => {
     if (!interceptCloseRef) return;
-    if (activeBusinessId) {
-      interceptCloseRef.current = () => {
-        setActiveBusinessId(null);
-        return true;
-      };
-    } else {
-      interceptCloseRef.current = null;
-    }
+    interceptCloseRef.current = activeBusinessId
+      ? () => { setActiveBusinessId(null); return true; }
+      : null;
   }, [activeBusinessId, interceptCloseRef]);
 
-  // --- Cosmetic URL rewriting (replaceState) ---
+  // Cosmetic URL rewriting
   const savedDestUrlRef = useRef(window.location.pathname + window.location.search);
-
   useEffect(() => {
-    if (!destination?.name_fr) return;
-    if (!activeBusinessId) {
+    if (destination?.name_fr && !activeBusinessId) {
       window.history.replaceState(null, "", `/destination/${encodeURIComponent(destination.name_fr)}`);
     }
   }, [destination?.name_fr, activeBusinessId]);
-
-  // Restore URL on unmount
   useEffect(() => {
     const saved = savedDestUrlRef.current;
     return () => { window.history.replaceState(null, "", saved); };
@@ -127,6 +92,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     onTouchStart: onDragTouchStart, onTouchMove: onDragTouchMove, onTouchEnd: onDragTouchEnd, onMouseDownDrag,
   } = useDragToHide();
 
+  // Geolocation for directions
   useEffect(() => {
     if (!showDirections) return;
     setUserOrigin(null);
@@ -138,6 +104,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     }
   }, [showDirections]);
 
+  // Reset on destinationId change
   useEffect(() => {
     setCurrentMediaIndex(0);
     setDescExpanded(true);
@@ -149,7 +116,9 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     bottomTabInitialRef.current = true;
   }, [destinationId]);
 
+  // Fetch destination data
   useEffect(() => {
+    let cancelled = false;
     const fetchDestination = async () => {
       setIsLoading(true);
       const { data } = await supabase
@@ -157,22 +126,25 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         .select("id, name_fr, name_en, name_ar, description, hook, image_url, images, videos, matterport_url, latitude, longitude, region, city_ids")
         .eq("id", destinationId)
         .maybeSingle();
-      setDestination(data as DestinationFull | null);
-      setIsLoading(false);
+      if (!cancelled) {
+        setDestination(data as DestinationFull | null);
+        setIsLoading(false);
+      }
     };
     fetchDestination();
+    return () => { cancelled = true; };
   }, [destinationId]);
 
-  // Fetch destinations sharing at least one city with the current destination
+  // Fetch destinations sharing cities
   useEffect(() => {
+    if (!destination?.city_ids || destination.city_ids.length === 0) return;
+    let cancelled = false;
     const fetchCityDests = async () => {
-      if (!destination?.city_ids || destination.city_ids.length === 0) return;
-      // Fetch all other destinations with their city_ids
       const { data: allDests } = await supabase
         .from("destinations")
         .select("id, name_fr, name_en, name_ar, latitude, longitude, images, image_url, city_ids")
         .neq("id", destinationId);
-      if (!allDests) return;
+      if (cancelled || !allDests) return;
       const myCities = new Set(destination.city_ids);
       const matching = allDests.filter((d: any) =>
         d.city_ids && (d.city_ids as string[]).some((c: string) => myCities.has(c))
@@ -192,12 +164,14 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
       );
     };
     fetchCityDests();
+    return () => { cancelled = true; };
   }, [destination?.city_ids, destinationId]);
 
-  // Fetch businesses linked to this destination, grouped by front_structure entries
+  // Fetch front_structure tabs
   useEffect(() => {
+    if (!destination) return;
+    let cancelled = false;
     const fetchFrontTabs = async () => {
-      // 1. Get all business_ids linked to this destination
       const { data: links } = await (supabase
         .from("business_destinations" as any)
         .select("business_id")
@@ -206,7 +180,6 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
       const bizIds = (links as any[]).map((l: any) => l.business_id as string);
 
-      // 2. Fetch front_structure entries + their subcategory names
       const [fsRes, fssRes, subsRes] = await Promise.all([
         supabase.from("front_structure").select("id, name, sort_order").order("sort_order"),
         supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
@@ -216,7 +189,6 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
       const fssLinks = fssRes.data || [];
       const subMap = new Map((subsRes.data || []).map((s: any) => [s.id, s]));
 
-      // Build map: front_structure_id -> Set of subcategory names (all langs)
       const fsSubNames = new Map<string, Set<string>>();
       for (const link of fssLinks) {
         const sub = subMap.get(link.subcategory_id);
@@ -228,7 +200,6 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         if (sub.name_ar) s.add(sub.name_ar);
       }
 
-      // 3. Resolve destination city names from city_ids
       let destCityNames = new Set<string>();
       if (destination?.city_ids && destination.city_ids.length > 0) {
         const { data: cityRows } = await supabase
@@ -238,7 +209,6 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         if (cityRows) cityRows.forEach((c: any) => { if (c.name_fr) destCityNames.add(c.name_fr); });
       }
 
-      // 4. Fetch business details (with categories)
       const all: any[] = [];
       for (let i = 0; i < bizIds.length; i += 500) {
         const chunk = bizIds.slice(i, i + 500);
@@ -250,14 +220,11 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         if (data) all.push(...data);
       }
 
-      // 5. Exclude businesses whose city doesn't match the destination's cities
       const filtered = destCityNames.size > 0
         ? all.filter(biz => biz.city && destCityNames.has(biz.city))
         : all;
 
-      // 6. Group businesses by front_structure entry
       const tabs: typeof frontTabs = [];
-      const usedBizIds = new Set<string>();
       for (const fs of fsEntries) {
         const subNames = fsSubNames.get(fs.id);
         if (!subNames || subNames.size === 0) continue;
@@ -275,38 +242,38 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
           const bRating = bCount >= 10 ? (b.computed_rating ?? b.rating ?? 0) : -1;
           return bRating - aRating;
         });
-        matching.forEach((b: any) => usedBizIds.add(b.id));
         tabs.push({ id: fs.id, name: fs.name, businesses: matching });
       }
 
-      setFrontTabs(tabs);
+      if (!cancelled) setFrontTabs(tabs);
     };
-    if (destination) fetchFrontTabs();
+    fetchFrontTabs();
+    return () => { cancelled = true; };
   }, [destinationId, destination?.city_ids]);
 
-  // Fetch city-linked videos from business_documents
+  // Fetch city-linked videos
   useEffect(() => {
+    if (!destination?.name_fr) return;
+    let cancelled = false;
     const fetchCityVideos = async () => {
-      if (!destination?.name_fr) return;
       const { data: docs } = await supabase
         .from("business_documents")
         .select("url, name, thumbnail_url, business_id")
         .eq("type", "video")
         .eq("city", destination.name_fr)
         .order("sort_order", { ascending: true });
-      if (!docs || docs.length === 0) { setCityVideos([]); return; }
-      // Fetch owner names
+      if (cancelled || !docs || docs.length === 0) { if (!cancelled) setCityVideos([]); return; }
       const ownerIds = [...new Set(docs.map(d => d.business_id))];
       const { data: owners } = await supabase
         .from("businesses")
         .select("id, name, logo_url, slug")
         .in("id", ownerIds);
+      if (cancelled) return;
       const ownerMap = new Map((owners || []).map(o => [o.id, o]));
       setCityVideos(docs.map(d => {
         const owner = ownerMap.get(d.business_id);
         return {
-          url: d.url,
-          name: d.name,
+          url: d.url, name: d.name,
           ownerName: owner?.name || "",
           thumbnailUrl: d.thumbnail_url,
           businessId: d.business_id,
@@ -316,24 +283,11 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
       }));
     };
     fetchCityVideos();
+    return () => { cancelled = true; };
   }, [destination?.name_fr]);
 
-  const playWoosh = useCallback(() => {
-    try { new Audio(wooshSfx).play(); } catch {}
-  }, []);
-
-  const destName = destination
-    ? (language === "en" && destination.name_en ? destination.name_en : destination.name_fr)
-    : "";
-
-  const images = destination?.images?.filter(Boolean) || [];
-  const mainImage = destination?.image_url;
-  const allImages = mainImage && !images.includes(mainImage) ? [mainImage, ...images] : images;
+  // Fetch YouTube titles
   const videos = destination?.videos?.filter(Boolean) || [];
-  const [ytTitles, setYtTitles] = useState<Record<string, string>>({});
-  const description = destination?.description || null;
-
-  // Fetch YouTube video titles via oEmbed (no API key needed)
   useEffect(() => {
     if (videos.length === 0) return;
     const ytIds = videos
@@ -343,7 +297,6 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
       })
       .filter(Boolean) as { url: string; id: string }[];
     if (ytIds.length === 0) return;
-
     let cancelled = false;
     const fetchTitles = async () => {
       const results: Record<string, string> = {};
@@ -351,10 +304,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         ytIds.map(async ({ url, id }) => {
           try {
             const res = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`);
-            if (res.ok) {
-              const data = await res.json();
-              if (data.title) results[url] = data.title;
-            }
+            if (res.ok) { const data = await res.json(); if (data.title) results[url] = data.title; }
           } catch {}
         })
       );
@@ -364,37 +314,30 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     return () => { cancelled = true; };
   }, [videos.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const matterportUrl = destination?.matterport_url || null;
+  const destName = destination
+    ? (language === "en" && destination.name_en ? destination.name_en : destination.name_fr)
+    : "";
 
-  const getVideoInfo = (url: string) => {
-    const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
-    if (ytMatch) {
-      return { type: "youtube" as const, id: ytMatch[1], thumbnail: `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` };
-    }
-    const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-    if (vimeoMatch) {
-      return { type: "vimeo" as const, id: vimeoMatch[1], thumbnail: `https://vumbnail.com/${vimeoMatch[1]}.jpg` };
-    }
-    return { type: "file" as const, id: null, thumbnail: null };
-  };
+  const images = destination?.images?.filter(Boolean) || [];
+  const mainImage = destination?.image_url;
+  const allImages = mainImage && !images.includes(mainImage) ? [mainImage, ...images] : images;
+  const matterportUrl = destination?.matterport_url || null;
+  const description = destination?.description || null;
+
+  const fileVideos = videos.filter((v) => getVideoInfo(v).type === "file");
+  const cityFileVideos = cityVideos.filter((cv) => getVideoInfo(cv.url).type === "file");
 
   type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string } | { kind: "matterport"; url: string };
-  const fileVideos = videos.filter((v) => {
-    const info = getVideoInfo(v);
-    return info.type === "file";
-  });
-  // City videos (file type) for background
-  const cityFileVideos = cityVideos.filter((cv) => getVideoInfo(cv.url).type === "file");
-  const mediaItems: MediaItem[] = [
+  const mediaItems: MediaItem[] = useMemo(() => [
     ...cityFileVideos.map((cv) => ({ kind: "video" as const, url: cv.url })),
     ...fileVideos.map((v) => ({ kind: "video" as const, url: v })),
     ...allImages.map((i) => ({ kind: "image" as const, url: i })),
-  ];
+  ], [cityFileVideos, fileVideos, allImages]);
+
   const totalMedia = mediaItems.length;
   const safeIndex = totalMedia > 0 ? currentMediaIndex % totalMedia : 0;
   const currentMedia = totalMedia > 0 ? mediaItems[safeIndex] : null;
 
-  // Build videoDocs-compatible array for owner logo/badge
   const ownerVideoDocs = useMemo(() => cityVideos.map(cv => ({
     url: cv.url,
     owner_business_id: cv.businessId,
@@ -402,21 +345,20 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     owner_name: cv.ownerName || null,
   })), [cityVideos]);
 
-  // Owner logo overlay hook — destinationId acts as "current business" so all city videos show owner info
   const { logoBigOverlay, logoBigFadingOut } = useOwnerLogo(cardsHidden, currentMediaIndex, mediaItems, ownerVideoDocs, destinationId);
 
-  const lightboxItems: LightboxMediaItem[] = [
+  const lightboxItems: LightboxMediaItem[] = useMemo(() => [
     ...allImages.map((url) => ({ type: "image" as const, src: url, alt: destName })),
     ...videos.map((url) => ({ type: "video" as const, src: url, alt: destName })),
     ...(matterportUrl ? [{ type: "matterport" as const, src: matterportUrl, alt: `${destName} – Visite 3D` }] : []),
-  ];
+  ], [allImages, videos, matterportUrl, destName]);
 
   const goMedia = useCallback((dir: 1 | -1) => {
     if (totalMedia <= 1) return;
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [totalMedia]);
 
-  // Sync video state with DOM events
+  // Sync video state
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
@@ -435,7 +377,6 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     };
   }, [currentMedia]);
 
-
   if (isLoading) {
     return (
       <div className={`absolute inset-0 z-[70] bg-black flex items-center justify-center ${slideAnim}`}>
@@ -448,17 +389,11 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
   return (
     <div className={`absolute inset-0 z-[70] bg-black overflow-hidden ${slideAnim}`}>
-      {/* Close button — hidden when fullscreen video is open */}
+      {/* Close button */}
       {!fullscreenVideo && !showDirections && (
         <div className="absolute top-3 left-3 z-[80] flex items-center gap-2">
           <button
-            onClick={() => {
-              if (activeBusinessId) {
-                setActiveBusinessId(null);
-                return;
-              }
-              onClose();
-            }}
+            onClick={() => { if (activeBusinessId) { setActiveBusinessId(null); return; } onClose(); }}
             className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
             aria-label="Fermer"
           >
@@ -470,11 +405,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
               className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
               title={showMosaic ? "Fermer la mosaïque" : "Voir tous les médias"}
             >
-              {showMosaic ? (
-                <Minimize2 className="h-4 w-4" />
-              ) : (
-                <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert" />
-              )}
+              {showMosaic ? <Minimize2 className="h-4 w-4" /> : <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert" />}
             </button>
           )}
         </div>
@@ -486,25 +417,15 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         return (
           <div className="absolute inset-0 z-[75] bg-white flex flex-col animate-slide-in-right">
             <div className="shrink-0 flex items-center px-4 py-2 border-b bg-white">
-              <button
-                onClick={() => setShowDirections(false)}
-                className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
-                aria-label="Fermer l'itinéraire"
-              >
+              <button onClick={() => setShowDirections(false)} className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity" aria-label="Fermer l'itinéraire">
                 <X className="h-4 w-4" />
               </button>
               <div className="flex-1 flex items-center justify-center">
                 <div className="flex items-center bg-muted rounded-full p-0.5">
-                  <button
-                    onClick={() => setDirectionsMode("walking")}
-                    className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "walking" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-                  >
+                  <button onClick={() => setDirectionsMode("walking")} className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "walking" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
                     🚶 {language === "en" ? "Walking" : "À pied"}
                   </button>
-                  <button
-                    onClick={() => setDirectionsMode("driving")}
-                    className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "driving" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-                  >
+                  <button onClick={() => setDirectionsMode("driving")} className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "driving" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
                     🚗 {language === "en" ? "Driving" : "Voiture"}
                   </button>
                 </div>
@@ -525,9 +446,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
               <iframe
                 src={`https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&origin=${userOrigin || "My+location"}&destination=${dest}&mode=${directionsMode}`}
                 className="absolute inset-0 w-full h-full border-0"
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
+                allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"
                 title={`Itinéraire vers ${destName}`}
               />
             </div>
@@ -539,19 +458,12 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
       {fullscreenVideo && (() => {
         const fvInfo = getVideoInfo(fullscreenVideo);
         let embedSrc = fullscreenVideo;
-        if (fvInfo.type === "youtube") {
-          embedSrc = `https://www.youtube.com/embed/${fvInfo.id}?autoplay=1&rel=0&controls=1&modestbranding=1`;
-        } else if (fvInfo.type === "vimeo") {
-          embedSrc = `https://player.vimeo.com/video/${fvInfo.id}?autoplay=1`;
-        }
+        if (fvInfo.type === "youtube") embedSrc = `https://www.youtube.com/embed/${fvInfo.id}?autoplay=1&rel=0&controls=1&modestbranding=1`;
+        else if (fvInfo.type === "vimeo") embedSrc = `https://player.vimeo.com/video/${fvInfo.id}?autoplay=1`;
         return (
           <div className="absolute inset-0 z-[76] bg-black flex flex-col animate-slide-in-left">
             <div className="shrink-0 flex items-center px-3 py-2">
-              <button
-                onClick={() => setFullscreenVideo(null)}
-                className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors"
-                aria-label="Fermer"
-              >
+              <button onClick={() => setFullscreenVideo(null)} className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors" aria-label="Fermer">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -578,39 +490,15 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
               if (item.kind === "video") {
                 const info = getVideoInfo(item.url);
                 return (
-                  <div
-                    key={`v-${item.idx}`}
-                    className="relative aspect-square cursor-pointer overflow-hidden bg-black/40"
-                    onClick={() => {
-                      const lbIdx = allImages.length + videos.indexOf(item.url);
-                      setLightboxIndex(lbIdx);
-                    }}
-                  >
-                    {info.thumbnail ? (
-                      <img src={info.thumbnail} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full bg-white/10 flex items-center justify-center">
-                        <span className="text-white text-2xl">▶</span>
-                      </div>
-                    )}
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                      <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
-                        <span className="text-white text-lg">▶</span>
-                      </div>
-                    </div>
+                  <div key={`v-${item.idx}`} className="relative aspect-square cursor-pointer overflow-hidden bg-black/40" onClick={() => setLightboxIndex(allImages.length + videos.indexOf(item.url))}>
+                    {info.thumbnail ? <img src={info.thumbnail} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-white/10 flex items-center justify-center"><span className="text-white text-2xl">▶</span></div>}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20"><div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center"><span className="text-white text-lg">▶</span></div></div>
                   </div>
                 );
               }
               if (item.kind === "matterport") {
                 return (
-                  <div
-                    key="matterport"
-                    className="relative aspect-square cursor-pointer overflow-hidden bg-black/40"
-                    onClick={() => {
-                      const lbIdx = allImages.length + videos.length;
-                      setLightboxIndex(lbIdx);
-                    }}
-                  >
+                  <div key="matterport" className="relative aspect-square cursor-pointer overflow-hidden bg-black/40" onClick={() => setLightboxIndex(allImages.length + videos.length)}>
                     <div className="w-full h-full bg-white/10 flex flex-col items-center justify-center gap-2">
                       <span className="text-white text-3xl">🏠</span>
                       <span className="text-white/80 text-xs font-medium">Visite 3D</span>
@@ -619,11 +507,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
                 );
               }
               return (
-                <div
-                  key={`i-${item.idx}`}
-                  className="relative aspect-square cursor-pointer overflow-hidden"
-                  onClick={() => setLightboxIndex(item.idx)}
-                >
+                <div key={`i-${item.idx}`} className="relative aspect-square cursor-pointer overflow-hidden" onClick={() => setLightboxIndex(item.idx)}>
                   <img src={item.url} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
                 </div>
               );
@@ -632,64 +516,44 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         </div>
       )}
 
-      {/* Fullscreen lightbox from mosaic */}
+      {/* Fullscreen lightbox */}
       {lightboxIndex !== null && (
-        <FullscreenLightbox
-          items={lightboxItems}
-          currentIndex={lightboxIndex}
-          onIndexChange={setLightboxIndex}
-          onClose={() => setLightboxIndex(null)}
-        />
+        <Suspense fallback={null}>
+          <LazyFullscreenLightbox
+            items={lightboxItems}
+            currentIndex={lightboxIndex}
+            onIndexChange={setLightboxIndex}
+            onClose={() => setLightboxIndex(null)}
+          />
+        </Suspense>
       )}
 
       <div className="relative w-full h-full">
         {/* Media background */}
         <div className="absolute inset-0">
           {currentMedia?.kind === "video" ? (
-            <video
-              ref={videoRef}
-              key={currentMedia.url}
-              src={currentMedia.url}
-              className="w-full h-full object-cover"
-              autoPlay
-              loop
-              muted
-              playsInline
-            />
+            <video ref={videoRef} key={currentMedia.url} src={currentMedia.url} className="w-full h-full object-cover" autoPlay loop muted playsInline />
           ) : currentMedia?.kind === "image" ? (
             <img src={currentMedia.url} alt={destName} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-muted">
-              <MapPin className="h-16 w-16 text-muted-foreground/40" />
-            </div>
+            <div className="w-full h-full flex items-center justify-center bg-muted"><MapPin className="h-16 w-16 text-muted-foreground/40" /></div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
         </div>
 
-        {/* Left / Right arrows — desktop */}
         <DesktopMediaArrows totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} />
 
         {/* Overlaid content */}
         <div
           className={`relative z-10 flex flex-col h-full p-4 md:p-6 ${cardsHidden ? 'pb-0' : ''}`}
           style={isDragging ? { transform: `translateY(${dragOffsetY}px)`, transition: 'none' } : undefined}
-          onTouchStart={onDragTouchStart}
-          onTouchMove={onDragTouchMove}
-          onTouchEnd={onDragTouchEnd}
+          onTouchStart={onDragTouchStart} onTouchMove={onDragTouchMove} onTouchEnd={onDragTouchEnd}
         >
-          {/* Top bar: toggle / counter */}
+          {/* Top bar */}
           <div className="relative z-40 overflow-visible flex flex-col items-center pb-3 pointer-events-auto mt-1 md:mt-0">
             {cardsHidden ? (
               <MediaCounterBar currentIndex={safeIndex} totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)}>
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm hover:bg-background transition-colors"
-                  title="Afficher les cartes"
-                  aria-label="Afficher les cartes"
-                  onClick={(e) => { e.stopPropagation(); showCards(); }}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onTouchStart={(e) => e.stopPropagation()}
-                >
+                <button type="button" className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm hover:bg-background transition-colors" title="Afficher les cartes" aria-label="Afficher les cartes" onClick={(e) => { e.stopPropagation(); showCards(); }} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()}>
                   <ChevronUp className="h-3.5 w-3.5" />
                   <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Afficher</span>
                   <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
@@ -700,94 +564,26 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
             )}
           </div>
 
-          {/* Flip card container — hidden when cards are hidden */}
+          {/* Flip card — shared component */}
           {!cardsHidden && (
-          <div className="flex-1 flex items-start justify-center overflow-hidden min-h-0" style={{ perspective: "1200px" }}>
-
-            <div
-              className={`w-[95%] md:w-[90%] lg:w-[85%] relative ${flipped ? "h-[calc(100%-2rem)]" : "max-h-full"}`}
-              style={{
-                transformStyle: "preserve-3d",
-                transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
-                transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
-              }}
-            >
-              {/* FRONT — Description */}
-              <div
-                className="rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 flex h-full min-h-0 flex-col gap-5 text-white"
-                style={{ backfaceVisibility: "hidden" }}
-              >
-                {/* Name + toggle */}
-                <div className="flex items-end gap-4">
-                  <div className="min-w-0 flex-1">
-                    <h2 className="text-xl font-bold uppercase truncate drop-shadow-lg" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>{destName}</h2>
-                     {destination.hook && (
-                       <p className="text-sm md:text-lg leading-relaxed tracking-[0.02em] text-white/90 mt-1 line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{destination.hook}</p>
-                     )}
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    {regionDestinations.length > 0 && (
-                      <button
-                        onClick={() => { playWoosh(); setFlipped(true); }}
-                        className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-                        aria-label="Voir la carte"
-                        title={language === "en" ? "View on map" : "Voir sur la carte"}
-                      >
-                        <MapIcon className="h-4 w-4" />
-                      </button>
-                    )}
-                    {description && (
-                      <button
-                        onClick={() => setDescExpanded((p) => !p)}
-                        className="shrink-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-                        aria-label={descExpanded ? "Replier" : "Déplier"}
-                      >
-                        {descExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Description — collapsible */}
-                {description && descExpanded && (
-                   <div
-                     className="min-h-0 overflow-y-auto pr-2 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words font-['Roboto',sans-serif] prose-josefin-headings card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-gold [&_h2]:!font-bold [&_h3]:!font-bold"
-                    style={{ maxHeight: "min(35vh, 280px)" }}
-                    dangerouslySetInnerHTML={{ __html: description }}
-                  />
-                )}
-              </div>
-
-              {/* BACK — Google Map */}
-              <div
-                className="absolute inset-0 rounded-2xl bg-black/60 backdrop-blur-sm overflow-hidden flex flex-col"
-                style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
-              >
-                {/* Back header */}
-                <div className="flex items-center gap-3 p-4 text-white">
-                  <button
-                    onClick={() => { playWoosh(); setFlipped(false); }}
-                    className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-                    aria-label="Retourner"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </button>
-                  <h3 className="text-sm font-semibold truncate">
-                    {destination?.region && destination.region.length > 0 ? destination.region.join(" · ") : (language === "en" ? "Region" : "Région")}
-                  </h3>
-                </div>
-                {/* Map */}
-                <div className="flex-1 min-h-0">
-                  {flipped && destination && (
-                    <MemoizedDestMap destination={destination} regionDestinations={regionDestinations} />
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+            <OverlayFlipCard
+              flipped={flipped}
+              onFlip={() => { playWoosh(wooshSfx); setFlipped(true); }}
+              onUnflip={() => { playWoosh(wooshSfx); setFlipped(false); }}
+              name={destName}
+              hook={destination.hook}
+              description={description}
+              descExpanded={descExpanded}
+              onToggleDesc={() => setDescExpanded((p) => !p)}
+              mapMarkers={regionDestinations}
+              selectedMarkerId={destination.id}
+              selectedLat={destination.latitude}
+              selectedLng={destination.longitude}
+              backLabel={destination.region && destination.region.length > 0 ? destination.region.join(" · ") : (language === "en" ? "Region" : "Région")}
+            />
           )}
 
-          {/* Bottom tabs — same layout as BookOnlineSlidePanel */}
+          {/* Bottom tabs */}
           {!cardsHidden && !flipped && (() => {
             const hasCityVideosTab = cityVideos.length > 0;
             const hasYoutubeTab = videos.length > 0;
@@ -801,16 +597,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
                   {cityVideos.map((cv, index) => {
                     const info = getVideoInfo(cv.url);
                     return (
-                      <TabVideoCard
-                        key={index}
-                        thumbnailUrl={cv.thumbnailUrl}
-                        platformThumbnailUrl={info.thumbnail}
-                        label={cv.name || cv.ownerName || `${language === "en" ? "Video" : "Vidéo"} ${index + 1}`}
-                        onClick={() => setFullscreenVideo(cv.url)}
-                        animate={animate}
-                        animationClass={animCls}
-                        animationDelay={index * 120}
-                      />
+                      <TabVideoCard key={index} thumbnailUrl={cv.thumbnailUrl} platformThumbnailUrl={info.thumbnail} label={cv.name || cv.ownerName || `${language === "en" ? "Video" : "Vidéo"} ${index + 1}`} onClick={() => setFullscreenVideo(cv.url)} animate={animate} animationClass={animCls} animationDelay={index * 120} />
                     );
                   })}
                 </TabScrollRail>
@@ -825,30 +612,15 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
                 <TabScrollRail gap="gap-3">
                   {videos.map((videoUrl, index) => {
                     const info = getVideoInfo(videoUrl);
-                    const cardLabel = ytTitles[videoUrl]
-                      || (info.type === "youtube"
-                        ? `YouTube ${index + 1}`
-                        : info.type === "vimeo"
-                          ? `Vimeo ${index + 1}`
-                          : `${language === "en" ? "Video" : "Vidéo"} ${index + 1}`);
+                    const cardLabel = ytTitles[videoUrl] || (info.type === "youtube" ? `YouTube ${index + 1}` : info.type === "vimeo" ? `Vimeo ${index + 1}` : `${language === "en" ? "Video" : "Vidéo"} ${index + 1}`);
                     return (
-                      <TabYouTubeCard
-                        key={index}
-                        thumbnailUrl={info.thumbnail}
-                        videoPreviewUrl={info.type === "file" ? videoUrl : undefined}
-                        label={cardLabel}
-                        onClick={() => setFullscreenVideo(videoUrl)}
-                        animate={animate}
-                        animationClass={animCls}
-                        animationDelay={index * 120}
-                      />
+                      <TabYouTubeCard key={index} thumbnailUrl={info.thumbnail} videoPreviewUrl={info.type === "file" ? videoUrl : undefined} label={cardLabel} onClick={() => setFullscreenVideo(videoUrl)} animate={animate} animationClass={animCls} animationDelay={index * 120} />
                     );
                   })}
                 </TabScrollRail>
               ),
             });
 
-            // One tab per front_structure entry with matching businesses
             for (const ft of frontTabs) {
               tabs.push({
                 id: `fs-${ft.id}`,
@@ -865,16 +637,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
                         </span>
                       ) : null;
                       return (
-                        <TabCard
-                          key={biz.id}
-                          imageUrl={bizImg}
-                          label={biz.name}
-                          onClick={() => setActiveBusinessId(biz.id)}
-                          animate={animate}
-                          animationClass={animCls}
-                          animationDelay={index * 120}
-                          imageOverlay={ratingBadge}
-                        />
+                        <TabCard key={biz.id} imageUrl={bizImg} label={biz.name} onClick={() => setActiveBusinessId(biz.id)} animate={animate} animationClass={animCls} animationDelay={index * 120} imageOverlay={ratingBadge} />
                       );
                     })}
                   </TabScrollRail>
@@ -883,37 +646,21 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
             }
 
             if (tabs.length === 0) return null;
-
-            return (
-              <BottomTabsCarousel
-                tabs={tabs}
-                activeTab={activeBottomTab}
-                onTabChange={(id) => { bottomTabInitialRef.current = false; setActiveBottomTab(id); }}
-              />
-            );
+            return <BottomTabsCarousel tabs={tabs} activeTab={activeBottomTab} onTabChange={(id) => { bottomTabInitialRef.current = false; setActiveBottomTab(id); }} />;
           })()}
 
           {/* Owner logo + badge */}
-          <OwnerLogoOverlay
-            logoBigOverlay={logoBigOverlay}
-            logoBigFadingOut={logoBigFadingOut}
-            cardsHidden={cardsHidden}
-            currentMediaUrl={currentMedia?.url}
-            videoDocs={ownerVideoDocs}
-            currentBusinessId={destinationId}
-          />
+          <OwnerLogoOverlay logoBigOverlay={logoBigOverlay} logoBigFadingOut={logoBigFadingOut} cardsHidden={cardsHidden} currentMediaUrl={currentMedia?.url} videoDocs={ownerVideoDocs} currentBusinessId={destinationId} />
           <OwnerBadge
-            cardsHidden={cardsHidden}
-            currentMediaKind={currentMedia?.kind}
-            currentMediaUrl={currentMedia?.url}
-            videoDocs={ownerVideoDocs}
-            currentBusinessId={destinationId}
+            cardsHidden={cardsHidden} currentMediaKind={currentMedia?.kind} currentMediaUrl={currentMedia?.url}
+            videoDocs={ownerVideoDocs} currentBusinessId={destinationId}
             onNavigateToOwner={(ownerId) => {
               const cv = cityVideos.find(v => v.businessId === ownerId);
               if (cv?.ownerSlug) navigate(businessUrl({ id: cv.businessId, slug: cv.ownerSlug }));
             }}
           />
 
+          {/* CTA + video controls */}
           {destination.latitude && destination.longitude && (
             <div className="shrink-0 py-2 flex flex-col items-center gap-2">
               <div className="w-full md:w-3/4 flex justify-center gap-2">
@@ -928,48 +675,25 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
                   </button>
                 </div>
               </div>
-              {/* Video controls — Play/Pause + Sound */}
               {currentMedia?.kind === "video" && (
                 <div className="flex items-center gap-6 md:gap-10 mt-1 animate-slide-up-from-bottom">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (videoRef.current) {
-                        if (videoRef.current.paused) videoRef.current.play();
-                        else videoRef.current.pause();
-                      }
-                    }}
-                    className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                    aria-label={videoPaused ? "Play" : "Pause"}
-                  >
+                  <button type="button" onClick={() => { if (videoRef.current) { videoRef.current.paused ? videoRef.current.play() : videoRef.current.pause(); } }} className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors" aria-label={videoPaused ? "Play" : "Pause"}>
                     {videoPaused ? <Play className="h-5 w-5 md:h-6 md:w-6" /> : <Pause className="h-5 w-5 md:h-6 md:w-6" />}
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (videoRef.current) {
-                        videoRef.current.muted = !videoRef.current.muted;
-                      }
-                    }}
-                    className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                    aria-label={videoMuted ? "Unmute" : "Mute"}
-                  >
+                  <button type="button" onClick={() => { if (videoRef.current) videoRef.current.muted = !videoRef.current.muted; }} className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors" aria-label={videoMuted ? "Unmute" : "Mute"}>
                     {videoMuted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
                   </button>
                 </div>
               )}
             </div>
           )}
+
           {/* Recursive business overlay */}
           {activeBusinessId && (
             <div className="absolute inset-0 -top-[3.3rem] z-[60]">
-              <BookOnlineSlidePanel
-                businessId={activeBusinessId}
-                onClose={() => setActiveBusinessId(null)}
-              />
+              <BookOnlineSlidePanel businessId={activeBusinessId} onClose={() => setActiveBusinessId(null)} />
             </div>
           )}
-          
         </div>
       </div>
     </div>
