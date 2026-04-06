@@ -195,7 +195,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
     ...poiFileVideos.map((cv) => ({ kind: "video" as const, url: cv.url })),
     ...ownVideos.filter(v => getVideoInfo(v).type === "file").map((v) => ({ kind: "video" as const, url: v })),
     ...images.map((i) => ({ kind: "image" as const, url: i })),
-  ], [cityFileVideos, ownVideos, images]);
+  ], [poiFileVideos, ownVideos, images]);
 
   const totalMedia = mediaItems.length;
   const safeIndex = totalMedia > 0 ? currentMediaIndex % totalMedia : 0;
