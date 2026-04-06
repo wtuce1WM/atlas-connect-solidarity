@@ -103,8 +103,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
   const [selectedKpBusinessId, setSelectedKpBusinessId] = useState<string | null>(null);
   const [showPoiMapOverlay, setShowPoiMapOverlay] = useState(false);
+  const [poiMapMode, setPoiMapMode] = useState<"poi" | "destinations">("poi");
   const poiOpenedFromMapRef = useRef(false);
   const [nearbyFallback, setNearbyFallback] = useState<PoiMapItem[]>([]);
+  const [nearbyDestinationsForMap, setNearbyDestinationsForMap] = useState<PoiMapItem[]>([]);
   const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ url: string; name: string | null; description: string | null } | null>(null);
   const [videoOverlayClosing, setVideoOverlayClosing] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -489,7 +491,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     setActiveVideoOverlay(null);
     setVideoOverlayClosing(false);
     setShowPoiMapOverlay(false);
+    setPoiMapMode("poi");
     setNearbyFallback([]);
+    setNearbyDestinationsForMap([]);
     setAvailabilityOverlayCtx(null);
     if (!cameFromFallback) {
       setFallbackPanelData(null);
@@ -651,6 +655,51 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       videoRef.current.play().catch(() => {});
     }
   }, [selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId, docOverlay, showBookingOverlay, showYoutubeOverlay, showMosaic, externalOverlayActive, showPoiMapOverlay, activeVideoOverlay, showFallbackOverlay]);
+
+  // Fetch nearby destinations (by shared city_ids) when overlay opens in destinations mode
+  useEffect(() => {
+    if (!showPoiMapOverlay || poiMapMode !== "destinations" || !business?.city) {
+      return;
+    }
+    let cancelled = false;
+    const fetchNearbyDests = async () => {
+      // 1. Find city ID from city name
+      const { data: cityRows } = await supabase
+        .from("cities")
+        .select("id")
+        .eq("name_fr", business.city!)
+        .limit(1);
+      if (cancelled || !cityRows || cityRows.length === 0) return;
+      const cityId = cityRows[0].id;
+
+      // 2. Fetch all destinations with city_ids
+      const { data: allDests } = await supabase
+        .from("destinations")
+        .select("id, name_fr, name_en, latitude, longitude, images, image_url, city_ids");
+      if (cancelled || !allDests) return;
+
+      // 3. Filter destinations sharing this city_id (exclude already-displayed ones)
+      const displayedIds = new Set(destinations.map(d => d.id));
+      const matching = allDests.filter((d: any) =>
+        d.city_ids && (d.city_ids as string[]).includes(cityId) && d.latitude && d.longitude
+      );
+      if (!cancelled) {
+        setNearbyDestinationsForMap(
+          matching.map((d: any) => ({
+            id: d.id,
+            name: d.name_fr,
+            latitude: d.latitude,
+            longitude: d.longitude,
+            images: (d.images && d.images.length > 0) ? d.images : (d.image_url ? [d.image_url] : null),
+            city: null,
+            neighborhood: null,
+          }))
+        );
+      }
+    };
+    fetchNearbyDests();
+    return () => { cancelled = true; };
+  }, [showPoiMapOverlay, poiMapMode, business?.city, destinations]);
 
   const bookUrl = business?.reserve_now_url || null;
   const shopUrl = business?.online_shop_url || null;
@@ -1545,17 +1594,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   </div>
                 );
               })}
-              {(poiBusinesses.length > 0 || nearbyFallback.length > 0) && business?.latitude && business?.longitude && (
+              {business?.city && (
                 <div
                   className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
                   style={bottomTabInitialRef.current ? { animationDelay: `${destinations.length * 120}ms`, animationFillMode: 'forwards' } : undefined}
-                  onClick={() => setShowPoiMapOverlay(true)}
+                  onClick={() => { setPoiMapMode("destinations"); setShowPoiMapOverlay(true); }}
                 >
-                  <img src={poiNearbyImg} alt="Points d'intérêt" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
+                  <img src={poiNearbyImg} alt="Destinations" className="w-full h-[7rem] md:h-[10rem] lg:h-[15rem] object-cover" />
                   <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
-                    {poiBusinesses.length > 0
-                      ? (language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité")
-                      : (language === "en" ? "Nearby establishments" : "Établissements à proximité")}
+                    {language === "en" ? "Where are you going?" : "Où allez-vous ?"}
                   </p>
                 </div>
               )}
@@ -2224,50 +2271,69 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[60] bg-background flex flex-col animate-slide-in-right">
           <div className="shrink-0 flex items-center px-4 py-2 border-b bg-background gap-2">
             <button
-              onClick={() => setShowPoiMapOverlay(false)}
+              onClick={() => { setShowPoiMapOverlay(false); setPoiMapMode("poi"); }}
               className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
               aria-label="Fermer"
             >
               <X className="h-4 w-4" />
             </button>
             <span className="text-sm font-medium truncate">
-              {poiBusinesses.length > 0
-                ? (language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité")
-                : (language === "en" ? "Nearby establishments" : "Établissements à proximité")}
+              {poiMapMode === "destinations"
+                ? (language === "en" ? "Where are you going?" : "Où allez-vous ?")
+                : poiBusinesses.length > 0
+                  ? (language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité")
+                  : (language === "en" ? "Nearby establishments" : "Établissements à proximité")}
             </span>
           </div>
           <div className="flex-1 min-h-0">
             <PoiGoogleMap
-              pois={[
-                ...(business?.latitude && business?.longitude ? [{
-                  id: `self-${business.id}`,
-                  name: business.name,
-                  latitude: business.latitude,
-                  longitude: business.longitude,
-                  images: business.images,
-                  city: business.city,
-                  neighborhood: business.neighborhood,
-                  markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
-                } as PoiMapItem] : []),
-                ...((poiBusinesses.length > 0 ? poiBusinesses : nearbyFallback).map(p => ({
-                  id: p.id,
-                  name: p.name,
-                  latitude: p.latitude,
-                  longitude: p.longitude,
-                  images: p.images,
-                  city: p.city,
-                  neighborhood: p.neighborhood,
-                } as PoiMapItem))),
-              ]}
+              pois={poiMapMode === "destinations"
+                ? [
+                    ...(business?.latitude && business?.longitude ? [{
+                      id: `self-${business.id}`,
+                      name: business.name,
+                      latitude: business.latitude,
+                      longitude: business.longitude,
+                      images: business.images,
+                      city: business.city,
+                      neighborhood: business.neighborhood,
+                      markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
+                    } as PoiMapItem] : []),
+                    ...nearbyDestinationsForMap,
+                  ]
+                : [
+                    ...(business?.latitude && business?.longitude ? [{
+                      id: `self-${business.id}`,
+                      name: business.name,
+                      latitude: business.latitude,
+                      longitude: business.longitude,
+                      images: business.images,
+                      city: business.city,
+                      neighborhood: business.neighborhood,
+                      markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
+                    } as PoiMapItem] : []),
+                    ...((poiBusinesses.length > 0 ? poiBusinesses : nearbyFallback).map(p => ({
+                      id: p.id,
+                      name: p.name,
+                      latitude: p.latitude,
+                      longitude: p.longitude,
+                      images: p.images,
+                      city: p.city,
+                      neighborhood: p.neighborhood,
+                    } as PoiMapItem))),
+                  ]
+              }
               selectedPoiId={null}
               center={business?.latitude && business?.longitude ? { lat: business.latitude, lng: business.longitude } : undefined}
               onPoiClick={(poiId) => {
                 if (poiId.startsWith("self-")) return;
-                if (poiBusinesses.length > 0) {
+                if (poiMapMode === "destinations") {
+                  // Open destination slide panel
+                  setSelectedDestinationId(poiId);
+                } else if (poiBusinesses.length > 0) {
                   poiOpenedFromMapRef.current = true;
                   setSelectedPoiBusinessId(poiId);
                 } else {
-                  // Nearby fallback: open as KP business (regular slide panel)
                   setSelectedKpBusinessId(poiId);
                 }
               }}
