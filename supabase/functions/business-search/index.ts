@@ -3875,7 +3875,8 @@ serve(async (req) => {
               const businessServices = (b.services || []).map((s: string) => normalizeMatchingText(s));
               return detectedServices.every((ds) => {
                 const normalizedDetected = normalizeMatchingText(ds);
-                return businessServices.some((serviceName) => serviceName === normalizedDetected);
+                // Use prefix matching: "Cours" matches "cours débutant", "cours collectifs", etc.
+                return businessServices.some((serviceName) => serviceName === normalizedDetected || serviceName.startsWith(normalizedDetected + " "));
               });
             });
             console.log(`Multi-service AND post-filter [${detectedServices.join(", ")}]: ${beforeCount} → ${businesses.length}`);
