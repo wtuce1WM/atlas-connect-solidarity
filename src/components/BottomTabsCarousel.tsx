@@ -78,14 +78,52 @@ interface TabScrollRailProps {
   children: React.ReactNode;
   /** gap between items — default "gap-2" */
   gap?: string;
+  /** Max visible items before showing "voir plus" card — default 10. 0 = no limit */
+  maxItems?: number;
+  /** Callback when "voir plus" is clicked */
+  onShowMore?: () => void;
+  /** Label for the "see more" card */
+  showMoreLabel?: string;
 }
 
-export function TabScrollRail({ children, gap = "gap-2" }: TabScrollRailProps) {
+export function TabScrollRail({
+  children,
+  gap = "gap-2",
+  maxItems = 10,
+  onShowMore,
+  showMoreLabel,
+}: TabScrollRailProps) {
+  const allItems = React.Children.toArray(children);
+  const hasMore = maxItems > 0 && allItems.length > maxItems;
+  const [expanded, setExpanded] = React.useState(false);
+  const visibleItems = hasMore && !expanded ? allItems.slice(0, maxItems) : allItems;
+  const remainingCount = allItems.length - maxItems;
+
   return (
     <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
       <div className={`flex w-max ${gap} overflow-x-auto pb-1 scrollbar-hide`}>
         <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
-        {children}
+        {visibleItems}
+        {hasMore && !expanded && (
+          <div
+            className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 cursor-pointer hover:border-white/30 transition-colors flex flex-col items-center justify-center h-[8.5rem] md:h-[11.5rem] lg:h-[16.5rem]"
+            onClick={() => {
+              if (onShowMore) {
+                onShowMore();
+              } else {
+                setExpanded(true);
+              }
+            }}
+          >
+            <span className="text-white/80 text-2xl mb-1">+{remainingCount}</span>
+            <p
+              className="text-xs font-medium text-white text-center px-2"
+              style={{ fontFamily: "Josefin Sans, sans-serif" }}
+            >
+              {showMoreLabel || "Voir plus"}
+            </p>
+          </div>
+        )}
         <div className="shrink-0 w-6" aria-hidden="true" />
       </div>
     </div>
