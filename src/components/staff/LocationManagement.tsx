@@ -929,6 +929,7 @@ const LocationManagement = () => {
       images: (d as any).images || [],
       internal_notes: d.internal_notes || "",
       videos: d.videos || [],
+      city_id: (d as any).city_id || "",
     });
     setShowDestinationForm(true);
     setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
