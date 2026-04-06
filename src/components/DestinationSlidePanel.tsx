@@ -228,7 +228,17 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         if (sub.name_ar) s.add(sub.name_ar);
       }
 
-      // 3. Fetch business details (with categories)
+      // 3. Resolve destination city names from city_ids
+      let destCityNames = new Set<string>();
+      if (destination?.city_ids && destination.city_ids.length > 0) {
+        const { data: cityRows } = await supabase
+          .from("cities")
+          .select("name_fr")
+          .in("id", destination.city_ids);
+        if (cityRows) cityRows.forEach((c: any) => { if (c.name_fr) destCityNames.add(c.name_fr); });
+      }
+
+      // 4. Fetch business details (with categories)
       const all: any[] = [];
       for (let i = 0; i < bizIds.length; i += 500) {
         const chunk = bizIds.slice(i, i + 500);
@@ -240,13 +250,18 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         if (data) all.push(...data);
       }
 
-      // 4. Group businesses by front_structure entry
+      // 5. Exclude businesses whose city doesn't match the destination's cities
+      const filtered = destCityNames.size > 0
+        ? all.filter(biz => biz.city && destCityNames.has(biz.city))
+        : all;
+
+      // 6. Group businesses by front_structure entry
       const tabs: typeof frontTabs = [];
       const usedBizIds = new Set<string>();
       for (const fs of fsEntries) {
         const subNames = fsSubNames.get(fs.id);
         if (!subNames || subNames.size === 0) continue;
-        const matching = all.filter(biz =>
+        const matching = filtered.filter(biz =>
           biz.categories?.some((cat: string) => subNames.has(cat))
         );
         if (matching.length === 0) continue;
@@ -266,8 +281,8 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
       setFrontTabs(tabs);
     };
-    fetchFrontTabs();
-  }, [destinationId]);
+    if (destination) fetchFrontTabs();
+  }, [destinationId, destination?.city_ids]);
 
   // Fetch city-linked videos from business_documents
   useEffect(() => {
