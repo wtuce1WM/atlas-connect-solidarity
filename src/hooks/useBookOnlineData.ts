@@ -349,7 +349,7 @@ export function useBookOnlineData(businessId: string) {
         }
         const { data: destData } = await supabase
           .from("destinations")
-          .select("id, name_fr, name_en, image_url, images")
+          .select("id, name_fr, name_en, image_url, images, latitude, longitude")
           .in("id", destIds);
         if (!isCancelled) setDestinations((destData || []) as Destination[]);
       };
