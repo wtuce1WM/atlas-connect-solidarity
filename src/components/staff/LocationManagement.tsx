@@ -301,22 +301,44 @@ const LocationManagement = () => {
   const { toast } = useToast();
 
   const downloadBusinessImages = async (label: string, filterFn: () => Promise<string[]>) => {
-    toast({ title: "Chargement des images…" });
+    toast({ title: "Téléchargement des images en cours…" });
     try {
       const urls = await filterFn();
       if (urls.length === 0) {
         toast({ variant: "destructive", title: "Aucune image", description: "Aucune image trouvée." });
         return;
       }
-      const blob = new Blob([urls.join("\n")], { type: "text/plain" });
+      const JSZip = (await import("jszip")).default;
+      const zip = new JSZip();
+      let downloaded = 0;
+      await Promise.all(
+        urls.map(async (url, i) => {
+          try {
+            const res = await fetch(url);
+            if (!res.ok) return;
+            const blob = await res.blob();
+            const ext = url.split(".").pop()?.split("?")[0]?.toLowerCase() || "jpg";
+            const filename = `${String(i + 1).padStart(3, "0")}.${ext}`;
+            zip.file(filename, blob);
+            downloaded++;
+          } catch {
+            // skip broken images
+          }
+        })
+      );
+      if (downloaded === 0) {
+        toast({ variant: "destructive", title: "Erreur", description: "Aucune image n'a pu être téléchargée." });
+        return;
+      }
+      const zipBlob = await zip.generateAsync({ type: "blob" });
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `images-${label.replace(/[^a-zA-Z0-9]/g, "-")}.txt`;
+      a.href = URL.createObjectURL(zipBlob);
+      a.download = `images-${label.replace(/[^a-zA-Z0-9]/g, "-")}.zip`;
       a.click();
       URL.revokeObjectURL(a.href);
-      toast({ title: `${urls.length} image(s) exportées` });
+      toast({ title: `${downloaded} image(s) téléchargées en .zip` });
     } catch {
-      toast({ variant: "destructive", title: "Erreur lors de l'export" });
+      toast({ variant: "destructive", title: "Erreur lors du téléchargement" });
     }
   };
 
