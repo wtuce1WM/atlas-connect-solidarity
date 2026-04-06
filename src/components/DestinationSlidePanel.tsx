@@ -233,7 +233,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         const chunk = bizIds.slice(i, i + 500);
         const { data } = await supabase
           .from("businesses")
-          .select("id, name, slug, city, neighborhood, images, computed_rating, rating, total_review_count, categories")
+          .select("id, name, slug, city, neighborhood, images, computed_rating, rating, total_review_count, categories, wtuce_status")
           .eq("is_active", true)
           .in("id", chunk);
         if (data) all.push(...data);
@@ -250,6 +250,9 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         );
         if (matching.length === 0) continue;
         matching.sort((a: any, b: any) => {
+          const aV = a.wtuce_status === "verified" ? 1 : 0;
+          const bV = b.wtuce_status === "verified" ? 1 : 0;
+          if (bV !== aV) return bV - aV;
           const aCount = a.total_review_count ?? 0;
           const bCount = b.total_review_count ?? 0;
           const aRating = aCount >= 10 ? (a.computed_rating ?? a.rating ?? 0) : -1;
