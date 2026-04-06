@@ -172,26 +172,42 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
     return () => { cancelled = true; };
   }, [businessId]);
 
-  // Fetch videos linked to this POI (business_documents.poi_id)
+  // Fetch videos linked to this POI (business_documents.poi_id) + POI's own videos (business_documents.business_id)
   useEffect(() => {
     if (!businessId) return;
     let cancelled = false;
     const fetchVideos = async () => {
-      const { data: docs } = await supabase
-        .from("business_documents")
-        .select("url, name, thumbnail_url, business_id")
-        .eq("type", "video")
-        .eq("poi_id", businessId)
-        .order("sort_order", { ascending: true });
-      if (cancelled || !docs || docs.length === 0) { if (!cancelled) setLinkedVideos([]); return; }
-      const ownerIds = [...new Set(docs.map(d => d.business_id))];
+      // Fetch both: videos from owners linked via poi_id AND videos owned by the POI itself
+      const [{ data: poiLinkedDocs }, { data: ownDocs }] = await Promise.all([
+        supabase
+          .from("business_documents")
+          .select("url, name, thumbnail_url, business_id")
+          .eq("type", "video")
+          .eq("poi_id", businessId)
+          .order("sort_order", { ascending: true }),
+        supabase
+          .from("business_documents")
+          .select("url, name, thumbnail_url, business_id")
+          .eq("type", "video")
+          .eq("business_id", businessId)
+          .order("sort_order", { ascending: true }),
+      ]);
+      if (cancelled) return;
+      // Merge & deduplicate by URL
+      const seen = new Set<string>();
+      const allDocs: typeof poiLinkedDocs = [];
+      for (const d of [...(poiLinkedDocs || []), ...(ownDocs || [])]) {
+        if (!seen.has(d.url)) { seen.add(d.url); allDocs.push(d); }
+      }
+      if (allDocs.length === 0) { setLinkedVideos([]); return; }
+      const ownerIds = [...new Set(allDocs.map(d => d.business_id))];
       const { data: owners } = await supabase
         .from("businesses")
         .select("id, name, logo_url, slug")
         .in("id", ownerIds);
       if (cancelled) return;
       const ownerMap = new Map((owners || []).map(o => [o.id, o]));
-      setLinkedVideos(docs.map(d => {
+      setLinkedVideos(allDocs.map(d => {
         const owner = ownerMap.get(d.business_id);
         return {
           url: d.url, name: d.name,
