@@ -1955,8 +1955,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                     <button
                       key="shop"
                       onClick={() => { setBookingOverlayUrl(shopCta.fullUrl); setBookingOverlayTitle(shopCtaLabel); setShowBookingOverlay(true); }}
-                      className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-black [&_*]:text-black normal-case tracking-normal animate-slide-up-from-bottom"
-                      style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366' }}
+                      className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-black [&_*]:text-black normal-case tracking-normal animate-slide-up-from-bottom"
+                      style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}
                     >
                       <ShoppingBag className="h-4 w-4 hidden md:block" />
                       <span className="truncate">{shopCtaLabel}</span>
