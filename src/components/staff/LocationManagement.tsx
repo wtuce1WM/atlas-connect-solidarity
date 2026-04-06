@@ -2324,7 +2324,7 @@ const LocationManagement = () => {
                   <ImageUploader
                     images={destinationForm.images}
                     onChange={(imgs) => setDestinationForm(prev => ({ ...prev, images: imgs }))}
-                    maxImages={12}
+                    maxImages={30}
                     businessId={editingDestination?.id || "destination"}
                   />
                 </CardContent>
