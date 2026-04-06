@@ -57,6 +57,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
   const [linkedVideos, setLinkedVideos] = useState<{ url: string; name: string | null; thumbnailUrl: string | null; businessId: string; ownerName: string; ownerLogo: string | null; ownerSlug: string | null }[]>([]);
   const [activeBottomTab, setActiveBottomTab] = useState<string>("videos");
   const [fullscreenVideo, setFullscreenVideo] = useState<string | null>(null);
+  const [openedPoiBusinessId, setOpenedPoiBusinessId] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoPaused, setVideoPaused] = useState(true);
