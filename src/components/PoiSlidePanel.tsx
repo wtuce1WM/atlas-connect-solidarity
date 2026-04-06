@@ -363,14 +363,18 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
           {/* CTA Itinéraire */}
           {poi.latitude && poi.longitude && (
             <div className="shrink-0 py-2 flex flex-col items-center gap-2">
-              <button
-                onClick={() => setShowDirections(true)}
-                className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 rounded-lg text-white font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity normal-case tracking-normal"
-                style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: "#C04F17", height: '40px' }}
-              >
-                <Navigation className="h-4 w-4" />
-                {language === "en" ? "Directions" : "Itinéraire"}
-              </button>
+              <div className="w-full md:w-3/4 flex justify-center gap-2">
+                <div className="flex-1 md:flex-none md:w-1/3">
+                  <button
+                    onClick={() => setShowDirections(true)}
+                    className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-gold text-gold-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-gold/90 transition-colors normal-case tracking-normal animate-slide-up-from-bottom"
+                    style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}
+                  >
+                    <Navigation className="h-4 w-4 hidden md:block" />
+                    <span className="truncate">{language === "en" ? "Directions" : "Itinéraire"}</span>
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </div>
