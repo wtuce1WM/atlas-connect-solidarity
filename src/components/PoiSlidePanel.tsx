@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation, Minimize2, Map } from "lucide-react";
+import React, { useState, useEffect, useCallback, useRef, useMemo, Suspense } from "react";
+import { MapPin, ChevronLeft, ChevronRight, X, Navigation, Minimize2 } from "lucide-react";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import wooshSfx from "@/assets/woosh.wav";
-import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import DirectionsOverlay from "@/components/DirectionsOverlay";
-import MosaicOverlay from "@/components/MosaicOverlay";
-import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
+import { GOLD, playWoosh } from "@/lib/overlayConstants";
+import OverlayFlipCard from "@/components/overlays/OverlayFlipCard";
+import { LazyDirectionsOverlay, LazyMosaicOverlay, LazyFullscreenLightbox } from "@/components/overlays/LazyOverlays";
+import type { PoiMapItem } from "@/components/PoiGoogleMap";
 
 interface PoiSlidePanelProps {
   businessId: string;
@@ -31,33 +31,6 @@ interface PoiFull {
   city: string | null;
   neighborhood: string | null;
 }
-const GOLD = { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" };
-
-const MemoizedPoiMap = React.memo(({ poi, linkedBusinesses }: { poi: PoiFull; linkedBusinesses: PoiMapItem[] }) => {
-  const pois = useMemo(() => [
-    ...(poi.latitude && poi.longitude ? [{
-      id: poi.id, name: poi.name, latitude: poi.latitude, longitude: poi.longitude,
-      city: poi.city, neighborhood: poi.neighborhood, images: poi.images,
-      markerColor: GOLD,
-    }] : []),
-    ...linkedBusinesses,
-  ], [poi.id, poi.latitude, poi.longitude, poi.name, poi.city, poi.neighborhood, poi.images, linkedBusinesses]);
-
-  const center = useMemo(
-    () => poi.latitude && poi.longitude ? { lat: poi.latitude, lng: poi.longitude } : undefined,
-    [poi.latitude, poi.longitude]
-  );
-
-  return (
-    <PoiGoogleMap
-      pois={pois}
-      selectedPoiId={poi.id}
-      highlightColor={GOLD}
-      center={center}
-      fitToMarkers
-    />
-  );
-});
 
 const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePanelProps) => {
   const { language } = useLanguage();
@@ -74,6 +47,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
   const [flipped, setFlipped] = useState(false);
   const [linkedBusinesses, setLinkedBusinesses] = useState<PoiMapItem[]>([]);
 
+  // Reset state on businessId change
   useEffect(() => {
     setCurrentMediaIndex(0);
     setDescExpanded(true);
@@ -97,9 +71,28 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
     return () => { window.history.replaceState(null, "", saved); };
   }, []);
 
+  // Fetch POI data + city POIs in parallel
+  useEffect(() => {
+    let cancelled = false;
+    const fetchPoi = async () => {
+      setIsLoading(true);
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name, description, poi_description, poi_hook, hook_fr, hook_en, hook_ar, images, latitude, longitude, city, neighborhood")
+        .eq("id", businessId)
+        .maybeSingle();
+      if (cancelled) return;
+      setPoi(data as PoiFull | null);
+      setIsLoading(false);
+    };
+    fetchPoi();
+    return () => { cancelled = true; };
+  }, [businessId]);
+
   // Fetch other POIs in the same city
   useEffect(() => {
     if (!poi?.city) return;
+    let cancelled = false;
     const fetchCityPois = async () => {
       const { data: pois } = await supabase
         .from("businesses")
@@ -108,38 +101,24 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
         .eq("is_active", true)
         .eq("city", poi.city)
         .neq("id", businessId);
-      if (pois) {
-        setLinkedBusinesses(
-          pois.map((b) => ({
-            id: b.id,
-            name: b.name,
-            latitude: b.latitude,
-            longitude: b.longitude,
-            images: b.images,
-            city: b.city,
-            neighborhood: b.neighborhood,
-            rating: b.rating ? Number(b.rating) : null,
-            subcategory: b.main_category,
-          }))
-        );
-      }
+      if (cancelled || !pois) return;
+      setLinkedBusinesses(
+        pois.map((b) => ({
+          id: b.id,
+          name: b.name,
+          latitude: b.latitude,
+          longitude: b.longitude,
+          images: b.images,
+          city: b.city,
+          neighborhood: b.neighborhood,
+          rating: b.rating ? Number(b.rating) : null,
+          subcategory: b.main_category,
+        }))
+      );
     };
     fetchCityPois();
+    return () => { cancelled = true; };
   }, [businessId, poi?.city]);
-
-  useEffect(() => {
-    const fetchPoi = async () => {
-      setIsLoading(true);
-      const { data } = await supabase
-        .from("businesses")
-        .select("id, name, description, poi_description, poi_hook, hook_fr, hook_en, hook_ar, images, latitude, longitude, city, neighborhood")
-        .eq("id", businessId)
-        .maybeSingle();
-      setPoi(data as PoiFull | null);
-      setIsLoading(false);
-    };
-    fetchPoi();
-  }, [businessId]);
 
   const images = poi?.images?.filter(Boolean) || [];
   const totalMedia = images.length;
@@ -150,31 +129,22 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
   const displayHook = useMemo(() => {
     const specificPoiHook = poi?.poi_hook?.trim();
     if (specificPoiHook) return specificPoiHook;
-
     const localizedHook =
-      language === "ar"
-        ? poi?.hook_ar?.trim()
-        : language === "en"
-          ? poi?.hook_en?.trim()
+      language === "ar" ? poi?.hook_ar?.trim()
+        : language === "en" ? poi?.hook_en?.trim()
           : poi?.hook_fr?.trim();
-
     return localizedHook || poi?.hook_fr?.trim() || poi?.hook_en?.trim() || poi?.hook_ar?.trim() || null;
   }, [language, poi?.hook_ar, poi?.hook_en, poi?.hook_fr, poi?.poi_hook]);
 
-  const lightboxItems: LightboxMediaItem[] = images.map((url) => ({
-    type: "image" as const,
-    src: url,
-    alt: poi?.name || "",
-  }));
+  const lightboxItems: LightboxMediaItem[] = useMemo(
+    () => images.map((url) => ({ type: "image" as const, src: url, alt: poi?.name || "" })),
+    [images, poi?.name]
+  );
 
   const goMedia = useCallback((dir: 1 | -1) => {
     if (totalMedia <= 1) return;
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [totalMedia]);
-
-  const playWoosh = useCallback(() => {
-    try { new Audio(wooshSfx).play(); } catch {}
-  }, []);
 
   if (isLoading) {
     return (
@@ -186,69 +156,48 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
 
   if (!poi) return null;
 
-  // Build a minimal business-like object for DirectionsOverlay
-  const directionsTarget = {
-    name: poi.name,
-    latitude: poi.latitude,
-    longitude: poi.longitude,
-    city: poi.city,
-    neighborhood: poi.neighborhood,
-  };
-
   return (
     <div className={`absolute inset-0 z-[70] bg-black overflow-hidden ${slideAnim}`}>
       {/* Close + mosaic buttons */}
       {!showDirections && !isLightboxOpen && (
         <div className="absolute top-3 left-3 z-[80] flex items-center gap-2">
-          <button
-            onClick={onClose}
-            className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-            aria-label="Fermer"
-          >
+          <button onClick={onClose} className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors" aria-label="Fermer">
             <X className="h-5 w-5" />
           </button>
           {totalMedia > 0 && (
-            <button
-              onClick={() => setShowMosaic((p) => !p)}
-              className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-              title={showMosaic ? "Fermer la mosaïque" : "Voir tous les médias"}
-            >
-              {showMosaic ? (
-                <Minimize2 className="h-4 w-4" />
-              ) : (
-                <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert" />
-              )}
+            <button onClick={() => setShowMosaic((p) => !p)} className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors" title={showMosaic ? "Fermer la mosaïque" : "Voir tous les médias"}>
+              {showMosaic ? <Minimize2 className="h-4 w-4" /> : <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert" />}
             </button>
           )}
         </div>
       )}
 
-      {/* Directions Overlay */}
-      {showDirections && poi.latitude && poi.longitude && (
-        <DirectionsOverlay
-          business={directionsTarget as any}
-          onClose={() => setShowDirections(false)}
-        />
-      )}
+      {/* Lazy-loaded overlays */}
+      <Suspense fallback={null}>
+        {showDirections && poi.latitude && poi.longitude && (
+          <LazyDirectionsOverlay
+            business={{ name: poi.name, latitude: poi.latitude, longitude: poi.longitude, city: poi.city, neighborhood: poi.neighborhood } as any}
+            onClose={() => setShowDirections(false)}
+          />
+        )}
 
-      {/* Mosaic overlay */}
-      {showMosaic && (
-        <MosaicOverlay
-          mediaItems={images.map((url) => ({ kind: "image" as const, url }))}
-          onClose={() => setShowMosaic(false)}
-          onOpenLightbox={(idx) => { setLightboxIndex(idx); setIsLightboxOpen(true); }}
-        />
-      )}
+        {showMosaic && (
+          <LazyMosaicOverlay
+            mediaItems={images.map((url) => ({ kind: "image" as const, url }))}
+            onClose={() => setShowMosaic(false)}
+            onOpenLightbox={(idx) => { setLightboxIndex(idx); setIsLightboxOpen(true); }}
+          />
+        )}
 
-      {/* Fullscreen lightbox */}
-      {isLightboxOpen && totalMedia > 0 && (
-        <FullscreenLightbox
-          items={lightboxItems}
-          currentIndex={lightboxIndex}
-          onIndexChange={setLightboxIndex}
-          onClose={() => setIsLightboxOpen(false)}
-        />
-      )}
+        {isLightboxOpen && totalMedia > 0 && (
+          <LazyFullscreenLightbox
+            items={lightboxItems}
+            currentIndex={lightboxIndex}
+            onIndexChange={setLightboxIndex}
+            onClose={() => setIsLightboxOpen(false)}
+          />
+        )}
+      </Suspense>
 
       <div className="relative w-full h-full">
         {/* Media background */}
@@ -292,90 +241,22 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
             </div>
           )}
 
-          {/* Flip card container */}
-          <div className="flex-1 flex items-start justify-center overflow-hidden min-h-0" style={{ perspective: "1200px" }}>
-            <div
-              className={`w-[95%] md:w-[90%] lg:w-[85%] relative ${flipped ? "h-[calc(100%-2rem)]" : "max-h-full"}`}
-              style={{
-                transformStyle: "preserve-3d",
-                transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
-                transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
-              }}
-            >
-              {/* FRONT — Description */}
-              <div
-                className="rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 flex h-full min-h-0 flex-col gap-5 text-white"
-                style={{ backfaceVisibility: "hidden" }}
-              >
-                {/* Name + toggle */}
-                <div className="flex items-end gap-4">
-                  <div className="min-w-0 flex-1">
-                    <h2 className="text-xl font-bold uppercase truncate drop-shadow-lg" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>{poi.name}</h2>
-                    {displayHook && (
-                      <p className="text-sm md:text-lg leading-relaxed tracking-[0.02em] text-white/90 mt-1 line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{displayHook}</p>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    {linkedBusinesses.length > 0 && (
-                      <button
-                        onClick={() => { playWoosh(); setFlipped(true); }}
-                        className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-                        aria-label="Voir la carte"
-                        title="Voir sur la carte"
-                      >
-                        <Map className="h-4 w-4" />
-                      </button>
-                    )}
-                    {displayDescription && (
-                      <button
-                        onClick={() => setDescExpanded((p) => !p)}
-                        className="shrink-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-                        aria-label={descExpanded ? "Replier" : "Déplier"}
-                      >
-                        {descExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Description — collapsible */}
-                {displayDescription && descExpanded && (
-                  <div className="min-h-0 overflow-y-auto pr-2" style={{ maxHeight: "min(35vh, 280px)" }}>
-                    <div
-                      className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-gold [&_h2]:!font-bold [&_h3]:!font-bold"
-                      dangerouslySetInnerHTML={{ __html: displayDescription }}
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* BACK — Google Map */}
-              <div
-                className="absolute inset-0 rounded-2xl bg-black/60 backdrop-blur-sm overflow-hidden flex flex-col"
-                style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
-              >
-                {/* Back header */}
-                <div className="flex items-center gap-3 p-4 text-white">
-                  <button
-                    onClick={() => { playWoosh(); setFlipped(false); }}
-                    className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-                    aria-label="Retourner"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </button>
-                  <h3 className="text-sm font-semibold truncate">
-                    {language === "en" ? "Nearby" : "À proximité"}
-                  </h3>
-                </div>
-                {/* Map */}
-                <div className="flex-1 min-h-0">
-                  {flipped && (
-                    <MemoizedPoiMap poi={poi} linkedBusinesses={linkedBusinesses} />
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Flip card — shared component */}
+          <OverlayFlipCard
+            flipped={flipped}
+            onFlip={() => { playWoosh(wooshSfx); setFlipped(true); }}
+            onUnflip={() => { playWoosh(wooshSfx); setFlipped(false); }}
+            name={poi.name}
+            hook={displayHook}
+            description={displayDescription}
+            descExpanded={descExpanded}
+            onToggleDesc={() => setDescExpanded((p) => !p)}
+            mapMarkers={linkedBusinesses}
+            selectedMarkerId={poi.id}
+            selectedLat={poi.latitude}
+            selectedLng={poi.longitude}
+            backLabel={language === "en" ? "Nearby" : "À proximité"}
+          />
 
           {/* CTA Itinéraire */}
           {poi.latitude && poi.longitude && (
