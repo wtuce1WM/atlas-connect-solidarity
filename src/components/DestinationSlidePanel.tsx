@@ -233,7 +233,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         const chunk = bizIds.slice(i, i + 500);
         const { data } = await supabase
           .from("businesses")
-          .select("id, name, slug, city, neighborhood, images, computed_rating, rating, categories")
+          .select("id, name, slug, city, neighborhood, images, computed_rating, rating, total_review_count, categories")
           .eq("is_active", true)
           .in("id", chunk);
         if (data) all.push(...data);
