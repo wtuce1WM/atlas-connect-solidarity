@@ -154,7 +154,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
       setIsLoading(true);
       const { data } = await supabase
         .from("destinations")
-        .select("id, name_fr, name_en, name_ar, description, hook, image_url, images, videos, matterport_url, latitude, longitude, region")
+        .select("id, name_fr, name_en, name_ar, description, hook, image_url, images, videos, matterport_url, latitude, longitude, region, city_ids")
         .eq("id", destinationId)
         .maybeSingle();
       setDestination(data as DestinationFull | null);
