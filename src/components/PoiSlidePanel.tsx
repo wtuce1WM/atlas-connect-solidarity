@@ -22,6 +22,9 @@ interface PoiFull {
   description: string | null;
   poi_description: string | null;
   poi_hook: string | null;
+  hook_fr: string | null;
+  hook_en: string | null;
+  hook_ar: string | null;
   images: string[] | null;
   latitude: number | null;
   longitude: number | null;
@@ -129,7 +132,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
       setIsLoading(true);
       const { data } = await supabase
         .from("businesses")
-        .select("id, name, description, poi_description, poi_hook, images, latitude, longitude, city, neighborhood")
+        .select("id, name, description, poi_description, poi_hook, hook_fr, hook_en, hook_ar, images, latitude, longitude, city, neighborhood")
         .eq("id", businessId)
         .maybeSingle();
       setPoi(data as PoiFull | null);
@@ -144,6 +147,19 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
   const currentImage = totalMedia > 0 ? images[safeIndex] : null;
 
   const displayDescription = poi?.poi_description || poi?.description || null;
+  const displayHook = useMemo(() => {
+    const specificPoiHook = poi?.poi_hook?.trim();
+    if (specificPoiHook) return specificPoiHook;
+
+    const localizedHook =
+      language === "ar"
+        ? poi?.hook_ar?.trim()
+        : language === "en"
+          ? poi?.hook_en?.trim()
+          : poi?.hook_fr?.trim();
+
+    return localizedHook || poi?.hook_fr?.trim() || poi?.hook_en?.trim() || poi?.hook_ar?.trim() || null;
+  }, [language, poi?.hook_ar, poi?.hook_en, poi?.hook_fr, poi?.poi_hook]);
 
   const lightboxItems: LightboxMediaItem[] = images.map((url) => ({
     type: "image" as const,
@@ -295,8 +311,8 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
                 <div className="flex items-end gap-4">
                   <div className="min-w-0 flex-1">
                     <h2 className="text-xl font-bold uppercase truncate drop-shadow-lg" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>{poi.name}</h2>
-                    {poi.poi_hook && (
-                      <p className="text-sm md:text-lg leading-relaxed tracking-[0.02em] text-white/90 mt-1 line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{poi.poi_hook}</p>
+                    {displayHook && (
+                      <p className="text-sm md:text-lg leading-relaxed tracking-[0.02em] text-white/90 mt-1 line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{displayHook}</p>
                     )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
