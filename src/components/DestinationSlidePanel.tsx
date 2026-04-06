@@ -721,9 +721,9 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
                 <div className="flex items-end gap-4">
                   <div className="min-w-0 flex-1">
                     <h2 className="text-xl font-bold uppercase truncate drop-shadow-lg" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>{destName}</h2>
-                    {destination.hook && (
-                      <p className="text-sm text-white mt-1 line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{destination.hook}</p>
-                    )}
+                     {destination.hook && (
+                       <p className="text-sm md:text-lg leading-relaxed tracking-[0.02em] text-white/90 mt-1 line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{destination.hook}</p>
+                     )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     {regionDestinations.length > 0 && (
@@ -750,8 +750,8 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
                 {/* Description — collapsible */}
                 {description && descExpanded && (
-                  <div
-                    className="min-h-0 overflow-y-auto pr-2 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words prose-josefin-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
+                   <div
+                     className="min-h-0 overflow-y-auto pr-2 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words font-['Roboto',sans-serif] prose-josefin-headings card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-gold [&_h2]:!font-bold [&_h3]:!font-bold"
                     style={{ maxHeight: "min(35vh, 280px)" }}
                     dangerouslySetInnerHTML={{ __html: description }}
                   />
