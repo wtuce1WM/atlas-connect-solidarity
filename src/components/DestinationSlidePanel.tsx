@@ -750,8 +750,8 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
                 {/* Description — collapsible */}
                 {description && descExpanded && (
-                  <div
-                    className="min-h-0 overflow-y-auto pr-2 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words prose-josefin-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
+                   <div
+                     className="min-h-0 overflow-y-auto pr-2 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words font-['Roboto',sans-serif] prose-josefin-headings card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-gold [&_h2]:!font-bold [&_h3]:!font-bold"
                     style={{ maxHeight: "min(35vh, 280px)" }}
                     dangerouslySetInnerHTML={{ __html: description }}
                   />
