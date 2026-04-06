@@ -201,12 +201,12 @@ const DestinationPage = () => {
             Retour
           </button>
           <div>
-            <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-white flex items-center gap-3 uppercase" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em" }}>
               <Compass className="h-8 w-8 text-gold" />
               {getDisplayName()}
             </h1>
             {destinationInfo?.hook && (
-              <p className="text-white/60 mt-1 text-sm italic">{destinationInfo.hook}</p>
+              <p className="text-white/60 mt-1 text-sm" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.02em" }}>{destinationInfo.hook}</p>
             )}
             <p className="text-white/80 mt-2">
               <span className="text-gold font-semibold">{sortedBusinesses.length}</span>{" "}
