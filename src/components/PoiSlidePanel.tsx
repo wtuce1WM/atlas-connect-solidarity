@@ -94,10 +94,10 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
     return () => { window.history.replaceState(null, "", saved); };
   }, []);
 
-  // Fetch businesses linked to this POI
+  // Fetch businesses linked to this POI, filtered by same city
   useEffect(() => {
+    if (!poi?.city) return;
     const fetchLinked = async () => {
-      // Get business IDs linked to this POI via business_poi_businesses
       const { data: links } = await supabase
         .from("business_poi_businesses")
         .select("business_id")
@@ -108,7 +108,8 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
         .from("businesses")
         .select("id, name, latitude, longitude, images, city, neighborhood, rating, main_category")
         .in("id", ids)
-        .eq("is_active", true);
+        .eq("is_active", true)
+        .eq("city", poi.city);
       if (businesses) {
         setLinkedBusinesses(
           businesses.map((b) => ({
@@ -126,7 +127,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
       }
     };
     fetchLinked();
-  }, [businessId]);
+  }, [businessId, poi?.city]);
 
   useEffect(() => {
     const fetchPoi = async () => {
