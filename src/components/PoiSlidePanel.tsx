@@ -319,6 +319,10 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
                   </div>
                 </div>
 
+                {poi.poi_hook && (
+                  <p className="text-sm md:text-lg text-white/90 leading-relaxed line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{poi.poi_hook}</p>
+                )}
+
                 {/* Description — collapsible */}
                 {displayDescription && descExpanded && (
                   <div
