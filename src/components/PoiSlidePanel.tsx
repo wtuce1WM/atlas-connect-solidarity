@@ -151,16 +151,16 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
     return () => { cancelled = true; };
   }, [businessId, poi?.city]);
 
-  // Fetch linked videos (business_documents)
+  // Fetch videos linked to this POI (business_documents.poi_id)
   useEffect(() => {
-    if (!poi?.city) return;
+    if (!businessId) return;
     let cancelled = false;
     const fetchVideos = async () => {
       const { data: docs } = await supabase
         .from("business_documents")
         .select("url, name, thumbnail_url, business_id")
         .eq("type", "video")
-        .eq("city", poi.city)
+        .eq("poi_id", businessId)
         .order("sort_order", { ascending: true });
       if (cancelled || !docs || docs.length === 0) { if (!cancelled) setLinkedVideos([]); return; }
       const ownerIds = [...new Set(docs.map(d => d.business_id))];
