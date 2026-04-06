@@ -130,7 +130,7 @@ interface Destination {
   is_searchable: boolean;
   internal_notes: string | null;
   videos: string[] | null;
-  city_id: string | null;
+  city_ids: string[] | null;
 }
 
 interface PointOfInterest {
@@ -261,7 +261,7 @@ const LocationManagement = () => {
     latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
     hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
     is_searchable: false, images: [] as string[], internal_notes: "", videos: [] as string[],
-    city_id: "",
+    city_ids: [] as string[],
   });
   const [destVideoUrlInput, setDestVideoUrlInput] = useState("");
   const [poiSectionOpen, setPoiSectionOpen] = useState(false);
@@ -911,7 +911,7 @@ const LocationManagement = () => {
       latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
       hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
       is_searchable: false, images: [] as string[], internal_notes: "", videos: [] as string[],
-      city_id: "",
+      city_ids: [] as string[],
     });
     setDestVideoUrlInput("");
   };
@@ -929,7 +929,7 @@ const LocationManagement = () => {
       images: (d as any).images || [],
       internal_notes: d.internal_notes || "",
       videos: d.videos || [],
-      city_id: (d as any).city_id || "",
+      city_ids: (d as any).city_ids || [],
     });
     setShowDestinationForm(true);
     setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
@@ -970,7 +970,7 @@ const LocationManagement = () => {
       images: destinationForm.images.length > 0 ? destinationForm.images : [],
       internal_notes: destinationForm.internal_notes.trim().slice(0, 5000) || null,
       videos: destinationForm.videos.length > 0 ? destinationForm.videos : [],
-      city_id: destinationForm.city_id || null,
+      city_ids: destinationForm.city_ids.length > 0 ? destinationForm.city_ids : [],
     };
     let error;
     if (editingDestination) {
@@ -2240,17 +2240,33 @@ const LocationManagement = () => {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label>Ville</Label>
+                      <Label>Villes</Label>
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {destinationForm.city_ids.map((cid, i) => {
+                          const city = cities.find(c => c.id === cid);
+                          return (
+                            <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-sm">
+                              {city?.name_fr || cid}
+                              <button type="button" onClick={() => setDestinationForm(prev => ({ ...prev, city_ids: prev.city_ids.filter((_, j) => j !== i) }))} className="text-muted-foreground hover:text-destructive">
+                                <X className="h-3 w-3" />
+                              </button>
+                            </span>
+                          );
+                        })}
+                      </div>
                       <Select
-                        value={destinationForm.city_id || "none"}
-                        onValueChange={(value) => setDestinationForm(prev => ({ ...prev, city_id: value === "none" ? "" : value }))}
+                        value={undefined}
+                        onValueChange={(value) => {
+                          if (value && !destinationForm.city_ids.includes(value)) {
+                            setDestinationForm(prev => ({ ...prev, city_ids: [...prev.city_ids, value] }));
+                          }
+                        }}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Sélectionner une ville..." />
+                          <SelectValue placeholder="Ajouter une ville..." />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="none">— Aucune —</SelectItem>
-                          {cities.filter(c => c.is_active).sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr')).map((c) => (
+                          {cities.filter(c => c.is_active && !destinationForm.city_ids.includes(c.id)).sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr')).map((c) => (
                             <SelectItem key={c.id} value={c.id}>{c.name_fr}</SelectItem>
                           ))}
                         </SelectContent>
