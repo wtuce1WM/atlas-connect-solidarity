@@ -406,14 +406,14 @@ const ImageUploader = ({
         >
           <input
             type="file"
-            id="image-upload"
+            id={`image-upload-${businessId || 'default'}`}
             multiple
             accept="image/*"
             onChange={(e) => handleFileUpload(e.target.files)}
             className="hidden"
             disabled={uploading}
           />
-          <label htmlFor="image-upload" className="cursor-pointer">
+          <label htmlFor={`image-upload-${businessId || 'default'}`} className="cursor-pointer">
             <div className="flex flex-col items-center gap-2">
               {uploading ? (
                 <Loader2 className="h-10 w-10 text-muted-foreground animate-spin" />
