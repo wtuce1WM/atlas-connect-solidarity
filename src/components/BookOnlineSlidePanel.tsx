@@ -106,7 +106,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [poiMapMode, setPoiMapMode] = useState<"poi" | "destinations">("poi");
   const poiOpenedFromMapRef = useRef(false);
   const [nearbyFallback, setNearbyFallback] = useState<PoiMapItem[]>([]);
-  const [nearbyDestinationsForMap, setNearbyDestinationsForMap] = useState<PoiMapItem[]>([]);
+  
   const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ url: string; name: string | null; description: string | null } | null>(null);
   const [videoOverlayClosing, setVideoOverlayClosing] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -493,7 +493,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     setShowPoiMapOverlay(false);
     setPoiMapMode("poi");
     setNearbyFallback([]);
-    setNearbyDestinationsForMap([]);
+    
     setAvailabilityOverlayCtx(null);
     if (!cameFromFallback) {
       setFallbackPanelData(null);
@@ -656,50 +656,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     }
   }, [selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId, docOverlay, showBookingOverlay, showYoutubeOverlay, showMosaic, externalOverlayActive, showPoiMapOverlay, activeVideoOverlay, showFallbackOverlay]);
 
-  // Fetch nearby destinations (by shared city_ids) when overlay opens in destinations mode
-  useEffect(() => {
-    if (!showPoiMapOverlay || poiMapMode !== "destinations" || !business?.city) {
-      return;
-    }
-    let cancelled = false;
-    const fetchNearbyDests = async () => {
-      // 1. Find city ID from city name
-      const { data: cityRows } = await supabase
-        .from("cities")
-        .select("id")
-        .eq("name_fr", business.city!)
-        .limit(1);
-      if (cancelled || !cityRows || cityRows.length === 0) return;
-      const cityId = cityRows[0].id;
-
-      // 2. Fetch all destinations with city_ids
-      const { data: allDests } = await supabase
-        .from("destinations")
-        .select("id, name_fr, name_en, latitude, longitude, images, image_url, city_ids");
-      if (cancelled || !allDests) return;
-
-      // 3. Filter destinations sharing this city_id (exclude already-displayed ones)
-      const displayedIds = new Set(destinations.map(d => d.id));
-      const matching = allDests.filter((d: any) =>
-        d.city_ids && (d.city_ids as string[]).includes(cityId) && d.latitude && d.longitude
-      );
-      if (!cancelled) {
-        setNearbyDestinationsForMap(
-          matching.map((d: any) => ({
-            id: d.id,
-            name: d.name_fr,
-            latitude: d.latitude,
-            longitude: d.longitude,
-            images: (d.images && d.images.length > 0) ? d.images : (d.image_url ? [d.image_url] : null),
-            city: null,
-            neighborhood: null,
-          }))
-        );
-      }
-    };
-    fetchNearbyDests();
-    return () => { cancelled = true; };
-  }, [showPoiMapOverlay, poiMapMode, business?.city, destinations]);
 
   const bookUrl = business?.reserve_now_url || null;
   const shopUrl = business?.online_shop_url || null;
@@ -2299,7 +2255,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       neighborhood: business.neighborhood,
                       markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
                     } as PoiMapItem] : []),
-                    ...nearbyDestinationsForMap,
+                    ...destinations.filter(d => d.latitude && d.longitude).map(d => ({
+                      id: d.id,
+                      name: d.name_fr,
+                      latitude: d.latitude!,
+                      longitude: d.longitude!,
+                      images: (d.images && d.images.length > 0) ? d.images : (d.image_url ? [d.image_url] : null),
+                      city: null,
+                      neighborhood: null,
+                    } as PoiMapItem)),
                   ]
                 : [
                     ...(business?.latitude && business?.longitude ? [{
