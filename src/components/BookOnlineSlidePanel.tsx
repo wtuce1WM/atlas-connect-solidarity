@@ -493,7 +493,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     setShowPoiMapOverlay(false);
     setPoiMapMode("poi");
     setNearbyFallback([]);
-    setNearbyDestinationsForMap([]);
+    
     setAvailabilityOverlayCtx(null);
     if (!cameFromFallback) {
       setFallbackPanelData(null);
