@@ -163,19 +163,19 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     fetchDestination();
   }, [destinationId]);
 
-  // Fetch destinations in the same region
+  // Fetch destinations sharing at least one city with the current destination
   useEffect(() => {
-    const fetchRegionDests = async () => {
-      if (!destination?.region || destination.region.length === 0) return;
-      // Fetch all destinations, then filter by overlapping region
+    const fetchCityDests = async () => {
+      if (!destination?.city_ids || destination.city_ids.length === 0) return;
+      // Fetch all other destinations with their city_ids
       const { data: allDests } = await supabase
         .from("destinations")
-        .select("id, name_fr, name_en, name_ar, latitude, longitude, images, image_url, region")
+        .select("id, name_fr, name_en, name_ar, latitude, longitude, images, image_url, city_ids")
         .neq("id", destinationId);
       if (!allDests) return;
-      const myRegions = new Set(destination.region);
+      const myCities = new Set(destination.city_ids);
       const matching = allDests.filter((d: any) =>
-        d.region && (d.region as string[]).some((r: string) => myRegions.has(r))
+        d.city_ids && (d.city_ids as string[]).some((c: string) => myCities.has(c))
       );
       setRegionDestinations(
         matching
@@ -191,8 +191,8 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
           }))
       );
     };
-    fetchRegionDests();
-  }, [destination?.region, destinationId]);
+    fetchCityDests();
+  }, [destination?.city_ids, destinationId]);
 
   // Fetch businesses linked to this destination, grouped by front_structure entries
   useEffect(() => {
