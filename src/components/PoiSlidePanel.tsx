@@ -469,6 +469,16 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
           )}
         </div>
       </div>
+
+      {/* Recursive SlidePanel for selected POI */}
+      {openedPoiBusinessId && (
+        <div className="absolute inset-0 z-[75] animate-slide-up-from-bottom">
+          <BookOnlineSlidePanel
+            businessId={openedPoiBusinessId}
+            onClose={() => setOpenedPoiBusinessId(null)}
+          />
+        </div>
+      )}
     </div>
   );
 };
