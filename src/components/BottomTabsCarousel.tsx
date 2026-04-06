@@ -95,35 +95,44 @@ export function TabScrollRail({
 }: TabScrollRailProps) {
   const allItems = React.Children.toArray(children);
   const hasMore = maxItems > 0 && allItems.length > maxItems;
-  const [expanded, setExpanded] = React.useState(false);
-  const visibleItems = hasMore && !expanded ? allItems.slice(0, maxItems) : allItems;
-  const remainingCount = allItems.length - maxItems;
+  const [visibleCount, setVisibleCount] = React.useState(maxItems > 0 ? maxItems : allItems.length);
+
+  // Build interleaved list: every `maxItems` items, insert a "voir plus" card
+  const buildItems = () => {
+    if (!hasMore || visibleCount >= allItems.length) return allItems;
+    const result: React.ReactNode[] = [];
+    const shown = allItems.slice(0, visibleCount);
+    result.push(...shown);
+    const remaining = allItems.length - visibleCount;
+    result.push(
+      <div
+        key="__show-more__"
+        className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 cursor-pointer hover:border-white/30 transition-colors flex flex-col items-center justify-center h-[8.5rem] md:h-[11.5rem] lg:h-[16.5rem]"
+        onClick={() => {
+          if (onShowMore) {
+            onShowMore();
+          } else {
+            setVisibleCount((prev) => Math.min(prev + maxItems, allItems.length));
+          }
+        }}
+      >
+        <span className="text-white/80 text-2xl mb-1">+{remaining}</span>
+        <p
+          className="text-xs font-medium text-white text-center px-2"
+          style={{ fontFamily: "Josefin Sans, sans-serif" }}
+        >
+          {showMoreLabel || "Voir plus"}
+        </p>
+      </div>
+    );
+    return result;
+  };
 
   return (
     <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
       <div className={`flex w-max ${gap} overflow-x-auto pb-1 scrollbar-hide`}>
         <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
-        {visibleItems}
-        {hasMore && !expanded && (
-          <div
-            className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 cursor-pointer hover:border-white/30 transition-colors flex flex-col items-center justify-center h-[8.5rem] md:h-[11.5rem] lg:h-[16.5rem]"
-            onClick={() => {
-              if (onShowMore) {
-                onShowMore();
-              } else {
-                setExpanded(true);
-              }
-            }}
-          >
-            <span className="text-white/80 text-2xl mb-1">+{remainingCount}</span>
-            <p
-              className="text-xs font-medium text-white text-center px-2"
-              style={{ fontFamily: "Josefin Sans, sans-serif" }}
-            >
-              {showMoreLabel || "Voir plus"}
-            </p>
-          </div>
-        )}
+        {buildItems()}
         <div className="shrink-0 w-6" aria-hidden="true" />
       </div>
     </div>
