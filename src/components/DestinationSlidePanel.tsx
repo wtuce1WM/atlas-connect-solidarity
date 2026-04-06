@@ -281,8 +281,8 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
       setFrontTabs(tabs);
     };
-    fetchFrontTabs();
-  }, [destinationId]);
+    if (destination) fetchFrontTabs();
+  }, [destinationId, destination?.city_ids]);
 
   // Fetch city-linked videos from business_documents
   useEffect(() => {
