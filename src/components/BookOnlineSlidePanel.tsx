@@ -1356,7 +1356,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   businessName={business.name}
                   tallHeight={noBottomCarousel}
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
-                  onClick={() => setShowPoiMapOverlay(true)}
+                  onClick={() => {
+                    if (poiBusinesses.length === 0 && nearbyFallback.length === 0 && destinations.length >= 2) {
+                      setPoiMapMode("destinations");
+                    }
+                    setShowPoiMapOverlay(true);
+                  }}
                 />
               )}
               {/* Card 4: Menu Summary */}
