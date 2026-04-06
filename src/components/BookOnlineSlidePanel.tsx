@@ -1357,7 +1357,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   tallHeight={noBottomCarousel}
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
                   onClick={() => {
-                    if (poiBusinesses.length === 0 && nearbyFallback.length === 0 && destinations.length >= 2) {
+                    if (poiBusinesses.length === 0 && destinations.length >= 2) {
                       setPoiMapMode("destinations");
                     }
                     setShowPoiMapOverlay(true);
