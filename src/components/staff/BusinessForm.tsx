@@ -445,7 +445,9 @@ interface SortableVideoCardProps {
   allBusinessesForVideo: Array<{ id: string; name: string }>;
   videoBusinessSearch: Record<number, string>;
   setVideoBusinessSearch: Dispatch<SetStateAction<Record<number, string>>>;
+  dbCategories: Array<{ id: string; name_fr: string }>;
   dbSubcategories: Array<{ id: string; name_fr: string; category_id: string }>;
+  dbServices: Array<{ id: string; name_fr: string; subcategory_id: string }>;
   dbCities: Array<{ id: string; name_fr: string; region: string | null }>;
   dbNeighborhoods: Array<{ id: string; name: string; city_id: string }>;
   business: any;
