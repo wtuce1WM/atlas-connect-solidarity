@@ -377,7 +377,7 @@ const ImageUploader = ({
           onDragEnd={handleDragEnd}
         >
           <SortableContext items={images} strategy={rectSortingStrategy}>
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
               {images.map((url, index) => (
                 <SortableImage
                   key={url}
@@ -483,12 +483,20 @@ const ImageUploader = ({
       {/* Lightbox */}
       {lightboxUrl && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 cursor-pointer"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90"
           onClick={() => setLightboxUrl(null)}
+          onKeyDown={(e) => {
+            const idx = images.indexOf(lightboxUrl);
+            if (e.key === "ArrowLeft" && idx > 0) { e.stopPropagation(); setLightboxUrl(images[idx - 1]); }
+            if (e.key === "ArrowRight" && idx < images.length - 1) { e.stopPropagation(); setLightboxUrl(images[idx + 1]); }
+            if (e.key === "Escape") setLightboxUrl(null);
+          }}
+          tabIndex={0}
+          ref={(el) => el?.focus()}
         >
           <button
             type="button"
-            className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/40 rounded-full text-white transition-colors"
+            className="absolute top-4 right-4 z-10 p-2 bg-white/20 hover:bg-white/40 rounded-full text-white transition-colors"
             onClick={() => setLightboxUrl(null)}
           >
             <X className="h-6 w-6" />
@@ -498,7 +506,7 @@ const ImageUploader = ({
           {images.indexOf(lightboxUrl) > 0 && (
             <button
               type="button"
-              className="absolute left-4 p-2 bg-white/20 hover:bg-white/40 rounded-full text-white transition-colors"
+              className="absolute left-4 z-10 p-3 bg-white/20 hover:bg-white/40 rounded-full text-white transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
                 const idx = images.indexOf(lightboxUrl);
@@ -513,7 +521,7 @@ const ImageUploader = ({
           {images.indexOf(lightboxUrl) < images.length - 1 && (
             <button
               type="button"
-              className="absolute right-4 p-2 bg-white/20 hover:bg-white/40 rounded-full text-white transition-colors"
+              className="absolute right-4 z-10 p-3 bg-white/20 hover:bg-white/40 rounded-full text-white transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
                 const idx = images.indexOf(lightboxUrl);
@@ -525,14 +533,14 @@ const ImageUploader = ({
           )}
 
           {/* Counter */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 bg-black/60 text-white text-sm rounded-full">
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-black/70 text-white text-sm rounded-full backdrop-blur-sm">
             {images.indexOf(lightboxUrl) + 1} / {images.length}
           </div>
 
           <img
             src={lightboxUrl}
             alt="Preview"
-            className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg"
+            className="max-w-[92vw] max-h-[92vh] object-contain rounded-lg shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           />
         </div>
