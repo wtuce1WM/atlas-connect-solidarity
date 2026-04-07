@@ -41,9 +41,10 @@ interface Subcategory {
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  inline?: boolean;
 }
 
-const FrontStructureManagement = ({ open, onOpenChange }: Props) => {
+const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props) => {
   const [entries, setEntries] = useState<FrontEntry[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [loading, setLoading] = useState(true);
