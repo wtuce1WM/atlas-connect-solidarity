@@ -4114,6 +4114,7 @@ const SearchPage = () => {
                 externalOverlayActive={showAiPopup}
                 forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
                 interceptCloseRef={compactPanelInterceptCloseRef}
+                onOpenSearch={() => setMobileSearchOverlayOpen(true)}
               />
             </div>
           </div>
