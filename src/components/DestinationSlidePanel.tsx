@@ -377,6 +377,16 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     };
   }, [currentMedia]);
 
+  // Pause & mute video when overlay opens
+  useEffect(() => {
+    const overlayOpen = showDirections || !!fullscreenVideo || !!activeBusinessId;
+    if (overlayOpen && videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.muted = true;
+      setVideoMuted(true);
+    }
+  }, [showDirections, fullscreenVideo, activeBusinessId]);
+
   if (isLoading) {
     return (
       <div className={`absolute inset-0 z-[70] bg-black flex items-center justify-center ${slideAnim}`}>
