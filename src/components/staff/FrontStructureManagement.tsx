@@ -399,62 +399,14 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
               </p>
             )}
 
-            {entries.map(entry => (
-              <Card key={entry.id}>
-                <CardContent className="pt-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{entry.name}</span>
-                      <Badge variant="secondary" className="text-xs">#{entry.sort_order}</Badge>
-                    </div>
-                    <div className="flex gap-1">
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => startEdit(entry)}>
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive">
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Supprimer ?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Supprimer l'entrée « {entry.name} » et ses liaisons ?
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Non</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => deleteEntry(entry.id)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            >
-                              Oui
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {entry.subcategory_ids.length === 0 && entry.service_ids.length === 0 && (
-                      <span className="text-xs text-muted-foreground italic">Aucune liaison</span>
-                    )}
-                    {entry.subcategory_ids.map(sid => (
-                      <Badge key={sid} variant="outline" className="text-xs">
-                        {getSubName(sid)}
-                      </Badge>
-                    ))}
-                    {entry.service_ids.map(sid => (
-                      <Badge key={sid} variant="outline" className="text-xs bg-blue-50 border-blue-200 text-blue-700">
-                        🔧 {getServiceName(sid)}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            <SortableEntriesList
+              entries={entries}
+              onEdit={startEdit}
+              onDelete={deleteEntry}
+              getSubName={getSubName}
+              getServiceName={getServiceName}
+              onReorder={handleReorder}
+            />
           </div>
         )}
     </>
