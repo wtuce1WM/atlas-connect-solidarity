@@ -98,13 +98,13 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
       ) : (
         <div className="relative w-full flex items-center justify-center px-4 md:px-6">
           {leftSlot && (
-            <div className="absolute left-4 md:left-6 flex items-center gap-1">
+            <div className="pointer-events-auto absolute left-4 md:left-6 z-30 flex items-center gap-1">
               {leftSlot}
             </div>
           )}
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:bg-background transition-colors"
+            className="relative z-10 inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:bg-background transition-colors"
             title="Masquer les cartes"
             aria-label="Masquer les cartes"
             onKeyDown={(e) => {
