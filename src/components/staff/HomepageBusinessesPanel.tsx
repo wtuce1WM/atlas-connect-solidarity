@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, ExternalLink, Plus, X, GripVertical, Monitor, Filter } from "lucide-react";
+import VideoThumbnail from "@/components/VideoThumbnail";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -29,6 +30,7 @@ interface BusinessItem {
   categories: string[];
   services: string[];
   images: string[];
+  video_1_url: string | null;
 }
 
 interface HomepageBusinessesPanelProps {
@@ -44,7 +46,7 @@ const SortableCard = ({
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: biz.id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
-  const thumb = biz.images?.[0] || biz.logo_url;
+  const videoUrl = biz.video_1_url;
 
   return (
     <div ref={setNodeRef} style={style} className="flex flex-col rounded-md border bg-background overflow-hidden text-xs">
@@ -56,8 +58,8 @@ const SortableCard = ({
         <div onClick={() => onRemove(biz.id)} className="absolute top-1 right-1 z-10 text-white/80 hover:text-destructive bg-black/40 rounded p-0.5 cursor-pointer">
           <X className="h-3 w-3" />
         </div>
-        {thumb ? (
-          <img src={thumb} alt="" className="w-full h-full object-cover" />
+        {videoUrl ? (
+          <VideoThumbnail src={videoUrl} alt={biz.name} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-muted" />
         )}
@@ -142,7 +144,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
     const rows: any[] = [];
     for (const c of cities) {
       const chunk = await fetchAll(
-        supabase.from("businesses").select("id, name, logo_url, city, categories, services, images").eq("city", c).eq("is_active", true).order("name")
+        supabase.from("businesses").select("id, name, logo_url, city, categories, services, images, video_1_url").eq("city", c).eq("is_active", true).order("name")
       );
       rows.push(...chunk);
     }
@@ -152,6 +154,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
     setAllBusinesses(deduped.map((b: any) => ({
       id: b.id, name: b.name, logo_url: b.logo_url, city: b.city,
       categories: b.categories || [], services: b.services || [], images: b.images || [],
+      video_1_url: b.video_1_url || null,
     })));
     setAllLoaded(true);
     setLoading(false);
@@ -174,7 +177,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
       const ids = (savedRows as any[]).map((r) => r.business_id);
       const { data: bizData } = await supabase
         .from("businesses")
-        .select("id, name, logo_url, city, categories, services, images")
+        .select("id, name, logo_url, city, categories, services, images, video_1_url")
         .in("id", ids);
       const bizMap = new Map((bizData || []).map((b: any) => [b.id, b]));
       const ordered = (savedRows as any[])
@@ -184,6 +187,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
         .map((b: any) => ({
           id: b.id, name: b.name, logo_url: b.logo_url, city: b.city,
           categories: b.categories || [], services: b.services || [], images: b.images || [],
+          video_1_url: b.video_1_url || null,
         }));
       setSelected(ordered);
     } else {
@@ -287,12 +291,12 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {filteredBusinesses.map((b) => {
               const isSelected = selectedIds.has(b.id);
-              const thumb = b.images?.[0] || b.logo_url;
+              const videoUrl = b.video_1_url;
               return (
                 <div key={b.id} className={`rounded-lg border overflow-hidden transition-colors ${isSelected ? "border-primary/50 bg-primary/5" : "bg-background"}`}>
                   <div className="relative aspect-video bg-muted">
-                    {thumb ? (
-                      <img src={thumb} alt="" className="w-full h-full object-cover" />
+                    {videoUrl ? (
+                      <VideoThumbnail src={videoUrl} alt={b.name} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full bg-muted/50" />
                     )}
