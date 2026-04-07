@@ -79,6 +79,7 @@ const MosaicOverlay = ({ mediaItems, onClose, onOpenLightbox }: MosaicOverlayPro
         })}
       </div>
     </div>
+    </div>
   );
 };
 
