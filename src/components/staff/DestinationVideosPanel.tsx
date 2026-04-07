@@ -171,7 +171,7 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
       docs.push(...chunkDocs);
     }
 
-    if (!error && docs && docs.length > 0) {
+    if (docs.length > 0) {
       // Collect all business ids AND subcategory ids
       const allIds = new Set<string>();
       const subcatIds = new Set<string>();
