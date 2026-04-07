@@ -211,7 +211,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
       const chunkDocs = await fetchAll(
         supabase
           .from("business_documents")
-          .select("id, business_id, thumbnail_url, url, sort_order")
+          .select("id, business_id, thumbnail_url, url, sort_order, poi_id, linked_business_id")
           .eq("type", "video")
           .in("business_id", chunk)
           .order("sort_order", { ascending: true })
