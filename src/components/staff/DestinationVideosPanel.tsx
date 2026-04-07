@@ -430,7 +430,7 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
             </Button>
           </div>
 
-          <div className="p-2 max-h-[calc(100vh-12rem)] overflow-y-auto">
+          <div className="p-2 max-h-[calc(100vh-8rem)] overflow-y-auto">
             {frontVideos.length === 0 ? (
               <p className="text-xs text-muted-foreground text-center py-6">
                 Cliquez sur <Plus className="inline h-3 w-3" /> sur une vidéo pour l'ajouter ici
