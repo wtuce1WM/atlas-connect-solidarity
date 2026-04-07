@@ -150,22 +150,21 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
     load();
   }, []);
 
-  // Helper: fetch first video thumbnail per business
-  const fetchThumbnails = useCallback(async (businessIds: string[]): Promise<Map<string, string>> => {
-    const map = new Map<string, string>();
+  // Helper: fetch first video thumbnail + url per business
+  const fetchVideoData = useCallback(async (businessIds: string[]): Promise<Map<string, { thumbnail_url: string | null; video_url: string }>> => {
+    const map = new Map<string, { thumbnail_url: string | null; video_url: string }>();
     const batch = 300;
     for (let i = 0; i < businessIds.length; i += batch) {
       const chunk = businessIds.slice(i, i + batch);
       const { data } = await supabase
         .from("business_documents")
-        .select("business_id, thumbnail_url")
+        .select("business_id, thumbnail_url, url")
         .eq("type", "video")
-        .not("thumbnail_url", "is", null)
         .in("business_id", chunk)
         .order("sort_order", { ascending: true });
       if (data) {
         (data as any[]).forEach((d) => {
-          if (!map.has(d.business_id) && d.thumbnail_url) map.set(d.business_id, d.thumbnail_url);
+          if (!map.has(d.business_id)) map.set(d.business_id, { thumbnail_url: d.thumbnail_url || null, video_url: d.url });
         });
       }
     }
