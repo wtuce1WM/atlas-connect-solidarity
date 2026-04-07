@@ -475,7 +475,7 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
 
   return (
     <div ref={setNodeRef} style={style} className="space-y-1 p-1.5 border rounded-md bg-background relative group">
-      {/* Header: drag handle + title + TXT + delete */}
+      {/* Header row: drag handle + number + TXT badge + popup checkbox */}
       <div className="flex items-center gap-1">
         <button type="button" {...attributes} {...listeners} className="shrink-0 cursor-grab active:cursor-grabbing p-0.5 text-muted-foreground hover:text-foreground">
           <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><circle cx="4" cy="3" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="4" cy="8" r="1.5"/><circle cx="12" cy="8" r="1.5"/><circle cx="4" cy="13" r="1.5"/><circle cx="12" cy="13" r="1.5"/></svg>
@@ -484,6 +484,17 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
         <Button type="button" variant={doc.description ? "default" : "outline"} size="sm" className="h-5 px-1.5 text-[9px] shrink-0" title="Description" onClick={onOpenDesc}>
           TXT
         </Button>
+        <label className="flex items-center gap-1 shrink-0 cursor-pointer" title="Ouvrir en popup">
+          <Checkbox
+            checked={doc.popup}
+            onCheckedChange={(checked) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, popup: !!checked } : d))}
+            className="h-3.5 w-3.5"
+          />
+          <span className="text-[9px] text-muted-foreground">popup</span>
+        </label>
+      </div>
+      {/* Second row: title + delete */}
+      <div className="flex items-center gap-1">
         <Input
           value={doc.name}
           onChange={(e) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, name: e.target.value } : d))}
