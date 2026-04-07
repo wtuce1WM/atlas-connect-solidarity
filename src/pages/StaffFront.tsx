@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home } from "lucide-react";
+import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, MonitorSmartphone, Tablet, Smartphone } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import FrontStructureManagement from "@/components/staff/FrontStructureManagement";
 import DestinationVideosPanel from "@/components/staff/DestinationVideosPanel";
@@ -67,6 +67,18 @@ const StaffFront = () => {
               <Home className="h-4 w-4" />
               Homepage
             </TabsTrigger>
+            <TabsTrigger value="preview-desktop" className="gap-2">
+              <Monitor className="h-4 w-4" />
+              Desktop
+            </TabsTrigger>
+            <TabsTrigger value="preview-tablet" className="gap-2">
+              <Tablet className="h-4 w-4" />
+              Tablette
+            </TabsTrigger>
+            <TabsTrigger value="preview-mobile" className="gap-2">
+              <Smartphone className="h-4 w-4" />
+              Mobile
+            </TabsTrigger>
             <TabsTrigger value="suggestions" className="gap-2">
               <Search className="h-4 w-4" />
               Suggestions
@@ -117,6 +129,30 @@ const StaffFront = () => {
                 <HomepageBusinessesPanel cityName="Essaouira" />
               </TabsContent>
             </Tabs>
+          </TabsContent>
+
+          <TabsContent value="preview-desktop">
+            <div className="flex justify-center">
+              <div className="border rounded-lg overflow-hidden shadow-sm" style={{ width: 1920, maxWidth: "100%" }}>
+                <iframe src="/" className="w-full border-0" style={{ height: "80vh" }} title="Aperçu Desktop (1920×1080)" />
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="preview-tablet">
+            <div className="flex justify-center">
+              <div className="border rounded-lg overflow-hidden shadow-sm" style={{ width: 768 }}>
+                <iframe src="/" className="w-full border-0" style={{ height: "80vh" }} title="Aperçu Tablette (768×1024)" />
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="preview-mobile">
+            <div className="flex justify-center">
+              <div className="border rounded-lg overflow-hidden shadow-sm" style={{ width: 390 }}>
+                <iframe src="/" className="w-full border-0" style={{ height: "80vh" }} title="Aperçu Mobile (390×844)" />
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="suggestions">
