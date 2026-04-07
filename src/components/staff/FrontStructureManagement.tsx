@@ -94,8 +94,8 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
   };
 
   useEffect(() => {
-    if (open) load();
-  }, [open]);
+    if (open || inline) load();
+  }, [open, inline]);
 
   const startNew = () => {
     setEditingId(null);
