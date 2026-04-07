@@ -92,7 +92,7 @@ const VideoDocumentOverlay = ({
       onAnimationEnd={() => { if (closing) onAnimationEnd(); }}
     >
       {/* Top bar: close + mobile nav with counter */}
-      <div className="absolute top-[4.25rem] lg:top-3 left-3 right-3 z-50 flex items-center">
+      <div className="absolute top-[3.75rem] lg:top-3 left-3 right-3 z-50 flex items-center">
         <button
           onClick={onClose}
           className="w-9 h-9 rounded-full bg-black/70 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-black/90 transition-colors shrink-0"
