@@ -46,7 +46,7 @@ const SortableCard = ({
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: biz.id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
-  const thumb = biz.images?.[0] || biz.logo_url;
+  const videoUrl = biz.video_1_url;
 
   return (
     <div ref={setNodeRef} style={style} className="flex flex-col rounded-md border bg-background overflow-hidden text-xs">
