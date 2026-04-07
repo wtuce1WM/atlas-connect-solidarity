@@ -47,6 +47,9 @@ import DocumentOverlay from "@/components/overlays/DocumentOverlay";
 import FallbackHotelsPanel from "@/components/overlays/FallbackHotelsPanel";
 import SerpApiHotelOverlay from "@/components/SerpApiHotelOverlay";
 import MobileSearchOverlay from "@/components/MobileSearchOverlay";
+import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
+import { useVoiceSearch } from "@/hooks/useVoiceSearch";
+import { useToast } from "@/hooks/use-toast";
 
 interface BookOnlineSlidePanelProps {
   businessId: string;
