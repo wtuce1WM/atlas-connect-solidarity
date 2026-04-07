@@ -201,7 +201,7 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
 
       const { data: businesses } = await supabase
         .from("businesses")
-        .select("id, name, logo_url, slug, categories")
+        .select("id, name, logo_url, slug, categories, services")
         .in("id", [...allIds]);
 
       const bMap = new Map((businesses || []).map((b: any) => [b.id, b]));
