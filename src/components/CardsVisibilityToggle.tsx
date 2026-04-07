@@ -97,7 +97,7 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
         </div>
       ) : (
         <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center">
-          <div className="min-w-0 flex items-center justify-start pl-4 md:pl-6">
+          <div className="min-w-0 flex items-center justify-start">
             {leftSlot}
           </div>
           <button
