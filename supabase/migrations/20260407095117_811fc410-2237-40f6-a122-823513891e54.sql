@@ -1,0 +1,1 @@
+UPDATE business_documents SET name = NULL WHERE name = 'Vidéo principale' AND type = 'video';
