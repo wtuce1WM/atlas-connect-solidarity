@@ -111,10 +111,10 @@ const StaffFront = () => {
                 <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
               </TabsList>
               <TabsContent value="marrakech">
-                <p className="text-sm text-muted-foreground py-8 text-center">Configuration Homepage Marrakech — à venir</p>
+                <HomepageBusinessesPanel cityName="Marrakech" />
               </TabsContent>
               <TabsContent value="essaouira">
-                <p className="text-sm text-muted-foreground py-8 text-center">Configuration Homepage Essaouira — à venir</p>
+                <HomepageBusinessesPanel cityName="Essaouira" />
               </TabsContent>
             </Tabs>
           </TabsContent>
