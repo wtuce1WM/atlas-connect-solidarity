@@ -26,6 +26,8 @@ interface ImageUploaderProps {
   onChange: (images: string[]) => void;
   maxImages?: number;
   businessId?: string;
+  popupImageUrl?: string | null;
+  onPopupChange?: (url: string | null) => void;
 }
 
 interface ImageMeta {
