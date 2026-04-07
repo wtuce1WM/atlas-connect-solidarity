@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN closure_message text DEFAULT NULL;

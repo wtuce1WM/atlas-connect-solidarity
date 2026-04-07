@@ -919,6 +919,7 @@ export type Database = {
           carousel_badge: string | null
           categories: string[] | null
           city: string | null
+          closure_message: string | null
           computed_rating: number | null
           country: string | null
           created_at: string
@@ -1068,6 +1069,7 @@ export type Database = {
           carousel_badge?: string | null
           categories?: string[] | null
           city?: string | null
+          closure_message?: string | null
           computed_rating?: number | null
           country?: string | null
           created_at?: string
@@ -1217,6 +1219,7 @@ export type Database = {
           carousel_badge?: string | null
           categories?: string[] | null
           city?: string | null
+          closure_message?: string | null
           computed_rating?: number | null
           country?: string | null
           created_at?: string
@@ -3926,6 +3929,7 @@ export type Database = {
               carousel_badge: string | null
               categories: string[] | null
               city: string | null
+              closure_message: string | null
               computed_rating: number | null
               country: string | null
               created_at: string
@@ -4091,6 +4095,7 @@ export type Database = {
               carousel_badge: string | null
               categories: string[] | null
               city: string | null
+              closure_message: string | null
               computed_rating: number | null
               country: string | null
               created_at: string

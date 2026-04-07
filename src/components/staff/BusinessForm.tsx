@@ -1002,6 +1002,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     rating: (business as any)?.rating?.toString() || "",
     reserve_now_url: (business as any)?.reserve_now_url || "",
     show_opening_hours: (business as any)?.show_opening_hours ?? false,
+    closure_message: (business as any)?.closure_message || "",
     show_videos: (business as any)?.show_videos ?? false,
     default_sound_on: (business as any)?.default_sound_on ?? true,
     prioritize_images: (business as any)?.prioritize_images ?? false,
@@ -1789,6 +1790,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       rating: formData.rating ? parseFloat(formData.rating) : null,
       reserve_now_url: formData.reserve_now_url || null,
       show_opening_hours: formData.show_opening_hours,
+      closure_message: formData.closure_message || null,
       show_videos: formData.show_videos,
       default_sound_on: formData.default_sound_on,
       prioritize_images: formData.prioritize_images,
@@ -4962,6 +4964,20 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               />
               <span className="text-sm font-medium">Afficher les horaires sur la fiche publique</span>
             </label>
+            <div className="flex items-center gap-2">
+              <Label className="text-sm font-medium whitespace-nowrap">Message du front</Label>
+              <select
+                value={formData.closure_message || ""}
+                onChange={(e) => handleChange("closure_message", e.target.value)}
+                className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              >
+                <option value="">Aucun</option>
+                <option value="Fermé temporairement">Fermé temporairement</option>
+                <option value="Fermé jusqu'au">Fermé jusqu&apos;au</option>
+                <option value="Fermé définitivement">Fermé définitivement</option>
+                <option value="Fermé jusqu'à nouvel ordre">Fermé jusqu&apos;à nouvel ordre</option>
+              </select>
+            </div>
           </div>
           
           {/* Vacation Dates */}
