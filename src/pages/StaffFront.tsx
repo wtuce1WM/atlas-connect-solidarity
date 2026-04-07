@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, LayoutGrid } from "lucide-react";
+import { ArrowLeft, LayoutGrid, Video } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import FrontStructureManagement from "@/components/staff/FrontStructureManagement";
 
@@ -53,10 +53,33 @@ const StaffFront = () => {
               <LayoutGrid className="h-4 w-4" />
               Structure du front
             </TabsTrigger>
+            <TabsTrigger value="videos" className="gap-2">
+              <Video className="h-4 w-4" />
+              Vidéos
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="front-structure">
             <FrontStructureManagement open={true} onOpenChange={() => {}} inline />
+          </TabsContent>
+
+          <TabsContent value="videos">
+            <Tabs defaultValue="marrakech">
+              <TabsList className="mb-4">
+                <TabsTrigger value="marrakech">Marrakech</TabsTrigger>
+                <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
+              </TabsList>
+              <TabsContent value="marrakech">
+                <div className="rounded-lg border bg-background p-6 text-sm text-muted-foreground">
+                  Vidéos — Marrakech (à venir)
+                </div>
+              </TabsContent>
+              <TabsContent value="essaouira">
+                <div className="rounded-lg border bg-background p-6 text-sm text-muted-foreground">
+                  Vidéos — Essaouira (à venir)
+                </div>
+              </TabsContent>
+            </Tabs>
           </TabsContent>
         </Tabs>
       </main>
