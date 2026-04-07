@@ -379,13 +379,13 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
   // Pause & mute video when overlay opens
   useEffect(() => {
-    const overlayOpen = showDirections || !!fullscreenVideo || !!openedBusinessId;
+    const overlayOpen = showDirections || !!fullscreenVideo || !!activeBusinessId;
     if (overlayOpen && videoRef.current) {
       videoRef.current.pause();
       videoRef.current.muted = true;
       setVideoMuted(true);
     }
-  }, [showDirections, fullscreenVideo, openedBusinessId]);
+  }, [showDirections, fullscreenVideo, activeBusinessId]);
 
   if (isLoading) {
     return (
