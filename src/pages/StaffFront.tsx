@@ -67,6 +67,18 @@ const StaffFront = () => {
               <Home className="h-4 w-4" />
               Homepage
             </TabsTrigger>
+            <TabsTrigger value="preview-desktop" className="gap-2">
+              <Monitor className="h-4 w-4" />
+              Desktop
+            </TabsTrigger>
+            <TabsTrigger value="preview-tablet" className="gap-2">
+              <Tablet className="h-4 w-4" />
+              Tablette
+            </TabsTrigger>
+            <TabsTrigger value="preview-mobile" className="gap-2">
+              <Smartphone className="h-4 w-4" />
+              Mobile
+            </TabsTrigger>
             <TabsTrigger value="suggestions" className="gap-2">
               <Search className="h-4 w-4" />
               Suggestions
