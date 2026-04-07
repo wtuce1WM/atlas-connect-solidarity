@@ -72,10 +72,10 @@ const StaffFront = () => {
                 <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
               </TabsList>
               <TabsContent value="marrakech">
-                <DestinationVideosPanel destinationIds={MARRAKECH_DEST_IDS} />
+                <DestinationVideosPanel cityName="Marrakech" />
               </TabsContent>
               <TabsContent value="essaouira">
-                <DestinationVideosPanel destinationIds={ESSAOUIRA_DEST_IDS} />
+                <DestinationVideosPanel cityName="Essaouira" />
               </TabsContent>
             </Tabs>
           </TabsContent>

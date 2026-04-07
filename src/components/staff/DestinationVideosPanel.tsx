@@ -18,10 +18,10 @@ interface VideoDoc {
 }
 
 interface DestinationVideosPanelProps {
-  destinationIds: string[];
+  cityName: string;
 }
 
-const DestinationVideosPanel = ({ destinationIds }: DestinationVideosPanelProps) => {
+const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
   const [videos, setVideos] = useState<VideoDoc[]>([]);
   const [loading, setLoading] = useState(true);
   const [playingId, setPlayingId] = useState<string | null>(null);
@@ -39,7 +39,7 @@ const DestinationVideosPanel = ({ destinationIds }: DestinationVideosPanelProps)
           linked:businesses!business_documents_linked_business_id_fkey(name)
         `)
         .eq("type", "video")
-        .in("destination_id", destinationIds)
+        .eq("city", cityName)
         .order("sort_order");
 
       if (!error && data) {
@@ -59,8 +59,8 @@ const DestinationVideosPanel = ({ destinationIds }: DestinationVideosPanelProps)
       }
       setLoading(false);
     };
-    if (destinationIds.length > 0) load();
-  }, [destinationIds]);
+    if (cityName) load();
+  }, [cityName]);
 
   if (loading) {
     return (
@@ -73,7 +73,7 @@ const DestinationVideosPanel = ({ destinationIds }: DestinationVideosPanelProps)
   if (videos.length === 0) {
     return (
       <div className="rounded-lg border bg-background p-6 text-sm text-muted-foreground">
-        Aucune vidéo liée à cette destination.
+        Aucune vidéo liée à cette ville.
       </div>
     );
   }
