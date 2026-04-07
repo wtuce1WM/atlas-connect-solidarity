@@ -3756,18 +3756,6 @@ const SearchPage = () => {
       )}
 
       {/* Floating Search Bar */}
-      <div className={`fixed bottom-0 bg-white border-t border-border pt-3 py-3 px-4 md:px-4 transition-transform duration-300 ${hasKnownLocation ? "left-0 w-1/2" : "left-0 right-0"} ${(isSubDesktop && compactPanelBusiness) || (isSubDesktop && showMobileMap) ? "translate-y-full" : ""} ${isCompactPanelExpanded ? "z-[190]" : "z-[210]"}`}>
-        <div className="max-w-2xl mx-auto">
-          <button
-            type="button"
-            onClick={() => setMobileSearchOverlayOpen(true)}
-            className="w-full flex items-center gap-3 px-4 py-3.5 bg-white/90 backdrop-blur-sm border border-border rounded-xl shadow-lg text-left"
-          >
-            <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-          </button>
-        </div>
-      </div>
-
       {/* Search overlay (docké à gauche sur desktop, fullscreen sur mobile/tablette) */}
       <MobileSearchOverlay
         open={mobileSearchOverlayOpen}
