@@ -88,7 +88,7 @@ const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta
       ref={setNodeRef}
       style={style}
       className={cn(
-        "relative group aspect-square rounded-lg overflow-hidden border bg-muted",
+        "relative group aspect-square rounded-lg overflow-hidden border bg-muted transition-shadow hover:shadow-md",
         isDragging && "opacity-50 z-50",
         isBroken && "ring-2 ring-amber-500"
       )}
@@ -96,13 +96,15 @@ const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta
       <img
         src={url}
         alt={`Image ${index + 1}`}
-        className="w-full h-full object-cover cursor-pointer"
+        className="w-full h-full object-cover cursor-pointer transition-transform duration-200 group-hover:scale-[1.02]"
         onClick={() => onPreview(url)}
+        draggable={false}
+        onDragStart={(e) => e.preventDefault()}
       />
       
       {/* Broken image warning */}
       {isBroken && (
-        <div className="absolute inset-0 bg-amber-500/20 flex items-center justify-center">
+        <div className="absolute inset-0 bg-amber-500/20 flex items-center justify-center pointer-events-none">
           <div className="bg-amber-500 text-white p-2 rounded-full">
             <AlertTriangle className="h-5 w-5" />
           </div>
@@ -113,22 +115,26 @@ const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta
       <div
         {...attributes}
         {...listeners}
-        className="absolute top-2 left-2 p-1.5 bg-black/60 text-white rounded cursor-grab active:cursor-grabbing"
+        className="absolute top-2 left-2 z-20 p-1.5 rounded border border-border/60 bg-background/85 text-foreground shadow-sm cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity"
       >
         <GripVertical className="h-4 w-4" />
       </div>
       
-      {/* Remove button — always visible */}
+      {/* Remove button */}
       <button
         type="button"
-        onClick={(e) => { e.stopPropagation(); onRemove(index); }}
-        className="absolute top-2 right-2 p-1.5 bg-destructive text-destructive-foreground rounded-full shadow-md hover:bg-destructive/90 transition-colors"
+        aria-label={`Supprimer l'image ${index + 1}`}
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove(index);
+        }}
+        className="absolute top-2 right-2 z-20 p-1.5 bg-destructive text-destructive-foreground rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/90"
       >
         <X className="h-4 w-4" />
       </button>
       
       {/* Index badge + dimensions + file size */}
-      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+      <div className="absolute bottom-2 left-2 right-2 z-10 flex items-center justify-between pointer-events-none">
         <span className="px-2 py-0.5 bg-black/60 text-white text-xs rounded">
           {index + 1}
         </span>
@@ -148,7 +154,7 @@ const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta
       {(() => {
         const info = extractPathInfo(url);
         return (
-          <div className="absolute bottom-0 left-0 right-0 bg-black/80 text-white text-xs leading-relaxed p-2 overflow-hidden space-y-0.5">
+          <div className="absolute bottom-0 left-0 right-0 z-10 bg-black/80 text-white text-xs leading-relaxed p-2 opacity-0 group-hover:opacity-100 transition-opacity overflow-hidden space-y-0.5 pointer-events-none">
             <p className="truncate font-medium" title={info.path}>📁 {info.path}</p>
             <div className="flex gap-3 flex-wrap">
               {info.extension && <span>📄 {info.extension}</span>}
