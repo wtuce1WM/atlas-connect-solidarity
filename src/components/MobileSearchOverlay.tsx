@@ -34,6 +34,7 @@ const MobileSearchOverlay = ({
   onVoiceStart,
   desktopDocked = false,
   desktopHalfWidth = false,
+  contained = false,
 }: MobileSearchOverlayProps) => {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
