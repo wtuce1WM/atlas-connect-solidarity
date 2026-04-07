@@ -104,26 +104,38 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
   // Load front_structure entries with their matching category ids
   useEffect(() => {
     const loadStructures = async () => {
-      const [{ data: structures }, { data: links }, { data: subcats }] = await Promise.all([
+      const [{ data: structures }, { data: scLinks }, { data: subcats }, { data: svcLinks }, { data: services }] = await Promise.all([
         supabase.from("front_structure").select("id, name, sort_order").order("sort_order"),
         supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
         supabase.from("subcategories").select("id, name_fr"),
+        supabase.from("front_structure_services" as any).select("front_structure_id, service_id"),
+        supabase.from("services").select("id, name_fr"),
       ]);
-      if (structures && links && subcats) {
+      if (structures && scLinks && subcats) {
         const scNameMap = new Map((subcats as any[]).map((sc) => [sc.id, sc.name_fr]));
-        const linksByEntry: Record<string, string[]> = {};
-        (links as any[]).forEach((l) => {
+        const svcNameMap = new Map(((services || []) as any[]).map((s) => [s.id, s.name_fr]));
+        const scByEntry: Record<string, string[]> = {};
+        (scLinks as any[]).forEach((l) => {
           const name = scNameMap.get(l.subcategory_id);
           if (name) {
-            if (!linksByEntry[l.front_structure_id]) linksByEntry[l.front_structure_id] = [];
-            linksByEntry[l.front_structure_id].push(name);
+            if (!scByEntry[l.front_structure_id]) scByEntry[l.front_structure_id] = [];
+            scByEntry[l.front_structure_id].push(name);
+          }
+        });
+        const svcByEntry: Record<string, string[]> = {};
+        ((svcLinks || []) as any[]).forEach((l) => {
+          const name = svcNameMap.get(l.service_id);
+          if (name) {
+            if (!svcByEntry[l.front_structure_id]) svcByEntry[l.front_structure_id] = [];
+            svcByEntry[l.front_structure_id].push(name);
           }
         });
         setFrontStructures(
           (structures as any[]).map((s) => ({
             id: s.id,
             name: s.name,
-            subcategoryNames: linksByEntry[s.id] || [],
+            subcategoryNames: scByEntry[s.id] || [],
+            serviceNames: svcByEntry[s.id] || [],
           }))
         );
       }
