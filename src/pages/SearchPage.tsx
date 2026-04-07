@@ -3183,7 +3183,7 @@ const SearchPage = () => {
               <div className="fixed inset-0 z-[39] bg-background" />
             )}
             {destSelectedBusinessId && (
-              <div className={`fixed top-0 left-0 right-0 z-[220] bg-background shadow-2xl overflow-visible flex flex-col animate-slide-in-right lg:top-[54px] lg:left-auto lg:border-l lg:border-border lg:transition-[width] lg:duration-300 lg:ease-out ${destPanelExpanded ? "lg:w-full" : "lg:w-1/2"}`} style={{ height: isSubDesktop ? "100vh" : "calc(100vh - 54px)" }}>
+              <div className={`fixed top-0 left-0 right-0 z-[220] bg-background shadow-2xl overflow-visible flex flex-col animate-slide-in-right lg:left-auto lg:border-l lg:border-border lg:transition-[width] lg:duration-300 lg:ease-out ${destPanelExpanded ? "lg:w-full" : "lg:w-1/2"}`} style={{ height: "100vh" }}>
                 <div className="flex-1 min-h-0">
                   <BookOnlineSlidePanel
                     businessId={destSelectedBusinessId}
