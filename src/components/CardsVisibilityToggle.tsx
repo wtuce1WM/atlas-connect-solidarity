@@ -96,7 +96,7 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
           </button>
         </div>
       ) : (
-        <div className="relative w-full flex items-center justify-center gap-2">
+        <div className="relative w-full flex items-center justify-start gap-2 px-4 md:px-6">
           {leftSlot}
           <button
             type="button"
