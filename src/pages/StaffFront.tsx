@@ -48,7 +48,7 @@ const StaffFront = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6">
+      <main className="w-full px-4 py-6">
         <Tabs defaultValue="front-structure">
           <TabsList className="mb-6">
             <TabsTrigger value="front-structure" className="gap-2">
