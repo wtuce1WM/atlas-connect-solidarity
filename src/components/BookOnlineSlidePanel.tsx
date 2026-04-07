@@ -2435,25 +2435,27 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         </div>
       )}
 
-      {/* Search overlay inside slide panel */}
+      {/* Search overlay inside slide panel — covers toolbar */}
       {searchOverlayOpen && (
-        <MobileSearchOverlay
-          open={searchOverlayOpen}
-          onClose={() => setSearchOverlayOpen(false)}
-          contained
-          onBusinessSelect={(bizId) => {
-            setSearchOverlayOpen(false);
-            if (onSearchBusinessSelect) onSearchBusinessSelect(bizId);
-          }}
-          onSearch={(params) => {
-            setSearchOverlayOpen(false);
-            if (onSearch) onSearch(params);
-          }}
-          onVoiceStart={() => {
-            setSearchOverlayOpen(false);
-            setTimeout(() => panelVoice.toggleRecording(), 150);
-          }}
-        />
+        <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[70]">
+          <MobileSearchOverlay
+            open={searchOverlayOpen}
+            onClose={() => setSearchOverlayOpen(false)}
+            contained
+            onBusinessSelect={(bizId) => {
+              setSearchOverlayOpen(false);
+              if (onSearchBusinessSelect) onSearchBusinessSelect(bizId);
+            }}
+            onSearch={(params) => {
+              setSearchOverlayOpen(false);
+              if (onSearch) onSearch(params);
+            }}
+            onVoiceStart={() => {
+              setSearchOverlayOpen(false);
+              setTimeout(() => panelVoice.toggleRecording(), 150);
+            }}
+          />
+        </div>
       )}
 
       {/* Voice search overlay inside slide panel */}
