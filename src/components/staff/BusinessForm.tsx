@@ -940,6 +940,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     vimeo_url: (business as any)?.vimeo_url || "",
     snapchat_url: (business as any)?.snapchat_url || "",
     images: (business as any)?.images || [] as string[],
+    popup_image_url: (business as any)?.popup_image_url || "",
     _initialImages: (business as any)?.images || [] as string[], // track original images for cleanup
     pdf_url: (business as any)?.pdf_url || "",
     pdf_name: (business as any)?.pdf_name || "",
