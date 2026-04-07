@@ -138,10 +138,10 @@ const VideoDocumentOverlay = ({
       {hasNext && (
         <button
           onClick={() => goTo(currentIdx + 1)}
-          className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-gray-500/70 backdrop-blur-sm items-center justify-center hover:bg-gray-500/90 transition-colors"
+          className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white items-center justify-center hover:bg-white/80 transition-colors"
           aria-label="Vidéo suivante"
         >
-          <ChevronRight className="h-5 w-5 text-white" />
+          <ChevronRight className="h-5 w-5 text-black" />
         </button>
       )}
 
