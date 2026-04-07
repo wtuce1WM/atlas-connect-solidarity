@@ -177,7 +177,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
       const ids = (savedRows as any[]).map((r) => r.business_id);
       const { data: bizData } = await supabase
         .from("businesses")
-        .select("id, name, logo_url, city, categories, services, images")
+        .select("id, name, logo_url, city, categories, services, images, video_1_url")
         .in("id", ids);
       const bizMap = new Map((bizData || []).map((b: any) => [b.id, b]));
       const ordered = (savedRows as any[])
