@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ExternalLink, Plus, X, GripVertical, Monitor, Filter } from "lucide-react";
+import { Loader2, ExternalLink, Play, Plus, X, GripVertical, Monitor, Filter } from "lucide-react";
+import VideoLightbox from "./VideoLightbox";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -40,10 +41,10 @@ interface HomepageBusinessesPanelProps {
 
 /* ── Sortable card for the right panel ── */
 const SortableCard = ({
-  biz, index, onRemove, onNavigate,
+  biz, index, onRemove, onNavigate, onPlay,
 }: {
   biz: BusinessItem; index: number;
-  onRemove: (id: string) => void; onNavigate: (id: string) => void;
+  onRemove: (id: string) => void; onNavigate: (id: string) => void; onPlay: (url: string) => void;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: biz.id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
@@ -51,12 +52,12 @@ const SortableCard = ({
 
   return (
     <div ref={setNodeRef} style={style} className="flex flex-col rounded-md border bg-background overflow-hidden text-xs">
-      <div className="relative aspect-video bg-muted">
+      <button className="relative aspect-video bg-muted group" onClick={() => videoUrl && onPlay(videoUrl)}>
         <div {...attributes} {...listeners} onClick={(e) => e.stopPropagation()} className="absolute top-1 left-1 z-10 cursor-grab active:cursor-grabbing text-white/80 hover:text-white bg-black/40 rounded p-0.5">
           <GripVertical className="h-3 w-3" />
         </div>
         <span className="absolute top-1 left-7 z-10 text-white/80 text-[10px] font-mono bg-black/40 rounded px-1">{index + 1}</span>
-        <div onClick={() => onRemove(biz.id)} className="absolute top-1 right-1 z-10 text-white/80 hover:text-destructive bg-black/40 rounded p-0.5 cursor-pointer">
+        <div onClick={(e) => { e.stopPropagation(); onRemove(biz.id); }} className="absolute top-1 right-1 z-10 text-white/80 hover:text-destructive bg-black/40 rounded p-0.5 cursor-pointer">
           <X className="h-3 w-3" />
         </div>
         {biz.thumbnail_url ? (
@@ -68,7 +69,14 @@ const SortableCard = ({
         ) : (
           <div className="w-full h-full bg-muted" />
         )}
-      </div>
+        {videoUrl && (
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="w-8 h-8 rounded-full bg-primary/80 flex items-center justify-center">
+              <Play className="h-4 w-4 text-primary-foreground fill-primary-foreground ml-0.5" />
+            </div>
+          </div>
+        )}
+      </button>
       <button
         onClick={() => onNavigate(biz.id)}
         className="px-1.5 py-1 truncate hover:text-primary transition-colors text-left text-[10px]"
@@ -87,6 +95,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [allLoaded, setAllLoaded] = useState(false);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
@@ -321,17 +330,24 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
               return (
                 <div key={b.id} className={`rounded-lg border overflow-hidden transition-colors ${isSelected ? "border-primary/50 bg-primary/5" : "bg-background"}`}>
                   <div className="relative aspect-video bg-muted">
-                    {b.thumbnail_url ? (
-                      <img src={b.thumbnail_url} alt={b.name} className="w-full h-full object-cover" />
-                    ) : videoUrl ? (
-                      <VideoThumbnail src={videoUrl} alt={b.name} className="w-full h-full object-cover" />
-                    ) : b.images[0] ? (
-                      <img src={b.images[0]} alt={b.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full bg-muted/50" />
-                    )}
+                    <button className="relative w-full h-full flex items-center justify-center group" onClick={() => videoUrl && setLightboxUrl(videoUrl)}>
+                      {b.thumbnail_url ? (
+                        <img src={b.thumbnail_url} alt={b.name} className="absolute inset-0 w-full h-full object-cover" />
+                      ) : videoUrl ? (
+                        <VideoThumbnail src={videoUrl} alt={b.name} className="absolute inset-0 w-full h-full object-cover" />
+                      ) : b.images[0] ? (
+                        <img src={b.images[0]} alt={b.name} className="absolute inset-0 w-full h-full object-cover" />
+                      ) : (
+                        <div className="absolute inset-0 bg-muted/50" />
+                      )}
+                      {videoUrl && (
+                        <div className="relative z-10 w-10 h-10 rounded-full bg-primary/80 flex items-center justify-center group-hover:bg-primary transition-colors">
+                          <Play className="h-5 w-5 text-primary-foreground fill-primary-foreground ml-0.5" />
+                        </div>
+                      )}
+                    </button>
                     <button
-                      onClick={() => isSelected ? removeFromSelection(b.id) : addToSelection(b)}
+                      onClick={(e) => { e.stopPropagation(); isSelected ? removeFromSelection(b.id) : addToSelection(b); }}
                       className={`absolute top-1.5 right-1.5 z-20 w-6 h-6 rounded-full flex items-center justify-center transition-colors ${
                         isSelected
                           ? "bg-primary text-primary-foreground"
@@ -388,7 +404,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
                 <SortableContext items={selected.map((b) => b.id)} strategy={verticalListSortingStrategy}>
                   <div className="grid grid-cols-2 gap-1.5">
                     {selected.map((b, i) => (
-                      <SortableCard key={b.id} biz={b} index={i} onRemove={removeFromSelection} onNavigate={goToEdit} />
+                      <SortableCard key={b.id} biz={b} index={i} onRemove={removeFromSelection} onNavigate={goToEdit} onPlay={setLightboxUrl} />
                     ))}
                   </div>
                 </SortableContext>
@@ -397,6 +413,9 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
           </div>
         </div>
       </div>
+      {lightboxUrl && (
+        <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />
+      )}
     </div>
   );
 };

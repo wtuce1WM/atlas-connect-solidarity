@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Play, ExternalLink, MapPin, Link2, Plus, X, GripVertical, Monitor, Filter } from "lucide-react";
+import VideoLightbox from "./VideoLightbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -544,14 +545,7 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
         </div>
       </div>
       {lightboxUrl && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center" onClick={() => setLightboxUrl(null)}>
-          <button className="absolute top-4 right-4 text-white hover:text-white/80" onClick={() => setLightboxUrl(null)}>
-            <X className="h-8 w-8" />
-          </button>
-          <div className="w-full max-w-4xl aspect-video" onClick={(e) => e.stopPropagation()}>
-            <video src={lightboxUrl} controls autoPlay className="w-full h-full object-contain rounded-lg" />
-          </div>
-        </div>
+        <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />
       )}
     </div>
   );
