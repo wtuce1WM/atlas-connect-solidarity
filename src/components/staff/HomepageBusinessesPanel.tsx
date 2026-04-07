@@ -63,8 +63,6 @@ const SortableCard = ({
           <img src={biz.thumbnail_url} alt={biz.name} className="w-full h-full object-cover" />
         ) : videoUrl ? (
           <VideoThumbnail src={videoUrl} alt={biz.name} className="w-full h-full object-cover" />
-        ) : biz.images[0] ? (
-          <img src={biz.images[0]} alt={biz.name} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-muted" />
         )}
@@ -198,25 +196,21 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
     const rows: any[] = [];
     for (const c of cities) {
       const chunk = await fetchAll(
-        supabase.from("businesses").select("id, name, logo_url, city, categories, services, images, video_1_url").eq("city", c).eq("is_active", true).order("name")
+        supabase.from("businesses").select("id, name, logo_url, city, categories, services, video_1_url").eq("city", c).eq("is_active", true).order("name")
       );
       rows.push(...chunk);
     }
     const seen = new Set<string>();
     const deduped = rows.filter((r) => { if (seen.has(r.id)) return false; seen.add(r.id); return true; });
     const videoMap = await fetchVideoData(deduped.map((b) => b.id));
-    setAllBusinesses(deduped.map((b: any) => {
-      const vd = videoMap.get(b.id);
-      return {
-        id: b.id, name: b.name, logo_url: b.logo_url, city: b.city,
-        categories: b.categories || [], services: b.services || [], images: b.images || [],
-        video_1_url: b.video_1_url || vd?.video_url || null,
-        thumbnail_url: vd?.thumbnail_url || null,
-      };
-    }));
+    const mapped = deduped
+      .map((b: any) => mapBusinessWithVideo(b, videoMap))
+      .filter((b): b is BusinessItem => Boolean(b));
+
+    setAllBusinesses(mapped);
     setAllLoaded(true);
     setLoading(false);
-  }, [cityName, fetchAll, fetchVideoData, allLoaded]);
+  }, [cityName, fetchAll, fetchVideoData, allLoaded, mapBusinessWithVideo]);
 
   // When structure changes, load businesses + saved selection
   const handleStructureChange = async (val: string) => {
@@ -233,7 +227,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
     if (savedRows && savedRows.length > 0) {
       const ids = (savedRows as any[]).map((r) => r.business_id);
       const [{ data: bizData }, videoMap] = await Promise.all([
-        supabase.from("businesses").select("id, name, logo_url, city, categories, services, images, video_1_url").in("id", ids),
+        supabase.from("businesses").select("id, name, logo_url, city, categories, services, video_1_url").in("id", ids),
         fetchVideoData(ids),
       ]);
       const bizMap = new Map((bizData || []).map((b: any) => [b.id, b]));
@@ -241,15 +235,8 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
         .sort((a, b) => a.sort_order - b.sort_order)
         .map((r) => bizMap.get(r.business_id))
         .filter(Boolean)
-        .map((b: any) => {
-          const vd = videoMap.get(b.id);
-          return {
-            id: b.id, name: b.name, logo_url: b.logo_url, city: b.city,
-            categories: b.categories || [], services: b.services || [], images: b.images || [],
-            video_1_url: b.video_1_url || vd?.video_url || null,
-            thumbnail_url: vd?.thumbnail_url || null,
-          };
-        });
+        .map((b: any) => mapBusinessWithVideo(b, videoMap))
+        .filter((b): b is BusinessItem => Boolean(b));
       setSelected(ordered);
     } else {
       setSelected([]);
@@ -272,7 +259,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
 
   const addToSelection = (biz: BusinessItem) => {
     if (selectedIds.has(biz.id)) return;
-    if (selected.length >= 20) { toast.error("Maximum 20 établissements"); return; }
+    if (selected.length >= 20) { toast.error("Maximum 20 vidéos"); return; }
     setSelected((prev) => [...prev, biz]);
   };
 
@@ -339,14 +326,14 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
           {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
           {allLoaded && selectedStructure !== "none" && (
             <p className="text-xs text-muted-foreground">
-              {filteredBusinesses.length} établissement{filteredBusinesses.length > 1 ? "s" : ""}
+              {filteredBusinesses.length} vidéo{filteredBusinesses.length > 1 ? "s" : ""}
             </p>
           )}
         </div>
 
         {selectedStructure === "none" ? (
           <div className="flex items-center justify-center py-16 rounded-lg border bg-background">
-            <p className="text-sm text-muted-foreground">Sélectionnez une catégorie pour afficher les établissements</p>
+            <p className="text-sm text-muted-foreground">Sélectionnez une catégorie pour afficher les vidéos</p>
           </div>
         ) : allLoaded ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
@@ -361,8 +348,6 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
                         <img src={b.thumbnail_url} alt={b.name} className="absolute inset-0 w-full h-full object-cover" />
                       ) : videoUrl ? (
                         <VideoThumbnail src={videoUrl} alt={b.name} className="absolute inset-0 w-full h-full object-cover" />
-                      ) : b.images[0] ? (
-                        <img src={b.images[0]} alt={b.name} className="absolute inset-0 w-full h-full object-cover" />
                       ) : (
                         <div className="absolute inset-0 bg-muted/50" />
                       )}
@@ -423,7 +408,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
           <div className="p-2 max-h-[calc(100vh-6rem)] overflow-y-auto">
             {selected.length === 0 ? (
               <p className="text-xs text-muted-foreground text-center py-6">
-                Cliquez sur <Plus className="inline h-3 w-3" /> pour ajouter un établissement
+                Cliquez sur <Plus className="inline h-3 w-3" /> pour ajouter une vidéo
               </p>
             ) : (
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
