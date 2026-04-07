@@ -296,7 +296,7 @@ const StaffFront = () => {
           </TabsContent>
 
           <TabsContent value="preview-tablet">
-            <PreviewTab width={768} title="Tablette" resolutions={TABLET_RESOLUTIONS} breakpoints="md : 768px" />
+            <PreviewTab width={768} title="Tablette" resolutions={TABLET_RESOLUTIONS} breakpoints="md : 768px" cellSize={200} />
           </TabsContent>
 
           <TabsContent value="preview-mobile">
