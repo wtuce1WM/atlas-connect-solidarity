@@ -71,7 +71,7 @@ const GlobalFloatingSearchBar = () => {
   if (hiddenPaths.includes(location.pathname)) return null;
   return <FloatingSearchBar />;
 };
-const FloatingButtonsGuard = ({ activePanel, setActivePanel }: { activePanel: string | null; setActivePanel: (v: string | null) => void }) => {
+const FloatingButtonsGuard = ({ activePanel, setActivePanel }: { activePanel: "club" | "whatsapp" | null; setActivePanel: (v: "club" | "whatsapp" | null) => void }) => {
   const location = useLocation();
   if (location.pathname.startsWith("/staff/")) return null;
   return (
