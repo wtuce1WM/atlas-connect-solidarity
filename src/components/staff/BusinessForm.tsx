@@ -1790,6 +1790,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       rating: formData.rating ? parseFloat(formData.rating) : null,
       reserve_now_url: formData.reserve_now_url || null,
       show_opening_hours: formData.show_opening_hours,
+      closure_message: formData.closure_message || null,
       show_videos: formData.show_videos,
       default_sound_on: formData.default_sound_on,
       prioritize_images: formData.prioritize_images,
