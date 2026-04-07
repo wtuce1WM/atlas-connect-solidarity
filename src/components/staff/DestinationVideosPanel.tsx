@@ -102,6 +102,8 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
   const [videos, setVideos] = useState<VideoDoc[]>([]);
   const [frontVideos, setFrontVideos] = useState<VideoDoc[]>([]);
   const [loading, setLoading] = useState(true);
+  const [allLoaded, setAllLoaded] = useState(false);
+  const [loadingAll, setLoadingAll] = useState(false);
   const [saving, setSaving] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [frontStructures, setFrontStructures] = useState<FrontStructureEntry[]>([]);
@@ -152,31 +154,31 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
     loadStructures();
   }, []);
 
-  const load = useCallback(async () => {
+  // Helper: paginated fetch
+  const fetchAll = useCallback(async (query: any) => {
+    const all: any[] = [];
+    let offset = 0;
+    const batch = 1000;
+    while (true) {
+      const { data, error } = await query.range(offset, offset + batch - 1);
+      if (error || !data || data.length === 0) break;
+      all.push(...data);
+      if (data.length < batch) break;
+      offset += batch;
+    }
+    return all;
+  }, []);
+
+  // Initial load: only front videos
+  const loadFrontOnly = useCallback(async () => {
     setLoading(true);
 
-    // Helper: paginated fetch
-    const fetchAll = async (query: any) => {
-      const all: any[] = [];
-      let offset = 0;
-      const batch = 1000;
-      while (true) {
-        const { data, error } = await query.range(offset, offset + batch - 1);
-        if (error || !data || data.length === 0) break;
-        all.push(...data);
-        if (data.length < batch) break;
-        offset += batch;
-      }
-      return all;
-    };
-
-    // 1. Get all business ids in this city
+    // Get business ids in this city
     const cityBusinesses = await fetchAll(
       supabase.from("businesses").select("id").eq("city", cityName)
     );
 
     if (cityBusinesses.length === 0) {
-      setVideos([]);
       setFrontVideos([]);
       setLoading(false);
       return;
@@ -184,9 +186,78 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
 
     const cityBusinessIds = cityBusinesses.map((b: any) => b.id);
 
-    // 2. Fetch all videos owned by those businesses (paginated, batched in() calls)
+    // Fetch only front videos
     const docs: any[] = [];
-    const inBatch = 300; // Supabase in() limit safe batch
+    const inBatch = 300;
+    for (let i = 0; i < cityBusinessIds.length; i += inBatch) {
+      const chunk = cityBusinessIds.slice(i, i + inBatch);
+      const chunkDocs = await fetchAll(
+        supabase
+          .from("business_documents")
+          .select("id, url, name, thumbnail_url, sort_order, business_id, poi_id, linked_business_id, show_on_front, front_sort_order, subcategory_id")
+          .eq("type", "video")
+          .eq("show_on_front", true)
+          .in("business_id", chunk)
+          .order("front_sort_order", { ascending: true })
+      );
+      docs.push(...chunkDocs);
+    }
+
+    if (docs.length > 0) {
+      const allIds = new Set<string>();
+      docs.forEach((d: any) => {
+        allIds.add(d.business_id);
+        if (d.poi_id) allIds.add(d.poi_id);
+        if (d.linked_business_id) allIds.add(d.linked_business_id);
+      });
+
+      const { data: businesses } = await supabase
+        .from("businesses")
+        .select("id, name, logo_url, slug, categories, services")
+        .in("id", [...allIds]);
+
+      const bMap = new Map((businesses || []).map((b: any) => [b.id, b]));
+
+      const mapped: VideoDoc[] = docs.map((d: any) => {
+        const owner = bMap.get(d.business_id);
+        const poi = d.poi_id ? bMap.get(d.poi_id) : null;
+        const linked = d.linked_business_id ? bMap.get(d.linked_business_id) : null;
+        return {
+          id: d.id, url: d.url, name: d.name, thumbnail_url: d.thumbnail_url,
+          sort_order: d.sort_order, business_id: d.business_id,
+          business_name: owner?.name || "—", business_logo: owner?.logo_url || null,
+          business_categories: owner?.categories || [], business_services: owner?.services || [],
+          poi_name: poi?.name || null, linked_business_name: linked?.name || null,
+          show_on_front: true, front_sort_order: d.front_sort_order ?? 0,
+        };
+      });
+      setFrontVideos(mapped.sort((a, b) => a.front_sort_order - b.front_sort_order));
+    } else {
+      setFrontVideos([]);
+    }
+    setLoading(false);
+  }, [cityName, fetchAll]);
+
+  // Load all videos (triggered on demand)
+  const loadAllVideos = useCallback(async () => {
+    if (allLoaded) return;
+    setLoadingAll(true);
+
+    const cityBusinesses = await fetchAll(
+      supabase.from("businesses").select("id").eq("city", cityName)
+    );
+
+    if (cityBusinesses.length === 0) {
+      setVideos([]);
+      setAllLoaded(true);
+      setLoadingAll(false);
+      return;
+    }
+
+    const cityBusinessIds = cityBusinesses.map((b: any) => b.id);
+
+    const docs: any[] = [];
+    const inBatch = 300;
     for (let i = 0; i < cityBusinessIds.length; i += inBatch) {
       const chunk = cityBusinessIds.slice(i, i + inBatch);
       const chunkDocs = await fetchAll(
@@ -220,38 +291,25 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
         const poi = d.poi_id ? bMap.get(d.poi_id) : null;
         const linked = d.linked_business_id ? bMap.get(d.linked_business_id) : null;
         return {
-          id: d.id,
-          url: d.url,
-          name: d.name,
-          thumbnail_url: d.thumbnail_url,
-          sort_order: d.sort_order,
-          business_id: d.business_id,
-          business_name: owner?.name || "—",
-          business_logo: owner?.logo_url || null,
-          business_categories: owner?.categories || [],
-          business_services: owner?.services || [],
-          poi_name: poi?.name || null,
-          linked_business_name: linked?.name || null,
-          show_on_front: d.show_on_front ?? false,
-          front_sort_order: d.front_sort_order ?? 0,
+          id: d.id, url: d.url, name: d.name, thumbnail_url: d.thumbnail_url,
+          sort_order: d.sort_order, business_id: d.business_id,
+          business_name: owner?.name || "—", business_logo: owner?.logo_url || null,
+          business_categories: owner?.categories || [], business_services: owner?.services || [],
+          poi_name: poi?.name || null, linked_business_name: linked?.name || null,
+          show_on_front: d.show_on_front ?? false, front_sort_order: d.front_sort_order ?? 0,
         };
       });
       setVideos(mapped);
-      setFrontVideos(
-        mapped
-          .filter((v) => v.show_on_front)
-          .sort((a, b) => a.front_sort_order - b.front_sort_order)
-      );
     } else {
       setVideos([]);
-      setFrontVideos([]);
     }
-    setLoading(false);
-  }, [cityName]);
+    setAllLoaded(true);
+    setLoadingAll(false);
+  }, [cityName, fetchAll, allLoaded]);
 
   useEffect(() => {
-    if (cityName) load();
-  }, [cityName, load]);
+    if (cityName) loadFrontOnly();
+  }, [cityName, loadFrontOnly]);
 
   // Filter videos by selected front structure, then sort alphabetically by business name
   const filteredVideos = (selectedStructure === "all"
