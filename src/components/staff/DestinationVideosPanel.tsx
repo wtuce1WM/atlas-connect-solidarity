@@ -1,6 +1,7 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Play, ExternalLink } from "lucide-react";
+import { Loader2, Play, ExternalLink, MapPin, Link2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 
 interface VideoDoc {
@@ -11,8 +12,9 @@ interface VideoDoc {
   sort_order: number;
   business_id: string;
   business_name: string;
-  business_slug: string;
   business_logo: string | null;
+  poi_name: string | null;
+  linked_business_name: string | null;
 }
 
 interface DestinationVideosPanelProps {
@@ -30,7 +32,12 @@ const DestinationVideosPanel = ({ destinationIds }: DestinationVideosPanelProps)
       setLoading(true);
       const { data, error } = await supabase
         .from("business_documents")
-        .select("id, url, name, thumbnail_url, sort_order, business_id, businesses!business_documents_business_id_fkey(name, slug, logo_url)")
+        .select(`
+          id, url, name, thumbnail_url, sort_order, business_id,
+          businesses!business_documents_business_id_fkey(name, logo_url),
+          poi:businesses!business_documents_poi_id_fkey(name),
+          linked:businesses!business_documents_linked_business_id_fkey(name)
+        `)
         .eq("type", "video")
         .in("destination_id", destinationIds)
         .order("sort_order");
@@ -44,8 +51,9 @@ const DestinationVideosPanel = ({ destinationIds }: DestinationVideosPanelProps)
           sort_order: d.sort_order,
           business_id: d.business_id,
           business_name: d.businesses?.name || "—",
-          business_slug: d.businesses?.slug || "",
           business_logo: d.businesses?.logo_url || null,
+          poi_name: d.poi?.name || null,
+          linked_business_name: d.linked?.name || null,
         }));
         setVideos(mapped);
       }
@@ -76,15 +84,9 @@ const DestinationVideosPanel = ({ destinationIds }: DestinationVideosPanelProps)
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {videos.map((v) => (
           <div key={v.id} className="rounded-lg border bg-background overflow-hidden">
-            {/* Video / Thumbnail */}
             <div className="relative aspect-video bg-black">
               {playingId === v.id ? (
-                <video
-                  src={v.url}
-                  controls
-                  autoPlay
-                  className="w-full h-full object-contain"
-                />
+                <video src={v.url} controls autoPlay className="w-full h-full object-contain" />
               ) : (
                 <button
                   className="w-full h-full flex items-center justify-center group"
@@ -102,8 +104,7 @@ const DestinationVideosPanel = ({ destinationIds }: DestinationVideosPanelProps)
               )}
             </div>
 
-            {/* Info */}
-            <div className="p-3 space-y-1">
+            <div className="p-3 space-y-1.5">
               {v.name && (
                 <p className="text-xs text-muted-foreground line-clamp-2">{v.name}</p>
               )}
@@ -117,6 +118,23 @@ const DestinationVideosPanel = ({ destinationIds }: DestinationVideosPanelProps)
                 <span className="line-clamp-1">{v.business_name}</span>
                 <ExternalLink className="h-3 w-3 flex-shrink-0 text-muted-foreground" />
               </button>
+
+              {(v.poi_name || v.linked_business_name) && (
+                <div className="flex flex-wrap gap-1 pt-0.5">
+                  {v.poi_name && (
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 gap-1 font-normal">
+                      <MapPin className="h-3 w-3" />
+                      {v.poi_name}
+                    </Badge>
+                  )}
+                  {v.linked_business_name && (
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 gap-1 font-normal">
+                      <Link2 className="h-3 w-3" />
+                      {v.linked_business_name}
+                    </Badge>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         ))}
