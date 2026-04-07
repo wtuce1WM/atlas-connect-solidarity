@@ -104,6 +104,7 @@ const AppContent = () => {
               <Route path="/staff/crm" element={renderLazyRoute(<StaffCRM />)} />
               <Route path="/staff/master" element={<StaffRouteGuard>{renderLazyRoute(<StaffMaster />)}</StaffRouteGuard>} />
               <Route path="/staff/b2b" element={renderLazyRoute(<StaffB2B />)} />
+              <Route path="/staff/front" element={<StaffRouteGuard>{renderLazyRoute(<StaffFront />)}</StaffRouteGuard>} />
               <Route path="/affiliates" element={renderLazyRoute(<AffiliatesLogin />)} />
               <Route path="/affiliates/reset-password" element={renderLazyRoute(<AffiliatesResetPassword />)} />
               <Route path="/affiliates/dashboard" element={renderLazyRoute(<AffiliatesDashboard />)} />
