@@ -660,12 +660,19 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
         </div>
       )}
 
+      {showSearchBar && (
+        <PanelSearchBar onSearch={onSearch} onBusinessSelect={onSearchBusinessSelect} />
+      )}
+
       {/* Recursive SlidePanel for selected POI */}
       {openedPoiBusinessId && (
         <div className="absolute inset-0 z-[75] animate-slide-up-from-bottom">
           <BookOnlineSlidePanel
             businessId={openedPoiBusinessId}
             onClose={() => setOpenedPoiBusinessId(null)}
+            showSearchBar={showSearchBar}
+            onSearch={onSearch}
+            onSearchBusinessSelect={onSearchBusinessSelect}
           />
         </div>
       )}

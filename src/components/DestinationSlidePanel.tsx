@@ -702,10 +702,20 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
             </div>
           )}
 
+          {showSearchBar && (
+            <PanelSearchBar onSearch={onSearch} onBusinessSelect={onSearchBusinessSelect} />
+          )}
+
           {/* Recursive business overlay */}
           {activeBusinessId && (
             <div className="absolute inset-0 -top-[3.3rem] z-[60]">
-              <BookOnlineSlidePanel businessId={activeBusinessId} onClose={() => setActiveBusinessId(null)} />
+              <BookOnlineSlidePanel
+                businessId={activeBusinessId}
+                onClose={() => setActiveBusinessId(null)}
+                showSearchBar={showSearchBar}
+                onSearch={onSearch}
+                onSearchBusinessSelect={onSearchBusinessSelect}
+              />
             </div>
           )}
         </div>
