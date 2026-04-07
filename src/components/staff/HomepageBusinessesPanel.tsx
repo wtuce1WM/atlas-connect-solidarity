@@ -88,6 +88,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [allLoaded, setAllLoaded] = useState(false);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
