@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo, Suspense } from "react";
-import { MapPin, ChevronUp, X, Navigation, Minimize2, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { MapPin, ChevronUp, X, Navigation, Minimize2, Play, Pause, Volume2, VolumeX, CalendarCheck, ShoppingBag, ExternalLink } from "lucide-react";
+import BookingOverlay from "@/components/BookingOverlay";
 import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton, useOwnerLogo, OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 import { useNavigate } from "react-router-dom";
 import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
