@@ -220,6 +220,7 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
           business_name: owner?.name || "—",
           business_logo: owner?.logo_url || null,
           business_categories: owner?.categories || [],
+          business_services: owner?.services || [],
           poi_name: poi?.name || null,
           linked_business_name: linked?.name || null,
           show_on_front: d.show_on_front ?? false,
