@@ -22,6 +22,12 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+interface FrontStructureEntry {
+  id: string;
+  name: string;
+  categoryId: string | null;
+}
+
 interface VideoDoc {
   id: string;
   url: string;
@@ -35,6 +41,7 @@ interface VideoDoc {
   linked_business_name: string | null;
   show_on_front: boolean;
   front_sort_order: number;
+  category_id: string | null;
 }
 
 interface DestinationVideosPanelProps {
