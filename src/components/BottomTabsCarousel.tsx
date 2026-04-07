@@ -396,6 +396,7 @@ export interface BottomTabConfig {
   id: string;
   label: string;
   tabStyle?: "youtube";
+  className?: string;
   renderContent: (animate: boolean, animationClass: string) => React.ReactNode;
 }
 
