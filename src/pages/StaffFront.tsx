@@ -3,10 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, LayoutGrid, Video } from "lucide-react";
+import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import FrontStructureManagement from "@/components/staff/FrontStructureManagement";
 import DestinationVideosPanel from "@/components/staff/DestinationVideosPanel";
+import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
+import DisplayPanel from "@/components/staff/DisplayPanel";
+import BlogManagement from "@/components/staff/BlogManagement";
 
 
 const StaffFront = () => {
@@ -50,7 +53,7 @@ const StaffFront = () => {
 
       <main className="w-full px-4 py-6">
         <Tabs defaultValue="front-structure">
-          <TabsList className="mb-6">
+          <TabsList className="mb-6 flex flex-wrap h-auto gap-1">
             <TabsTrigger value="front-structure" className="gap-2">
               <LayoutGrid className="h-4 w-4" />
               Structure du front
@@ -58,6 +61,18 @@ const StaffFront = () => {
             <TabsTrigger value="videos" className="gap-2">
               <Video className="h-4 w-4" />
               Vidéos
+            </TabsTrigger>
+            <TabsTrigger value="suggestions" className="gap-2">
+              <Search className="h-4 w-4" />
+              Suggestions
+            </TabsTrigger>
+            <TabsTrigger value="display" className="gap-2">
+              <Monitor className="h-4 w-4" />
+              Affichage
+            </TabsTrigger>
+            <TabsTrigger value="resources" className="gap-2">
+              <FileText className="h-4 w-4" />
+              Ressources
             </TabsTrigger>
           </TabsList>
 
@@ -78,6 +93,18 @@ const StaffFront = () => {
                 <DestinationVideosPanel cityName="Essaouira" />
               </TabsContent>
             </Tabs>
+          </TabsContent>
+
+          <TabsContent value="suggestions">
+            <PopularSearchesManagement />
+          </TabsContent>
+
+          <TabsContent value="display">
+            <DisplayPanel />
+          </TabsContent>
+
+          <TabsContent value="resources">
+            <BlogManagement />
           </TabsContent>
         </Tabs>
       </main>
