@@ -406,6 +406,9 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
           </div>
         </div>
       </div>
+      {lightboxUrl && (
+        <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />
+      )}
     </div>
   );
 };
