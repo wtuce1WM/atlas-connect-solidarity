@@ -347,7 +347,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
       <Suspense fallback={null}>
         {showDirections && poi.latitude && poi.longitude && (
           <LazyDirectionsOverlay
-            business={{ name: poi.name, latitude: poi.latitude, longitude: poi.longitude, city: poi.city, neighborhood: poi.neighborhood } as any}
+            business={{ name: poi.name, address: poi.address, latitude: poi.latitude, longitude: poi.longitude, city: poi.city, phone: poi.phone, whatsapp: poi.whatsapp, skype: poi.skype, logo_url: poi.logo_url, opening_hours: poi.opening_hours, show_opening_hours: poi.show_opening_hours, is_open_24h: poi.is_open_24h, google_rating: poi.google_rating, google_review_count: poi.google_review_count, tripadvisor_rating: poi.tripadvisor_rating, tripadvisor_review_count: poi.tripadvisor_review_count, restaurant_guru_rating: poi.restaurant_guru_rating, restaurant_guru_review_count: poi.restaurant_guru_review_count } as any}
             onClose={() => setShowDirections(false)}
           />
         )}
