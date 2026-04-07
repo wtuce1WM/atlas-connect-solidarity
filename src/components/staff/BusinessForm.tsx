@@ -2256,6 +2256,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   { id: "section-description", label: "Description" },
                   { id: "section-poi", label: "POI" },
                   { id: "section-menu", label: "Menu" },
+                  { id: "section-videos", label: "Vidéo" },
                   { id: "section-images", label: "Images" },
                   { id: "section-social", label: "Réseaux" },
                   { id: "section-avis", label: "Avis" },
@@ -4030,7 +4031,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         </div>
 
         {/* Videos (multiple) */}
-        <div id="section-images" className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '160px' }}>
+        <div id="section-videos" className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '160px' }}>
            <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Label className="text-base font-semibold">🎬 Vidéos</Label>
@@ -4238,7 +4239,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
 
         {/* Images */}
-        <div className="space-y-2">
+        <div id="section-images" className="space-y-2" style={{ scrollMarginTop: '160px' }}>
           <div className="flex items-center justify-between">
             <Label className="text-base font-semibold">Images (max 30)</Label>
             <div className="flex items-center gap-2">
