@@ -181,25 +181,19 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
     }
 
     if (docs.length > 0) {
-      // Collect all business ids AND subcategory ids
       const allIds = new Set<string>();
-      const subcatIds = new Set<string>();
       docs.forEach((d: any) => {
         allIds.add(d.business_id);
         if (d.poi_id) allIds.add(d.poi_id);
         if (d.linked_business_id) allIds.add(d.linked_business_id);
-        if (d.subcategory_id) subcatIds.add(d.subcategory_id);
       });
 
-      const [{ data: businesses }, { data: subcategories }] = await Promise.all([
-        supabase.from("businesses").select("id, name, logo_url, slug").in("id", [...allIds]),
-        subcatIds.size > 0
-          ? supabase.from("subcategories").select("id, category_id").in("id", [...subcatIds])
-          : Promise.resolve({ data: [] as any[] }),
-      ]);
+      const { data: businesses } = await supabase
+        .from("businesses")
+        .select("id, name, logo_url, slug, categories")
+        .in("id", [...allIds]);
 
       const bMap = new Map((businesses || []).map((b: any) => [b.id, b]));
-      const scMap = new Map((subcategories || []).map((sc: any) => [sc.id, sc.category_id]));
 
       const mapped: VideoDoc[] = docs.map((d: any) => {
         const owner = bMap.get(d.business_id);
@@ -214,11 +208,11 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
           business_id: d.business_id,
           business_name: owner?.name || "—",
           business_logo: owner?.logo_url || null,
+          business_categories: owner?.categories || [],
           poi_name: poi?.name || null,
           linked_business_name: linked?.name || null,
           show_on_front: d.show_on_front ?? false,
           front_sort_order: d.front_sort_order ?? 0,
-          category_id: d.subcategory_id ? (scMap.get(d.subcategory_id) || null) : null,
         };
       });
       setVideos(mapped);
