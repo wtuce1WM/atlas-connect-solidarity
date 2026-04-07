@@ -192,18 +192,17 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
   const loadAllBusinesses = useCallback(async () => {
     if (allLoaded) return;
     setLoading(true);
-    const cities = cityName === "Marrakech" ? ["Marrakech", "Essaouira"] : [cityName];
-    const rows: any[] = [];
-    for (const c of cities) {
-      const chunk = await fetchAll(
-        supabase.from("businesses").select("id, name, logo_url, city, categories, services, video_1_url").eq("city", c).eq("is_active", true).order("name")
-      );
-      rows.push(...chunk);
-    }
-    const seen = new Set<string>();
-    const deduped = rows.filter((r) => { if (seen.has(r.id)) return false; seen.add(r.id); return true; });
-    const videoMap = await fetchVideoData(deduped.map((b) => b.id));
-    const mapped = deduped
+    const cityBusinesses = await fetchAll(
+      supabase
+        .from("businesses")
+        .select("id, name, logo_url, city, categories, services, video_1_url")
+        .eq("city", cityName)
+        .eq("is_active", true)
+        .order("name")
+    );
+
+    const videoMap = await fetchVideoData(cityBusinesses.map((b) => b.id));
+    const mapped = cityBusinesses
       .map((b: any) => mapBusinessWithVideo(b, videoMap))
       .filter((b): b is BusinessItem => Boolean(b));
 
