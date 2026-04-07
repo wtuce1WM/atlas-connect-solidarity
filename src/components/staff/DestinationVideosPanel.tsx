@@ -249,9 +249,13 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
     ? videos
     : (() => {
         const entry = frontStructures.find((s) => s.id === selectedStructure);
-        if (!entry || entry.subcategoryNames.length === 0) return [];
-        const nameSet = new Set(entry.subcategoryNames);
-        return videos.filter((v) => v.business_categories.some((c) => nameSet.has(c)));
+        if (!entry || (entry.subcategoryNames.length === 0 && entry.serviceNames.length === 0)) return [];
+        const scSet = new Set(entry.subcategoryNames);
+        const svcSet = new Set(entry.serviceNames);
+        return videos.filter((v) =>
+          v.business_categories.some((c) => scSet.has(c)) ||
+          v.business_services.some((s) => svcSet.has(s))
+        );
       })()
   ).slice().sort((a, b) => a.business_name.localeCompare(b.business_name, 'fr'));
 
