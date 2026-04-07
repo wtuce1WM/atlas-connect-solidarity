@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo, Suspense } from "react";
-import { MapPin, ChevronUp, X, Navigation, Minimize2, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { MapPin, ChevronUp, X, Navigation, Minimize2, Play, Pause, Volume2, VolumeX, CalendarCheck, ShoppingBag, ExternalLink } from "lucide-react";
+import BookingOverlay from "@/components/BookingOverlay";
 import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton, useOwnerLogo, OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 import { useNavigate } from "react-router-dom";
 import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
@@ -37,6 +38,15 @@ interface PoiFull {
   longitude: number | null;
   city: string | null;
   neighborhood: string | null;
+  reserve_now_url: string | null;
+  reserve_now_force_external: boolean;
+  presentation_mode: string;
+  online_shop_url: string | null;
+  online_shop_force_external: boolean;
+  online_shop_presentation_mode: string;
+  website: string | null;
+  website_force_external: boolean;
+  website_presentation_mode: string;
 }
 
 const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePanelProps) => {
@@ -59,6 +69,9 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
   const [activeBottomTab, setActiveBottomTab] = useState<string>("videos");
   const [fullscreenVideo, setFullscreenVideo] = useState<string | null>(null);
   const [openedPoiBusinessId, setOpenedPoiBusinessId] = useState<string | null>(null);
+  const [showBookingOverlay, setShowBookingOverlay] = useState(false);
+  const [bookingOverlayUrl, setBookingOverlayUrl] = useState<string | null>(null);
+  const [bookingOverlayTitle, setBookingOverlayTitle] = useState<string | undefined>(undefined);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoPaused, setVideoPaused] = useState(true);
@@ -102,7 +115,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
       setIsLoading(true);
       const { data } = await supabase
         .from("businesses")
-        .select("id, name, description, poi_description, poi_hook, hook_fr, hook_en, hook_ar, images, video_1_url, latitude, longitude, city, neighborhood")
+        .select("id, name, description, poi_description, poi_hook, hook_fr, hook_en, hook_ar, images, video_1_url, latitude, longitude, city, neighborhood, reserve_now_url, reserve_now_force_external, presentation_mode, online_shop_url, online_shop_force_external, online_shop_presentation_mode, website, website_force_external, website_presentation_mode")
         .eq("id", businessId)
         .maybeSingle();
       if (cancelled) return;
@@ -475,35 +488,105 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
             }}
           />
 
-          {/* CTA Itinéraire + video controls */}
-          {poi.latitude && poi.longitude && (
-            <div className="shrink-0 py-2 flex flex-col items-center gap-2">
-              <div className="w-full md:w-3/4 flex justify-center gap-2">
-                <div className="flex-1 md:flex-none md:w-1/3">
-                  <button
-                    onClick={() => setShowDirections(true)}
-                    className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-gold text-gold-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-gold/90 transition-colors normal-case tracking-normal animate-slide-up-from-bottom"
-                    style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}
-                  >
-                    <Navigation className="h-4 w-4 hidden md:block" />
-                    <span className="truncate">{language === "en" ? "Directions" : "Itinéraire"}</span>
+          {/* CTAs + video controls */}
+          {(() => {
+            const ctaModeLabels: Record<string, { fr: string; en: string }> = {
+              acheter_en_ligne: { fr: 'Acheter en ligne', en: 'Shop Online' },
+              reserver_en_ligne: { fr: 'Réserver en ligne', en: 'Book Online' },
+              consulter_offre: { fr: 'Consulter notre offre', en: 'View Our Offer' },
+              plus_informations: { fr: "Plus d'informations", en: 'More Information' },
+              contactez_nous: { fr: 'Contactez nous', en: 'Contact Us' },
+            };
+            const ctaItems: React.ReactNode[] = [];
+
+            // Booking / Reserve CTA
+            if (poi.reserve_now_url) {
+              const fullUrl = poi.reserve_now_url.startsWith("http") ? poi.reserve_now_url : `https://${poi.reserve_now_url}`;
+              const label = ctaModeLabels[poi.presentation_mode]?.[language === "en" ? "en" : "fr"] || ctaModeLabels.reserver_en_ligne[language === "en" ? "en" : "fr"];
+              if (poi.reserve_now_force_external) {
+                ctaItems.push(
+                  <a key="booking" href={fullUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-up-from-bottom" style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}>
+                    <CalendarCheck className="h-4 w-4 hidden md:block" />
+                    <span className="truncate">{label}</span>
+                    <ExternalLink className="h-3.5 w-3.5 ml-0.5 shrink-0 hidden md:block" />
+                  </a>
+                );
+              } else {
+                ctaItems.push(
+                  <button key="booking" onClick={() => { setBookingOverlayUrl(fullUrl); setBookingOverlayTitle(label); setShowBookingOverlay(true); }} className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-up-from-bottom" style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
+                    <CalendarCheck className="h-4 w-4 hidden md:block" />
+                    <span className="truncate">{label}</span>
                   </button>
+                );
+              }
+            }
+
+            // Shop CTA
+            if (poi.online_shop_url) {
+              const fullUrl = poi.online_shop_url.startsWith("http") ? poi.online_shop_url : `https://${poi.online_shop_url}`;
+              const label = ctaModeLabels[poi.online_shop_presentation_mode]?.[language === "en" ? "en" : "fr"] || ctaModeLabels.acheter_en_ligne[language === "en" ? "en" : "fr"];
+              if (poi.online_shop_force_external) {
+                ctaItems.push(
+                  <a key="shop" href={fullUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-up-from-bottom" style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}>
+                    <ShoppingBag className="h-4 w-4 hidden md:block" />
+                    <span className="truncate">{label}</span>
+                    <ExternalLink className="h-3.5 w-3.5 ml-0.5 shrink-0 hidden md:block" />
+                  </a>
+                );
+              } else {
+                ctaItems.push(
+                  <button key="shop" onClick={() => { setBookingOverlayUrl(fullUrl); setBookingOverlayTitle(label); setShowBookingOverlay(true); }} className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-black [&_*]:text-black normal-case tracking-normal animate-slide-up-from-bottom" style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
+                    <ShoppingBag className="h-4 w-4 hidden md:block" />
+                    <span className="truncate">{label}</span>
+                  </button>
+                );
+              }
+            }
+
+            // Directions CTA
+            if (poi.latitude && poi.longitude) {
+              ctaItems.push(
+                <button key="directions" onClick={() => setShowDirections(true)} className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-gold text-gold-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-gold/90 transition-colors normal-case tracking-normal animate-slide-up-from-bottom" style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}>
+                  <Navigation className="h-4 w-4 hidden md:block" />
+                  <span className="truncate">{language === "en" ? "Directions" : "Itinéraire"}</span>
+                </button>
+              );
+            }
+
+            if (ctaItems.length === 0) return null;
+            return (
+              <div className="shrink-0 py-2 flex flex-col items-center gap-2 pointer-events-auto">
+                <div className="w-full md:w-3/4 md:px-0 flex justify-center gap-2">
+                  {ctaItems.map((item, i) => (
+                    <div key={i} className="flex-1 md:flex-none md:w-1/3">{item}</div>
+                  ))}
                 </div>
+                {currentMedia?.kind === "video" && (
+                  <div className="flex items-center gap-6 md:gap-10 mt-1 animate-slide-up-from-bottom">
+                    <button type="button" onClick={() => { if (videoRef.current) { videoRef.current.paused ? videoRef.current.play() : videoRef.current.pause(); } }} className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors" aria-label={videoPaused ? "Play" : "Pause"}>
+                      {videoPaused ? <Play className="h-5 w-5 md:h-6 md:w-6" /> : <Pause className="h-5 w-5 md:h-6 md:w-6" />}
+                    </button>
+                    <button type="button" onClick={() => { if (videoRef.current) videoRef.current.muted = !videoRef.current.muted; }} className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors" aria-label={videoMuted ? "Unmute" : "Mute"}>
+                      {videoMuted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
+                    </button>
+                  </div>
+                )}
               </div>
-              {currentMedia?.kind === "video" && (
-                <div className="flex items-center gap-6 md:gap-10 mt-1 animate-slide-up-from-bottom">
-                  <button type="button" onClick={() => { if (videoRef.current) { videoRef.current.paused ? videoRef.current.play() : videoRef.current.pause(); } }} className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors" aria-label={videoPaused ? "Play" : "Pause"}>
-                    {videoPaused ? <Play className="h-5 w-5 md:h-6 md:w-6" /> : <Pause className="h-5 w-5 md:h-6 md:w-6" />}
-                  </button>
-                  <button type="button" onClick={() => { if (videoRef.current) videoRef.current.muted = !videoRef.current.muted; }} className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors" aria-label={videoMuted ? "Unmute" : "Mute"}>
-                    {videoMuted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+            );
+          })()}
         </div>
       </div>
+
+      {/* Booking overlay (iframe) */}
+      {showBookingOverlay && bookingOverlayUrl && (
+        <div className="absolute inset-0 -top-[3.3rem] z-[72] animate-slide-up-from-bottom">
+          <BookingOverlay
+            bookingUrl={bookingOverlayUrl}
+            title={bookingOverlayTitle}
+            onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); }}
+          />
+        </div>
+      )}
 
       {/* Recursive SlidePanel for selected POI */}
       {openedPoiBusinessId && (
