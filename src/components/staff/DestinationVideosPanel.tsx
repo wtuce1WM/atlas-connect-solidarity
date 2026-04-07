@@ -1,8 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Play, ExternalLink, MapPin, Link2, Plus, X, GripVertical, Monitor } from "lucide-react";
+import { Loader2, Play, ExternalLink, MapPin, Link2, Plus, X, GripVertical, Monitor, Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
@@ -21,6 +22,12 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+interface FrontStructureEntry {
+  id: string;
+  name: string;
+  categoryId: string | null;
+}
+
 interface VideoDoc {
   id: string;
   url: string;
@@ -34,6 +41,7 @@ interface VideoDoc {
   linked_business_name: string | null;
   show_on_front: boolean;
   front_sort_order: number;
+  category_id: string | null;
 }
 
 interface DestinationVideosPanelProps {
@@ -88,31 +96,62 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [playingId, setPlayingId] = useState<string | null>(null);
+  const [frontStructures, setFrontStructures] = useState<FrontStructureEntry[]>([]);
+  const [selectedStructure, setSelectedStructure] = useState<string>("all");
   const navigate = useNavigate();
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+
+  // Load front_structure entries with their matching category ids
+  useEffect(() => {
+    const loadStructures = async () => {
+      const [{ data: structures }, { data: categories }] = await Promise.all([
+        supabase.from("front_structure").select("id, name, sort_order").order("sort_order"),
+        supabase.from("categories").select("id, name_fr"),
+      ]);
+      if (structures && categories) {
+        const catMap = new Map((categories as any[]).map((c) => [c.name_fr.toLowerCase(), c.id]));
+        setFrontStructures(
+          (structures as any[]).map((s) => ({
+            id: s.id,
+            name: s.name,
+            categoryId: catMap.get(s.name.toLowerCase()) || null,
+          }))
+        );
+      }
+    };
+    loadStructures();
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
     const { data: docs, error } = await supabase
       .from("business_documents")
-      .select("id, url, name, thumbnail_url, sort_order, business_id, poi_id, linked_business_id, show_on_front, front_sort_order")
+      .select("id, url, name, thumbnail_url, sort_order, business_id, poi_id, linked_business_id, show_on_front, front_sort_order, subcategory_id")
       .eq("type", "video")
       .eq("city", cityName)
       .order("sort_order", { ascending: true });
 
     if (!error && docs && docs.length > 0) {
+      // Collect all business ids AND subcategory ids
       const allIds = new Set<string>();
+      const subcatIds = new Set<string>();
       docs.forEach((d: any) => {
         allIds.add(d.business_id);
         if (d.poi_id) allIds.add(d.poi_id);
         if (d.linked_business_id) allIds.add(d.linked_business_id);
+        if (d.subcategory_id) subcatIds.add(d.subcategory_id);
       });
-      const { data: businesses } = await supabase
-        .from("businesses")
-        .select("id, name, logo_url, slug")
-        .in("id", [...allIds]);
+
+      const [{ data: businesses }, { data: subcategories }] = await Promise.all([
+        supabase.from("businesses").select("id, name, logo_url, slug").in("id", [...allIds]),
+        subcatIds.size > 0
+          ? supabase.from("subcategories").select("id, category_id").in("id", [...subcatIds])
+          : Promise.resolve({ data: [] as any[] }),
+      ]);
+
       const bMap = new Map((businesses || []).map((b: any) => [b.id, b]));
+      const scMap = new Map((subcategories || []).map((sc: any) => [sc.id, sc.category_id]));
 
       const mapped: VideoDoc[] = docs.map((d: any) => {
         const owner = bMap.get(d.business_id);
@@ -131,6 +170,7 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
           linked_business_name: linked?.name || null,
           show_on_front: d.show_on_front ?? false,
           front_sort_order: d.front_sort_order ?? 0,
+          category_id: d.subcategory_id ? (scMap.get(d.subcategory_id) || null) : null,
         };
       });
       setVideos(mapped);
@@ -149,6 +189,15 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
   useEffect(() => {
     if (cityName) load();
   }, [cityName, load]);
+
+  // Filter videos by selected front structure
+  const filteredVideos = selectedStructure === "all"
+    ? videos
+    : (() => {
+        const entry = frontStructures.find((s) => s.id === selectedStructure);
+        if (!entry?.categoryId) return [];
+        return videos.filter((v) => v.category_id === entry.categoryId);
+      })();
 
   const frontIds = new Set(frontVideos.map((v) => v.id));
 
@@ -226,11 +275,28 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
     <div className="flex gap-4">
       {/* ── Left: all videos grid ── */}
       <div className="flex-1 min-w-0 space-y-2">
-        <p className="text-xs text-muted-foreground mb-3">
-          {videos.length} vidéo{videos.length > 1 ? "s" : ""} — cliquez sur <Plus className="inline h-3 w-3" /> pour ajouter au front
-        </p>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-1.5">
+            <Filter className="h-3.5 w-3.5 text-muted-foreground" />
+            <Select value={selectedStructure} onValueChange={setSelectedStructure}>
+              <SelectTrigger className="h-7 w-52 text-xs">
+                <SelectValue placeholder="Toutes les catégories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toutes les catégories</SelectItem>
+                {frontStructures.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {filteredVideos.length} vidéo{filteredVideos.length > 1 ? "s" : ""}
+            {selectedStructure !== "all" && ` / ${videos.length} au total`}
+          </p>
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          {videos.map((v) => {
+          {filteredVideos.map((v) => {
             const isOnFront = frontIds.has(v.id);
             return (
               <div key={v.id} className={`rounded-lg border overflow-hidden transition-colors ${isOnFront ? "border-primary/50 bg-primary/5" : "bg-background"}`}>
