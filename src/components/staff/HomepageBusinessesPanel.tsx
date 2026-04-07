@@ -452,7 +452,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
                       {isSelected ? <Monitor className="h-3 w-3" /> : <Plus className="h-3.5 w-3.5" />}
                     </button>
                   </div>
-                  <div className="p-2">
+                  <div className="p-2 space-y-1">
                     <button
                       onClick={() => goToEdit(v.business_id)}
                       className="flex items-center gap-1.5 text-xs font-medium text-foreground hover:text-primary transition-colors text-left"
@@ -460,6 +460,23 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
                       <span className="line-clamp-1">{v.business_name}</span>
                       <ExternalLink className="h-2.5 w-2.5 flex-shrink-0 text-muted-foreground" />
                     </button>
+
+                    {(v.poi_name || v.linked_business_name) && (
+                      <div className="flex flex-wrap gap-1">
+                        {v.poi_name && (
+                          <Badge variant="outline" className="text-[9px] px-1 py-0 gap-0.5 font-normal">
+                            <MapPin className="h-2.5 w-2.5" />
+                            {v.poi_name}
+                          </Badge>
+                        )}
+                        {v.linked_business_name && (
+                          <Badge variant="outline" className="text-[9px] px-1 py-0 gap-0.5 font-normal">
+                            <Link2 className="h-2.5 w-2.5" />
+                            {v.linked_business_name}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               );
