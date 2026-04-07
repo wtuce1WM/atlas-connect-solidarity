@@ -4114,7 +4114,24 @@ const SearchPage = () => {
                 externalOverlayActive={showAiPopup}
                 forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
                 interceptCloseRef={compactPanelInterceptCloseRef}
-                onOpenSearch={() => setMobileSearchOverlayOpen(true)}
+                showSearchBar
+                onSearch={(params) => {
+                  setSelectedCategoryFilter(null);
+                  setSelectedSubcategoryFilter(null);
+                  setSelectedServiceFilter(null);
+                  if (params.q) {
+                    setSearchQuery(params.q);
+                    setInputValue(params.q);
+                  }
+                  setActiveTab("suggestions");
+                  setSelectedCity("all");
+                  setIsGeoCityAutoSelected(false);
+                  setSearchParams(params);
+                }}
+                onSearchBusinessSelect={(bizId) => {
+                  setCompactPanelBusiness({ id: bizId, name: "" } as any);
+                  setIsCompactPanelExpanded(false);
+                }}
               />
             </div>
           </div>

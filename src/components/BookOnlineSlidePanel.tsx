@@ -46,6 +46,7 @@ import YouTubeOverlay from "@/components/overlays/YouTubeOverlay";
 import DocumentOverlay from "@/components/overlays/DocumentOverlay";
 import FallbackHotelsPanel from "@/components/overlays/FallbackHotelsPanel";
 import SerpApiHotelOverlay from "@/components/SerpApiHotelOverlay";
+import MobileSearchOverlay from "@/components/MobileSearchOverlay";
 
 interface BookOnlineSlidePanelProps {
   businessId: string;
@@ -57,13 +58,17 @@ interface BookOnlineSlidePanelProps {
   forceMuted?: boolean;
   /** Mutable ref: if set by the panel, the parent should call it instead of closing */
   interceptCloseRef?: React.MutableRefObject<(() => boolean) | null>;
-  /** Callback to open the search overlay from within the slide panel */
-  onOpenSearch?: () => void;
+  /** Show embedded search bar at bottom of slide panel */
+  showSearchBar?: boolean;
+  /** Called when user submits a search from the embedded overlay */
+  onSearch?: (params: Record<string, string>) => void;
+  /** Called when user selects a business from the embedded search overlay */
+  onSearchBusinessSelect?: (businessId: string) => void;
 }
 
 type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string } | { kind: "matterport"; url: string };
 
-const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand, externalOverlayActive, forceMuted, interceptCloseRef, onOpenSearch }: BookOnlineSlidePanelProps) => {
+const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect }: BookOnlineSlidePanelProps) => {
   const [activeBusinessId, setActiveBusinessIdRaw] = useState(propBusinessId);
   const [previousBusinessId, setPreviousBusinessId] = useState<string | null>(null);
   const previousCardsHiddenRef = useRef(false);
@@ -114,6 +119,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showHook, setShowHook] = useState(false);
+  const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
   const [showMosaic, setShowMosaic] = useState(false);
   const [ytBgPlaying, setYtBgPlaying] = useState(true);
   const [ytBgMuted, setYtBgMuted] = useState(false);
@@ -2403,15 +2409,33 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       )}
 
       {/* Search bar fixed at bottom of slide panel */}
-      {onOpenSearch && (
-        <div className="absolute bottom-0 left-0 right-0 z-[60] bg-black/90 backdrop-blur-md border-t border-gold/20 py-3 px-4">
+      {showSearchBar && (
+        <div className="absolute bottom-0 left-0 right-0 z-[60] bg-background border-t border-border py-3 px-4">
           <button
             type="button"
-            onClick={onOpenSearch}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white/90 backdrop-blur-sm border border-border rounded-xl shadow-lg"
+            onClick={() => setSearchOverlayOpen(true)}
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-background border border-border rounded-xl shadow-sm"
           >
             <Search className="h-4 w-4 text-muted-foreground shrink-0" />
           </button>
+        </div>
+      )}
+
+      {/* Search overlay inside slide panel */}
+      {searchOverlayOpen && (
+        <div className="absolute inset-0 -top-[3.3rem] z-[78] bg-background flex flex-col">
+          <MobileSearchOverlay
+            open={searchOverlayOpen}
+            onClose={() => setSearchOverlayOpen(false)}
+            onBusinessSelect={(bizId) => {
+              setSearchOverlayOpen(false);
+              if (onSearchBusinessSelect) onSearchBusinessSelect(bizId);
+            }}
+            onSearch={(params) => {
+              setSearchOverlayOpen(false);
+              if (onSearch) onSearch(params);
+            }}
+          />
         </div>
       )}
 
