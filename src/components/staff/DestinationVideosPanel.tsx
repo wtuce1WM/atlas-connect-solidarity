@@ -78,9 +78,6 @@ const SortableFrontCard = ({
         onClick={() => onNavigate(video.business_id)}
         className="flex items-center gap-1.5 min-w-0 flex-1 hover:text-primary transition-colors text-left"
       >
-        {video.business_logo && (
-          <img src={video.business_logo} alt="" className="h-4 w-4 rounded object-contain flex-shrink-0" />
-        )}
         <span className="truncate">{video.business_name}</span>
       </button>
       <button onClick={() => onRemove(video.id)} className="text-muted-foreground hover:text-destructive flex-shrink-0">
