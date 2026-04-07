@@ -495,6 +495,7 @@ export type Database = {
           description: string | null
           destination_id: string | null
           end_date: string | null
+          front_sort_order: number
           icon: string | null
           id: string
           language: string | null
@@ -506,6 +507,7 @@ export type Database = {
           price: string | null
           price_type: string | null
           service_id: string | null
+          show_on_front: boolean
           sort_order: number
           start_date: string | null
           subcategory_id: string | null
@@ -520,6 +522,7 @@ export type Database = {
           description?: string | null
           destination_id?: string | null
           end_date?: string | null
+          front_sort_order?: number
           icon?: string | null
           id?: string
           language?: string | null
@@ -531,6 +534,7 @@ export type Database = {
           price?: string | null
           price_type?: string | null
           service_id?: string | null
+          show_on_front?: boolean
           sort_order?: number
           start_date?: string | null
           subcategory_id?: string | null
@@ -545,6 +549,7 @@ export type Database = {
           description?: string | null
           destination_id?: string | null
           end_date?: string | null
+          front_sort_order?: number
           icon?: string | null
           id?: string
           language?: string | null
@@ -556,6 +561,7 @@ export type Database = {
           price?: string | null
           price_type?: string | null
           service_id?: string | null
+          show_on_front?: boolean
           sort_order?: number
           start_date?: string | null
           subcategory_id?: string | null
