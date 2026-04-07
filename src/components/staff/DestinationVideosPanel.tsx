@@ -289,25 +289,24 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
   const saveFrontSelection = async () => {
     setSaving(true);
     try {
-      // Reset all videos for this city to show_on_front=false
-      const allVideoIds = videos.map((v) => v.id);
-      // Batch reset
-      const resetPromises = allVideoIds
-        .filter((id) => !frontIds.has(id))
-        .map((id) =>
-          supabase
-            .from("business_documents")
-            .update({ show_on_front: false, front_sort_order: 0 } as any)
-            .eq("id", id)
-        );
-      // Set selected ones
-      const setPromises = frontVideos.map((v, i) =>
-        supabase
+      const frontIdSet = new Set(frontVideos.map((v) => v.id));
+      // Reset non-front videos in batches of 200
+      const idsToReset = videos.map((v) => v.id).filter((id) => !frontIdSet.has(id));
+      const batchSize = 200;
+      for (let i = 0; i < idsToReset.length; i += batchSize) {
+        const chunk = idsToReset.slice(i, i + batchSize);
+        await supabase
+          .from("business_documents")
+          .update({ show_on_front: false, front_sort_order: 0 } as any)
+          .in("id", chunk);
+      }
+      // Set selected ones sequentially to avoid overwhelming
+      for (let i = 0; i < frontVideos.length; i++) {
+        await supabase
           .from("business_documents")
           .update({ show_on_front: true, front_sort_order: i } as any)
-          .eq("id", v.id)
-      );
-      await Promise.all([...resetPromises, ...setPromises]);
+          .eq("id", frontVideos[i].id);
+      }
       toast.success("Sélection sauvegardée");
     } catch {
       toast.error("Erreur lors de la sauvegarde");
