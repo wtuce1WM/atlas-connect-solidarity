@@ -1,0 +1,119 @@
+import { useState, useEffect } from "react";
+import { X, Sparkles, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+interface PanelAiOverlayProps {
+  open: boolean;
+  onClose: () => void;
+  /** Current business city for context */
+  city?: string | null;
+  /** Current business category for context */
+  category?: string | null;
+  /** Current business name for context */
+  businessName?: string | null;
+}
+
+const PanelAiOverlay = ({ open, onClose, city, category, businessName }: PanelAiOverlayProps) => {
+  const { language } = useLanguage();
+  const [answer, setAnswer] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!open) { setAnswer(""); return; }
+
+    const generate = async () => {
+      setLoading(true);
+      try {
+        // Fetch nearby businesses for context
+        let query = supabase
+          .from("businesses")
+          .select("id, name, city, main_category, categories, hook_fr, rating, images, logo_url, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count")
+          .eq("is_active", true)
+          .limit(10);
+
+        if (city) query = query.eq("city", city);
+        const { data: businesses } = await query;
+
+        const prompt = city
+          ? `${language === "fr" ? "Que faire à" : language === "ar" ? "ماذا تفعل في" : "What to do in"} ${city}${category ? ` (${category})` : ""}`
+          : businessName
+          ? `${language === "fr" ? "Établissements similaires à" : "Similar to"} ${businessName}`
+          : language === "fr" ? "Meilleures adresses" : "Best places";
+
+        const { data, error } = await supabase.functions.invoke("ai-search-answer", {
+          body: {
+            query: prompt,
+            businesses: businesses || [],
+            language,
+          },
+        });
+
+        if (error) throw error;
+        setAnswer(data?.answer || (language === "fr" ? "Aucune suggestion disponible." : "No suggestion available."));
+      } catch (err) {
+        console.error("AI suggestion error:", err);
+        setAnswer(language === "fr" ? "Impossible de générer une suggestion pour le moment." : "Unable to generate a suggestion at this time.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    generate();
+  }, [open, city, category, businessName, language]);
+
+  if (!open) return null;
+
+  return (
+    <div className="absolute inset-0 lg:-top-[3.3rem] z-[80] bg-background flex flex-col animate-in slide-in-from-bottom duration-200">
+      {/* Header */}
+      <div className="shrink-0 flex items-center gap-3 px-4 py-3 border-b border-border">
+        <button
+          type="button"
+          onClick={onClose}
+          className="w-9 h-9 rounded-full bg-foreground text-background flex items-center justify-center hover:opacity-90 transition-opacity"
+        >
+          <X className="h-4 w-4" />
+        </button>
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-gold" />
+          <span className="font-semibold text-sm">
+            {language === "fr" ? "Suggestion IA" : language === "ar" ? "اقتراح الذكاء" : "AI Suggestion"}
+          </span>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto px-4 py-6">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center gap-4 py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-gold" />
+            <span className="text-sm text-muted-foreground">
+              {language === "fr" ? "Génération en cours…" : language === "ar" ? "جارٍ التحميل…" : "Generating…"}
+            </span>
+          </div>
+        ) : (
+          <div className="prose prose-sm max-w-none">
+            <div className="bg-gold/5 border border-gold/20 rounded-xl p-4">
+              <div className="flex items-start gap-2 mb-3">
+                <Sparkles className="h-4 w-4 text-gold shrink-0 mt-0.5" />
+                <span className="text-xs font-semibold text-gold uppercase tracking-wide">
+                  {city
+                    ? `${language === "fr" ? "Suggestions pour" : "Suggestions for"} ${city}`
+                    : language === "fr" ? "Suggestions" : "Suggestions"
+                  }
+                </span>
+              </div>
+              <div
+                className="text-sm leading-relaxed text-foreground whitespace-pre-line"
+                dangerouslySetInnerHTML={{ __html: answer.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") }}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default PanelAiOverlay;
