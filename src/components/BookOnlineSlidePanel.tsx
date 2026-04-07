@@ -2423,6 +2423,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         <PanelSearchBar
           onSearch={onSearch}
           onBusinessSelect={onSearchBusinessSelect}
+          businessCity={business?.city}
+          businessCategory={business?.main_category}
+          businessName={business?.name}
         />
       )}
 
