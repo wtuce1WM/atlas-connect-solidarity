@@ -25,7 +25,8 @@ import { CSS } from "@dnd-kit/utilities";
 interface FrontStructureEntry {
   id: string;
   name: string;
-  subcategoryNames: string[]; // subcategory name_fr linked via front_structure_subcategories
+  subcategoryNames: string[];
+  serviceNames: string[];
 }
 
 interface VideoDoc {
