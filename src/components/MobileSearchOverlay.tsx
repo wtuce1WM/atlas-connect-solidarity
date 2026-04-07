@@ -324,6 +324,7 @@ const MobileSearchOverlay = ({
           </div>
         )}
 
+        {showPopular && (
           <div>
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-3">
               <TrendingUp className="h-3.5 w-3.5" />
