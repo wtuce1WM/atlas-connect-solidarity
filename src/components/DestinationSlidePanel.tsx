@@ -43,7 +43,7 @@ interface DestinationFull {
   city_ids: string[] | null;
 }
 
-const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", interceptCloseRef }: DestinationSlidePanelProps) => {
+const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect }: DestinationSlidePanelProps) => {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const slideAnim = slideFrom === "bottom" ? "animate-slide-up-from-bottom" : "animate-slide-in-right";

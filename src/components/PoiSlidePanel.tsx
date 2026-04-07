@@ -67,7 +67,7 @@ interface PoiFull {
   carousel_badge: string | null;
 }
 
-const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePanelProps) => {
+const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBar, onSearch, onSearchBusinessSelect }: PoiSlidePanelProps) => {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const slideAnim = slideFrom === "bottom" ? "animate-slide-up-from-bottom" : "animate-slide-in-right";
