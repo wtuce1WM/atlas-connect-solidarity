@@ -216,7 +216,7 @@ const VideoDocumentOverlay = ({
       })()}
 
       {/* Custom Play/Pause + Mute controls */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-6 md:gap-10 z-20">
+      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-6 md:gap-10 z-20">
         <button
           onClick={togglePlay}
           className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center hover:bg-black/80 transition-colors"
