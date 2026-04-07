@@ -154,6 +154,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
     setAllBusinesses(deduped.map((b: any) => ({
       id: b.id, name: b.name, logo_url: b.logo_url, city: b.city,
       categories: b.categories || [], services: b.services || [], images: b.images || [],
+      video_1_url: b.video_1_url || null,
     })));
     setAllLoaded(true);
     setLoading(false);
