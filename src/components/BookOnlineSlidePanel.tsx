@@ -57,6 +57,8 @@ interface BookOnlineSlidePanelProps {
   forceMuted?: boolean;
   /** Mutable ref: if set by the panel, the parent should call it instead of closing */
   interceptCloseRef?: React.MutableRefObject<(() => boolean) | null>;
+  /** Callback to open the search overlay from within the slide panel */
+  onOpenSearch?: () => void;
 }
 
 type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string } | { kind: "matterport"; url: string };
