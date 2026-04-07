@@ -577,6 +577,17 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
         </div>
       </div>
 
+      {/* Booking overlay (iframe) */}
+      {showBookingOverlay && bookingOverlayUrl && (
+        <div className="absolute inset-0 -top-[3.3rem] z-[72] animate-slide-up-from-bottom">
+          <BookingOverlay
+            url={bookingOverlayUrl}
+            title={bookingOverlayTitle}
+            onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); }}
+          />
+        </div>
+      )}
+
       {/* Recursive SlidePanel for selected POI */}
       {openedPoiBusinessId && (
         <div className="absolute inset-0 z-[75] animate-slide-up-from-bottom">
