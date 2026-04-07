@@ -22,6 +22,7 @@ const StaffLogin = lazy(() => import("./pages/StaffLogin"));
 const StaffBackoffice = lazy(() => import("./pages/StaffBackoffice"));
 const StaffHub = lazy(() => import("./pages/StaffHub"));
 const StaffCRM = lazy(() => import("./pages/StaffCRM"));
+const StaffFront = lazy(() => import("./pages/StaffFront"));
 const AffiliatesLogin = lazy(() => import("./pages/AffiliatesLogin"));
 const AffiliatesResetPassword = lazy(() => import("./pages/AffiliatesResetPassword"));
 const AffiliatesDashboard = lazy(() => import("./pages/AffiliatesDashboard"));
