@@ -995,6 +995,7 @@ export type Database = {
           pinterest_url: string | null
           poi_description: string | null
           poi_hook: string | null
+          popup_image_url: string | null
           presentation_mode: string
           prioritize_images: boolean
           priority_score: number | null
@@ -1143,6 +1144,7 @@ export type Database = {
           pinterest_url?: string | null
           poi_description?: string | null
           poi_hook?: string | null
+          popup_image_url?: string | null
           presentation_mode?: string
           prioritize_images?: boolean
           priority_score?: number | null
@@ -1291,6 +1293,7 @@ export type Database = {
           pinterest_url?: string | null
           poi_description?: string | null
           poi_hook?: string | null
+          popup_image_url?: string | null
           presentation_mode?: string
           prioritize_images?: boolean
           priority_score?: number | null
@@ -3999,6 +4002,7 @@ export type Database = {
               pinterest_url: string | null
               poi_description: string | null
               poi_hook: string | null
+              popup_image_url: string | null
               presentation_mode: string
               prioritize_images: boolean
               priority_score: number | null
@@ -4163,6 +4167,7 @@ export type Database = {
               pinterest_url: string | null
               poi_description: string | null
               poi_hook: string | null
+              popup_image_url: string | null
               presentation_mode: string
               prioritize_images: boolean
               priority_score: number | null

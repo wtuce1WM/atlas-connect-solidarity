@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { X, Loader2, Image as ImageIcon, GripVertical, AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import {
   DndContext,
@@ -26,6 +27,8 @@ interface ImageUploaderProps {
   onChange: (images: string[]) => void;
   maxImages?: number;
   businessId?: string;
+  popupImageUrl?: string | null;
+  onPopupChange?: (url: string | null) => void;
 }
 
 interface ImageMeta {
@@ -44,6 +47,8 @@ interface SortableImageProps {
   onPreview: (url: string) => void;
   isBroken?: boolean;
   meta?: ImageMeta;
+  isPopup?: boolean;
+  onPopupToggle?: (url: string) => void;
 }
 
 const formatFileSize = (bytes: number) => {
@@ -68,7 +73,7 @@ const extractPathInfo = (url: string): { path: string; extension: string } => {
   }
 };
 
-const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta }: SortableImageProps) => {
+const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta, isPopup, onPopupToggle }: SortableImageProps) => {
   const {
     attributes,
     listeners,
@@ -119,6 +124,21 @@ const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta
       >
         <GripVertical className="h-4 w-4" />
       </div>
+
+      {/* Popup checkbox */}
+      {onPopupToggle && (
+        <label
+          className="absolute top-2 left-12 z-20 flex items-center gap-1 px-1.5 py-0.5 rounded border border-border/60 bg-background/85 shadow-sm cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Checkbox
+            checked={!!isPopup}
+            onCheckedChange={() => onPopupToggle(url)}
+            className="h-3.5 w-3.5"
+          />
+          <span className="text-[9px] text-foreground font-medium">popup</span>
+        </label>
+      )}
       
       {/* Remove button */}
       <button
@@ -172,7 +192,9 @@ const ImageUploader = ({
   images, 
   onChange, 
   maxImages = 12, 
-  businessId 
+  businessId,
+  popupImageUrl,
+  onPopupChange,
 }: ImageUploaderProps) => {
   const [uploading, setUploading] = useState(false);
   const [brokenUrls, setBrokenUrls] = useState<Set<string>>(new Set());
@@ -387,6 +409,8 @@ const ImageUploader = ({
                   onPreview={setLightboxUrl}
                   isBroken={brokenUrls.has(url)}
                   meta={{ size: imageSizes[url], sizeChecked: url in imageSizes, width: imageDims[url]?.w, height: imageDims[url]?.h }}
+                  isPopup={popupImageUrl === url}
+                  onPopupToggle={onPopupChange ? (u) => onPopupChange(popupImageUrl === u ? null : u) : undefined}
                 />
               ))}
             </div>

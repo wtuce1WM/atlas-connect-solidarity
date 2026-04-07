@@ -487,7 +487,7 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
         <label className="flex items-center gap-1 shrink-0 cursor-pointer" title="Ouvrir en popup">
           <Checkbox
             checked={doc.popup}
-            onCheckedChange={(checked) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, popup: !!checked } : d))}
+            onCheckedChange={(checked) => setVideoDocs(prev => prev.map((d, i) => checked ? { ...d, popup: i === idx } : i === idx ? { ...d, popup: false } : d))}
             className="h-3.5 w-3.5"
           />
           <span className="text-[9px] text-muted-foreground">popup</span>
@@ -940,6 +940,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     vimeo_url: (business as any)?.vimeo_url || "",
     snapchat_url: (business as any)?.snapchat_url || "",
     images: (business as any)?.images || [] as string[],
+    popup_image_url: (business as any)?.popup_image_url || "",
     _initialImages: (business as any)?.images || [] as string[], // track original images for cleanup
     pdf_url: (business as any)?.pdf_url || "",
     pdf_name: (business as any)?.pdf_name || "",
@@ -1712,6 +1713,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       vimeo_url: formData.vimeo_url || null,
       snapchat_url: (formData as any).snapchat_url || null,
       images: formData.images.length > 0 ? formData.images : [],
+      popup_image_url: (formData as any).popup_image_url || null,
       pdf_url: formData.pdf_url || null,
       pdf_name: (formData as any).pdf_name?.slice(0, 100) || null,
       pdf_2_url: (formData as any).pdf_2_url || null,
@@ -4183,6 +4185,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             onChange={(images) => handleChange("images", images)}
             maxImages={30}
             businessId={business?.id}
+            popupImageUrl={(formData as any).popup_image_url || null}
+            onPopupChange={(url) => handleChange("popup_image_url", url || "")}
           />
         </div>
         {/* Labels */}
