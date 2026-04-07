@@ -38,6 +38,20 @@ interface PoiFull {
   longitude: number | null;
   city: string | null;
   neighborhood: string | null;
+  address: string | null;
+  phone: string | null;
+  whatsapp: string | null;
+  skype: string | null;
+  logo_url: string | null;
+  opening_hours: unknown;
+  show_opening_hours: boolean | null;
+  is_open_24h: boolean;
+  google_rating: number | null;
+  google_review_count: number | null;
+  tripadvisor_rating: number | null;
+  tripadvisor_review_count: number | null;
+  restaurant_guru_rating: number | null;
+  restaurant_guru_review_count: number | null;
   reserve_now_url: string | null;
   reserve_now_force_external: boolean;
   presentation_mode: string;
@@ -115,7 +129,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
       setIsLoading(true);
       const { data } = await supabase
         .from("businesses")
-        .select("id, name, description, poi_description, poi_hook, hook_fr, hook_en, hook_ar, images, video_1_url, latitude, longitude, city, neighborhood, reserve_now_url, reserve_now_force_external, presentation_mode, online_shop_url, online_shop_force_external, online_shop_presentation_mode, website, website_force_external, website_presentation_mode")
+        .select("id, name, description, poi_description, poi_hook, hook_fr, hook_en, hook_ar, images, video_1_url, latitude, longitude, city, neighborhood, address, phone, whatsapp, skype, logo_url, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, reserve_now_url, reserve_now_force_external, presentation_mode, online_shop_url, online_shop_force_external, online_shop_presentation_mode, website, website_force_external, website_presentation_mode")
         .eq("id", businessId)
         .maybeSingle();
       if (cancelled) return;
@@ -333,7 +347,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
       <Suspense fallback={null}>
         {showDirections && poi.latitude && poi.longitude && (
           <LazyDirectionsOverlay
-            business={{ name: poi.name, latitude: poi.latitude, longitude: poi.longitude, city: poi.city, neighborhood: poi.neighborhood } as any}
+            business={{ name: poi.name, address: poi.address, latitude: poi.latitude, longitude: poi.longitude, city: poi.city, phone: poi.phone, whatsapp: poi.whatsapp, skype: poi.skype, logo_url: poi.logo_url, opening_hours: poi.opening_hours, show_opening_hours: poi.show_opening_hours, is_open_24h: poi.is_open_24h, google_rating: poi.google_rating, google_review_count: poi.google_review_count, tripadvisor_rating: poi.tripadvisor_rating, tripadvisor_review_count: poi.tripadvisor_review_count, restaurant_guru_rating: poi.restaurant_guru_rating, restaurant_guru_review_count: poi.restaurant_guru_review_count } as any}
             onClose={() => setShowDirections(false)}
           />
         )}
