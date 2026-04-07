@@ -9,6 +9,14 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Search, Clock, X, Mic, MicOff, Loader, TrendingUp, MapPin, MapPinOff, Sparkles } from "lucide-react";
 import { businessUrl } from "@/lib/businessUrl";
 
+interface GeoDisplayState {
+  isEnabled: boolean;
+  isDetecting: boolean;
+  detectedCity?: string | null;
+  detectedNeighborhood?: string | null;
+  confirmedAddress?: string | null;
+}
+
 interface MobileSearchOverlayProps {
   open: boolean;
   onClose: () => void;
@@ -24,6 +32,12 @@ interface MobileSearchOverlayProps {
   desktopHalfWidth?: boolean;
   /** When true, use absolute positioning to stay contained within its parent element */
   contained?: boolean;
+  /** Called when user taps AI suggestion button */
+  onAiSuggestionClick?: () => void;
+  /** Called when user taps location button */
+  onLocationClick?: () => void;
+  /** Geo state for displaying location button */
+  geoState?: GeoDisplayState;
 }
 
 const MobileSearchOverlay = ({
