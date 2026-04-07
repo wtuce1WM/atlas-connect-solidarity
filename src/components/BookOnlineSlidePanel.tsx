@@ -57,8 +57,12 @@ interface BookOnlineSlidePanelProps {
   forceMuted?: boolean;
   /** Mutable ref: if set by the panel, the parent should call it instead of closing */
   interceptCloseRef?: React.MutableRefObject<(() => boolean) | null>;
-  /** Callback to open the search overlay from within the slide panel */
-  onOpenSearch?: () => void;
+  /** Show embedded search bar at bottom of slide panel */
+  showSearchBar?: boolean;
+  /** Called when user submits a search from the embedded overlay */
+  onSearch?: (params: Record<string, string>) => void;
+  /** Called when user selects a business from the embedded search overlay */
+  onSearchBusinessSelect?: (businessId: string) => void;
 }
 
 type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string } | { kind: "matterport"; url: string };
