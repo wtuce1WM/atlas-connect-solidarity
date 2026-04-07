@@ -66,24 +66,26 @@ const SortableFrontCard = ({
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
 
   return (
-    <div ref={setNodeRef} style={style} className="flex items-center gap-2 rounded-md border bg-background p-1.5 text-xs">
-      <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground flex-shrink-0">
-        <GripVertical className="h-3.5 w-3.5" />
-      </button>
-      <span className="text-muted-foreground w-5 text-center flex-shrink-0 font-mono">{index + 1}</span>
-      {video.thumbnail_url ? (
-        <img src={video.thumbnail_url} alt="" className="h-8 w-14 rounded object-cover flex-shrink-0" />
-      ) : (
-        <div className="h-8 w-14 rounded bg-muted flex-shrink-0" />
-      )}
+    <div ref={setNodeRef} style={style} className="flex flex-col rounded-md border bg-background overflow-hidden text-xs">
+      <div className="relative aspect-video bg-black">
+        <button {...attributes} {...listeners} className="absolute top-1 left-1 z-10 cursor-grab active:cursor-grabbing text-white/80 hover:text-white bg-black/40 rounded p-0.5 flex-shrink-0">
+          <GripVertical className="h-3 w-3" />
+        </button>
+        <span className="absolute top-1 left-7 z-10 text-white/80 text-[10px] font-mono bg-black/40 rounded px-1">{index + 1}</span>
+        <button onClick={() => onRemove(video.id)} className="absolute top-1 right-1 z-10 text-white/80 hover:text-destructive bg-black/40 rounded p-0.5">
+          <X className="h-3 w-3" />
+        </button>
+        {video.thumbnail_url ? (
+          <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-muted" />
+        )}
+      </div>
       <button
         onClick={() => onNavigate(video.business_id)}
-        className="flex items-center gap-1.5 min-w-0 flex-1 hover:text-primary transition-colors text-left"
+        className="px-1.5 py-1 truncate hover:text-primary transition-colors text-left text-[10px]"
       >
-        <span className="truncate">{video.business_name}</span>
-      </button>
-      <button onClick={() => onRemove(video.id)} className="text-muted-foreground hover:text-destructive flex-shrink-0">
-        <X className="h-3.5 w-3.5" />
+        {video.business_name}
       </button>
     </div>
   );
