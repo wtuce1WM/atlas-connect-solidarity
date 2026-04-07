@@ -291,7 +291,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {filteredBusinesses.map((b) => {
               const isSelected = selectedIds.has(b.id);
-              const thumb = b.images?.[0] || b.logo_url;
+              const videoUrl = b.video_1_url;
               return (
                 <div key={b.id} className={`rounded-lg border overflow-hidden transition-colors ${isSelected ? "border-primary/50 bg-primary/5" : "bg-background"}`}>
                   <div className="relative aspect-video bg-muted">
