@@ -282,45 +282,55 @@ const MobileSearchOverlay = ({
         )}
 
         {/* AI Suggestion + Location buttons */}
-        {(onAiSuggestionClick || onLocationClick) && (!query || query.trim().length < 2) && (
+        {(!query || query.trim().length < 2) && (
           <div className="mb-6 flex items-center gap-3">
-            {onAiSuggestionClick && (
-              <button
-                type="button"
-                onClick={() => { onClose(); onAiSuggestionClick(); }}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-gold text-black text-sm font-medium hover:bg-gold/90 transition-colors shadow-sm"
-              >
-                <Sparkles className="h-4 w-4" />
-                {language === "fr" ? "Suggestion IA" : language === "ar" ? "اقتراح الذكاء" : "AI Suggestion"}
-              </button>
-            )}
-            {onLocationClick && (
-              <button
-                type="button"
-                onClick={() => { onClose(); onLocationClick(); }}
-                className={`flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-medium transition-all ${
-                  geoState?.isEnabled && (geoState.detectedNeighborhood || geoState.detectedCity || geoState.confirmedAddress)
-                    ? "bg-gold/20 text-gold border border-gold/40"
-                    : "bg-[#C04F17] text-white border border-[#C04F17] hover:bg-[#C04F17]/90"
-                }`}
-              >
-                {geoState?.isDetecting ? (
-                  <Loader className="h-3.5 w-3.5 animate-spin" />
-                ) : geoState?.isEnabled ? (
-                  <MapPin className="h-3.5 w-3.5" />
-                ) : (
-                  <MapPinOff className="h-3.5 w-3.5" />
-                )}
-                {geoState?.isDetecting
-                  ? "…"
-                  : geoState?.isEnabled && (geoState.detectedNeighborhood || geoState.detectedCity)
-                  ? `📍 ${[geoState.detectedNeighborhood, geoState.detectedCity].filter(Boolean).join(", ")}`
-                  : geoState?.isEnabled && geoState.confirmedAddress
-                  ? `📍 ${geoState.confirmedAddress}`
-                  : (language === "fr" ? "Localisation" : language === "ar" ? "الموقع" : "Location")
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                if (onAiSuggestionClick) {
+                  onAiSuggestionClick();
+                } else {
+                  navigate("/search?showAi=true");
                 }
-              </button>
-            )}
+              }}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-gold text-black text-sm font-medium hover:bg-gold/90 transition-colors shadow-sm"
+            >
+              <Sparkles className="h-4 w-4" />
+              {language === "fr" ? "Suggestion IA" : language === "ar" ? "اقتراح الذكاء" : "AI Suggestion"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                if (onLocationClick) {
+                  onLocationClick();
+                } else {
+                  navigate("/search?showLocation=true");
+                }
+              }}
+              className={`flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-medium transition-all ${
+                geoState?.isEnabled && (geoState.detectedNeighborhood || geoState.detectedCity || geoState.confirmedAddress)
+                  ? "bg-gold/20 text-gold border border-gold/40"
+                  : "bg-[#C04F17] text-white border border-[#C04F17] hover:bg-[#C04F17]/90"
+              }`}
+            >
+              {geoState?.isDetecting ? (
+                <Loader className="h-3.5 w-3.5 animate-spin" />
+              ) : geoState?.isEnabled ? (
+                <MapPin className="h-3.5 w-3.5" />
+              ) : (
+                <MapPinOff className="h-3.5 w-3.5" />
+              )}
+              {geoState?.isDetecting
+                ? "…"
+                : geoState?.isEnabled && (geoState.detectedNeighborhood || geoState.detectedCity)
+                ? `📍 ${[geoState.detectedNeighborhood, geoState.detectedCity].filter(Boolean).join(", ")}`
+                : geoState?.isEnabled && geoState.confirmedAddress
+                ? `📍 ${geoState.confirmedAddress}`
+                : (language === "fr" ? "Localisation" : language === "ar" ? "الموقع" : "Location")
+              }
+            </button>
           </div>
         )}
 
