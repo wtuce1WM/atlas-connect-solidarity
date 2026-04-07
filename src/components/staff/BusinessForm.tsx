@@ -5163,6 +5163,45 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog open={!!quickAddDialog} onOpenChange={(open) => { if (!open) setQuickAddDialog(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Ajouter « {quickAddDialog?.value} » ?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {quickAddDialog?.type === "certification" && "Cette certification sera ajoutée au référentiel et cochée pour cet établissement."}
+              {quickAddDialog?.type === "engagement" && "Cet engagement sera ajouté au référentiel et coché pour cet établissement."}
+              {quickAddDialog?.type === "commodite" && "Cette commodité sera ajoutée au référentiel et cochée pour cet établissement."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              if (!quickAddDialog) return;
+              const { type, value } = quickAddDialog;
+              let engValue = value;
+              if (type === "certification") {
+                engValue = `Certification:${value}`;
+                setCustomCerts((prev) => [...new Set([...prev, value])]);
+              } else if (type === "commodite") {
+                engValue = `Logistique:${value}`;
+                setCustomCommodites((prev) => [...new Set([...prev, value])]);
+              } else {
+                setCustomEngs((prev) => [...new Set([...prev, value])]);
+              }
+              const engs = [...((formData as any).engagements || [])];
+              if (!engs.includes(engValue)) {
+                handleChange("engagements", [...engs, engValue]);
+              }
+              persistGlobalCustomOption(type, value);
+              toast({ title: `${type === "certification" ? "Certification" : type === "engagement" ? "Engagement" : "Commodité"} ajouté(e)`, description: value });
+              setQuickAddDialog(null);
+            }}>Confirmer</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
     </div>
   );
