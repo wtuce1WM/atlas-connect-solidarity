@@ -333,6 +333,15 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
             ))}
           </div>
         )}
+    </>
+  );
+
+  if (inline) return <div className="space-y-4">{content}</div>;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+        {content}
       </DialogContent>
     </Dialog>
   );
