@@ -25,7 +25,8 @@ import { CSS } from "@dnd-kit/utilities";
 interface FrontStructureEntry {
   id: string;
   name: string;
-  subcategoryNames: string[]; // subcategory name_fr linked via front_structure_subcategories
+  subcategoryNames: string[];
+  serviceNames: string[];
 }
 
 interface VideoDoc {
@@ -38,6 +39,7 @@ interface VideoDoc {
   business_name: string;
   business_logo: string | null;
   business_categories: string[];
+  business_services: string[];
   poi_name: string | null;
   linked_business_name: string | null;
   show_on_front: boolean;
@@ -102,26 +104,38 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
   // Load front_structure entries with their matching category ids
   useEffect(() => {
     const loadStructures = async () => {
-      const [{ data: structures }, { data: links }, { data: subcats }] = await Promise.all([
+      const [{ data: structures }, { data: scLinks }, { data: subcats }, { data: svcLinks }, { data: services }] = await Promise.all([
         supabase.from("front_structure").select("id, name, sort_order").order("sort_order"),
         supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
         supabase.from("subcategories").select("id, name_fr"),
+        supabase.from("front_structure_services" as any).select("front_structure_id, service_id"),
+        supabase.from("services").select("id, name_fr"),
       ]);
-      if (structures && links && subcats) {
+      if (structures && scLinks && subcats) {
         const scNameMap = new Map((subcats as any[]).map((sc) => [sc.id, sc.name_fr]));
-        const linksByEntry: Record<string, string[]> = {};
-        (links as any[]).forEach((l) => {
+        const svcNameMap = new Map(((services || []) as any[]).map((s) => [s.id, s.name_fr]));
+        const scByEntry: Record<string, string[]> = {};
+        (scLinks as any[]).forEach((l) => {
           const name = scNameMap.get(l.subcategory_id);
           if (name) {
-            if (!linksByEntry[l.front_structure_id]) linksByEntry[l.front_structure_id] = [];
-            linksByEntry[l.front_structure_id].push(name);
+            if (!scByEntry[l.front_structure_id]) scByEntry[l.front_structure_id] = [];
+            scByEntry[l.front_structure_id].push(name);
+          }
+        });
+        const svcByEntry: Record<string, string[]> = {};
+        ((svcLinks || []) as any[]).forEach((l) => {
+          const name = svcNameMap.get(l.service_id);
+          if (name) {
+            if (!svcByEntry[l.front_structure_id]) svcByEntry[l.front_structure_id] = [];
+            svcByEntry[l.front_structure_id].push(name);
           }
         });
         setFrontStructures(
           (structures as any[]).map((s) => ({
             id: s.id,
             name: s.name,
-            subcategoryNames: linksByEntry[s.id] || [],
+            subcategoryNames: scByEntry[s.id] || [],
+            serviceNames: svcByEntry[s.id] || [],
           }))
         );
       }
@@ -187,7 +201,7 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
 
       const { data: businesses } = await supabase
         .from("businesses")
-        .select("id, name, logo_url, slug, categories")
+        .select("id, name, logo_url, slug, categories, services")
         .in("id", [...allIds]);
 
       const bMap = new Map((businesses || []).map((b: any) => [b.id, b]));
@@ -206,6 +220,7 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
           business_name: owner?.name || "—",
           business_logo: owner?.logo_url || null,
           business_categories: owner?.categories || [],
+          business_services: owner?.services || [],
           poi_name: poi?.name || null,
           linked_business_name: linked?.name || null,
           show_on_front: d.show_on_front ?? false,
@@ -234,9 +249,13 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
     ? videos
     : (() => {
         const entry = frontStructures.find((s) => s.id === selectedStructure);
-        if (!entry || entry.subcategoryNames.length === 0) return [];
-        const nameSet = new Set(entry.subcategoryNames);
-        return videos.filter((v) => v.business_categories.some((c) => nameSet.has(c)));
+        if (!entry || (entry.subcategoryNames.length === 0 && entry.serviceNames.length === 0)) return [];
+        const scSet = new Set(entry.subcategoryNames);
+        const svcSet = new Set(entry.serviceNames);
+        return videos.filter((v) =>
+          v.business_categories.some((c) => scSet.has(c)) ||
+          v.business_services.some((s) => svcSet.has(s))
+        );
       })()
   ).slice().sort((a, b) => a.business_name.localeCompare(b.business_name, 'fr'));
 
