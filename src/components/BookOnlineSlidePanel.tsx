@@ -2423,20 +2423,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
       {/* Search overlay inside slide panel */}
       {searchOverlayOpen && (
-        <div className="absolute inset-0 -top-[3.3rem] z-[78] bg-background flex flex-col">
-          <MobileSearchOverlay
-            open={searchOverlayOpen}
-            onClose={() => setSearchOverlayOpen(false)}
-            onBusinessSelect={(bizId) => {
-              setSearchOverlayOpen(false);
-              if (onSearchBusinessSelect) onSearchBusinessSelect(bizId);
-            }}
-            onSearch={(params) => {
-              setSearchOverlayOpen(false);
-              if (onSearch) onSearch(params);
-            }}
-          />
-        </div>
+        <MobileSearchOverlay
+          open={searchOverlayOpen}
+          onClose={() => setSearchOverlayOpen(false)}
+          contained
+          onBusinessSelect={(bizId) => {
+            setSearchOverlayOpen(false);
+            if (onSearchBusinessSelect) onSearchBusinessSelect(bizId);
+          }}
+          onSearch={(params) => {
+            setSearchOverlayOpen(false);
+            if (onSearch) onSearch(params);
+          }}
+        />
       )}
 
     </div>
