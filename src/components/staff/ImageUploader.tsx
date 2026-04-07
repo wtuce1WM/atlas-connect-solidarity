@@ -409,6 +409,8 @@ const ImageUploader = ({
                   onPreview={setLightboxUrl}
                   isBroken={brokenUrls.has(url)}
                   meta={{ size: imageSizes[url], sizeChecked: url in imageSizes, width: imageDims[url]?.w, height: imageDims[url]?.h }}
+                  isPopup={popupImageUrl === url}
+                  onPopupToggle={onPopupChange ? (u) => onPopupChange(popupImageUrl === u ? null : u) : undefined}
                 />
               ))}
             </div>
