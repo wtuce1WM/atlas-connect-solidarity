@@ -71,6 +71,16 @@ const GlobalFloatingSearchBar = () => {
   if (hiddenPaths.includes(location.pathname)) return null;
   return <FloatingSearchBar />;
 };
+const FloatingButtonsGuard = ({ activePanel, setActivePanel }: { activePanel: "club" | "whatsapp" | null; setActivePanel: (v: "club" | "whatsapp" | null) => void }) => {
+  const location = useLocation();
+  if (location.pathname.startsWith("/staff/")) return null;
+  return (
+    <>
+      <FloatingClubButton isOpen={activePanel === "club"} onToggle={() => setActivePanel(activePanel === "club" ? null : "club")} />
+      <FloatingWhatsAppButton isOpen={activePanel === "whatsapp"} onToggle={() => setActivePanel(activePanel === "whatsapp" ? null : "whatsapp")} />
+    </>
+  );
+};
 
 const AppContent = () => {
   const [activePanel, setActivePanel] = useState<"club" | "whatsapp" | null>(null);
@@ -143,8 +153,7 @@ const AppContent = () => {
             </Routes>
           </RouteTransition>
           <GlobalFloatingSearchBar />
-          <FloatingClubButton isOpen={activePanel === "club"} onToggle={() => setActivePanel(activePanel === "club" ? null : "club")} />
-          <FloatingWhatsAppButton isOpen={activePanel === "whatsapp"} onToggle={() => setActivePanel(activePanel === "whatsapp" ? null : "whatsapp")} />
+          <FloatingButtonsGuard activePanel={activePanel} setActivePanel={setActivePanel} />
         </BrowserRouter>
       </TooltipProvider>
     </div>
