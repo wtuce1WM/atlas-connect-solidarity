@@ -579,7 +579,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
 
       {/* Booking overlay (iframe) */}
       {showBookingOverlay && bookingOverlayUrl && (
-        <div className="absolute inset-0 -top-[3.3rem] z-[72] animate-slide-up-from-bottom">
+        <div className="absolute inset-0 -top-[3.3rem] z-[72] animate-slide-in-right">
           <BookingOverlay
             bookingUrl={bookingOverlayUrl}
             title={bookingOverlayTitle}
