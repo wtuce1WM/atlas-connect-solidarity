@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton, useOwnerLogo, OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
-import { ExternalLink, MapPin, ChevronLeft, ChevronUp, X, CalendarCheck, ShoppingBag, Star, Minimize2, Loader2, Volume2, VolumeX, Play, Pause, Phone, Search } from "lucide-react";
+import { ExternalLink, MapPin, ChevronLeft, ChevronUp, X, CalendarCheck, ShoppingBag, Star, Minimize2, Loader2, Volume2, VolumeX, Play, Pause, Phone } from "lucide-react";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 import { supabase } from "@/integrations/supabase/client";
 import { haversineKm } from "@/lib/haversine";
@@ -854,7 +854,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   };
   const slideInClass = bottomTabInitialRef.current ? "animate-slide-in-left opacity-0" : "";
 
-  const noBottomCarousel = false; // Tabs are always shown
+  
 
   const hookText = useMemo(() => {
     if (!business) return null;
@@ -1330,7 +1330,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
             {/* Card 1: Web only description */}
             {woDescription && (
-              <div className={`snap-start shrink-0 w-[20rem] md:w-[30rem] ${noBottomCarousel ? 'h-[21.6em] md:h-[28.8em]' : 'h-[15em] md:h-[20em]'} mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10`}
+              <div className={`snap-start shrink-0 w-[20rem] md:w-[30rem] h-[15em] md:h-[20em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10`}
                   style={{ animationFillMode: 'forwards' }}
                 >
                   <div
@@ -1345,7 +1345,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   business={business}
                   language={language}
                   hasOpeningHours={!!hasOpeningHours}
-                  tallHeight={noBottomCarousel}
+                  tallHeight={false}
                   animationDelay={woDescription ? "120ms" : "0ms"}
                   hasHotelMapping={isHotelWithPrice}
                   isSearchingAvailability={hotelSearchLoading}
@@ -1364,7 +1364,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   longitude={business.longitude}
                   googleMapsUrl={business.google_maps_url}
                   businessName={business.name}
-                  tallHeight={noBottomCarousel}
+                  tallHeight={false}
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
                   onClick={() => {
                     if (business?.city && destinations.length >= 2) {
@@ -1379,7 +1379,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 <MenuSummaryCard
                   summaries={menuSummaries}
                   language={language}
-                  tallHeight={noBottomCarousel}
+                  tallHeight={false}
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
                   categoryIcon={categoryIcon}
                 />
@@ -1389,7 +1389,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 <MenuUrlCard
                   menus={menuDocs}
                   language={language}
-                  tallHeight={noBottomCarousel}
+                  tallHeight={false}
                   categoryIcon={categoryIcon}
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0)) * 120}ms`}
                   onOpenUrl={(url, title) => openDocOrBooking(url, title)}
@@ -1722,7 +1722,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           </>
         )}
 
-        {/* Hidden YouTube count probe — always mounted */}
+        
 
         {/* Spacer + availability zone when cards hidden */}
         {cardsHidden && (
@@ -1915,7 +1915,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         />
 
         {/* CTAs + video controls */}
-        <div className={`${showSearchBar ? 'absolute bottom-[56px] left-0 right-0 z-[74] pb-2 md:pb-3' : 'shrink-0 py-2 lg:pb-2'} flex flex-col items-center gap-2 pointer-events-auto ${cardsHidden && effectiveMedia?.kind === "matterport" ? 'mb-24' : ''} ${cardsHidden ? '' : noBottomCarousel ? 'lg:mt-auto' : ''}`} style={(cardsHidden && fallbackPanelData && (() => { const ch = fallbackPanelData.hotels.find(h => h.isCurrentHotel); return !!ch; })()) ? { display: 'none' } : undefined}>
+        <div className={`${showSearchBar ? 'absolute bottom-[56px] left-0 right-0 z-[74] pb-2 md:pb-3' : 'shrink-0 py-2 lg:pb-2'} flex flex-col items-center gap-2 pointer-events-auto ${cardsHidden && effectiveMedia?.kind === "matterport" ? 'mb-24' : ''}`} style={(cardsHidden && fallbackPanelData && (() => { const ch = fallbackPanelData.hotels.find(h => h.isCurrentHotel); return !!ch; })()) ? { display: 'none' } : undefined}>
             {(() => {
               const ctaItems: React.ReactNode[] = [];
               if (bookingCta) {
