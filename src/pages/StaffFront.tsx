@@ -154,6 +154,8 @@ const StaffFront = () => {
               </div>
             </div>
           </TabsContent>
+
+          <TabsContent value="suggestions">
             <PopularSearchesManagement />
           </TabsContent>
 
