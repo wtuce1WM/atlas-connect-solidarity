@@ -103,7 +103,7 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
   const [frontVideos, setFrontVideos] = useState<VideoDoc[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [playingId, setPlayingId] = useState<string | null>(null);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [frontStructures, setFrontStructures] = useState<FrontStructureEntry[]>([]);
   const [selectedStructure, setSelectedStructure] = useState<string>("all");
   const navigate = useNavigate();
