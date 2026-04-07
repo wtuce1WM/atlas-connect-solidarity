@@ -1389,7 +1389,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 <MenuUrlCard
                   menus={menuDocs}
                   language={language}
-                  tallHeight={noBottomCarousel}
+                  tallHeight={false}
                   categoryIcon={categoryIcon}
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0)) * 120}ms`}
                   onOpenUrl={(url, title) => openDocOrBooking(url, title)}
