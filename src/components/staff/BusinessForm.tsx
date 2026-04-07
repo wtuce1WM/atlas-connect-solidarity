@@ -2256,6 +2256,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   { id: "section-description", label: "Description" },
                   { id: "section-poi", label: "POI" },
                   { id: "section-menu", label: "Menu" },
+                  { id: "section-videos", label: "Vidéo" },
                   { id: "section-images", label: "Images" },
                   { id: "section-social", label: "Réseaux" },
                   { id: "section-avis", label: "Avis" },
