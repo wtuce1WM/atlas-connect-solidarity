@@ -6,6 +6,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, LayoutGrid, Video } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import FrontStructureManagement from "@/components/staff/FrontStructureManagement";
+import DestinationVideosPanel from "@/components/staff/DestinationVideosPanel";
+
+const MARRAKECH_DEST_IDS = ["d0bb2ac7-9fee-4e1d-8625-b23e1d28aa9e", "5ad4fd31-330b-42a3-a05d-d303bdee5113"];
+const ESSAOUIRA_DEST_IDS = ["3947db1f-daaa-4f7f-a617-e5988d9d86db"];
 
 const StaffFront = () => {
   const [user, setUser] = useState<any>(null);
@@ -70,14 +74,10 @@ const StaffFront = () => {
                 <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
               </TabsList>
               <TabsContent value="marrakech">
-                <div className="rounded-lg border bg-background p-6 text-sm text-muted-foreground">
-                  Vidéos — Marrakech (à venir)
-                </div>
+                <DestinationVideosPanel destinationIds={MARRAKECH_DEST_IDS} />
               </TabsContent>
               <TabsContent value="essaouira">
-                <div className="rounded-lg border bg-background p-6 text-sm text-muted-foreground">
-                  Vidéos — Essaouira (à venir)
-                </div>
+                <DestinationVideosPanel destinationIds={ESSAOUIRA_DEST_IDS} />
               </TabsContent>
             </Tabs>
           </TabsContent>
