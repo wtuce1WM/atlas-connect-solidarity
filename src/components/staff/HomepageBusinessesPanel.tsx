@@ -144,7 +144,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
     const rows: any[] = [];
     for (const c of cities) {
       const chunk = await fetchAll(
-        supabase.from("businesses").select("id, name, logo_url, city, categories, services, images").eq("city", c).eq("is_active", true).order("name")
+        supabase.from("businesses").select("id, name, logo_url, city, categories, services, images, video_1_url").eq("city", c).eq("is_active", true).order("name")
       );
       rows.push(...chunk);
     }
