@@ -9,6 +9,8 @@ export interface TabDef {
   label: string;
   /** Red background when not active (YouTube style) */
   tabStyle?: "youtube";
+  /** Extra classes on the button (e.g. truncation) */
+  className?: string;
 }
 
 /* ────────────────────────────────────────────────
