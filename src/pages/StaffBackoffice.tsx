@@ -113,25 +113,29 @@ const StaffBackoffice = () => {
   // Handle ?edit=<businessId> query param to open business form directly
   useEffect(() => {
     const editId = searchParams.get("edit");
+    const section = searchParams.get("section");
     if (editId && businesses.length > 0) {
       const found = businesses.find(b => b.id === editId);
-      if (found) {
+      const openBusiness = (biz: any) => {
         setActiveTab("businesses");
-        setEditingBusiness(found);
+        setEditingBusiness(biz);
         setShowForm(true);
         searchParams.delete("edit");
+        searchParams.delete("section");
         setSearchParams(searchParams, { replace: true });
-        window.scrollTo({ top: 0, behavior: "instant" });
+        if (section) {
+          setTimeout(() => {
+            document.getElementById(section)?.scrollIntoView({ behavior: "smooth" });
+          }, 400);
+        } else {
+          window.scrollTo({ top: 0, behavior: "instant" });
+        }
+      };
+      if (found) {
+        openBusiness(found);
       } else {
         supabase.from("businesses").select("*").eq("id", editId).single().then(({ data }) => {
-          if (data) {
-            setActiveTab("businesses");
-            setEditingBusiness(data as Business);
-            setShowForm(true);
-            searchParams.delete("edit");
-            setSearchParams(searchParams, { replace: true });
-            window.scrollTo({ top: 0, behavior: "instant" });
-          }
+          if (data) openBusiness(data as Business);
         });
       }
     }
