@@ -63,7 +63,7 @@ const ExternalLinksFlipCard = ({
               loading="lazy"
             />
           ) : (
-            <span className="text-[10px] text-white/90 text-center normal-case leading-tight line-clamp-3" style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: '0.02em' }}>
+            <span className="text-xs text-white/90 text-center normal-case leading-tight line-clamp-3" style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: '0.02em' }}>
               {link.name || new URL(link.url).hostname.replace('www.', '')}
             </span>
           )}
