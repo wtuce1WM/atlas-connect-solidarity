@@ -187,6 +187,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
         .map((b: any) => ({
           id: b.id, name: b.name, logo_url: b.logo_url, city: b.city,
           categories: b.categories || [], services: b.services || [], images: b.images || [],
+          video_1_url: b.video_1_url || null,
         }));
       setSelected(ordered);
     } else {
