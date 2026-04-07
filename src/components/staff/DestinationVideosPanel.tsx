@@ -105,17 +105,26 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
   // Load front_structure entries with their matching category ids
   useEffect(() => {
     const loadStructures = async () => {
-      const [{ data: structures }, { data: categories }] = await Promise.all([
+      const [{ data: structures }, { data: links }, { data: subcats }] = await Promise.all([
         supabase.from("front_structure").select("id, name, sort_order").order("sort_order"),
-        supabase.from("categories").select("id, name_fr"),
+        supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
+        supabase.from("subcategories").select("id, name_fr"),
       ]);
-      if (structures && categories) {
-        const catMap = new Map((categories as any[]).map((c) => [c.name_fr.toLowerCase(), c.id]));
+      if (structures && links && subcats) {
+        const scNameMap = new Map((subcats as any[]).map((sc) => [sc.id, sc.name_fr]));
+        const linksByEntry: Record<string, string[]> = {};
+        (links as any[]).forEach((l) => {
+          const name = scNameMap.get(l.subcategory_id);
+          if (name) {
+            if (!linksByEntry[l.front_structure_id]) linksByEntry[l.front_structure_id] = [];
+            linksByEntry[l.front_structure_id].push(name);
+          }
+        });
         setFrontStructures(
           (structures as any[]).map((s) => ({
             id: s.id,
             name: s.name,
-            categoryId: catMap.get(s.name.toLowerCase()) || null,
+            subcategoryNames: linksByEntry[s.id] || [],
           }))
         );
       }
