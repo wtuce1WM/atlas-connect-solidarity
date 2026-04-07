@@ -2027,6 +2027,55 @@ export type Database = {
         }
         Relationships: []
       }
+      homepage_selections: {
+        Row: {
+          business_id: string
+          city: string
+          created_at: string
+          front_structure_id: string
+          id: string
+          sort_order: number
+        }
+        Insert: {
+          business_id: string
+          city: string
+          created_at?: string
+          front_structure_id: string
+          id?: string
+          sort_order?: number
+        }
+        Update: {
+          business_id?: string
+          city?: string
+          created_at?: string
+          front_structure_id?: string
+          id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "homepage_selections_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "homepage_selections_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "homepage_selections_front_structure_id_fkey"
+            columns: ["front_structure_id"]
+            isOneToOne: false
+            referencedRelation: "front_structure"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hotel_api_mappings: {
         Row: {
           business_id: string
