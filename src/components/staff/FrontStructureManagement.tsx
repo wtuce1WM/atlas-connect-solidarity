@@ -22,6 +22,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Loader2, LayoutGrid, Save, X } from "lucide-react";
 
@@ -30,12 +31,19 @@ interface FrontEntry {
   name: string;
   sort_order: number;
   subcategory_ids: string[];
+  service_ids: string[];
 }
 
 interface Subcategory {
   id: string;
   name_fr: string;
   category_name: string;
+}
+
+interface Service {
+  id: string;
+  name_fr: string;
+  subcategory_name: string;
 }
 
 interface Props {
@@ -47,32 +55,48 @@ interface Props {
 const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props) => {
   const [entries, setEntries] = useState<FrontEntry[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editingId, setEditingId] = useState<string | null>(null); // null = new
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editSortOrder, setEditSortOrder] = useState(0);
   const [editSubIds, setEditSubIds] = useState<Set<string>>(new Set());
+  const [editServiceIds, setEditServiceIds] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [searchFilter, setSearchFilter] = useState("");
+  const [serviceSearchFilter, setServiceSearchFilter] = useState("");
 
   const load = async () => {
     setLoading(true);
-    const [entriesRes, linksRes, subsRes, catsRes] = await Promise.all([
+    const [entriesRes, linksRes, svcLinksRes, subsRes, catsRes, servicesRes] = await Promise.all([
       supabase.from("front_structure").select("*").order("sort_order"),
       supabase.from("front_structure_subcategories").select("*"),
+      supabase.from("front_structure_services" as any).select("*"),
       supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
       supabase.from("categories").select("id, name_fr"),
+      supabase.from("services").select("id, name_fr, subcategory_id").eq("is_active", true).order("name_fr"),
     ]);
 
     const catMap: Record<string, string> = {};
     (catsRes.data || []).forEach((c: any) => { catMap[c.id] = c.name_fr; });
 
-    setSubcategories(
-      (subsRes.data || []).map((s: any) => ({
+    const subMap: Record<string, string> = {};
+    const subs = (subsRes.data || []).map((s: any) => {
+      subMap[s.id] = s.name_fr;
+      return {
         id: s.id,
         name_fr: s.name_fr,
         category_name: catMap[s.category_id] || "?",
+      };
+    });
+    setSubcategories(subs);
+
+    setServices(
+      (servicesRes.data || []).map((s: any) => ({
+        id: s.id,
+        name_fr: s.name_fr,
+        subcategory_name: subMap[s.subcategory_id] || "?",
       }))
     );
 
@@ -82,12 +106,19 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
       linksByEntry[l.front_structure_id].push(l.subcategory_id);
     });
 
+    const svcLinksByEntry: Record<string, string[]> = {};
+    ((svcLinksRes.data || []) as any[]).forEach((l: any) => {
+      if (!svcLinksByEntry[l.front_structure_id]) svcLinksByEntry[l.front_structure_id] = [];
+      svcLinksByEntry[l.front_structure_id].push(l.service_id);
+    });
+
     setEntries(
       (entriesRes.data || []).map((e: any) => ({
         id: e.id,
         name: e.name,
         sort_order: e.sort_order,
         subcategory_ids: linksByEntry[e.id] || [],
+        service_ids: svcLinksByEntry[e.id] || [],
       }))
     );
     setLoading(false);
@@ -102,6 +133,7 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
     setEditName("");
     setEditSortOrder(entries.length);
     setEditSubIds(new Set());
+    setEditServiceIds(new Set());
     setShowForm(true);
   };
 
@@ -110,16 +142,28 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
     setEditName(entry.name);
     setEditSortOrder(entry.sort_order);
     setEditSubIds(new Set(entry.subcategory_ids));
+    setEditServiceIds(new Set(entry.service_ids));
     setShowForm(true);
   };
 
   const cancelEdit = () => {
     setShowForm(false);
     setEditingId(null);
+    setSearchFilter("");
+    setServiceSearchFilter("");
   };
 
   const toggleSub = (id: string) => {
     setEditSubIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleService = (id: string) => {
+    setEditServiceIds(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
@@ -143,13 +187,22 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
       }
 
       if (entryId) {
-        // Sync subcategories: delete all then re-insert
+        // Sync subcategories
         await supabase.from("front_structure_subcategories").delete().eq("front_structure_id", entryId);
         const subIds = Array.from(editSubIds);
         if (subIds.length > 0) {
           await supabase.from("front_structure_subcategories").insert(
             subIds.map((sid, i) => ({ front_structure_id: entryId!, subcategory_id: sid, sort_order: i }))
           );
+        }
+
+        // Sync services
+        await (supabase.from("front_structure_services" as any).delete().eq("front_structure_id", entryId) as any);
+        const svcIds = Array.from(editServiceIds);
+        if (svcIds.length > 0) {
+          await (supabase.from("front_structure_services" as any).insert(
+            svcIds.map((sid, i) => ({ front_structure_id: entryId!, service_id: sid, sort_order: i }))
+          ) as any);
         }
       }
 
@@ -171,6 +224,7 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
   };
 
   const getSubName = (id: string) => subcategories.find(s => s.id === id)?.name_fr || "?";
+  const getServiceName = (id: string) => services.find(s => s.id === id)?.name_fr || "?";
 
   const filteredSubs = subcategories.filter(s => {
     if (!searchFilter) return true;
@@ -178,12 +232,25 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
     return s.name_fr.toLowerCase().includes(q) || s.category_name.toLowerCase().includes(q);
   });
 
-  // Group by category
+  const filteredServices = services.filter(s => {
+    if (!serviceSearchFilter) return true;
+    const q = serviceSearchFilter.toLowerCase();
+    return s.name_fr.toLowerCase().includes(q) || s.subcategory_name.toLowerCase().includes(q);
+  });
+
+  // Group subcategories by category
   const grouped = filteredSubs.reduce((acc, s) => {
     if (!acc[s.category_name]) acc[s.category_name] = [];
     acc[s.category_name].push(s);
     return acc;
   }, {} as Record<string, Subcategory[]>);
+
+  // Group services by subcategory
+  const groupedServices = filteredServices.reduce((acc, s) => {
+    if (!acc[s.subcategory_name]) acc[s.subcategory_name] = [];
+    acc[s.subcategory_name].push(s);
+    return acc;
+  }, {} as Record<string, Service[]>);
 
   const content = (
     <>
@@ -231,35 +298,70 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
                     </div>
                   </div>
 
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1 block">
-                      Sous-catégories liées ({editSubIds.size} sélectionnée{editSubIds.size > 1 ? "s" : ""})
-                    </label>
-                    <Input
-                      placeholder="Filtrer les sous-catégories..."
-                      value={searchFilter}
-                      onChange={e => setSearchFilter(e.target.value)}
-                      className="mb-2"
-                    />
-                    <div className="max-h-[250px] overflow-y-auto border rounded-md p-2 space-y-2">
-                      {Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b, "fr")).map(([catName, subs]) => (
-                        <div key={catName}>
-                          <div className="text-xs font-semibold text-muted-foreground mb-1">{catName}</div>
-                          <div className="grid grid-cols-2 gap-1 ml-2">
-                            {subs.map(s => (
-                              <label key={s.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 rounded px-1 py-0.5">
-                                <Checkbox
-                                  checked={editSubIds.has(s.id)}
-                                  onCheckedChange={() => toggleSub(s.id)}
-                                />
-                                {s.name_fr}
-                              </label>
-                            ))}
+                  <Tabs defaultValue="subcategories">
+                    <TabsList className="w-full">
+                      <TabsTrigger value="subcategories" className="flex-1">
+                        Sous-catégories ({editSubIds.size})
+                      </TabsTrigger>
+                      <TabsTrigger value="services" className="flex-1">
+                        Services ({editServiceIds.size})
+                      </TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="subcategories" className="mt-2">
+                      <Input
+                        placeholder="Filtrer les sous-catégories..."
+                        value={searchFilter}
+                        onChange={e => setSearchFilter(e.target.value)}
+                        className="mb-2"
+                      />
+                      <div className="max-h-[250px] overflow-y-auto border rounded-md p-2 space-y-2">
+                        {Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b, "fr")).map(([catName, subs]) => (
+                          <div key={catName}>
+                            <div className="text-xs font-semibold text-muted-foreground mb-1">{catName}</div>
+                            <div className="grid grid-cols-2 gap-1 ml-2">
+                              {subs.map(s => (
+                                <label key={s.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 rounded px-1 py-0.5">
+                                  <Checkbox
+                                    checked={editSubIds.has(s.id)}
+                                    onCheckedChange={() => toggleSub(s.id)}
+                                  />
+                                  {s.name_fr}
+                                </label>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                        ))}
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="services" className="mt-2">
+                      <Input
+                        placeholder="Filtrer les services..."
+                        value={serviceSearchFilter}
+                        onChange={e => setServiceSearchFilter(e.target.value)}
+                        className="mb-2"
+                      />
+                      <div className="max-h-[250px] overflow-y-auto border rounded-md p-2 space-y-2">
+                        {Object.entries(groupedServices).sort(([a], [b]) => a.localeCompare(b, "fr")).map(([subName, svcs]) => (
+                          <div key={subName}>
+                            <div className="text-xs font-semibold text-muted-foreground mb-1">{subName}</div>
+                            <div className="grid grid-cols-2 gap-1 ml-2">
+                              {svcs.map(s => (
+                                <label key={s.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 rounded px-1 py-0.5">
+                                  <Checkbox
+                                    checked={editServiceIds.has(s.id)}
+                                    onCheckedChange={() => toggleService(s.id)}
+                                  />
+                                  {s.name_fr}
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </TabsContent>
+                  </Tabs>
 
                   <div className="flex gap-2">
                     <Button size="sm" onClick={saveEntry} disabled={saving}>
@@ -319,12 +421,17 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
-                    {entry.subcategory_ids.length === 0 && (
-                      <span className="text-xs text-muted-foreground italic">Aucune sous-catégorie liée</span>
+                    {entry.subcategory_ids.length === 0 && entry.service_ids.length === 0 && (
+                      <span className="text-xs text-muted-foreground italic">Aucune liaison</span>
                     )}
                     {entry.subcategory_ids.map(sid => (
                       <Badge key={sid} variant="outline" className="text-xs">
                         {getSubName(sid)}
+                      </Badge>
+                    ))}
+                    {entry.service_ids.map(sid => (
+                      <Badge key={sid} variant="outline" className="text-xs bg-blue-50 border-blue-200 text-blue-700">
+                        🔧 {getServiceName(sid)}
                       </Badge>
                     ))}
                   </div>
