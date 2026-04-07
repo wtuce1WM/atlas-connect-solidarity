@@ -473,6 +473,7 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
                         index={i}
                         onRemove={removeFromFront}
                         onNavigate={goToEdit}
+                        onPlay={setLightboxUrl}
                       />
                     ))}
                   </div>
