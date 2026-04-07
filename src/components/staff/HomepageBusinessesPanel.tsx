@@ -150,22 +150,21 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
     load();
   }, []);
 
-  // Helper: fetch first video thumbnail per business
-  const fetchThumbnails = useCallback(async (businessIds: string[]): Promise<Map<string, string>> => {
-    const map = new Map<string, string>();
+  // Helper: fetch first video thumbnail + url per business
+  const fetchVideoData = useCallback(async (businessIds: string[]): Promise<Map<string, { thumbnail_url: string | null; video_url: string }>> => {
+    const map = new Map<string, { thumbnail_url: string | null; video_url: string }>();
     const batch = 300;
     for (let i = 0; i < businessIds.length; i += batch) {
       const chunk = businessIds.slice(i, i + batch);
       const { data } = await supabase
         .from("business_documents")
-        .select("business_id, thumbnail_url")
+        .select("business_id, thumbnail_url, url")
         .eq("type", "video")
-        .not("thumbnail_url", "is", null)
         .in("business_id", chunk)
         .order("sort_order", { ascending: true });
       if (data) {
         (data as any[]).forEach((d) => {
-          if (!map.has(d.business_id) && d.thumbnail_url) map.set(d.business_id, d.thumbnail_url);
+          if (!map.has(d.business_id)) map.set(d.business_id, { thumbnail_url: d.thumbnail_url || null, video_url: d.url });
         });
       }
     }
@@ -186,15 +185,19 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
     }
     const seen = new Set<string>();
     const deduped = rows.filter((r) => { if (seen.has(r.id)) return false; seen.add(r.id); return true; });
-    const thumbMap = await fetchThumbnails(deduped.map((b) => b.id));
-    setAllBusinesses(deduped.map((b: any) => ({
-      id: b.id, name: b.name, logo_url: b.logo_url, city: b.city,
-      categories: b.categories || [], services: b.services || [], images: b.images || [],
-      video_1_url: b.video_1_url || null, thumbnail_url: thumbMap.get(b.id) || null,
-    })));
+    const videoMap = await fetchVideoData(deduped.map((b) => b.id));
+    setAllBusinesses(deduped.map((b: any) => {
+      const vd = videoMap.get(b.id);
+      return {
+        id: b.id, name: b.name, logo_url: b.logo_url, city: b.city,
+        categories: b.categories || [], services: b.services || [], images: b.images || [],
+        video_1_url: b.video_1_url || vd?.video_url || null,
+        thumbnail_url: vd?.thumbnail_url || null,
+      };
+    }));
     setAllLoaded(true);
     setLoading(false);
-  }, [cityName, fetchAll, fetchThumbnails, allLoaded]);
+  }, [cityName, fetchAll, fetchVideoData, allLoaded]);
 
   // When structure changes, load businesses + saved selection
   const handleStructureChange = async (val: string) => {
@@ -210,20 +213,24 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
       .order("sort_order");
     if (savedRows && savedRows.length > 0) {
       const ids = (savedRows as any[]).map((r) => r.business_id);
-      const [{ data: bizData }, thumbMap] = await Promise.all([
+      const [{ data: bizData }, videoMap] = await Promise.all([
         supabase.from("businesses").select("id, name, logo_url, city, categories, services, images, video_1_url").in("id", ids),
-        fetchThumbnails(ids),
+        fetchVideoData(ids),
       ]);
       const bizMap = new Map((bizData || []).map((b: any) => [b.id, b]));
       const ordered = (savedRows as any[])
         .sort((a, b) => a.sort_order - b.sort_order)
         .map((r) => bizMap.get(r.business_id))
         .filter(Boolean)
-        .map((b: any) => ({
-          id: b.id, name: b.name, logo_url: b.logo_url, city: b.city,
-          categories: b.categories || [], services: b.services || [], images: b.images || [],
-          video_1_url: b.video_1_url || null, thumbnail_url: thumbMap.get(b.id) || null,
-        }));
+        .map((b: any) => {
+          const vd = videoMap.get(b.id);
+          return {
+            id: b.id, name: b.name, logo_url: b.logo_url, city: b.city,
+            categories: b.categories || [], services: b.services || [], images: b.images || [],
+            video_1_url: b.video_1_url || vd?.video_url || null,
+            thumbnail_url: vd?.thumbnail_url || null,
+          };
+        });
       setSelected(ordered);
     } else {
       setSelected([]);
