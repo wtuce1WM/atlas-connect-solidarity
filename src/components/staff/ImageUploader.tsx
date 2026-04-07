@@ -148,7 +148,7 @@ const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta
       {(() => {
         const info = extractPathInfo(url);
         return (
-          <div className="absolute bottom-0 left-0 right-0 bg-black/80 text-white text-xs leading-relaxed p-2 opacity-0 group-hover:opacity-100 transition-opacity overflow-hidden space-y-0.5">
+          <div className="absolute bottom-0 left-0 right-0 bg-black/80 text-white text-xs leading-relaxed p-2 overflow-hidden space-y-0.5">
             <p className="truncate font-medium" title={info.path}>📁 {info.path}</p>
             <div className="flex gap-3 flex-wrap">
               {info.extension && <span>📄 {info.extension}</span>}
