@@ -31,6 +31,7 @@ interface BusinessItem {
   services: string[];
   images: string[];
   video_1_url: string | null;
+  thumbnail_url: string | null;
 }
 
 interface HomepageBusinessesPanelProps {
