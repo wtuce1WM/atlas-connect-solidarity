@@ -468,9 +468,21 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
             const hasPoisTab = cityPoisForTabs.length > 0;
             const tabs: BottomTabConfig[] = [];
 
+            const videoTabLabel = (() => {
+              if (poi?.carousel_badge) {
+                const cb = poi.carousel_badge;
+                if (cb === "immergez_vous") return language === "en" ? "Immerse yourself" : "Immergez-vous";
+                if (cb === "bienvenue_a") return `${language === "en" ? "Welcome to" : "Bienvenue à"} ${poi.name}`;
+                if (cb === "bienvenue_au") return `${language === "en" ? "Welcome to" : "Bienvenue au"} ${poi.name}`;
+                if (cb === "bienvenue_chez") return `${language === "en" ? "Welcome to" : "Bienvenue chez"} ${poi.name}`;
+                if (cb === "nos_offres") return language === "en" ? "Our offers" : "Nos offres";
+              }
+              return `${language === "en" ? "Welcome to" : "Bienvenue à"} ${poi?.name || ""}`;
+            })();
+
             if (hasVideosTab) tabs.push({
               id: "videos",
-              label: language === "en" ? "Videos" : "Vidéos",
+              label: videoTabLabel,
               renderContent: (animate, animCls) => (
                 <TabScrollRail>
                   {linkedVideos.map((cv, index) => {
