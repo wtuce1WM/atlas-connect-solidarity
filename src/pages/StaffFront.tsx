@@ -111,6 +111,10 @@ const StaffFront = () => {
           <TabsContent value="resources">
             <BlogManagement />
           </TabsContent>
+
+          <TabsContent value="social-links">
+            <SocialLinksManagement />
+          </TabsContent>
         </Tabs>
       </main>
     </div>
