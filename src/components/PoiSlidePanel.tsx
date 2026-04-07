@@ -61,6 +61,7 @@ interface PoiFull {
   website: string | null;
   website_force_external: boolean;
   website_presentation_mode: string;
+  carousel_badge: string | null;
 }
 
 const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePanelProps) => {
@@ -140,7 +141,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
       setIsLoading(true);
       const { data } = await supabase
         .from("businesses")
-        .select("id, name, description, poi_description, poi_hook, hook_fr, hook_en, hook_ar, images, video_1_url, latitude, longitude, city, neighborhood, address, phone, whatsapp, skype, logo_url, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, reserve_now_url, reserve_now_force_external, presentation_mode, online_shop_url, online_shop_force_external, online_shop_presentation_mode, website, website_force_external, website_presentation_mode")
+        .select("id, name, description, poi_description, poi_hook, hook_fr, hook_en, hook_ar, images, video_1_url, latitude, longitude, city, neighborhood, address, phone, whatsapp, skype, logo_url, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, reserve_now_url, reserve_now_force_external, presentation_mode, online_shop_url, online_shop_force_external, online_shop_presentation_mode, website, website_force_external, website_presentation_mode, carousel_badge")
         .eq("id", businessId)
         .maybeSingle();
       if (cancelled) return;
@@ -468,9 +469,21 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
             const hasPoisTab = cityPoisForTabs.length > 0;
             const tabs: BottomTabConfig[] = [];
 
+            const videoTabLabel = (() => {
+              if (poi?.carousel_badge) {
+                const cb = poi.carousel_badge;
+                if (cb === "immergez_vous") return language === "en" ? "Immerse yourself" : "Immergez-vous";
+                if (cb === "bienvenue_a") return `${language === "en" ? "Welcome to" : "Bienvenue à"} ${poi.name}`;
+                if (cb === "bienvenue_au") return `${language === "en" ? "Welcome to" : "Bienvenue au"} ${poi.name}`;
+                if (cb === "bienvenue_chez") return `${language === "en" ? "Welcome to" : "Bienvenue chez"} ${poi.name}`;
+                if (cb === "nos_offres") return language === "en" ? "Our offers" : "Nos offres";
+              }
+              return `${language === "en" ? "Welcome to" : "Bienvenue à"} ${poi?.name || ""}`;
+            })();
+
             if (hasVideosTab) tabs.push({
               id: "videos",
-              label: language === "en" ? "Videos" : "Vidéos",
+              label: videoTabLabel,
               renderContent: (animate, animCls) => (
                 <TabScrollRail>
                   {linkedVideos.map((cv, index) => {
