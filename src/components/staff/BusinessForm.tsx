@@ -677,6 +677,52 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
                 </SelectContent>
               </Select>
             </div>
+            <div>
+              <label className="text-[9px] text-muted-foreground">Date début</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="h-5 w-full text-[9px] justify-start font-normal px-1.5">
+                    {doc.start_date ? format(new Date(doc.start_date), "dd/MM/yyyy") : "—"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={doc.start_date ? new Date(doc.start_date) : undefined}
+                    onSelect={(d) => setVideoDocs(prev => prev.map((dd, i) => i === idx ? { ...dd, start_date: d ? format(d, "yyyy-MM-dd") : null } : dd))}
+                    className="p-3 pointer-events-auto"
+                  />
+                  {doc.start_date && (
+                    <div className="px-3 pb-2">
+                      <Button variant="ghost" size="sm" className="h-6 text-[10px] w-full" onClick={() => setVideoDocs(prev => prev.map((dd, i) => i === idx ? { ...dd, start_date: null } : dd))}>Effacer</Button>
+                    </div>
+                  )}
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div>
+              <label className="text-[9px] text-muted-foreground">Date fin</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="h-5 w-full text-[9px] justify-start font-normal px-1.5">
+                    {doc.end_date ? format(new Date(doc.end_date), "dd/MM/yyyy") : "—"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={doc.end_date ? new Date(doc.end_date) : undefined}
+                    onSelect={(d) => setVideoDocs(prev => prev.map((dd, i) => i === idx ? { ...dd, end_date: d ? format(d, "yyyy-MM-dd") : null } : dd))}
+                    className="p-3 pointer-events-auto"
+                  />
+                  {doc.end_date && (
+                    <div className="px-3 pb-2">
+                      <Button variant="ghost" size="sm" className="h-6 text-[10px] w-full" onClick={() => setVideoDocs(prev => prev.map((dd, i) => i === idx ? { ...dd, end_date: null } : dd))}>Effacer</Button>
+                    </div>
+                  )}
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
         </CollapsibleContent>
       </Collapsible>
