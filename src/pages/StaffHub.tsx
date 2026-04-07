@@ -144,6 +144,15 @@ const StaffHub = () => {
       adminOnly: true,
     },
     {
+      title: "Présentation",
+      description: "Configurer la présentation front : structure, sections, destinations et points d'intérêt.",
+      icon: Presentation,
+      href: "/staff/catalogue",
+      color: "from-teal-500/20 to-cyan-500/10",
+      iconColor: "text-teal-600",
+      adminOnly: true,
+    },
+    {
       title: "CRM",
       description: "Gestion de la relation client, affiliés et suivi commercial.",
       icon: Users,
