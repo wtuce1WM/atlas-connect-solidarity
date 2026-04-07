@@ -24,7 +24,24 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Loader2, LayoutGrid, Save, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, LayoutGrid, Save, X, GripVertical } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface FrontEntry {
   id: string;
@@ -45,6 +62,129 @@ interface Service {
   name_fr: string;
   subcategory_name: string;
 }
+
+interface SortableEntryCardProps {
+  entry: FrontEntry;
+  onEdit: (entry: FrontEntry) => void;
+  onDelete: (id: string) => void;
+  getSubName: (id: string) => string;
+  getServiceName: (id: string) => string;
+}
+
+const SortableEntryCard = ({ entry, onEdit, onDelete, getSubName, getServiceName }: SortableEntryCardProps) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: entry.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <Card>
+        <CardContent className="pt-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <button type="button" className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground touch-none" {...attributes} {...listeners}>
+                <GripVertical className="h-4 w-4" />
+              </button>
+              <span className="font-medium">{entry.name}</span>
+              <Badge variant="secondary" className="text-xs">#{entry.sort_order}</Badge>
+            </div>
+            <div className="flex gap-1">
+              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => onEdit(entry)}>
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Supprimer ?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Supprimer l'entrée « {entry.name} » et ses liaisons ?
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Non</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => onDelete(entry.id)}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Oui
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {entry.subcategory_ids.length === 0 && entry.service_ids.length === 0 && (
+              <span className="text-xs text-muted-foreground italic">Aucune liaison</span>
+            )}
+            {entry.subcategory_ids.map(sid => (
+              <Badge key={sid} variant="outline" className="text-xs">
+                {getSubName(sid)}
+              </Badge>
+            ))}
+            {entry.service_ids.map(sid => (
+              <Badge key={sid} variant="outline" className="text-xs bg-blue-50 border-blue-200 text-blue-700">
+                🔧 {getServiceName(sid)}
+              </Badge>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+interface SortableEntriesListProps {
+  entries: FrontEntry[];
+  onEdit: (entry: FrontEntry) => void;
+  onDelete: (id: string) => void;
+  getSubName: (id: string) => string;
+  getServiceName: (id: string) => string;
+  onReorder: (entries: FrontEntry[]) => void;
+}
+
+const SortableEntriesList = ({ entries, onEdit, onDelete, getSubName, getServiceName, onReorder }: SortableEntriesListProps) => {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = entries.findIndex(e => e.id === active.id);
+    const newIndex = entries.findIndex(e => e.id === over.id);
+    const reordered = arrayMove(entries, oldIndex, newIndex).map((e, i) => ({ ...e, sort_order: i }));
+    onReorder(reordered);
+  };
+
+  return (
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={entries.map(e => e.id)} strategy={verticalListSortingStrategy}>
+        <div className="space-y-2">
+          {entries.map(entry => (
+            <SortableEntryCard
+              key={entry.id}
+              entry={entry}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              getSubName={getSubName}
+              getServiceName={getServiceName}
+            />
+          ))}
+        </div>
+      </SortableContext>
+    </DndContext>
+  );
+};
 
 interface Props {
   open: boolean;
@@ -223,6 +363,19 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
     load();
   };
 
+  const handleReorder = async (reordered: FrontEntry[]) => {
+    setEntries(reordered);
+    try {
+      await Promise.all(
+        reordered.map(e => supabase.from("front_structure").update({ sort_order: e.sort_order }).eq("id", e.id))
+      );
+      toast.success("Ordre mis à jour");
+    } catch {
+      toast.error("Erreur lors de la mise à jour de l'ordre");
+      load();
+    }
+  };
+
   const getSubName = (id: string) => subcategories.find(s => s.id === id)?.name_fr || "?";
   const getServiceName = (id: string) => services.find(s => s.id === id)?.name_fr || "?";
 
@@ -382,62 +535,14 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
               </p>
             )}
 
-            {entries.map(entry => (
-              <Card key={entry.id}>
-                <CardContent className="pt-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{entry.name}</span>
-                      <Badge variant="secondary" className="text-xs">#{entry.sort_order}</Badge>
-                    </div>
-                    <div className="flex gap-1">
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => startEdit(entry)}>
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive">
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Supprimer ?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Supprimer l'entrée « {entry.name} » et ses liaisons ?
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Non</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => deleteEntry(entry.id)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            >
-                              Oui
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {entry.subcategory_ids.length === 0 && entry.service_ids.length === 0 && (
-                      <span className="text-xs text-muted-foreground italic">Aucune liaison</span>
-                    )}
-                    {entry.subcategory_ids.map(sid => (
-                      <Badge key={sid} variant="outline" className="text-xs">
-                        {getSubName(sid)}
-                      </Badge>
-                    ))}
-                    {entry.service_ids.map(sid => (
-                      <Badge key={sid} variant="outline" className="text-xs bg-blue-50 border-blue-200 text-blue-700">
-                        🔧 {getServiceName(sid)}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            <SortableEntriesList
+              entries={entries}
+              onEdit={startEdit}
+              onDelete={deleteEntry}
+              getSubName={getSubName}
+              getServiceName={getServiceName}
+              onReorder={handleReorder}
+            />
           </div>
         )}
     </>
