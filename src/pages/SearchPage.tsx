@@ -3321,7 +3321,7 @@ const SearchPage = () => {
           ) : !showCelebrityGuide && !showSosMedecin && !showPompiers && filteredBusinesses.length > 0 ? (
             <>
                {/* Bar: Results count + Carte — STICKY 5 */}
-               <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white flex items-center justify-center lg:justify-end px-4 gap-2 relative py-2 mb-2" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
+               <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white flex items-center justify-center lg:justify-end px-4 gap-2 relative py-3 sm:py-4" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
                 {isSubDesktop && (
                   <button
                     onClick={() => setShowMobileMap(true)}
