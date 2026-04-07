@@ -363,6 +363,19 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
     load();
   };
 
+  const handleReorder = async (reordered: FrontEntry[]) => {
+    setEntries(reordered);
+    try {
+      await Promise.all(
+        reordered.map(e => supabase.from("front_structure").update({ sort_order: e.sort_order }).eq("id", e.id))
+      );
+      toast.success("Ordre mis à jour");
+    } catch {
+      toast.error("Erreur lors de la mise à jour de l'ordre");
+      load();
+    }
+  };
+
   const getSubName = (id: string) => subcategories.find(s => s.id === id)?.name_fr || "?";
   const getServiceName = (id: string) => services.find(s => s.id === id)?.name_fr || "?";
 
