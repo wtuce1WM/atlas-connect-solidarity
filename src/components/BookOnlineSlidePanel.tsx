@@ -1364,7 +1364,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   longitude={business.longitude}
                   googleMapsUrl={business.google_maps_url}
                   businessName={business.name}
-                  tallHeight={noBottomCarousel}
+                  tallHeight={false}
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
                   onClick={() => {
                     if (business?.city && destinations.length >= 2) {
