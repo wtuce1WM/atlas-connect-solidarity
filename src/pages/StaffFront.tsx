@@ -7,6 +7,7 @@ import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Hom
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import FrontStructureManagement from "@/components/staff/FrontStructureManagement";
 import DestinationVideosPanel from "@/components/staff/DestinationVideosPanel";
+import HomepageBusinessesPanel from "@/components/staff/HomepageBusinessesPanel";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import DisplayPanel from "@/components/staff/DisplayPanel";
 import BlogManagement from "@/components/staff/BlogManagement";
