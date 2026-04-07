@@ -63,6 +63,10 @@ const StaffFront = () => {
               <Video className="h-4 w-4" />
               Vidéos
             </TabsTrigger>
+            <TabsTrigger value="homepage" className="gap-2">
+              <Home className="h-4 w-4" />
+              Homepage
+            </TabsTrigger>
             <TabsTrigger value="suggestions" className="gap-2">
               <Search className="h-4 w-4" />
               Suggestions
