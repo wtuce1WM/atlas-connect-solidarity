@@ -6,8 +6,16 @@ import { useSearchHistory } from "@/hooks/useSearchHistory";
 import { useRecentlyViewedBusinesses } from "@/hooks/useRecentlyViewedBusinesses";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Search, Clock, X, Mic, MicOff, Loader, TrendingUp, MapPin } from "lucide-react";
+import { ArrowLeft, Search, Clock, X, Mic, MicOff, Loader, TrendingUp, MapPin, MapPinOff, Sparkles } from "lucide-react";
 import { businessUrl } from "@/lib/businessUrl";
+
+interface GeoDisplayState {
+  isEnabled: boolean;
+  isDetecting: boolean;
+  detectedCity?: string | null;
+  detectedNeighborhood?: string | null;
+  confirmedAddress?: string | null;
+}
 
 interface MobileSearchOverlayProps {
   open: boolean;
@@ -24,6 +32,12 @@ interface MobileSearchOverlayProps {
   desktopHalfWidth?: boolean;
   /** When true, use absolute positioning to stay contained within its parent element */
   contained?: boolean;
+  /** Called when user taps AI suggestion button */
+  onAiSuggestionClick?: () => void;
+  /** Called when user taps location button */
+  onLocationClick?: () => void;
+  /** Geo state for displaying location button */
+  geoState?: GeoDisplayState;
 }
 
 const MobileSearchOverlay = ({
@@ -35,6 +49,9 @@ const MobileSearchOverlay = ({
   desktopDocked = false,
   desktopHalfWidth = false,
   contained = false,
+  onAiSuggestionClick,
+  onLocationClick,
+  geoState,
 }: MobileSearchOverlayProps) => {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -261,6 +278,49 @@ const MobileSearchOverlay = ({
                 </button>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* AI Suggestion + Location buttons */}
+        {(onAiSuggestionClick || onLocationClick) && (!query || query.trim().length < 2) && (
+          <div className="mb-6 flex items-center gap-3">
+            {onAiSuggestionClick && (
+              <button
+                type="button"
+                onClick={() => { onClose(); onAiSuggestionClick(); }}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-gold text-black text-sm font-medium hover:bg-gold/90 transition-colors shadow-sm"
+              >
+                <Sparkles className="h-4 w-4" />
+                {language === "fr" ? "Suggestion IA" : language === "ar" ? "اقتراح الذكاء" : "AI Suggestion"}
+              </button>
+            )}
+            {onLocationClick && (
+              <button
+                type="button"
+                onClick={() => { onClose(); onLocationClick(); }}
+                className={`flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-medium transition-all ${
+                  geoState?.isEnabled && (geoState.detectedNeighborhood || geoState.detectedCity || geoState.confirmedAddress)
+                    ? "bg-gold/20 text-gold border border-gold/40"
+                    : "bg-[#C04F17] text-white border border-[#C04F17] hover:bg-[#C04F17]/90"
+                }`}
+              >
+                {geoState?.isDetecting ? (
+                  <Loader className="h-3.5 w-3.5 animate-spin" />
+                ) : geoState?.isEnabled ? (
+                  <MapPin className="h-3.5 w-3.5" />
+                ) : (
+                  <MapPinOff className="h-3.5 w-3.5" />
+                )}
+                {geoState?.isDetecting
+                  ? "…"
+                  : geoState?.isEnabled && (geoState.detectedNeighborhood || geoState.detectedCity)
+                  ? `📍 ${[geoState.detectedNeighborhood, geoState.detectedCity].filter(Boolean).join(", ")}`
+                  : geoState?.isEnabled && geoState.confirmedAddress
+                  ? `📍 ${geoState.confirmedAddress}`
+                  : (language === "fr" ? "Localisation" : language === "ar" ? "الموقع" : "Location")
+                }
+              </button>
+            )}
           </div>
         )}
 

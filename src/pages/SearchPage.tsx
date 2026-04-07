@@ -3320,8 +3320,8 @@ const SearchPage = () => {
             </div>
           ) : !showCelebrityGuide && !showSosMedecin && !showPompiers && filteredBusinesses.length > 0 ? (
             <>
-              {/* Bar: Results count + AI suggestion + Geolocation — STICKY 5 */}
-              <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white flex items-center justify-end px-4 gap-2 relative py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
+               {/* Bar: Results count + Carte — STICKY 5 */}
+               <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white flex items-center justify-end px-4 gap-2 relative py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
                 {/* Left: Carte on tablet only */}
                 <div className="hidden sm:flex lg:hidden items-center absolute left-4">
                   {isSubDesktop && (
@@ -3334,26 +3334,7 @@ const SearchPage = () => {
                     </button>
                   )}
                 </div>
-                {/* Center: AI suggestion — centered on tablet via absolute */}
-                <button
-                  onClick={() => {
-                    aiPopupShownRef.current = false;
-                    if (selectedServiceFilter && lastAiServiceRef.current !== selectedServiceFilter) {
-                      setAiAnswerText("");
-                      setAiRegenerateKey(k => k + 1);
-                      lastAiServiceRef.current = selectedServiceFilter;
-                    }
-                    setWarningDismissed(true);
-                    setCompactPanelBusiness(null);
-                    setIsCompactPanelExpanded(false);
-                    setShowAiPopup(true);
-                  }}
-                  className="shrink-0 w-9 h-9 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-md sm:absolute sm:left-1/2 sm:-translate-x-1/2 lg:absolute lg:left-1/2 lg:-translate-x-1/2"
-                  title={language === "en" ? "View AI suggestion" : "Voir la suggestion IA"}
-                >
-                  <Sparkles className="h-4 w-4" />
-                </button>
-                {/* Right: Carte (mobile only) + Localisation */}
+                {/* Right: Carte (mobile only) */}
                 <div className="flex items-center gap-2 lg:ml-auto">
                   {isSubDesktop && (
                     <button
@@ -3364,30 +3345,6 @@ const SearchPage = () => {
                       {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
                     </button>
                   )}
-                  <button
-                    onClick={() => setLocationDialogOpen(true)}
-                    className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity || geo.confirmedAddress)
-                        ? "bg-gold/20 text-gold border border-gold/40"
-                        : "bg-[#C04F17] text-white border border-[#C04F17] hover:bg-[#C04F17]/90"
-                    }`}
-                  >
-                    {geo.isDetecting ? (
-                      <Loader className="h-3 w-3 animate-spin" />
-                    ) : geo.isEnabled ? (
-                      <MapPin className="h-3 w-3" />
-                    ) : (
-                      <MapPinOff className="h-3 w-3" />
-                    )}
-                    {geo.isDetecting
-                      ? "…"
-                      : geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity)
-                      ? `📍 ${[geo.detectedNeighborhood, geo.detectedCity].filter(Boolean).join(", ")}`
-                      : geo.isEnabled && geo.confirmedAddress
-                      ? `📍 ${geo.confirmedAddress}`
-                      : (language === "en" ? "Location" : language === "ar" ? "الموقع" : "Localisation")
-                    }
-                  </button>
                 </div>
               </div>
               {/* Fallback-style cards in 4-column grid */}
@@ -3780,6 +3737,26 @@ const SearchPage = () => {
           setSearchParams(params);
         }}
         onVoiceStart={() => toggleRecording()}
+        onAiSuggestionClick={() => {
+          aiPopupShownRef.current = false;
+          if (selectedServiceFilter && lastAiServiceRef.current !== selectedServiceFilter) {
+            setAiAnswerText("");
+            setAiRegenerateKey(k => k + 1);
+            lastAiServiceRef.current = selectedServiceFilter;
+          }
+          setWarningDismissed(true);
+          setCompactPanelBusiness(null);
+          setIsCompactPanelExpanded(false);
+          setShowAiPopup(true);
+        }}
+        onLocationClick={() => setLocationDialogOpen(true)}
+        geoState={{
+          isEnabled: geo.isEnabled,
+          isDetecting: geo.isDetecting,
+          detectedCity: geo.detectedCity,
+          detectedNeighborhood: geo.detectedNeighborhood,
+          confirmedAddress: geo.confirmedAddress,
+        }}
       />
 
 
