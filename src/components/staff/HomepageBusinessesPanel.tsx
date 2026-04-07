@@ -200,12 +200,11 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
       .eq("city", cityName)
       .order("sort_order");
     if (savedRows && savedRows.length > 0) {
-      // We need the business details
       const ids = (savedRows as any[]).map((r) => r.business_id);
-      const { data: bizData } = await supabase
-        .from("businesses")
-        .select("id, name, logo_url, city, categories, services, images, video_1_url")
-        .in("id", ids);
+      const [{ data: bizData }, thumbMap] = await Promise.all([
+        supabase.from("businesses").select("id, name, logo_url, city, categories, services, images, video_1_url").in("id", ids),
+        fetchThumbnails(ids),
+      ]);
       const bizMap = new Map((bizData || []).map((b: any) => [b.id, b]));
       const ordered = (savedRows as any[])
         .sort((a, b) => a.sort_order - b.sort_order)
@@ -214,7 +213,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
         .map((b: any) => ({
           id: b.id, name: b.name, logo_url: b.logo_url, city: b.city,
           categories: b.categories || [], services: b.services || [], images: b.images || [],
-          video_1_url: b.video_1_url || null,
+          video_1_url: b.video_1_url || null, thumbnail_url: thumbMap.get(b.id) || null,
         }));
       setSelected(ordered);
     } else {
