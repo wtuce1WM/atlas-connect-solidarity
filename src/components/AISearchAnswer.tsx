@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef, useMemo, ReactNode } from "react";
-import { Sparkles, Loader2, MapPin, Star, X, Maximize2, Minimize2, AArrowUp, AArrowDown, RefreshCw } from "lucide-react";
+import { MapPin, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
-import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 
 interface BusinessData {
   id: string;
