@@ -404,7 +404,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
                 <SortableContext items={selected.map((b) => b.id)} strategy={verticalListSortingStrategy}>
                   <div className="grid grid-cols-2 gap-1.5">
                     {selected.map((b, i) => (
-                      <SortableCard key={b.id} biz={b} index={i} onRemove={removeFromSelection} onNavigate={goToEdit} />
+                      <SortableCard key={b.id} biz={b} index={i} onRemove={removeFromSelection} onNavigate={goToEdit} onPlay={setLightboxUrl} />
                     ))}
                   </div>
                 </SortableContext>
