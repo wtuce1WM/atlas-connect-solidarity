@@ -376,7 +376,6 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
     setIsDismissed(false);
     setAnswer("");
     setError(null);
-    setSelectedBusiness(null);
     setIsAnswerVisible(false);
   }, [query]);
 
