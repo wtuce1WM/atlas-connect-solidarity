@@ -604,7 +604,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
 
       {/* Booking overlay (iframe) */}
       {showBookingOverlay && bookingOverlayUrl && (
-        <div className="absolute inset-0 z-[72]">
+        <div className="absolute inset-0 z-[72] [&>div]:!mt-0">
           <BookingOverlay
             bookingUrl={bookingOverlayUrl}
             title={bookingOverlayTitle}
