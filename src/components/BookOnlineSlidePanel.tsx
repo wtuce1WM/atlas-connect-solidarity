@@ -1379,7 +1379,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 <MenuSummaryCard
                   summaries={menuSummaries}
                   language={language}
-                  tallHeight={noBottomCarousel}
+                  tallHeight={false}
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
                   categoryIcon={categoryIcon}
                 />
