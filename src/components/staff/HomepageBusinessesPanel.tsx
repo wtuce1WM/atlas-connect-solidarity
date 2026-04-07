@@ -34,6 +34,18 @@ interface BusinessItem {
   thumbnail_url: string | null;
 }
 
+interface BusinessVideoItem {
+  id: string;
+  business_id: string;
+  business_name: string;
+  city: string | null;
+  categories: string[];
+  services: string[];
+  video_url: string;
+  thumbnail_url: string | null;
+  sort_order: number;
+}
+
 interface HomepageBusinessesPanelProps {
   cityName: string;
 }
@@ -85,7 +97,7 @@ const SortableCard = ({
 };
 
 const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => {
-  const [allBusinesses, setAllBusinesses] = useState<BusinessItem[]>([]);
+  const [allVideos, setAllVideos] = useState<BusinessVideoItem[]>([]);
   const [frontStructures, setFrontStructures] = useState<FrontStructureEntry[]>([]);
   const [selectedStructure, setSelectedStructure] = useState<string>("none");
   const [selected, setSelected] = useState<BusinessItem[]>([]);
@@ -97,10 +109,10 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
-  const mapBusinessWithVideo = useCallback(
+  const mapSelectedBusinessWithVideo = useCallback(
     (b: any, videoMap: Map<string, { thumbnail_url: string | null; video_url: string }>): BusinessItem | null => {
       const vd = videoMap.get(b.id);
-      const videoUrl = b.video_1_url || vd?.video_url || null;
+      const videoUrl = vd?.video_url || null;
       if (!videoUrl) return null;
 
       return {
@@ -188,28 +200,70 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
     return map;
   }, []);
 
-  // Load all businesses for the city (on demand)
+  // Helper: fetch all video documents for all businesses
+  const fetchAllVideoDocs = useCallback(async (businessIds: string[]) => {
+    const docs: any[] = [];
+    const batch = 300;
+    for (let i = 0; i < businessIds.length; i += batch) {
+      const chunk = businessIds.slice(i, i + batch);
+      const chunkDocs = await fetchAll(
+        supabase
+          .from("business_documents")
+          .select("id, business_id, thumbnail_url, url, sort_order")
+          .eq("type", "video")
+          .in("business_id", chunk)
+          .order("sort_order", { ascending: true })
+      );
+      docs.push(...chunkDocs);
+    }
+    return docs;
+  }, [fetchAll]);
+
+  // Load all city videos (on demand)
   const loadAllBusinesses = useCallback(async () => {
     if (allLoaded) return;
     setLoading(true);
     const cityBusinesses = await fetchAll(
       supabase
         .from("businesses")
-        .select("id, name, logo_url, city, categories, services, video_1_url")
+        .select("id, name, city, categories, services")
         .eq("city", cityName)
         .eq("is_active", true)
         .order("name")
     );
 
-    const videoMap = await fetchVideoData(cityBusinesses.map((b) => b.id));
-    const mapped = cityBusinesses
-      .map((b: any) => mapBusinessWithVideo(b, videoMap))
-      .filter((b): b is BusinessItem => Boolean(b));
+    if (cityBusinesses.length === 0) {
+      setAllVideos([]);
+      setAllLoaded(true);
+      setLoading(false);
+      return;
+    }
 
-    setAllBusinesses(mapped);
+    const businessMap = new Map((cityBusinesses as any[]).map((b) => [b.id, b]));
+    const docs = await fetchAllVideoDocs(cityBusinesses.map((b) => b.id));
+    const mapped = docs
+      .map((d: any) => {
+        const b = businessMap.get(d.business_id);
+        if (!b) return null;
+        return {
+          id: d.id,
+          business_id: b.id,
+          business_name: b.name,
+          city: b.city,
+          categories: b.categories || [],
+          services: b.services || [],
+          video_url: d.url,
+          thumbnail_url: d.thumbnail_url || null,
+          sort_order: d.sort_order ?? 0,
+        };
+      })
+      .filter((v): v is BusinessVideoItem => Boolean(v))
+      .sort((a, b) => a.business_name.localeCompare(b.business_name, "fr") || a.sort_order - b.sort_order);
+
+    setAllVideos(mapped);
     setAllLoaded(true);
     setLoading(false);
-  }, [cityName, fetchAll, fetchVideoData, allLoaded, mapBusinessWithVideo]);
+  }, [cityName, fetchAll, fetchAllVideoDocs, allLoaded]);
 
   // When structure changes, load businesses + saved selection
   const handleStructureChange = async (val: string) => {
@@ -226,7 +280,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
     if (savedRows && savedRows.length > 0) {
       const ids = (savedRows as any[]).map((r) => r.business_id);
       const [{ data: bizData }, videoMap] = await Promise.all([
-        supabase.from("businesses").select("id, name, logo_url, city, categories, services, video_1_url").in("id", ids),
+        supabase.from("businesses").select("id, name, logo_url, city, categories, services").in("id", ids),
         fetchVideoData(ids),
       ]);
       const bizMap = new Map((bizData || []).map((b: any) => [b.id, b]));
@@ -234,7 +288,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
         .sort((a, b) => a.sort_order - b.sort_order)
         .map((r) => bizMap.get(r.business_id))
         .filter(Boolean)
-        .map((b: any) => mapBusinessWithVideo(b, videoMap))
+        .map((b: any) => mapSelectedBusinessWithVideo(b, videoMap))
         .filter((b): b is BusinessItem => Boolean(b));
       setSelected(ordered);
     } else {
@@ -249,17 +303,26 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
     if (!entry || (entry.subcategoryNames.length === 0 && entry.serviceNames.length === 0)) return [];
     const scSet = new Set(entry.subcategoryNames);
     const svcSet = new Set(entry.serviceNames);
-    return allBusinesses
+    return allVideos
       .filter((b) => b.categories.some((c) => scSet.has(c)) || b.services.some((s) => svcSet.has(s)))
-      .sort((a, b) => a.name.localeCompare(b.name, "fr"));
+      .sort((a, b) => a.business_name.localeCompare(b.business_name, "fr") || a.sort_order - b.sort_order);
   })();
 
   const selectedIds = new Set(selected.map((b) => b.id));
 
-  const addToSelection = (biz: BusinessItem) => {
-    if (selectedIds.has(biz.id)) return;
+  const addToSelection = (video: BusinessVideoItem) => {
+    if (selectedIds.has(video.business_id)) return;
     if (selected.length >= 20) { toast.error("Maximum 20 vidéos"); return; }
-    setSelected((prev) => [...prev, biz]);
+    setSelected((prev) => [...prev, {
+      id: video.business_id,
+      name: video.business_name,
+      logo_url: null,
+      city: video.city,
+      categories: video.categories,
+      services: video.services,
+      video_1_url: video.video_url,
+      thumbnail_url: video.thumbnail_url,
+    }]);
   };
 
   const removeFromSelection = (id: string) => {
@@ -336,17 +399,17 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
           </div>
         ) : allLoaded ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-            {filteredBusinesses.map((b) => {
-              const isSelected = selectedIds.has(b.id);
-              const videoUrl = b.video_1_url;
+            {filteredBusinesses.map((v) => {
+              const isSelected = selectedIds.has(v.business_id);
+              const videoUrl = v.video_url;
               return (
-                <div key={b.id} className={`rounded-lg border overflow-hidden transition-colors ${isSelected ? "border-primary/50 bg-primary/5" : "bg-background"}`}>
+                <div key={v.id} className={`rounded-lg border overflow-hidden transition-colors ${isSelected ? "border-primary/50 bg-primary/5" : "bg-background"}`}>
                   <div className="relative aspect-video bg-muted">
                     <button className="relative w-full h-full flex items-center justify-center group" onClick={() => videoUrl && setLightboxUrl(videoUrl)}>
-                      {b.thumbnail_url ? (
-                        <img src={b.thumbnail_url} alt={b.name} className="absolute inset-0 w-full h-full object-cover" />
+                      {v.thumbnail_url ? (
+                        <img src={v.thumbnail_url} alt={v.business_name} className="absolute inset-0 w-full h-full object-cover" />
                       ) : videoUrl ? (
-                        <VideoThumbnail src={videoUrl} alt={b.name} className="absolute inset-0 w-full h-full object-cover" />
+                        <VideoThumbnail src={videoUrl} alt={v.business_name} className="absolute inset-0 w-full h-full object-cover" />
                       ) : (
                         <div className="absolute inset-0 bg-muted/50" />
                       )}
@@ -357,7 +420,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
                       )}
                     </button>
                     <button
-                      onClick={(e) => { e.stopPropagation(); isSelected ? removeFromSelection(b.id) : addToSelection(b); }}
+                      onClick={(e) => { e.stopPropagation(); isSelected ? removeFromSelection(v.business_id) : addToSelection(v); }}
                       className={`absolute top-1.5 right-1.5 z-20 w-6 h-6 rounded-full flex items-center justify-center transition-colors ${
                         isSelected
                           ? "bg-primary text-primary-foreground"
@@ -370,10 +433,10 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
                   </div>
                   <div className="p-2">
                     <button
-                      onClick={() => goToEdit(b.id)}
+                      onClick={() => goToEdit(v.business_id)}
                       className="flex items-center gap-1.5 text-xs font-medium text-foreground hover:text-primary transition-colors text-left"
                     >
-                      <span className="line-clamp-1">{b.name}</span>
+                      <span className="line-clamp-1">{v.business_name}</span>
                       <ExternalLink className="h-2.5 w-2.5 flex-shrink-0 text-muted-foreground" />
                     </button>
                   </div>
