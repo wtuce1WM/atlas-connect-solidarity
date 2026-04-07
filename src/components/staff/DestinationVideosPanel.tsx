@@ -78,9 +78,6 @@ const SortableFrontCard = ({
         onClick={() => onNavigate(video.business_id)}
         className="flex items-center gap-1.5 min-w-0 flex-1 hover:text-primary transition-colors text-left"
       >
-        {video.business_logo && (
-          <img src={video.business_logo} alt="" className="h-4 w-4 rounded object-contain flex-shrink-0" />
-        )}
         <span className="truncate">{video.business_name}</span>
       </button>
       <button onClick={() => onRemove(video.id)} className="text-muted-foreground hover:text-destructive flex-shrink-0">
@@ -232,15 +229,16 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
     if (cityName) load();
   }, [cityName, load]);
 
-  // Filter videos by selected front structure (match business categories against linked subcategory names)
-  const filteredVideos = selectedStructure === "all"
+  // Filter videos by selected front structure, then sort alphabetically by business name
+  const filteredVideos = (selectedStructure === "all"
     ? videos
     : (() => {
         const entry = frontStructures.find((s) => s.id === selectedStructure);
         if (!entry || entry.subcategoryNames.length === 0) return [];
         const nameSet = new Set(entry.subcategoryNames);
         return videos.filter((v) => v.business_categories.some((c) => nameSet.has(c)));
-      })();
+      })()
+  ).slice().sort((a, b) => a.business_name.localeCompare(b.business_name, 'fr'));
 
   const frontIds = new Set(frontVideos.map((v) => v.id));
 
@@ -383,9 +381,6 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
                     onClick={() => goToEdit(v.business_id)}
                     className="flex items-center gap-1.5 text-xs font-medium text-foreground hover:text-primary transition-colors text-left"
                   >
-                    {v.business_logo && (
-                      <img src={v.business_logo} alt="" className="h-4 w-4 rounded object-contain flex-shrink-0" />
-                    )}
                     <span className="line-clamp-1">{v.business_name}</span>
                     <ExternalLink className="h-2.5 w-2.5 flex-shrink-0 text-muted-foreground" />
                   </button>
@@ -435,7 +430,7 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
             </Button>
           </div>
 
-          <div className="p-2 max-h-[calc(100vh-12rem)] overflow-y-auto">
+          <div className="p-2 max-h-[calc(100vh-8rem)] overflow-y-auto">
             {frontVideos.length === 0 ? (
               <p className="text-xs text-muted-foreground text-center py-6">
                 Cliquez sur <Plus className="inline h-3 w-3" /> sur une vidéo pour l'ajouter ici
