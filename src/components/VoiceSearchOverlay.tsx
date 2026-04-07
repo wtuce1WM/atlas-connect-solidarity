@@ -5,13 +5,15 @@ interface VoiceSearchOverlayProps {
   liveTranscript: string;
   onClose: () => void;
   onFinish?: () => void;
+  /** When true, use absolute positioning to stay contained within its parent element */
+  contained?: boolean;
 }
 
-const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose, onFinish }: VoiceSearchOverlayProps) => {
+const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose, onFinish, contained = false }: VoiceSearchOverlayProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className={`${contained ? 'absolute' : 'fixed'} inset-0 ${contained ? 'z-[78]' : 'z-[10000]'} flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm animate-in fade-in duration-200`}>
       {/* Close button */}
       <button
         onClick={onClose}
