@@ -109,6 +109,17 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
     setLinkedVideos([]);
   }, [businessId]);
 
+  // Pause/mute background video when an overlay opens (directions, booking, mosaic, lightbox)
+  useEffect(() => {
+    const overlayOpen = showDirections || showBookingOverlay || showMosaic || isLightboxOpen || !!fullscreenVideo || !!openedPoiBusinessId;
+    if (overlayOpen && videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.muted = true;
+      setVideoPaused(true);
+      setVideoMuted(true);
+    }
+  }, [showDirections, showBookingOverlay, showMosaic, isLightboxOpen, fullscreenVideo, openedPoiBusinessId]);
+
   // Cosmetic URL rewriting
   useEffect(() => {
     if (poi?.name) {
