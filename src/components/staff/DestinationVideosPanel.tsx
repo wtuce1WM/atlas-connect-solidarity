@@ -56,31 +56,38 @@ const SortableFrontCard = ({
   index,
   onRemove,
   onNavigate,
+  onPlay,
 }: {
   video: VideoDoc;
   index: number;
   onRemove: (id: string) => void;
   onNavigate: (businessId: string) => void;
+  onPlay: (url: string) => void;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: video.id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
 
   return (
     <div ref={setNodeRef} style={style} className="flex flex-col rounded-md border bg-background overflow-hidden text-xs">
-      <div className="relative aspect-video bg-black">
-        <button {...attributes} {...listeners} className="absolute top-1 left-1 z-10 cursor-grab active:cursor-grabbing text-white/80 hover:text-white bg-black/40 rounded p-0.5 flex-shrink-0">
+      <button className="relative aspect-video bg-black group" onClick={() => onPlay(video.url)}>
+        <div {...attributes} {...listeners} onClick={(e) => e.stopPropagation()} className="absolute top-1 left-1 z-10 cursor-grab active:cursor-grabbing text-white/80 hover:text-white bg-black/40 rounded p-0.5">
           <GripVertical className="h-3 w-3" />
-        </button>
+        </div>
         <span className="absolute top-1 left-7 z-10 text-white/80 text-[10px] font-mono bg-black/40 rounded px-1">{index + 1}</span>
-        <button onClick={() => onRemove(video.id)} className="absolute top-1 right-1 z-10 text-white/80 hover:text-destructive bg-black/40 rounded p-0.5">
+        <div onClick={(e) => { e.stopPropagation(); onRemove(video.id); }} className="absolute top-1 right-1 z-10 text-white/80 hover:text-destructive bg-black/40 rounded p-0.5 cursor-pointer">
           <X className="h-3 w-3" />
-        </button>
+        </div>
         {video.thumbnail_url ? (
           <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-muted" />
         )}
-      </div>
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="w-8 h-8 rounded-full bg-primary/80 flex items-center justify-center">
+            <Play className="h-4 w-4 text-primary-foreground fill-primary-foreground ml-0.5" />
+          </div>
+        </div>
+      </button>
       <button
         onClick={() => onNavigate(video.business_id)}
         className="px-1.5 py-1 truncate hover:text-primary transition-colors text-left text-[10px]"
@@ -96,7 +103,7 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
   const [frontVideos, setFrontVideos] = useState<VideoDoc[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [playingId, setPlayingId] = useState<string | null>(null);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [frontStructures, setFrontStructures] = useState<FrontStructureEntry[]>([]);
   const [selectedStructure, setSelectedStructure] = useState<string>("all");
   const navigate = useNavigate();
@@ -362,12 +369,9 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
             return (
               <div key={v.id} className={`rounded-lg border overflow-hidden transition-colors ${isOnFront ? "border-primary/50 bg-primary/5" : "bg-background"}`}>
                 <div className="relative aspect-video bg-black">
-                  {playingId === v.id ? (
-                    <video src={v.url} controls autoPlay className="w-full h-full object-contain" />
-                  ) : (
-                    <button
-                      className="w-full h-full flex items-center justify-center group"
-                      onClick={() => setPlayingId(v.id)}
+                 <button
+                      className="relative w-full h-full flex items-center justify-center group"
+                      onClick={() => setLightboxUrl(v.url)}
                     >
                       {v.thumbnail_url ? (
                         <img src={v.thumbnail_url} alt="" className="absolute inset-0 w-full h-full object-cover" />
@@ -378,7 +382,6 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
                         <Play className="h-5 w-5 text-primary-foreground fill-primary-foreground ml-0.5" />
                       </div>
                     </button>
-                  )}
                   {/* Add / already added indicator */}
                   <button
                     onClick={(e) => { e.stopPropagation(); isOnFront ? removeFromFront(v.id) : addToFront(v); }}
@@ -466,6 +469,7 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
                         index={i}
                         onRemove={removeFromFront}
                         onNavigate={goToEdit}
+                        onPlay={setLightboxUrl}
                       />
                     ))}
                   </div>
@@ -475,6 +479,16 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
           </div>
         </div>
       </div>
+      {lightboxUrl && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center" onClick={() => setLightboxUrl(null)}>
+          <button className="absolute top-4 right-4 text-white hover:text-white/80" onClick={() => setLightboxUrl(null)}>
+            <X className="h-8 w-8" />
+          </button>
+          <div className="w-full max-w-4xl aspect-video" onClick={(e) => e.stopPropagation()}>
+            <video src={lightboxUrl} controls autoPlay className="w-full h-full object-contain rounded-lg" />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
