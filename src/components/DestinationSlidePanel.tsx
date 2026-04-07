@@ -21,6 +21,9 @@ interface DestinationSlidePanelProps {
   onClose: () => void;
   slideFrom?: "right" | "bottom";
   interceptCloseRef?: React.MutableRefObject<(() => boolean) | null>;
+  showSearchBar?: boolean;
+  onSearch?: (params: Record<string, string>) => void;
+  onSearchBusinessSelect?: (businessId: string) => void;
 }
 
 interface DestinationFull {

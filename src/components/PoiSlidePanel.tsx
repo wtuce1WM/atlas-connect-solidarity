@@ -21,6 +21,9 @@ interface PoiSlidePanelProps {
   businessId: string;
   onClose: () => void;
   slideFrom?: "right" | "bottom";
+  showSearchBar?: boolean;
+  onSearch?: (params: Record<string, string>) => void;
+  onSearchBusinessSelect?: (businessId: string) => void;
 }
 
 interface PoiFull {
