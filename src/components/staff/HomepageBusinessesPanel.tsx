@@ -321,8 +321,12 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
               return (
                 <div key={b.id} className={`rounded-lg border overflow-hidden transition-colors ${isSelected ? "border-primary/50 bg-primary/5" : "bg-background"}`}>
                   <div className="relative aspect-video bg-muted">
-                    {videoUrl ? (
+                    {b.thumbnail_url ? (
+                      <img src={b.thumbnail_url} alt={b.name} className="w-full h-full object-cover" />
+                    ) : videoUrl ? (
                       <VideoThumbnail src={videoUrl} alt={b.name} className="w-full h-full object-cover" />
+                    ) : b.images[0] ? (
+                      <img src={b.images[0]} alt={b.name} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full bg-muted/50" />
                     )}
