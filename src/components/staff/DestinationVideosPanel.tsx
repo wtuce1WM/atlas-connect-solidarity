@@ -275,11 +275,28 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
     <div className="flex gap-4">
       {/* ── Left: all videos grid ── */}
       <div className="flex-1 min-w-0 space-y-2">
-        <p className="text-xs text-muted-foreground mb-3">
-          {videos.length} vidéo{videos.length > 1 ? "s" : ""} — cliquez sur <Plus className="inline h-3 w-3" /> pour ajouter au front
-        </p>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-1.5">
+            <Filter className="h-3.5 w-3.5 text-muted-foreground" />
+            <Select value={selectedStructure} onValueChange={setSelectedStructure}>
+              <SelectTrigger className="h-7 w-52 text-xs">
+                <SelectValue placeholder="Toutes les catégories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toutes les catégories</SelectItem>
+                {frontStructures.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {filteredVideos.length} vidéo{filteredVideos.length > 1 ? "s" : ""}
+            {selectedStructure !== "all" && ` / ${videos.length} au total`}
+          </p>
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          {videos.map((v) => {
+          {filteredVideos.map((v) => {
             const isOnFront = frontIds.has(v.id);
             return (
               <div key={v.id} className={`rounded-lg border overflow-hidden transition-colors ${isOnFront ? "border-primary/50 bg-primary/5" : "bg-background"}`}>
