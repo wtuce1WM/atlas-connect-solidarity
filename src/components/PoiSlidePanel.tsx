@@ -4,6 +4,7 @@ import BookingOverlay from "@/components/BookingOverlay";
 import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton, useOwnerLogo, OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 import { useNavigate } from "react-router-dom";
 import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
+import PanelSearchBar from "@/components/PanelSearchBar";
 import BottomTabsCarousel, { TabScrollRail, TabVideoCard, TabCard, type BottomTabConfig } from "@/components/BottomTabsCarousel";
 import { useDragToHide } from "@/hooks/useDragToHide";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
@@ -21,6 +22,9 @@ interface PoiSlidePanelProps {
   businessId: string;
   onClose: () => void;
   slideFrom?: "right" | "bottom";
+  showSearchBar?: boolean;
+  onSearch?: (params: Record<string, string>) => void;
+  onSearchBusinessSelect?: (businessId: string) => void;
 }
 
 interface PoiFull {
@@ -64,7 +68,7 @@ interface PoiFull {
   carousel_badge: string | null;
 }
 
-const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePanelProps) => {
+const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBar, onSearch, onSearchBusinessSelect }: PoiSlidePanelProps) => {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const slideAnim = slideFrom === "bottom" ? "animate-slide-up-from-bottom" : "animate-slide-in-right";
@@ -656,12 +660,19 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
         </div>
       )}
 
+      {showSearchBar && (
+        <PanelSearchBar onSearch={onSearch} onBusinessSelect={onSearchBusinessSelect} />
+      )}
+
       {/* Recursive SlidePanel for selected POI */}
       {openedPoiBusinessId && (
         <div className="absolute inset-0 z-[75] animate-slide-up-from-bottom">
           <BookOnlineSlidePanel
             businessId={openedPoiBusinessId}
             onClose={() => setOpenedPoiBusinessId(null)}
+            showSearchBar={showSearchBar}
+            onSearch={onSearch}
+            onSearchBusinessSelect={onSearchBusinessSelect}
           />
         </div>
       )}

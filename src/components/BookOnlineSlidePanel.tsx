@@ -46,10 +46,8 @@ import YouTubeOverlay from "@/components/overlays/YouTubeOverlay";
 import DocumentOverlay from "@/components/overlays/DocumentOverlay";
 import FallbackHotelsPanel from "@/components/overlays/FallbackHotelsPanel";
 import SerpApiHotelOverlay from "@/components/SerpApiHotelOverlay";
-import MobileSearchOverlay from "@/components/MobileSearchOverlay";
-import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
-import { useVoiceSearch } from "@/hooks/useVoiceSearch";
-import { useToast } from "@/hooks/use-toast";
+import PanelSearchBar from "@/components/PanelSearchBar";
+
 
 interface BookOnlineSlidePanelProps {
   businessId: string;
@@ -122,18 +120,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showHook, setShowHook] = useState(false);
-  const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
-  const { toast } = useToast();
-  const panelVoice = useVoiceSearch({
-    onTranscript: (keywords, spoken, detectedCategory, timeKeyword) => {
-      setSearchOverlayOpen(false);
-      const params: Record<string, string> = { q: keywords, spoken, _t: String(Date.now()) };
-      if (detectedCategory) params.category = detectedCategory;
-      if (timeKeyword) params.timeKeyword = timeKeyword;
-      if (onSearch) onSearch(params);
-    },
-    onError: (msg) => toast({ title: "Erreur", description: msg, variant: "destructive" }),
-  });
+  
   const [showMosaic, setShowMosaic] = useState(false);
   const [ytBgPlaying, setYtBgPlaying] = useState(true);
   const [ytBgMuted, setYtBgMuted] = useState(false);
@@ -2220,6 +2207,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             onClose={() => setSelectedDestinationId(null)}
             slideFrom="bottom"
             interceptCloseRef={destInterceptCloseRef}
+            showSearchBar={showSearchBar}
+            onSearch={onSearch}
+            onSearchBusinessSelect={onSearchBusinessSelect}
           />
         </div>
       )}
@@ -2236,6 +2226,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               }
             }}
             slideFrom="bottom"
+            showSearchBar={showSearchBar}
+            onSearch={onSearch}
+            onSearchBusinessSelect={onSearchBusinessSelect}
           />
         </div>
       )}
@@ -2246,6 +2239,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           <BookOnlineSlidePanel
             businessId={selectedKpBusinessId}
             onClose={() => setSelectedKpBusinessId(null)}
+            showSearchBar={showSearchBar}
+            onSearch={onSearch}
+            onSearchBusinessSelect={onSearchBusinessSelect}
           />
         </div>
       )}
@@ -2424,48 +2420,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
       {/* Search bar fixed at bottom of slide panel */}
       {showSearchBar && (
-        <div className="absolute bottom-0 left-0 right-0 z-[60] py-3 px-4">
-          <button
-            type="button"
-            onClick={() => setSearchOverlayOpen(true)}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-transparent border border-white/40 rounded-xl backdrop-blur-sm"
-          >
-            <Search className="h-4 w-4 text-white shrink-0" />
-          </button>
-        </div>
-      )}
-
-      {/* Search overlay inside slide panel — covers toolbar */}
-      {searchOverlayOpen && (
-        <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[70]">
-          <MobileSearchOverlay
-            open={searchOverlayOpen}
-            onClose={() => setSearchOverlayOpen(false)}
-            contained
-            onBusinessSelect={(bizId) => {
-              setSearchOverlayOpen(false);
-              if (onSearchBusinessSelect) onSearchBusinessSelect(bizId);
-            }}
-            onSearch={(params) => {
-              setSearchOverlayOpen(false);
-              if (onSearch) onSearch(params);
-            }}
-            onVoiceStart={() => {
-              setSearchOverlayOpen(false);
-              setTimeout(() => panelVoice.toggleRecording(), 150);
-            }}
-          />
-        </div>
-      )}
-
-      {/* Voice search overlay inside slide panel */}
-      {showSearchBar && (
-        <VoiceSearchOverlay
-          isOpen={panelVoice.status === "recording" || panelVoice.status === "processing"}
-          liveTranscript={panelVoice.liveTranscript}
-          onClose={() => panelVoice.toggleRecording()}
-          onFinish={() => panelVoice.finishRecording()}
-          contained
+        <PanelSearchBar
+          onSearch={onSearch}
+          onBusinessSelect={onSearchBusinessSelect}
         />
       )}
 

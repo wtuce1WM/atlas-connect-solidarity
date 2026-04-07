@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { PoiMapItem } from "@/components/PoiGoogleMap";
 import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
+import PanelSearchBar from "@/components/PanelSearchBar";
 import { GOLD, getVideoInfo, playWoosh } from "@/lib/overlayConstants";
 import OverlayFlipCard from "@/components/overlays/OverlayFlipCard";
 import { LazyFullscreenLightbox } from "@/components/overlays/LazyOverlays";
@@ -21,6 +22,9 @@ interface DestinationSlidePanelProps {
   onClose: () => void;
   slideFrom?: "right" | "bottom";
   interceptCloseRef?: React.MutableRefObject<(() => boolean) | null>;
+  showSearchBar?: boolean;
+  onSearch?: (params: Record<string, string>) => void;
+  onSearchBusinessSelect?: (businessId: string) => void;
 }
 
 interface DestinationFull {
@@ -40,7 +44,7 @@ interface DestinationFull {
   city_ids: string[] | null;
 }
 
-const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", interceptCloseRef }: DestinationSlidePanelProps) => {
+const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect }: DestinationSlidePanelProps) => {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const slideAnim = slideFrom === "bottom" ? "animate-slide-up-from-bottom" : "animate-slide-in-right";
@@ -698,10 +702,20 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
             </div>
           )}
 
+          {showSearchBar && (
+            <PanelSearchBar onSearch={onSearch} onBusinessSelect={onSearchBusinessSelect} />
+          )}
+
           {/* Recursive business overlay */}
           {activeBusinessId && (
             <div className="absolute inset-0 -top-[3.3rem] z-[60]">
-              <BookOnlineSlidePanel businessId={activeBusinessId} onClose={() => setActiveBusinessId(null)} />
+              <BookOnlineSlidePanel
+                businessId={activeBusinessId}
+                onClose={() => setActiveBusinessId(null)}
+                showSearchBar={showSearchBar}
+                onSearch={onSearch}
+                onSearchBusinessSelect={onSearchBusinessSelect}
+              />
             </div>
           )}
         </div>
