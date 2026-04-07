@@ -33,6 +33,8 @@ export function TabBar({ tabs, activeTab, onTabChange }: TabBarProps) {
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
             className={`px-3 py-1.5 rounded-full transition-colors border border-transparent whitespace-nowrap ${
+              tab.className || ""
+            } ${
               activeTab === tab.id
                 ? "bg-black text-white"
                 : tab.tabStyle === "youtube"
