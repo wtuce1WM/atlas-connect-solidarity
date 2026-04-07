@@ -3,7 +3,21 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, MonitorSmartphone, Tablet, Smartphone } from "lucide-react";
+
+const PREVIEW_PAGES = [
+  { value: "/", label: "Accueil" },
+  { value: "/search", label: "Recherche" },
+  { value: "/category/restaurants", label: "Catégorie (ex: Restaurants)" },
+  { value: "/blog", label: "Blog" },
+  { value: "/hotels", label: "Hôtels" },
+  { value: "/club", label: "Club" },
+  { value: "/mission", label: "Mission" },
+  { value: "/contact", label: "Contact" },
+  { value: "/carte", label: "Carte" },
+  { value: "/conditions-generales", label: "CGF" },
+];
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import FrontStructureManagement from "@/components/staff/FrontStructureManagement";
 import DestinationVideosPanel from "@/components/staff/DestinationVideosPanel";
