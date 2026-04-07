@@ -484,6 +484,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
             if (hasVideosTab) tabs.push({
               id: "videos",
               label: videoTabLabel,
+              className: "max-w-[220px] truncate md:max-w-none md:overflow-visible md:text-clip",
               renderContent: (animate, animCls) => (
                 <TabScrollRail>
                   {linkedVideos.map((cv, index) => {
