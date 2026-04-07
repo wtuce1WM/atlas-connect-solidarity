@@ -494,6 +494,7 @@ export type Database = {
           created_at: string
           description: string | null
           destination_id: string | null
+          end_date: string | null
           icon: string | null
           id: string
           language: string | null
@@ -506,6 +507,7 @@ export type Database = {
           price_type: string | null
           service_id: string | null
           sort_order: number
+          start_date: string | null
           subcategory_id: string | null
           thumbnail_url: string | null
           type: string
@@ -517,6 +519,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           destination_id?: string | null
+          end_date?: string | null
           icon?: string | null
           id?: string
           language?: string | null
@@ -529,6 +532,7 @@ export type Database = {
           price_type?: string | null
           service_id?: string | null
           sort_order?: number
+          start_date?: string | null
           subcategory_id?: string | null
           thumbnail_url?: string | null
           type: string
@@ -540,6 +544,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           destination_id?: string | null
+          end_date?: string | null
           icon?: string | null
           id?: string
           language?: string | null
@@ -552,6 +557,7 @@ export type Database = {
           price_type?: string | null
           service_id?: string | null
           sort_order?: number
+          start_date?: string | null
           subcategory_id?: string | null
           thumbnail_url?: string | null
           type?: string
