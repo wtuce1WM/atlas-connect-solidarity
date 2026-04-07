@@ -39,6 +39,7 @@ interface VideoDoc {
   business_name: string;
   business_logo: string | null;
   business_categories: string[];
+  business_services: string[];
   poi_name: string | null;
   linked_business_name: string | null;
   show_on_front: boolean;
