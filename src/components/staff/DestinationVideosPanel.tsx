@@ -393,26 +393,36 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
     <div className="flex gap-4">
       {/* ── Left: all videos grid ── */}
       <div className="flex-1 min-w-0 space-y-2">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="flex items-center gap-1.5">
-            <Filter className="h-3.5 w-3.5 text-muted-foreground" />
-            <Select value={selectedStructure} onValueChange={setSelectedStructure}>
-              <SelectTrigger className="h-7 w-52 text-xs">
-                <SelectValue placeholder="Toutes les catégories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Toutes les catégories</SelectItem>
-                {frontStructures.map((s) => (
-                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        {!allLoaded ? (
+          <div className="flex flex-col items-center justify-center py-16 gap-3 rounded-lg border bg-background">
+            <p className="text-sm text-muted-foreground">Les vidéos ne sont pas encore chargées</p>
+            <Button size="sm" onClick={loadAllVideos} disabled={loadingAll}>
+              {loadingAll ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              {loadingAll ? "Chargement…" : "Charger toutes les vidéos"}
+            </Button>
           </div>
-          <p className="text-xs text-muted-foreground">
-            {filteredVideos.length} vidéo{filteredVideos.length > 1 ? "s" : ""}
-            {selectedStructure !== "all" && ` / ${videos.length} au total`}
-          </p>
-        </div>
+        ) : (
+          <>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex items-center gap-1.5">
+                <Filter className="h-3.5 w-3.5 text-muted-foreground" />
+                <Select value={selectedStructure} onValueChange={setSelectedStructure}>
+                  <SelectTrigger className="h-7 w-52 text-xs">
+                    <SelectValue placeholder="Toutes les catégories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toutes les catégories</SelectItem>
+                    {frontStructures.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {filteredVideos.length} vidéo{filteredVideos.length > 1 ? "s" : ""}
+                {selectedStructure !== "all" && ` / ${videos.length} au total`}
+              </p>
+            </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
           {filteredVideos.map((v) => {
             const isOnFront = frontIds.has(v.id);
