@@ -447,7 +447,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
 
             if (hasPoisTab) tabs.push({
               id: "pois",
-              label: language === "en" ? "Nearby POIs" : "POI à proximité",
+              label: language === "en" ? "NEARBY" : "À PROXIMITÉ",
               renderContent: (animate, animCls) => (
                 <TabScrollRail>
                   {cityPoisForTabs.map((p, index) => {
