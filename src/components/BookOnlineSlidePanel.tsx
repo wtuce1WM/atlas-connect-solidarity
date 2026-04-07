@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton, useOwnerLogo, OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
-import { ExternalLink, MapPin, ChevronLeft, ChevronUp, X, CalendarCheck, ShoppingBag, Star, Minimize2, Loader2, Volume2, VolumeX, Play, Pause, Phone } from "lucide-react";
+import { ExternalLink, MapPin, ChevronLeft, ChevronUp, X, CalendarCheck, ShoppingBag, Star, Minimize2, Loader2, Volume2, VolumeX, Play, Pause, Phone, Search } from "lucide-react";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 import { supabase } from "@/integrations/supabase/client";
 import { haversineKm } from "@/lib/haversine";
@@ -57,11 +57,13 @@ interface BookOnlineSlidePanelProps {
   forceMuted?: boolean;
   /** Mutable ref: if set by the panel, the parent should call it instead of closing */
   interceptCloseRef?: React.MutableRefObject<(() => boolean) | null>;
+  /** Callback to open the search overlay from within the slide panel */
+  onOpenSearch?: () => void;
 }
 
 type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string } | { kind: "matterport"; url: string };
 
-const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand, externalOverlayActive, forceMuted, interceptCloseRef }: BookOnlineSlidePanelProps) => {
+const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand, externalOverlayActive, forceMuted, interceptCloseRef, onOpenSearch }: BookOnlineSlidePanelProps) => {
   const [activeBusinessId, setActiveBusinessIdRaw] = useState(propBusinessId);
   const [previousBusinessId, setPreviousBusinessId] = useState<string | null>(null);
   const previousCardsHiddenRef = useRef(false);
@@ -2397,6 +2399,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             inline
           />
           </div>
+        </div>
+      )}
+
+      {/* Search bar fixed at bottom of slide panel */}
+      {onOpenSearch && (
+        <div className="absolute bottom-0 left-0 right-0 z-[60] bg-black/90 backdrop-blur-md border-t border-gold/20 py-3 px-4">
+          <button
+            type="button"
+            onClick={onOpenSearch}
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white/90 backdrop-blur-sm border border-border rounded-xl shadow-lg"
+          >
+            <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+          </button>
         </div>
       )}
 
