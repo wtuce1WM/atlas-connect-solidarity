@@ -3321,31 +3321,16 @@ const SearchPage = () => {
           ) : !showCelebrityGuide && !showSosMedecin && !showPompiers && filteredBusinesses.length > 0 ? (
             <>
                {/* Bar: Results count + Carte — STICKY 5 */}
-               <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white flex items-center justify-end px-4 gap-2 relative py-2 mb-2" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
-                {/* Left: Carte on tablet only */}
-                <div className="hidden sm:flex lg:hidden items-center absolute left-4">
-                  {isSubDesktop && (
-                    <button
-                      onClick={() => setShowMobileMap(true)}
-                      className="hidden sm:inline-flex lg:hidden items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
-                    >
-                      <Map className="h-4 w-4" />
-                      {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
-                    </button>
-                  )}
-                </div>
-                {/* Right: Carte (mobile only) */}
-                <div className="flex items-center gap-2 lg:ml-auto">
-                  {isSubDesktop && (
-                    <button
-                      onClick={() => setShowMobileMap(true)}
-                      className="sm:hidden inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
-                    >
-                      <Map className="h-4 w-4" />
-                      {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
-                    </button>
-                  )}
-                </div>
+               <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white flex items-center justify-center lg:justify-end px-4 gap-2 relative py-2 mb-2" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
+                {isSubDesktop && (
+                  <button
+                    onClick={() => setShowMobileMap(true)}
+                    className="lg:hidden inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
+                  >
+                    <Map className="h-4 w-4" />
+                    {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
+                  </button>
+                )}
               </div>
               {/* Fallback-style cards in 4-column grid */}
               <div className={`grid gap-4 pt-10 md:pt-7 lg:pt-7 pb-28 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : hasKnownLocation ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
