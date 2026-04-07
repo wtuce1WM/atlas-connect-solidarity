@@ -581,7 +581,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
       {showBookingOverlay && bookingOverlayUrl && (
         <div className="absolute inset-0 -top-[3.3rem] z-[72] animate-slide-up-from-bottom">
           <BookingOverlay
-            url={bookingOverlayUrl}
+            bookingUrl={bookingOverlayUrl}
             title={bookingOverlayTitle}
             onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); }}
           />
