@@ -381,9 +381,6 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
                     onClick={() => goToEdit(v.business_id)}
                     className="flex items-center gap-1.5 text-xs font-medium text-foreground hover:text-primary transition-colors text-left"
                   >
-                    {v.business_logo && (
-                      <img src={v.business_logo} alt="" className="h-4 w-4 rounded object-contain flex-shrink-0" />
-                    )}
                     <span className="line-clamp-1">{v.business_name}</span>
                     <ExternalLink className="h-2.5 w-2.5 flex-shrink-0 text-muted-foreground" />
                   </button>
