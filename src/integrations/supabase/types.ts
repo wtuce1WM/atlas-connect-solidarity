@@ -1868,6 +1868,45 @@ export type Database = {
         }
         Relationships: []
       }
+      front_structure_services: {
+        Row: {
+          created_at: string
+          front_structure_id: string
+          id: string
+          service_id: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          front_structure_id: string
+          id?: string
+          service_id: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          front_structure_id?: string
+          id?: string
+          service_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "front_structure_services_front_structure_id_fkey"
+            columns: ["front_structure_id"]
+            isOneToOne: false
+            referencedRelation: "front_structure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "front_structure_services_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       front_structure_subcategories: {
         Row: {
           created_at: string
