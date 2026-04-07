@@ -119,7 +119,7 @@ const PreviewTab = ({ width, maxWidth, title, resolutions, breakpoints, cellSize
                       {v.thumbnail_url ? (
                         <img src={v.thumbnail_url} alt="" className="w-full h-full object-cover" />
                       ) : (
-                        <VideoThumbnail url={v.url} className="w-full h-full object-cover" />
+                        <VideoThumbnail src={v.url} className="w-full h-full object-cover" />
                       )}
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                         <div className="w-8 h-8 rounded-full bg-primary/80 flex items-center justify-center">
