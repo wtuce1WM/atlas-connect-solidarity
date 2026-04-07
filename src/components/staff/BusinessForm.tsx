@@ -4964,6 +4964,20 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               />
               <span className="text-sm font-medium">Afficher les horaires sur la fiche publique</span>
             </label>
+            <div className="flex items-center gap-2">
+              <Label className="text-sm font-medium whitespace-nowrap">Message du front</Label>
+              <select
+                value={formData.closure_message || ""}
+                onChange={(e) => handleChange("closure_message", e.target.value)}
+                className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              >
+                <option value="">Aucun</option>
+                <option value="Fermé temporairement">Fermé temporairement</option>
+                <option value="Fermé jusqu'au">Fermé jusqu&apos;au</option>
+                <option value="Fermé définitivement">Fermé définitivement</option>
+                <option value="Fermé jusqu'à nouvel ordre">Fermé jusqu&apos;à nouvel ordre</option>
+              </select>
+            </div>
           </div>
           
           {/* Vacation Dates */}
