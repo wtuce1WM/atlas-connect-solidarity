@@ -3,9 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, MonitorSmartphone, Tablet, Smartphone } from "lucide-react";
+import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, Tablet, Smartphone, Play } from "lucide-react";
+import VideoThumbnail from "@/components/VideoThumbnail";
+import VideoLightbox from "@/components/staff/VideoLightbox";
 
-
+interface FrontVideo {
+  id: string;
+  url: string;
+  name: string | null;
+  thumbnail_url: string | null;
+  business_name: string;
+}
 
 const DESKTOP_RESOLUTIONS = [
   { res: "1920×1080 (Full HD)", ratio: "~22%" },
@@ -29,15 +37,102 @@ const MOBILE_RESOLUTIONS = [
   { res: "375×812 (iPhone X/11 Pro)", ratio: "~10%" },
 ];
 
-const PreviewTab = ({ width, maxWidth, title, resolutions, breakpoints }: {
+const useMarrakechFrontVideos = () => {
+  const [videos, setVideos] = useState<FrontVideo[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: bizIds } = await supabase
+        .from("businesses")
+        .select("id")
+        .eq("city", "Marrakech");
+      if (!bizIds || bizIds.length === 0) { setLoading(false); return; }
+
+      const ids = bizIds.map(b => b.id);
+      const batchSize = 200;
+      const allDocs: any[] = [];
+      for (let i = 0; i < ids.length; i += batchSize) {
+        const batch = ids.slice(i, i + batchSize);
+        const { data } = await supabase
+          .from("business_documents")
+          .select("id, url, name, thumbnail_url, front_sort_order, business_id")
+          .eq("type", "video")
+          .eq("show_on_front", true)
+          .in("business_id", batch)
+          .order("front_sort_order", { ascending: true });
+        if (data) allDocs.push(...data);
+      }
+
+      allDocs.sort((a, b) => (a.front_sort_order || 0) - (b.front_sort_order || 0));
+      const top9 = allDocs.slice(0, 9);
+
+      const uniqueBizIds = [...new Set(top9.map(d => d.business_id))];
+      if (uniqueBizIds.length > 0) {
+        const { data: businesses } = await supabase
+          .from("businesses")
+          .select("id, name")
+          .in("id", uniqueBizIds);
+        const nameMap = new Map((businesses || []).map(b => [b.id, b.name]));
+        setVideos(top9.map(d => ({
+          id: d.id, url: d.url, name: d.name, thumbnail_url: d.thumbnail_url,
+          business_name: nameMap.get(d.business_id) || "",
+        })));
+      }
+      setLoading(false);
+    };
+    load();
+  }, []);
+
+  return { videos, loading };
+};
+
+const PreviewTab = ({ width, maxWidth, title, resolutions, breakpoints, cellSize }: {
   width: number; maxWidth?: string; title: string;
   resolutions: { res: string; ratio: string }[]; breakpoints: string;
+  cellSize: number;
 }) => {
+  const { videos, loading } = useMarrakechFrontVideos();
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+
+  const gridWidth = cellSize * 3 + 16;
+
   return (
     <div className="space-y-4">
       <div className="flex justify-center gap-8 items-start">
-        <div className="border rounded-lg overflow-hidden shadow-sm" style={{ width, maxWidth: maxWidth || "100%" }}>
-          <iframe src="/" className="w-full border-0" style={{ height: "80vh" }} title={`Aperçu ${title}`} />
+        <div className="border rounded-lg overflow-hidden shadow-sm p-4 bg-background" style={{ width, maxWidth: maxWidth || "100%" }}>
+          <h3 className="text-sm font-semibold text-foreground mb-3">Aperçu {title} — Grille vidéos Marrakech</h3>
+          {loading ? (
+            <div className="flex items-center justify-center py-12 text-muted-foreground text-sm">Chargement…</div>
+          ) : videos.length === 0 ? (
+            <div className="flex items-center justify-center py-12 text-muted-foreground text-sm">Aucune vidéo sélectionnée pour le front</div>
+          ) : (
+            <div className="flex justify-center">
+              <div className="grid grid-cols-3 gap-2" style={{ width: gridWidth }}>
+                {videos.map((v) => (
+                  <div key={v.id} className="flex flex-col rounded-md border overflow-hidden bg-muted/30">
+                    <button
+                      className="relative bg-black group"
+                      style={{ width: cellSize, height: cellSize * 9 / 16 }}
+                      onClick={() => setLightboxUrl(v.url)}
+                    >
+                      {v.thumbnail_url ? (
+                        <img src={v.thumbnail_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <VideoThumbnail url={v.url} className="w-full h-full object-cover" />
+                      )}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="w-8 h-8 rounded-full bg-primary/80 flex items-center justify-center">
+                          <Play className="h-4 w-4 text-primary-foreground fill-primary-foreground ml-0.5" />
+                        </div>
+                      </div>
+                    </button>
+                    <div className="px-1.5 py-1 truncate text-[10px] text-foreground">{v.business_name}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         <div className="border rounded-lg bg-background p-5 shadow-sm text-sm" style={{ minWidth: 340 }}>
           <h3 className="font-bold text-foreground mb-3">Résolutions {title.toLowerCase()} courantes</h3>
@@ -64,6 +159,7 @@ const PreviewTab = ({ width, maxWidth, title, resolutions, breakpoints }: {
           </p>
         </div>
       </div>
+      {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
     </div>
   );
 };
