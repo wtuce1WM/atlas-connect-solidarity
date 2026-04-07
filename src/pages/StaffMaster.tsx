@@ -200,6 +200,21 @@ const StaffMaster = () => {
           </TabsContent>
 
 
+          <TabsContent value="blocked-domains">
+            <div className="space-y-6">
+              <BlockedDomainsManagement />
+              <BrokenLinksManagement />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="hotel-compare">
+            <HotelApiComparison />
+          </TabsContent>
+
+          <TabsContent value="pricing">
+            <PricingManagement />
+          </TabsContent>
+
           {isAdmin && (
             <TabsContent value="users">
               <UserManagement />
