@@ -41,9 +41,10 @@ interface Subcategory {
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  inline?: boolean;
 }
 
-const FrontStructureManagement = ({ open, onOpenChange }: Props) => {
+const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props) => {
   const [entries, setEntries] = useState<FrontEntry[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,8 +94,8 @@ const FrontStructureManagement = ({ open, onOpenChange }: Props) => {
   };
 
   useEffect(() => {
-    if (open) load();
-  }, [open]);
+    if (open || inline) load();
+  }, [open, inline]);
 
   const startNew = () => {
     setEditingId(null);
@@ -184,15 +185,16 @@ const FrontStructureManagement = ({ open, onOpenChange }: Props) => {
     return acc;
   }, {} as Record<string, Subcategory[]>);
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+  const content = (
+    <>
+      {!inline && (
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <LayoutGrid className="h-5 w-5" />
             Structure du front
           </DialogTitle>
         </DialogHeader>
+      )}
 
         {loading ? (
           <div className="flex justify-center p-8">
@@ -331,6 +333,15 @@ const FrontStructureManagement = ({ open, onOpenChange }: Props) => {
             ))}
           </div>
         )}
+    </>
+  );
+
+  if (inline) return <div className="space-y-4">{content}</div>;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+        {content}
       </DialogContent>
     </Dialog>
   );

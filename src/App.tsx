@@ -22,6 +22,7 @@ const StaffLogin = lazy(() => import("./pages/StaffLogin"));
 const StaffBackoffice = lazy(() => import("./pages/StaffBackoffice"));
 const StaffHub = lazy(() => import("./pages/StaffHub"));
 const StaffCRM = lazy(() => import("./pages/StaffCRM"));
+const StaffFront = lazy(() => import("./pages/StaffFront"));
 const AffiliatesLogin = lazy(() => import("./pages/AffiliatesLogin"));
 const AffiliatesResetPassword = lazy(() => import("./pages/AffiliatesResetPassword"));
 const AffiliatesDashboard = lazy(() => import("./pages/AffiliatesDashboard"));
@@ -66,7 +67,7 @@ const renderLazyRoute = (page: JSX.Element) => <Suspense fallback={null}>{page}<
 const GlobalFloatingSearchBar = () => {
   const location = useLocation();
   // Hide on home page and staff/affiliate backoffice pages
-  const hiddenPaths = ["/", "/search", "/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/staff/master", "/staff/b2b", "/affiliates", "/affiliates/dashboard", "/affiliates/presence", "/search-analytics"];
+  const hiddenPaths = ["/", "/search", "/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/staff/master", "/staff/b2b", "/staff/front", "/affiliates", "/affiliates/dashboard", "/affiliates/presence", "/search-analytics"];
   if (hiddenPaths.includes(location.pathname)) return null;
   return <FloatingSearchBar />;
 };
@@ -103,6 +104,7 @@ const AppContent = () => {
               <Route path="/staff/crm" element={renderLazyRoute(<StaffCRM />)} />
               <Route path="/staff/master" element={<StaffRouteGuard>{renderLazyRoute(<StaffMaster />)}</StaffRouteGuard>} />
               <Route path="/staff/b2b" element={renderLazyRoute(<StaffB2B />)} />
+              <Route path="/staff/front" element={<StaffRouteGuard>{renderLazyRoute(<StaffFront />)}</StaffRouteGuard>} />
               <Route path="/affiliates" element={renderLazyRoute(<AffiliatesLogin />)} />
               <Route path="/affiliates/reset-password" element={renderLazyRoute(<AffiliatesResetPassword />)} />
               <Route path="/affiliates/dashboard" element={renderLazyRoute(<AffiliatesDashboard />)} />
