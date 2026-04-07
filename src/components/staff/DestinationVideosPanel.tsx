@@ -30,32 +30,48 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const { data, error } = await supabase
+      // Use same approach as front: fetch docs first, then owners separately
+      const { data: docs, error } = await supabase
         .from("business_documents")
-        .select(`
-          id, url, name, thumbnail_url, sort_order, business_id,
-          businesses!business_documents_business_id_fkey(name, logo_url),
-          poi:businesses!business_documents_poi_id_fkey(name),
-          linked:businesses!business_documents_linked_business_id_fkey(name)
-        `)
+        .select("id, url, name, thumbnail_url, sort_order, business_id, poi_id, linked_business_id")
         .eq("type", "video")
         .eq("city", cityName)
-        .order("sort_order");
+        .order("sort_order", { ascending: true });
 
-      if (!error && data) {
-        const mapped: VideoDoc[] = data.map((d: any) => ({
-          id: d.id,
-          url: d.url,
-          name: d.name,
-          thumbnail_url: d.thumbnail_url,
-          sort_order: d.sort_order,
-          business_id: d.business_id,
-          business_name: d.businesses?.name || "—",
-          business_logo: d.businesses?.logo_url || null,
-          poi_name: d.poi?.name || null,
-          linked_business_name: d.linked?.name || null,
-        }));
+      if (!error && docs && docs.length > 0) {
+        // Collect all referenced business IDs (owner + poi + linked)
+        const allIds = new Set<string>();
+        docs.forEach(d => {
+          allIds.add(d.business_id);
+          if (d.poi_id) allIds.add(d.poi_id);
+          if (d.linked_business_id) allIds.add(d.linked_business_id);
+        });
+        const { data: businesses } = await supabase
+          .from("businesses")
+          .select("id, name, logo_url, slug")
+          .in("id", [...allIds]);
+        const bMap = new Map((businesses || []).map(b => [b.id, b]));
+
+        const mapped: VideoDoc[] = docs.map((d: any) => {
+          const owner = bMap.get(d.business_id);
+          const poi = d.poi_id ? bMap.get(d.poi_id) : null;
+          const linked = d.linked_business_id ? bMap.get(d.linked_business_id) : null;
+          return {
+            id: d.id,
+            url: d.url,
+            name: d.name,
+            thumbnail_url: d.thumbnail_url,
+            sort_order: d.sort_order,
+            business_id: d.business_id,
+            business_name: owner?.name || "—",
+            business_logo: owner?.logo_url || null,
+            poi_name: poi?.name || null,
+            linked_business_name: linked?.name || null,
+          };
+        });
         setVideos(mapped);
+      } else {
+        setVideos([]);
       }
       setLoading(false);
     };
