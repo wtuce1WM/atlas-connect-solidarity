@@ -124,6 +124,21 @@ const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta
       >
         <GripVertical className="h-4 w-4" />
       </div>
+
+      {/* Popup checkbox */}
+      {onPopupToggle && (
+        <label
+          className="absolute top-2 left-12 z-20 flex items-center gap-1 px-1.5 py-0.5 rounded border border-border/60 bg-background/85 shadow-sm cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Checkbox
+            checked={!!isPopup}
+            onCheckedChange={() => onPopupToggle(url)}
+            className="h-3.5 w-3.5"
+          />
+          <span className="text-[9px] text-foreground font-medium">popup</span>
+        </label>
+      )}
       
       {/* Remove button */}
       <button
