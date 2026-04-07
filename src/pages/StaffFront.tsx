@@ -8,8 +8,6 @@ import logoGold from "@/assets/logoGOLDsimple.webp";
 import FrontStructureManagement from "@/components/staff/FrontStructureManagement";
 import DestinationVideosPanel from "@/components/staff/DestinationVideosPanel";
 
-const MARRAKECH_DEST_IDS = ["d0bb2ac7-9fee-4e1d-8625-b23e1d28aa9e", "5ad4fd31-330b-42a3-a05d-d303bdee5113"];
-const ESSAOUIRA_DEST_IDS = ["3947db1f-daaa-4f7f-a617-e5988d9d86db"];
 
 const StaffFront = () => {
   const [user, setUser] = useState<any>(null);
@@ -74,10 +72,10 @@ const StaffFront = () => {
                 <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
               </TabsList>
               <TabsContent value="marrakech">
-                <DestinationVideosPanel destinationIds={MARRAKECH_DEST_IDS} />
+                <DestinationVideosPanel cityName="Marrakech" />
               </TabsContent>
               <TabsContent value="essaouira">
-                <DestinationVideosPanel destinationIds={ESSAOUIRA_DEST_IDS} />
+                <DestinationVideosPanel cityName="Essaouira" />
               </TabsContent>
             </Tabs>
           </TabsContent>
