@@ -232,15 +232,16 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
     if (cityName) load();
   }, [cityName, load]);
 
-  // Filter videos by selected front structure (match business categories against linked subcategory names)
-  const filteredVideos = selectedStructure === "all"
+  // Filter videos by selected front structure, then sort alphabetically by business name
+  const filteredVideos = (selectedStructure === "all"
     ? videos
     : (() => {
         const entry = frontStructures.find((s) => s.id === selectedStructure);
         if (!entry || entry.subcategoryNames.length === 0) return [];
         const nameSet = new Set(entry.subcategoryNames);
         return videos.filter((v) => v.business_categories.some((c) => nameSet.has(c)));
-      })();
+      })()
+  ).slice().sort((a, b) => a.business_name.localeCompare(b.business_name, 'fr'));
 
   const frontIds = new Set(frontVideos.map((v) => v.id));
 
