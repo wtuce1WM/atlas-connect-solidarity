@@ -49,6 +49,9 @@ const MobileSearchOverlay = ({
   desktopDocked = false,
   desktopHalfWidth = false,
   contained = false,
+  onAiSuggestionClick,
+  onLocationClick,
+  geoState,
 }: MobileSearchOverlayProps) => {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
