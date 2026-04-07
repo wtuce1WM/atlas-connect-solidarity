@@ -4030,7 +4030,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         </div>
 
         {/* Videos (multiple) */}
-        <div id="section-images" className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '160px' }}>
+        <div id="section-videos" className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '160px' }}>
            <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Label className="text-base font-semibold">🎬 Vidéos</Label>
