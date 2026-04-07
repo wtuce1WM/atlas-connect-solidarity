@@ -352,7 +352,6 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
   const [isAnswerVisible, setIsAnswerVisible] = useState(false);
   const fetchIdRef = useRef(0);
   const lastFetchKeyRef = useRef("");
-  const aiPanelRef = useRef<HTMLDivElement>(null);
   const answerRevealRafRef = useRef<number | null>(null);
 
   const revealAnswer = () => {
