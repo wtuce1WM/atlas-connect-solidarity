@@ -369,12 +369,9 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
             return (
               <div key={v.id} className={`rounded-lg border overflow-hidden transition-colors ${isOnFront ? "border-primary/50 bg-primary/5" : "bg-background"}`}>
                 <div className="relative aspect-video bg-black">
-                  {playingId === v.id ? (
-                    <video src={v.url} controls autoPlay className="w-full h-full object-contain" />
-                  ) : (
-                    <button
-                      className="w-full h-full flex items-center justify-center group"
-                      onClick={() => setPlayingId(v.id)}
+                 <button
+                      className="relative w-full h-full flex items-center justify-center group"
+                      onClick={() => setLightboxUrl(v.url)}
                     >
                       {v.thumbnail_url ? (
                         <img src={v.thumbnail_url} alt="" className="absolute inset-0 w-full h-full object-cover" />
@@ -385,7 +382,6 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
                         <Play className="h-5 w-5 text-primary-foreground fill-primary-foreground ml-0.5" />
                       </div>
                     </button>
-                  )}
                   {/* Add / already added indicator */}
                   <button
                     onClick={(e) => { e.stopPropagation(); isOnFront ? removeFromFront(v.id) : addToFront(v); }}
