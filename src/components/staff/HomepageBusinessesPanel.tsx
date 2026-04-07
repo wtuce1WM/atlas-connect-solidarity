@@ -185,15 +185,19 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
     }
     const seen = new Set<string>();
     const deduped = rows.filter((r) => { if (seen.has(r.id)) return false; seen.add(r.id); return true; });
-    const thumbMap = await fetchThumbnails(deduped.map((b) => b.id));
-    setAllBusinesses(deduped.map((b: any) => ({
-      id: b.id, name: b.name, logo_url: b.logo_url, city: b.city,
-      categories: b.categories || [], services: b.services || [], images: b.images || [],
-      video_1_url: b.video_1_url || null, thumbnail_url: thumbMap.get(b.id) || null,
-    })));
+    const videoMap = await fetchVideoData(deduped.map((b) => b.id));
+    setAllBusinesses(deduped.map((b: any) => {
+      const vd = videoMap.get(b.id);
+      return {
+        id: b.id, name: b.name, logo_url: b.logo_url, city: b.city,
+        categories: b.categories || [], services: b.services || [], images: b.images || [],
+        video_1_url: b.video_1_url || vd?.video_url || null,
+        thumbnail_url: vd?.thumbnail_url || null,
+      };
+    }));
     setAllLoaded(true);
     setLoading(false);
-  }, [cityName, fetchAll, fetchThumbnails, allLoaded]);
+  }, [cityName, fetchAll, fetchVideoData, allLoaded]);
 
   // When structure changes, load businesses + saved selection
   const handleStructureChange = async (val: string) => {
