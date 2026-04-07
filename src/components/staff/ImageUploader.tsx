@@ -192,7 +192,9 @@ const ImageUploader = ({
   images, 
   onChange, 
   maxImages = 12, 
-  businessId 
+  businessId,
+  popupImageUrl,
+  onPopupChange,
 }: ImageUploaderProps) => {
   const [uploading, setUploading] = useState(false);
   const [brokenUrls, setBrokenUrls] = useState<Set<string>>(new Set());
