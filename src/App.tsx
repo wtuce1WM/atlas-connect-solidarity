@@ -143,7 +143,7 @@ const AppContent = () => {
             </Routes>
           </RouteTransition>
           <GlobalFloatingSearchBar />
-          <StaffHiddenFloatingButtons activePanel={activePanel} setActivePanel={setActivePanel} />
+          <FloatingButtonsGuard activePanel={activePanel} setActivePanel={setActivePanel} />
         </BrowserRouter>
       </TooltipProvider>
     </div>
