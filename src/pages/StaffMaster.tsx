@@ -199,32 +199,6 @@ const StaffMaster = () => {
             <EasterEggManagement />
           </TabsContent>
 
-          <TabsContent value="popular-searches">
-            <PopularSearchesManagement />
-          </TabsContent>
-
-          <TabsContent value="blocked-domains">
-            <div className="space-y-6">
-              <BlockedDomainsManagement />
-              <BrokenLinksManagement />
-            </div>
-          </TabsContent>
-
-          <TabsContent value="hotel-compare">
-            <HotelApiComparison />
-          </TabsContent>
-
-          <TabsContent value="pricing">
-            <PricingManagement />
-          </TabsContent>
-
-          <TabsContent value="blog">
-            <BlogManagement />
-          </TabsContent>
-
-          <TabsContent value="display">
-            <DisplayPanel />
-          </TabsContent>
 
           {isAdmin && (
             <TabsContent value="users">
