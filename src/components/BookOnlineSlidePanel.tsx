@@ -1206,7 +1206,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               hideCards={hideCards}
               onMouseDownDrag={onMouseDownDrag}
               leftSlot={languages.length > 0 ? (
-                <div className={`flex items-center gap-0.5 md:gap-1.5 bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2 md:px-2.5 md:rounded-full md:py-1 shrink-0 ${languages.length > 5 ? 'max-w-[7rem] overflow-x-auto' : ''}`} style={languages.length > 5 ? { scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties : undefined}>
+              <div className={`flex items-center gap-0.5 md:gap-1.5 bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2 md:px-2.5 md:rounded-full md:py-1 shrink-0 ${languages.length > 5 ? 'max-w-[7rem] md:max-w-none overflow-x-auto md:overflow-visible' : ''}`} style={languages.length > 5 ? { scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties : undefined}>
                   {languages.map((lang, i) => {
                     const langAlt = getLangAlt(lang);
                     return (
@@ -1215,6 +1215,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                         className="group relative inline-flex items-center justify-center text-base md:text-lg leading-none cursor-help shrink-0"
                         title={langAlt}
                         aria-label={langAlt}
+                        role="img"
                         tabIndex={0}
                       >
                         {getLangFlag(lang)}
