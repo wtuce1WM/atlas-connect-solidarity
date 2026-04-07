@@ -22,7 +22,7 @@ const MenuSummaryCard = ({ summaries, language, animationDelay = "0ms", tallHeig
 
   return (
     <div
-      className={`snap-start shrink-0 w-[20rem] md:w-[30rem] ${tallHeight ? 'h-[21.6em] md:h-[28.8em]' : 'h-[18em] md:h-[24em]'} mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 p-4 text-white overflow-y-auto animate-slide-in-left opacity-0`}
+      className={`snap-start shrink-0 w-[20rem] md:w-[30rem] ${tallHeight ? 'h-[21.6em] md:h-[28.8em]' : 'h-[15em] md:h-[20em]'} mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 p-4 text-white overflow-y-auto animate-slide-in-left opacity-0`}
       style={{ animationDelay, animationFillMode: "forwards" }}
     >
       <div className="flex items-center gap-2 mb-3">

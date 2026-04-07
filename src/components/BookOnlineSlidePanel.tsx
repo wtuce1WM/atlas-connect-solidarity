@@ -1321,7 +1321,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
             {/* Card 1: Web only description */}
             {woDescription && (
-              <div className={`snap-start shrink-0 w-[20rem] md:w-[30rem] ${noBottomCarousel ? 'h-[21.6em] md:h-[28.8em]' : 'h-[18em] md:h-[24em]'} mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10`}
+              <div className={`snap-start shrink-0 w-[20rem] md:w-[30rem] ${noBottomCarousel ? 'h-[21.6em] md:h-[28.8em]' : 'h-[15em] md:h-[20em]'} mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10`}
                   style={{ animationFillMode: 'forwards' }}
                 >
                   <div

@@ -40,7 +40,7 @@ const MapCard = ({
 
   return (
     <div
-      className={`snap-start shrink-0 w-[20rem] ${tallHeight ? 'h-[21.6em] md:h-[28.8em]' : 'h-[18em] md:h-[24em]'} mb-4 rounded-2xl overflow-hidden border border-white/10 animate-slide-in-left opacity-0 relative ${onClick ? 'cursor-pointer' : ''} ${className}`}
+      className={`snap-start shrink-0 w-[20rem] ${tallHeight ? 'h-[21.6em] md:h-[28.8em]' : 'h-[15em] md:h-[20em]'} mb-4 rounded-2xl overflow-hidden border border-white/10 animate-slide-in-left opacity-0 relative ${onClick ? 'cursor-pointer' : ''} ${className}`}
       style={{ animationDelay, animationFillMode: "forwards" }}
       onClick={onClick}
     >
