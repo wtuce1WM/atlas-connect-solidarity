@@ -12,6 +12,20 @@ import DisplayPanel from "@/components/staff/DisplayPanel";
 import BlogManagement from "@/components/staff/BlogManagement";
 import SocialLinksManagement from "@/components/staff/SocialLinksManagement";
 
+          <TabsContent value="homepage">
+            <Tabs defaultValue="marrakech">
+              <TabsList className="mb-4">
+                <TabsTrigger value="marrakech">Marrakech</TabsTrigger>
+                <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
+              </TabsList>
+              <TabsContent value="marrakech">
+                <p className="text-sm text-muted-foreground py-8 text-center">Configuration Homepage Marrakech — à venir</p>
+              </TabsContent>
+              <TabsContent value="essaouira">
+                <p className="text-sm text-muted-foreground py-8 text-center">Configuration Homepage Essaouira — à venir</p>
+              </TabsContent>
+            </Tabs>
+          </TabsContent>
 
 const StaffFront = () => {
   const [user, setUser] = useState<any>(null);
