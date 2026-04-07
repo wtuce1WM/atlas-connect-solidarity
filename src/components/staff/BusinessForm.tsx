@@ -4185,6 +4185,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             onChange={(images) => handleChange("images", images)}
             maxImages={30}
             businessId={business?.id}
+            popupImageUrl={(formData as any).popup_image_url || null}
+            onPopupChange={(url) => handleChange("popup_image_url", url || "")}
           />
         </div>
         {/* Labels */}
