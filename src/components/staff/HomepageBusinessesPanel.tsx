@@ -228,7 +228,6 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
         .from("businesses")
         .select("id, name, city, categories, services")
         .eq("city", cityName)
-        .eq("is_active", true)
         .order("name")
     );
 
