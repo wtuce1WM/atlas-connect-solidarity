@@ -1722,7 +1722,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           </>
         )}
 
-        {/* Hidden YouTube count probe — always mounted */}
+        
 
         {/* Spacer + availability zone when cards hidden */}
         {cardsHidden && (
