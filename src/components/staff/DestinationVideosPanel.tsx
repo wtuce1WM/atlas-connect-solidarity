@@ -125,14 +125,53 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data: docs, error } = await supabase
-      .from("business_documents")
-      .select("id, url, name, thumbnail_url, sort_order, business_id, poi_id, linked_business_id, show_on_front, front_sort_order, subcategory_id")
-      .eq("type", "video")
-      .eq("city", cityName)
-      .order("sort_order", { ascending: true });
 
-    if (!error && docs && docs.length > 0) {
+    // Helper: paginated fetch
+    const fetchAll = async (query: any) => {
+      const all: any[] = [];
+      let offset = 0;
+      const batch = 1000;
+      while (true) {
+        const { data, error } = await query.range(offset, offset + batch - 1);
+        if (error || !data || data.length === 0) break;
+        all.push(...data);
+        if (data.length < batch) break;
+        offset += batch;
+      }
+      return all;
+    };
+
+    // 1. Get all business ids in this city
+    const cityBusinesses = await fetchAll(
+      supabase.from("businesses").select("id").eq("city", cityName)
+    );
+
+    if (cityBusinesses.length === 0) {
+      setVideos([]);
+      setFrontVideos([]);
+      setLoading(false);
+      return;
+    }
+
+    const cityBusinessIds = cityBusinesses.map((b: any) => b.id);
+
+    // 2. Fetch all videos owned by those businesses (paginated, batched in() calls)
+    const docs: any[] = [];
+    const inBatch = 300; // Supabase in() limit safe batch
+    for (let i = 0; i < cityBusinessIds.length; i += inBatch) {
+      const chunk = cityBusinessIds.slice(i, i + inBatch);
+      const chunkDocs = await fetchAll(
+        supabase
+          .from("business_documents")
+          .select("id, url, name, thumbnail_url, sort_order, business_id, poi_id, linked_business_id, show_on_front, front_sort_order, subcategory_id")
+          .eq("type", "video")
+          .in("business_id", chunk)
+          .order("sort_order", { ascending: true })
+      );
+      docs.push(...chunkDocs);
+    }
+
+    if (docs.length > 0) {
       // Collect all business ids AND subcategory ids
       const allIds = new Set<string>();
       const subcatIds = new Set<string>();
