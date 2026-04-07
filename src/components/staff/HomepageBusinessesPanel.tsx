@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ExternalLink, Play, Plus, X, GripVertical, Monitor, Filter } from "lucide-react";
+import { Loader2, ExternalLink, Play, Plus, X, GripVertical, Monitor, Filter, MapPin, Link2 } from "lucide-react";
 import VideoLightbox from "./VideoLightbox";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +44,8 @@ interface BusinessVideoItem {
   video_url: string;
   thumbnail_url: string | null;
   sort_order: number;
+  poi_name: string | null;
+  linked_business_name: string | null;
 }
 
 interface HomepageBusinessesPanelProps {
@@ -209,7 +211,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
       const chunkDocs = await fetchAll(
         supabase
           .from("business_documents")
-          .select("id, business_id, thumbnail_url, url, sort_order")
+          .select("id, business_id, thumbnail_url, url, sort_order, poi_id, linked_business_id")
           .eq("type", "video")
           .in("business_id", chunk)
           .order("sort_order", { ascending: true })
@@ -240,10 +242,28 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
 
     const businessMap = new Map((cityBusinesses as any[]).map((b) => [b.id, b]));
     const docs = await fetchAllVideoDocs(cityBusinesses.map((b) => b.id));
+
+    // Collect poi/linked IDs to resolve names
+    const extraIds = new Set<string>();
+    docs.forEach((d: any) => {
+      if (d.poi_id && !businessMap.has(d.poi_id)) extraIds.add(d.poi_id);
+      if (d.linked_business_id && !businessMap.has(d.linked_business_id)) extraIds.add(d.linked_business_id);
+    });
+    if (extraIds.size > 0) {
+      const ids = Array.from(extraIds);
+      const batch = 300;
+      for (let i = 0; i < ids.length; i += batch) {
+        const { data } = await supabase.from("businesses").select("id, name").in("id", ids.slice(i, i + batch));
+        (data || []).forEach((b: any) => businessMap.set(b.id, b));
+      }
+    }
+
     const mapped = docs
       .map((d: any) => {
         const b = businessMap.get(d.business_id);
         if (!b) return null;
+        const poi = d.poi_id ? businessMap.get(d.poi_id) : null;
+        const linked = d.linked_business_id ? businessMap.get(d.linked_business_id) : null;
         return {
           id: d.id,
           business_id: b.id,
@@ -254,6 +274,8 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
           video_url: d.url,
           thumbnail_url: d.thumbnail_url || null,
           sort_order: d.sort_order ?? 0,
+          poi_name: poi?.name || null,
+          linked_business_name: linked?.name || null,
         };
       })
       .filter((v): v is BusinessVideoItem => Boolean(v))
@@ -430,7 +452,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
                       {isSelected ? <Monitor className="h-3 w-3" /> : <Plus className="h-3.5 w-3.5" />}
                     </button>
                   </div>
-                  <div className="p-2">
+                  <div className="p-2 space-y-1">
                     <button
                       onClick={() => goToEdit(v.business_id)}
                       className="flex items-center gap-1.5 text-xs font-medium text-foreground hover:text-primary transition-colors text-left"
@@ -438,6 +460,23 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
                       <span className="line-clamp-1">{v.business_name}</span>
                       <ExternalLink className="h-2.5 w-2.5 flex-shrink-0 text-muted-foreground" />
                     </button>
+
+                    {(v.poi_name || v.linked_business_name) && (
+                      <div className="flex flex-wrap gap-1">
+                        {v.poi_name && (
+                          <Badge variant="outline" className="text-[9px] px-1 py-0 gap-0.5 font-normal">
+                            <MapPin className="h-2.5 w-2.5" />
+                            {v.poi_name}
+                          </Badge>
+                        )}
+                        {v.linked_business_name && (
+                          <Badge variant="outline" className="text-[9px] px-1 py-0 gap-0.5 font-normal">
+                            <Link2 className="h-2.5 w-2.5" />
+                            {v.linked_business_name}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               );
