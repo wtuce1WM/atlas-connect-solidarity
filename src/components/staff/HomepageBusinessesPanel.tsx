@@ -44,6 +44,8 @@ interface BusinessVideoItem {
   video_url: string;
   thumbnail_url: string | null;
   sort_order: number;
+  poi_name: string | null;
+  linked_business_name: string | null;
 }
 
 interface HomepageBusinessesPanelProps {
