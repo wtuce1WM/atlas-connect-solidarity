@@ -4035,7 +4035,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           {/* Legacy video_1_url */}
           {formData.video_1_url && (
             <div className="space-y-1 p-3 border rounded-md bg-background">
-              <p className="text-xs text-muted-foreground">Vidéo principale (ancien champ)</p>
+              <p className="text-xs text-muted-foreground">Ancien champ vidéo</p>
               <VideoUploader
                 videoUrl={formData.video_1_url}
                 onChange={(url) => handleChange("video_1_url", url)}
