@@ -1,0 +1,1 @@
+ALTER TABLE public.business_documents ADD COLUMN start_date date DEFAULT NULL, ADD COLUMN end_date date DEFAULT NULL;
