@@ -2207,6 +2207,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             onClose={() => setSelectedDestinationId(null)}
             slideFrom="bottom"
             interceptCloseRef={destInterceptCloseRef}
+            showSearchBar={showSearchBar}
+            onSearch={onSearch}
+            onSearchBusinessSelect={onSearchBusinessSelect}
           />
         </div>
       )}
