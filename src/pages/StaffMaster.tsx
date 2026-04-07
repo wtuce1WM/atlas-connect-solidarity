@@ -138,14 +138,6 @@ const StaffMaster = () => {
               <Egg className="h-4 w-4" />
               Easter Eggs
             </TabsTrigger>
-            <TabsTrigger value="popular-searches" className="gap-2">
-              <Search className="h-4 w-4" />
-              Suggestions
-            </TabsTrigger>
-            <TabsTrigger value="display" className="gap-2">
-              <Monitor className="h-4 w-4" />
-              Affichage
-            </TabsTrigger>
             <TabsTrigger value="blocked-domains" className="gap-2">
               <ShieldAlert className="h-4 w-4" />
               Domaines bloqués
@@ -157,10 +149,6 @@ const StaffMaster = () => {
             <TabsTrigger value="pricing" className="gap-2">
               <DollarSign className="h-4 w-4" />
               Prix
-            </TabsTrigger>
-            <TabsTrigger value="blog" className="gap-2">
-              <FileText className="h-4 w-4" />
-              Ressources
             </TabsTrigger>
             {isAdmin && (
               <TabsTrigger value="users" className="gap-2">
@@ -211,9 +199,6 @@ const StaffMaster = () => {
             <EasterEggManagement />
           </TabsContent>
 
-          <TabsContent value="popular-searches">
-            <PopularSearchesManagement />
-          </TabsContent>
 
           <TabsContent value="blocked-domains">
             <div className="space-y-6">
@@ -228,14 +213,6 @@ const StaffMaster = () => {
 
           <TabsContent value="pricing">
             <PricingManagement />
-          </TabsContent>
-
-          <TabsContent value="blog">
-            <BlogManagement />
-          </TabsContent>
-
-          <TabsContent value="display">
-            <DisplayPanel />
           </TabsContent>
 
           {isAdmin && (
