@@ -148,9 +148,28 @@ const StaffFront = () => {
           </TabsContent>
 
           <TabsContent value="preview-mobile">
-            <div className="flex justify-center">
+            <div className="flex justify-center gap-8 items-start">
               <div className="border rounded-lg overflow-hidden shadow-sm" style={{ width: 390 }}>
                 <iframe src="/" className="w-full border-0" style={{ height: "80vh" }} title="Aperçu Mobile (390×844)" />
+              </div>
+              <div className="border rounded-lg bg-background p-5 shadow-sm text-sm" style={{ minWidth: 340 }}>
+                <h3 className="font-bold text-foreground mb-3">Résolutions mobiles courantes</h3>
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="py-2 font-semibold text-foreground">Résolution CSS</th>
+                      <th className="py-2 font-semibold text-foreground text-right">Ratio</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-muted-foreground">
+                    <tr className="border-b"><td className="py-2">390×844 (iPhone 14/15)</td><td className="py-2 text-right">~25%</td></tr>
+                    <tr className="border-b"><td className="py-2">393×873 (iPhone 15 Pro)</td><td className="py-2 text-right">~15%</td></tr>
+                    <tr className="border-b"><td className="py-2">360×800 (Android standard)</td><td className="py-2 text-right">~20%</td></tr>
+                    <tr className="border-b"><td className="py-2">412×915 (Samsung Galaxy)</td><td className="py-2 text-right">~12%</td></tr>
+                    <tr><td className="py-2">375×812 (iPhone X/11 Pro)</td><td className="py-2 text-right">~10%</td></tr>
+                  </tbody>
+                </table>
+                <p className="mt-3 text-xs text-muted-foreground">Breakpoint Tailwind : <code className="bg-muted px-1 rounded">sm</code> : 640px</p>
               </div>
             </div>
           </TabsContent>
