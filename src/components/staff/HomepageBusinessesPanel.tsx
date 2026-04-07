@@ -30,6 +30,7 @@ interface BusinessItem {
   categories: string[];
   services: string[];
   images: string[];
+  video_1_url: string | null;
 }
 
 interface HomepageBusinessesPanelProps {
