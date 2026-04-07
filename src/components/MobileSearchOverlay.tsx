@@ -22,6 +22,8 @@ interface MobileSearchOverlayProps {
   desktopDocked?: boolean;
   /** Desktop-only: when docked, constrain width to left half (split layout) */
   desktopHalfWidth?: boolean;
+  /** When true, use absolute positioning to stay contained within its parent element */
+  contained?: boolean;
 }
 
 const MobileSearchOverlay = ({
