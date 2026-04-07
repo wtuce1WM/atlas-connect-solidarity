@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText, Settings2 } from "lucide-react";
+import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import FrontStructureManagement from "@/components/staff/FrontStructureManagement";
 import DestinationVideosPanel from "@/components/staff/DestinationVideosPanel";
@@ -11,7 +11,6 @@ import PopularSearchesManagement from "@/components/staff/PopularSearchesManagem
 import DisplayPanel from "@/components/staff/DisplayPanel";
 import BlogManagement from "@/components/staff/BlogManagement";
 import SocialLinksManagement from "@/components/staff/SocialLinksManagement";
-
 
 const StaffFront = () => {
   const [user, setUser] = useState<any>(null);
@@ -63,6 +62,10 @@ const StaffFront = () => {
               <Video className="h-4 w-4" />
               Vidéos
             </TabsTrigger>
+            <TabsTrigger value="homepage" className="gap-2">
+              <Home className="h-4 w-4" />
+              Homepage
+            </TabsTrigger>
             <TabsTrigger value="suggestions" className="gap-2">
               <Search className="h-4 w-4" />
               Suggestions
@@ -96,6 +99,21 @@ const StaffFront = () => {
               </TabsContent>
               <TabsContent value="essaouira">
                 <DestinationVideosPanel cityName="Essaouira" />
+              </TabsContent>
+            </Tabs>
+          </TabsContent>
+
+          <TabsContent value="homepage">
+            <Tabs defaultValue="marrakech">
+              <TabsList className="mb-4">
+                <TabsTrigger value="marrakech">Marrakech</TabsTrigger>
+                <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
+              </TabsList>
+              <TabsContent value="marrakech">
+                <p className="text-sm text-muted-foreground py-8 text-center">Configuration Homepage Marrakech — à venir</p>
+              </TabsContent>
+              <TabsContent value="essaouira">
+                <p className="text-sm text-muted-foreground py-8 text-center">Configuration Homepage Essaouira — à venir</p>
               </TabsContent>
             </Tabs>
           </TabsContent>
