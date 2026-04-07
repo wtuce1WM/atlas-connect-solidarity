@@ -1402,6 +1402,21 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
     setIsReviewCalcLoading(true);
     try {
+      // Save review URLs to DB first so fetch-reviews can read them
+      const urlFields = {
+        google_reviews_url: (formData as any).google_reviews_url || null,
+        google_maps_url: (formData as any).google_maps_url || null,
+        tripadvisor_url: (formData as any).tripadvisor_url || null,
+        tripadvisor_review_url: (formData as any).tripadvisor_review_url || null,
+        restaurant_guru_url: (formData as any).restaurant_guru_url || null,
+        getyourguide_url: (formData as any).getyourguide_url || null,
+        trustpilot_url: (formData as any).trustpilot_url || null,
+        avis_verifies_url: (formData as any).avis_verifies_url || null,
+        tourradar_url: (formData as any).tourradar_url || null,
+        kayak_url: (formData as any).kayak_url || null,
+      };
+      await supabase.from("businesses").update(urlFields).eq("id", business.id);
+
       const { data, error } = await supabase.functions.invoke("fetch-reviews", {
         body: { business_id: business.id },
       });
