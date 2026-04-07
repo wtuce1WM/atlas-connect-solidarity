@@ -772,9 +772,6 @@ const StaffBackoffice = () => {
               <HotelMappingManagement />
             </TabsContent>
 
-            <TabsContent value="social-links">
-              <SocialLinksManagement />
-            </TabsContent>
 
           </Tabs>
         )}
