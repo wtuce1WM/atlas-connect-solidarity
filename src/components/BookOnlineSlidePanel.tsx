@@ -2239,6 +2239,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           <BookOnlineSlidePanel
             businessId={selectedKpBusinessId}
             onClose={() => setSelectedKpBusinessId(null)}
+            showSearchBar={showSearchBar}
+            onSearch={onSearch}
+            onSearchBusinessSelect={onSearchBusinessSelect}
           />
         </div>
       )}
