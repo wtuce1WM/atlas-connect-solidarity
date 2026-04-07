@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN popup_image_url text DEFAULT NULL;
