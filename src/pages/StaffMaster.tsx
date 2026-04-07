@@ -150,10 +150,6 @@ const StaffMaster = () => {
               <DollarSign className="h-4 w-4" />
               Prix
             </TabsTrigger>
-            <TabsTrigger value="blog" className="gap-2">
-              <FileText className="h-4 w-4" />
-              Ressources
-            </TabsTrigger>
             {isAdmin && (
               <TabsTrigger value="users" className="gap-2">
                 <Users className="h-4 w-4" />
