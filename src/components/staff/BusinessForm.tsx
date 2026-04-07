@@ -1916,7 +1916,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           ...externalLinkDocs
             .filter((d) => d.name.trim())
             .map((d, i) => ({ business_id: businessId, type: "external_link" as const, url: d.url.trim() || "", name: d.name.trim(), language: d.language || null, icon: d.image_url || null, sort_order: i, description: d.description || "presse" })),
-          ...videoDocsWithThumbs.map((d, i) => ({ business_id: businessId, type: "video" as const, url: d.url, name: d.name || null, language: null, icon: null, sort_order: i, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null })),
+          ...videoDocsWithThumbs.map((d, i) => ({ business_id: businessId, type: "video" as const, url: d.url, name: d.name || null, language: null, icon: null, sort_order: i, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: d.popup || false })),
         ];
         if (allDocs.length > 0) {
           const { error: docsError } = await supabase.from("business_documents" as any).insert(allDocs);
