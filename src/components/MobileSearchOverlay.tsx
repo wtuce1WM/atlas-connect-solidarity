@@ -82,7 +82,7 @@ const MobileSearchOverlay = ({
 
   // Lock body scroll when open (fullscreen mode only)
   useEffect(() => {
-    if (open && !desktopDocked) {
+    if (open && !desktopDocked && !contained) {
       document.body.style.overflow = "hidden";
       return () => { document.body.style.overflow = ""; };
     }
