@@ -69,6 +69,9 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
   const [activeBottomTab, setActiveBottomTab] = useState<string>("videos");
   const [fullscreenVideo, setFullscreenVideo] = useState<string | null>(null);
   const [openedPoiBusinessId, setOpenedPoiBusinessId] = useState<string | null>(null);
+  const [showBookingOverlay, setShowBookingOverlay] = useState(false);
+  const [bookingOverlayUrl, setBookingOverlayUrl] = useState<string | null>(null);
+  const [bookingOverlayTitle, setBookingOverlayTitle] = useState<string | undefined>(undefined);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoPaused, setVideoPaused] = useState(true);
