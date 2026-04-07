@@ -35,7 +35,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect }: PanelSearchBarProps) => 
   return (
     <>
       {/* Trigger bar fixed at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 z-[60] py-3 px-4">
+      <div className="absolute bottom-0 left-0 right-0 z-[75] py-3 px-4">
         <button
           type="button"
           onClick={() => setSearchOverlayOpen(true)}
@@ -47,7 +47,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect }: PanelSearchBarProps) => 
 
       {/* Search overlay — covers toolbar */}
       {searchOverlayOpen && (
-        <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[70]">
+        <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[80]">
           <MobileSearchOverlay
             open={searchOverlayOpen}
             onClose={() => setSearchOverlayOpen(false)}
