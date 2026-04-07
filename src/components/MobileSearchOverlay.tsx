@@ -22,6 +22,8 @@ interface MobileSearchOverlayProps {
   desktopDocked?: boolean;
   /** Desktop-only: when docked, constrain width to left half (split layout) */
   desktopHalfWidth?: boolean;
+  /** When true, use absolute positioning to stay contained within its parent element */
+  contained?: boolean;
 }
 
 const MobileSearchOverlay = ({
@@ -32,6 +34,7 @@ const MobileSearchOverlay = ({
   onVoiceStart,
   desktopDocked = false,
   desktopHalfWidth = false,
+  contained = false,
 }: MobileSearchOverlayProps) => {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -79,7 +82,7 @@ const MobileSearchOverlay = ({
 
   // Lock body scroll when open (fullscreen mode only)
   useEffect(() => {
-    if (open && !desktopDocked) {
+    if (open && !desktopDocked && !contained) {
       document.body.style.overflow = "hidden";
       return () => { document.body.style.overflow = ""; };
     }
@@ -107,7 +110,7 @@ const MobileSearchOverlay = ({
 
   return (
     <div
-      className={`fixed inset-0 z-[10000] bg-background flex flex-col animate-in slide-in-from-bottom duration-200 ${
+      className={`${contained ? 'absolute' : 'fixed'} inset-0 ${contained ? 'z-[78]' : 'z-[10000]'} bg-background flex flex-col animate-in slide-in-from-bottom duration-200 ${
         desktopDocked
           ? `lg:inset-auto lg:top-0 lg:bottom-0 lg:left-0 lg:right-auto lg:border-r lg:border-border ${desktopHalfWidth ? "lg:w-1/2" : "lg:w-full"}`
           : ""
