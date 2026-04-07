@@ -37,11 +37,11 @@ interface VideoDoc {
   business_id: string;
   business_name: string;
   business_logo: string | null;
+  business_categories: string[];
   poi_name: string | null;
   linked_business_name: string | null;
   show_on_front: boolean;
   front_sort_order: number;
-  category_id: string | null;
 }
 
 interface DestinationVideosPanelProps {
