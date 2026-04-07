@@ -341,7 +341,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
   return (
     <div className={`absolute inset-0 z-[70] bg-black overflow-hidden ${slideAnim}`}>
       {/* Close + mosaic buttons */}
-      {!fullscreenVideo && !showDirections && !isLightboxOpen && (
+      {!fullscreenVideo && !showDirections && !showBookingOverlay && !isLightboxOpen && (
         <div className="absolute top-3 left-3 z-[80] flex items-center gap-2">
           <button onClick={onClose} className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors" aria-label="Fermer">
             <X className="h-5 w-5" />
