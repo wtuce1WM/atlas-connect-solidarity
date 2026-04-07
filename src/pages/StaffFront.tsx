@@ -131,7 +131,29 @@ const StaffFront = () => {
             </Tabs>
           </TabsContent>
 
-          <TabsContent value="suggestions">
+          <TabsContent value="preview-desktop">
+            <div className="flex justify-center">
+              <div className="border rounded-lg overflow-hidden shadow-sm" style={{ width: 1920, maxWidth: "100%" }}>
+                <iframe src="/" className="w-full border-0" style={{ height: "80vh" }} title="Aperçu Desktop (1920×1080)" />
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="preview-tablet">
+            <div className="flex justify-center">
+              <div className="border rounded-lg overflow-hidden shadow-sm" style={{ width: 768 }}>
+                <iframe src="/" className="w-full border-0" style={{ height: "80vh" }} title="Aperçu Tablette (768×1024)" />
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="preview-mobile">
+            <div className="flex justify-center">
+              <div className="border rounded-lg overflow-hidden shadow-sm" style={{ width: 390 }}>
+                <iframe src="/" className="w-full border-0" style={{ height: "80vh" }} title="Aperçu Mobile (390×844)" />
+              </div>
+            </div>
+          </TabsContent>
             <PopularSearchesManagement />
           </TabsContent>
 
