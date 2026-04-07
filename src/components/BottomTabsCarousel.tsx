@@ -9,6 +9,8 @@ export interface TabDef {
   label: string;
   /** Red background when not active (YouTube style) */
   tabStyle?: "youtube";
+  /** Extra classes on the button (e.g. truncation) */
+  className?: string;
 }
 
 /* ────────────────────────────────────────────────
@@ -31,6 +33,8 @@ export function TabBar({ tabs, activeTab, onTabChange }: TabBarProps) {
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
             className={`px-3 py-1.5 rounded-full transition-colors border border-transparent whitespace-nowrap ${
+              tab.className || ""
+            } ${
               activeTab === tab.id
                 ? "bg-black text-white"
                 : tab.tabStyle === "youtube"
@@ -392,6 +396,7 @@ export interface BottomTabConfig {
   id: string;
   label: string;
   tabStyle?: "youtube";
+  className?: string;
   renderContent: (animate: boolean, animationClass: string) => React.ReactNode;
 }
 
