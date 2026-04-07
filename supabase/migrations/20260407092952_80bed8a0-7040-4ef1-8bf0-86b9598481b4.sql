@@ -1,0 +1,1 @@
+ALTER TABLE public.business_documents ADD COLUMN popup boolean NOT NULL DEFAULT false;
