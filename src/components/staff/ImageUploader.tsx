@@ -46,6 +46,8 @@ interface SortableImageProps {
   onPreview: (url: string) => void;
   isBroken?: boolean;
   meta?: ImageMeta;
+  isPopup?: boolean;
+  onPopupToggle?: (url: string) => void;
 }
 
 const formatFileSize = (bytes: number) => {
