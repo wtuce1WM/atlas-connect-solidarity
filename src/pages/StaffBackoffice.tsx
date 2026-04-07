@@ -434,10 +434,6 @@ const StaffBackoffice = () => {
                 <Hotel className="h-4 w-4" />
                 Mapping Hôtels
               </TabsTrigger>
-              <TabsTrigger value="social-links" className="gap-2">
-                <Settings2 className="h-4 w-4" />
-                Réseaux sociaux
-              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="dashboard">
