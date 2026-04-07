@@ -53,7 +53,7 @@ const ExternalLinksFlipCard = ({
       <TooltipTrigger asChild>
         <button
           onClick={(e) => { e.stopPropagation(); handleClick(link); }}
-          className="flex items-center justify-center rounded-lg bg-white/30 hover:bg-white/45 transition-colors overflow-hidden cursor-pointer"
+          className={`flex items-center justify-center rounded-lg transition-colors overflow-hidden cursor-pointer ${link.icon ? "bg-white/30 hover:bg-white/45" : "bg-white/10 hover:bg-white/20 flex-col gap-1 px-2 py-2"}`}
         >
           {link.icon ? (
             <img
@@ -63,7 +63,9 @@ const ExternalLinksFlipCard = ({
               loading="lazy"
             />
           ) : (
-            <ExternalLink className="w-5 h-5 text-white/40" />
+            <span className="text-[10px] text-white/90 text-center normal-case leading-tight line-clamp-3" style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: '0.02em' }}>
+              {link.name || new URL(link.url).hostname.replace('www.', '')}
+            </span>
           )}
         </button>
       </TooltipTrigger>
