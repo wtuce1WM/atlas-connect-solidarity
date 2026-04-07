@@ -125,11 +125,28 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
 
   const load = useCallback(async () => {
     setLoading(true);
+
+    // 1. Get all business ids in this city
+    const { data: cityBusinesses } = await supabase
+      .from("businesses")
+      .select("id")
+      .eq("city", cityName);
+
+    if (!cityBusinesses || cityBusinesses.length === 0) {
+      setVideos([]);
+      setFrontVideos([]);
+      setLoading(false);
+      return;
+    }
+
+    const cityBusinessIds = cityBusinesses.map((b: any) => b.id);
+
+    // 2. Fetch all videos owned by those businesses
     const { data: docs, error } = await supabase
       .from("business_documents")
       .select("id, url, name, thumbnail_url, sort_order, business_id, poi_id, linked_business_id, show_on_front, front_sort_order, subcategory_id")
       .eq("type", "video")
-      .eq("city", cityName)
+      .in("business_id", cityBusinessIds)
       .order("sort_order", { ascending: true });
 
     if (!error && docs && docs.length > 0) {
