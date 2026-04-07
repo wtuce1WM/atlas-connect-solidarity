@@ -487,7 +487,7 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
         <label className="flex items-center gap-1 shrink-0 cursor-pointer" title="Ouvrir en popup">
           <Checkbox
             checked={doc.popup}
-            onCheckedChange={(checked) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, popup: !!checked } : d))}
+            onCheckedChange={(checked) => setVideoDocs(prev => prev.map((d, i) => checked ? { ...d, popup: i === idx } : i === idx ? { ...d, popup: false } : d))}
             className="h-3.5 w-3.5"
           />
           <span className="text-[9px] text-muted-foreground">popup</span>
