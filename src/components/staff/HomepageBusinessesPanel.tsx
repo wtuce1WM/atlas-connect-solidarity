@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ExternalLink, Play, Plus, X, GripVertical, Monitor, Filter } from "lucide-react";
+import { Loader2, ExternalLink, Play, Plus, X, GripVertical, Monitor, Filter, MapPin, Link2 } from "lucide-react";
 import VideoLightbox from "./VideoLightbox";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import { Badge } from "@/components/ui/badge";
