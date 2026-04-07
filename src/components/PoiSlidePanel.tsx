@@ -152,7 +152,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
     return () => { cancelled = true; };
   }, [businessId]);
 
-  // Fetch POI businesses linked to this POI
+  // Fetch POI businesses linked to this POI (fallback to city POIs if none linked)
   useEffect(() => {
     let cancelled = false;
 
@@ -166,8 +166,37 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
         .map((link) => link.poi_business_id)
         .filter((id) => id !== businessId);
 
-      if (cancelled || poiIds.length === 0) {
-        if (!cancelled) {
+      if (cancelled) return;
+
+      if (poiIds.length === 0) {
+        // Fallback: fetch all POIs from the same city
+        const poiCity = poi?.city;
+        if (poiCity) {
+          const { data: cityPois } = await supabase
+            .from("businesses")
+            .select("id, name, slug, latitude, longitude, images, city, neighborhood, rating, main_category")
+            .eq("is_active", true)
+            .eq("is_poi", true)
+            .eq("city", poiCity)
+            .neq("id", businessId)
+            .order("priority_score", { ascending: false })
+            .limit(50);
+          if (!cancelled && cityPois) {
+            setLinkedPois(
+              cityPois.map((b: any) => ({
+                id: b.id, name: b.name, latitude: b.latitude, longitude: b.longitude,
+                images: b.images, city: b.city, neighborhood: b.neighborhood,
+                rating: b.rating ? Number(b.rating) : null, subcategory: b.main_category,
+              }))
+            );
+            setCityPoisForTabs(
+              cityPois.map((b: any) => ({
+                id: b.id, name: b.name, slug: b.slug, images: b.images,
+                rating: b.rating ? Number(b.rating) : null,
+              }))
+            );
+          }
+        } else {
           setLinkedPois([]);
           setCityPoisForTabs([]);
         }
@@ -209,7 +238,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePa
 
     fetchLinkedPois();
     return () => { cancelled = true; };
-  }, [businessId]);
+  }, [businessId, poi?.city]);
 
   // Fetch videos linked to this POI (business_documents.poi_id) + POI's own videos (business_documents.business_id)
   useEffect(() => {
