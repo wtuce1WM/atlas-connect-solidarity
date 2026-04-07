@@ -108,7 +108,7 @@ const DestinationVideosPanel = ({ destinationIds }: DestinationVideosPanelProps)
                 <p className="text-xs text-muted-foreground line-clamp-2">{v.name}</p>
               )}
               <button
-                onClick={() => navigate(`/staff/backoffice?edit=${v.business_id}&section=section-videos`)}
+                onClick={() => navigate(`/staff/catalogue?edit=${v.business_id}&section=section-videos`)}
                 className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary transition-colors text-left"
               >
                 {v.business_logo && (
