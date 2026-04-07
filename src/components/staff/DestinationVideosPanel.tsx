@@ -25,7 +25,7 @@ import { CSS } from "@dnd-kit/utilities";
 interface FrontStructureEntry {
   id: string;
   name: string;
-  categoryId: string | null;
+  subcategoryNames: string[]; // subcategory name_fr linked via front_structure_subcategories
 }
 
 interface VideoDoc {
@@ -37,11 +37,11 @@ interface VideoDoc {
   business_id: string;
   business_name: string;
   business_logo: string | null;
+  business_categories: string[];
   poi_name: string | null;
   linked_business_name: string | null;
   show_on_front: boolean;
   front_sort_order: number;
-  category_id: string | null;
 }
 
 interface DestinationVideosPanelProps {
@@ -105,17 +105,26 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
   // Load front_structure entries with their matching category ids
   useEffect(() => {
     const loadStructures = async () => {
-      const [{ data: structures }, { data: categories }] = await Promise.all([
+      const [{ data: structures }, { data: links }, { data: subcats }] = await Promise.all([
         supabase.from("front_structure").select("id, name, sort_order").order("sort_order"),
-        supabase.from("categories").select("id, name_fr"),
+        supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
+        supabase.from("subcategories").select("id, name_fr"),
       ]);
-      if (structures && categories) {
-        const catMap = new Map((categories as any[]).map((c) => [c.name_fr.toLowerCase(), c.id]));
+      if (structures && links && subcats) {
+        const scNameMap = new Map((subcats as any[]).map((sc) => [sc.id, sc.name_fr]));
+        const linksByEntry: Record<string, string[]> = {};
+        (links as any[]).forEach((l) => {
+          const name = scNameMap.get(l.subcategory_id);
+          if (name) {
+            if (!linksByEntry[l.front_structure_id]) linksByEntry[l.front_structure_id] = [];
+            linksByEntry[l.front_structure_id].push(name);
+          }
+        });
         setFrontStructures(
           (structures as any[]).map((s) => ({
             id: s.id,
             name: s.name,
-            categoryId: catMap.get(s.name.toLowerCase()) || null,
+            subcategoryNames: linksByEntry[s.id] || [],
           }))
         );
       }
@@ -172,25 +181,19 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
     }
 
     if (docs.length > 0) {
-      // Collect all business ids AND subcategory ids
       const allIds = new Set<string>();
-      const subcatIds = new Set<string>();
       docs.forEach((d: any) => {
         allIds.add(d.business_id);
         if (d.poi_id) allIds.add(d.poi_id);
         if (d.linked_business_id) allIds.add(d.linked_business_id);
-        if (d.subcategory_id) subcatIds.add(d.subcategory_id);
       });
 
-      const [{ data: businesses }, { data: subcategories }] = await Promise.all([
-        supabase.from("businesses").select("id, name, logo_url, slug").in("id", [...allIds]),
-        subcatIds.size > 0
-          ? supabase.from("subcategories").select("id, category_id").in("id", [...subcatIds])
-          : Promise.resolve({ data: [] as any[] }),
-      ]);
+      const { data: businesses } = await supabase
+        .from("businesses")
+        .select("id, name, logo_url, slug, categories")
+        .in("id", [...allIds]);
 
       const bMap = new Map((businesses || []).map((b: any) => [b.id, b]));
-      const scMap = new Map((subcategories || []).map((sc: any) => [sc.id, sc.category_id]));
 
       const mapped: VideoDoc[] = docs.map((d: any) => {
         const owner = bMap.get(d.business_id);
@@ -205,11 +208,11 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
           business_id: d.business_id,
           business_name: owner?.name || "—",
           business_logo: owner?.logo_url || null,
+          business_categories: owner?.categories || [],
           poi_name: poi?.name || null,
           linked_business_name: linked?.name || null,
           show_on_front: d.show_on_front ?? false,
           front_sort_order: d.front_sort_order ?? 0,
-          category_id: d.subcategory_id ? (scMap.get(d.subcategory_id) || null) : null,
         };
       });
       setVideos(mapped);
@@ -229,13 +232,14 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
     if (cityName) load();
   }, [cityName, load]);
 
-  // Filter videos by selected front structure
+  // Filter videos by selected front structure (match business categories against linked subcategory names)
   const filteredVideos = selectedStructure === "all"
     ? videos
     : (() => {
         const entry = frontStructures.find((s) => s.id === selectedStructure);
-        if (!entry?.categoryId) return [];
-        return videos.filter((v) => v.category_id === entry.categoryId);
+        if (!entry || entry.subcategoryNames.length === 0) return [];
+        const nameSet = new Set(entry.subcategoryNames);
+        return videos.filter((v) => v.business_categories.some((c) => nameSet.has(c)));
       })();
 
   const frontIds = new Set(frontVideos.map((v) => v.id));
