@@ -3,7 +3,97 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, MonitorSmartphone, Tablet, Smartphone } from "lucide-react";
+
+const PREVIEW_PAGES = [
+  { value: "/", label: "Accueil" },
+  { value: "/search", label: "Recherche" },
+  { value: "/category/restaurants", label: "Catégorie (ex: Restaurants)" },
+  { value: "/blog", label: "Blog" },
+  { value: "/hotels", label: "Hôtels" },
+  { value: "/club", label: "Club" },
+  { value: "/mission", label: "Mission" },
+  { value: "/contact", label: "Contact" },
+  { value: "/carte", label: "Carte" },
+  { value: "/conditions-generales", label: "CGF" },
+];
+
+const DESKTOP_RESOLUTIONS = [
+  { res: "1920×1080 (Full HD)", ratio: "~22%" },
+  { res: "1536×864 (HD+)", ratio: "~10%" },
+  { res: "1440×900 (WXGA+)", ratio: "~7%" },
+  { res: "1366×768 (HD)", ratio: "~6%" },
+  { res: "2560×1440 (QHD)", ratio: "~5%" },
+];
+const TABLET_RESOLUTIONS = [
+  { res: "768×1024 (iPad classique)", ratio: "~30%" },
+  { res: "810×1080 (iPad 10e gen)", ratio: "~15%" },
+  { res: "820×1180 (iPad Air)", ratio: "~12%" },
+  { res: "1024×1366 (iPad Pro 12.9)", ratio: "~10%" },
+  { res: "800×1280 (Android tablet)", ratio: "~8%" },
+];
+const MOBILE_RESOLUTIONS = [
+  { res: "390×844 (iPhone 14/15)", ratio: "~25%" },
+  { res: "393×873 (iPhone 15 Pro)", ratio: "~15%" },
+  { res: "360×800 (Android standard)", ratio: "~20%" },
+  { res: "412×915 (Samsung Galaxy)", ratio: "~12%" },
+  { res: "375×812 (iPhone X/11 Pro)", ratio: "~10%" },
+];
+
+const PreviewTab = ({ width, maxWidth, title, resolutions, breakpoints }: {
+  width: number; maxWidth?: string; title: string;
+  resolutions: { res: string; ratio: string }[]; breakpoints: string;
+}) => {
+  const [selectedPage, setSelectedPage] = useState("/");
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        <span className="text-sm font-medium text-foreground">Page à prévisualiser :</span>
+        <Select value={selectedPage} onValueChange={setSelectedPage}>
+          <SelectTrigger className="w-[280px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {PREVIEW_PAGES.map(p => (
+              <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="flex justify-center gap-8 items-start">
+        <div className="border rounded-lg overflow-hidden shadow-sm" style={{ width, maxWidth: maxWidth || "100%" }}>
+          <iframe src={selectedPage} className="w-full border-0" style={{ height: "80vh" }} title={`Aperçu ${title}`} />
+        </div>
+        <div className="border rounded-lg bg-background p-5 shadow-sm text-sm" style={{ minWidth: 340 }}>
+          <h3 className="font-bold text-foreground mb-3">Résolutions {title.toLowerCase()} courantes</h3>
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b">
+                <th className="py-2 font-semibold text-foreground">Résolution CSS</th>
+                <th className="py-2 font-semibold text-foreground text-right">Ratio</th>
+              </tr>
+            </thead>
+            <tbody className="text-muted-foreground">
+              {resolutions.map((r, i) => (
+                <tr key={i} className={i < resolutions.length - 1 ? "border-b" : ""}>
+                  <td className="py-2">{r.res}</td>
+                  <td className="py-2 text-right">{r.ratio}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p className="mt-3 text-xs text-muted-foreground">
+            Breakpoints Tailwind : {breakpoints.split(" · ").map((bp, i) => (
+              <span key={i}>{i > 0 && " · "}<code className="bg-muted px-1 rounded">{bp}</code></span>
+            ))}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import FrontStructureManagement from "@/components/staff/FrontStructureManagement";
 import DestinationVideosPanel from "@/components/staff/DestinationVideosPanel";
@@ -132,84 +222,15 @@ const StaffFront = () => {
           </TabsContent>
 
           <TabsContent value="preview-desktop">
-            <div className="flex justify-center gap-8 items-start">
-              <div className="border rounded-lg overflow-hidden shadow-sm" style={{ width: 1920, maxWidth: "calc(100% - 380px)" }}>
-                <iframe src="/" className="w-full border-0" style={{ height: "80vh" }} title="Aperçu Desktop (1920×1080)" />
-              </div>
-              <div className="border rounded-lg bg-background p-5 shadow-sm text-sm" style={{ minWidth: 340 }}>
-                <h3 className="font-bold text-foreground mb-3">Résolutions desktop courantes</h3>
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="py-2 font-semibold text-foreground">Résolution CSS</th>
-                      <th className="py-2 font-semibold text-foreground text-right">Ratio</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-muted-foreground">
-                    <tr className="border-b"><td className="py-2">1920×1080 (Full HD)</td><td className="py-2 text-right">~22%</td></tr>
-                    <tr className="border-b"><td className="py-2">1536×864 (HD+)</td><td className="py-2 text-right">~10%</td></tr>
-                    <tr className="border-b"><td className="py-2">1440×900 (WXGA+)</td><td className="py-2 text-right">~7%</td></tr>
-                    <tr className="border-b"><td className="py-2">1366×768 (HD)</td><td className="py-2 text-right">~6%</td></tr>
-                    <tr><td className="py-2">2560×1440 (QHD)</td><td className="py-2 text-right">~5%</td></tr>
-                  </tbody>
-                </table>
-                <p className="mt-3 text-xs text-muted-foreground">Breakpoints Tailwind : <code className="bg-muted px-1 rounded">lg</code> : 1024px · <code className="bg-muted px-1 rounded">xl</code> : 1280px · <code className="bg-muted px-1 rounded">2xl</code> : 1536px</p>
-              </div>
-            </div>
+            <PreviewTab width={1920} maxWidth="calc(100% - 380px)" title="Desktop" resolutions={DESKTOP_RESOLUTIONS} breakpoints="lg : 1024px · xl : 1280px · 2xl : 1536px" />
           </TabsContent>
 
           <TabsContent value="preview-tablet">
-            <div className="flex justify-center gap-8 items-start">
-              <div className="border rounded-lg overflow-hidden shadow-sm" style={{ width: 768 }}>
-                <iframe src="/" className="w-full border-0" style={{ height: "80vh" }} title="Aperçu Tablette (768×1024)" />
-              </div>
-              <div className="border rounded-lg bg-background p-5 shadow-sm text-sm" style={{ minWidth: 340 }}>
-                <h3 className="font-bold text-foreground mb-3">Résolutions tablette courantes</h3>
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="py-2 font-semibold text-foreground">Résolution CSS</th>
-                      <th className="py-2 font-semibold text-foreground text-right">Ratio</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-muted-foreground">
-                    <tr className="border-b"><td className="py-2">768×1024 (iPad classique)</td><td className="py-2 text-right">~30%</td></tr>
-                    <tr className="border-b"><td className="py-2">810×1080 (iPad 10e gen)</td><td className="py-2 text-right">~15%</td></tr>
-                    <tr className="border-b"><td className="py-2">820×1180 (iPad Air)</td><td className="py-2 text-right">~12%</td></tr>
-                    <tr className="border-b"><td className="py-2">1024×1366 (iPad Pro 12.9)</td><td className="py-2 text-right">~10%</td></tr>
-                    <tr><td className="py-2">800×1280 (Android tablet)</td><td className="py-2 text-right">~8%</td></tr>
-                  </tbody>
-                </table>
-                <p className="mt-3 text-xs text-muted-foreground">Breakpoint Tailwind : <code className="bg-muted px-1 rounded">md</code> : 768px</p>
-              </div>
-            </div>
+            <PreviewTab width={768} title="Tablette" resolutions={TABLET_RESOLUTIONS} breakpoints="md : 768px" />
           </TabsContent>
 
           <TabsContent value="preview-mobile">
-            <div className="flex justify-center gap-8 items-start">
-              <div className="border rounded-lg overflow-hidden shadow-sm" style={{ width: 390 }}>
-                <iframe src="/" className="w-full border-0" style={{ height: "80vh" }} title="Aperçu Mobile (390×844)" />
-              </div>
-              <div className="border rounded-lg bg-background p-5 shadow-sm text-sm" style={{ minWidth: 340 }}>
-                <h3 className="font-bold text-foreground mb-3">Résolutions mobiles courantes</h3>
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="py-2 font-semibold text-foreground">Résolution CSS</th>
-                      <th className="py-2 font-semibold text-foreground text-right">Ratio</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-muted-foreground">
-                    <tr className="border-b"><td className="py-2">390×844 (iPhone 14/15)</td><td className="py-2 text-right">~25%</td></tr>
-                    <tr className="border-b"><td className="py-2">393×873 (iPhone 15 Pro)</td><td className="py-2 text-right">~15%</td></tr>
-                    <tr className="border-b"><td className="py-2">360×800 (Android standard)</td><td className="py-2 text-right">~20%</td></tr>
-                    <tr className="border-b"><td className="py-2">412×915 (Samsung Galaxy)</td><td className="py-2 text-right">~12%</td></tr>
-                    <tr><td className="py-2">375×812 (iPhone X/11 Pro)</td><td className="py-2 text-right">~10%</td></tr>
-                  </tbody>
-                </table>
-                <p className="mt-3 text-xs text-muted-foreground">Breakpoint Tailwind : <code className="bg-muted px-1 rounded">sm</code> : 640px</p>
-              </div>
-            </div>
+            <PreviewTab width={390} title="Mobile" resolutions={MOBILE_RESOLUTIONS} breakpoints="sm : 640px" />
           </TabsContent>
 
           <TabsContent value="suggestions">
