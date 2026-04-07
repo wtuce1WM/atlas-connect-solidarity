@@ -113,16 +113,16 @@ const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta
       <div
         {...attributes}
         {...listeners}
-        className="absolute top-2 left-2 p-1.5 bg-black/60 text-white rounded cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute top-2 left-2 p-1.5 bg-black/60 text-white rounded cursor-grab active:cursor-grabbing"
       >
         <GripVertical className="h-4 w-4" />
       </div>
       
-      {/* Remove button */}
+      {/* Remove button — always visible */}
       <button
         type="button"
-        onClick={() => onRemove(index)}
-        className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+        onClick={(e) => { e.stopPropagation(); onRemove(index); }}
+        className="absolute top-2 right-2 p-1.5 bg-destructive text-destructive-foreground rounded-full shadow-md hover:bg-destructive/90 transition-colors"
       >
         <X className="h-4 w-4" />
       </button>
