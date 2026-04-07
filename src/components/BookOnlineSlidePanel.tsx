@@ -854,7 +854,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   };
   const slideInClass = bottomTabInitialRef.current ? "animate-slide-in-left opacity-0" : "";
 
-  const noBottomCarousel = false; // Tabs are always shown
+  
 
   const hookText = useMemo(() => {
     if (!business) return null;
