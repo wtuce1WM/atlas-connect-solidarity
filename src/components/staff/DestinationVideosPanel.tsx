@@ -489,6 +489,8 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
             );
           })}
         </div>
+          </>
+        )}
       </div>
 
       {/* ── Right: front selection panel (sticky) ── */}
