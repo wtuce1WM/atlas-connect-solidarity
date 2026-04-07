@@ -2402,6 +2402,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         </div>
       )}
 
+      {/* Search bar fixed at bottom of slide panel */}
+      {onOpenSearch && (
+        <div className="absolute bottom-0 left-0 right-0 z-[60] bg-black/90 backdrop-blur-md border-t border-gold/20 py-3 px-4">
+          <button
+            type="button"
+            onClick={onOpenSearch}
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white/90 backdrop-blur-sm border border-border rounded-xl shadow-lg"
+          >
+            <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+          </button>
+        </div>
+      )}
+
     </div>
   );
 };
