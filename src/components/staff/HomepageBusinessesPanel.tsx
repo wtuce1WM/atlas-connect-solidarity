@@ -141,6 +141,28 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
     load();
   }, []);
 
+  // Helper: fetch first video thumbnail per business
+  const fetchThumbnails = useCallback(async (businessIds: string[]): Promise<Map<string, string>> => {
+    const map = new Map<string, string>();
+    const batch = 300;
+    for (let i = 0; i < businessIds.length; i += batch) {
+      const chunk = businessIds.slice(i, i + batch);
+      const { data } = await supabase
+        .from("business_documents")
+        .select("business_id, thumbnail_url")
+        .eq("type", "video")
+        .not("thumbnail_url", "is", null)
+        .in("business_id", chunk)
+        .order("sort_order", { ascending: true });
+      if (data) {
+        (data as any[]).forEach((d) => {
+          if (!map.has(d.business_id) && d.thumbnail_url) map.set(d.business_id, d.thumbnail_url);
+        });
+      }
+    }
+    return map;
+  }, []);
+
   // Load all businesses for the city (on demand)
   const loadAllBusinesses = useCallback(async () => {
     if (allLoaded) return;
@@ -153,17 +175,17 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
       );
       rows.push(...chunk);
     }
-    // dedupe
     const seen = new Set<string>();
     const deduped = rows.filter((r) => { if (seen.has(r.id)) return false; seen.add(r.id); return true; });
+    const thumbMap = await fetchThumbnails(deduped.map((b) => b.id));
     setAllBusinesses(deduped.map((b: any) => ({
       id: b.id, name: b.name, logo_url: b.logo_url, city: b.city,
       categories: b.categories || [], services: b.services || [], images: b.images || [],
-      video_1_url: b.video_1_url || null,
+      video_1_url: b.video_1_url || null, thumbnail_url: thumbMap.get(b.id) || null,
     })));
     setAllLoaded(true);
     setLoading(false);
-  }, [cityName, fetchAll, allLoaded]);
+  }, [cityName, fetchAll, fetchThumbnails, allLoaded]);
 
   // When structure changes, load businesses + saved selection
   const handleStructureChange = async (val: string) => {
