@@ -5179,7 +5179,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction onClick={() => {
-              if (!quickAddDialog) return;
+              if (!quickAddDialog || quickAddDialog.type === "badge") return;
               const { type, value } = quickAddDialog;
               let engValue = value;
               if (type === "certification") {
