@@ -138,14 +138,6 @@ const StaffMaster = () => {
               <Egg className="h-4 w-4" />
               Easter Eggs
             </TabsTrigger>
-            <TabsTrigger value="popular-searches" className="gap-2">
-              <Search className="h-4 w-4" />
-              Suggestions
-            </TabsTrigger>
-            <TabsTrigger value="display" className="gap-2">
-              <Monitor className="h-4 w-4" />
-              Affichage
-            </TabsTrigger>
             <TabsTrigger value="blocked-domains" className="gap-2">
               <ShieldAlert className="h-4 w-4" />
               Domaines bloqués
