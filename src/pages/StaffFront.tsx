@@ -3,21 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, MonitorSmartphone, Tablet, Smartphone } from "lucide-react";
 
-const PREVIEW_PAGES = [
-  { value: "/", label: "Accueil" },
-  { value: "/search", label: "Recherche" },
-  { value: "/category/restaurants", label: "Catégorie (ex: Restaurants)" },
-  { value: "/blog", label: "Blog" },
-  { value: "/hotels", label: "Hôtels" },
-  { value: "/club", label: "Club" },
-  { value: "/mission", label: "Mission" },
-  { value: "/contact", label: "Contact" },
-  { value: "/carte", label: "Carte" },
-  { value: "/conditions-generales", label: "CGF" },
-];
+
 
 const DESKTOP_RESOLUTIONS = [
   { res: "1920×1080 (Full HD)", ratio: "~22%" },
@@ -45,25 +33,11 @@ const PreviewTab = ({ width, maxWidth, title, resolutions, breakpoints }: {
   width: number; maxWidth?: string; title: string;
   resolutions: { res: string; ratio: string }[]; breakpoints: string;
 }) => {
-  const [selectedPage, setSelectedPage] = useState("/");
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <span className="text-sm font-medium text-foreground">Page à prévisualiser :</span>
-        <Select value={selectedPage} onValueChange={setSelectedPage}>
-          <SelectTrigger className="w-[280px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {PREVIEW_PAGES.map(p => (
-              <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
       <div className="flex justify-center gap-8 items-start">
         <div className="border rounded-lg overflow-hidden shadow-sm" style={{ width, maxWidth: maxWidth || "100%" }}>
-          <iframe src={selectedPage} className="w-full border-0" style={{ height: "80vh" }} title={`Aperçu ${title}`} />
+          <iframe src="/" className="w-full border-0" style={{ height: "80vh" }} title={`Aperçu ${title}`} />
         </div>
         <div className="border rounded-lg bg-background p-5 shadow-sm text-sm" style={{ minWidth: 340 }}>
           <h3 className="font-bold text-foreground mb-3">Résolutions {title.toLowerCase()} courantes</h3>
