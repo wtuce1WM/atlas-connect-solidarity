@@ -97,7 +97,7 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
   return (
     <div className="space-y-2">
       <p className="text-xs text-muted-foreground mb-3">{videos.length} vidéo{videos.length > 1 ? "s" : ""}</p>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
         {videos.map((v) => (
           <div key={v.id} className="rounded-lg border bg-background overflow-hidden">
             <div className="relative aspect-video bg-black">
