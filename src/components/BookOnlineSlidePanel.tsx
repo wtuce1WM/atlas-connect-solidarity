@@ -123,6 +123,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showHook, setShowHook] = useState(false);
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
+  const { toast } = useToast();
+  const panelVoice = useVoiceSearch({
+    onTranscript: (keywords, spoken, detectedCategory, timeKeyword) => {
+      setSearchOverlayOpen(false);
+      const params: Record<string, string> = { q: keywords, spoken, _t: String(Date.now()) };
+      if (detectedCategory) params.category = detectedCategory;
+      if (timeKeyword) params.timeKeyword = timeKeyword;
+      if (onSearch) onSearch(params);
+    },
+    onError: (msg) => toast({ title: "Erreur", description: msg, variant: "destructive" }),
+  });
   const [showMosaic, setShowMosaic] = useState(false);
   const [ytBgPlaying, setYtBgPlaying] = useState(true);
   const [ytBgMuted, setYtBgMuted] = useState(false);
