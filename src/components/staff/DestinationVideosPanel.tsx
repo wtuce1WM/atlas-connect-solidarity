@@ -352,10 +352,11 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
   };
 
   const saveFrontSelection = async () => {
+    // We need all videos loaded to properly reset non-front ones
+    if (!allLoaded) await loadAllVideos();
     setSaving(true);
     try {
       const frontIdSet = new Set(frontVideos.map((v) => v.id));
-      // Reset non-front videos in batches of 200
       const idsToReset = videos.map((v) => v.id).filter((id) => !frontIdSet.has(id));
       const batchSize = 200;
       for (let i = 0; i < idsToReset.length; i += batchSize) {
@@ -365,7 +366,6 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
           .update({ show_on_front: false, front_sort_order: 0 } as any)
           .in("id", chunk);
       }
-      // Set selected ones sequentially to avoid overwhelming
       for (let i = 0; i < frontVideos.length; i++) {
         await supabase
           .from("business_documents")
@@ -385,14 +385,6 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
     return (
       <div className="flex justify-center py-12">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  if (videos.length === 0) {
-    return (
-      <div className="rounded-lg border bg-background p-6 text-sm text-muted-foreground">
-        Aucune vidéo liée à cette ville.
       </div>
     );
   }
