@@ -501,6 +501,7 @@ export type Database = {
           name: string | null
           neighborhood: string | null
           poi_id: string | null
+          popup: boolean
           price: string | null
           price_type: string | null
           service_id: string | null
@@ -523,6 +524,7 @@ export type Database = {
           name?: string | null
           neighborhood?: string | null
           poi_id?: string | null
+          popup?: boolean
           price?: string | null
           price_type?: string | null
           service_id?: string | null
@@ -545,6 +547,7 @@ export type Database = {
           name?: string | null
           neighborhood?: string | null
           poi_id?: string | null
+          popup?: boolean
           price?: string | null
           price_type?: string | null
           service_id?: string | null
