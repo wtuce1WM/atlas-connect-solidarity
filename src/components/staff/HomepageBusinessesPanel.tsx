@@ -31,6 +31,7 @@ interface BusinessItem {
   services: string[];
   images: string[];
   video_1_url: string | null;
+  thumbnail_url: string | null;
 }
 
 interface HomepageBusinessesPanelProps {
@@ -58,8 +59,12 @@ const SortableCard = ({
         <div onClick={() => onRemove(biz.id)} className="absolute top-1 right-1 z-10 text-white/80 hover:text-destructive bg-black/40 rounded p-0.5 cursor-pointer">
           <X className="h-3 w-3" />
         </div>
-        {videoUrl ? (
+        {biz.thumbnail_url ? (
+          <img src={biz.thumbnail_url} alt={biz.name} className="w-full h-full object-cover" />
+        ) : videoUrl ? (
           <VideoThumbnail src={videoUrl} alt={biz.name} className="w-full h-full object-cover" />
+        ) : biz.images[0] ? (
+          <img src={biz.images[0]} alt={biz.name} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-muted" />
         )}
@@ -136,6 +141,28 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
     load();
   }, []);
 
+  // Helper: fetch first video thumbnail per business
+  const fetchThumbnails = useCallback(async (businessIds: string[]): Promise<Map<string, string>> => {
+    const map = new Map<string, string>();
+    const batch = 300;
+    for (let i = 0; i < businessIds.length; i += batch) {
+      const chunk = businessIds.slice(i, i + batch);
+      const { data } = await supabase
+        .from("business_documents")
+        .select("business_id, thumbnail_url")
+        .eq("type", "video")
+        .not("thumbnail_url", "is", null)
+        .in("business_id", chunk)
+        .order("sort_order", { ascending: true });
+      if (data) {
+        (data as any[]).forEach((d) => {
+          if (!map.has(d.business_id) && d.thumbnail_url) map.set(d.business_id, d.thumbnail_url);
+        });
+      }
+    }
+    return map;
+  }, []);
+
   // Load all businesses for the city (on demand)
   const loadAllBusinesses = useCallback(async () => {
     if (allLoaded) return;
@@ -148,17 +175,17 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
       );
       rows.push(...chunk);
     }
-    // dedupe
     const seen = new Set<string>();
     const deduped = rows.filter((r) => { if (seen.has(r.id)) return false; seen.add(r.id); return true; });
+    const thumbMap = await fetchThumbnails(deduped.map((b) => b.id));
     setAllBusinesses(deduped.map((b: any) => ({
       id: b.id, name: b.name, logo_url: b.logo_url, city: b.city,
       categories: b.categories || [], services: b.services || [], images: b.images || [],
-      video_1_url: b.video_1_url || null,
+      video_1_url: b.video_1_url || null, thumbnail_url: thumbMap.get(b.id) || null,
     })));
     setAllLoaded(true);
     setLoading(false);
-  }, [cityName, fetchAll, allLoaded]);
+  }, [cityName, fetchAll, fetchThumbnails, allLoaded]);
 
   // When structure changes, load businesses + saved selection
   const handleStructureChange = async (val: string) => {
@@ -173,12 +200,11 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
       .eq("city", cityName)
       .order("sort_order");
     if (savedRows && savedRows.length > 0) {
-      // We need the business details
       const ids = (savedRows as any[]).map((r) => r.business_id);
-      const { data: bizData } = await supabase
-        .from("businesses")
-        .select("id, name, logo_url, city, categories, services, images, video_1_url")
-        .in("id", ids);
+      const [{ data: bizData }, thumbMap] = await Promise.all([
+        supabase.from("businesses").select("id, name, logo_url, city, categories, services, images, video_1_url").in("id", ids),
+        fetchThumbnails(ids),
+      ]);
       const bizMap = new Map((bizData || []).map((b: any) => [b.id, b]));
       const ordered = (savedRows as any[])
         .sort((a, b) => a.sort_order - b.sort_order)
@@ -187,7 +213,7 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
         .map((b: any) => ({
           id: b.id, name: b.name, logo_url: b.logo_url, city: b.city,
           categories: b.categories || [], services: b.services || [], images: b.images || [],
-          video_1_url: b.video_1_url || null,
+          video_1_url: b.video_1_url || null, thumbnail_url: thumbMap.get(b.id) || null,
         }));
       setSelected(ordered);
     } else {
@@ -295,8 +321,12 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
               return (
                 <div key={b.id} className={`rounded-lg border overflow-hidden transition-colors ${isSelected ? "border-primary/50 bg-primary/5" : "bg-background"}`}>
                   <div className="relative aspect-video bg-muted">
-                    {videoUrl ? (
+                    {b.thumbnail_url ? (
+                      <img src={b.thumbnail_url} alt={b.name} className="w-full h-full object-cover" />
+                    ) : videoUrl ? (
                       <VideoThumbnail src={videoUrl} alt={b.name} className="w-full h-full object-cover" />
+                    ) : b.images[0] ? (
+                      <img src={b.images[0]} alt={b.name} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full bg-muted/50" />
                     )}
