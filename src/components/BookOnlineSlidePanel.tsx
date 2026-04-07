@@ -47,6 +47,9 @@ import DocumentOverlay from "@/components/overlays/DocumentOverlay";
 import FallbackHotelsPanel from "@/components/overlays/FallbackHotelsPanel";
 import SerpApiHotelOverlay from "@/components/SerpApiHotelOverlay";
 import MobileSearchOverlay from "@/components/MobileSearchOverlay";
+import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
+import { useVoiceSearch } from "@/hooks/useVoiceSearch";
+import { useToast } from "@/hooks/use-toast";
 
 interface BookOnlineSlidePanelProps {
   businessId: string;
@@ -120,6 +123,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showHook, setShowHook] = useState(false);
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
+  const { toast } = useToast();
+  const panelVoice = useVoiceSearch({
+    onTranscript: (keywords, spoken, detectedCategory, timeKeyword) => {
+      setSearchOverlayOpen(false);
+      const params: Record<string, string> = { q: keywords, spoken, _t: String(Date.now()) };
+      if (detectedCategory) params.category = detectedCategory;
+      if (timeKeyword) params.timeKeyword = timeKeyword;
+      if (onSearch) onSearch(params);
+    },
+    onError: (msg) => toast({ title: "Erreur", description: msg, variant: "destructive" }),
+  });
   const [showMosaic, setShowMosaic] = useState(false);
   const [ytBgPlaying, setYtBgPlaying] = useState(true);
   const [ytBgMuted, setYtBgMuted] = useState(false);
@@ -2435,6 +2449,21 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             setSearchOverlayOpen(false);
             if (onSearch) onSearch(params);
           }}
+          onVoiceStart={() => {
+            setSearchOverlayOpen(false);
+            setTimeout(() => panelVoice.toggleRecording(), 150);
+          }}
+        />
+      )}
+
+      {/* Voice search overlay inside slide panel */}
+      {showSearchBar && (
+        <VoiceSearchOverlay
+          isOpen={panelVoice.status === "recording" || panelVoice.status === "processing"}
+          liveTranscript={panelVoice.liveTranscript}
+          onClose={() => panelVoice.toggleRecording()}
+          onFinish={() => panelVoice.finishRecording()}
+          contained
         />
       )}
 
