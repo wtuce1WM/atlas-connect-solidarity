@@ -75,6 +75,10 @@ const StaffFront = () => {
               <FileText className="h-4 w-4" />
               Ressources
             </TabsTrigger>
+            <TabsTrigger value="social-links" className="gap-2">
+              <Settings2 className="h-4 w-4" />
+              Réseaux sociaux
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="front-structure">
