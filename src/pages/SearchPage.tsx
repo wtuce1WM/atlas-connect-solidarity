@@ -3737,6 +3737,26 @@ const SearchPage = () => {
           setSearchParams(params);
         }}
         onVoiceStart={() => toggleRecording()}
+        onAiSuggestionClick={() => {
+          aiPopupShownRef.current = false;
+          if (selectedServiceFilter && lastAiServiceRef.current !== selectedServiceFilter) {
+            setAiAnswerText("");
+            setAiRegenerateKey(k => k + 1);
+            lastAiServiceRef.current = selectedServiceFilter;
+          }
+          setWarningDismissed(true);
+          setCompactPanelBusiness(null);
+          setIsCompactPanelExpanded(false);
+          setShowAiPopup(true);
+        }}
+        onLocationClick={() => setLocationDialogOpen(true)}
+        geoState={{
+          isEnabled: geo.isEnabled,
+          isDetecting: geo.isDetecting,
+          detectedCity: geo.detectedCity,
+          detectedNeighborhood: geo.detectedNeighborhood,
+          confirmedAddress: geo.confirmedAddress,
+        }}
       />
 
 
