@@ -2449,6 +2449,21 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             setSearchOverlayOpen(false);
             if (onSearch) onSearch(params);
           }}
+          onVoiceStart={() => {
+            setSearchOverlayOpen(false);
+            setTimeout(() => panelVoice.toggleRecording(), 150);
+          }}
+        />
+      )}
+
+      {/* Voice search overlay inside slide panel */}
+      {showSearchBar && (
+        <VoiceSearchOverlay
+          isOpen={panelVoice.status === "recording" || panelVoice.status === "processing"}
+          liveTranscript={panelVoice.liveTranscript}
+          onClose={() => panelVoice.toggleRecording()}
+          onFinish={() => panelVoice.finishRecording()}
+          contained
         />
       )}
 
