@@ -61,6 +61,7 @@ interface PoiFull {
   website: string | null;
   website_force_external: boolean;
   website_presentation_mode: string;
+  carousel_badge: string | null;
 }
 
 const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePanelProps) => {
