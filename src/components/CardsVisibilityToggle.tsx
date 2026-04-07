@@ -96,15 +96,13 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
           </button>
         </div>
       ) : (
-        <div className="relative w-full flex items-center justify-center px-4 md:px-6">
-          {leftSlot && (
-            <div className="pointer-events-auto absolute left-4 md:left-6 z-30 flex items-center gap-1">
-              {leftSlot}
-            </div>
-          )}
+        <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center">
+          <div className="min-w-0 flex items-center justify-start pl-4 md:pl-6">
+            {leftSlot}
+          </div>
           <button
             type="button"
-            className="relative z-10 inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:bg-background transition-colors"
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:bg-background transition-colors"
             title="Masquer les cartes"
             aria-label="Masquer les cartes"
             onKeyDown={(e) => {
@@ -121,6 +119,7 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
             <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Masquer</span>
             <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
           </button>
+          <div aria-hidden="true" />
         </div>
       )}
     </div>
