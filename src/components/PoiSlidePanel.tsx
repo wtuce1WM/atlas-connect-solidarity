@@ -4,6 +4,7 @@ import BookingOverlay from "@/components/BookingOverlay";
 import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton, useOwnerLogo, OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 import { useNavigate } from "react-router-dom";
 import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
+import PanelSearchBar from "@/components/PanelSearchBar";
 import BottomTabsCarousel, { TabScrollRail, TabVideoCard, TabCard, type BottomTabConfig } from "@/components/BottomTabsCarousel";
 import { useDragToHide } from "@/hooks/useDragToHide";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
