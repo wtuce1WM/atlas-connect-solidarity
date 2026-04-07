@@ -58,8 +58,8 @@ const SortableCard = ({
         <div onClick={() => onRemove(biz.id)} className="absolute top-1 right-1 z-10 text-white/80 hover:text-destructive bg-black/40 rounded p-0.5 cursor-pointer">
           <X className="h-3 w-3" />
         </div>
-        {thumb ? (
-          <img src={thumb} alt="" className="w-full h-full object-cover" />
+        {videoUrl ? (
+          <VideoThumbnail src={videoUrl} alt={biz.name} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-muted" />
         )}
