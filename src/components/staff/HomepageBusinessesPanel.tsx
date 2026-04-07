@@ -30,7 +30,6 @@ interface BusinessItem {
   city: string | null;
   categories: string[];
   services: string[];
-  images: string[];
   video_1_url: string | null;
   thumbnail_url: string | null;
 }
@@ -99,6 +98,26 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
   const navigate = useNavigate();
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+
+  const mapBusinessWithVideo = useCallback(
+    (b: any, videoMap: Map<string, { thumbnail_url: string | null; video_url: string }>): BusinessItem | null => {
+      const vd = videoMap.get(b.id);
+      const videoUrl = b.video_1_url || vd?.video_url || null;
+      if (!videoUrl) return null;
+
+      return {
+        id: b.id,
+        name: b.name,
+        logo_url: b.logo_url,
+        city: b.city,
+        categories: b.categories || [],
+        services: b.services || [],
+        video_1_url: videoUrl,
+        thumbnail_url: vd?.thumbnail_url || null,
+      };
+    },
+    []
+  );
 
   // Paginated fetch helper
   const fetchAll = useCallback(async (query: any) => {
