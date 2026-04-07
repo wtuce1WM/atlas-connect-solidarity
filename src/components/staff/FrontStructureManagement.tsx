@@ -185,15 +185,16 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
     return acc;
   }, {} as Record<string, Subcategory[]>);
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+  const content = (
+    <>
+      {!inline && (
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <LayoutGrid className="h-5 w-5" />
             Structure du front
           </DialogTitle>
         </DialogHeader>
+      )}
 
         {loading ? (
           <div className="flex justify-center p-8">
