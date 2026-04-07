@@ -38,6 +38,15 @@ interface PoiFull {
   longitude: number | null;
   city: string | null;
   neighborhood: string | null;
+  reserve_now_url: string | null;
+  reserve_now_force_external: boolean;
+  presentation_mode: string;
+  online_shop_url: string | null;
+  online_shop_force_external: boolean;
+  online_shop_presentation_mode: string;
+  website: string | null;
+  website_force_external: boolean;
+  website_presentation_mode: string;
 }
 
 const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom" }: PoiSlidePanelProps) => {
