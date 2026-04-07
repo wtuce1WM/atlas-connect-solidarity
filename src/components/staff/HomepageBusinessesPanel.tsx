@@ -242,10 +242,28 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
 
     const businessMap = new Map((cityBusinesses as any[]).map((b) => [b.id, b]));
     const docs = await fetchAllVideoDocs(cityBusinesses.map((b) => b.id));
+
+    // Collect poi/linked IDs to resolve names
+    const extraIds = new Set<string>();
+    docs.forEach((d: any) => {
+      if (d.poi_id && !businessMap.has(d.poi_id)) extraIds.add(d.poi_id);
+      if (d.linked_business_id && !businessMap.has(d.linked_business_id)) extraIds.add(d.linked_business_id);
+    });
+    if (extraIds.size > 0) {
+      const ids = Array.from(extraIds);
+      const batch = 300;
+      for (let i = 0; i < ids.length; i += batch) {
+        const { data } = await supabase.from("businesses").select("id, name").in("id", ids.slice(i, i + batch));
+        (data || []).forEach((b: any) => businessMap.set(b.id, b));
+      }
+    }
+
     const mapped = docs
       .map((d: any) => {
         const b = businessMap.get(d.business_id);
         if (!b) return null;
+        const poi = d.poi_id ? businessMap.get(d.poi_id) : null;
+        const linked = d.linked_business_id ? businessMap.get(d.linked_business_id) : null;
         return {
           id: d.id,
           business_id: b.id,
@@ -256,6 +274,8 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
           video_url: d.url,
           thumbnail_url: d.thumbnail_url || null,
           sort_order: d.sort_order ?? 0,
+          poi_name: poi?.name || null,
+          linked_business_name: linked?.name || null,
         };
       })
       .filter((v): v is BusinessVideoItem => Boolean(v))
