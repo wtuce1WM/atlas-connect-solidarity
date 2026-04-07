@@ -82,7 +82,7 @@ const FloatingButtonsGuard = ({ activePanel, setActivePanel }: { activePanel: st
   );
 };
 
-
+const AppContent = () => {
   const [activePanel, setActivePanel] = useState<"club" | "whatsapp" | null>(null);
   const { isRTL } = useLanguage();
 
