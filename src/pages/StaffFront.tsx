@@ -5,18 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, MonitorSmartphone, Tablet, Smartphone } from "lucide-react";
 
-const PREVIEW_PAGES = [
-  { value: "/", label: "Accueil" },
-  { value: "/search", label: "Recherche" },
-  { value: "/category/restaurants", label: "Catégorie (ex: Restaurants)" },
-  { value: "/blog", label: "Blog" },
-  { value: "/hotels", label: "Hôtels" },
-  { value: "/club", label: "Club" },
-  { value: "/mission", label: "Mission" },
-  { value: "/contact", label: "Contact" },
-  { value: "/carte", label: "Carte" },
-  { value: "/conditions-generales", label: "CGF" },
-];
+
 
 const DESKTOP_RESOLUTIONS = [
   { res: "1920×1080 (Full HD)", ratio: "~22%" },
