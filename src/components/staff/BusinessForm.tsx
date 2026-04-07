@@ -1002,6 +1002,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     rating: (business as any)?.rating?.toString() || "",
     reserve_now_url: (business as any)?.reserve_now_url || "",
     show_opening_hours: (business as any)?.show_opening_hours ?? false,
+    closure_message: (business as any)?.closure_message || "",
     show_videos: (business as any)?.show_videos ?? false,
     default_sound_on: (business as any)?.default_sound_on ?? true,
     prioritize_images: (business as any)?.prioritize_images ?? false,
