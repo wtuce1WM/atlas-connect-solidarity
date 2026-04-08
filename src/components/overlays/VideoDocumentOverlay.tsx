@@ -23,6 +23,7 @@ const VideoDocumentOverlay = ({
   closing,
   defaultSoundOn = true,
   businessId,
+  businessName,
   onClose,
   onNavigate,
   onAnimationEnd,
