@@ -96,13 +96,6 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
         businessName={businessName}
       />
 
-      {/* Location overlay — covers toolbar */}
-      <PanelLocationOverlay
-        open={locationOverlayOpen}
-        onClose={() => setLocationOverlayOpen(false)}
-      />
-
-      {/* Voice overlay — covers toolbar */}
       <VoiceSearchOverlay
         isOpen={voice.status === "recording" || voice.status === "processing"}
         liveTranscript={voice.liveTranscript}
