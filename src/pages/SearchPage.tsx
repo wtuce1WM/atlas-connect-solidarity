@@ -762,6 +762,7 @@ const SearchPage = () => {
         // If panel is in expanded/mosaic mode, collapse back to the panel instead of closing
         if (isCompactPanelExpanded) {
           setIsCompactPanelExpanded(false);
+          setIsCompactPanelDarkMode(false);
           return;
         }
         // If panel wants to intercept close (e.g. return to fallback hotels list)
