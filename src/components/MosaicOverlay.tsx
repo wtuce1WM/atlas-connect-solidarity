@@ -14,10 +14,10 @@ const MosaicOverlay = ({ mediaItems, onClose, onOpenLightbox }: MosaicOverlayPro
   return (
     <div className="absolute inset-0 -top-[3.3rem] z-[76] overflow-hidden">
     <div className="absolute inset-0 bg-black overflow-y-auto animate-slide-in-left">
-      <div className="sticky top-0 z-10 p-2">
+      <div className="sticky top-0 z-10 p-2 pt-14 lg:pt-2">
         <button
           onClick={onClose}
-          className="w-9 h-9 rounded-full bg-gray-500/70 backdrop-blur-sm flex items-center justify-center text-white hover:bg-gray-500/90 transition-colors"
+          className="w-9 h-9 rounded-full bg-white lg:bg-gray-500/70 lg:backdrop-blur-sm flex items-center justify-center text-black lg:text-white hover:bg-white/80 lg:hover:bg-gray-500/90 transition-colors shadow-lg lg:shadow-none"
           aria-label="Fermer la mosaïque"
         >
           <X className="h-5 w-5" />
