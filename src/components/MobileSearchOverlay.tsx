@@ -324,7 +324,7 @@ const MobileSearchOverlay = ({
                 type="button"
                 onClick={() => {
                   if (geoState?.accept && geoState?.toggle && geoState?.setManualCity) {
-                    setShowLocationPanel((v) => !v);
+                    setShowLocationOverlay(true);
                   } else {
                     onClose();
                     if (onLocationClick) {
