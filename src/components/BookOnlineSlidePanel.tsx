@@ -2119,8 +2119,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
       {/* POI business detail overlay */}
       {selectedPoiBusinessId && (
-        <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[70]">
-          <PoiSlidePanel
+        <div className="absolute top-0 left-0 right-0 bottom-0 z-[70] animate-slide-up-from-bottom bg-background">
+          <BookOnlineSlidePanel
             businessId={selectedPoiBusinessId}
             onClose={() => {
               setSelectedPoiBusinessId(null);
@@ -2128,7 +2128,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 poiOpenedFromMapRef.current = false;
               }
             }}
-            slideFrom="bottom"
             showSearchBar={showSearchBar}
             onSearch={onSearch}
             onSearchBusinessSelect={onSearchBusinessSelect}
