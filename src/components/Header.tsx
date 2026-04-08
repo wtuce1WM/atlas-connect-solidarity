@@ -187,29 +187,6 @@ const Header = ({ variant = "default", compact = false, rightContent }: HeaderPr
             {rightContent}
           </div>
         )}
-        {/* Left: hamburger + logo */}
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="flex items-center justify-center w-10 h-10 rounded-lg text-foreground hover:bg-muted/50 transition-colors"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Menu"
-          >
-            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
-          <a href="/" className="flex items-center gap-2 shrink-0">
-            <span className="text-lg font-bold tracking-tight" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em", textTransform: "uppercase" }}>
-              {compact ? (
-                <span className="text-foreground">1WM</span>
-              ) : (
-                <>
-                  <span className="text-foreground">ONE WORLD</span>{" "}
-                  <span className="text-foreground">MOROCCO</span>
-                </>
-              )}
-            </span>
-          </a>
-        </div>
       </div>
 
       {/* Dropdown menu */}
