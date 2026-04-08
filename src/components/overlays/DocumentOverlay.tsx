@@ -10,7 +10,7 @@ interface DocumentOverlayProps {
   onLoad?: () => void;
 }
 
-const DocumentOverlay = ({ url, name, type, ts, onClose }: DocumentOverlayProps) => {
+const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverlayProps) => {
   return (
     <div className="absolute inset-0 -top-[3.3rem] z-[60] bg-white flex flex-col animate-fade-in overflow-hidden">
       <div className="flex items-center justify-between px-4 py-2 border-b bg-white">
