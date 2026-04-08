@@ -914,7 +914,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [totalMedia]);
 
-  const videoInfo = effectiveMedia?.kind === "video" ? getVideoEmbed(effectiveMedia.url, window.location.origin, { background: true, defaultSoundOn: business?.default_sound_on ?? true }) : null;
+  const videoInfoBase = effectiveMedia?.kind === "video" ? getVideoEmbed(effectiveMedia.url, window.location.origin, { background: true, defaultSoundOn: business?.default_sound_on ?? true }) : null;
+  // When cards are hidden ("Afficher" mode), enable native controls for YouTube/Vimeo
+  const videoInfo = useMemo(() => {
+    if (!videoInfoBase || !cardsHidden) return videoInfoBase;
+    if (videoInfoBase.type === "youtube") {
+      return { ...videoInfoBase, embedUrl: videoInfoBase.embedUrl.replace(/controls=0/, "controls=1").replace(/disablekb=1/, "disablekb=0") };
+    }
+    return videoInfoBase;
+  }, [videoInfoBase, cardsHidden]);
 
   const [isFileVideoVertical, setIsFileVideoVertical] = useState(false);
   const isVerticalVideo = videoInfo ? (videoInfo.type === "file" ? isFileVideoVertical : videoInfo.isVertical) : false;
@@ -1147,10 +1155,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             />
           ) : (
             <div className={`w-full h-full overflow-hidden bg-black ${videoInfo?.type === "youtube" ? "relative" : ""}`}>
-              {videoInfo?.type === "youtube" && !isVerticalVideo && (
-                <>
-                  <div className="absolute inset-x-0 top-0 h-16 bg-black z-10" />
-                </>
+              {videoInfo?.type === "youtube" && !isVerticalVideo && !cardsHidden && (
+                <div className="absolute inset-x-0 top-0 h-16 bg-black z-10" />
               )}
               <iframe
                 ref={iframeRef}
@@ -1158,9 +1164,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 src={videoInfo?.embedUrl}
                 className={videoInfo?.type === "youtube"
                   ? isVerticalVideo
-                    ? "w-full h-full pointer-events-none"
-                    : "w-full h-[calc(100%+40px)] -mt-16 pointer-events-none"
-                  : "w-full h-full pointer-events-none"}
+                    ? `w-full h-full ${cardsHidden ? '' : 'pointer-events-none'}`
+                    : `w-full h-[calc(100%+40px)] -mt-16 ${cardsHidden ? '' : 'pointer-events-none'}`
+                  : `w-full h-full ${cardsHidden ? '' : 'pointer-events-none'}`}
                 allow="autoplay; encrypted-media"
                 allowFullScreen
                 frameBorder="0"
