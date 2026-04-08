@@ -2633,8 +2633,6 @@ const SearchPage = () => {
                 <BookOnlineSlidePanel
                   businessId={overlaySelectedBusiness.id}
                   onClose={() => { setOverlaySelectedBusiness(null); setIsOverlayPanelExpanded(false); }}
-                  isExpanded={isOverlayPanelExpanded}
-                  onToggleExpand={() => setIsOverlayPanelExpanded(prev => !prev)}
                   forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
                 />
               </div>
