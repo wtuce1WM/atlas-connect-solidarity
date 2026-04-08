@@ -1971,7 +1971,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   )
                 );
               }
-              if (showGoogleMap && business.latitude && business.longitude) {
+              if (!cardsHidden && showGoogleMap && business.latitude && business.longitude) {
                 ctaItems.push(
                   <button
                     key="directions"
