@@ -1,13 +1,12 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { DesktopMediaArrows, CardsToggleButton, useOwnerLogo, OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
+import { DesktopMediaArrows, CardsToggleButton, useOwnerLogo } from "@/components/CardsVisibilityToggle";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
-import { ExternalLink, MapPin, ChevronLeft, ChevronUp, X, CalendarCheck, ShoppingBag, Star, Minimize2, Loader2, Phone } from "lucide-react";
+import { MapPin, ChevronUp, X, CalendarCheck, Star, Loader2 } from "lucide-react";
 import VideoControls from "@/components/VideoControls";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 import { supabase } from "@/integrations/supabase/client";
 import { haversineKm } from "@/lib/haversine";
-import { isCurrentlyOpen } from "@/lib/formatOpeningHours";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import poiNearbyImg from "@/assets/poi-nearby.webp";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
@@ -15,12 +14,10 @@ import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLigh
 
 import { whatsappUrl } from "@/lib/phoneUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
-import ShareButton from "@/components/ShareButton";
 import { Skeleton } from "@/components/ui/skeleton";
 import BookingOverlay from "@/components/BookingOverlay";
 import DestinationSlidePanel from "@/components/DestinationSlidePanel";
 import PoiSlidePanel from "@/components/PoiSlidePanel";
-import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { getLangFlag, getLangAlt } from "@/lib/languageFlags";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import ContactFlipCard from "@/components/cards/ContactFlipCard";
@@ -28,15 +25,12 @@ import ReviewsFlipCard from "@/components/cards/ReviewsFlipCard";
 import ExternalLinksFlipCard from "@/components/cards/ExternalLinksFlipCard";
 import SocialLinksCard from "@/components/cards/SocialLinksCard";
 import MenuSummaryCard from "@/components/cards/MenuSummaryCard";
-
-import MenuUrlCard from "@/components/cards/MenuUrlCard";
 import MapCard from "@/components/cards/MapCard";
 import DirectionsOverlay from "@/components/DirectionsOverlay";
 import MosaicOverlay from "@/components/MosaicOverlay";
 import YouTubeShortsCarousel, { type YouTubeVideo } from "@/components/YouTubeShortsCarousel";
 import { useDragToHide } from "@/hooks/useDragToHide";
 import { useNavigate } from "react-router-dom";
-import { businessUrl } from "@/lib/businessUrl";
 import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 
 // Extracted hook and overlay components
@@ -49,24 +43,24 @@ import FallbackHotelsPanel from "@/components/overlays/FallbackHotelsPanel";
 import SerpApiHotelOverlay from "@/components/SerpApiHotelOverlay";
 import PanelSearchBar from "@/components/PanelSearchBar";
 
+// Extracted sub-components
+import { useHotelAvailability } from "@/hooks/useHotelAvailability";
+import { useOpenStatus } from "@/hooks/useOpenStatus";
+import { ToolbarPortals } from "@/components/slidepanel/ToolbarPortals";
+import { CtaBar, CTA_MODE_LABELS } from "@/components/slidepanel/CtaBar";
+import { HotelAvailabilityResult } from "@/components/slidepanel/HotelAvailabilityResult";
+
 
 interface BookOnlineSlidePanelProps {
   businessId: string;
   onClose: () => void;
   externalOverlayActive?: boolean;
-  /** When true, mute all background media (e.g. during voice search) */
   forceMuted?: boolean;
-  /** Mutable ref: if set by the panel, the parent should call it instead of closing */
   interceptCloseRef?: React.MutableRefObject<(() => boolean) | null>;
-  /** Show embedded search bar at bottom of slide panel */
   showSearchBar?: boolean;
-  /** Called when user submits a search from the embedded overlay */
   onSearch?: (params: Record<string, string>) => void;
-  /** Called when user selects a business from the embedded search overlay */
   onSearchBusinessSelect?: (businessId: string) => void;
-  /** Notify parent when a nested mosaic opens/closes (to hide toolbar) */
   onMosaicStateChange?: (open: boolean) => void;
-  /** Only nested overlays should propagate mosaic visibility to the parent */
   propagateMosaicState?: boolean;
 }
 
@@ -92,14 +86,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const { language } = useLanguage();
   const navigate = useNavigate();
 
-  // Data hook — replaces the massive fetch useEffect
   const {
     business, woDescription, destinations, poiBusinesses, isLoading,
     reviewTexts, externalLinks, menuSummaries, menuDocs, videoDocs,
     allVideoUrls, categoryIcon, showGoogleMap, kpRelated, kpSubcategoryItems, kpSubcategoryLabel, isKp1Only, liteApiHotelId, serpApiMapping, isHotelWithPrice,
   } = useBookOnlineData(businessId);
 
-  // --- Cosmetic URL rewriting (replaceState) ---
+  // --- Cosmetic URL rewriting ---
   const savedUrlRef = useRef(window.location.pathname + window.location.search);
 
   // UI state
@@ -166,7 +159,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     if (fallbackPanelData) fallbackDataRef.current = fallbackPanelData;
   }, [fallbackPanelData]);
 
-  // Ref for destination sub-overlay intercept
   const destInterceptCloseRef = useRef<(() => boolean) | null>(null);
 
   // --- Cosmetic URL rewriting effects ---
@@ -192,16 +184,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     const saved = savedUrlRef.current;
     return () => { window.history.replaceState(null, "", saved); };
   }, []);
-  // Expose close interceptor: when navigated from fallback or from video owner, go back instead of closing
+
+  // Close interceptor
   useEffect(() => {
     if (!interceptCloseRef) return;
-    // Priority: overlay intercepts first
     if (selectedDestinationId || selectedPoiBusinessId || selectedKpBusinessId) {
       interceptCloseRef.current = () => {
-        // Check if destination has its own sub-overlay to close first
-        if (selectedDestinationId && destInterceptCloseRef.current?.()) {
-          return true;
-        }
+        if (selectedDestinationId && destInterceptCloseRef.current?.()) return true;
         if (selectedDestinationId) { setSelectedDestinationId(null); return true; }
         if (selectedPoiBusinessId) { setSelectedPoiBusinessId(null); return true; }
         if (selectedKpBusinessId) { setSelectedKpBusinessId(null); return true; }
@@ -213,10 +202,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         setActiveBusinessIdRaw(previousBusinessId);
         setPreviousBusinessId(null);
         if (shouldRestoreHidden) {
-          // Restore cardsHidden after the new business loads
           setTimeout(() => { hideCardsRef.current?.(); }, 100);
         }
-        return true; // intercepted
+        return true;
       };
     } else if (cameFromFallback && fallbackDataRef.current) {
       interceptCloseRef.current = () => {
@@ -225,240 +213,34 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         }
         setFallbackHiddenOnMobile(false);
         setShowFallbackOverlay(true);
-        return true; // intercepted
+        return true;
       };
     } else {
       interceptCloseRef.current = null;
     }
   }, [previousBusinessId, cameFromFallback, fallbackPanelData, interceptCloseRef, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId]);
 
-
-
   const hideCardsRef = useRef<() => void>(() => {});
-
-  // Whether this business has a SerpAPI mapping
   const hasSerpMapping = !!serpApiMapping || !!liteApiHotelId;
 
-  // Unified hotel availability search: always calls SerpAPI to verify real availability
-  const handleCheckAvailability = useCallback(async (checkIn: string, checkOut: string, adults: number) => {
-    if (!business) return;
-    setHotelSearchLoading(true);
-    const isMobileOrTablet = typeof window !== "undefined" && window.innerWidth < 1024;
-
-    const openFallback = (data: FallbackPanelData) => {
+  // Extracted hotel availability hook
+  const handleCheckAvailability = useHotelAvailability({
+    business,
+    businessId,
+    serpApiMapping,
+    hasSerpMapping,
+    language,
+    setHotelSearchLoading,
+    openFallback: useCallback((data: FallbackPanelData) => {
+      const isMobileOrTablet = typeof window !== "undefined" && window.innerWidth < 1024;
       if (isMobileOrTablet) setShowTransitionOverlay(true);
       setFallbackPanelData(data);
       setSelectedFallbackHotelId(null);
       setFallbackHiddenOnMobile(false);
       hideCardsRef.current();
-    };
-
-    try {
-      const cityName = serpApiMapping?.city || business.city || "";
-      if (!cityName) throw new Error("City not found");
-
-      // Non-mapped hotel: skip SerpAPI, show unavailability after 500ms
-      if (!hasSerpMapping) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        // Fetch mapped hotels for the city to show as alternatives
-        const [mappingResult, gammeResult] = await Promise.all([
-          supabase.from("hotel_mappings").select("id, serp_hotel_name, business_id, city").ilike("city", cityName),
-          supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
-        ]);
-
-        const allMappings = (mappingResult.data || []) as any[];
-        const gammes = gammeResult.data || [];
-
-        // Get business data for mapped hotels
-        const bizIds = allMappings.map((m: any) => m.business_id).filter(Boolean);
-        let altHotels: FallbackHotel[] = [];
-        if (bizIds.length > 0) {
-          const { data: bizData } = await supabase
-            .from("businesses")
-            .select("id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, skype, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, badge_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, opening_hours, show_opening_hours, is_open_24h, engagements, online_shop_url, latitude, longitude, google_maps_url, rating, website, min_price, main_category")
-            .in("id", bizIds)
-            .eq("is_active", true)
-            .eq("main_category", "Hôtellerie");
-          const gammeMap = new Map(gammes.map((g: any) => [g.id, g]));
-          const deduped = new Map<string, any>();
-          for (const m of allMappings) {
-            if (!deduped.has(m.business_id)) deduped.set(m.business_id, m);
-          }
-          for (const biz of (bizData || [])) {
-            if (biz.id === businessId) continue;
-            const gammeInfo = biz.gamme_id ? gammeMap.get(biz.gamme_id) || null : null;
-            altHotels.push({
-              hotelId: biz.id,
-              businessId: biz.id,
-              name: biz.name,
-              wtuce_status: biz.wtuce_status || undefined,
-              offers: [],
-              dbImage: biz.images?.[0] || undefined,
-              dbGoogleRating: biz.google_rating,
-              dbGoogleReviewCount: biz.google_review_count,
-              dbTripadvisorRating: biz.tripadvisor_rating,
-              dbTripadvisorReviewCount: biz.tripadvisor_review_count,
-              serpPrice: null,
-              reserveNowUrl: biz.reserve_now_url,
-              manualPriceRange: biz.manual_price_range,
-              isCurrentHotel: false,
-              gamme: gammeInfo ? { name_fr: gammeInfo.name_fr, color_hex: gammeInfo.color_hex, text_color_hex: gammeInfo.text_color_hex } : null,
-              dealDescription: null,
-              dbBusiness: biz,
-            } satisfies FallbackHotel);
-          }
-          altHotels.sort((a, b) => {
-            const aV = a.wtuce_status === "verified" ? 1 : 0;
-            const bV = b.wtuce_status === "verified" ? 1 : 0;
-            if (aV !== bV) return bV - aV;
-            return (b.dbBusiness?.computed_rating || 0) - (a.dbBusiness?.computed_rating || 0);
-          });
-        }
-
-        openFallback({
-          hotels: altHotels,
-          city: cityName,
-          checkIn, checkOut, adults,
-          source: "serpapi",
-          gammes: gammes.map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })),
-        });
-        setHotelSearchLoading(false);
-        return;
-      }
-
-      // Align with backoffice flow: SerpAPI raw results intersected with exact hotel_mappings
-      // Fetch mappings first to determine optimal maxPages
-      const [mappingResult, gammeResult] = await Promise.all([
-        supabase
-          .from("hotel_mappings")
-          .select("id, serp_hotel_name, business_id, city")
-          .ilike("city", cityName),
-        supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
-      ]);
-
-      const allMappings = (mappingResult.data || []) as any[];
-      // Calculate maxPages: ~20 results per page, cap based on mapped hotel count
-      const mappedCount = allMappings.length;
-      const optimalMaxPages = Math.max(1, Math.ceil(mappedCount / 20));
-
-      const serpResult = await supabase.functions.invoke("serpapi-hotels", {
-        body: {
-          cityName,
-          checkIn, checkOut, adults,
-          currency: "EUR",
-          maxPages: optimalMaxPages,
-        },
-      });
-
-      const serpHotels = (serpResult.data?.data || []) as any[];
-      const gammes = gammeResult.data || [];
-      const gammeMap = new Map(gammes.map((g: any) => [g.id, g]));
-
-      // Front logic must stay aligned with backoffice: exact intersection only
-      const serpByExactName = new Map<string, any>();
-      for (const hotel of serpHotels) {
-        const hotelName = typeof hotel.name === "string" ? hotel.name.trim().toLowerCase() : "";
-        if (hotelName && !serpByExactName.has(hotelName)) {
-          serpByExactName.set(hotelName, hotel);
-        }
-      }
-
-      const availableMatches = new Map<string, { mapping: any; serpMatch: any }>();
-      for (const mapping of allMappings) {
-        const mappingName = typeof mapping.serp_hotel_name === "string"
-          ? mapping.serp_hotel_name.trim().toLowerCase()
-          : "";
-        if (!mapping.business_id || !mappingName || availableMatches.has(mapping.business_id)) {
-          continue;
-        }
-        const serpMatch = serpByExactName.get(mappingName);
-        if (serpMatch) {
-          availableMatches.set(mapping.business_id, { mapping, serpMatch });
-        }
-      }
-
-      const availableBizIds = [...availableMatches.keys()];
-
-      // Fetch all available mapped businesses in one go
-      let bizMap = new Map<string, any>();
-      if (availableBizIds.length > 0) {
-        const { data: bizData } = await supabase
-          .from("businesses")
-          .select("id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, skype, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, badge_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, opening_hours, show_opening_hours, is_open_24h, engagements, online_shop_url, latitude, longitude, google_maps_url, rating, website, min_price, main_category")
-          .in("id", availableBizIds)
-          .eq("is_active", true)
-          .eq("main_category", "Hôtellerie");
-        bizMap = new Map((bizData || []).map((b: any) => [b.id, b]));
-      }
-
-      const hotels: FallbackHotel[] = [];
-      for (const { mapping, serpMatch } of availableMatches.values()) {
-        const biz = bizMap.get(mapping.business_id);
-        if (!biz) continue;
-
-        const isCurrentHotel = biz.id === businessId;
-        const gammeInfo = biz.gamme_id ? gammeMap.get(biz.gamme_id) || null : null;
-        hotels.push({
-          hotelId: mapping.id || biz.id,
-          businessId: biz.id,
-          name: biz.name,
-          wtuce_status: biz.wtuce_status || undefined,
-          offers: [],
-          dbImage: biz.images?.[0] || undefined,
-          mainImage: serpMatch.thumbnail || undefined,
-          dbGoogleRating: biz.google_rating,
-          dbGoogleReviewCount: biz.google_review_count,
-          dbTripadvisorRating: biz.tripadvisor_rating,
-          dbTripadvisorReviewCount: biz.tripadvisor_review_count,
-          serpPrice: serpMatch.ratePerNight || null,
-          reserveNowUrl: isCurrentHotel ? (business.reserve_now_url || biz.reserve_now_url) : biz.reserve_now_url,
-          manualPriceRange: biz.manual_price_range,
-          isCurrentHotel,
-          gamme: gammeInfo ? { name_fr: gammeInfo.name_fr, color_hex: gammeInfo.color_hex, text_color_hex: gammeInfo.text_color_hex } : null,
-          dealDescription: serpMatch.dealDescription || null,
-          dbBusiness: biz,
-        } satisfies FallbackHotel);
-      }
-
-      // Sort: current hotel first, then verified, then by rating
-      hotels.sort((a, b) => {
-        if (a.isCurrentHotel !== b.isCurrentHotel) return a.isCurrentHotel ? -1 : 1;
-        const aVerified = a.wtuce_status === "verified" ? 1 : 0;
-        const bVerified = b.wtuce_status === "verified" ? 1 : 0;
-        if (aVerified !== bVerified) return bVerified - aVerified;
-        const aRating = a.dbBusiness?.computed_rating || 0;
-        const bRating = b.dbBusiness?.computed_rating || 0;
-        return bRating - aRating;
-      });
-
-      if (hotels.length > 0) {
-        openFallback({
-          hotels,
-          city: cityName,
-          checkIn, checkOut, adults,
-          source: "serpapi",
-          gammes: gammes.map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })),
-        });
-      } else {
-        // No availability found at all
-        hideCardsRef.current();
-        openFallback({
-          hotels: [],
-          city: cityName,
-          checkIn, checkOut, adults,
-          source: "serpapi",
-          gammes: gammes.map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })),
-        });
-      }
-    } catch (err: any) {
-      console.error("Hotel availability error:", err);
-      const { toast } = await import("sonner");
-      toast.error(err.message || "Erreur");
-    } finally {
-      setHotelSearchLoading(false);
-    }
-  }, [business, businessId, serpApiMapping, language, hasSerpMapping]);
+    }, []),
+    hideCards: useCallback(() => { hideCardsRef.current(); }, []),
+  });
 
   useEffect(() => {
     if (!showTransitionOverlay) return;
@@ -478,20 +260,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   useEffect(() => { hideCardsRef.current = hideCards; }, [hideCards]);
   useEffect(() => { currentCardsHiddenRef.current = cardsHidden; }, [cardsHidden]);
 
-
-
-  // Track recently viewed when business loads in slide panel
+  // Track recently viewed
   useEffect(() => {
     if (business) {
       window.dispatchEvent(new CustomEvent("track-business-view", {
-        detail: {
-          id: business.id,
-          name: business.name,
-          images: business.images,
-          logo_url: business.logo_url,
-          city: business.city,
-          slug: (business as any).slug || business.id,
-        },
+        detail: { id: business.id, name: business.name, images: business.images, logo_url: business.logo_url, city: business.city, slug: (business as any).slug || business.id },
       }));
     }
   }, [business?.id]);
@@ -521,7 +294,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     setShowPoiMapOverlay(false);
     setPoiMapMode("poi");
     setNearbyFallback([]);
-    
     setAvailabilityOverlayCtx(null);
     if (!cameFromFallback) {
       setFallbackPanelData(null);
@@ -536,7 +308,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoPaused, setVideoPaused] = useState(true);
   const [videoMuted, setVideoMuted] = useState(true);
-  // Fallback: fetch nearby businesses within 5km when no POIs are linked
+
+  // Nearby fallback
   useEffect(() => {
     if (poiBusinesses.length > 0 || !business?.latitude || !business?.longitude) {
       setNearbyFallback([]);
@@ -546,7 +319,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     const fetchNearby = async () => {
       const lat = business.latitude!;
       const lng = business.longitude!;
-      // Rough bounding box for 5km
       const delta = 5 / 111;
       const { data } = await supabase
         .from("businesses")
@@ -558,34 +330,21 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         .lte("longitude", lng + delta)
         .neq("id", business.id);
       if (cancelled || !data) return;
-      // Exclude KP siblings of the current business
       const currentKp = business.kp_regroupement;
-      const filtered = currentKp
-        ? data.filter((b: any) => b.kp_regroupement !== currentKp)
-        : data;
-      // Filter to exact 5km radius
+      const filtered = currentKp ? data.filter((b: any) => b.kp_regroupement !== currentKp) : data;
       const inRadius = filtered.filter((b: any) =>
         b.latitude && b.longitude && haversineKm(lat, lng, b.latitude, b.longitude) <= 5
       );
-      // Deduplicate by GPS coordinates: keep is_master when multiple share same coords
       const coordMap = new Map<string, any>();
       for (const b of inRadius) {
         const key = `${b.latitude?.toFixed(6)},${b.longitude?.toFixed(6)}`;
         const existing = coordMap.get(key);
-        if (!existing) {
-          coordMap.set(key, b);
-        } else if (b.is_master && !existing.is_master) {
-          coordMap.set(key, b);
-        }
+        if (!existing) coordMap.set(key, b);
+        else if (b.is_master && !existing.is_master) coordMap.set(key, b);
       }
       const deduped = Array.from(coordMap.values()).map((b: any) => ({
-        id: b.id,
-        name: b.name,
-        latitude: b.latitude,
-        longitude: b.longitude,
-        images: b.images,
-        city: b.city,
-        neighborhood: b.neighborhood,
+        id: b.id, name: b.name, latitude: b.latitude, longitude: b.longitude,
+        images: b.images, city: b.city, neighborhood: b.neighborhood,
       } as PoiMapItem));
       if (!cancelled) setNearbyFallback(deduped);
     };
@@ -599,7 +358,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const iframeSrcRef = useRef<string>("");
   const overlayWasOpenRef = useRef(false);
 
-  // Sync video state with DOM events for instant icon updates
+  // Sync video state
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
@@ -618,7 +377,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     };
   });
 
-  // Reset media mute/overlay refs when business changes (new search result).
   useEffect(() => {
     keepMutedRef.current = false;
     muteLockSrcRef.current = null;
@@ -626,7 +384,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     iframeSrcRef.current = "";
   }, [businessId]);
 
-  // Force-mute background media when parent requests it (e.g. voice search active)
+  // Force-mute
   useEffect(() => {
     if (forceMuted) {
       if (videoRef.current) videoRef.current.muted = true;
@@ -635,7 +393,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         iframeRef.current.src = "";
       }
     } else if (!forceMuted && iframeRef.current && !iframeRef.current.src && iframeSrcRef.current) {
-      // Restore iframe when force mute ends
       const restoredMutedSrc = iframeSrcRef.current
         .replace(/([?&])mute=\d/i, "$1mute=1")
         .replace(/([?&])controls=\d/i, "$1controls=0");
@@ -643,24 +400,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     }
   }, [forceMuted]);
 
-  // Pause/resume background media when overlays open/close
+  // Pause/resume on overlays
   useEffect(() => {
     const overlayOpen = showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId || !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic || !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay || showFallbackOverlay || searchOverlayActive;
 
     if (overlayOpen) {
       overlayWasOpenRef.current = true;
-      if (videoRef.current) {
-        videoRef.current.pause();
-        videoRef.current.muted = true;
-      }
-      if (iframeRef.current) {
-        iframeSrcRef.current = iframeRef.current.src;
-        iframeRef.current.src = "";
-      }
+      if (videoRef.current) { videoRef.current.pause(); videoRef.current.muted = true; }
+      if (iframeRef.current) { iframeSrcRef.current = iframeRef.current.src; iframeRef.current.src = ""; }
       return;
     }
 
-    // Only keep muted when we are actually returning from an open overlay.
     if (overlayWasOpenRef.current) {
       keepMutedRef.current = true;
       if (videoRef.current) {
@@ -669,16 +419,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         videoRef.current.play().catch(() => {});
       }
       if (iframeRef.current && iframeSrcRef.current) {
-        const restoredMutedSrc = iframeSrcRef.current
-          .replace(/([?&])mute=\d/i, "$1mute=1")
-          .replace(/([?&])controls=\d/i, "$1controls=0");
+        const restoredMutedSrc = iframeSrcRef.current.replace(/([?&])mute=\d/i, "$1mute=1").replace(/([?&])controls=\d/i, "$1controls=0");
         iframeRef.current.src = restoredMutedSrc;
       }
       overlayWasOpenRef.current = false;
       return;
     }
 
-    // Initial load / normal navigation: do not force mute.
     if (videoRef.current && videoRef.current.paused) {
       videoRef.current.play().catch(() => {});
     }
@@ -708,93 +455,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   const { avgOn20, totalReviewCount } = useMemo(() => {
     if (!business) return { avgOn20: null, totalReviewCount: 0 };
-    return {
-      avgOn20: business.computed_rating ?? null,
-      totalReviewCount: business.total_review_count ?? 0,
-    };
+    return { avgOn20: business.computed_rating ?? null, totalReviewCount: business.total_review_count ?? 0 };
   }, [business]);
 
   const hasContactCard = !!(business?.phone || business?.whatsapp || business?.email || business?.website || business?.address);
   const hasReviewsCard = avgOn20 !== null && avgOn20 > 0;
 
-  const openBadgeInfo = useMemo(() => {
-    if (!business) return { text: null, isOpen: false };
-    const canShow = !!business.show_opening_hours || !!business.is_open_24h;
-    if (!canShow) return { text: null, isOpen: false };
+  // Extracted open status hook
+  const openBadgeInfo = useOpenStatus({ business, language });
 
-    if (business.is_open_24h) {
-      const label = language === "en" ? "Open 24/7" : language === "ar" ? "مفتوح 24/24" : "Ouvert 24h/24";
-      return { text: label, isOpen: true };
-    }
-
-    const frToEn: Record<string, string> = {
-      lundi: "monday", mardi: "tuesday", mercredi: "wednesday", jeudi: "thursday",
-      vendredi: "friday", samedi: "saturday", dimanche: "sunday",
-    };
-    const rawHours = business.opening_hours as Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }> | null;
-    if (!rawHours) return { text: null, isOpen: false };
-    const hours = Object.entries(rawHours).reduce((acc, [k, v]) => {
-      acc[frToEn[k] || k] = v;
-      return acc;
-    }, {} as Record<string, any>);
-
-    const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-    const now = new Date();
-    const todayKey = days[now.getDay()];
-    const currentlyOpen = isCurrentlyOpen(todayKey ? hours[todayKey] : null);
-
-    if (currentlyOpen) {
-      const label = language === "en" ? "Open" : language === "ar" ? "مفتوح" : "Ouvert";
-      return { text: label, isOpen: true };
-    }
-
-    const nowMin = now.getHours() * 60 + now.getMinutes();
-    const dh = hours[todayKey];
-    let foundToday = false;
-    let badgeText: string | null = null;
-
-    if (dh && !dh.closed && dh.open) {
-      const [oh, om] = dh.open.split(":").map(Number);
-      const openMin = oh * 60 + (om || 0);
-      if (openMin > nowMin) {
-        const prefix = language === "en" ? "Opens at" : language === "ar" ? "يفتح في" : "Ouvre à";
-        badgeText = `${prefix} ${dh.open}`;
-        foundToday = true;
-      } else if (dh.open2 && dh.close2 && !dh.continuous) {
-        const [oh2, om2] = dh.open2.split(":").map(Number);
-        const open2Min = oh2 * 60 + (om2 || 0);
-        if (open2Min > nowMin) {
-          const prefix = language === "en" ? "Opens at" : language === "ar" ? "يفتح في" : "Ouvre à";
-          badgeText = `${prefix} ${dh.open2}`;
-          foundToday = true;
-        }
-      }
-    }
-
-    if (!foundToday) {
-      const dayLabels = language === "en"
-        ? ["Sun.", "Mon.", "Tue.", "Wed.", "Thu.", "Fri.", "Sat."]
-        : language === "ar"
-          ? ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"]
-          : ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."];
-      for (let i = 1; i <= 7; i++) {
-        const idx = (now.getDay() + i) % 7;
-        const nextDh = hours[days[idx]];
-        if (nextDh && !nextDh.closed && nextDh.open) {
-          const prefix = language === "en" ? "Opens" : language === "ar" ? "يفتح" : "Ouvre";
-          badgeText = `${prefix} ${dayLabels[idx]} ${language === "ar" ? "" : "à "}${nextDh.open}`;
-          break;
-        }
-      }
-    }
-
-    if (badgeText) return { text: badgeText, isOpen: false };
-
-    const closedLabel = language === "en" ? "Closed" : language === "ar" ? "مغلق" : "Fermé";
-    return { text: closedLabel, isOpen: false };
-  }, [business, language]);
-
-  // Tabs-based bottom carousels — always show Vidéo and Autres établissements
+  // Bottom tabs
   const hasVideosCarousel = videoDocs.length > 0;
   const hasYoutubeBottomCarousel = !!(business?.youtube_url && business?.show_youtube_tab && youtubeVideoCount !== 0);
   const hasYoutubeReady = !!(youtubeVideoCount && youtubeVideoCount > 0);
@@ -803,7 +473,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const hasDestCarousel = destinations.length > 1;
   const hasPoiCarousel = poiBusinesses.length >= 2;
 
-  // Video tab label from carousel_badge
   const videoTabLabel = useMemo(() => {
     if (business?.carousel_badge) {
       const cb = business.carousel_badge;
@@ -820,27 +489,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const hasKpCode = !!(business?.kp_regroupement?.trim() || business?.kp_regroupement_2?.trim());
   const bottomTabs = useMemo<BottomTab[]>(() => {
     const tabs: BottomTab[] = [];
-    // Show Vidéo tab only when 2+ videos and média prioritaire is not "Images"
     if (videoDocs.length >= 2 && !business?.prioritize_images) {
       tabs.push({ id: "videos", label: videoTabLabel, hasContent: hasVideosCarousel });
     }
-    // YouTube tab only when configured
     if (hasYoutubeBottomCarousel) {
       tabs.push({ id: "youtube", label: "YouTube", hasContent: hasYoutubeReady || hasYoutubeBottomCarousel });
     }
-    // Destinations tab only when content exists
-    if (hasDestCarousel) {
-      tabs.push({ id: "dest", label: "Destinations", hasContent: true });
-    }
-    // KP subcategory tab (multi-master KP2)
+    if (hasDestCarousel) tabs.push({ id: "dest", label: "Destinations", hasContent: true });
     if (hasKpSubcatCarousel) {
       tabs.push({ id: "kp_subcat", label: kpSubcategoryLabel || (language === "en" ? "Category" : "Catégorie"), hasContent: true });
     }
-    // Show Autres établissements tab only when there are related businesses
     if (hasKpCarousel) {
       tabs.push({ id: "kp", label: language === "en" ? "Other establishments" : "Autres établissements", hasContent: true });
     }
-    // POI tab only when content exists
     if (hasPoiCarousel) {
       tabs.push({ id: "poi", label: language === "en" ? "Nearby" : "À proximité", hasContent: true });
     }
@@ -849,31 +510,21 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   const [activeBottomTab, setActiveBottomTab] = useState<string>("videos");
   const bottomTabInitialRef = useRef(true);
-  // Reset to first available tab when business changes
   useEffect(() => { bottomTabInitialRef.current = true; }, [businessId]);
   useEffect(() => {
     if (bottomTabs.length > 0) {
-      // Only commit to a tab selection once loading is complete to avoid selecting a partial first tab
       if (bottomTabInitialRef.current) {
         if (!isLoading) {
           setActiveBottomTab(bottomTabs[0].id);
-          // Delay resetting the ref so the slide-in animation has time to render
-          requestAnimationFrame(() => {
-            setTimeout(() => { bottomTabInitialRef.current = false; }, 600);
-          });
+          requestAnimationFrame(() => { setTimeout(() => { bottomTabInitialRef.current = false; }, 600); });
         }
       } else if (!bottomTabs.find(t => t.id === activeBottomTab)) {
         setActiveBottomTab(bottomTabs[0].id);
       }
     }
   }, [bottomTabs, businessId, isLoading]);
-  const handleBottomTabChange = (tabId: string) => {
-    bottomTabInitialRef.current = false;
-    setActiveBottomTab(tabId);
-  };
+  const handleBottomTabChange = (tabId: string) => { bottomTabInitialRef.current = false; setActiveBottomTab(tabId); };
   const slideInClass = bottomTabInitialRef.current ? "animate-slide-in-left opacity-0" : "";
-
-  
 
   const hookText = useMemo(() => {
     if (!business) return null;
@@ -884,10 +535,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   }, [business, language]);
 
   useEffect(() => {
-    if (!hookText) {
-      setShowHook(false);
-      return;
-    }
+    if (!hookText) { setShowHook(false); return; }
     setShowHook(false);
     const interval = setInterval(() => setShowHook((v) => !v), 5000);
     return () => clearInterval(interval);
@@ -902,26 +550,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     const matterportItems: MediaItem[] = business?.matterport_url
       ? [{ kind: "matterport" as const, url: business.matterport_url }]
       : [];
-    // Média prioritaire: show_videos → vidéos d'abord, prioritize_images → images d'abord, les deux à false → matterport d'abord
-    if (business?.prioritize_images) {
-      return [...imageItems, ...videoItems, ...matterportItems];
-    }
-    if (business?.show_videos) {
-      return [...videoItems, ...imageItems, ...matterportItems];
-    }
-    // Visite 3D prioritaire (both false)
+    if (business?.prioritize_images) return [...imageItems, ...videoItems, ...matterportItems];
+    if (business?.show_videos) return [...videoItems, ...imageItems, ...matterportItems];
     return [...matterportItems, ...videoItems, ...imageItems];
   }, [videos, images, videoDocs, business?.prioritize_images, business?.show_videos, business?.matterport_url]);
 
   const totalMedia = mediaItems.length;
   const safeIndex = totalMedia > 0 ? currentMediaIndex % totalMedia : 0;
   const currentMedia = totalMedia > 0 ? mediaItems[safeIndex] : null;
-
-  // In "Afficher" mode, override background to matterport if available
   const matterportItem = useMemo(() => mediaItems.find(m => m.kind === "matterport") || null, [mediaItems]);
   const effectiveMedia = (cardsHidden && matterportItem) ? matterportItem : currentMedia;
 
-  // Owner logo overlay hook
   const { logoBigOverlay, logoBigFadingOut } = useOwnerLogo(cardsHidden, currentMediaIndex, mediaItems, videoDocs, businessId);
 
   const goMedia = useCallback((dir: 1 | -1) => {
@@ -932,7 +571,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const videoInfo = useMemo(() => {
     if (effectiveMedia?.kind !== "video") return null;
     const base = getVideoEmbed(effectiveMedia.url, window.location.origin, { background: true, defaultSoundOn: business?.default_sound_on ?? true });
-    // Always enable native controls so toggling cardsHidden doesn't reload the iframe
     if (base.type === "youtube") {
       return { ...base, embedUrl: base.embedUrl.replace(/controls=0/, "controls=1").replace(/disablekb=1/, "disablekb=0") };
     }
@@ -943,22 +581,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const isVerticalVideo = videoInfo ? (videoInfo.type === "file" ? isFileVideoVertical : videoInfo.isVertical) : false;
   const externalVideoInteractiveMode = cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type !== "file";
 
-  // Listen for YouTube iframe API "ended" state
+  // Listen for YouTube "ended"
   useEffect(() => {
     if (!videoInfo || videoInfo.type !== "youtube" || totalMedia <= 1) return;
     const onMessage = (e: MessageEvent) => {
       try {
         const data = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
-        if (data?.event === "onStateChange" && data?.info === 0) {
-          goMedia(1);
-        }
+        if (data?.event === "onStateChange" && data?.info === 0) goMedia(1);
       } catch { /* ignore */ }
     };
     const timer = setTimeout(() => {
-      iframeRef.current?.contentWindow?.postMessage(
-        JSON.stringify({ event: "listening", id: 0 }),
-        "*"
-      );
+      iframeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: "listening", id: 0 }), "*");
     }, 1000);
     window.addEventListener("message", onMessage);
     return () => { window.removeEventListener("message", onMessage); clearTimeout(timer); };
@@ -966,11 +599,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   const lightboxItems = useMemo<LightboxMediaItem[]>(() =>
     mediaItems.map((m) =>
-      m.kind === "video"
-        ? { type: "video" as const, src: m.url, alt: business?.name || "" }
-        : m.kind === "matterport"
-          ? { type: "matterport" as const, src: m.url, alt: `${business?.name || ""} – Visite 3D` }
-          : { type: "image" as const, src: m.url, alt: business?.name || "" }
+      m.kind === "video" ? { type: "video" as const, src: m.url, alt: business?.name || "" }
+        : m.kind === "matterport" ? { type: "matterport" as const, src: m.url, alt: `${business?.name || ""} – Visite 3D` }
+        : { type: "image" as const, src: m.url, alt: business?.name || "" }
     ),
   [mediaItems, business?.name]);
 
@@ -989,25 +620,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     return { fullUrl, forceExternal };
   }, [shopUrl, business?.online_shop_force_external]);
 
-  const ctaModeLabels: Record<string, { fr: string; en: string }> = {
-    acheter_en_ligne: { fr: 'Acheter en ligne', en: 'Shop Online' },
-    reserver_en_ligne: { fr: 'Réserver en ligne', en: 'Book Online' },
-    consulter_offre: { fr: 'Consulter notre offre', en: 'View Our Offer' },
-    plus_informations: { fr: "Plus d'informations", en: 'More Information' },
-    contactez_nous: { fr: 'Contactez nous', en: 'Contact Us' },
-    la_carte: { fr: 'La carte', en: 'The Menu' },
-    les_boissons: { fr: 'Les boissons', en: 'Drinks' },
-  };
-
   const bookingCtaLabel = useMemo(() => {
     const mode = business?.presentation_mode || 'reserver_en_ligne';
-    const pair = ctaModeLabels[mode] || ctaModeLabels.reserver_en_ligne;
+    const pair = CTA_MODE_LABELS[mode] || CTA_MODE_LABELS.reserver_en_ligne;
     return language === 'en' ? pair.en : pair.fr;
   }, [business?.presentation_mode, language]);
 
   const shopCtaLabel = useMemo(() => {
     const mode = (business as any)?.online_shop_presentation_mode || 'acheter_en_ligne';
-    const pair = ctaModeLabels[mode] || ctaModeLabels.acheter_en_ligne;
+    const pair = CTA_MODE_LABELS[mode] || CTA_MODE_LABELS.acheter_en_ligne;
     return language === 'en' ? pair.en : pair.fr;
   }, [(business as any)?.online_shop_presentation_mode, language]);
 
@@ -1016,7 +637,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     ? `absolute inset-x-0 top-0 ${hasBottomActionCtas ? 'bottom-[160px]' : 'bottom-[88px]'} z-0`
     : "absolute inset-0 z-0";
 
-  // --- Helper to open document or booking overlay ---
   const openDocOrBooking = useCallback((url: string, title?: string) => {
     const isPdf = url?.toLowerCase().endsWith('.pdf') || url?.includes('/pdfs/');
     const isFlipbook = /issuu\.com|calameo\.com/i.test(url || '');
@@ -1031,6 +651,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     }
   }, []);
 
+  // Overlay state for ripple suppression
+  const anyOverlay = showDirections || showBookingOverlay || !!docOverlay || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId || showPoiMapOverlay || !!activeVideoOverlay || isLightboxOpen || showMosaic || showYoutubeOverlay || !!availabilityOverlayCtx || !!serpApiOverlayCtx || showFallbackOverlay || !!externalOverlayActive;
+
   if (isLoading) {
     return (
       <div className="h-full overflow-y-auto bg-background p-6 space-y-6">
@@ -1043,103 +666,30 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   if (!business) return null;
 
-  const toolbarPortal = document.getElementById("slide-panel-toolbar");
-  const toolbarCenterPortal = document.getElementById("slide-panel-toolbar-center");
-  const toolbarLeftPortal = document.getElementById("slide-panel-toolbar-left");
-
   const destName = (d: Destination) => language === "en" && d.name_en ? d.name_en : d.name_fr;
 
   return (
     <div className="h-full overflow-visible overscroll-none bg-black relative">
-      {/* Portal media button into left of fixed bar */}
-      {toolbarLeftPortal && !selectedKpBusinessId && !selectedPoiBusinessId && !showMosaic && createPortal(
-        <div className="flex items-center gap-2">
-          {serpApiOverlayCtxRef.current && activeBusinessId !== propBusinessId && (
-            <button
-              onClick={() => {
-                const ctx = serpApiOverlayCtxRef.current;
-                serpApiOverlayCtxRef.current = null;
-                serpApiReturnBusinessIdRef.current = null;
-                setActiveBusinessId(propBusinessId);
-                setTimeout(() => setSerpApiOverlayCtx(ctx), 50);
-              }}
-              className="h-9 w-9 flex items-center justify-center rounded-full bg-gold text-black shadow-md hover:bg-gold/90 transition-colors"
-              title="Retour aux résultats SerpAPI"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-          )}
-          {images.length >= 5 && (
-            <button
-              onClick={() => setShowMosaic((p) => !p)}
-              className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background shadow-md hover:bg-foreground/90 transition-colors"
-              title={showMosaic ? "Fermer la mosaïque" : "Voir tous les médias"}
-            >
-              {showMosaic ? (
-                <Minimize2 className="h-4 w-4" />
-              ) : (
-                <img src={iconePhotoVideo} alt="Médias" className="h-5 w-5 invert" />
-              )}
-            </button>
-          )}
-          {youtubeVideoCount && youtubeVideoCount > 0 && (
-            <button
-              onClick={() => {
-                const firstShort = allYoutubeVideos.find(v => v.isShort) || allYoutubeVideos[0] || null;
-                if (firstShort) setActiveYoutubeVideo(firstShort);
-                setShowYoutubeOverlay(true);
-                setYoutubeIsPlaying(true);
-              }}
-              className="h-9 w-9 flex items-center justify-center rounded-full bg-red-600 text-white shadow-md hover:bg-red-700 transition-colors"
-              title="Vidéos YouTube"
-            >
-              <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-            </button>
-          )}
-        </div>,
-        toolbarLeftPortal
-      )}
-      {/* Portal WhatsApp/Phone icon into center */}
-      {toolbarCenterPortal && !selectedKpBusinessId && !selectedPoiBusinessId && !showMosaic && (() => {
-        const anyOverlay = showDirections || showBookingOverlay || !!docOverlay || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId || showPoiMapOverlay || !!activeVideoOverlay || isLightboxOpen || showMosaic || showYoutubeOverlay || !!availabilityOverlayCtx || !!serpApiOverlayCtx || showFallbackOverlay || !!externalOverlayActive;
-        return createPortal(
-          <div className="flex items-center gap-6">
-            {business.whatsapp ? (
-              <a href={whatsappUrl(business.whatsapp)} target="_blank" rel="noopener noreferrer" className="relative flex items-center justify-center hover:opacity-90 transition-opacity">
-                {!anyOverlay && (
-                  <>
-                    <span className="absolute w-12 h-12 rounded-full border pointer-events-none animate-[ripple_2.4s_ease-out_infinite]" style={{ borderColor: "rgba(37,211,102,0.35)" }} />
-                    <span className="absolute w-16 h-16 rounded-full border pointer-events-none animate-[ripple_2.4s_ease-out_0.6s_infinite]" style={{ borderColor: "rgba(37,211,102,0.2)" }} />
-                    <span className="absolute w-20 h-20 rounded-full border pointer-events-none animate-[ripple_2.4s_ease-out_1.2s_infinite]" style={{ borderColor: "rgba(37,211,102,0.1)" }} />
-                  </>
-                )}
-                <span className="relative z-10 h-9 w-9 flex items-center justify-center rounded-full text-white" style={{ backgroundColor: "#25D366" }}>
-                  <WhatsAppIcon className="h-4 w-4" />
-                </span>
-              </a>
-            ) : business.phone ? (
-              <a href={`tel:${business.phone}`} className="relative flex items-center justify-center hover:opacity-90 transition-opacity">
-                {!anyOverlay && (
-                  <>
-                    <span className="absolute w-12 h-12 rounded-full border pointer-events-none animate-[ripple_2.4s_ease-out_infinite]" style={{ borderColor: "rgba(0,0,0,0.25)" }} />
-                    <span className="absolute w-16 h-16 rounded-full border pointer-events-none animate-[ripple_2.4s_ease-out_0.6s_infinite]" style={{ borderColor: "rgba(0,0,0,0.15)" }} />
-                    <span className="absolute w-20 h-20 rounded-full border pointer-events-none animate-[ripple_2.4s_ease-out_1.2s_infinite]" style={{ borderColor: "rgba(0,0,0,0.08)" }} />
-                  </>
-                )}
-                <span className="relative z-10 h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background">
-                  <Phone className="h-4 w-4" />
-                </span>
-              </a>
-            ) : null}
-          </div>,
-          toolbarCenterPortal
-        );
-      })()}
-      {/* Portal Share into right */}
-      {toolbarPortal && !selectedKpBusinessId && !selectedPoiBusinessId && !showMosaic && createPortal(
-        <ShareButton title={business.name} variant="dark" className="shrink-0" />,
-        toolbarPortal
-      )}
+      {/* Toolbar portals */}
+      <ToolbarPortals
+        business={business}
+        images={images}
+        showMosaic={showMosaic}
+        setShowMosaic={setShowMosaic}
+        youtubeVideoCount={youtubeVideoCount}
+        allYoutubeVideos={allYoutubeVideos}
+        setActiveYoutubeVideo={setActiveYoutubeVideo}
+        setShowYoutubeOverlay={setShowYoutubeOverlay}
+        setYoutubeIsPlaying={setYoutubeIsPlaying}
+        serpApiOverlayCtxRef={serpApiOverlayCtxRef}
+        activeBusinessId={activeBusinessId}
+        propBusinessId={propBusinessId}
+        setActiveBusinessId={setActiveBusinessId}
+        setSerpApiOverlayCtx={setSerpApiOverlayCtx}
+        selectedKpBusinessId={selectedKpBusinessId}
+        selectedPoiBusinessId={selectedPoiBusinessId}
+        anyOverlay={anyOverlay}
+      />
 
       {/* Full-bleed background */}
       <div className={externalVideoBackgroundClass}>
@@ -1154,7 +704,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               loop
               playsInline
               muted
-              
               onPlay={() => {
                 if (videoRef.current) {
                   const currentSrc = videoRef.current.currentSrc || videoRef.current.src || null;
@@ -1219,7 +768,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       <DesktopMediaArrows totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} />
 
-      {/* Overlaid content — always visible, carousels toggle */}
+      {/* Overlaid content */}
       <div
         className={`relative z-10 flex flex-col overflow-y-auto overflow-x-hidden overscroll-contain h-full p-4 pt-14 md:p-6 md:pt-16 lg:pt-6 ${cardsHidden ? 'pb-0' : 'pb-8'} ${effectiveMedia?.kind === "matterport" ? "pointer-events-none" : externalVideoInteractiveMode ? "pointer-events-none" : ""}`}
         style={isDragging ? { transform: `translateY(${dragOffsetY}px)`, transition: 'none' } : undefined}
@@ -1238,14 +787,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       {languages.map((lang, i) => {
                         const langAlt = getLangAlt(lang);
                         return (
-                          <span
-                            key={i}
-                            className="group relative inline-flex items-center justify-center text-base md:text-lg leading-none cursor-help shrink-0"
-                            title={langAlt}
-                            aria-label={langAlt}
-                            role="img"
-                            tabIndex={0}
-                          >
+                          <span key={i} className="group relative inline-flex items-center justify-center text-base md:text-lg leading-none cursor-help shrink-0" title={langAlt} aria-label={langAlt} role="img" tabIndex={0}>
                             {getLangFlag(lang)}
                           </span>
                         );
@@ -1289,19 +831,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   {languages.map((lang, i) => {
                     const langAlt = getLangAlt(lang);
                     return (
-                      <span
-                        key={i}
-                        className="group relative inline-flex items-center justify-center text-base md:text-lg leading-none cursor-help shrink-0"
-                        title={langAlt}
-                        aria-label={langAlt}
-                        role="img"
-                        tabIndex={0}
-                      >
+                      <span key={i} className="group relative inline-flex items-center justify-center text-base md:text-lg leading-none cursor-help shrink-0" title={langAlt} aria-label={langAlt} role="img" tabIndex={0}>
                         {getLangFlag(lang)}
-                        <span
-                          role="tooltip"
-                          className="pointer-events-none absolute left-0 top-full z-50 mt-2 hidden whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[10px] text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 md:block md:text-xs"
-                        >
+                        <span role="tooltip" className="pointer-events-none absolute left-0 top-full z-50 mt-2 hidden whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[10px] text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 md:block md:text-xs">
                           {langAlt}
                         </span>
                       </span>
@@ -1382,7 +914,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         <div className="shrink-0 w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto">
           <div className="flex w-max gap-2 items-start">
             <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
-            {/* Card 1: Web only description */}
             {woDescription && (
               <div className={`snap-start shrink-0 w-[20rem] md:w-[30rem] h-[15em] md:h-[20em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10`}
                   style={{ animationFillMode: 'forwards' }}
@@ -1393,7 +924,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   />
                 </div>
               )}
-              {/* Card 2: Contact */}
               {hasContactCard && (
                 <ContactFlipCard
                   business={business}
@@ -1413,7 +943,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   }}
                 />
               )}
-              {/* Card 3: Map */}
               {showGoogleMap && business && (business.latitude || business.google_maps_url) && (
                 <MapCard
                   latitude={business.latitude}
@@ -1423,14 +952,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   tallHeight={false}
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
                   onClick={() => {
-                    if (business?.city && destinations.length >= 2) {
-                      setPoiMapMode("destinations");
-                    }
+                    if (business?.city && destinations.length >= 2) setPoiMapMode("destinations");
                     setShowPoiMapOverlay(true);
                   }}
                 />
               )}
-              {/* Card 4: Menu Summary */}
               {menuSummaries.length > 0 && (
                 <MenuSummaryCard
                   summaries={menuSummaries}
@@ -1440,7 +966,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   categoryIcon={categoryIcon}
                 />
               )}
-              {/* Card 5: Reviews */}
               {hasReviewsCard && (
                 <ReviewsFlipCard
                   avgOn20={avgOn20!}
@@ -1451,7 +976,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0)) * 120}ms`}
                 />
               )}
-              {/* Card 6: External Links */}
               {externalLinks.length > 0 && (
                 <ExternalLinksFlipCard
                   links={externalLinks}
@@ -1459,7 +983,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   onOpenUrl={(url, linkTitle) => openDocOrBooking(url, linkTitle)}
                 />
               )}
-              {/* Card 7: Social Links */}
               {business && (
                 <SocialLinksCard
                   facebook={business.facebook_url}
@@ -1482,7 +1005,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           </div>
         </div>
 
-        {/* Tabs bar — hidden while data is loading to prevent tab recalculation flash */}
+        {/* Tabs bar */}
         <div className={`shrink-0 overflow-x-auto scrollbar-hide pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 pt-2 md:pt-3 pb-1 ${isLoading ? "invisible" : ""}`}>
           <div className="flex gap-1 w-max">
             <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
@@ -1506,7 +1029,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           </div>
         </div>
 
-        {/* Tab content — fixed height container for stable CTA positioning */}
+        {/* Tab content */}
         <div className="shrink-0 h-[9.5rem] md:h-[12.5rem] lg:h-[17.5rem]">
         {/* Videos tab */}
         {activeBottomTab === "videos" && hasVideosCarousel && (
@@ -1526,9 +1049,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     key={`vid-${index}`}
                     className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
                     style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' } : undefined}
-                    onClick={() => {
-                      setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description });
-                    }}
+                    onClick={() => setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description })}
                   >
                   <div className="relative">
                       {vid.thumbnail_url ? (
@@ -1537,10 +1058,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                         <img src={ytThumb} alt={vid.name || `Vidéo ${index + 1}`} loading="lazy" decoding="async" className={`w-full ${imgH} object-cover`} />
                       ) : vimeoThumb ? (
                         <img src={vimeoThumb} alt={vid.name || `Vidéo ${index + 1}`} loading="lazy" decoding="async" className={`w-full ${imgH} object-cover`} />
-                      ) : isFile ? (
-                        <div className={`w-full ${imgH} bg-white/10 flex items-center justify-center`}>
-                          <span className="text-2xl">▶</span>
-                        </div>
                       ) : (
                         <div className={`w-full ${imgH} bg-white/10 flex items-center justify-center`}>
                           <span className="text-2xl">▶</span>
@@ -1567,7 +1084,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           </div>
         )}
 
-        {/* YouTube tab — always mounted to preload, hidden when not active */}
+        {/* YouTube tab */}
         {business?.youtube_url && business?.show_youtube_tab && (
           <div className={`pointer-events-auto -mr-4 md:-mr-6 mt-2 ${activeBottomTab !== "youtube" ? "hidden" : ""}`}>
             <YouTubeShortsCarousel
@@ -1577,11 +1094,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               onPlayingChange={setYoutubeIsPlaying}
               onSelectVideo={(v) => { setActiveYoutubeVideo(v); if (v) setShowYoutubeOverlay(true); }}
               activeVideoId={activeYoutubeVideo?.videoId ?? null}
-               
-               shortsOnly
-               hideLabel
-               hideHeader
-               size="match-tabs"
+              shortsOnly
+              hideLabel
+              hideHeader
+              size="match-tabs"
             />
           </div>
         )}
@@ -1594,9 +1110,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               {destinations.map((dest, index) => {
                 const destImg = dest.images?.filter(Boolean)?.[0] || dest.image_url;
                 return (
-                  <div
-                    key={dest.id}
-                    className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                  <div key={dest.id} className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
                     style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' } : undefined}
                     onClick={() => setSelectedDestinationId(dest.id)}
                   >
@@ -1607,15 +1121,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                         <MapPin className="h-5 w-5 text-white/40" />
                       </div>
                     )}
-                    <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
-                      {destName(dest)}
-                    </p>
+                    <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">{destName(dest)}</p>
                   </div>
                 );
               })}
               {business?.city && destinations.length >= 2 && (
-                <div
-                  className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                <div className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
                   style={bottomTabInitialRef.current ? { animationDelay: `${destinations.length * 120}ms`, animationFillMode: 'forwards' } : undefined}
                   onClick={() => { setPoiMapMode("destinations"); setShowPoiMapOverlay(true); }}
                 >
@@ -1638,9 +1149,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               {poiBusinesses.map((poi, index) => {
                 const poiImg = poi.images?.filter(Boolean)?.[0] || (poi as any).logo_url;
                 return (
-                  <div
-                    key={poi.id}
-                    className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                  <div key={poi.id} className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
                     style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' } : undefined}
                     onClick={() => setSelectedPoiBusinessId(poi.id)}
                   >
@@ -1651,15 +1160,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                         <MapPin className="h-5 w-5 text-white/40" />
                       </div>
                     )}
-                    <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
-                      {poi.name}
-                    </p>
+                    <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">{poi.name}</p>
                   </div>
                 );
               })}
               {business?.latitude && business?.longitude && (
-                <div
-                  className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                <div className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
                   style={bottomTabInitialRef.current ? { animationDelay: `${poiBusinesses.length * 120}ms`, animationFillMode: 'forwards' } : undefined}
                   onClick={() => setShowPoiMapOverlay(true)}
                 >
@@ -1674,7 +1180,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           </div>
         )}
 
-        {/* KP Subcategory tab (multi-master KP2) */}
+        {/* KP Subcategory tab */}
         {activeBottomTab === "kp_subcat" && hasKpSubcatCarousel && (
           <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
             <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
@@ -1682,9 +1188,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               {kpSubcategoryItems.map((rel, index) => {
                 const relImg = rel.images?.filter(Boolean)?.[0] || rel.logo_url;
                 return (
-                  <div
-                    key={rel.id}
-                    className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                  <div key={rel.id} className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
                     style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' } : undefined}
                     onClick={() => setSelectedKpBusinessId(rel.id)}
                   >
@@ -1703,8 +1207,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 );
               })}
               {(poiBusinesses.length > 0 || nearbyFallback.length > 0) && business?.latitude && business?.longitude && (
-                <div
-                  className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                <div className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
                   style={bottomTabInitialRef.current ? { animationDelay: `${kpSubcategoryItems.length * 120}ms`, animationFillMode: 'forwards' } : undefined}
                   onClick={() => setShowPoiMapOverlay(true)}
                 >
@@ -1721,6 +1224,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           </div>
         )}
 
+        {/* KP tab */}
         {activeBottomTab === "kp" && hasKpCarousel && (
           <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
             <div className="flex w-max gap-2 overflow-x-auto pb-1 scrollbar-hide">
@@ -1728,9 +1232,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               {kpRelated.map((rel, index) => {
                 const relImg = rel.images?.filter(Boolean)?.[0] || rel.logo_url;
                 return (
-                  <div
-                    key={rel.id}
-                    className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                  <div key={rel.id} className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
                     style={bottomTabInitialRef.current ? { animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' } : undefined}
                     onClick={() => setSelectedKpBusinessId(rel.id)}
                   >
@@ -1749,8 +1251,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 );
               })}
               {(poiBusinesses.length > 0 || nearbyFallback.length > 0) && business?.latitude && business?.longitude && (
-                <div
-                  className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
+                <div className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
                   style={bottomTabInitialRef.current ? { animationDelay: `${kpRelated.length * 120}ms`, animationFillMode: 'forwards' } : undefined}
                   onClick={() => setShowPoiMapOverlay(true)}
                 >
@@ -1770,291 +1271,65 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           </>
         )}
 
-        
+        {/* Availability result (cards hidden mode) */}
+        <HotelAvailabilityResult
+          business={business}
+          language={language}
+          cardsHidden={cardsHidden}
+          effectiveMedia={effectiveMedia}
+          externalVideoInteractiveMode={externalVideoInteractiveMode}
+          hotelSearchLoading={hotelSearchLoading}
+          fallbackPanelData={fallbackPanelData}
+          showGoogleMap={showGoogleMap}
+          showCards={showCards}
+          setShowDirections={setShowDirections}
+          setShowFallbackOverlay={setShowFallbackOverlay}
+          setShowBookingOverlay={setShowBookingOverlay}
+          setBookingOverlayLoaded={setBookingOverlayLoaded}
+          setBookingOverlayUrl={setBookingOverlayUrl}
+          setBookingOverlayTitle={setBookingOverlayTitle}
+        />
 
-        {/* Spacer + availability zone when cards hidden */}
-        {cardsHidden && (
-          <div className={`flex-1 w-full flex flex-col justify-center gap-3 px-0 md:px-8 overflow-y-auto ${effectiveMedia?.kind === "matterport" || externalVideoInteractiveMode ? "pointer-events-none" : "pointer-events-auto"}`}>
-            {hotelSearchLoading && (
-              <div className="flex items-center justify-center gap-2 text-white/80">
-                <Loader2 className="h-5 w-5 animate-spin" />
-                <span className="text-sm font-['Roboto',sans-serif]">{language === "en" ? "Searching availability..." : "Recherche de disponibilité..."}</span>
-              </div>
-            )}
-            {fallbackPanelData && !hotelSearchLoading && (() => {
-              const currentHotel = fallbackPanelData.hotels.find(h => h.isCurrentHotel);
-              const hasAvailability = !!currentHotel;
-              const hotelName = business?.name || "";
-              const minPrice = business?.min_price;
-              const nightsCount = (() => {
-                const d1 = new Date(fallbackPanelData.checkIn);
-                const d2 = new Date(fallbackPanelData.checkOut);
-                const diff = Math.round((d2.getTime() - d1.getTime()) / 86400000);
-                return diff > 0 ? diff : 1;
-              })();
-              const totalMinPrice = minPrice ? minPrice * nightsCount : null;
+        {/* CTA Bar */}
+        <CtaBar
+          business={business}
+          language={language}
+          cardsHidden={cardsHidden}
+          showSearchBar={showSearchBar}
+          showGoogleMap={showGoogleMap}
+          externalVideoInteractiveMode={externalVideoInteractiveMode}
+          effectiveMedia={effectiveMedia}
+          bookingCta={bookingCta}
+          shopCta={shopCta}
+          bookingCtaLabel={bookingCtaLabel}
+          shopCtaLabel={shopCtaLabel}
+          fallbackPanelData={fallbackPanelData}
+          logoBigOverlay={logoBigOverlay}
+          logoBigFadingOut={logoBigFadingOut}
+          currentMediaIndex={currentMediaIndex}
+          videoDocs={videoDocs}
+          businessId={businessId}
+          currentMediaUrl={effectiveMedia?.url}
+          currentMediaKind={effectiveMedia?.kind}
+          videoInfo={videoInfo}
+          videoRef={videoRef as React.RefObject<HTMLVideoElement>}
+          iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>}
+          videoPaused={videoPaused}
+          videoMuted={videoMuted}
+          ytBgPlaying={ytBgPlaying}
+          ytBgMuted={ytBgMuted}
+          setYtBgPlaying={setYtBgPlaying}
+          setYtBgMuted={setYtBgMuted}
+          setShowDirections={setShowDirections}
+          setShowBookingOverlay={setShowBookingOverlay}
+          setBookingOverlayLoaded={setBookingOverlayLoaded}
+          setBookingOverlayUrl={setBookingOverlayUrl}
+          setBookingOverlayTitle={setBookingOverlayTitle}
+          setActiveBusinessId={setActiveBusinessId}
+        />
+      </div>
 
-              // Build action cards for availability case
-              const actionCards: { icon: React.ReactNode; label: string; onClick: () => void; color: string; textColor?: string }[] = [];
-              if (hasAvailability && business) {
-                if (business.whatsapp) {
-                  actionCards.push({
-                    icon: <WhatsAppIcon className="h-5 w-5" />,
-                    label: "WhatsApp",
-                    onClick: () => window.open(whatsappUrl(business.whatsapp!), "_blank"),
-                    color: "#25D366",
-                  });
-                }
-                if (business.phone) {
-                  actionCards.push({
-                    icon: <span className="text-lg">📞</span>,
-                    label: language === "en" ? "Call" : "Téléphone",
-                    onClick: () => window.open(`tel:${business.phone!.replace(/(?!^\+)[^\d]/g, '')}`, "_self"),
-                    color: "#FFFFFF",
-                    textColor: "#000000",
-                  });
-                }
-                if (business.reserve_now_url) {
-                  const isExternal = business.reserve_now_force_external;
-                  actionCards.push({
-                    icon: <CalendarCheck className="h-5 w-5" />,
-                    label: ctaModeLabels[business.presentation_mode]?.[language === "en" ? "en" : "fr"] || (language === "en" ? "Book online" : "Réservez en ligne"),
-                    onClick: () => {
-                      if (isExternal) {
-                        window.open(business.reserve_now_url!, "_blank");
-                      } else {
-                        setBookingOverlayLoaded(false);
-                        setBookingOverlayUrl(null);
-                        setBookingOverlayTitle(undefined);
-                        setShowBookingOverlay(true);
-                      }
-                    },
-                    color: "#25D366",
-                    textColor: "#000000",
-                  });
-                }
-                if (showGoogleMap && business.latitude && business.longitude) {
-                  actionCards.push({
-                    icon: <MapPin className="h-5 w-5" />,
-                    label: language === "en" ? "Directions" : "Vous rendre sur place",
-                    onClick: () => setShowDirections(true),
-                    color: "#C04F17",
-                  });
-                }
-              }
-
-              return (
-                <div className="flex flex-col items-center justify-center flex-1 w-full">
-                  {/* Contextual message */}
-                  <div className="text-left text-white bg-black/40 backdrop-blur-sm rounded-xl px-4 md:px-5 py-4 border border-white/10 w-full md:w-auto">
-                    <div className="text-[14px] md:text-[20px] font-['Roboto',sans-serif] leading-relaxed space-y-2">
-                        {hasAvailability ? (
-                        <>
-                          <p>
-                            <span className="font-bold">{hotelName}</span>{" "}
-                            {language === "en"
-                              ? "has availability for the selected dates."
-                              : "a de la disponibilité sur les dates recherchées."}
-                          </p>
-                          {minPrice ? (
-                            <p>
-                              {language === "en" ? "The minimum price generally observed is" : "Le prix minimum généralement constaté est de"}{" "}
-                              <span className="font-bold">{minPrice} €</span>{" "}
-                              {language === "en" ? "per night" : "par nuit"}{" "}
-                              {language === "en"
-                                ? "but the price per night may vary depending on season and room type."
-                                : "mais le prix par nuitée peut varier selon la saison et du type de chambre."}
-                            </p>
-                          ) : null}
-                          {totalMinPrice ? (
-                            <p>
-                              {language === "en"
-                                ? `You can therefore expect a minimum price for your stay of`
-                                : `Vous pouvez donc vous attendre à un prix minimal pour votre séjour de`}{" "}
-                              <span className="font-bold">{totalMinPrice} €</span>.
-                            </p>
-                          ) : null}
-                          <p>
-                            {language === "en"
-                              ? <>Contact <span className="font-bold">{hotelName}</span> directly to book your stay.</>
-                              : <>Renseignez-vous directement auprès de <span className="font-bold">{hotelName}</span> pour réserver votre séjour.</>}
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          <p>
-                            {language === "en"
-                              ? `Unfortunately, we could not find availability at ${hotelName} for the selected dates.`
-                              : `Malheureusement, nous n'avons pas pu trouver de disponibilité chez ${hotelName} sur les dates recherchées.`}
-                          </p>
-                          <p>
-                            {language === "en"
-                              ? "Please modify your search criteria or select an alternative below."
-                              : "Veuillez modifier vos critères de recherche ou sélectionner une alternative ci-dessous."}
-                          </p>
-                          <div className="flex justify-center mt-2">
-                            <button
-                              onClick={showCards}
-                              className="px-4 py-2 rounded-lg text-xs md:text-sm font-medium font-['Josefin_Sans',sans-serif] shadow-lg hover:opacity-90 transition-opacity bg-gold text-black"
-                              style={{ height: '40px' }}
-                            >
-                              {language === "en" ? "Change dates" : "Modifier les dates"}
-                            </button>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Action cards when available */}
-                  {actionCards.length > 0 && (
-                    <div className="flex flex-col items-center gap-2 mt-3" style={{ width: 'fit-content' }}>
-                      {actionCards.map((card, i) => (
-                        <button
-                          key={i}
-                          onClick={card.onClick}
-                          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs md:text-sm font-medium font-['Josefin_Sans',sans-serif] shadow-lg hover:opacity-90 transition-opacity normal-case tracking-normal whitespace-nowrap w-full"
-                          style={{ backgroundColor: card.color, color: card.textColor || "#FFFFFF", height: '40px' }}
-                        >
-                          {card.icon}
-                          <span>{card.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Hotels available card */}
-                  {fallbackPanelData.hotels.filter(h => !h.isCurrentHotel).length > 0 && (
-                    <div className="text-center text-white bg-black/40 backdrop-blur-sm rounded-xl px-4 md:px-5 py-3 border border-white/10 mt-3 font-['Roboto',sans-serif] cursor-pointer hover:bg-black/50 transition-colors w-full md:w-auto" onClick={() => { setShowFallbackOverlay(true); }}>
-                      <p className="text-[14px] md:text-[20px] font-medium mb-1">
-                        {fallbackPanelData.hotels.filter(h => !h.isCurrentHotel).length} {language === "en" ? "available hotels" : "hôtels disponibles"}
-                      </p>
-                      <p className="text-[12px] md:text-[16px] text-white/60">
-                        {fallbackPanelData.checkIn} → {fallbackPanelData.checkOut} · {fallbackPanelData.adults} {language === "en" ? "adults" : "adultes"}
-                      </p>
-                      <p className="text-[12px] md:text-[16px] text-white/80 mt-1.5 underline underline-offset-2">
-                        {language === "en" ? "View other available hotels" : "Consulter les autres établissements avec de la disponibilité"}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
-          </div>
-        )}
-
-        {/* CTAs + owner info + video controls */}
-        <div className={`${showSearchBar ? 'absolute bottom-[56px] left-0 right-0 z-[74] pb-[14px] md:pb-[10px]' : 'shrink-0 py-2 lg:pb-2'} flex flex-col items-center gap-2 ${externalVideoInteractiveMode ? 'pointer-events-none' : 'pointer-events-auto'} ${cardsHidden && effectiveMedia?.kind === "matterport" ? 'mb-24' : ''}`} style={(cardsHidden && fallbackPanelData && (() => { const ch = fallbackPanelData.hotels.find(h => h.isCurrentHotel); return !!ch; })()) ? { display: 'none' } : undefined}>
-            {(() => {
-              const ctaItems: React.ReactNode[] = [];
-              if (bookingCta) {
-                ctaItems.push(
-                  bookingCta.forceExternal ? (
-                    <a
-                      key="booking"
-                      href={bookingCta.fullUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left"
-                      style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}
-                    >
-                      <CalendarCheck className="h-4 w-4 hidden md:block" />
-                      <span className="truncate">{bookingCtaLabel}</span>
-                      <ExternalLink className="h-3.5 w-3.5 ml-0.5 shrink-0 hidden md:block" />
-                    </a>
-                  ) : (
-                    <button
-                      key="booking"
-                      onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setShowBookingOverlay(true); }}
-                      className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left"
-                      style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}
-                    >
-                      <CalendarCheck className="h-4 w-4 hidden md:block" />
-                      <span className="truncate">{bookingCtaLabel}</span>
-                    </button>
-                  )
-                );
-              }
-              if (shopCta) {
-                ctaItems.push(
-                  shopCta.forceExternal ? (
-                    <a
-                      key="shop"
-                      href={shopCta.fullUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left"
-                      style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}
-                    >
-                      <ShoppingBag className="h-4 w-4 hidden md:block" />
-                      <span className="truncate">{shopCtaLabel}</span>
-                      <ExternalLink className="h-3.5 w-3.5 ml-0.5 shrink-0 hidden md:block" />
-                    </a>
-                  ) : (
-                    <button
-                      key="shop"
-                      onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(shopCta.fullUrl); setBookingOverlayTitle(shopCtaLabel); setShowBookingOverlay(true); }}
-                      className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-black [&_*]:text-black normal-case tracking-normal animate-slide-in-left"
-                      style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}
-                    >
-                      <ShoppingBag className="h-4 w-4 hidden md:block" />
-                      <span className="truncate">{shopCtaLabel}</span>
-                    </button>
-                  )
-                );
-              }
-              if (!cardsHidden && showGoogleMap && business.latitude && business.longitude) {
-                ctaItems.push(
-                  <button
-                    key="directions"
-                    onClick={() => setShowDirections(true)}
-                    className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-gold text-gold-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-gold/90 transition-colors normal-case tracking-normal animate-slide-in-left"
-                    style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}
-                  >
-                    <MapPin className="h-4 w-4 hidden md:block" />
-                    <span className="truncate">{language === "en" ? "Directions" : "Itinéraire"}</span>
-                  </button>
-                );
-              }
-              if (ctaItems.length === 0) return null;
-              return (
-                <div className="w-4/5 md:w-3/4 md:px-0 flex justify-center gap-2 pointer-events-auto">
-                  {ctaItems.map((item, i) => (
-                    <div key={i} className="flex-1 md:flex-none md:w-1/3">{item}</div>
-                  ))}
-                </div>
-              );
-            })()}
-            {/* Video controls — below CTAs */}
-            {/* Owner logo + badge — above video controls */}
-            <OwnerLogoOverlay
-              key={`logo-${currentMediaIndex}`}
-              logoBigOverlay={logoBigOverlay}
-              logoBigFadingOut={logoBigFadingOut}
-              cardsHidden={cardsHidden}
-              currentMediaUrl={effectiveMedia?.url}
-              videoDocs={videoDocs}
-              currentBusinessId={businessId}
-            />
-            <OwnerBadge
-              key={`badge-${currentMediaIndex}`}
-              cardsHidden={cardsHidden}
-              currentMediaKind={effectiveMedia?.kind}
-              currentMediaUrl={effectiveMedia?.url}
-              videoDocs={videoDocs}
-              currentBusinessId={businessId}
-              onNavigateToOwner={setActiveBusinessId}
-            />
-            {effectiveMedia?.kind === "video" && videoInfo?.type === "file" && (
-              <VideoControls type="file" videoRef={videoRef as React.RefObject<HTMLVideoElement>} paused={videoPaused} muted={videoMuted} className="mt-2 md:mt-3 animate-slide-in-right" />
-            )}
-            {effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" && !cardsHidden && (
-              <VideoControls type="youtube" iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>} playing={ytBgPlaying} muted={ytBgMuted} onPlayingChange={setYtBgPlaying} onMutedChange={setYtBgMuted} className="mt-2 md:mt-3 animate-slide-in-right" />
-            )}
-          </div>
-        </div>
-
-        {/* YouTube Overlay */}
+      {/* YouTube Overlay */}
       {showYoutubeOverlay && (
         <YouTubeOverlay
           business={business}
@@ -2109,13 +1384,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         />
       )}
 
-      {/* Directions Overlay — covers toolbar */}
+      {/* Directions Overlay */}
       {showDirections && business && (
         <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[70] animate-slide-down-from-top">
-          <DirectionsOverlay
-            business={business}
-            onClose={() => setShowDirections(false)}
-          />
+          <DirectionsOverlay business={business} onClose={() => setShowDirections(false)} />
         </div>
       )}
 
@@ -2139,13 +1411,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         <div className="absolute top-0 left-0 right-0 bottom-0 z-[70] animate-slide-up-from-bottom bg-background">
           <BookOnlineSlidePanel
             businessId={selectedPoiBusinessId}
-            onClose={() => {
-              setSelectedPoiBusinessId(null);
-              onMosaicStateChange?.(false);
-              if (poiOpenedFromMapRef.current) {
-                poiOpenedFromMapRef.current = false;
-              }
-            }}
+            onClose={() => { setSelectedPoiBusinessId(null); onMosaicStateChange?.(false); if (poiOpenedFromMapRef.current) poiOpenedFromMapRef.current = false; }}
             showSearchBar={showSearchBar}
             onSearch={onSearch}
             onSearchBusinessSelect={onSearchBusinessSelect}
@@ -2170,7 +1436,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         </div>
       )}
 
-
       {showPoiMapOverlay && (
         <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[60] bg-background flex flex-col animate-slide-in-right">
           <div className="shrink-0 flex items-center px-4 py-2 border-b bg-background gap-2">
@@ -2194,44 +1459,27 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               pois={poiMapMode === "destinations"
                 ? [
                     ...(business?.latitude && business?.longitude ? [{
-                      id: `self-${business.id}`,
-                      name: business.name,
-                      latitude: business.latitude,
-                      longitude: business.longitude,
-                      images: business.images,
-                      city: business.city,
-                      neighborhood: business.neighborhood,
+                      id: `self-${business.id}`, name: business.name,
+                      latitude: business.latitude, longitude: business.longitude,
+                      images: business.images, city: business.city, neighborhood: business.neighborhood,
                       markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
                     } as PoiMapItem] : []),
                     ...destinations.filter(d => d.latitude && d.longitude).map(d => ({
-                      id: d.id,
-                      name: d.name_fr,
-                      latitude: d.latitude!,
-                      longitude: d.longitude!,
+                      id: d.id, name: d.name_fr, latitude: d.latitude!, longitude: d.longitude!,
                       images: (d.images && d.images.length > 0) ? d.images : (d.image_url ? [d.image_url] : null),
-                      city: null,
-                      neighborhood: null,
+                      city: null, neighborhood: null,
                     } as PoiMapItem)),
                   ]
                 : [
                     ...(business?.latitude && business?.longitude ? [{
-                      id: `self-${business.id}`,
-                      name: business.name,
-                      latitude: business.latitude,
-                      longitude: business.longitude,
-                      images: business.images,
-                      city: business.city,
-                      neighborhood: business.neighborhood,
+                      id: `self-${business.id}`, name: business.name,
+                      latitude: business.latitude, longitude: business.longitude,
+                      images: business.images, city: business.city, neighborhood: business.neighborhood,
                       markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
                     } as PoiMapItem] : []),
                     ...((poiBusinesses.length > 0 ? poiBusinesses : nearbyFallback).map(p => ({
-                      id: p.id,
-                      name: p.name,
-                      latitude: p.latitude,
-                      longitude: p.longitude,
-                      images: p.images,
-                      city: p.city,
-                      neighborhood: p.neighborhood,
+                      id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude,
+                      images: p.images, city: p.city, neighborhood: p.neighborhood,
                     } as PoiMapItem))),
                   ]
               }
@@ -2240,7 +1488,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               onPoiClick={(poiId) => {
                 if (poiId.startsWith("self-")) return;
                 if (poiMapMode === "destinations") {
-                  // Open destination slide panel
                   setSelectedDestinationId(poiId);
                 } else if (poiBusinesses.length > 0) {
                   poiOpenedFromMapRef.current = true;
@@ -2320,7 +1567,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         document.body
       )}
 
-      {/* Fallback hotels overlay — covers toolbar */}
+      {/* Fallback hotels overlay */}
       {fallbackPanelData && showFallbackOverlay && (
         <div className="absolute inset-0 -top-[3.3rem] z-[76] overflow-hidden">
           <div className="w-full h-full bg-white overflow-y-auto animate-slide-in-left">
@@ -2343,7 +1590,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         </div>
       )}
 
-      {/* Search bar fixed at bottom of slide panel */}
+      {/* Search bar */}
       {showSearchBar && (
         <PanelSearchBar
           onSearch={onSearch}
