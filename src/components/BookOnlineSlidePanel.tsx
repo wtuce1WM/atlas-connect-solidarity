@@ -1401,7 +1401,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   platforms={reviewPlatforms}
                   reviewTexts={reviewTexts}
                   language={language}
-                  animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(menuDocs.length > 0)) * 120}ms`}
+                  animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0)) * 120}ms`}
                 />
               )}
               {/* Card 6: External Links */}
