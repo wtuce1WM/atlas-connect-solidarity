@@ -1287,17 +1287,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             <div className="min-w-0 flex-1 text-center md:text-left md:pr-28">
               <div className="flex items-start gap-2">
                 <h2 className={`text-base md:text-xl font-bold uppercase min-w-0 flex-1 line-clamp-2 md:truncate`} style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>{business.name}</h2>
-                {/* Mobile: badges stacked vertically */}
-                <div className="md:hidden shrink-0 flex flex-col items-center gap-1 pt-0.5">
-                  {avgOn20 !== null && avgOn20 > 0 && (
-                    <div className="flex items-center gap-0.5 bg-black/40 backdrop-blur-sm rounded-full py-0.5 px-1.5">
-                      <Star className="h-3 w-3 text-gold fill-gold" />
-                      <span className="text-xs font-bold text-white">{avgOn20}</span>
-                      <span className="text-[9px] text-white/60">/20</span>
-                    </div>
-                  )}
-                </div>
-                {/* Desktop: badge inline */}
               </div>
               {(business.city || business.neighborhood || business.address) && (
                 <p className={`text-xs md:text-sm text-white/80 flex items-center gap-1 mt-0.5 justify-center md:justify-start truncate${business.name.length > 18 ? ' hidden lg:flex' : ''}`}>
