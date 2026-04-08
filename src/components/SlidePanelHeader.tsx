@@ -19,8 +19,6 @@ interface SlidePanelHeaderProps {
 
 const SlidePanelHeader = ({
   onClose,
-  isExpanded,
-  onToggleExpand,
   centerContent,
   closeVariant = "dark",
   toolbarLeftId = "slide-panel-toolbar-left",
