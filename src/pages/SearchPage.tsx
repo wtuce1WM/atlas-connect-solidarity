@@ -3741,6 +3741,9 @@ const SearchPage = () => {
           detectedCity: geo.detectedCity,
           detectedNeighborhood: geo.detectedNeighborhood,
           confirmedAddress: geo.confirmedAddress,
+          accept: geo.accept,
+          toggle: geo.toggle,
+          setManualCity: geo.setManualCity,
         }}
       />
 
