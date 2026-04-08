@@ -276,8 +276,8 @@ const PanelLocationOverlay = ({ open, onClose }: PanelLocationOverlayProps) => {
           <span className="font-semibold text-sm">
             {language === "fr" ? "Choisir votre adresse" : language === "ar" ? "اختر عنوانك" : "Choose your address"}
           </span>
-          {geo.detectedCity && geo.isEnabled && (
-            <p className="text-xs text-muted-foreground mt-0.5">📍 {geo.detectedCity}</p>
+          {geo.isEnabled && (geo.confirmedAddress || geo.detectedCity) && (
+            <p className="text-xs text-muted-foreground mt-0.5 truncate">📍 {geo.confirmedAddress || geo.detectedCity}</p>
           )}
         </div>
       </div>
