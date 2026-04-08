@@ -18,6 +18,8 @@ interface PanelSearchBarProps {
   businessName?: string | null;
   /** Called when the search overlay opens or closes */
   onOverlayChange?: (open: boolean) => void;
+  /** Use a dark (black) background instead of transparent */
+  darkBackground?: boolean;
 }
 
 const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCategory, businessName, onOverlayChange }: PanelSearchBarProps) => {
