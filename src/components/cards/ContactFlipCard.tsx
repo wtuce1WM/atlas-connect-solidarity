@@ -29,6 +29,7 @@ interface ContactFlipCardProps {
   isSearchingAvailability?: boolean;
   onCheckAvailability?: (checkIn: string, checkOut: string, adults: number) => void;
   onOpenWebsite?: (url: string) => void;
+  openBadgeInfo?: { text: string | null; isOpen: boolean };
 }
 
 const ContactFlipCard = ({
