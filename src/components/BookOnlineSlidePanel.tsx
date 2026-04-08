@@ -53,8 +53,6 @@ import PanelSearchBar from "@/components/PanelSearchBar";
 interface BookOnlineSlidePanelProps {
   businessId: string;
   onClose: () => void;
-  isExpanded?: boolean;
-  onToggleExpand?: () => void;
   externalOverlayActive?: boolean;
   /** When true, mute all background media (e.g. during voice search) */
   forceMuted?: boolean;
