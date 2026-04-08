@@ -558,8 +558,13 @@ export function useBookOnlineData(businessId: string) {
               for (const o of owners) ownerMap.set(o.id, { name: o.name, logo_url: o.logo_url, instagram_url: (o as any).instagram_url });
             }
           }
+          const seenUrls = new Set<string>();
           const linked = (poiVids as any[])
-            .filter((d) => d.url)
+            .filter((d) => {
+              if (!d.url || seenUrls.has(d.url)) return false;
+              seenUrls.add(d.url);
+              return true;
+            })
             .map(d => {
               const owner = ownerMap.get(d.business_id);
               return {
