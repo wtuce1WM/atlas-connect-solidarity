@@ -66,11 +66,13 @@ interface BookOnlineSlidePanelProps {
   onSearchBusinessSelect?: (businessId: string) => void;
   /** Notify parent when a nested mosaic opens/closes (to hide toolbar) */
   onMosaicStateChange?: (open: boolean) => void;
+  /** Only nested overlays should propagate mosaic visibility to the parent */
+  propagateMosaicState?: boolean;
 }
 
 type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string } | { kind: "matterport"; url: string };
 
-const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect, onMosaicStateChange }: BookOnlineSlidePanelProps) => {
+const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect, onMosaicStateChange, propagateMosaicState = false }: BookOnlineSlidePanelProps) => {
   const [activeBusinessId, setActiveBusinessIdRaw] = useState(propBusinessId);
   const [previousBusinessId, setPreviousBusinessId] = useState<string | null>(null);
   const previousCardsHiddenRef = useRef(false);
@@ -128,10 +130,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const setShowMosaic = useCallback((v: boolean | ((prev: boolean) => boolean)) => {
     setShowMosaicRaw(prev => {
       const next = typeof v === "function" ? v(prev) : v;
-      if (next !== prev) onMosaicStateChange?.(next);
+      if (next !== prev && propagateMosaicState) onMosaicStateChange?.(next);
       return next;
     });
-  }, [onMosaicStateChange]);
+  }, [onMosaicStateChange, propagateMosaicState]);
   const showMosaic = showMosaicRaw;
   const [ytBgPlaying, setYtBgPlaying] = useState(true);
   const [ytBgMuted, setYtBgMuted] = useState(false);
@@ -2144,6 +2146,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             onSearch={onSearch}
             onSearchBusinessSelect={onSearchBusinessSelect}
             onMosaicStateChange={onMosaicStateChange}
+            propagateMosaicState
           />
         </div>
       )}
@@ -2158,6 +2161,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             onSearch={onSearch}
             onSearchBusinessSelect={onSearchBusinessSelect}
             onMosaicStateChange={onMosaicStateChange}
+            propagateMosaicState
           />
         </div>
       )}
@@ -2251,6 +2255,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       {showMosaic && (
         <MosaicOverlay
           mediaItems={mediaItems}
+          coverParentToolbar={!propagateMosaicState}
           onClose={() => setShowMosaic(false)}
           onOpenLightbox={(idx) => { setLightboxIndex(idx); setIsLightboxOpen(true); }}
         />
