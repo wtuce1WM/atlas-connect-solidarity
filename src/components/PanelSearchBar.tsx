@@ -73,7 +73,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
               onBusinessSelect?.(bizId);
             }}
             onSearch={(params) => {
-              setSearchOverlayOpen(false);
+              setOverlay(false);
               onSearch?.(params);
             }}
             onVoiceStart={handleVoiceStart}
