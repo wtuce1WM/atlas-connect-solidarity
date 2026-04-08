@@ -497,8 +497,8 @@ export function useBookOnlineData(businessId: string) {
           .eq("type", "video")
           .order("sort_order");
         if (!isCancelled && linkedVids && linkedVids.length > 0) {
-          // Fetch owner info for each unique business_id
           const ownerIds = [...new Set((linkedVids as any[]).map(v => v.business_id).filter(Boolean))];
+          // Fetch owner info in parallel (single query)
           const ownerMap = new Map<string, { name: string; logo_url: string | null; instagram_url: string | null }>();
           if (ownerIds.length > 0) {
             const { data: owners } = await supabase
