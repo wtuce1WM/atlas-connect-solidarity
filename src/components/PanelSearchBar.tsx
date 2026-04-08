@@ -16,17 +16,25 @@ interface PanelSearchBarProps {
   businessCity?: string | null;
   businessCategory?: string | null;
   businessName?: string | null;
+  /** Called when the search overlay opens or closes */
+  onOverlayChange?: (open: boolean) => void;
 }
 
-const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCategory, businessName }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCategory, businessName, onOverlayChange }: PanelSearchBarProps) => {
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
+
+  // Notify parent when search overlay opens/closes
+  const setOverlay = useCallback((open: boolean) => {
+    setSearchOverlayOpen(open);
+    onOverlayChange?.(open);
+  }, [onOverlayChange]);
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
   const { toast } = useToast();
   const geo = useGeolocation();
 
   const voice = useVoiceSearch({
     onTranscript: (keywords, spoken, detectedCategory, timeKeyword) => {
-      setSearchOverlayOpen(false);
+      setOverlay(false);
       const params: Record<string, string> = { q: keywords, spoken, _t: String(Date.now()) };
       if (detectedCategory) params.category = detectedCategory;
       if (timeKeyword) params.timeKeyword = timeKeyword;
@@ -36,7 +44,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
   });
 
   const handleVoiceStart = useCallback(() => {
-    setSearchOverlayOpen(false);
+    setOverlay(false);
     setTimeout(() => voice.toggleRecording(), 150);
   }, [voice]);
 
@@ -46,7 +54,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
       <div className="absolute bottom-0 left-0 right-0 z-[75] py-3 px-4">
         <button
           type="button"
-          onClick={() => setSearchOverlayOpen(true)}
+          onClick={() => setOverlay(true)}
           className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-transparent border border-white/40 rounded-xl backdrop-blur-sm"
         >
           <Search className="h-4 w-4 text-white shrink-0" />
@@ -58,19 +66,19 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
         <div className="absolute inset-0 lg:-top-[3.3rem] z-[80]">
           <MobileSearchOverlay
             open={searchOverlayOpen}
-            onClose={() => setSearchOverlayOpen(false)}
+            onClose={() => setOverlay(false)}
             contained
             onBusinessSelect={(bizId) => {
-              setSearchOverlayOpen(false);
+              setOverlay(false);
               onBusinessSelect?.(bizId);
             }}
             onSearch={(params) => {
-              setSearchOverlayOpen(false);
+              setOverlay(false);
               onSearch?.(params);
             }}
             onVoiceStart={handleVoiceStart}
             onAiSuggestionClick={() => {
-              setSearchOverlayOpen(false);
+              setOverlay(false);
               setAiOverlayOpen(true);
             }}
             geoState={{
