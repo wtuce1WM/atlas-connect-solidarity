@@ -43,6 +43,7 @@ const ContactFlipCard = ({
   isSearchingAvailability = false,
   onCheckAvailability,
   onOpenWebsite,
+  openBadgeInfo,
 }: ContactFlipCardProps) => {
   const [activeView, setActiveView] = useState<"contact" | "dates">("contact");
   const flipped = activeView === "dates";
