@@ -1,32 +1,263 @@
-import { useState, useCallback } from "react";
-import { X, MapPin, MapPinOff, Navigation, Loader } from "lucide-react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState, useEffect, useRef, useCallback } from "react";
+import { X, MapPin, Navigation, Search, Loader, Check } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useGeolocation } from "@/hooks/useGeolocation";
+
+declare global {
+  interface Window {
+    google: any;
+  }
+}
 
 interface PanelLocationOverlayProps {
   open: boolean;
   onClose: () => void;
 }
 
+const DEFAULT_CENTER = { lat: 31.6295, lng: -7.9811 };
+
+let gmapsPromise: Promise<void> | null = null;
+function loadGoogleMaps(): Promise<void> {
+  if (gmapsPromise) return gmapsPromise;
+  if (window.google?.maps) {
+    gmapsPromise = Promise.resolve();
+    return gmapsPromise;
+  }
+  gmapsPromise = new Promise((resolve, reject) => {
+    fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-google-maps-key`, {
+      headers: {
+        apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      },
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then(({ key }) => {
+        if (!key) throw new Error("No key returned");
+        const script = document.createElement("script");
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places`;
+        script.async = true;
+        script.onload = () => resolve();
+        script.onerror = () => { gmapsPromise = null; reject(new Error("Failed to load Google Maps")); };
+        document.head.appendChild(script);
+      })
+      .catch((err) => { gmapsPromise = null; reject(err); });
+  });
+  return gmapsPromise;
+}
+
 const PanelLocationOverlay = ({ open, onClose }: PanelLocationOverlayProps) => {
   const { language } = useLanguage();
   const geo = useGeolocation();
-  const [manualInput, setManualInput] = useState("");
 
-  const handleActivate = useCallback(() => {
-    if (geo.isEnabled) {
-      geo.toggle();
-    } else {
-      geo.accept();
+  const mapRef = useRef<any>(null);
+  const markerRef = useRef<any>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+
+  const [addressQuery, setAddressQuery] = useState("");
+  const [selectedCoords, setSelectedCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [selectedAddress, setSelectedAddress] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [mapsLoaded, setMapsLoaded] = useState(false);
+  const [openCount, setOpenCount] = useState(0);
+  const [waitingForPosition, setWaitingForPosition] = useState(false);
+
+  const coords = geo.isEnabled && geo.coords ? geo.coords : null;
+  const activeCoords = selectedCoords || coords;
+
+  // Load maps on open
+  useEffect(() => {
+    if (open) {
+      setOpenCount((c) => c + 1);
+      loadGoogleMaps()
+        .then(() => setMapsLoaded(true))
+        .catch((err: any) => console.error("Google Maps load error:", err));
     }
-  }, [geo]);
+  }, [open]);
 
-  const handleManualSubmit = useCallback(() => {
-    if (!manualInput.trim()) return;
-    geo.setManualCity(manualInput.trim());
-    setManualInput("");
+  // Init map each time dialog opens
+  useEffect(() => {
+    if (!open || !mapsLoaded) return;
+
+    const timer = setTimeout(() => {
+      if (!mapContainerRef.current) return;
+
+      const center = activeCoords || DEFAULT_CENTER;
+      const map = new window.google.maps.Map(mapContainerRef.current, {
+        center,
+        zoom: 14,
+        disableDefaultUI: true,
+        zoomControl: false,
+        streetViewControl: false,
+        mapTypeControl: false,
+        fullscreenControl: false,
+      });
+
+      mapRef.current = map;
+      markerRef.current = null;
+
+      if (activeCoords) placeMarker(activeCoords);
+
+      map.addListener("click", (e: any) => {
+        if (!e.latLng) return;
+        const pos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+        setSelectedCoords(pos);
+        placeMarker(pos);
+        reverseGeocode(pos);
+      });
+
+      if (inputRef.current) {
+        const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
+          componentRestrictions: { country: "ma" },
+          fields: ["geometry", "formatted_address", "name"],
+        });
+        autocomplete.addListener("place_changed", () => {
+          const place = autocomplete.getPlace();
+          if (place.geometry?.location) {
+            const pos = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
+            const addr = place.formatted_address || place.name || "";
+            setSelectedCoords(pos);
+            setSelectedAddress(addr);
+            setAddressQuery(addr);
+            placeMarker(pos);
+            mapRef.current?.setCenter(pos);
+            mapRef.current?.setZoom(16);
+          }
+        });
+      }
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      mapRef.current = null;
+      markerRef.current = null;
+    };
+  }, [openCount, mapsLoaded]);
+
+  // Center map when coords change
+  useEffect(() => {
+    if (!mapRef.current || !activeCoords) return;
+    mapRef.current.setCenter(activeCoords);
+    mapRef.current.setZoom(14);
+    placeMarker(activeCoords);
+  }, [activeCoords?.lat, activeCoords?.lng]);
+
+  // Reset on close
+  useEffect(() => {
+    if (!open) {
+      setSelectedCoords(null);
+      setSelectedAddress("");
+      setAddressQuery("");
+      setWaitingForPosition(false);
+    }
+  }, [open]);
+
+  const placeMarker = useCallback((pos: { lat: number; lng: number }) => {
+    if (!mapRef.current) return;
+    if (markerRef.current) {
+      markerRef.current.setPosition(pos);
+    } else {
+      markerRef.current = new window.google.maps.Marker({
+        position: pos,
+        map: mapRef.current,
+        icon: {
+          path: window.google.maps.SymbolPath.CIRCLE,
+          scale: 12,
+          fillColor: "#b89a5a",
+          fillOpacity: 1,
+          strokeColor: "#ffffff",
+          strokeWeight: 3,
+        },
+        animation: window.google.maps.Animation.DROP,
+      });
+    }
+  }, []);
+
+  // When coords arrive after requesting position
+  useEffect(() => {
+    if (waitingForPosition && coords) {
+      setSelectedCoords(coords);
+      setSelectedAddress(geo.detectedCity || "");
+      setAddressQuery(geo.detectedCity || "");
+      setWaitingForPosition(false);
+      placeMarker(coords);
+      mapRef.current?.setCenter(coords);
+      mapRef.current?.setZoom(14);
+    }
+  }, [waitingForPosition, coords, geo.detectedCity, placeMarker]);
+
+  const reverseGeocode = useCallback((pos: { lat: number; lng: number }) => {
+    if (!window.google?.maps) return;
+    const geocoder = new window.google.maps.Geocoder();
+    geocoder.geocode({ location: pos }, (results: any, status: any) => {
+      if (status === "OK" && results?.[0]) {
+        setSelectedAddress(results[0].formatted_address);
+        setAddressQuery(results[0].formatted_address);
+      }
+    });
+  }, []);
+
+  const handleSearchAddress = useCallback(() => {
+    if (!addressQuery.trim() || !window.google?.maps) return;
+    setIsSearching(true);
+    const geocoder = new window.google.maps.Geocoder();
+    geocoder.geocode({ address: addressQuery, region: "ma" }, (results: any, status: any) => {
+      setIsSearching(false);
+      if (status === "OK" && results?.[0]?.geometry?.location) {
+        const loc = results[0].geometry.location;
+        const pos = { lat: loc.lat(), lng: loc.lng() };
+        setSelectedCoords(pos);
+        setSelectedAddress(results[0].formatted_address || addressQuery);
+        setAddressQuery(results[0].formatted_address || addressQuery);
+        placeMarker(pos);
+        mapRef.current?.setCenter(pos);
+        mapRef.current?.setZoom(16);
+      }
+    });
+  }, [addressQuery, placeMarker]);
+
+  const handleUseCurrentPosition = () => {
+    geo.accept();
+    if (coords) {
+      setSelectedCoords(coords);
+      setSelectedAddress(geo.detectedCity || "");
+      setAddressQuery(geo.detectedCity || "");
+      placeMarker(coords);
+      mapRef.current?.setCenter(coords);
+      mapRef.current?.setZoom(14);
+    } else {
+      setWaitingForPosition(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
+          setSelectedCoords(pos);
+          placeMarker(pos);
+          mapRef.current?.setCenter(pos);
+          mapRef.current?.setZoom(14);
+          reverseGeocode(pos);
+          setWaitingForPosition(false);
+        },
+        () => setWaitingForPosition(false),
+        { enableHighAccuracy: false, timeout: 10000 }
+      );
+    }
+  };
+
+  const handleConfirm = () => {
+    if (activeCoords) {
+      geo.confirmAddress(activeCoords, selectedAddress || geo.detectedCity || "");
+      onClose();
+    }
+  };
+
+  const handleDisableGeo = () => {
+    geo.toggle();
     onClose();
-  }, [manualInput, geo, onClose]);
+  };
 
   if (!open) return null;
 
@@ -41,83 +272,92 @@ const PanelLocationOverlay = ({ open, onClose }: PanelLocationOverlayProps) => {
         >
           <X className="h-4 w-4" />
         </button>
-        <span className="font-semibold text-sm">
-          {language === "fr" ? "Localisation" : language === "ar" ? "الموقع" : "Location"}
-        </span>
+        <div className="flex-1">
+          <span className="font-semibold text-sm">
+            {language === "fr" ? "Choisir votre adresse" : language === "ar" ? "اختر عنوانك" : "Choose your address"}
+          </span>
+          {geo.detectedCity && geo.isEnabled && (
+            <p className="text-xs text-muted-foreground mt-0.5">📍 {geo.detectedCity}</p>
+          )}
+        </div>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
-        {/* Current status */}
-        <div className="flex items-center gap-3 p-4 rounded-xl border border-border bg-muted/30">
-          {geo.isDetecting ? (
-            <Loader className="h-5 w-5 animate-spin text-muted-foreground" />
-          ) : geo.isEnabled ? (
-            <MapPin className="h-5 w-5 text-gold" />
-          ) : (
-            <MapPinOff className="h-5 w-5 text-muted-foreground" />
-          )}
-          <div className="flex-1">
-            <p className="text-sm font-medium">
-              {geo.isDetecting
-                ? (language === "fr" ? "Détection en cours…" : "Detecting…")
-                : geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity)
-                ? `📍 ${[geo.detectedNeighborhood, geo.detectedCity].filter(Boolean).join(", ")}`
-                : geo.isEnabled && geo.confirmedAddress
-                ? `📍 ${geo.confirmedAddress}`
-                : (language === "fr" ? "Localisation désactivée" : "Location disabled")
-              }
-            </p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {geo.isEnabled
-                ? (language === "fr" ? "Les résultats sont triés par proximité" : "Results sorted by proximity")
-                : (language === "fr" ? "Activez pour trier par proximité" : "Enable to sort by proximity")
-              }
-            </p>
-          </div>
+      {/* Actions */}
+      <div className="shrink-0 px-4 pt-3 space-y-3">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleUseCurrentPosition}
+            disabled={geo.isDetecting}
+            className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-gold text-white font-medium text-sm hover:bg-gold/90 transition-colors disabled:opacity-50"
+          >
+            {geo.isDetecting ? <Loader className="h-4 w-4 animate-spin" /> : <Navigation className="h-4 w-4" />}
+            {language === "fr" ? "Ma position" : language === "ar" ? "موقعي" : "My position"}
+          </button>
+          <button
+            type="button"
+            onClick={handleDisableGeo}
+            className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors"
+          >
+            <X className="h-4 w-4" />
+            {language === "fr" ? "Ne pas me géolocaliser" : language === "ar" ? "لا تحدد موقعي" : "Don't geolocate me"}
+          </button>
         </div>
 
-        {/* Toggle button */}
-        <button
-          type="button"
-          onClick={handleActivate}
-          className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-            geo.isEnabled
-              ? "bg-destructive/10 text-destructive border border-destructive/30 hover:bg-destructive/20"
-              : "bg-[#C04F17] text-white hover:bg-[#C04F17]/90"
-          }`}
-        >
-          <Navigation className="h-4 w-4" />
-          {geo.isEnabled
-            ? (language === "fr" ? "Désactiver la localisation" : "Disable location")
-            : (language === "fr" ? "Utiliser ma position" : "Use my location")
-          }
-        </button>
-
-        {/* Manual city input */}
-        <div>
-          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2 block">
-            {language === "fr" ? "Ou saisir une ville" : language === "ar" ? "أو أدخل مدينة" : "Or enter a city"}
-          </label>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={manualInput}
-              onChange={(e) => setManualInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") handleManualSubmit(); }}
-              placeholder={language === "fr" ? "Ex: Marrakech, Essaouira…" : "E.g. Marrakech, Essaouira…"}
-              className="flex-1 px-3 py-2.5 text-sm border border-border rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-primary/30 placeholder:text-muted-foreground"
-            />
+        {/* Search bar with autocomplete */}
+        <div className="relative flex items-center border border-border rounded-xl overflow-hidden focus-within:border-gold/50 transition-colors">
+          <Search className="h-4 w-4 text-muted-foreground ml-3 shrink-0" />
+          <input
+            ref={inputRef}
+            type="text"
+            value={addressQuery}
+            onChange={(e) => setAddressQuery(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleSearchAddress(); } }}
+            placeholder={language === "fr" ? "Saisir une adresse…" : language === "ar" ? "أدخل عنوانًا…" : "Enter an address…"}
+            className="flex-1 py-3 px-2 text-sm bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
+          />
+          {addressQuery && (
             <button
               type="button"
-              onClick={handleManualSubmit}
-              disabled={!manualInput.trim()}
-              className="px-4 py-2.5 rounded-xl bg-foreground text-background text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40"
+              onClick={() => { setAddressQuery(""); setSelectedCoords(null); setSelectedAddress(""); }}
+              className="p-1.5 mr-1 text-muted-foreground hover:text-foreground"
             >
-              OK
+              <X className="h-3.5 w-3.5" />
             </button>
-          </div>
+          )}
+          <button
+            type="button"
+            onClick={handleSearchAddress}
+            disabled={isSearching || !addressQuery.trim()}
+            className="h-full px-3 py-3 bg-gold/10 hover:bg-gold/20 text-gold transition-colors disabled:opacity-40"
+          >
+            {isSearching ? <Loader className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+          </button>
         </div>
+      </div>
+
+      {/* Map */}
+      <div className="flex-1 mx-4 mt-3 rounded-xl overflow-hidden border border-border min-h-[200px]">
+        {!mapsLoaded ? (
+          <div className="w-full h-full min-h-[200px] flex items-center justify-center bg-muted">
+            <Loader className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <div ref={mapContainerRef} className="w-full h-full min-h-[200px]" />
+        )}
+      </div>
+
+      {/* Confirm button */}
+      <div className="shrink-0 p-4 pt-3">
+        <button
+          type="button"
+          onClick={handleConfirm}
+          disabled={!activeCoords}
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gold text-white font-semibold text-sm hover:bg-gold/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <Check className="h-4 w-4" />
+          {language === "fr" ? "Confirmer cette adresse" : language === "ar" ? "تأكيد هذا العنوان" : "Confirm this address"}
+        </button>
       </div>
     </div>
   );
