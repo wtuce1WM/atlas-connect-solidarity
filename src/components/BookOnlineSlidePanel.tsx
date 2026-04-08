@@ -996,6 +996,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     return language === 'en' ? pair.en : pair.fr;
   }, [(business as any)?.online_shop_presentation_mode, language]);
 
+  const hasBottomActionCtas = !!bookingCta || !!shopCta || (!cardsHidden && showGoogleMap && business?.latitude && business?.longitude);
+  const externalVideoBackgroundClass = externalVideoInteractiveMode && showSearchBar
+    ? `absolute inset-x-0 top-0 ${hasBottomActionCtas ? 'bottom-[160px]' : 'bottom-[88px]'} z-0`
+    : "absolute inset-0 z-0";
+
   // --- Helper to open document or booking overlay ---
   const openDocOrBooking = useCallback((url: string, title?: string) => {
     const isPdf = url?.toLowerCase().endsWith('.pdf') || url?.includes('/pdfs/');
@@ -1122,7 +1127,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       )}
 
       {/* Full-bleed background */}
-      <div className={externalVideoInteractiveMode && showSearchBar ? "absolute inset-x-0 top-0 bottom-[120px] z-0" : "absolute inset-0 z-0"}>
+      <div className={externalVideoBackgroundClass}>
         {effectiveMedia?.kind === "video" ? (
           videoInfo?.type === "file" ? (
              <video
