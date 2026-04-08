@@ -146,7 +146,7 @@ const VideoDocumentOverlay = ({
       )}
 
       {/* Video — full overlay */}
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div className="absolute inset-0 pb-[60px] flex items-center justify-center">
         {isFile ? (
           <video
             ref={videoRef}
