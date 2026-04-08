@@ -46,9 +46,10 @@ const SOCIAL_TITLES: Record<string, string> = {
 interface HeaderProps {
   variant?: "default" | "morocco" | "city";
   compact?: boolean;
+  rightContent?: React.ReactNode;
 }
 
-const Header = ({ variant = "default", compact = false }: HeaderProps) => {
+const Header = ({ variant = "default", compact = false, rightContent }: HeaderProps) => {
   const { t, language } = useLanguage();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
@@ -157,9 +158,9 @@ const Header = ({ variant = "default", compact = false }: HeaderProps) => {
 
   return (
     <header className={`fixed left-0 right-0 top-0 z-30 ${headerBg}`}>
-      <div className="mx-auto flex items-center justify-between px-4 py-3 lg:w-1/2 lg:mr-auto lg:ml-0">
+      <div className="mx-auto flex items-center px-4 py-3 lg:w-1/2 lg:mr-auto lg:ml-0">
         {/* Left: hamburger + logo */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
             className="flex items-center justify-center w-10 h-10 rounded-lg text-foreground hover:bg-muted/50 transition-colors"
@@ -181,6 +182,11 @@ const Header = ({ variant = "default", compact = false }: HeaderProps) => {
             </span>
           </a>
         </div>
+        {rightContent && (
+          <div className="flex-1 min-w-0 overflow-x-auto scrollbar-hide ml-2">
+            {rightContent}
+          </div>
+        )}
       </div>
 
       {/* Dropdown menu */}

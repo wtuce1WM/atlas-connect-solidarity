@@ -707,9 +707,9 @@ const SearchPage = () => {
     const [stickyStackPadding, setStickyStackPadding] = useState(0);
      useEffect(() => {
        const measure = () => {
-         const tabBar = document.querySelector<HTMLElement>('[data-tab-bar]');
-         const tabH = tabBar ? tabBar.getBoundingClientRect().height : 44;
-         const cityBarTop = 60 + tabH;
+          const header = document.querySelector<HTMLElement>('header');
+          const headerH = header ? header.getBoundingClientRect().height : 53;
+          const cityBarTop = headerH;
          setStickyTops(prev => {
            if (prev.cityBar === cityBarTop && prev.serviceBar === cityBarTop) return prev;
            return { cityBar: cityBarTop, serviceBar: cityBarTop };
@@ -718,7 +718,7 @@ const SearchPage = () => {
          // Measure the bottom of the last visible sticky bar to compute content padding
          const subBar = document.querySelector<HTMLElement>('[data-subcategory-filter]');
          const catBar = document.querySelector<HTMLElement>('[data-category-filter]');
-         const lastSticky = subBar || catBar || tabBar;
+         const lastSticky = subBar || catBar || header;
          if (lastSticky) {
            const computedTop = Number.parseFloat(window.getComputedStyle(lastSticky).top || '0');
            const h = lastSticky.getBoundingClientRect().height;
@@ -2113,7 +2113,55 @@ const SearchPage = () => {
 
   return (
     <div className="min-h-screen bg-white" style={{ overflowX: 'clip' }}>
-      <Header compact />
+      <Header compact rightContent={
+        <div data-tab-bar ref={(el) => {
+          if (el) {
+            const active = el.querySelector('[data-active-tab="true"]') as HTMLElement;
+            if (active) {
+              const scrollLeft = active.offsetLeft - el.clientWidth / 2 + active.offsetWidth / 2;
+              el.scrollTo({ left: scrollLeft, behavior: "smooth" });
+            }
+          }
+        }} className="flex gap-0 overflow-x-auto scrollbar-hide whitespace-nowrap justify-start" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+          {[
+            { key: "suggestions", icon: <Sparkles className="h-4 w-4" />, label: language === "en" ? "Results" : language === "ar" ? "النتائج" : "Résultats", count: totalCount },
+            { key: "poi", icon: <MapPin className="h-4 w-4" />, label: language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt" },
+            { key: "destinations", icon: <Compass className="h-4 w-4" />, label: language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations" },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              data-active-tab={activeTab === tab.key ? "true" : undefined}
+              onClick={(e) => {
+                resetPanelStates();
+                setCompactPanelBusiness(null);
+                setIsCompactPanelExpanded(false);
+                setOverlaySelectedBusiness(null);
+                setIsOverlayPanelExpanded(false);
+                setActiveTab(tab.key as any);
+                const btn = e.currentTarget;
+                const container = btn.parentElement;
+                if (container) {
+                  const scrollLeft = btn.offsetLeft - container.clientWidth / 2 + btn.offsetWidth / 2;
+                  container.scrollTo({ left: scrollLeft, behavior: "smooth" });
+                }
+              }}
+              className={`flex items-center gap-2 px-3 py-2 text-xs font-bold transition-colors border-b-2 whitespace-nowrap ${
+                activeTab === tab.key
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {tab.icon}
+              {tab.label}
+              {tab.count !== undefined && tab.count > 0 && (
+                <span className="ml-1 text-[10px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-normal">
+                  {tab.count}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      } />
 
       {/* Shared LocationPickerDialog — accessible from all tabs */}
       <LocationPickerDialog
@@ -2766,71 +2814,8 @@ const SearchPage = () => {
 
 
 
-      {/* Tab Bar — stickybar 1 (above cities) */}
-      <section data-tab-bar className="sticky top-[60px] z-[20] bg-white border-b border-border relative">
-        {/* Dynamic image from ?img= URL param */}
-        {searchParams.get("img") && (
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10">
-            <img
-              src={searchParams.get("img")!}
-              alt=""
-              className="h-8 w-8 md:h-10 md:w-10 object-contain rounded-full"
-            />
-          </div>
-        )}
-        {/* <span className="absolute top-0 left-1 z-[60] bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🔴 STICKY 1</span> */}
-        <div className="container mx-auto px-4">
-          <div ref={(el) => {
-            // Auto-center active tab on mount and tab change
-            if (el) {
-              const active = el.querySelector('[data-active-tab="true"]') as HTMLElement;
-              if (active) {
-                const scrollLeft = active.offsetLeft - el.clientWidth / 2 + active.offsetWidth / 2;
-                el.scrollTo({ left: scrollLeft, behavior: "smooth" });
-              }
-            }
-          }} className="flex gap-0 overflow-x-auto scrollbar-hide whitespace-nowrap justify-start" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-            {[
-              { key: "suggestions", icon: <Sparkles className="h-4 w-4" />, label: language === "en" ? "Results" : language === "ar" ? "النتائج" : "Résultats", count: totalCount },
-              // { key: "map", icon: <Map className="h-4 w-4" />, label: language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte" },
-              { key: "poi", icon: <MapPin className="h-4 w-4" />, label: language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt" },
-              { key: "destinations", icon: <Compass className="h-4 w-4" />, label: language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations" },
-            ].map((tab) => (
-              <button
-                key={tab.key}
-                data-active-tab={activeTab === tab.key ? "true" : undefined}
-                onClick={(e) => {
-                  resetPanelStates();
-                  setCompactPanelBusiness(null);
-                  setIsCompactPanelExpanded(false);
-                  setOverlaySelectedBusiness(null);
-                  setIsOverlayPanelExpanded(false);
-                  setActiveTab(tab.key as any);
-                  const btn = e.currentTarget;
-                  const container = btn.parentElement;
-                  if (container) {
-                    const scrollLeft = btn.offsetLeft - container.clientWidth / 2 + btn.offsetWidth / 2;
-                    container.scrollTo({ left: scrollLeft, behavior: "smooth" });
-                  }
-                }}
-                className={`flex items-center gap-2 px-5 py-3 text-sm font-bold transition-colors border-b-2 ${
-                  activeTab === tab.key
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {tab.icon}
-                {tab.label}
-                {tab.count !== undefined && tab.count > 0 && (
-                  <span className="ml-1 text-xs bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-normal">
-                    {tab.count}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
+
+
 
 
 
