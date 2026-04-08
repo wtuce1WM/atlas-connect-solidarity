@@ -1218,7 +1218,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             <MediaCounterBar currentIndex={safeIndex} totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)}>
               <button
                 type="button"
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm hover:bg-background transition-colors"
+                className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-white shadow-lg backdrop-blur-sm hover:opacity-90 transition-colors"
+                style={{ backgroundColor: '#25D366' }}
                 title="Afficher les cartes"
                 aria-label="Afficher les cartes"
                 onClick={(e) => { e.stopPropagation(); showCards(); }}
@@ -1226,8 +1227,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 onTouchStart={(e) => e.stopPropagation()}
               >
                 <ChevronUp className="h-3.5 w-3.5" />
-                <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Afficher</span>
-                <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
+                <span className="text-xs font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>Afficher</span>
+                <span className="hidden md:block h-1.5 w-8 rounded-full bg-white/60" />
               </button>
             </MediaCounterBar>
           ) : (
