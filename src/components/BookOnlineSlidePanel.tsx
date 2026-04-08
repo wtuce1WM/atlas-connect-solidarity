@@ -2318,7 +2318,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           businessCategory={business?.main_category}
           businessName={business?.name}
           onOverlayChange={setSearchOverlayActive}
-          darkBackground={!!docOverlay || showBookingOverlay}
+          darkBackground={docOverlayLoaded || bookingOverlayLoaded}
         />
       )}
 
