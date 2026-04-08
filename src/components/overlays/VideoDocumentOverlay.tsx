@@ -95,9 +95,9 @@ const VideoDocumentOverlay = ({
       <div className="absolute top-[3.75rem] lg:top-3 left-3 right-3 z-50 flex items-center">
         <button
           onClick={onClose}
-          className="w-9 h-9 rounded-full bg-black/70 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-black/90 transition-colors shrink-0"
+          className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-black hover:bg-white/80 transition-colors shadow-lg shrink-0"
         >
-          <X className="h-4 w-4 text-white" />
+          <X className="h-4 w-4" />
         </button>
 
         {/* Mobile: nav + counter inline */}
