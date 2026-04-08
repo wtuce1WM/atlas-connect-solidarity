@@ -130,10 +130,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const setShowMosaic = useCallback((v: boolean | ((prev: boolean) => boolean)) => {
     setShowMosaicRaw(prev => {
       const next = typeof v === "function" ? v(prev) : v;
-      if (next !== prev) onMosaicStateChange?.(next);
+      if (next !== prev && propagateMosaicState) onMosaicStateChange?.(next);
       return next;
     });
-  }, [onMosaicStateChange]);
+  }, [onMosaicStateChange, propagateMosaicState]);
   const showMosaic = showMosaicRaw;
   const [ytBgPlaying, setYtBgPlaying] = useState(true);
   const [ytBgMuted, setYtBgMuted] = useState(false);
