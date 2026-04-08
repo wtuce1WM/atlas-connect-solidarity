@@ -353,7 +353,7 @@ const PanelLocationOverlay = ({ open, onClose }: PanelLocationOverlayProps) => {
           type="button"
           onClick={handleConfirm}
           disabled={!activeCoords}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#25D366] text-black font-semibold text-sm hover:bg-[#25D366]/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#25D366] text-white font-semibold text-sm hover:bg-[#25D366]/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Check className="h-4 w-4" />
           {language === "fr" ? "Confirmer cette adresse" : language === "ar" ? "تأكيد هذا العنوان" : "Confirm this address"}
