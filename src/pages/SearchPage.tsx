@@ -4085,6 +4085,7 @@ const SearchPage = () => {
                 forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
                 interceptCloseRef={compactPanelInterceptCloseRef}
                 showSearchBar
+                onMosaicStateChange={setIsCompactPanelDarkMode}
                 onSearch={(params) => {
                   setSelectedCategoryFilter(null);
                   setSelectedSubcategoryFilter(null);
