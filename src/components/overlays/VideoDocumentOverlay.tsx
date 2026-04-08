@@ -106,13 +106,14 @@ const VideoDocumentOverlay = ({
           </span>
         )}
         {videoDocs.length <= 1 && <div className="flex-1 md:hidden" />}
+        <div className="w-9 shrink-0 md:hidden" />
       </div>
 
-      {/* Desktop/Tablet: centered chevrons */}
+      {/* Centered chevrons — all devices */}
       {hasPrev && (
         <button
           onClick={() => goTo(currentIdx - 1)}
-          className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white items-center justify-center hover:bg-white/80 transition-colors"
+          className="flex absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white items-center justify-center hover:bg-white/80 transition-colors shadow-lg"
           aria-label="Vidéo précédente"
         >
           <ChevronLeft className="h-5 w-5 text-black" />
@@ -121,7 +122,7 @@ const VideoDocumentOverlay = ({
       {hasNext && (
         <button
           onClick={() => goTo(currentIdx + 1)}
-          className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white items-center justify-center hover:bg-white/80 transition-colors"
+          className="flex absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white items-center justify-center hover:bg-white/80 transition-colors shadow-lg"
           aria-label="Vidéo suivante"
         >
           <ChevronRight className="h-5 w-5 text-black" />
