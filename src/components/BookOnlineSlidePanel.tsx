@@ -1998,11 +1998,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             })()}
             {/* Video controls — below CTAs */}
             {!cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type === "file" && (
-              <div className="flex items-center gap-6 md:gap-10 mt-2 md:mt-3 animate-slide-up-from-bottom">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (videoRef.current) {
+              <VideoControls type="file" videoRef={videoRef as React.RefObject<HTMLVideoElement>} paused={videoPaused} muted={videoMuted} className="mt-2 md:mt-3 animate-slide-up-from-bottom" />
+            )}
+            {!cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" && (
+              <VideoControls type="youtube" iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>} playing={ytBgPlaying} muted={ytBgMuted} onPlayingChange={setYtBgPlaying} onMutedChange={setYtBgMuted} className="mt-2 md:mt-3 animate-slide-up-from-bottom" />
+            )}
                       if (videoRef.current.paused) videoRef.current.play();
                       else videoRef.current.pause();
                     }
