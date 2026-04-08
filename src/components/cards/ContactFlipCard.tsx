@@ -66,7 +66,7 @@ const ContactFlipCard = ({
           style={{ backfaceVisibility: "hidden" }}
         >
           <div className="space-y-2.5 text-sm">
-            {business.phone && (
+            {business.phone && !business.whatsapp && (
               <a
                 href={`tel:${cleanPhone(business.phone)}`}
                 className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
