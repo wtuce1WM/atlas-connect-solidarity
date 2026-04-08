@@ -1038,7 +1038,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   return (
     <div className="h-full overflow-visible overscroll-none bg-black relative">
       {/* Portal media button into left of fixed bar */}
-      {toolbarLeftPortal && !selectedKpBusinessId && !selectedPoiBusinessId && createPortal(
+      {toolbarLeftPortal && !selectedKpBusinessId && !selectedPoiBusinessId && !showMosaic && createPortal(
         <div className="flex items-center gap-2">
           {serpApiOverlayCtxRef.current && activeBusinessId !== propBusinessId && (
             <button
@@ -1086,7 +1086,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         toolbarLeftPortal
       )}
       {/* Portal WhatsApp/Phone icon into center */}
-      {toolbarCenterPortal && !selectedKpBusinessId && !selectedPoiBusinessId && (() => {
+      {toolbarCenterPortal && !selectedKpBusinessId && !selectedPoiBusinessId && !showMosaic && (() => {
         const anyOverlay = showDirections || showBookingOverlay || !!docOverlay || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId || showPoiMapOverlay || !!activeVideoOverlay || isLightboxOpen || showMosaic || showYoutubeOverlay || !!availabilityOverlayCtx || !!serpApiOverlayCtx || showFallbackOverlay || !!externalOverlayActive;
         return createPortal(
           <div className="flex items-center gap-6">
@@ -1122,7 +1122,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         );
       })()}
       {/* Portal Share into right */}
-      {toolbarPortal && !selectedKpBusinessId && !selectedPoiBusinessId && createPortal(
+      {toolbarPortal && !selectedKpBusinessId && !selectedPoiBusinessId && !showMosaic && createPortal(
         <ShareButton title={business.name} variant="dark" className="shrink-0" />,
         toolbarPortal
       )}
