@@ -14,7 +14,7 @@ const MosaicOverlay = ({ mediaItems, onClose, onOpenLightbox }: MosaicOverlayPro
   return (
     <div className="absolute inset-0 -top-[3.3rem] z-[76] overflow-hidden">
     <div className="absolute inset-0 bg-black overflow-y-auto animate-slide-in-left">
-      <div className="sticky top-0 z-10 p-2 pt-14 lg:pt-2">
+      <div className="sticky top-0 z-10 p-2 pt-2">
         <button
           onClick={onClose}
           className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-black hover:bg-white/80 transition-colors shadow-lg"
