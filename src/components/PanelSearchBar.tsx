@@ -66,7 +66,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
         <div className="absolute inset-0 lg:-top-[3.3rem] z-[80]">
           <MobileSearchOverlay
             open={searchOverlayOpen}
-            onClose={() => setSearchOverlayOpen(false)}
+            onClose={() => setOverlay(false)}
             contained
             onBusinessSelect={(bizId) => {
               setSearchOverlayOpen(false);
