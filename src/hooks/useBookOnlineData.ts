@@ -533,11 +533,12 @@ export function useBookOnlineData(businessId: string) {
       };
 
       const fetchPoiLinkedVideos = async () => {
-        // Skip POI-linked videos if the business already has its own internal videos
-        const hasOwnVideos =
-          !!biz?.video_1_url ||
-          ((videoDocsRes.data || []) as any[]).some((d: any) => d.url);
-        if (hasOwnVideos) return;
+        // Skip POI-linked videos if the business has its own hosted videos (supabase storage)
+        const STORAGE_HOST = "supabase.co/storage/";
+        const hasOwnHostedVideos =
+          (biz?.video_1_url && biz.video_1_url.includes(STORAGE_HOST)) ||
+          ((videoDocsRes.data || []) as any[]).some((d: any) => d.url?.includes(STORAGE_HOST));
+        if (hasOwnHostedVideos) return;
 
         const { data: poiVids } = await supabase
           .from("business_documents")
