@@ -10,6 +10,7 @@ interface VideoDocumentOverlayProps {
   closing: boolean;
   defaultSoundOn?: boolean;
   businessId?: string;
+  businessName?: string;
   onClose: () => void;
   onNavigate: (video: { url: string; name: string | null; description: string | null }) => void;
   onAnimationEnd: () => void;
