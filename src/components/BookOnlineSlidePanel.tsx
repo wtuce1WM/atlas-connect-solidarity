@@ -64,6 +64,8 @@ interface BookOnlineSlidePanelProps {
   onSearch?: (params: Record<string, string>) => void;
   /** Called when user selects a business from the embedded search overlay */
   onSearchBusinessSelect?: (businessId: string) => void;
+  /** Notify parent when a nested mosaic opens/closes (to hide toolbar) */
+  onMosaicStateChange?: (open: boolean) => void;
 }
 
 type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string } | { kind: "matterport"; url: string };
