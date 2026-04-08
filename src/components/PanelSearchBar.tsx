@@ -44,7 +44,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
   });
 
   const handleVoiceStart = useCallback(() => {
-    setSearchOverlayOpen(false);
+    setOverlay(false);
     setTimeout(() => voice.toggleRecording(), 150);
   }, [voice]);
 
