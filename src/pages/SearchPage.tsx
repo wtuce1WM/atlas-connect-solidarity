@@ -738,6 +738,7 @@ const SearchPage = () => {
    const lastAiServiceRef = useRef<string | null>(null);
     const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
+    const [isNestedMosaicOpen, setIsNestedMosaicOpen] = useState(false);
       const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
     const compactPanelInterceptCloseRef = useRef<(() => boolean) | null>(null);
 
@@ -753,6 +754,7 @@ const SearchPage = () => {
         hasAutoAlignedResultsRef.current = true;
         setCompactPanelBusiness(null);
         setIsCompactPanelExpanded(false);
+        setIsNestedMosaicOpen(false);
       }, []);
 
       const handleCompactPanelClose = useCallback(() => {
@@ -4071,10 +4073,12 @@ const SearchPage = () => {
             className={`fixed top-0 left-0 right-0 bottom-0 z-[220] bg-background shadow-2xl overflow-visible flex flex-col animate-slide-in-right lg:left-auto lg:bottom-auto lg:border-l lg:border-border lg:transition-[width] lg:duration-300 lg:ease-out ${isCompactPanelExpanded ? "lg:w-full border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "lg:w-1/2"}`}
             style={{ height: isSubDesktop ? undefined : "100vh" }}
           >
-            <SlidePanelHeader
-              onClose={handleCompactPanelClose}
-              mobileTransparent
-            />
+            {!isNestedMosaicOpen && (
+              <SlidePanelHeader
+                onClose={handleCompactPanelClose}
+                mobileTransparent
+              />
+            )}
             <div className="flex-1 min-h-0">
               <BookOnlineSlidePanel
                 businessId={compactPanelBusiness.id}
@@ -4083,6 +4087,7 @@ const SearchPage = () => {
                 forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
                 interceptCloseRef={compactPanelInterceptCloseRef}
                 showSearchBar
+                onMosaicStateChange={setIsNestedMosaicOpen}
                 onSearch={(params) => {
                   setSelectedCategoryFilter(null);
                   setSelectedSubcategoryFilter(null);
