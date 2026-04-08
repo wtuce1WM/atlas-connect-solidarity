@@ -13,17 +13,17 @@ const MosaicOverlay = ({ mediaItems, onClose, onOpenLightbox }: MosaicOverlayPro
 
   return (
     <div className="absolute inset-0 -top-[3.3rem] z-[76] overflow-hidden">
-    <div className="absolute inset-0 bg-black overflow-y-auto animate-slide-in-left">
-      <div className="sticky top-0 z-10 p-2 pt-2">
-        <button
-          onClick={onClose}
-          className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-black hover:bg-white/80 transition-colors shadow-lg"
-          aria-label="Fermer la mosaïque"
-        >
-          <X className="h-5 w-5" />
-        </button>
-      </div>
-      <div className="grid grid-cols-2 gap-2 p-2 -mt-2">
+      <div className="absolute inset-0 bg-black overflow-y-auto animate-slide-in-left">
+        <div className="sticky top-0 z-10 flex items-center bg-black px-2 py-2">
+          <button
+            onClick={onClose}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-white hover:bg-white/10 transition-colors"
+            aria-label="Fermer la mosaïque"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="grid grid-cols-2 gap-2 p-2 pt-0">
         {imageItems.map((item, i) => {
           const originalIdx = mediaItems.indexOf(item);
           return (

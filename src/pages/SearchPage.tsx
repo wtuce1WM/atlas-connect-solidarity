@@ -738,7 +738,6 @@ const SearchPage = () => {
    const lastAiServiceRef = useRef<string | null>(null);
     const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
-    const [isCompactPanelDarkMode, setIsCompactPanelDarkMode] = useState(false);
       const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
     const compactPanelInterceptCloseRef = useRef<(() => boolean) | null>(null);
 
@@ -747,7 +746,6 @@ const SearchPage = () => {
         const b = bizOrData as AIBusinessData;
         setCompactPanelBusiness(b);
         setIsCompactPanelExpanded(false);
-        setIsCompactPanelDarkMode(false);
       }, []);
 
       const closeCompactPanel = useCallback(() => {
@@ -755,15 +753,13 @@ const SearchPage = () => {
         hasAutoAlignedResultsRef.current = true;
         setCompactPanelBusiness(null);
         setIsCompactPanelExpanded(false);
-        setIsCompactPanelDarkMode(false);
       }, []);
 
       const handleCompactPanelClose = useCallback(() => {
         // If panel is in expanded/mosaic mode, collapse back to the panel instead of closing
         if (isCompactPanelExpanded) {
           setIsCompactPanelExpanded(false);
-          setIsCompactPanelDarkMode(false);
-          return;
+            return;
         }
         // If panel wants to intercept close (e.g. return to fallback hotels list)
         if (compactPanelInterceptCloseRef.current?.()) {
@@ -4077,8 +4073,7 @@ const SearchPage = () => {
           >
             <SlidePanelHeader
               onClose={handleCompactPanelClose}
-              mobileTransparent={!isCompactPanelDarkMode}
-              darkMode={isCompactPanelDarkMode}
+              mobileTransparent
             />
             <div className="flex-1 min-h-0">
               <BookOnlineSlidePanel
@@ -4088,7 +4083,6 @@ const SearchPage = () => {
                 forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
                 interceptCloseRef={compactPanelInterceptCloseRef}
                 showSearchBar
-                onMosaicStateChange={setIsCompactPanelDarkMode}
                 onSearch={(params) => {
                   setSelectedCategoryFilter(null);
                   setSelectedSubcategoryFilter(null);
