@@ -53,7 +53,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
   return (
     <>
       {/* Trigger bar fixed at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 z-[75] py-3 px-4">
+      <div className={`absolute bottom-0 left-0 right-0 z-[75] py-3 px-4 ${darkBackground ? 'bg-black' : ''}`}>
         <button
           type="button"
           onClick={() => setOverlay(true)}
