@@ -4079,8 +4079,6 @@ const SearchPage = () => {
           >
             <SlidePanelHeader
               onClose={handleCompactPanelClose}
-              isExpanded={isCompactPanelExpanded}
-              onToggleExpand={undefined}
               mobileTransparent
             />
             <div className="flex-1 min-h-0">
