@@ -2,9 +2,6 @@ import { X } from "lucide-react";
 
 interface SlidePanelHeaderProps {
   onClose: () => void;
-  /** If provided, shows Maximize2/Minimize2 toggle button */
-  isExpanded?: boolean;
-  onToggleExpand?: () => void;
   /** Optional center content (e.g. title text) */
   centerContent?: React.ReactNode;
   /** Close button style variant */
