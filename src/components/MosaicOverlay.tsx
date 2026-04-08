@@ -1,5 +1,4 @@
 import { X } from "lucide-react";
-import VideoThumbnail from "@/components/VideoThumbnail";
 
 type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string } | { kind: "matterport"; url: string };
 
@@ -10,6 +9,8 @@ interface MosaicOverlayProps {
 }
 
 const MosaicOverlay = ({ mediaItems, onClose, onOpenLightbox }: MosaicOverlayProps) => {
+  const imageItems = mediaItems.filter(item => item.kind === "image");
+
   return (
     <div className="absolute inset-0 -top-[3.3rem] z-[76] overflow-hidden">
     <div className="absolute inset-0 bg-black overflow-y-auto animate-slide-in-left">
@@ -23,55 +24,13 @@ const MosaicOverlay = ({ mediaItems, onClose, onOpenLightbox }: MosaicOverlayPro
         </button>
       </div>
       <div className="grid grid-cols-2 gap-2 p-2 -mt-2">
-        {mediaItems.map((item, idx) => {
-          if (item.kind === "video") {
-            const ytMatch = item.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
-            const vimeoMatch = item.url.match(/vimeo\.com\/(\d+)/);
-            const thumbnail = item.thumbnailUrl
-              ? item.thumbnailUrl
-              : ytMatch
-                ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`
-                : vimeoMatch
-                  ? `https://vumbnail.com/${vimeoMatch[1]}.jpg`
-                  : null;
-            return (
-              <div
-                key={`mv-${idx}`}
-                className="relative aspect-square cursor-pointer overflow-hidden rounded-lg bg-black/40"
-                onClick={() => onOpenLightbox(idx)}
-              >
-                {thumbnail ? (
-                  <img src={thumbnail} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <VideoThumbnail src={item.url} alt="" className="w-full h-full object-cover" />
-                )}
-                <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                  <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
-                    <span className="text-white text-lg">▶</span>
-                  </div>
-                </div>
-              </div>
-            );
-          }
-          if (item.kind === "matterport") {
-            return (
-              <div
-                key="matterport"
-                className="relative aspect-square cursor-pointer overflow-hidden rounded-lg bg-black/40"
-                onClick={() => onOpenLightbox(idx)}
-              >
-                <div className="w-full h-full bg-white/10 flex flex-col items-center justify-center gap-2">
-                  <span className="text-white text-3xl">🏠</span>
-                  <span className="text-white/80 text-xs font-medium">Visite 3D</span>
-                </div>
-              </div>
-            );
-          }
+        {imageItems.map((item, i) => {
+          const originalIdx = mediaItems.indexOf(item);
           return (
             <div
-              key={`mi-${idx}`}
+              key={`mi-${i}`}
               className="relative aspect-square cursor-pointer overflow-hidden rounded-lg"
-              onClick={() => onOpenLightbox(idx)}
+              onClick={() => onOpenLightbox(originalIdx)}
             >
               <img src={item.url} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
             </div>
