@@ -95,7 +95,7 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
           </div>
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-white shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:opacity-90 transition-colors"
+            className="inline-flex items-center gap-2 rounded-full px-3 h-[32px] text-white shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:opacity-90 transition-colors"
             style={{ backgroundColor: '#25D366' }}
             title="Masquer les cartes"
             aria-label="Masquer les cartes"
