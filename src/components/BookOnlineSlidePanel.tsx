@@ -1071,7 +1071,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         toolbarLeftPortal
       )}
       {/* Portal WhatsApp/Phone icon into center */}
-      {toolbarCenterPortal && (() => {
+      {toolbarCenterPortal && !selectedKpBusinessId && (() => {
         const anyOverlay = showDirections || showBookingOverlay || !!docOverlay || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId || showPoiMapOverlay || !!activeVideoOverlay || isLightboxOpen || showMosaic || showYoutubeOverlay || !!availabilityOverlayCtx || !!serpApiOverlayCtx || showFallbackOverlay || !!externalOverlayActive;
         return createPortal(
           <div className="flex items-center gap-6">
