@@ -51,6 +51,7 @@ const SlidePanelHeader = ({
         </button>
         <div id={toolbarLeftId} className="flex items-center gap-3" />
         <button
+          id="slide-panel-expand-btn"
           type="button"
           onClick={onToggleExpand}
           className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background shadow-md hover:bg-foreground/90 transition-colors"
