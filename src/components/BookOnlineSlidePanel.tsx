@@ -1283,12 +1283,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   )}
                 </div>
                 {/* Desktop: badge inline */}
-                {openBadgeInfo.text && (
-                  <div className={`hidden md:inline-flex shrink-0 items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider ${openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"}`}>
-                    <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
-                    {openBadgeInfo.text}
-                  </div>
-                )}
               </div>
               {(business.city || business.neighborhood || business.address) && (
                 <p className={`text-xs md:text-sm text-white/80 flex items-center gap-1 mt-0.5 justify-center md:justify-start truncate${business.name.length > 18 ? ' hidden lg:flex' : ''}`}>
