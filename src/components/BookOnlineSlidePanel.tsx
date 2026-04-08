@@ -2134,6 +2134,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             businessId={selectedPoiBusinessId}
             onClose={() => {
               setSelectedPoiBusinessId(null);
+              onMosaicStateChange?.(false);
               if (poiOpenedFromMapRef.current) {
                 poiOpenedFromMapRef.current = false;
               }
