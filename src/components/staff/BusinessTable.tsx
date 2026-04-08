@@ -329,7 +329,7 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
                   {(() => {
                     // Use manual rating if set, otherwise weighted average normalized to /20
                     if (business.rating != null) {
-                      const totalReviews = (business.google_review_count || 0) + (business.tripadvisor_review_count || 0) + (business.restaurant_guru_review_count || 0);
+                      const totalReviews = getTotalReviewCount(business);
                       return (
                         <div className="flex items-center gap-1.5 text-sm">
                           <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
