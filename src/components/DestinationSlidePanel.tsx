@@ -408,7 +408,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         <div className="absolute top-3 left-3 z-[80] flex items-center gap-2">
           <button
             onClick={() => { if (activeBusinessId) { setActiveBusinessId(null); return; } onClose(); }}
-            className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+            className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-black hover:bg-white/80 transition-colors shadow-lg"
             aria-label="Fermer"
           >
             <X className="h-5 w-5" />
