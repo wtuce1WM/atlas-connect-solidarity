@@ -106,6 +106,7 @@ const VideoDocumentOverlay = ({
           </span>
         )}
         {videoDocs.length <= 1 && <div className="flex-1 md:hidden" />}
+        <div className="w-9 shrink-0 md:hidden" />
       </div>
 
       {/* Desktop/Tablet: centered chevrons */}
