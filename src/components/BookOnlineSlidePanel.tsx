@@ -219,6 +219,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       interceptCloseRef.current = null;
     }
   }, [previousBusinessId, cameFromFallback, fallbackPanelData, interceptCloseRef, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId]);
+  // Hide parent expand button when sub-overlay (POI/KP) is active
+  useEffect(() => {
+    const btn = document.getElementById("slide-panel-expand-btn");
+    if (!btn) return;
+    const hasSubOverlay = !!selectedPoiBusinessId || !!selectedKpBusinessId;
+    btn.style.display = hasSubOverlay ? "none" : "";
+    return () => { btn.style.display = ""; };
+  }, [selectedPoiBusinessId, selectedKpBusinessId]);
+
   const hideCardsRef = useRef<() => void>(() => {});
 
   // Whether this business has a SerpAPI mapping
