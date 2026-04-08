@@ -1217,7 +1217,27 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           {cardsHidden ? (
             <div className="w-full shrink-0 pointer-events-auto relative z-20">
               <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center h-[32px] mb-2">
-                <div className="min-w-0" />
+                <div className="min-w-0 flex items-center justify-start">
+                  {languages.length > 0 && (
+                    <div className={`flex items-center gap-0.5 md:gap-1.5 bg-black/40 backdrop-blur-sm rounded-full py-1.5 px-2 md:px-2.5 shrink-0 h-[32px] ${languages.length > 5 ? 'max-w-[7rem] md:max-w-none overflow-x-auto md:overflow-visible' : ''}`} style={languages.length > 5 ? { scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties : undefined}>
+                      {languages.map((lang, i) => {
+                        const langAlt = getLangAlt(lang);
+                        return (
+                          <span
+                            key={i}
+                            className="group relative inline-flex items-center justify-center text-base md:text-lg leading-none cursor-help shrink-0"
+                            title={langAlt}
+                            aria-label={langAlt}
+                            role="img"
+                            tabIndex={0}
+                          >
+                            {getLangFlag(lang)}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
                 <button
                   type="button"
                   className="inline-flex items-center gap-2 rounded-full px-3 h-[32px] text-black shadow-lg backdrop-blur-sm hover:opacity-90 transition-colors"
