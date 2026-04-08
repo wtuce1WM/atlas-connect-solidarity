@@ -45,6 +45,7 @@ const SOCIAL_TITLES: Record<string, string> = {
 
 interface HeaderProps {
   variant?: "default" | "morocco" | "city";
+  compact?: boolean;
 }
 
 const Header = ({ variant = "default" }: HeaderProps) => {
