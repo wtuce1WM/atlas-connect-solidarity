@@ -2152,7 +2152,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
          <div className="absolute top-0 left-0 right-0 bottom-0 z-[70] animate-slide-up-from-bottom bg-background">
           <BookOnlineSlidePanel
             businessId={selectedKpBusinessId}
-            onClose={() => setSelectedKpBusinessId(null)}
+            onClose={() => { setSelectedKpBusinessId(null); onMosaicStateChange?.(false); }}
             showSearchBar={showSearchBar}
             onSearch={onSearch}
             onSearchBusinessSelect={onSearchBusinessSelect}
