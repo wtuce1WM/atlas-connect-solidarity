@@ -914,7 +914,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [totalMedia]);
 
-  const videoInfo = effectiveMedia?.kind === "video" ? getVideoEmbed(effectiveMedia.url, window.location.origin, { background: true, defaultSoundOn: business?.default_sound_on ?? true }) : null;
+  const videoInfoBase = effectiveMedia?.kind === "video" ? getVideoEmbed(effectiveMedia.url, window.location.origin, { background: true, defaultSoundOn: business?.default_sound_on ?? true }) : null;
+  // When cards are hidden ("Afficher" mode), enable native controls for YouTube/Vimeo
+  const videoInfo = useMemo(() => {
+    if (!videoInfoBase || !cardsHidden) return videoInfoBase;
+    if (videoInfoBase.type === "youtube") {
+      return { ...videoInfoBase, embedUrl: videoInfoBase.embedUrl.replace(/controls=0/, "controls=1").replace(/disablekb=1/, "disablekb=0") };
+    }
+    return videoInfoBase;
+  }, [videoInfoBase, cardsHidden]);
 
   const [isFileVideoVertical, setIsFileVideoVertical] = useState(false);
   const isVerticalVideo = videoInfo ? (videoInfo.type === "file" ? isFileVideoVertical : videoInfo.isVertical) : false;
