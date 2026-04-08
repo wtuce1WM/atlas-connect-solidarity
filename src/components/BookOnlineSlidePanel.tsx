@@ -124,7 +124,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showHook, setShowHook] = useState(false);
   
-  const [showMosaic, setShowMosaic] = useState(false);
+  const [showMosaic, setShowMosaicRaw] = useState(false);
+  const setShowMosaic = useCallback((v: boolean | ((prev: boolean) => boolean)) => {
+    setShowMosaicRaw(prev => {
+      const next = typeof v === "function" ? v(prev) : v;
+      if (next !== prev) onMosaicStateChange?.(next);
+      return next;
+    });
+  }, [onMosaicStateChange]);
   const [ytBgPlaying, setYtBgPlaying] = useState(true);
   const [ytBgMuted, setYtBgMuted] = useState(false);
   const [youtubeVideoCount, setYoutubeVideoCount] = useState<number | null>(null);
