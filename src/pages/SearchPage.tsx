@@ -486,7 +486,9 @@ const SearchPage = () => {
         id: b.id, name: b.name, city: b.city, main_category: b.main_category,
         categories: b.categories, hook_fr: b.hook_fr, rating: b.rating,
         wtuce_status: b.wtuce_status, images: b.images, logo_url: b.logo_url,
-        neighborhood: b.neighborhood,
+        neighborhood: b.neighborhood, google_rating: b.google_rating,
+        google_review_count: b.google_review_count, tripadvisor_rating: b.tripadvisor_rating,
+        tripadvisor_review_count: b.tripadvisor_review_count,
       }));
       sessionStorage.setItem("ai_suggestion_businesses", JSON.stringify(bizData));
     } catch {}
