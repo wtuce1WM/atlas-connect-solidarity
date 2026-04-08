@@ -18,9 +18,11 @@ interface PanelSearchBarProps {
   businessName?: string | null;
   /** Called when the search overlay opens or closes */
   onOverlayChange?: (open: boolean) => void;
+  /** Use a dark (black) background instead of transparent */
+  darkBackground?: boolean;
 }
 
-const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCategory, businessName, onOverlayChange }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCategory, businessName, onOverlayChange, darkBackground }: PanelSearchBarProps) => {
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
   // Notify parent when search overlay opens/closes
@@ -51,7 +53,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
   return (
     <>
       {/* Trigger bar fixed at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 z-[75] py-3 px-4">
+      <div className={`absolute bottom-0 left-0 right-0 z-[75] py-3 px-4 ${darkBackground ? 'bg-black' : ''}`}>
         <button
           type="button"
           onClick={() => setOverlay(true)}
