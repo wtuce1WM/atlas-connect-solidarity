@@ -1213,7 +1213,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         onTouchEnd={externalVideoInteractiveMode ? undefined : onTouchEnd}
       >
         {/* Top bar: toggle, flags, rating */}
-        <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex flex-col items-center pb-3 md:pb-3 pointer-events-auto animate-[slide-in-top_0.35s_ease-out_both] mt-1 md:mt-0">
+        <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex flex-col items-center pb-5 md:pb-3 pointer-events-auto animate-[slide-in-top_0.35s_ease-out_both] mt-1 md:mt-0">
           {cardsHidden ? (
             <div className="w-full shrink-0 pointer-events-auto relative z-20">
               <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center h-[32px] mb-2">
@@ -1306,7 +1306,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         </div>
 
         {/* Block 1: Logo + name */}
-        <div key={businessId} className="w-full shrink-0 rounded-2xl bg-black/40 backdrop-blur-sm px-4 md:px-6 text-white overflow-hidden relative h-[4.5rem] md:h-[5.5rem] pointer-events-auto mt-5 md:mt-0 animate-slide-in-right">
+        <div key={businessId} className="w-full shrink-0 rounded-2xl bg-black/40 backdrop-blur-sm px-4 md:px-6 text-white overflow-hidden relative h-[4.5rem] md:h-[5.5rem] pointer-events-auto mt-1 md:mt-0 animate-slide-in-right">
           <div
             className="absolute inset-0 flex items-center gap-4 px-4 md:px-6 transition-all duration-500 ease-in-out"
             style={{
