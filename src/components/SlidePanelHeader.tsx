@@ -1,4 +1,4 @@
-import { X, Maximize2, Minimize2 } from "lucide-react";
+import { X } from "lucide-react";
 
 interface SlidePanelHeaderProps {
   onClose: () => void;
