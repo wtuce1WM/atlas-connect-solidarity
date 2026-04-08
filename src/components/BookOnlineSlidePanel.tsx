@@ -1121,7 +1121,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         );
       })()}
       {/* Portal Share into right */}
-      {toolbarPortal && !selectedKpBusinessId && createPortal(
+      {toolbarPortal && !selectedKpBusinessId && !selectedPoiBusinessId && createPortal(
         <ShareButton title={business.name} variant="dark" className="shrink-0" />,
         toolbarPortal
       )}
