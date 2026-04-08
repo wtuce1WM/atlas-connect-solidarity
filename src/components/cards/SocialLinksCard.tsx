@@ -49,7 +49,7 @@ const SocialLinksCard = ({
     whatsapp && { name: "WhatsApp", url: `https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}`, icon: <WhatsAppIcon className="h-4 w-4" />, color: "#25D366" },
   ].filter(Boolean) as SocialLink[];
 
-  if (links.length === 0) return null;
+  if (links.length === 0 && menuItems.length === 0) return null;
 
   return (
     <div
@@ -58,6 +58,17 @@ const SocialLinksCard = ({
     >
       <div className="flex items-center justify-center p-2">
         <div className="flex flex-col gap-1">
+          {menuItems.map((m) => (
+            <button
+              key={m.id}
+              onClick={() => onOpenUrl?.(m.url, m.name || (language === "en" ? "Menu" : "La Carte"))}
+              className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/10 hover:bg-white/20 transition-colors"
+            >
+              <span className="text-[9px] text-white/90 text-center leading-tight line-clamp-2 px-0.5" style={{ fontFamily: "'Roboto', sans-serif" }}>
+                {m.name || (language === "en" ? "Menu" : "Carte")}
+              </span>
+            </button>
+          ))}
           {links.map((link) => (
             <a
               key={link.name}
