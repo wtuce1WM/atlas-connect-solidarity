@@ -1782,6 +1782,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       if (isExternal) {
                         window.open(business.reserve_now_url!, "_blank");
                       } else {
+                        setBookingOverlayLoaded(false);
                         setBookingOverlayUrl(null);
                         setBookingOverlayTitle(undefined);
                         setShowBookingOverlay(true);
