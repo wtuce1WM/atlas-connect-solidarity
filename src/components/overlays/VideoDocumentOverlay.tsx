@@ -161,11 +161,10 @@ const VideoDocumentOverlay = ({
             }}
           />
         ) : (
-          <div className={`w-full h-full overflow-hidden bg-black ${overlayVid.type === "youtube" ? "relative" : ""}`}>
+            <div className={`w-full h-full overflow-hidden bg-black ${overlayVid.type === "youtube" ? "relative" : ""}`}>
             {overlayVid.type === "youtube" && !isVerticalHint && (
               <>
                 <div className="absolute inset-x-0 top-0 h-16 bg-black z-10" />
-                <div className="absolute inset-x-0 bottom-0 h-12 bg-black z-10" />
               </>
             )}
             <iframe
