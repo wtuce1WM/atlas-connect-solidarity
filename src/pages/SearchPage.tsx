@@ -707,9 +707,9 @@ const SearchPage = () => {
     const [stickyStackPadding, setStickyStackPadding] = useState(0);
      useEffect(() => {
        const measure = () => {
-         const tabBar = document.querySelector<HTMLElement>('[data-tab-bar]');
-         const tabH = tabBar ? tabBar.getBoundingClientRect().height : 44;
-         const cityBarTop = 60 + tabH;
+          const header = document.querySelector<HTMLElement>('header');
+          const headerH = header ? header.getBoundingClientRect().height : 53;
+          const cityBarTop = headerH;
          setStickyTops(prev => {
            if (prev.cityBar === cityBarTop && prev.serviceBar === cityBarTop) return prev;
            return { cityBar: cityBarTop, serviceBar: cityBarTop };
