@@ -20,8 +20,14 @@ interface PanelSearchBarProps {
   onOverlayChange?: (open: boolean) => void;
 }
 
-const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCategory, businessName }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCategory, businessName, onOverlayChange }: PanelSearchBarProps) => {
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
+
+  // Notify parent when search overlay opens/closes
+  const setOverlay = useCallback((open: boolean) => {
+    setSearchOverlayOpen(open);
+    onOverlayChange?.(open);
+  }, [onOverlayChange]);
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
   const { toast } = useToast();
   const geo = useGeolocation();
