@@ -7,9 +7,10 @@ interface DocumentOverlayProps {
   type: "pdf" | "flipbook";
   ts: number;
   onClose: () => void;
+  onLoad?: () => void;
 }
 
-const DocumentOverlay = ({ url, name, type, ts, onClose }: DocumentOverlayProps) => {
+const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverlayProps) => {
   return (
     <div className="absolute inset-0 -top-[3.3rem] z-[60] bg-white flex flex-col animate-fade-in overflow-hidden">
       <div className="flex items-center justify-between px-4 py-2 border-b bg-white">
@@ -31,6 +32,7 @@ const DocumentOverlay = ({ url, name, type, ts, onClose }: DocumentOverlayProps)
             className="h-full w-full border-0"
             allow="clipboard-write; fullscreen"
             title={name}
+            onLoad={onLoad}
           />
         ) : (
           <>
@@ -51,6 +53,7 @@ const DocumentOverlay = ({ url, name, type, ts, onClose }: DocumentOverlayProps)
               src={`https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`}
               className="relative z-10 h-full w-full border-0 bg-transparent"
               title={name}
+              onLoad={onLoad}
             />
           </>
         )}

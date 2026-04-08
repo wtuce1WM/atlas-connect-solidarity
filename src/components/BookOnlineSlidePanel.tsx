@@ -108,6 +108,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const [bookingOverlayUrl, setBookingOverlayUrl] = useState<string | null>(null);
   const [bookingOverlayTitle, setBookingOverlayTitle] = useState<string | undefined>(undefined);
   const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook'; ts: number } | null>(null);
+  const [docOverlayLoaded, setDocOverlayLoaded] = useState(false);
+  const [bookingOverlayLoaded, setBookingOverlayLoaded] = useState(false);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
   const [selectedKpBusinessId, setSelectedKpBusinessId] = useState<string | null>(null);
@@ -988,8 +990,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     const isPdf = url?.toLowerCase().endsWith('.pdf') || url?.includes('/pdfs/');
     const isFlipbook = /issuu\.com|calameo\.com/i.test(url || '');
     if (isPdf || isFlipbook) {
+      setDocOverlayLoaded(false);
       setDocOverlay({ url, name: title || 'Document', type: isPdf ? 'pdf' : 'flipbook', ts: Date.now() });
     } else {
+      setBookingOverlayLoaded(false);
       setBookingOverlayUrl(url);
       setShowBookingOverlay(true);
       setBookingOverlayTitle(title);
@@ -1353,6 +1357,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   isSearchingAvailability={hotelSearchLoading}
                   onCheckAvailability={handleCheckAvailability}
                   onOpenWebsite={(url) => {
+                    setBookingOverlayLoaded(false);
                     setBookingOverlayUrl(url);
                     setBookingOverlayTitle(language === "en" ? "Website" : "Site web");
                     setShowBookingOverlay(true);
@@ -1777,6 +1782,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       if (isExternal) {
                         window.open(business.reserve_now_url!, "_blank");
                       } else {
+                        setBookingOverlayLoaded(false);
                         setBookingOverlayUrl(null);
                         setBookingOverlayTitle(undefined);
                         setShowBookingOverlay(true);
@@ -1938,7 +1944,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   ) : (
                     <button
                       key="booking"
-                      onClick={() => { setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setShowBookingOverlay(true); }}
+                      onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setShowBookingOverlay(true); }}
                       className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-up-from-bottom"
                       style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}
                     >
@@ -1966,7 +1972,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   ) : (
                     <button
                       key="shop"
-                      onClick={() => { setBookingOverlayUrl(shopCta.fullUrl); setBookingOverlayTitle(shopCtaLabel); setShowBookingOverlay(true); }}
+                      onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(shopCta.fullUrl); setBookingOverlayTitle(shopCtaLabel); setShowBookingOverlay(true); }}
                       className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-black [&_*]:text-black normal-case tracking-normal animate-slide-up-from-bottom"
                       style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}
                     >
@@ -2054,9 +2060,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           <BookingOverlay
             bookingUrl={finalUrl}
             title={bookingOverlayUrl ? bookingOverlayTitle : undefined}
-            onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); }}
+            onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setBookingOverlayLoaded(false); }}
             whatsapp={business?.whatsapp}
             phone={business?.phone}
+            onLoad={() => setBookingOverlayLoaded(true)}
           />
         );
       })()}
@@ -2068,7 +2075,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           name={docOverlay.name}
           type={docOverlay.type}
           ts={docOverlay.ts}
-          onClose={() => setDocOverlay(null)}
+          onClose={() => { setDocOverlay(null); setDocOverlayLoaded(false); }}
+          onLoad={() => setDocOverlayLoaded(true)}
         />
       )}
 
@@ -2310,7 +2318,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           businessCategory={business?.main_category}
           businessName={business?.name}
           onOverlayChange={setSearchOverlayActive}
-          darkBackground={!!docOverlay || showBookingOverlay}
+          darkBackground={docOverlayLoaded || bookingOverlayLoaded}
         />
       )}
 

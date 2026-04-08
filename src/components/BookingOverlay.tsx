@@ -9,9 +9,10 @@ interface BookingOverlayProps {
   onClose: () => void;
   whatsapp?: string | null;
   phone?: string | null;
+  onLoad?: () => void;
 }
 
-const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp, phone }: BookingOverlayProps) => {
+const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp, phone, onLoad }: BookingOverlayProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   return (
@@ -57,6 +58,7 @@ const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp, phone }: Booking
         sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
         allow="payment"
         title="Réservation"
+        onLoad={onLoad}
       />
     </div>
   );
