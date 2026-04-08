@@ -149,6 +149,7 @@ const AppContent = () => {
               <Route path="/staff/presentation" element={<StaffRouteGuard>{renderLazyRoute(<BlogPresentation />)}</StaffRouteGuard>} />
               <Route path="/staff/presentation-fr" element={<StaffRouteGuard>{renderLazyRoute(<BlogPresentationFR />)}</StaffRouteGuard>} />
               <Route path="/unsubscribe" element={renderLazyRoute(<Unsubscribe />)} />
+              <Route path="/fiche/:slug" element={renderLazyRoute(<FicheImmersive />)} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={renderLazyRoute(<NotFound />)} />
             </Routes>
