@@ -33,6 +33,7 @@ interface SocialLinksCardProps {
 
 const SocialLinksCard = ({
   facebook, instagram, tiktok, youtube, twitter, linkedin, pinterest, vimeo, whatsapp, snapchat,
+  menuItems = [], language = "fr", onOpenUrl,
   animationDelay = "0ms",
 }: SocialLinksCardProps) => {
   const links: SocialLink[] = [
