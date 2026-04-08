@@ -533,6 +533,12 @@ export function useBookOnlineData(businessId: string) {
       };
 
       const fetchPoiLinkedVideos = async () => {
+        // Skip POI-linked videos if the business already has its own internal videos
+        const hasOwnVideos =
+          !!biz?.video_1_url ||
+          ((videoDocsRes.data || []) as any[]).some((d: any) => d.url);
+        if (hasOwnVideos) return;
+
         const { data: poiVids } = await supabase
           .from("business_documents")
           .select("url, name, city, price, price_type, description, thumbnail_url, business_id")
