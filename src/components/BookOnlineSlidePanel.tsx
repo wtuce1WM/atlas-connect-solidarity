@@ -145,6 +145,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const serpApiReturnBusinessIdRef = useRef<string | null>(null);
   const [fallbackHiddenOnMobile, setFallbackHiddenOnMobile] = useState(false);
   const [showFallbackOverlay, setShowFallbackOverlay] = useState(false);
+  const [searchOverlayActive, setSearchOverlayActive] = useState(false);
   const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
   
