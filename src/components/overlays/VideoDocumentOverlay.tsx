@@ -115,7 +115,7 @@ const VideoDocumentOverlay = ({
       {hasPrev && (
         <button
           onClick={() => goTo(currentIdx - 1)}
-          className="flex absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white items-center justify-center hover:bg-white/80 transition-colors shadow-lg"
+          className={`absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white items-center justify-center hover:bg-white/80 transition-colors shadow-lg ${descExpanded ? 'hidden md:flex' : 'flex'}`}
           aria-label="Vidéo précédente"
         >
           <ChevronLeft className="h-5 w-5 text-black" />
