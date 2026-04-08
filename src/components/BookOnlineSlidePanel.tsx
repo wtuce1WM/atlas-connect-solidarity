@@ -917,12 +917,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   const videoInfo = useMemo(() => {
     if (effectiveMedia?.kind !== "video") return null;
     const base = getVideoEmbed(effectiveMedia.url, window.location.origin, { background: true, defaultSoundOn: business?.default_sound_on ?? true });
-    if (!cardsHidden) return base;
+    // Always enable native controls so toggling cardsHidden doesn't reload the iframe
     if (base.type === "youtube") {
       return { ...base, embedUrl: base.embedUrl.replace(/controls=0/, "controls=1").replace(/disablekb=1/, "disablekb=0") };
     }
     return base;
-  }, [effectiveMedia?.kind, effectiveMedia?.url, business?.default_sound_on, cardsHidden]);
+  }, [effectiveMedia?.kind, effectiveMedia?.url, business?.default_sound_on]);
 
   const [isFileVideoVertical, setIsFileVideoVertical] = useState(false);
   const isVerticalVideo = videoInfo ? (videoInfo.type === "file" ? isFileVideoVertical : videoInfo.isVertical) : false;
