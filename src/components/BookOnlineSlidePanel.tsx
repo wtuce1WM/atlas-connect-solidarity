@@ -1218,7 +1218,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             <MediaCounterBar currentIndex={safeIndex} totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)}>
               <button
                 type="button"
-                className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-white shadow-lg backdrop-blur-sm hover:opacity-90 transition-colors"
+                className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-black shadow-lg backdrop-blur-sm hover:opacity-90 transition-colors"
                 style={{ backgroundColor: '#25D366' }}
                 title="Afficher les cartes"
                 aria-label="Afficher les cartes"
