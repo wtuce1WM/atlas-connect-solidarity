@@ -754,6 +754,7 @@ const SearchPage = () => {
         hasAutoAlignedResultsRef.current = true;
         setCompactPanelBusiness(null);
         setIsCompactPanelExpanded(false);
+        setIsNestedMosaicOpen(false);
       }, []);
 
       const handleCompactPanelClose = useCallback(() => {
