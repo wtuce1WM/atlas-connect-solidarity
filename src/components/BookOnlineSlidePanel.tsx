@@ -2141,7 +2141,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             showSearchBar={showSearchBar}
             onSearch={onSearch}
             onSearchBusinessSelect={onSearchBusinessSelect}
-            onMosaicStateChange={onMosaicStateChange}
           />
         </div>
       )}
