@@ -238,7 +238,7 @@ const VideoDocumentOverlay = ({
         if (!hasContent && !showOwnerFallback) return null;
 
         return (
-          <div className="absolute left-3 right-3 md:left-[15%] md:right-[15%] top-20 md:top-14 bottom-5 md:bottom-auto z-10 pointer-events-auto overflow-hidden flex flex-col">
+          <div className="absolute left-3 right-3 md:left-[15%] md:right-[15%] top-[7rem] lg:top-14 bottom-5 md:bottom-auto z-10 pointer-events-auto overflow-hidden flex flex-col">
             <div className="rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-full md:max-h-none overflow-y-auto md:overflow-y-visible">
               <div className="flex items-center gap-3">
                 <div className="min-w-0 flex-1">
