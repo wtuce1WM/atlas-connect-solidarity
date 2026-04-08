@@ -211,7 +211,7 @@ export const OwnerLogoOverlay = ({ logoBigOverlay, logoBigFadingOut, cardsHidden
   if (!currentVideoDoc?.owner_business_id || currentVideoDoc.owner_business_id === currentBusinessId) return null;
   return (
     <div className="shrink-0 flex justify-center pointer-events-none pb-4">
-      <div className="animate-logo-big-full-reveal w-[140px] md:w-[180px]">
+      <div className="animate-logo-big-full-reveal w-[100px] md:w-[180px]">
         <img
           src={logoBigOverlay.src}
           alt={logoBigOverlay.name}
