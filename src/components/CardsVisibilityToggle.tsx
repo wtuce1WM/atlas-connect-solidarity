@@ -245,7 +245,7 @@ export const OwnerBadge = ({ cardsHidden, currentMediaKind, currentMediaUrl, vid
     <div className="shrink-0 flex justify-center pointer-events-auto pb-4">
       <button
         onClick={() => onNavigateToOwner(currentVideoDoc.owner_business_id!)}
-        className="flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 hover:bg-black/85 transition-colors"
+        className="flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 hover:bg-black/85 transition-colors animate-cta-zoom-in"
       >
         <span className="text-xs font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
           {currentVideoDoc.owner_name} <span className="text-base">©</span>
