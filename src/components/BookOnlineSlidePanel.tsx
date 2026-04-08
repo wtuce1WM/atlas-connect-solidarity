@@ -1252,7 +1252,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   <span className="text-xs font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>Afficher</span>
                   <span className="hidden md:block h-1.5 w-8 rounded-full bg-black/60" />
                 </button>
-                <div className="min-w-0" />
+                <div className="min-w-0 flex items-center justify-end">
+                  {avgOn20 !== null && avgOn20 > 0 && (
+                    <div className="md:hidden flex items-center gap-0.5 bg-black/40 backdrop-blur-sm rounded-full py-0.5 px-1.5">
+                      <Star className="h-3 w-3 text-gold fill-gold" />
+                      <span className="text-xs font-bold text-white">{avgOn20}</span>
+                      <span className="text-[9px] text-white/60">/20</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ) : (
