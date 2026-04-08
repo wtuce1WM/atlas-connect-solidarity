@@ -70,12 +70,12 @@ interface CardsToggleButtonProps {
 
 export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDownDrag, leftSlot, rightSlot }: CardsToggleButtonProps) => {
   return (
-    <div className="w-full shrink-0 flex items-center justify-center pb-2 pointer-events-auto relative z-20 min-h-[36px]">
+    <div className="w-full shrink-0 flex items-center justify-center pb-2 pointer-events-auto relative z-20 h-[40px]">
       {cardsHidden ? (
         <div className="flex items-center gap-3">
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-black shadow-lg backdrop-blur-sm hover:opacity-90 transition-colors"
+            className="inline-flex items-center gap-2 rounded-full px-3 h-[32px] text-black shadow-lg backdrop-blur-sm hover:opacity-90 transition-colors"
             style={{ backgroundColor: '#25D366' }}
             title="Afficher les cartes"
             aria-label="Afficher les cartes"
@@ -95,7 +95,7 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
           </div>
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-white shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:opacity-90 transition-colors"
+            className="inline-flex items-center gap-2 rounded-full px-3 h-[32px] text-white shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:opacity-90 transition-colors"
             style={{ backgroundColor: '#25D366' }}
             title="Masquer les cartes"
             aria-label="Masquer les cartes"
