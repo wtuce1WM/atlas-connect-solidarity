@@ -1,0 +1,216 @@
+import React from "react";
+import { ExternalLink, MapPin, CalendarCheck, ShoppingBag } from "lucide-react";
+import VideoControls from "@/components/VideoControls";
+import { OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
+
+export const CTA_MODE_LABELS: Record<string, { fr: string; en: string }> = {
+  acheter_en_ligne: { fr: 'Acheter en ligne', en: 'Shop Online' },
+  reserver_en_ligne: { fr: 'Réserver en ligne', en: 'Book Online' },
+  consulter_offre: { fr: 'Consulter notre offre', en: 'View Our Offer' },
+  plus_informations: { fr: "Plus d'informations", en: 'More Information' },
+  contactez_nous: { fr: 'Contactez nous', en: 'Contact Us' },
+  la_carte: { fr: 'La carte', en: 'The Menu' },
+  les_boissons: { fr: 'Les boissons', en: 'Drinks' },
+};
+
+interface CtaBarProps {
+  business: any;
+  language: string;
+  cardsHidden: boolean;
+  showSearchBar?: boolean;
+  showGoogleMap: boolean;
+  externalVideoInteractiveMode: boolean;
+  effectiveMedia: any;
+  bookingCta: { fullUrl: string; forceExternal?: boolean } | null;
+  shopCta: { fullUrl: string; forceExternal?: boolean } | null;
+  bookingCtaLabel: string;
+  shopCtaLabel: string;
+  fallbackPanelData: any;
+  // Logo overlay
+  logoBigOverlay: any;
+  logoBigFadingOut: boolean;
+  currentMediaIndex: number;
+  videoDocs: any[];
+  businessId: string;
+  currentMediaUrl?: string;
+  currentMediaKind?: string;
+  // Video controls
+  videoInfo: any;
+  videoRef: React.RefObject<HTMLVideoElement>;
+  iframeRef: React.RefObject<HTMLIFrameElement>;
+  videoPaused: boolean;
+  videoMuted: boolean;
+  ytBgPlaying: boolean;
+  ytBgMuted: boolean;
+  setYtBgPlaying: (v: boolean) => void;
+  setYtBgMuted: (v: boolean) => void;
+  // Actions
+  setShowDirections: (v: boolean) => void;
+  setShowBookingOverlay: (v: boolean) => void;
+  setBookingOverlayLoaded: (v: boolean) => void;
+  setBookingOverlayUrl: (v: string | null) => void;
+  setBookingOverlayTitle: (v: string | undefined) => void;
+  setActiveBusinessId: (id: string) => void;
+}
+
+export function CtaBar({
+  business,
+  language,
+  cardsHidden,
+  showSearchBar,
+  showGoogleMap,
+  externalVideoInteractiveMode,
+  effectiveMedia,
+  bookingCta,
+  shopCta,
+  bookingCtaLabel,
+  shopCtaLabel,
+  fallbackPanelData,
+  logoBigOverlay,
+  logoBigFadingOut,
+  currentMediaIndex,
+  videoDocs,
+  businessId,
+  currentMediaUrl,
+  currentMediaKind,
+  videoInfo,
+  videoRef,
+  iframeRef,
+  videoPaused,
+  videoMuted,
+  ytBgPlaying,
+  ytBgMuted,
+  setYtBgPlaying,
+  setYtBgMuted,
+  setShowDirections,
+  setShowBookingOverlay,
+  setBookingOverlayLoaded,
+  setBookingOverlayUrl,
+  setBookingOverlayTitle,
+  setActiveBusinessId,
+}: CtaBarProps) {
+  const hasBottomActionCtas = !!bookingCta || !!shopCta || (!cardsHidden && showGoogleMap && business?.latitude && business?.longitude);
+
+  // Hide when cards hidden + availability confirmed
+  const hideStyle = (cardsHidden && fallbackPanelData && (() => {
+    const ch = fallbackPanelData.hotels.find((h: any) => h.isCurrentHotel);
+    return !!ch;
+  })()) ? { display: 'none' as const } : undefined;
+
+  const ctaItems: React.ReactNode[] = [];
+
+  if (bookingCta) {
+    ctaItems.push(
+      bookingCta.forceExternal ? (
+        <a
+          key="booking"
+          href={bookingCta.fullUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left"
+          style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}
+        >
+          <CalendarCheck className="h-4 w-4 hidden md:block" />
+          <span className="truncate">{bookingCtaLabel}</span>
+          <ExternalLink className="h-3.5 w-3.5 ml-0.5 shrink-0 hidden md:block" />
+        </a>
+      ) : (
+        <button
+          key="booking"
+          onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setShowBookingOverlay(true); }}
+          className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left"
+          style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}
+        >
+          <CalendarCheck className="h-4 w-4 hidden md:block" />
+          <span className="truncate">{bookingCtaLabel}</span>
+        </button>
+      )
+    );
+  }
+
+  if (shopCta) {
+    ctaItems.push(
+      shopCta.forceExternal ? (
+        <a
+          key="shop"
+          href={shopCta.fullUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left"
+          style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}
+        >
+          <ShoppingBag className="h-4 w-4 hidden md:block" />
+          <span className="truncate">{shopCtaLabel}</span>
+          <ExternalLink className="h-3.5 w-3.5 ml-0.5 shrink-0 hidden md:block" />
+        </a>
+      ) : (
+        <button
+          key="shop"
+          onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(shopCta.fullUrl); setBookingOverlayTitle(shopCtaLabel); setShowBookingOverlay(true); }}
+          className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left"
+          style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}
+        >
+          <ShoppingBag className="h-4 w-4 hidden md:block" />
+          <span className="truncate">{shopCtaLabel}</span>
+        </button>
+      )
+    );
+  }
+
+  if (!cardsHidden && showGoogleMap && business.latitude && business.longitude) {
+    ctaItems.push(
+      <button
+        key="directions"
+        onClick={() => setShowDirections(true)}
+        className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-gold text-gold-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-gold/90 transition-colors normal-case tracking-normal animate-slide-in-left"
+        style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}
+      >
+        <MapPin className="h-4 w-4 hidden md:block" />
+        <span className="truncate">{language === "en" ? "Directions" : "Itinéraire"}</span>
+      </button>
+    );
+  }
+
+  return (
+    <div
+      className={`${showSearchBar ? 'absolute bottom-[56px] left-0 right-0 z-[74] pb-[14px] md:pb-[10px]' : 'shrink-0 py-2 lg:pb-2'} flex flex-col items-center gap-2 ${externalVideoInteractiveMode ? 'pointer-events-none' : 'pointer-events-auto'} ${cardsHidden && effectiveMedia?.kind === "matterport" ? 'mb-24' : ''}`}
+      style={hideStyle}
+    >
+      {ctaItems.length > 0 && (
+        <div className="w-4/5 md:w-3/4 md:px-0 flex justify-center gap-2 pointer-events-auto">
+          {ctaItems.map((item, i) => (
+            <div key={i} className="flex-1 md:flex-none md:w-1/3">{item}</div>
+          ))}
+        </div>
+      )}
+
+      {/* Owner logo + badge */}
+      <OwnerLogoOverlay
+        key={`logo-${currentMediaIndex}`}
+        logoBigOverlay={logoBigOverlay}
+        logoBigFadingOut={logoBigFadingOut}
+        cardsHidden={cardsHidden}
+        currentMediaUrl={currentMediaUrl}
+        videoDocs={videoDocs}
+        currentBusinessId={businessId}
+      />
+      <OwnerBadge
+        key={`badge-${currentMediaIndex}`}
+        cardsHidden={cardsHidden}
+        currentMediaKind={currentMediaKind}
+        currentMediaUrl={currentMediaUrl}
+        videoDocs={videoDocs}
+        currentBusinessId={businessId}
+        onNavigateToOwner={setActiveBusinessId}
+      />
+
+      {/* Video controls */}
+      {effectiveMedia?.kind === "video" && videoInfo?.type === "file" && (
+        <VideoControls type="file" videoRef={videoRef as React.RefObject<HTMLVideoElement>} paused={videoPaused} muted={videoMuted} className="mt-2 md:mt-3 animate-slide-in-right" />
+      )}
+      {effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" && !cardsHidden && (
+        <VideoControls type="youtube" iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>} playing={ytBgPlaying} muted={ytBgMuted} onPlayingChange={setYtBgPlaying} onMutedChange={setYtBgMuted} className="mt-2 md:mt-3 animate-slide-in-right" />
+      )}
+    </div>
+  );
+}
