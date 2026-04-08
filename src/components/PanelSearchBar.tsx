@@ -34,7 +34,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
 
   const voice = useVoiceSearch({
     onTranscript: (keywords, spoken, detectedCategory, timeKeyword) => {
-      setSearchOverlayOpen(false);
+      setOverlay(false);
       const params: Record<string, string> = { q: keywords, spoken, _t: String(Date.now()) };
       if (detectedCategory) params.category = detectedCategory;
       if (timeKeyword) params.timeKeyword = timeKeyword;
