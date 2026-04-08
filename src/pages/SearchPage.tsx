@@ -738,6 +738,7 @@ const SearchPage = () => {
    const lastAiServiceRef = useRef<string | null>(null);
     const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
+    const [isCompactPanelDarkMode, setIsCompactPanelDarkMode] = useState(false);
       const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
     const compactPanelInterceptCloseRef = useRef<(() => boolean) | null>(null);
 
@@ -4073,7 +4074,8 @@ const SearchPage = () => {
           >
             <SlidePanelHeader
               onClose={handleCompactPanelClose}
-              mobileTransparent
+              mobileTransparent={!isCompactPanelDarkMode}
+              darkMode={isCompactPanelDarkMode}
             />
             <div className="flex-1 min-h-0">
               <BookOnlineSlidePanel
@@ -4083,6 +4085,7 @@ const SearchPage = () => {
                 forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
                 interceptCloseRef={compactPanelInterceptCloseRef}
                 showSearchBar
+                onMosaicStateChange={setIsCompactPanelDarkMode}
                 onSearch={(params) => {
                   setSelectedCategoryFilter(null);
                   setSelectedSubcategoryFilter(null);
