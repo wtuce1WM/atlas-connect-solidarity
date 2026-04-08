@@ -401,6 +401,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
           <LazyMosaicOverlay
             mediaItems={mediaItems.map((m) => ({ kind: m.kind, url: m.url }))}
             headerVariant="immersive"
+            coverParentToolbar={false}
             onClose={() => setShowMosaic(false)}
             onOpenLightbox={(idx) => { setLightboxIndex(idx); setIsLightboxOpen(true); }}
           />

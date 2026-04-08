@@ -2255,6 +2255,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       {showMosaic && (
         <MosaicOverlay
           mediaItems={mediaItems}
+          coverParentToolbar={!propagateMosaicState}
           onClose={() => setShowMosaic(false)}
           onOpenLightbox={(idx) => { setLightboxIndex(idx); setIsLightboxOpen(true); }}
         />

@@ -747,6 +747,7 @@ const SearchPage = () => {
         const b = bizOrData as AIBusinessData;
         setCompactPanelBusiness(b);
         setIsCompactPanelExpanded(false);
+        setIsNestedMosaicOpen(false);
       }, []);
 
       const closeCompactPanel = useCallback(() => {
