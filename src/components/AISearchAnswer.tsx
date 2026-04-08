@@ -42,12 +42,6 @@ interface AISearchAnswerProps {
   externalRegenerateKey?: number;
 }
 
-interface BusinessHoverCardProps {
-  name: string;
-  business: BusinessData;
-  onClickBusiness: (b: BusinessData) => void;
-}
-
 const normalize = (s: string) =>
   s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/['`]/g, "'").trim();
 
@@ -78,7 +72,7 @@ const getImage = (b: BusinessData): string | null => {
   return null;
 };
 
-const BusinessHoverCard = ({ name, business, onClickBusiness }: { name: string; business: BusinessData; onClickBusiness: (b: BusinessData) => void }) => {
+const BusinessHoverCard = ({ business, onClickBusiness }: { name: string; business: BusinessData; onClickBusiness: (b: BusinessData) => void }) => {
   const img = getImage(business);
   const sources = collectRatingSources(business as any);
   const avgOn20 = business.rating ?? computeWeightedRatingOn20(sources);
@@ -126,88 +120,8 @@ const BusinessHoverCard = ({ name, business, onClickBusiness }: { name: string; 
 interface HighlightState {
   wordIndex: number;
   target: number;
-  /** "reveal" = fade-in words up to target; "karaoke" = gold highlight on current word */
   mode?: "reveal" | "karaoke";
 }
-
-/** Parse inline markdown with optional word-level highlighting */
-const parseInline = (
-  text: string,
-  businesses: BusinessData[],
-  onClickBusiness: (b: BusinessData) => void,
-  keyPrefix: string,
-  hl?: HighlightState
-): ReactNode[] => {
-  const boldParts = text.split(/\*\*(.+?)\*\*/g);
-  const nodes: ReactNode[] = [];
-  const isKaraoke = hl?.mode === "karaoke";
-
-  boldParts.forEach((part, j) => {
-    if (j % 2 === 1) {
-      const wordCount = part.split(/\s+/).filter(Boolean).length;
-      const startWordIdx = hl ? hl.wordIndex : 0;
-      if (hl) hl.wordIndex += wordCount;
-      const highlighted = hl ? startWordIdx <= hl.target : false;
-
-      const match = findBusiness(part, businesses);
-      if (match) {
-        const card = <BusinessHoverCard key={`${keyPrefix}-${j}`} name={part} business={match} onClickBusiness={onClickBusiness} />;
-          if (hl) {
-            if (isKaraoke) {
-              const isSpoken = startWordIdx <= hl.target;
-              nodes.push(
-                <span key={`${keyPrefix}-hl-${j}`} className={`inline transition-colors duration-150 rounded-sm ${isSpoken ? "bg-gold/25" : ""}`}>
-                  {card}
-                </span>
-              );
-            } else {
-              nodes.push(
-                <span key={`${keyPrefix}-hl-${j}`} className={`inline transition-all duration-300 rounded-sm ${highlighted ? "opacity-100 blur-0 translate-y-0" : "opacity-0 blur-[2px] translate-y-1 pointer-events-none"}`}>
-                  {card}
-                </span>
-              );
-            }
-          } else {
-            nodes.push(card);
-          }
-        } else {
-          if (hl && isKaraoke) {
-            const isSpoken = startWordIdx <= hl.target;
-            nodes.push(
-              <strong key={`${keyPrefix}-${j}`} className={`font-semibold text-foreground inline-block transition-colors duration-150 rounded-sm ${isSpoken ? "bg-gold/25" : ""}`}>
-                {part}
-              </strong>
-            );
-          } else {
-            nodes.push(
-              <strong key={`${keyPrefix}-${j}`} className={`font-semibold text-foreground${hl ? ` inline-block transition-all duration-300 rounded-sm ${highlighted ? "opacity-100 blur-0 translate-y-0" : "opacity-0 blur-[2px] translate-y-1"}` : ""}`}>
-                {part}
-              </strong>
-            );
-          }
-      }
-    } else {
-      const italicParts = part.split(/\*(.+?)\*/g);
-      italicParts.forEach((ip, k) => {
-        if (k % 2 === 1) {
-          if (hl) {
-            renderWordTokens(ip, nodes, hl, `${keyPrefix}-${j}-i${k}`, true);
-          } else {
-            nodes.push(<em key={`${keyPrefix}-${j}-i${k}`}>{ip}</em>);
-          }
-        } else if (ip) {
-          if (hl) {
-            renderWordTokens(ip, nodes, hl, `${keyPrefix}-${j}-${k}`, false);
-          } else {
-            nodes.push(<span key={`${keyPrefix}-${j}-${k}`}>{ip}</span>);
-          }
-        }
-      });
-    }
-  });
-
-  return nodes;
-};
 
 /** Render text split into word-level spans with highlighting */
 const renderWordTokens = (
@@ -246,139 +160,104 @@ const renderWordTokens = (
   });
 };
 
-/** Convert markdown text to React elements with paragraphs, lists, and inline formatting */
-const formatAnswer = (
+/** Parse inline markdown with optional word-level highlighting */
+const parseInline = (
   text: string,
   businesses: BusinessData[],
   onClickBusiness: (b: BusinessData) => void,
-  highlightWordIndex?: number
+  keyPrefix: string,
+  hl?: HighlightState
 ): ReactNode[] => {
-  const hl: HighlightState | undefined =
-    highlightWordIndex !== undefined && highlightWordIndex >= 0
-      ? { wordIndex: 0, target: highlightWordIndex }
-      : undefined;
+  const boldParts = text.split(/\*\*(.+?)\*\*/g);
+  const nodes: ReactNode[] = [];
+  const isKaraoke = hl?.mode === "karaoke";
 
-  // Normalize bold markers spanning newlines
-  const normalized = text.replace(/\*\*([^*]*?)\*\*/gs, (_, inner) =>
-    `**${inner.replace(/\n/g, " ")}**`
-  );
+  boldParts.forEach((part, j) => {
+    if (j % 2 === 1) {
+      const wordCount = part.split(/\s+/).filter(Boolean).length;
+      const startWordIdx = hl ? hl.wordIndex : 0;
+      if (hl) hl.wordIndex += wordCount;
+      const highlighted = hl ? startWordIdx <= hl.target : false;
 
-  const lines = normalized.split(/\n/);
-  const elements: ReactNode[] = [];
-  let currentList: { type: "ul" | "ol"; items: string[] } | null = null;
-  let currentParagraph: string[] = [];
-  let blockIdx = 0;
-
-  const flushParagraph = () => {
-    if (currentParagraph.length > 0) {
-      const text = currentParagraph.join(" ").trim();
-      if (text) {
-        elements.push(
-          <p key={`p-${blockIdx}`} className="mb-3 last:mb-0 leading-[1.8]">
-            {parseInline(text, businesses, onClickBusiness, `p-${blockIdx}`, hl)}
-          </p>
-        );
-        blockIdx++;
+      const match = findBusiness(part, businesses);
+      if (match) {
+        const card = <BusinessHoverCard key={`${keyPrefix}-${j}`} name={part} business={match} onClickBusiness={onClickBusiness} />;
+        if (hl) {
+          if (isKaraoke) {
+            const isSpoken = startWordIdx <= hl.target;
+            nodes.push(
+              <span key={`${keyPrefix}-hl-${j}`} className={`inline transition-colors duration-150 rounded-sm ${isSpoken ? "bg-gold/25" : ""}`}>
+                {card}
+              </span>
+            );
+          } else {
+            nodes.push(
+              <span key={`${keyPrefix}-hl-${j}`} className={`inline transition-all duration-300 rounded-sm ${highlighted ? "opacity-100 blur-0 translate-y-0" : "opacity-0 blur-[2px] translate-y-1 pointer-events-none"}`}>
+                {card}
+              </span>
+            );
+          }
+        } else {
+          nodes.push(card);
+        }
+      } else {
+        if (hl && isKaraoke) {
+          const isSpoken = startWordIdx <= hl.target;
+          nodes.push(
+            <strong key={`${keyPrefix}-${j}`} className={`font-semibold text-foreground inline-block transition-colors duration-150 rounded-sm ${isSpoken ? "bg-gold/25" : ""}`}>
+              {part}
+            </strong>
+          );
+        } else {
+          nodes.push(
+            <strong key={`${keyPrefix}-${j}`} className={`font-semibold text-foreground${hl ? ` inline-block transition-all duration-300 rounded-sm ${highlighted ? "opacity-100 blur-0 translate-y-0" : "opacity-0 blur-[2px] translate-y-1"}` : ""}`}>
+              {part}
+            </strong>
+          );
+        }
       }
-      currentParagraph = [];
+    } else {
+      const italicParts = part.split(/\*(.+?)\*/g);
+      italicParts.forEach((ip, k) => {
+        if (k % 2 === 1) {
+          if (hl) {
+            renderWordTokens(ip, nodes, hl, `${keyPrefix}-${j}-i${k}`, true);
+          } else {
+            nodes.push(<em key={`${keyPrefix}-${j}-i${k}`}>{ip}</em>);
+          }
+        } else if (ip) {
+          if (hl) {
+            renderWordTokens(ip, nodes, hl, `${keyPrefix}-${j}-${k}`, false);
+          } else {
+            nodes.push(<span key={`${keyPrefix}-${j}-${k}`}>{ip}</span>);
+          }
+        }
+      });
     }
-  };
+  });
 
-  const flushList = () => {
-    if (currentList) {
-      const Tag = currentList.type === "ul" ? "ul" : "ol";
-      const listClass = currentList.type === "ul"
-        ? "list-disc pl-6 mb-3 space-y-1"
-        : "list-decimal pl-6 mb-3 space-y-1";
-      elements.push(
-        <Tag key={`list-${blockIdx}`} className={listClass}>
-          {currentList.items.map((item, i) => (
-            <li key={i} className="leading-[1.8]">
-              {parseInline(item, businesses, onClickBusiness, `li-${blockIdx}-${i}`, hl)}
-            </li>
-          ))}
-        </Tag>
-      );
-      blockIdx++;
-      currentList = null;
-    }
-  };
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-
-    if (!trimmed) {
-      flushList();
-      flushParagraph();
-      continue;
-    }
-
-    const ulMatch = trimmed.match(/^[-•]\s+(.+)$/);
-    if (ulMatch) {
-      flushParagraph();
-      if (currentList && currentList.type !== "ul") flushList();
-      if (!currentList) currentList = { type: "ul", items: [] };
-      currentList.items.push(ulMatch[1]);
-      continue;
-    }
-
-    const olMatch = trimmed.match(/^\d+[.)]\s+(.+)$/);
-    if (olMatch) {
-      flushParagraph();
-      if (currentList && currentList.type !== "ol") flushList();
-      if (!currentList) currentList = { type: "ol", items: [] };
-      currentList.items.push(olMatch[1]);
-      continue;
-    }
-
-    if (currentList) flushList();
-    currentParagraph.push(trimmed);
-  }
-
-  flushList();
-  flushParagraph();
-
-  return elements;
+  return nodes;
 };
 
-const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnswerReady, highlightWordIndex, externalRegenerateKey }: AISearchAnswerProps) => {
+const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnswerReady, externalRegenerateKey }: AISearchAnswerProps) => {
   const { language } = useLanguage();
   const [answer, setAnswer] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [regenerateCount, setRegenerateCount] = useState(0);
-  const [answerKey, setAnswerKey] = useState(0);
-  const [isAnswerVisible, setIsAnswerVisible] = useState(false);
   const fetchIdRef = useRef(0);
   const lastFetchKeyRef = useRef("");
-  const answerRevealRafRef = useRef<number | null>(null);
-
-  const revealAnswer = () => {
-    if (answerRevealRafRef.current !== null) {
-      cancelAnimationFrame(answerRevealRafRef.current);
-    }
-    setIsAnswerVisible(false);
-    answerRevealRafRef.current = requestAnimationFrame(() => {
-      answerRevealRafRef.current = requestAnimationFrame(() => {
-        setIsAnswerVisible(true);
-      });
-    });
-  };
+  const regenerateCount = 0;
 
   const fetchKey = useMemo(() => {
     if (!query || !businesses.length) return "";
     const names = businesses.slice(0, 10).map(b => b.name).join("|");
     return `${query}::${names}::${regenerateCount}::${externalRegenerateKey ?? 0}`;
-  }, [query, businesses, regenerateCount, externalRegenerateKey]);
+  }, [query, businesses, externalRegenerateKey]);
 
   useEffect(() => {
     setIsDismissed(false);
     setAnswer("");
-    setError(null);
-    setIsAnswerVisible(false);
   }, [query]);
-
 
   // When search finishes with 0 results, stop any loading state
   useEffect(() => {
@@ -386,7 +265,6 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
       setIsLoading(false);
       setAnswer("");
       onAnswerReady?.("");
-      setIsAnswerVisible(false);
     }
   }, [isSearchLoading, businesses.length, isLoading]);
 
@@ -399,8 +277,6 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
     setIsLoading(true);
     setAnswer("");
     onAnswerReady?.("");
-    setError(null);
-    setIsAnswerVisible(false);
 
     const fetchAnswer = async () => {
       try {
@@ -435,20 +311,16 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
 
         if (fnError) {
           console.error("AI answer error:", fnError);
-          setError(fnError.message);
           return;
         }
 
         if (data?.answer) {
-          setAnswerKey(k => k + 1);
           setAnswer(data.answer);
           onAnswerReady?.(data.answer);
-          revealAnswer();
         }
       } catch (err) {
         if (currentFetchId !== fetchIdRef.current) return;
         console.error("AI answer fetch error:", err);
-        setError("Erreur lors de la génération de la réponse");
       } finally {
         if (currentFetchId === fetchIdRef.current) {
           setIsLoading(false);
@@ -459,17 +331,9 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
     fetchAnswer();
   }, [fetchKey, isSearchLoading, isDismissed, language]);
 
-  useEffect(() => {
-    return () => {
-      if (answerRevealRafRef.current !== null) {
-        cancelAnimationFrame(answerRevealRafRef.current);
-      }
-    };
-  }, []);
-
   return null;
 };
 
 export default AISearchAnswer;
-export { parseInline, findBusiness, BusinessHoverCard };
+export { parseInline };
 export type { BusinessData };

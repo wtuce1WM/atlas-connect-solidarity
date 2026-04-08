@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton, useOwnerLogo, OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
-import { ExternalLink, MapPin, ChevronLeft, ChevronUp, X, CalendarCheck, ShoppingBag, Star, Minimize2, Loader2, Volume2, VolumeX, Play, Pause, Phone } from "lucide-react";
+import { ExternalLink, MapPin, ChevronLeft, ChevronUp, X, CalendarCheck, ShoppingBag, Star, Minimize2, Loader2, Phone } from "lucide-react";
+import VideoControls from "@/components/VideoControls";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 import { supabase } from "@/integrations/supabase/client";
 import { haversineKm } from "@/lib/haversine";
@@ -1998,141 +1999,22 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
             })()}
             {/* Video controls — below CTAs */}
             {!cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type === "file" && (
-              <div className="flex items-center gap-6 md:gap-10 mt-2 md:mt-3 animate-slide-up-from-bottom">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (videoRef.current) {
-                      if (videoRef.current.paused) videoRef.current.play();
-                      else videoRef.current.pause();
-                    }
-                  }}
-                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                  aria-label={videoPaused ? "Play" : "Pause"}
-                >
-                  {videoPaused ? <Play className="h-5 w-5 md:h-6 md:w-6" /> : <Pause className="h-5 w-5 md:h-6 md:w-6" />}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (videoRef.current) {
-                      videoRef.current.muted = !videoRef.current.muted;
-                    }
-                  }}
-                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                  aria-label={videoMuted ? "Unmute" : "Mute"}
-                >
-                  {videoMuted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
-                </button>
-              </div>
+              <VideoControls type="file" videoRef={videoRef as React.RefObject<HTMLVideoElement>} paused={videoPaused} muted={videoMuted} className="mt-2 md:mt-3 animate-slide-up-from-bottom" />
             )}
-            {/* YouTube iframe controls — below CTAs */}
             {!cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" && (
-              <div className="flex items-center gap-6 md:gap-10 mt-2 md:mt-3 animate-slide-up-from-bottom">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (iframeRef.current?.contentWindow) {
-                      iframeRef.current.contentWindow.postMessage(
-                        JSON.stringify({ event: "command", func: ytBgPlaying ? "pauseVideo" : "playVideo" }),
-                        "*"
-                      );
-                      setYtBgPlaying(p => !p);
-                    }
-                  }}
-                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                  aria-label={ytBgPlaying ? "Pause" : "Play"}
-                >
-                  {ytBgPlaying ? <Pause className="h-5 w-5 md:h-6 md:w-6" /> : <Play className="h-5 w-5 md:h-6 md:w-6" />}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (iframeRef.current?.contentWindow) {
-                      iframeRef.current.contentWindow.postMessage(
-                        JSON.stringify({ event: "command", func: ytBgMuted ? "unMute" : "mute" }),
-                        "*"
-                      );
-                      setYtBgMuted(m => !m);
-                    }
-                  }}
-                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                  aria-label={ytBgMuted ? "Unmute" : "Mute"}
-                >
-                  {ytBgMuted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
-                </button>
-              </div>
+              <VideoControls type="youtube" iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>} playing={ytBgPlaying} muted={ytBgMuted} onPlayingChange={setYtBgPlaying} onMutedChange={setYtBgMuted} className="mt-2 md:mt-3 animate-slide-up-from-bottom" />
             )}
           </div>
 
           {/* Video controls — always visible at bottom in Afficher mode */}
           {cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type === "file" && (
             <div className="shrink-0 flex justify-center pointer-events-auto mt-2 md:mt-3 pb-[14px] md:pb-[10px]">
-              <div className="flex items-center gap-6 md:gap-10">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (videoRef.current) {
-                      if (videoRef.current.paused) videoRef.current.play();
-                      else videoRef.current.pause();
-                    }
-                  }}
-                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                  aria-label={videoPaused ? "Play" : "Pause"}
-                >
-                  {videoPaused ? <Play className="h-5 w-5 md:h-6 md:w-6" /> : <Pause className="h-5 w-5 md:h-6 md:w-6" />}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (videoRef.current) {
-                      videoRef.current.muted = !videoRef.current.muted;
-                    }
-                  }}
-                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                  aria-label={videoMuted ? "Unmute" : "Mute"}
-                >
-                  {videoMuted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
-                </button>
-              </div>
+              <VideoControls type="file" videoRef={videoRef as React.RefObject<HTMLVideoElement>} paused={videoPaused} muted={videoMuted} />
             </div>
           )}
           {cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" && (
             <div className="shrink-0 flex justify-center pointer-events-auto mt-2 md:mt-3 pb-[14px] md:pb-[10px]">
-              <div className="flex items-center gap-6 md:gap-10">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (iframeRef.current?.contentWindow) {
-                      iframeRef.current.contentWindow.postMessage(
-                        JSON.stringify({ event: "command", func: ytBgPlaying ? "pauseVideo" : "playVideo" }),
-                        "*"
-                      );
-                      setYtBgPlaying(p => !p);
-                    }
-                  }}
-                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                  aria-label={ytBgPlaying ? "Pause" : "Play"}
-                >
-                  {ytBgPlaying ? <Pause className="h-5 w-5 md:h-6 md:w-6" /> : <Play className="h-5 w-5 md:h-6 md:w-6" />}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (iframeRef.current?.contentWindow) {
-                      iframeRef.current.contentWindow.postMessage(
-                        JSON.stringify({ event: "command", func: ytBgMuted ? "unMute" : "mute" }),
-                        "*"
-                      );
-                      setYtBgMuted(m => !m);
-                    }
-                  }}
-                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                  aria-label={ytBgMuted ? "Unmute" : "Mute"}
-                >
-                  {ytBgMuted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
-                </button>
-              </div>
+              <VideoControls type="youtube" iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>} playing={ytBgPlaying} muted={ytBgMuted} onPlayingChange={setYtBgPlaying} onMutedChange={setYtBgMuted} />
             </div>
           )}
       </div>
