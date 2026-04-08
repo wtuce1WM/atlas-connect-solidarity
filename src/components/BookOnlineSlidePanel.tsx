@@ -628,7 +628,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
   // Pause/resume background media when overlays open/close
   useEffect(() => {
-    const overlayOpen = showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId || !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic || !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay || showFallbackOverlay;
+    const overlayOpen = showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId || !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic || !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay || showFallbackOverlay || searchOverlayActive;
 
     if (overlayOpen) {
       overlayWasOpenRef.current = true;
