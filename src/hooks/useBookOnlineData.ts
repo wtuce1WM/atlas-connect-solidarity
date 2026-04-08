@@ -538,7 +538,7 @@ export function useBookOnlineData(businessId: string) {
         const hasOwnHostedVideos =
           (biz?.video_1_url && biz.video_1_url.includes(STORAGE_HOST)) ||
           ((videoDocsRes.data || []) as any[]).some((d: any) => d.url?.includes(STORAGE_HOST));
-        if (hasOwnVideos) return;
+        if (hasOwnHostedVideos) return;
 
         const { data: poiVids } = await supabase
           .from("business_documents")
