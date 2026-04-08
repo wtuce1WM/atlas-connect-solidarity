@@ -2880,6 +2880,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <SelectItem value="consulter_offre">Consulter notre offre</SelectItem>
                   <SelectItem value="plus_informations">Plus d'informations</SelectItem>
                   <SelectItem value="contactez_nous">Contactez nous</SelectItem>
+                  <SelectItem value="la_carte">La carte</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -2926,6 +2927,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <SelectItem value="consulter_offre">Consulter notre offre</SelectItem>
                   <SelectItem value="plus_informations">Plus d'informations</SelectItem>
                   <SelectItem value="contactez_nous">Contactez nous</SelectItem>
+                  <SelectItem value="les_boissons">Les boissons</SelectItem>
                 </SelectContent>
               </Select>
             </div>

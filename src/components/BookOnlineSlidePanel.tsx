@@ -971,6 +971,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
     consulter_offre: { fr: 'Consulter notre offre', en: 'View Our Offer' },
     plus_informations: { fr: "Plus d'informations", en: 'More Information' },
     contactez_nous: { fr: 'Contactez nous', en: 'Contact Us' },
+    la_carte: { fr: 'La carte', en: 'The Menu' },
+    les_boissons: { fr: 'Les boissons', en: 'Drinks' },
   };
 
   const bookingCtaLabel = useMemo(() => {
