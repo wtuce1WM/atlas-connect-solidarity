@@ -4079,8 +4079,6 @@ const SearchPage = () => {
               <BookOnlineSlidePanel
                 businessId={compactPanelBusiness.id}
                 onClose={closeCompactPanel}
-                isExpanded={isCompactPanelExpanded}
-                onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
                 externalOverlayActive={showAiPopup}
                 forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
                 interceptCloseRef={compactPanelInterceptCloseRef}
