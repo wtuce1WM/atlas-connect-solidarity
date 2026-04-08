@@ -58,6 +58,7 @@ const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp, phone, onLoad }:
         sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
         allow="payment"
         title="Réservation"
+        onLoad={onLoad}
       />
     </div>
   );

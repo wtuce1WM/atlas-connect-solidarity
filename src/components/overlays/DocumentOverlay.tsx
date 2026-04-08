@@ -53,6 +53,7 @@ const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverl
               src={`https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`}
               className="relative z-10 h-full w-full border-0 bg-transparent"
               title={name}
+              onLoad={onLoad}
             />
           </>
         )}
