@@ -1393,17 +1393,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   categoryIcon={categoryIcon}
                 />
               )}
-              {/* Card 4: Menu URL */}
-              {menuDocs.length > 0 && (
-                <MenuUrlCard
-                  menus={menuDocs}
-                  language={language}
-                  tallHeight={false}
-                  categoryIcon={categoryIcon}
-                  animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0)) * 120}ms`}
-                  onOpenUrl={(url, title) => openDocOrBooking(url, title)}
-                />
-              )}
               {/* Card 5: Reviews */}
               {hasReviewsCard && (
                 <ReviewsFlipCard
@@ -1412,14 +1401,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   platforms={reviewPlatforms}
                   reviewTexts={reviewTexts}
                   language={language}
-                  animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(menuDocs.length > 0)) * 120}ms`}
+                  animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0)) * 120}ms`}
                 />
               )}
               {/* Card 6: External Links */}
               {externalLinks.length > 0 && (
                 <ExternalLinksFlipCard
                   links={externalLinks}
-                  animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(menuDocs.length > 0) + Number(hasReviewsCard)) * 120}ms`}
+                  animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard)) * 120}ms`}
                   onOpenUrl={(url, linkTitle) => openDocOrBooking(url, linkTitle)}
                 />
               )}
@@ -1436,7 +1425,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   vimeo={business.vimeo_url}
                   whatsapp={business.whatsapp}
                   snapchat={business.snapchat_url}
-                  animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(menuDocs.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0)) * 120}ms`}
+                  menuItems={menuDocs}
+                  language={language}
+                  onOpenUrl={(url, title) => openDocOrBooking(url, title)}
+                  animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0)) * 120}ms`}
                 />
               )}
               <div className="shrink-0 w-4" aria-hidden="true" />
