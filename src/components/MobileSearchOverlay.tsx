@@ -58,8 +58,7 @@ const MobileSearchOverlay = ({
   geoState,
 }: MobileSearchOverlayProps) => {
   const [query, setQuery] = useState("");
-  const [showLocationPanel, setShowLocationPanel] = useState(false);
-  const [manualCityInput, setManualCityInput] = useState("");
+  const [showLocationOverlay, setShowLocationOverlay] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
