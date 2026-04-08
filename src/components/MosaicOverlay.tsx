@@ -31,7 +31,7 @@ const MosaicOverlay = ({
     : "grid grid-cols-2 gap-2 p-2 -mt-2";
 
   return (
-    <div className="absolute inset-0 -top-[3.3rem] z-[76] overflow-hidden">
+    <div className="absolute inset-0 z-[76] overflow-hidden">
       <div className="absolute inset-0 bg-black overflow-y-auto animate-slide-in-left">
         <div className={headerClass}>
           <button
