@@ -57,14 +57,14 @@ const SocialLinksCard = ({
       style={{ animationDelay, animationFillMode: "forwards" }}
     >
       <div className="flex items-center justify-center p-2">
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 items-center">
           {menuItems.map((m) => (
             <button
               key={m.id}
               onClick={() => onOpenUrl?.(m.url, m.name || (language === "en" ? "Menu" : "La Carte"))}
-              className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/10 hover:bg-white/20 transition-colors"
+              className="w-full min-w-[5rem] rounded-xl flex items-center justify-center bg-white/10 hover:bg-white/20 transition-colors px-3 py-2"
             >
-              <span className="text-[9px] text-white/90 text-center leading-tight line-clamp-2 px-0.5" style={{ fontFamily: "'Roboto', sans-serif" }}>
+              <span className="text-[10px] text-white/90 text-center whitespace-nowrap" style={{ fontFamily: "'Roboto', sans-serif" }}>
                 {m.name || (language === "en" ? "Menu" : "Carte")}
               </span>
             </button>
