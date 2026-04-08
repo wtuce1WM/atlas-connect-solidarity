@@ -190,21 +190,21 @@ const VideoDocumentOverlay = ({
         return (
           <div className="absolute bottom-24 left-0 right-0 z-20 flex flex-col items-center gap-4 pointer-events-none">
             {currentVideoDoc.owner_logo && (
-              <div className="animate-logo-big-full-reveal" style={{ width: '120px' }}>
+              <div className="animate-logo-big-full-reveal w-[100px] md:w-[180px]">
                 <img
                   src={currentVideoDoc.owner_logo}
                   alt={currentVideoDoc.owner_name || ''}
                   className="w-full h-auto object-contain"
-                  style={{ filter: 'drop-shadow(0 0 20px hsla(0,0%,0%,0.6))' }}
+                  style={{ filter: 'drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))' }}
                 />
               </div>
             )}
             {currentVideoDoc.owner_name && (
               <button
                 onClick={() => onOwnerClick?.(currentVideoDoc.owner_business_id!)}
-                className="pointer-events-auto flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 hover:bg-black/85 transition-colors"
+                className="pointer-events-auto flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 hover:bg-black/85 transition-colors animate-cta-zoom-in"
               >
-                <span className="text-xs font-medium text-white truncate max-w-[180px]" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                <span className="text-xs font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                   {currentVideoDoc.owner_name} <span className="text-base">©</span>
                 </span>
                 <ChevronRight className="h-3.5 w-3.5 text-white/60 shrink-0" />
