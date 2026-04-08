@@ -190,11 +190,11 @@ const VideoDocumentOverlay = ({
         return (
           <div className="absolute bottom-40 left-0 right-0 z-20 flex flex-col items-center gap-4 pointer-events-none">
             {currentVideoDoc.owner_logo && (
-              <div className="animate-logo-big-full-reveal w-[100px] md:w-[180px]">
+              <div className="animate-logo-big-full-reveal max-w-[100px] max-h-[80px] md:max-w-[180px] md:max-h-[120px]">
                 <img
                   src={currentVideoDoc.owner_logo}
                   alt={currentVideoDoc.owner_name || ''}
-                  className="w-full h-auto object-contain"
+                  className="max-w-full max-h-[80px] md:max-h-[120px] object-contain"
                   style={{ filter: 'drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))' }}
                 />
               </div>
