@@ -174,7 +174,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     if (!business?.slug) return;
     const hasSubOverlay = selectedDestinationId || selectedPoiBusinessId || selectedKpBusinessId;
     if (!hasSubOverlay) {
-      window.history.replaceState(null, "", `/business/${business.slug}`);
+      const currentPath = window.location.pathname;
+      const prefix = currentPath.startsWith("/fiche/") ? "/fiche/" : "/business/";
+      window.history.replaceState(null, "", `${prefix}${business.slug}`);
     }
   }, [business?.slug, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId]);
 
