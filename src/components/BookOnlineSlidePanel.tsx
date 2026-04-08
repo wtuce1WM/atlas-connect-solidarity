@@ -2060,9 +2060,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           <BookingOverlay
             bookingUrl={finalUrl}
             title={bookingOverlayUrl ? bookingOverlayTitle : undefined}
-            onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); }}
+            onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setBookingOverlayLoaded(false); }}
             whatsapp={business?.whatsapp}
             phone={business?.phone}
+            onLoad={() => setBookingOverlayLoaded(true)}
           />
         );
       })()}
