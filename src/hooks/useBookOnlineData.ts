@@ -141,6 +141,7 @@ export interface VideoDoc {
   owner_name: string | null;
   owner_logo: string | null;
   owner_instagram: string | null;
+  is_poi_linked?: boolean;
 }
 
 // In-memory cache to avoid re-fetching data for previously viewed businesses
@@ -531,6 +532,48 @@ export function useBookOnlineData(businessId: string) {
         }
       };
 
+      const fetchPoiLinkedVideos = async () => {
+        const { data: poiVids } = await supabase
+          .from("business_documents")
+          .select("url, name, city, price, price_type, description, thumbnail_url, business_id")
+          .eq("poi_id", businessId)
+          .eq("type", "video")
+          .order("sort_order");
+        if (!isCancelled && poiVids && poiVids.length > 0) {
+          const ownerIds = [...new Set((poiVids as any[]).map(v => v.business_id).filter(Boolean))];
+          const ownerMap = new Map<string, { name: string; logo_url: string | null; instagram_url: string | null }>();
+          if (ownerIds.length > 0) {
+            const { data: owners } = await supabase
+              .from("businesses")
+              .select("id, name, logo_url, instagram_url")
+              .in("id", ownerIds);
+            if (owners) {
+              for (const o of owners) ownerMap.set(o.id, { name: o.name, logo_url: o.logo_url, instagram_url: (o as any).instagram_url });
+            }
+          }
+          const linked = (poiVids as any[])
+            .filter((d) => d.url)
+            .map(d => {
+              const owner = ownerMap.get(d.business_id);
+              return {
+                url: d.url, name: d.name, city: d.city, price: d.price,
+                price_type: d.price_type, description: d.description,
+                thumbnail_url: d.thumbnail_url,
+                owner_business_id: d.business_id,
+                owner_name: owner?.name || null,
+                owner_logo: owner?.logo_url || null,
+                owner_instagram: owner?.instagram_url || null,
+                is_poi_linked: true,
+              } as VideoDoc;
+            });
+          setVideoDocs((prev) => {
+            const existingUrls = new Set(prev.map((v) => v.url));
+            const newVids = linked.filter((v) => !existingUrls.has(v.url));
+            return newVids.length > 0 ? [...newVids, ...prev] : prev;
+          });
+        }
+      };
+
       const fetchLiteApiMapping = async () => {
         const { data: mapping } = await supabase
           .from("hotel_api_mappings")
@@ -557,6 +600,7 @@ export function useBookOnlineData(businessId: string) {
         fetchPoiBusinesses(),
         fetchKpRelated(),
         fetchLinkedVideos(),
+        fetchPoiLinkedVideos(),
         fetchLiteApiMapping(),
         fetchSerpApiMapping(),
       ]);
