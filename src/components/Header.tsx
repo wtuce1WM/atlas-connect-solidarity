@@ -48,7 +48,7 @@ interface HeaderProps {
   compact?: boolean;
 }
 
-const Header = ({ variant = "default" }: HeaderProps) => {
+const Header = ({ variant = "default", compact = false }: HeaderProps) => {
   const { t, language } = useLanguage();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
