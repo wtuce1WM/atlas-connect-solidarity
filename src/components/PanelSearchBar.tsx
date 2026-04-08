@@ -54,7 +54,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
       <div className="absolute bottom-0 left-0 right-0 z-[75] py-3 px-4">
         <button
           type="button"
-          onClick={() => setSearchOverlayOpen(true)}
+          onClick={() => setOverlay(true)}
           className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-transparent border border-white/40 rounded-xl backdrop-blur-sm"
         >
           <Search className="h-4 w-4 text-white shrink-0" />
