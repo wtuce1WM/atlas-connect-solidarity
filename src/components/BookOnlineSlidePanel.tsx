@@ -993,6 +993,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       setDocOverlayLoaded(false);
       setDocOverlay({ url, name: title || 'Document', type: isPdf ? 'pdf' : 'flipbook', ts: Date.now() });
     } else {
+      setBookingOverlayLoaded(false);
       setBookingOverlayUrl(url);
       setShowBookingOverlay(true);
       setBookingOverlayTitle(title);
