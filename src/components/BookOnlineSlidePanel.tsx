@@ -1023,7 +1023,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
   return (
     <div className="h-full overflow-visible overscroll-none bg-black relative">
       {/* Portal media button into left of fixed bar */}
-      {toolbarLeftPortal && createPortal(
+      {toolbarLeftPortal && !selectedKpBusinessId && createPortal(
         <div className="flex items-center gap-2">
           {serpApiOverlayCtxRef.current && activeBusinessId !== propBusinessId && (
             <button
@@ -1071,7 +1071,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         toolbarLeftPortal
       )}
       {/* Portal WhatsApp/Phone icon into center */}
-      {toolbarCenterPortal && (() => {
+      {toolbarCenterPortal && !selectedKpBusinessId && (() => {
         const anyOverlay = showDirections || showBookingOverlay || !!docOverlay || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId || showPoiMapOverlay || !!activeVideoOverlay || isLightboxOpen || showMosaic || showYoutubeOverlay || !!availabilityOverlayCtx || !!serpApiOverlayCtx || showFallbackOverlay || !!externalOverlayActive;
         return createPortal(
           <div className="flex items-center gap-6">
@@ -1107,7 +1107,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         );
       })()}
       {/* Portal Share into right */}
-      {toolbarPortal && createPortal(
+      {toolbarPortal && !selectedKpBusinessId && createPortal(
         <ShareButton title={business.name} variant="dark" className="shrink-0" />,
         toolbarPortal
       )}
@@ -2097,7 +2097,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
       {/* KP business detail overlay */}
       {selectedKpBusinessId && (
-        <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[70] animate-slide-up-from-bottom bg-background">
+         <div className="absolute top-0 left-0 right-0 bottom-0 z-[70] animate-slide-up-from-bottom bg-background">
           <BookOnlineSlidePanel
             businessId={selectedKpBusinessId}
             onClose={() => setSelectedKpBusinessId(null)}
