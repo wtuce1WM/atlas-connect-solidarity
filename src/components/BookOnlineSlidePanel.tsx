@@ -2026,6 +2026,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             {/* Video controls — below CTAs */}
             {/* Owner logo + badge — above video controls */}
             <OwnerLogoOverlay
+              key={`logo-${currentMediaIndex}`}
               logoBigOverlay={logoBigOverlay}
               logoBigFadingOut={logoBigFadingOut}
               cardsHidden={cardsHidden}
@@ -2034,6 +2035,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               currentBusinessId={businessId}
             />
             <OwnerBadge
+              key={`badge-${currentMediaIndex}`}
               cardsHidden={cardsHidden}
               currentMediaKind={effectiveMedia?.kind}
               currentMediaUrl={effectiveMedia?.url}
