@@ -2309,6 +2309,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           businessCity={business?.city}
           businessCategory={business?.main_category}
           businessName={business?.name}
+          onOverlayChange={setSearchOverlayActive}
         />
       )}
 
