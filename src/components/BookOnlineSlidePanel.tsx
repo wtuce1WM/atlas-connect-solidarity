@@ -2075,7 +2075,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
           name={docOverlay.name}
           type={docOverlay.type}
           ts={docOverlay.ts}
-          onClose={() => setDocOverlay(null)}
+          onClose={() => { setDocOverlay(null); setDocOverlayLoaded(false); }}
+          onLoad={() => setDocOverlayLoaded(true)}
         />
       )}
 
