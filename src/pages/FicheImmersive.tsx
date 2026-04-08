@@ -44,7 +44,6 @@ const FicheImmersive = () => {
       <BookOnlineSlidePanel
         businessId={businessId}
         onClose={() => navigate("/")}
-        isExpanded
       />
     </div>
   );

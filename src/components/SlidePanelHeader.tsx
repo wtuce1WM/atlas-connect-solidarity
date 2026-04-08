@@ -1,10 +1,7 @@
-import { X, Maximize2, Minimize2 } from "lucide-react";
+import { X } from "lucide-react";
 
 interface SlidePanelHeaderProps {
   onClose: () => void;
-  /** If provided, shows Maximize2/Minimize2 toggle button */
-  isExpanded?: boolean;
-  onToggleExpand?: () => void;
   /** Optional center content (e.g. title text) */
   centerContent?: React.ReactNode;
   /** Close button style variant */
@@ -19,8 +16,6 @@ interface SlidePanelHeaderProps {
 
 const SlidePanelHeader = ({
   onClose,
-  isExpanded,
-  onToggleExpand,
   centerContent,
   closeVariant = "dark",
   toolbarLeftId = "slide-panel-toolbar-left",
@@ -50,17 +45,6 @@ const SlidePanelHeader = ({
           <X className="h-4 w-4" />
         </button>
         <div id={toolbarLeftId} className="flex items-center gap-3" />
-        <button
-          id="slide-panel-expand-btn"
-          type="button"
-          onClick={onToggleExpand}
-          className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background shadow-md hover:bg-foreground/90 transition-colors"
-          title={isExpanded ? "Réduire" : "Agrandir"}
-          aria-label={isExpanded ? "Réduire le panneau" : "Agrandir le panneau"}
-          style={{ display: onToggleExpand ? undefined : "none" }}
-        >
-          {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-        </button>
       </div>
       {centerContent ? (
         <>

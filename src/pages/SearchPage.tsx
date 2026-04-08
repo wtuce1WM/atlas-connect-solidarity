@@ -2626,7 +2626,6 @@ const SearchPage = () => {
             <div className={`h-full flex flex-col bg-background animate-in slide-in-from-right duration-300 transition-[width] ease-out relative ${isOverlayPanelExpanded ? "w-full" : "w-1/2"}`}>
               <SlidePanelHeader
                 onClose={() => { setOverlaySelectedBusiness(null); setIsOverlayPanelExpanded(false); }}
-                isExpanded={isOverlayPanelExpanded}
                 toolbarCenterId="overlay-slide-panel-toolbar-center"
                 toolbarRightId="overlay-slide-panel-toolbar"
               />
@@ -2634,8 +2633,6 @@ const SearchPage = () => {
                 <BookOnlineSlidePanel
                   businessId={overlaySelectedBusiness.id}
                   onClose={() => { setOverlaySelectedBusiness(null); setIsOverlayPanelExpanded(false); }}
-                  isExpanded={isOverlayPanelExpanded}
-                  onToggleExpand={() => setIsOverlayPanelExpanded(prev => !prev)}
                   forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
                 />
               </div>
@@ -3025,8 +3022,6 @@ const SearchPage = () => {
                 <BookOnlineSlidePanel
                   businessId={poiSelectedBusinessId}
                   onClose={() => { setPoiSelectedBusinessId(null); setPoiPanelExpanded(false); }}
-                  isExpanded={poiPanelExpanded}
-                  onToggleExpand={() => setPoiPanelExpanded(v => !v)}
                   forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
                 />
               </div>
@@ -3202,8 +3197,6 @@ const SearchPage = () => {
                   <BookOnlineSlidePanel
                     businessId={destSelectedBusinessId}
                     onClose={() => { setDestSelectedBusinessId(null); setDestPanelExpanded(false); }}
-                    isExpanded={destPanelExpanded}
-                    onToggleExpand={() => setDestPanelExpanded(prev => !prev)}
                     forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
                   />
                 </div>
@@ -4080,16 +4073,12 @@ const SearchPage = () => {
           >
             <SlidePanelHeader
               onClose={handleCompactPanelClose}
-              isExpanded={isCompactPanelExpanded}
-              onToggleExpand={undefined}
               mobileTransparent
             />
             <div className="flex-1 min-h-0">
               <BookOnlineSlidePanel
                 businessId={compactPanelBusiness.id}
                 onClose={closeCompactPanel}
-                isExpanded={isCompactPanelExpanded}
-                onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
                 externalOverlayActive={showAiPopup}
                 forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
                 interceptCloseRef={compactPanelInterceptCloseRef}

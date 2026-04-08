@@ -53,8 +53,6 @@ import PanelSearchBar from "@/components/PanelSearchBar";
 interface BookOnlineSlidePanelProps {
   businessId: string;
   onClose: () => void;
-  isExpanded?: boolean;
-  onToggleExpand?: () => void;
   externalOverlayActive?: boolean;
   /** When true, mute all background media (e.g. during voice search) */
   forceMuted?: boolean;
@@ -70,7 +68,7 @@ interface BookOnlineSlidePanelProps {
 
 type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string } | { kind: "matterport"; url: string };
 
-const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded, onToggleExpand, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect }: BookOnlineSlidePanelProps) => {
+const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect }: BookOnlineSlidePanelProps) => {
   const [activeBusinessId, setActiveBusinessIdRaw] = useState(propBusinessId);
   const [previousBusinessId, setPreviousBusinessId] = useState<string | null>(null);
   const previousCardsHiddenRef = useRef(false);
@@ -219,14 +217,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       interceptCloseRef.current = null;
     }
   }, [previousBusinessId, cameFromFallback, fallbackPanelData, interceptCloseRef, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId]);
-  // Hide parent expand button when sub-overlay (POI/KP) is active
-  useEffect(() => {
-    const btn = document.getElementById("slide-panel-expand-btn");
-    if (!btn) return;
-    const hasSubOverlay = !!selectedPoiBusinessId || !!selectedKpBusinessId;
-    btn.style.display = hasSubOverlay ? "none" : "";
-    return () => { btn.style.display = ""; };
-  }, [selectedPoiBusinessId, selectedKpBusinessId]);
+
+
 
   const hideCardsRef = useRef<() => void>(() => {});
 
