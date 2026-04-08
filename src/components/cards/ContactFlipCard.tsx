@@ -29,6 +29,7 @@ interface ContactFlipCardProps {
   isSearchingAvailability?: boolean;
   onCheckAvailability?: (checkIn: string, checkOut: string, adults: number) => void;
   onOpenWebsite?: (url: string) => void;
+  openBadgeInfo?: { text: string | null; isOpen: boolean };
 }
 
 const ContactFlipCard = ({
@@ -42,6 +43,7 @@ const ContactFlipCard = ({
   isSearchingAvailability = false,
   onCheckAvailability,
   onOpenWebsite,
+  openBadgeInfo,
 }: ContactFlipCardProps) => {
   const [activeView, setActiveView] = useState<"contact" | "dates">("contact");
   const flipped = activeView === "dates";
@@ -118,6 +120,14 @@ const ContactFlipCard = ({
               );
             })()}
             {hasOpeningHours && !business.is_open_24h && <OpeningHoursBlock business={business} language={language} />}
+            {openBadgeInfo?.text && (
+              <div className="flex justify-center mt-2">
+                <div className={`flex items-center gap-1 rounded-full py-1 px-3 text-[10px] font-bold uppercase tracking-wider ${openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"}`}>
+                  <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
+                  {openBadgeInfo.text}
+                </div>
+              </div>
+            )}
 
             {/* Hotel availability date picker */}
             {hasHotelMapping && (
