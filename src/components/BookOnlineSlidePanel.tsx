@@ -1281,12 +1281,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       <span className="text-[9px] text-white/60">/20</span>
                     </div>
                   )}
-                  {openBadgeInfo.text && (
-                    <div className={`flex items-center gap-0.5 rounded-full py-0.5 px-1.5 text-[9px] font-bold uppercase tracking-wider ${openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"}`}>
-                      <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
-                      {openBadgeInfo.text}
-                    </div>
-                  )}
                 </div>
                 {/* Desktop: badge inline */}
                 {openBadgeInfo.text && (
