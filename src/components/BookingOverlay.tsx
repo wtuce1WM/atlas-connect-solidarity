@@ -9,6 +9,7 @@ interface BookingOverlayProps {
   onClose: () => void;
   whatsapp?: string | null;
   phone?: string | null;
+  onLoad?: () => void;
 }
 
 const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp, phone }: BookingOverlayProps) => {
