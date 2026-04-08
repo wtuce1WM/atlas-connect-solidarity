@@ -1038,7 +1038,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   return (
     <div className="h-full overflow-visible overscroll-none bg-black relative">
       {/* Portal media button into left of fixed bar */}
-      {toolbarLeftPortal && !selectedKpBusinessId && !selectedPoiBusinessId && createPortal(
+      {toolbarLeftPortal && !selectedKpBusinessId && !selectedPoiBusinessId && !showMosaic && createPortal(
         <div className="flex items-center gap-2">
           {serpApiOverlayCtxRef.current && activeBusinessId !== propBusinessId && (
             <button
