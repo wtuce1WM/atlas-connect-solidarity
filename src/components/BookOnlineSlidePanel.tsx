@@ -1228,7 +1228,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               >
                 <ChevronUp className="h-3.5 w-3.5" />
                 <span className="text-xs font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>Afficher</span>
-                <span className="hidden md:block h-1.5 w-8 rounded-full bg-white/60" />
+                <span className="hidden md:block h-1.5 w-8 rounded-full bg-black/60" />
               </button>
             </MediaCounterBar>
           ) : (
