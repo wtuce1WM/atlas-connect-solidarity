@@ -1408,7 +1408,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               {externalLinks.length > 0 && (
                 <ExternalLinksFlipCard
                   links={externalLinks}
-                  animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(menuDocs.length > 0) + Number(hasReviewsCard)) * 120}ms`}
+                  animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard)) * 120}ms`}
                   onOpenUrl={(url, linkTitle) => openDocOrBooking(url, linkTitle)}
                 />
               )}
