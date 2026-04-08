@@ -22,7 +22,7 @@ interface PanelSearchBarProps {
   darkBackground?: boolean;
 }
 
-const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCategory, businessName, onOverlayChange }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCategory, businessName, onOverlayChange, darkBackground }: PanelSearchBarProps) => {
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
   // Notify parent when search overlay opens/closes
