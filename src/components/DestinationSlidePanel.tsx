@@ -494,39 +494,25 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
       {/* Mosaic overlay */}
       {showMosaic && (
-        <div className="absolute inset-0 z-[76] bg-black overflow-y-auto animate-slide-in-left">
-          <div className="grid grid-cols-2 gap-2 p-2">
-            {[
-              ...allImages.map((url, i) => ({ kind: "image" as const, url, idx: i })),
-              ...videos.map((url, i) => ({ kind: "video" as const, url, idx: allImages.length + i })),
-              ...(matterportUrl ? [{ kind: "matterport" as const, url: matterportUrl, idx: allImages.length + videos.length }] : []),
-            ].map((item) => {
-              if (item.kind === "video") {
-                const info = getVideoInfo(item.url);
-                return (
-                  <div key={`v-${item.idx}`} className="relative aspect-square cursor-pointer overflow-hidden bg-black/40" onClick={() => setLightboxIndex(allImages.length + videos.indexOf(item.url))}>
-                    {info.thumbnail ? <img src={info.thumbnail} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-white/10 flex items-center justify-center"><span className="text-white text-2xl">▶</span></div>}
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/20"><div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center"><span className="text-white text-lg">▶</span></div></div>
-                  </div>
-                );
-              }
-              if (item.kind === "matterport") {
-                return (
-                  <div key="matterport" className="relative aspect-square cursor-pointer overflow-hidden bg-black/40" onClick={() => setLightboxIndex(allImages.length + videos.length)}>
-                    <div className="w-full h-full bg-white/10 flex flex-col items-center justify-center gap-2">
-                      <span className="text-white text-3xl">🏠</span>
-                      <span className="text-white/80 text-xs font-medium">Visite 3D</span>
-                    </div>
-                  </div>
-                );
-              }
-              return (
-                <div key={`i-${item.idx}`} className="relative aspect-square cursor-pointer overflow-hidden" onClick={() => setLightboxIndex(item.idx)}>
-                  <img src={item.url} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
-                </div>
-              );
-            })}
+        <div className="absolute inset-0 -top-[3.3rem] z-[76] overflow-hidden">
+        <div className="absolute inset-0 bg-black overflow-y-auto animate-slide-in-left">
+          <div className="sticky top-0 z-10 p-2 pt-2">
+            <button
+              onClick={() => setShowMosaic(false)}
+              className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-black hover:bg-white/80 transition-colors shadow-lg"
+              aria-label="Fermer la mosaïque"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
+          <div className="grid grid-cols-2 gap-2 p-2 -mt-2">
+            {allImages.map((url, i) => (
+              <div key={`i-${i}`} className="relative aspect-square cursor-pointer overflow-hidden rounded-lg" onClick={() => setLightboxIndex(i)}>
+                <img src={url} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+              </div>
+            ))}
+          </div>
+        </div>
         </div>
       )}
 
