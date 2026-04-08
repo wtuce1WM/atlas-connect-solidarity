@@ -1088,15 +1088,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       {toolbarCenterPortal && !selectedKpBusinessId && (() => {
         const anyOverlay = showDirections || showBookingOverlay || !!docOverlay || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId || showPoiMapOverlay || !!activeVideoOverlay || isLightboxOpen || showMosaic || showYoutubeOverlay || !!availabilityOverlayCtx || !!serpApiOverlayCtx || showFallbackOverlay || !!externalOverlayActive;
         return createPortal(
-          <div className="flex items-center gap-4">
-            {/* Mobile rating badge in toolbar */}
-            {avgOn20 !== null && avgOn20 > 0 && (
-              <div className="md:hidden flex items-center gap-0.5 bg-black/40 backdrop-blur-sm rounded-full py-0.5 px-1.5">
-                <Star className="h-3 w-3 text-gold fill-gold" />
-                <span className="text-xs font-bold text-white">{avgOn20}</span>
-                <span className="text-[9px] text-white/60">/20</span>
-              </div>
-            )}
+          <div className="flex items-center gap-6">
             {business.whatsapp ? (
               <a href={whatsappUrl(business.whatsapp)} target="_blank" rel="noopener noreferrer" className="relative flex items-center justify-center hover:opacity-90 transition-opacity">
                 {!anyOverlay && (
@@ -1268,6 +1260,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                       </span>
                     );
                   })}
+                </div>
+              ) : undefined}
+              rightSlot={avgOn20 !== null && avgOn20 > 0 ? (
+                <div className="md:hidden flex items-center gap-0.5 bg-black/40 backdrop-blur-sm rounded-full py-0.5 px-1.5">
+                  <Star className="h-3 w-3 text-gold fill-gold" />
+                  <span className="text-xs font-bold text-white">{avgOn20}</span>
+                  <span className="text-[9px] text-white/60">/20</span>
                 </div>
               ) : undefined}
             />
