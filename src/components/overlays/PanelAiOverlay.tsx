@@ -22,10 +22,18 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName }: PanelAi
   useEffect(() => {
     if (!open) { setAnswer(""); return; }
 
+    // Try to reuse previously generated AI text from search results
+    try {
+      const cached = sessionStorage.getItem("ai_suggestion_text");
+      if (cached) {
+        setAnswer(cached);
+        return;
+      }
+    } catch {}
+
     const generate = async () => {
       setLoading(true);
       try {
-        // Fetch nearby businesses for context
         let query = supabase
           .from("businesses")
           .select("id, name, city, main_category, categories, hook_fr, rating, images, logo_url, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count")
