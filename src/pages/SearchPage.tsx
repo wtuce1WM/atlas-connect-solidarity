@@ -478,6 +478,8 @@ const SearchPage = () => {
   const [stickyAiVisibleWordIndex, setStickyAiVisibleWordIndex] = useState(-1);
   const handleAiAnswerReady = useCallback((answer: string) => {
     setAiAnswerText(answer);
+    // Persist for reuse in slide-panel AI overlay
+    try { sessionStorage.setItem("ai_suggestion_text", answer); } catch {}
     setStickyAiAnimationNonce((prev) => prev + 1);
     // Pre-generate TTS audio in background so it's instant when user clicks speaker
     if (answer) {
