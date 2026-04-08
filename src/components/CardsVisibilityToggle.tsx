@@ -213,11 +213,11 @@ export const OwnerLogoOverlay = ({ logoBigOverlay, logoBigFadingOut, cardsHidden
   if (!currentVideoDoc?.owner_business_id || currentVideoDoc.owner_business_id === currentBusinessId) return null;
   return (
     <div className="shrink-0 flex justify-center pointer-events-none pb-4">
-      <div className="animate-logo-big-full-reveal w-[100px] md:w-[180px]">
+      <div className="animate-logo-big-full-reveal max-w-[100px] max-h-[80px] md:max-w-[180px] md:max-h-[120px]">
         <img
           src={logoBigOverlay.src}
           alt={logoBigOverlay.name}
-          className="w-full h-auto object-contain"
+          className="max-w-full max-h-[80px] md:max-h-[120px] object-contain"
           style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
         />
       </div>
