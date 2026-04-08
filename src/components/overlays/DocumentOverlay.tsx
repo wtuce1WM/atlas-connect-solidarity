@@ -7,6 +7,7 @@ interface DocumentOverlayProps {
   type: "pdf" | "flipbook";
   ts: number;
   onClose: () => void;
+  onLoad?: () => void;
 }
 
 const DocumentOverlay = ({ url, name, type, ts, onClose }: DocumentOverlayProps) => {
