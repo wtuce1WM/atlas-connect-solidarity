@@ -32,6 +32,7 @@ const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverl
             className="h-full w-full border-0"
             allow="clipboard-write; fullscreen"
             title={name}
+            onLoad={onLoad}
           />
         ) : (
           <>
