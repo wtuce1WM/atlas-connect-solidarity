@@ -16,6 +16,8 @@ interface PanelSearchBarProps {
   businessCity?: string | null;
   businessCategory?: string | null;
   businessName?: string | null;
+  /** Called when the search overlay opens or closes */
+  onOverlayChange?: (open: boolean) => void;
 }
 
 const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCategory, businessName }: PanelSearchBarProps) => {
