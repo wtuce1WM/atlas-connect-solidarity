@@ -12,7 +12,7 @@ interface BookingOverlayProps {
   onLoad?: () => void;
 }
 
-const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp, phone }: BookingOverlayProps) => {
+const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp, phone, onLoad }: BookingOverlayProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   return (
