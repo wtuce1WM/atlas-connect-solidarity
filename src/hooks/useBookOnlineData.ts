@@ -141,6 +141,7 @@ export interface VideoDoc {
   owner_name: string | null;
   owner_logo: string | null;
   owner_instagram: string | null;
+  is_poi_linked?: boolean;
 }
 
 // In-memory cache to avoid re-fetching data for previously viewed businesses
