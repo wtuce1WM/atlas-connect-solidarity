@@ -15,6 +15,9 @@ interface GeoDisplayState {
   detectedCity?: string | null;
   detectedNeighborhood?: string | null;
   confirmedAddress?: string | null;
+  accept?: () => void;
+  toggle?: () => void;
+  setManualCity?: (cityName: string) => void;
 }
 
 interface MobileSearchOverlayProps {
