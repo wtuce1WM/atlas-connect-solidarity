@@ -19,20 +19,10 @@ export const MediaCounterBar = ({ currentIndex, totalMedia, cardsHidden, onPrev,
   if (totalMedia <= 1 && !children) return null;
   return (
     <div className="flex items-center justify-center gap-3 pb-2">
-      {cardsHidden && totalMedia > 1 && (
-        <button onClick={onPrev} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-      )}
       {children || (
         <span className="text-white/80 text-xs font-medium bg-black/30 rounded-full px-3 py-1">
           {currentIndex + 1} / {totalMedia}
         </span>
-      )}
-      {cardsHidden && totalMedia > 1 && (
-        <button onClick={onNext} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
-          <ChevronRight className="h-4 w-4" />
-        </button>
       )}
     </div>
   );
