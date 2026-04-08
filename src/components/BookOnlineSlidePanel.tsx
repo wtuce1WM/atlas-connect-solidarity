@@ -926,6 +926,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
   const [isFileVideoVertical, setIsFileVideoVertical] = useState(false);
   const isVerticalVideo = videoInfo ? (videoInfo.type === "file" ? isFileVideoVertical : videoInfo.isVertical) : false;
+  const externalVideoInteractiveMode = cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type !== "file";
 
   // Listen for YouTube iframe API "ended" state
   useEffect(() => {
@@ -1121,7 +1122,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       )}
 
       {/* Full-bleed background */}
-      <div className="absolute inset-0 z-0">
+      <div className={externalVideoInteractiveMode && showSearchBar ? "absolute inset-x-0 top-0 bottom-[120px] z-0" : "absolute inset-0 z-0"}>
         {effectiveMedia?.kind === "video" ? (
           videoInfo?.type === "file" ? (
              <video
@@ -1165,7 +1166,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 className={videoInfo?.type === "youtube"
                   ? isVerticalVideo
                     ? `w-full h-full ${cardsHidden ? '' : 'pointer-events-none'}`
-                    : `w-full h-[calc(100%+40px)] -mt-16 ${cardsHidden ? '' : 'pointer-events-none'}`
+                    : externalVideoInteractiveMode
+                      ? "w-full h-full"
+                      : `w-full h-[calc(100%+40px)] -mt-16 pointer-events-none`
                   : `w-full h-full ${cardsHidden ? '' : 'pointer-events-none'}`}
                 allow="autoplay; encrypted-media"
                 allowFullScreen
@@ -1198,11 +1201,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
       {/* Overlaid content — always visible, carousels toggle */}
       <div
-        className={`relative z-10 flex flex-col overflow-y-auto overscroll-contain h-full p-4 pt-12 md:p-6 md:pt-16 lg:pt-6 ${cardsHidden ? 'pb-0' : 'pb-8'} ${effectiveMedia?.kind === "matterport" ? "pointer-events-none" : ""}`}
+        className={`relative z-10 flex flex-col overflow-y-auto overscroll-contain h-full p-4 pt-12 md:p-6 md:pt-16 lg:pt-6 ${cardsHidden ? 'pb-0' : 'pb-8'} ${effectiveMedia?.kind === "matterport" ? "pointer-events-none" : externalVideoInteractiveMode ? "pointer-events-none" : ""}`}
         style={isDragging ? { transform: `translateY(${dragOffsetY}px)`, transition: 'none' } : undefined}
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
+        onTouchStart={externalVideoInteractiveMode ? undefined : onTouchStart}
+        onTouchMove={externalVideoInteractiveMode ? undefined : onTouchMove}
+        onTouchEnd={externalVideoInteractiveMode ? undefined : onTouchEnd}
       >
         {/* Top bar: toggle, flags, rating */}
         <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex flex-col items-center pb-3 md:pb-3 pointer-events-auto animate-[slide-in-top_0.35s_ease-out_both] mt-1 md:mt-0">
@@ -1722,7 +1725,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
 
         {/* Spacer + availability zone when cards hidden */}
         {cardsHidden && (
-          <div className={`flex-1 w-full flex flex-col justify-center gap-3 px-0 md:px-8 overflow-y-auto ${effectiveMedia?.kind === "matterport" ? "pointer-events-none" : "pointer-events-auto"}`}>
+          <div className={`flex-1 w-full flex flex-col justify-center gap-3 px-0 md:px-8 overflow-y-auto ${effectiveMedia?.kind === "matterport" || externalVideoInteractiveMode ? "pointer-events-none" : "pointer-events-auto"}`}>
             {hotelSearchLoading && (
               <div className="flex items-center justify-center gap-2 text-white/80">
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -1912,7 +1915,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
         />
 
         {/* CTAs + video controls */}
-        <div className={`${showSearchBar ? 'absolute bottom-[56px] left-0 right-0 z-[74] pb-[14px] md:pb-[10px]' : 'shrink-0 py-2 lg:pb-2'} flex flex-col items-center gap-2 pointer-events-auto ${cardsHidden && effectiveMedia?.kind === "matterport" ? 'mb-24' : ''}`} style={(cardsHidden && fallbackPanelData && (() => { const ch = fallbackPanelData.hotels.find(h => h.isCurrentHotel); return !!ch; })()) ? { display: 'none' } : undefined}>
+        <div className={`${showSearchBar ? 'absolute bottom-[56px] left-0 right-0 z-[74] pb-[14px] md:pb-[10px]' : 'shrink-0 py-2 lg:pb-2'} flex flex-col items-center gap-2 ${externalVideoInteractiveMode ? 'pointer-events-none' : 'pointer-events-auto'} ${cardsHidden && effectiveMedia?.kind === "matterport" ? 'mb-24' : ''}`} style={(cardsHidden && fallbackPanelData && (() => { const ch = fallbackPanelData.hotels.find(h => h.isCurrentHotel); return !!ch; })()) ? { display: 'none' } : undefined}>
             {(() => {
               const ctaItems: React.ReactNode[] = [];
               if (bookingCta) {
@@ -1986,7 +1989,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               }
               if (ctaItems.length === 0) return null;
               return (
-                <div className="w-4/5 md:w-3/4 md:px-0 flex justify-center gap-2">
+                <div className="w-4/5 md:w-3/4 md:px-0 flex justify-center gap-2 pointer-events-auto">
                   {ctaItems.map((item, i) => (
                     <div key={i} className="flex-1 md:flex-none md:w-1/3">{item}</div>
                   ))}
