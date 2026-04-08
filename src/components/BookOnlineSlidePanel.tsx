@@ -1987,26 +1987,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 </div>
               );
             })()}
-            {/* Video controls — below CTAs in Afficher mode */}
-            {!cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type === "file" && (
-              <VideoControls type="file" videoRef={videoRef as React.RefObject<HTMLVideoElement>} paused={videoPaused} muted={videoMuted} className="mt-2 md:mt-3 animate-slide-up-from-bottom" />
+            {/* Video controls — below CTAs */}
+            {effectiveMedia?.kind === "video" && videoInfo?.type === "file" && (
+              <VideoControls type="file" videoRef={videoRef as React.RefObject<HTMLVideoElement>} paused={videoPaused} muted={videoMuted} className="mt-2 md:mt-3" />
             )}
-            {!cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" && (
-              <VideoControls type="youtube" iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>} playing={ytBgPlaying} muted={ytBgMuted} onPlayingChange={setYtBgPlaying} onMutedChange={setYtBgMuted} className="mt-2 md:mt-3 animate-slide-up-from-bottom" />
+            {effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" && (
+              <VideoControls type="youtube" iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>} playing={ytBgPlaying} muted={ytBgMuted} onPlayingChange={setYtBgPlaying} onMutedChange={setYtBgMuted} className="mt-2 md:mt-3" />
             )}
           </div>
-
-          {/* Video controls — visible at bottom in Masquer mode */}
-          {cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type === "file" && (
-            <div className="shrink-0 flex justify-center pointer-events-auto mt-2 md:mt-3 pb-[14px] md:pb-[10px]">
-              <VideoControls type="file" videoRef={videoRef as React.RefObject<HTMLVideoElement>} paused={videoPaused} muted={videoMuted} />
-            </div>
-          )}
-          {cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" && (
-            <div className="shrink-0 flex justify-center pointer-events-auto mt-2 md:mt-3 pb-[14px] md:pb-[10px]">
-              <VideoControls type="youtube" iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>} playing={ytBgPlaying} muted={ytBgMuted} onPlayingChange={setYtBgPlaying} onMutedChange={setYtBgMuted} />
-            </div>
-          )}
         </div>
 
         {/* YouTube Overlay */}
