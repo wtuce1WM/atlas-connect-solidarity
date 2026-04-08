@@ -363,98 +363,12 @@ const MobileSearchOverlay = ({
           </div>
         )}
 
-        {/* Inline location panel */}
-        {showLocationPanel && geoState && (
-          <div className="mb-6 space-y-4 animate-in slide-in-from-top-2 duration-200">
-            {/* Current status */}
-            <div className="flex items-center gap-3 p-4 rounded-xl border border-border bg-muted/30">
-              {geoState.isDetecting ? (
-                <Loader className="h-5 w-5 animate-spin text-muted-foreground" />
-              ) : geoState.isEnabled ? (
-                <MapPin className="h-5 w-5 text-gold" />
-              ) : (
-                <MapPinOff className="h-5 w-5 text-muted-foreground" />
-              )}
-              <div className="flex-1">
-                <p className="text-sm font-medium">
-                  {geoState.isDetecting
-                    ? (language === "fr" ? "Détection en cours…" : "Detecting…")
-                    : geoState.isEnabled && (geoState.detectedNeighborhood || geoState.detectedCity)
-                    ? `📍 ${[geoState.detectedNeighborhood, geoState.detectedCity].filter(Boolean).join(", ")}`
-                    : geoState.isEnabled && geoState.confirmedAddress
-                    ? `📍 ${geoState.confirmedAddress}`
-                    : (language === "fr" ? "Localisation désactivée" : "Location disabled")
-                  }
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {geoState.isEnabled
-                    ? (language === "fr" ? "Les résultats sont triés par proximité" : "Results sorted by proximity")
-                    : (language === "fr" ? "Activez pour trier par proximité" : "Enable to sort by proximity")
-                  }
-                </p>
-              </div>
-            </div>
-
-            {/* Toggle button */}
-            <button
-              type="button"
-              onClick={() => {
-                if (geoState.isEnabled) {
-                  geoState.toggle?.();
-                } else {
-                  geoState.accept?.();
-                }
-              }}
-              className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                geoState.isEnabled
-                  ? "bg-destructive/10 text-destructive border border-destructive/30 hover:bg-destructive/20"
-                  : "bg-[#C04F17] text-white hover:bg-[#C04F17]/90"
-              }`}
-            >
-              <Navigation className="h-4 w-4" />
-              {geoState.isEnabled
-                ? (language === "fr" ? "Désactiver la localisation" : "Disable location")
-                : (language === "fr" ? "Utiliser ma position" : "Use my location")
-              }
-            </button>
-
-            {/* Manual city input */}
-            <div>
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2 block">
-                {language === "fr" ? "Ou saisir une ville" : language === "ar" ? "أو أدخل مدينة" : "Or enter a city"}
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={manualCityInput}
-                  onChange={(e) => setManualCityInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && manualCityInput.trim()) {
-                      geoState.setManualCity?.(manualCityInput.trim());
-                      setManualCityInput("");
-                      setShowLocationPanel(false);
-                    }
-                  }}
-                  placeholder={language === "fr" ? "Ex: Marrakech, Essaouira…" : "E.g. Marrakech, Essaouira…"}
-                  className="flex-1 px-3 py-2.5 text-sm border border-border rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-primary/30 placeholder:text-muted-foreground"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (manualCityInput.trim()) {
-                      geoState.setManualCity?.(manualCityInput.trim());
-                      setManualCityInput("");
-                      setShowLocationPanel(false);
-                    }
-                  }}
-                  disabled={!manualCityInput.trim()}
-                  className="px-4 py-2.5 rounded-xl bg-foreground text-background text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-40"
-                >
-                  OK
-                </button>
-              </div>
-            </div>
-          </div>
+        {/* Location overlay */}
+        {geoState && (
+          <PanelLocationOverlay
+            open={showLocationOverlay}
+            onClose={() => setShowLocationOverlay(false)}
+          />
         )}
 
         {showPopular && (
