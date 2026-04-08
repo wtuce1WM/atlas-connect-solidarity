@@ -49,7 +49,7 @@ interface HeaderProps {
   rightContent?: React.ReactNode;
 }
 
-const Header = ({ variant = "default", compact = false }: HeaderProps) => {
+const Header = ({ variant = "default", compact = false, rightContent }: HeaderProps) => {
   const { t, language } = useLanguage();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
