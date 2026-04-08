@@ -70,9 +70,12 @@ interface CardsToggleButtonProps {
 
 export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDownDrag, leftSlot, rightSlot }: CardsToggleButtonProps) => {
   return (
-    <div className="w-full shrink-0 flex items-center justify-center pb-2 pointer-events-auto relative z-20 h-[40px]">
-      {cardsHidden ? (
-        <div className="flex items-center gap-3">
+    <div className="w-full shrink-0 pointer-events-auto relative z-20">
+      <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center h-[32px] mb-2">
+        <div className="min-w-0 flex items-center justify-start">
+          {!cardsHidden && leftSlot}
+        </div>
+        {cardsHidden ? (
           <button
             type="button"
             className="inline-flex items-center gap-2 rounded-full px-3 h-[32px] text-black shadow-lg backdrop-blur-sm hover:opacity-90 transition-colors"
@@ -87,12 +90,7 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
             <span className="text-xs font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>Afficher</span>
             <span className="hidden md:block h-1.5 w-8 rounded-full bg-black/60" />
           </button>
-        </div>
-      ) : (
-        <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center">
-          <div className="min-w-0 flex items-center justify-start">
-            {leftSlot}
-          </div>
+        ) : (
           <button
             type="button"
             className="inline-flex items-center gap-2 rounded-full px-3 h-[32px] text-white shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:opacity-90 transition-colors"
@@ -113,11 +111,11 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
             <span className="text-xs font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>Masquer</span>
             <span className="hidden md:block h-1.5 w-8 rounded-full bg-white/60" />
           </button>
-          <div className="min-w-0 flex items-center justify-end">
-            {rightSlot}
-          </div>
+        )}
+        <div className="min-w-0 flex items-center justify-end">
+          {!cardsHidden && rightSlot}
         </div>
-      )}
+      </div>
     </div>
   );
 };
