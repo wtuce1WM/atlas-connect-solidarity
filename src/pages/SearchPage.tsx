@@ -4074,7 +4074,8 @@ const SearchPage = () => {
           >
             <SlidePanelHeader
               onClose={handleCompactPanelClose}
-              mobileTransparent
+              mobileTransparent={!isCompactPanelDarkMode}
+              darkMode={isCompactPanelDarkMode}
             />
             <div className="flex-1 min-h-0">
               <BookOnlineSlidePanel
