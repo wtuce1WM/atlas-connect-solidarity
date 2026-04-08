@@ -1357,6 +1357,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   isSearchingAvailability={hotelSearchLoading}
                   onCheckAvailability={handleCheckAvailability}
                   onOpenWebsite={(url) => {
+                    setBookingOverlayLoaded(false);
                     setBookingOverlayUrl(url);
                     setBookingOverlayTitle(language === "en" ? "Website" : "Site web");
                     setShowBookingOverlay(true);
