@@ -441,6 +441,15 @@ html.hide-scrollbar-panel-open::-webkit-scrollbar {
   animation: logoZoomOut 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+@keyframes ctaZoomIn {
+  0% { opacity: 0; transform: scale(0.3); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.animate-cta-zoom-in {
+  animation: ctaZoomIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) 1.6s both;
+}
+
 .animate-fullscreen-logo-out {
   animation: fullscreenOverlayFadeOut 0.6s ease-in forwards;
 }
