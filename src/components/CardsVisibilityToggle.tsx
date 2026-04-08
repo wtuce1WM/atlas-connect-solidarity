@@ -92,7 +92,7 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
             onTouchStart={(e) => e.stopPropagation()}
           >
             <ChevronUp className="h-3.5 w-3.5" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.08em]" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>Afficher</span>
+            <span className="text-xs font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>Afficher</span>
             <span className="hidden md:block h-1.5 w-8 rounded-full bg-white/60" />
           </button>
         </div>
@@ -118,7 +118,7 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
             onTouchStart={(e) => e.stopPropagation()}
           >
             <ChevronDown className="h-3.5 w-3.5" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.08em]" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>Masquer</span>
+            <span className="text-xs font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>Masquer</span>
             <span className="hidden md:block h-1.5 w-8 rounded-full bg-white/60" />
           </button>
           <div aria-hidden="true" />
