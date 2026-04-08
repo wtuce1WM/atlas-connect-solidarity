@@ -2,10 +2,10 @@ import { useState, useCallback } from "react";
 import { Search } from "lucide-react";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useToast } from "@/hooks/use-toast";
+import { useGeolocation } from "@/hooks/useGeolocation";
 import MobileSearchOverlay from "@/components/MobileSearchOverlay";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import PanelAiOverlay from "@/components/overlays/PanelAiOverlay";
-import PanelLocationOverlay from "@/components/overlays/PanelLocationOverlay";
 
 interface PanelSearchBarProps {
   /** Called when user submits a search */
@@ -21,8 +21,8 @@ interface PanelSearchBarProps {
 const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCategory, businessName }: PanelSearchBarProps) => {
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
-  const [locationOverlayOpen, setLocationOverlayOpen] = useState(false);
   const { toast } = useToast();
+  const geo = useGeolocation();
 
   const voice = useVoiceSearch({
     onTranscript: (keywords, spoken, detectedCategory, timeKeyword) => {
@@ -73,9 +73,15 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
               setSearchOverlayOpen(false);
               setAiOverlayOpen(true);
             }}
-            onLocationClick={() => {
-              setSearchOverlayOpen(false);
-              setLocationOverlayOpen(true);
+            geoState={{
+              isEnabled: geo.isEnabled,
+              isDetecting: geo.isDetecting,
+              detectedCity: geo.detectedCity,
+              detectedNeighborhood: geo.detectedNeighborhood,
+              confirmedAddress: geo.confirmedAddress,
+              accept: geo.accept,
+              toggle: geo.toggle,
+              setManualCity: geo.setManualCity,
             }}
           />
         </div>
@@ -90,13 +96,6 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
         businessName={businessName}
       />
 
-      {/* Location overlay — covers toolbar */}
-      <PanelLocationOverlay
-        open={locationOverlayOpen}
-        onClose={() => setLocationOverlayOpen(false)}
-      />
-
-      {/* Voice overlay — covers toolbar */}
       <VoiceSearchOverlay
         isOpen={voice.status === "recording" || voice.status === "processing"}
         liveTranscript={voice.liveTranscript}
