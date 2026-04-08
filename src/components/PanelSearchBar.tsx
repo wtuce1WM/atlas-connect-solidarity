@@ -78,7 +78,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
             }}
             onVoiceStart={handleVoiceStart}
             onAiSuggestionClick={() => {
-              setSearchOverlayOpen(false);
+              setOverlay(false);
               setAiOverlayOpen(true);
             }}
             geoState={{
