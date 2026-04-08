@@ -59,6 +59,7 @@ const BlogPresentation = lazy(() => import("./pages/BlogPresentation"));
 const BlogPresentationFR = lazy(() => import("./pages/BlogPresentationFR"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const CarouselNavDemo = lazy(() => import("./pages/CarouselNavDemo"));
+const FicheImmersive = lazy(() => import("./pages/FicheImmersive"));
 
 const queryClient = new QueryClient();
 
