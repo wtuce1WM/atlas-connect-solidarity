@@ -188,7 +188,7 @@ const VideoDocumentOverlay = ({
         const currentVideoDoc = videoDocs.find(d => d.url === vidUrl);
         if (!currentVideoDoc?.owner_business_id || currentVideoDoc.owner_business_id === businessId) return null;
         return (
-          <div className="absolute bottom-24 left-0 right-0 z-20 flex flex-col items-center gap-4 pointer-events-none">
+          <div className="absolute bottom-40 left-0 right-0 z-20 flex flex-col items-center gap-4 pointer-events-none">
             {currentVideoDoc.owner_logo && (
               <div className="animate-logo-big-full-reveal w-[100px] md:w-[180px]">
                 <img
