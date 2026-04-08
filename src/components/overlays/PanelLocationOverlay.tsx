@@ -249,7 +249,7 @@ const PanelLocationOverlay = ({ open, onClose }: PanelLocationOverlayProps) => {
 
   const handleConfirm = () => {
     if (activeCoords) {
-      geo.confirmAddress(activeCoords, selectedAddress || geo.detectedCity || "");
+      geo.setManualLocation(activeCoords, selectedAddress || geo.detectedCity || "");
       onClose();
     }
   };
