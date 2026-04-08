@@ -87,6 +87,8 @@ const VideoDocumentOverlay = ({
 
   return (
     <div className="absolute inset-0 z-[70] overflow-hidden" style={{ marginTop: "-3.25rem" }}>
+    {/* Black background that stops above the search bar */}
+    <div className="absolute inset-0 bottom-[56px] bg-black" />
     <div
       className={`absolute inset-0 overflow-hidden ${closing ? 'animate-slide-out-bottom' : 'animate-slide-in-left'}`}
       onAnimationEnd={() => { if (closing) onAnimationEnd(); }}
