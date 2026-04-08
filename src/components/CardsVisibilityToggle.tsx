@@ -64,9 +64,11 @@ interface CardsToggleButtonProps {
   onMouseDownDrag: (e: React.MouseEvent) => void;
   /** Optional content rendered to the left in "Afficher" (show) mode — e.g. language flags */
   leftSlot?: React.ReactNode;
+  /** Optional content rendered to the right of the Masquer button — e.g. rating badge */
+  rightSlot?: React.ReactNode;
 }
 
-export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDownDrag, leftSlot }: CardsToggleButtonProps) => {
+export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDownDrag, leftSlot, rightSlot }: CardsToggleButtonProps) => {
   return (
     <div className="w-full shrink-0 flex items-center justify-center pb-2 pointer-events-auto relative z-20">
       {cardsHidden ? (
@@ -111,7 +113,9 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
             <span className="text-xs font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>Masquer</span>
             <span className="hidden md:block h-1.5 w-8 rounded-full bg-white/60" />
           </button>
-          <div aria-hidden="true" />
+          <div className="min-w-0 flex items-center justify-end">
+            {rightSlot}
+          </div>
         </div>
       )}
     </div>
