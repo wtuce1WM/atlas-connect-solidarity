@@ -163,9 +163,6 @@ export function useOwnerLogo(
     const doc = videoDocs.find((d) => d.url === cm.url);
     if (!doc?.owner_business_id || doc.owner_business_id === currentBusinessId) return;
     if (!doc.owner_logo) return;
-    const key = doc.owner_business_id + ":" + cm.url;
-    if (logoBigShownForRef.current.has(key)) return;
-    logoBigShownForRef.current.add(key);
     setLogoBigFadingOut(false);
     setLogoBigOverlay({ src: doc.owner_logo, name: doc.owner_name || "", ownerId: doc.owner_business_id });
     logoBigTimersRef.current.forEach(clearTimeout);
