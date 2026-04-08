@@ -718,7 +718,7 @@ const SearchPage = () => {
          // Measure the bottom of the last visible sticky bar to compute content padding
          const subBar = document.querySelector<HTMLElement>('[data-subcategory-filter]');
          const catBar = document.querySelector<HTMLElement>('[data-category-filter]');
-         const lastSticky = subBar || catBar || tabBar;
+         const lastSticky = subBar || catBar || header;
          if (lastSticky) {
            const computedTop = Number.parseFloat(window.getComputedStyle(lastSticky).top || '0');
            const h = lastSticky.getBoundingClientRect().height;
