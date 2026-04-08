@@ -1987,9 +1987,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                 </div>
               );
             })()}
+            {/* Video controls — below CTAs in Afficher mode */}
+            {!cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type === "file" && (
+              <VideoControls type="file" videoRef={videoRef as React.RefObject<HTMLVideoElement>} paused={videoPaused} muted={videoMuted} className="mt-2 md:mt-3 animate-slide-up-from-bottom" />
+            )}
+            {!cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" && (
+              <VideoControls type="youtube" iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>} playing={ytBgPlaying} muted={ytBgMuted} onPlayingChange={setYtBgPlaying} onMutedChange={setYtBgMuted} className="mt-2 md:mt-3 animate-slide-up-from-bottom" />
+            )}
           </div>
 
-          {/* Video controls — visible at bottom */}
+          {/* Video controls — visible at bottom in Masquer mode */}
           {cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type === "file" && (
             <div className="shrink-0 flex justify-center pointer-events-auto mt-2 md:mt-3 pb-[14px] md:pb-[10px]">
               <VideoControls type="file" videoRef={videoRef as React.RefObject<HTMLVideoElement>} paused={videoPaused} muted={videoMuted} />
@@ -2000,9 +2007,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               <VideoControls type="youtube" iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>} playing={ytBgPlaying} muted={ytBgMuted} onPlayingChange={setYtBgPlaying} onMutedChange={setYtBgMuted} />
             </div>
           )}
-      </div>
+        </div>
 
-      {/* YouTube Overlay */}
+        {/* YouTube Overlay */}
       {showYoutubeOverlay && (
         <YouTubeOverlay
           business={business}
