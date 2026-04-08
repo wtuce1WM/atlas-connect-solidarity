@@ -8,6 +8,12 @@ interface SocialLink {
   color: string;
 }
 
+interface MenuEntry {
+  id: string;
+  name: string | null;
+  url: string;
+}
+
 interface SocialLinksCardProps {
   facebook?: string | null;
   instagram?: string | null;
@@ -19,6 +25,9 @@ interface SocialLinksCardProps {
   vimeo?: string | null;
   whatsapp?: string | null;
   snapchat?: string | null;
+  menuItems?: MenuEntry[];
+  language?: string;
+  onOpenUrl?: (url: string, title?: string) => void;
   animationDelay?: string;
 }
 
