@@ -87,10 +87,8 @@ const VideoDocumentOverlay = ({
 
   return (
     <div className="absolute inset-0 z-[70] overflow-hidden" style={{ marginTop: "-3.25rem" }}>
-    {/* Black background that stops above the search bar */}
-    <div className="absolute inset-0 bottom-[56px] bg-black" />
     <div
-      className={`absolute inset-0 overflow-hidden ${closing ? 'animate-slide-out-bottom' : 'animate-slide-in-left'}`}
+      className={`absolute inset-0 bg-black overflow-hidden ${closing ? 'animate-slide-out-bottom' : 'animate-slide-in-left'}`}
       onAnimationEnd={() => { if (closing) onAnimationEnd(); }}
     >
       {/* Top bar: close + mobile nav with counter */}
@@ -148,7 +146,7 @@ const VideoDocumentOverlay = ({
       )}
 
       {/* Video — full overlay */}
-      <div className="absolute inset-0 pb-[60px] flex items-center justify-center">
+      <div className="absolute inset-0 flex items-center justify-center">
         {isFile ? (
           <video
             ref={videoRef}
