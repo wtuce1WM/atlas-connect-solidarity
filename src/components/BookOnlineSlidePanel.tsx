@@ -1346,6 +1346,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
                   hasHotelMapping={isHotelWithPrice}
                   isSearchingAvailability={hotelSearchLoading}
                   onCheckAvailability={handleCheckAvailability}
+                  openBadgeInfo={openBadgeInfo}
                   onOpenWebsite={(url) => {
                     setBookingOverlayLoaded(false);
                     setBookingOverlayUrl(url);
