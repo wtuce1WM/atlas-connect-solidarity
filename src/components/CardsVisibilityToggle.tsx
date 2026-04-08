@@ -19,20 +19,10 @@ export const MediaCounterBar = ({ currentIndex, totalMedia, cardsHidden, onPrev,
   if (totalMedia <= 1 && !children) return null;
   return (
     <div className="flex items-center justify-center gap-3 pb-2">
-      {cardsHidden && totalMedia > 1 && (
-        <button onClick={onPrev} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-      )}
       {children || (
         <span className="text-white/80 text-xs font-medium bg-black/30 rounded-full px-3 py-1">
           {currentIndex + 1} / {totalMedia}
         </span>
-      )}
-      {cardsHidden && totalMedia > 1 && (
-        <button onClick={onNext} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
-          <ChevronRight className="h-4 w-4" />
-        </button>
       )}
     </div>
   );
@@ -53,10 +43,10 @@ export const DesktopMediaArrows = ({ totalMedia, cardsHidden, onPrev, onNext }: 
   if (totalMedia <= 1 || !cardsHidden) return null;
   return (
     <>
-      <button onClick={onPrev} className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-white items-center justify-center text-black hover:bg-white/80 transition-colors shadow-lg" aria-label="Previous">
+      <button onClick={onPrev} className="flex absolute left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-white items-center justify-center text-black hover:bg-white/80 transition-colors shadow-lg" aria-label="Previous">
         <ChevronLeft className="h-5 w-5" />
       </button>
-      <button onClick={onNext} className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-white items-center justify-center text-black hover:bg-white/80 transition-colors shadow-lg" aria-label="Next">
+      <button onClick={onNext} className="flex absolute right-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-white items-center justify-center text-black hover:bg-white/80 transition-colors shadow-lg" aria-label="Next">
         <ChevronRight className="h-5 w-5" />
       </button>
     </>
