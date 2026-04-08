@@ -747,6 +747,7 @@ const SearchPage = () => {
         const b = bizOrData as AIBusinessData;
         setCompactPanelBusiness(b);
         setIsCompactPanelExpanded(false);
+        setIsCompactPanelDarkMode(false);
       }, []);
 
       const closeCompactPanel = useCallback(() => {
@@ -754,6 +755,7 @@ const SearchPage = () => {
         hasAutoAlignedResultsRef.current = true;
         setCompactPanelBusiness(null);
         setIsCompactPanelExpanded(false);
+        setIsCompactPanelDarkMode(false);
       }, []);
 
       const handleCompactPanelClose = useCallback(() => {
