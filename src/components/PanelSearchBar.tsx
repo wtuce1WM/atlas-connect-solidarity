@@ -73,9 +73,15 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
               setSearchOverlayOpen(false);
               setAiOverlayOpen(true);
             }}
-            onLocationClick={() => {
-              setSearchOverlayOpen(false);
-              setLocationOverlayOpen(true);
+            geoState={{
+              isEnabled: geo.isEnabled,
+              isDetecting: geo.isDetecting,
+              detectedCity: geo.detectedCity,
+              detectedNeighborhood: geo.detectedNeighborhood,
+              confirmedAddress: geo.confirmedAddress,
+              accept: geo.accept,
+              toggle: geo.toggle,
+              setManualCity: geo.setManualCity,
             }}
           />
         </div>
