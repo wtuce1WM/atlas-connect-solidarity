@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { X, Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { parseInline, type BusinessData } from "@/components/AISearchAnswer";
 
 interface PanelAiOverlayProps {
   open: boolean;
@@ -17,16 +18,19 @@ interface PanelAiOverlayProps {
 const PanelAiOverlay = ({ open, onClose, city, category, businessName }: PanelAiOverlayProps) => {
   const { language } = useLanguage();
   const [answer, setAnswer] = useState("");
+  const [businesses, setBusinesses] = useState<BusinessData[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!open) { setAnswer(""); return; }
+    if (!open) { setAnswer(""); setBusinesses([]); return; }
 
     // Try to reuse previously generated AI text from search results
     try {
       const cached = sessionStorage.getItem("ai_suggestion_text");
+      const cachedBiz = sessionStorage.getItem("ai_suggestion_businesses");
       if (cached) {
         setAnswer(cached);
+        if (cachedBiz) setBusinesses(JSON.parse(cachedBiz));
         return;
       }
     } catch {}
@@ -36,12 +40,14 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName }: PanelAi
       try {
         let query = supabase
           .from("businesses")
-          .select("id, name, city, main_category, categories, hook_fr, rating, images, logo_url, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count")
+          .select("id, name, city, main_category, categories, hook_fr, rating, images, logo_url, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, neighborhood, wtuce_status")
           .eq("is_active", true)
           .limit(10);
 
         if (city) query = query.eq("city", city);
-        const { data: businesses } = await query;
+        const { data: fetchedBusinesses } = await query;
+
+        if (fetchedBusinesses) setBusinesses(fetchedBusinesses as unknown as BusinessData[]);
 
         const prompt = city
           ? `${language === "fr" ? "Que faire à" : language === "ar" ? "ماذا تفعل في" : "What to do in"} ${city}${category ? ` (${category})` : ""}`
@@ -52,7 +58,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName }: PanelAi
         const { data, error } = await supabase.functions.invoke("ai-search-answer", {
           body: {
             query: prompt,
-            businesses: businesses || [],
+            businesses: fetchedBusinesses || [],
             language,
           },
         });
@@ -69,6 +75,19 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName }: PanelAi
 
     generate();
   }, [open, city, category, businessName, language]);
+
+  const renderedContent = useMemo(() => {
+    if (!answer) return null;
+    return parseInline(
+      answer,
+      businesses,
+      () => {
+        // Business click in panel context — just close overlay
+        onClose();
+      },
+      "panel-ai"
+    );
+  }, [answer, businesses, onClose]);
 
   if (!open) return null;
 
@@ -91,8 +110,8 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName }: PanelAi
         </div>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
+      {/* Content — same styling as fullscreen overlay */}
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
         {loading ? (
           <div className="flex flex-col items-center justify-center gap-4 py-12">
             <Loader2 className="h-8 w-8 animate-spin text-gold" />
@@ -101,21 +120,9 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName }: PanelAi
             </span>
           </div>
         ) : (
-          <div className="prose prose-sm max-w-none">
-            <div className="bg-gold/5 border border-gold/20 rounded-xl p-4">
-              <div className="flex items-start gap-2 mb-3">
-                <Sparkles className="h-4 w-4 text-gold shrink-0 mt-0.5" />
-                <span className="text-xs font-semibold text-gold uppercase tracking-wide">
-                  {city
-                    ? `${language === "fr" ? "Suggestions pour" : "Suggestions for"} ${city}`
-                    : language === "fr" ? "Suggestions" : "Suggestions"
-                  }
-                </span>
-              </div>
-              <div
-                className="text-sm leading-relaxed text-foreground whitespace-pre-line"
-                dangerouslySetInnerHTML={{ __html: answer.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") }}
-              />
+          <div className="max-w-3xl mx-auto">
+            <div className="text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
+              {renderedContent}
             </div>
           </div>
         )}

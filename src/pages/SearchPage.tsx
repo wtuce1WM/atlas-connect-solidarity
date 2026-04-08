@@ -479,7 +479,17 @@ const SearchPage = () => {
   const handleAiAnswerReady = useCallback((answer: string) => {
     setAiAnswerText(answer);
     // Persist for reuse in slide-panel AI overlay
-    try { sessionStorage.setItem("ai_suggestion_text", answer); } catch {}
+    try {
+      sessionStorage.setItem("ai_suggestion_text", answer);
+      // Also store businesses for parseInline rendering
+      const bizData = (allBusinesses || []).slice(0, 20).map((b: any) => ({
+        id: b.id, name: b.name, city: b.city, main_category: b.main_category,
+        categories: b.categories, hook_fr: b.hook_fr, rating: b.rating,
+        wtuce_status: b.wtuce_status, images: b.images, logo_url: b.logo_url,
+        neighborhood: b.neighborhood,
+      }));
+      sessionStorage.setItem("ai_suggestion_businesses", JSON.stringify(bizData));
+    } catch {}
     setStickyAiAnimationNonce((prev) => prev + 1);
     // Pre-generate TTS audio in background so it's instant when user clicks speaker
     if (answer) {
