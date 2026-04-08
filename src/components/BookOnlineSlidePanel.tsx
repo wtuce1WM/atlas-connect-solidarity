@@ -1214,63 +1214,44 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
       >
         {/* Top bar: toggle, flags, rating */}
         <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex flex-col items-center pb-3 md:pb-3 pointer-events-auto animate-[slide-in-top_0.35s_ease-out_both] mt-1 md:mt-0">
-          {cardsHidden ? (
-            <MediaCounterBar currentIndex={safeIndex} totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)}>
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-black shadow-lg backdrop-blur-sm hover:opacity-90 transition-colors"
-                style={{ backgroundColor: '#25D366' }}
-                title="Afficher les cartes"
-                aria-label="Afficher les cartes"
-                onClick={(e) => { e.stopPropagation(); showCards(); }}
-                onMouseDown={(e) => e.stopPropagation()}
-                onTouchStart={(e) => e.stopPropagation()}
-              >
-                <ChevronUp className="h-3.5 w-3.5" />
-                <span className="text-xs font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>Afficher</span>
-                <span className="hidden md:block h-1.5 w-8 rounded-full bg-black/60" />
-              </button>
-            </MediaCounterBar>
-          ) : (
-            <CardsToggleButton
-              cardsHidden={cardsHidden}
-              showCards={showCards}
-              hideCards={hideCards}
-              onMouseDownDrag={onMouseDownDrag}
-              leftSlot={languages.length > 0 ? (
+          <CardsToggleButton
+            cardsHidden={cardsHidden}
+            showCards={showCards}
+            hideCards={hideCards}
+            onMouseDownDrag={onMouseDownDrag}
+            leftSlot={languages.length > 0 ? (
               <div className={`flex items-center gap-0.5 md:gap-1.5 bg-black/40 backdrop-blur-sm rounded-full py-1.5 px-2 md:px-2.5 shrink-0 h-[32px] ${languages.length > 5 ? 'max-w-[7rem] md:max-w-none overflow-x-auto md:overflow-visible' : ''}`} style={languages.length > 5 ? { scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties : undefined}>
-                  {languages.map((lang, i) => {
-                    const langAlt = getLangAlt(lang);
-                    return (
+                {languages.map((lang, i) => {
+                  const langAlt = getLangAlt(lang);
+                  return (
+                    <span
+                      key={i}
+                      className="group relative inline-flex items-center justify-center text-base md:text-lg leading-none cursor-help shrink-0"
+                      title={langAlt}
+                      aria-label={langAlt}
+                      role="img"
+                      tabIndex={0}
+                    >
+                      {getLangFlag(lang)}
                       <span
-                        key={i}
-                        className="group relative inline-flex items-center justify-center text-base md:text-lg leading-none cursor-help shrink-0"
-                        title={langAlt}
-                        aria-label={langAlt}
-                        role="img"
-                        tabIndex={0}
+                        role="tooltip"
+                        className="pointer-events-none absolute left-0 top-full z-50 mt-2 hidden whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[10px] text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 md:block md:text-xs"
                       >
-                        {getLangFlag(lang)}
-                        <span
-                          role="tooltip"
-                          className="pointer-events-none absolute left-0 top-full z-50 mt-2 hidden whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[10px] text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 md:block md:text-xs"
-                        >
-                          {langAlt}
-                        </span>
+                        {langAlt}
                       </span>
-                    );
-                  })}
-                </div>
-              ) : undefined}
-              rightSlot={avgOn20 !== null && avgOn20 > 0 ? (
-                <div className="md:hidden flex items-center gap-0.5 bg-black/40 backdrop-blur-sm rounded-full py-0.5 px-1.5">
-                  <Star className="h-3 w-3 text-gold fill-gold" />
-                  <span className="text-xs font-bold text-white">{avgOn20}</span>
-                  <span className="text-[9px] text-white/60">/20</span>
-                </div>
-              ) : undefined}
-            />
-          )}
+                    </span>
+                  );
+                })}
+              </div>
+            ) : undefined}
+            rightSlot={avgOn20 !== null && avgOn20 > 0 ? (
+              <div className="md:hidden flex items-center gap-0.5 bg-black/40 backdrop-blur-sm rounded-full py-0.5 px-1.5">
+                <Star className="h-3 w-3 text-gold fill-gold" />
+                <span className="text-xs font-bold text-white">{avgOn20}</span>
+                <span className="text-[9px] text-white/60">/20</span>
+              </div>
+            ) : undefined}
+          />
         </div>
 
         {/* Block 1: Logo + name */}
