@@ -69,7 +69,7 @@ const VideoDocumentOverlay = ({
     const v = videoDocs[idx];
     if (v) {
       onNavigate({ url: v.url, name: v.name, description: v.description });
-      setDescExpanded(true);
+      setDescExpanded(false);
       setIsPlaying(true);
       setIsMuted(!defaultSoundOn);
     }
