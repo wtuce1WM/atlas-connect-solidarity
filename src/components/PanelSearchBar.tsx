@@ -21,8 +21,8 @@ interface PanelSearchBarProps {
 const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCategory, businessName }: PanelSearchBarProps) => {
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
-  const [locationOverlayOpen, setLocationOverlayOpen] = useState(false);
   const { toast } = useToast();
+  const geo = useGeolocation();
 
   const voice = useVoiceSearch({
     onTranscript: (keywords, spoken, detectedCategory, timeKeyword) => {
