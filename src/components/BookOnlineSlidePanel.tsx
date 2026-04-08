@@ -2007,8 +2007,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, isExpanded,
               <VideoControls type="youtube" iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>} playing={ytBgPlaying} muted={ytBgMuted} onPlayingChange={setYtBgPlaying} onMutedChange={setYtBgMuted} />
             </div>
           )}
+        </div>
 
-      {/* YouTube Overlay */}
+        {/* YouTube Overlay */}
       {showYoutubeOverlay && (
         <YouTubeOverlay
           business={business}
