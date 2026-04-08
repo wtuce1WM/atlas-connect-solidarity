@@ -46,6 +46,7 @@ const SOCIAL_TITLES: Record<string, string> = {
 interface HeaderProps {
   variant?: "default" | "morocco" | "city";
   compact?: boolean;
+  rightContent?: React.ReactNode;
 }
 
 const Header = ({ variant = "default", compact = false }: HeaderProps) => {
