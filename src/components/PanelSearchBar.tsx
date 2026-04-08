@@ -2,10 +2,10 @@ import { useState, useCallback } from "react";
 import { Search } from "lucide-react";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useToast } from "@/hooks/use-toast";
+import { useGeolocation } from "@/hooks/useGeolocation";
 import MobileSearchOverlay from "@/components/MobileSearchOverlay";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import PanelAiOverlay from "@/components/overlays/PanelAiOverlay";
-import PanelLocationOverlay from "@/components/overlays/PanelLocationOverlay";
 
 interface PanelSearchBarProps {
   /** Called when user submits a search */
