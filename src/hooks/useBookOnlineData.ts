@@ -227,23 +227,25 @@ export function useBookOnlineData(businessId: string) {
     }
 
     const fetchData = async () => {
-      setIsLoading(true);
-      // Reset all secondary state to prevent stale data flash from previous business
-      setDestinations([]);
-      setPoiBusinesses([]);
-      setKpRelated([]);
-      setKpSubcategoryItems([]);
-      setKpSubcategoryLabel(null);
-      setIsKp1Only(false);
-      setVideoDocs([]);
-      setReviewTexts([]);
-      setExternalLinks([]);
-      setMenuSummaries([]);
-      setMenuDocsRaw([]);
-      setCategoryIcon(null);
-      setShowGoogleMap(true);
-      setLiteApiHotelId(null);
-      setSerpApiMapping(null);
+      // Only show loading skeleton & reset state when there's no cache (avoids flicker)
+      if (!cached) {
+        setIsLoading(true);
+        setDestinations([]);
+        setPoiBusinesses([]);
+        setKpRelated([]);
+        setKpSubcategoryItems([]);
+        setKpSubcategoryLabel(null);
+        setIsKp1Only(false);
+        setVideoDocs([]);
+        setReviewTexts([]);
+        setExternalLinks([]);
+        setMenuSummaries([]);
+        setMenuDocsRaw([]);
+        setCategoryIcon(null);
+        setShowGoogleMap(true);
+        setLiteApiHotelId(null);
+        setSerpApiMapping(null);
+      }
 
       const [bizRes, woRes, destLinksRes, reviewsRes, extLinksRes, menuSumRes, menuDocsRes, videoDocsRes] = await Promise.all([
         supabase
@@ -411,35 +413,36 @@ export function useBookOnlineData(businessId: string) {
         let subcatLabel: string | null = null;
 
         if (kp1Val) {
-          const { data: kp1Data } = await supabase
+          // Parallel fetch KP1 and KP2 (if both exist)
+          const kp1Promise = supabase
             .from("businesses")
             .select("id, name, slug, logo_url, images, is_master, computed_rating")
             .eq("kp_regroupement", kp1Val)
             .eq("is_active", true)
             .neq("id", businessId);
-          kpResults = (kp1Data || []) as KpRelatedBusiness[];
+
+          const kp2Promise = kp2Val
+            ? supabase
+                .from("businesses")
+                .select("id, name, slug, logo_url, images, is_master, computed_rating")
+                .eq("kp_regroupement_2", kp2Val)
+                .eq("is_active", true)
+                .neq("id", businessId)
+            : Promise.resolve({ data: null });
+
+          const [kp1Res, kp2Res] = await Promise.all([kp1Promise, kp2Promise]);
+          kpResults = (kp1Res.data || []) as KpRelatedBusiness[];
 
           if (kp2Val) {
-            // Fetch ALL KP2 members (not just masters) to detect multi-master scenario
-            const { data: kp2All } = await supabase
-              .from("businesses")
-              .select("id, name, slug, logo_url, images, is_master, computed_rating")
-              .eq("kp_regroupement_2", kp2Val)
-              .eq("is_active", true)
-              .neq("id", businessId);
-
-            const kp2Members = (kp2All || []) as KpRelatedBusiness[];
+            const kp2Members = (kp2Res.data || []) as KpRelatedBusiness[];
             const kp2MasterCount = kp2Members.filter(m => m.is_master).length;
-            // Count current business as a master too if applicable
             const totalKp2Masters = kp2MasterCount + (isMaster ? 1 : 0);
 
             if (totalKp2Masters > 1) {
-              // Multi-master KP2: separate into subcategory tab
               const existingIds = new Set(kpResults.map(r => r.id));
               subcatItems = kp2Members.filter(m => !existingIds.has(m.id));
               subcatLabel = biz?.categories?.[0] || null;
             } else {
-              // Single master KP2: merge masters into kpResults as before
               const existingIds = new Set([businessId, ...kpResults.map((r) => r.id)]);
               for (const m of kp2Members) {
                 if (m.is_master && !existingIds.has(m.id)) {
@@ -494,8 +497,8 @@ export function useBookOnlineData(businessId: string) {
           .eq("type", "video")
           .order("sort_order");
         if (!isCancelled && linkedVids && linkedVids.length > 0) {
-          // Fetch owner info for each unique business_id
           const ownerIds = [...new Set((linkedVids as any[]).map(v => v.business_id).filter(Boolean))];
+          // Fetch owner info in parallel (single query)
           const ownerMap = new Map<string, { name: string; logo_url: string | null; instagram_url: string | null }>();
           if (ownerIds.length > 0) {
             const { data: owners } = await supabase
