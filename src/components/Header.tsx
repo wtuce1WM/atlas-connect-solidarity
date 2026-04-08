@@ -45,9 +45,10 @@ const SOCIAL_TITLES: Record<string, string> = {
 
 interface HeaderProps {
   variant?: "default" | "morocco" | "city";
+  compact?: boolean;
 }
 
-const Header = ({ variant = "default" }: HeaderProps) => {
+const Header = ({ variant = "default", compact = false }: HeaderProps) => {
   const { t, language } = useLanguage();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
@@ -169,8 +170,14 @@ const Header = ({ variant = "default" }: HeaderProps) => {
           </button>
           <a href="/" className="flex items-center gap-2 shrink-0">
             <span className="text-lg font-bold tracking-tight" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em", textTransform: "uppercase" }}>
-              <span className="text-foreground">ONE WORLD</span>{" "}
-              <span className="text-foreground">MOROCCO</span>
+              {compact ? (
+                <span className="text-foreground">1WM</span>
+              ) : (
+                <>
+                  <span className="text-foreground">ONE WORLD</span>{" "}
+                  <span className="text-foreground">MOROCCO</span>
+                </>
+              )}
             </span>
           </a>
         </div>

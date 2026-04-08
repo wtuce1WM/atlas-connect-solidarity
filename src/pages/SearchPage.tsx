@@ -2113,7 +2113,7 @@ const SearchPage = () => {
 
   return (
     <div className="min-h-screen bg-white" style={{ overflowX: 'clip' }}>
-      <Header />
+      <Header compact />
 
       {/* Shared LocationPickerDialog — accessible from all tabs */}
       <LocationPickerDialog
