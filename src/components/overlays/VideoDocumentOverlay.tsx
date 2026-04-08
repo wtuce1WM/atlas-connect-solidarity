@@ -76,7 +76,7 @@ const VideoDocumentOverlay = ({
   const overlayVid = getVideoEmbed(vidUrl, window.location.origin);
   const muteVal = defaultSoundOn ? "0" : "1";
   const overlayEmbedUrl = overlayVid.type === "youtube"
-    ? overlayVid.embedUrl.replace(/mute=\d/, `mute=${muteVal}`).replace(/loop=\d/, "loop=1").replace(/controls=\d/, "controls=0") + `&playlist=${vidUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1] || ""}`
+    ? overlayVid.embedUrl.replace(/mute=\d/, `mute=${muteVal}`).replace(/loop=\d/, "loop=1").replace(/controls=\d/, "controls=1") + `&playlist=${vidUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1] || ""}`
     : overlayVid.type === "vimeo"
       ? overlayVid.embedUrl.replace(/muted=\d/, "muted=0").replace(/loop=\d/, "loop=1")
       : overlayVid.type === "bunny"
@@ -161,11 +161,10 @@ const VideoDocumentOverlay = ({
             }}
           />
         ) : (
-          <div className={`w-full h-full overflow-hidden bg-black ${overlayVid.type === "youtube" ? "relative" : ""}`}>
+            <div className={`w-full h-full overflow-hidden bg-black ${overlayVid.type === "youtube" ? "relative" : ""}`}>
             {overlayVid.type === "youtube" && !isVerticalHint && (
               <>
                 <div className="absolute inset-x-0 top-0 h-16 bg-black z-10" />
-                <div className="absolute inset-x-0 bottom-0 h-12 bg-black z-10" />
               </>
             )}
             <iframe
@@ -215,31 +214,33 @@ const VideoDocumentOverlay = ({
         );
       })()}
 
-      {/* Custom Play/Pause + Mute controls */}
-      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-6 md:gap-10 z-20">
-        <button
-          onClick={togglePlay}
-          className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center hover:bg-black/80 transition-colors"
-          aria-label={isPlaying ? "Pause" : "Lecture"}
-        >
-          {isPlaying ? (
-            <Pause className="h-5 w-5 text-white fill-white" />
-          ) : (
-            <Play className="h-5 w-5 text-white fill-white ml-0.5" />
-          )}
-        </button>
-        <button
-          onClick={toggleMute}
-          className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center hover:bg-black/80 transition-colors"
-          aria-label={isMuted ? "Activer le son" : "Couper le son"}
-        >
-          {isMuted ? (
-            <VolumeX className="h-5 w-5 text-white" />
-          ) : (
-            <Volume2 className="h-5 w-5 text-white" />
-          )}
-        </button>
-      </div>
+      {/* Custom Play/Pause + Mute controls — only for native file videos */}
+      {isFile && (
+        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-6 md:gap-10 z-20">
+          <button
+            onClick={togglePlay}
+            className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center hover:bg-black/80 transition-colors"
+            aria-label={isPlaying ? "Pause" : "Lecture"}
+          >
+            {isPlaying ? (
+              <Pause className="h-5 w-5 text-white fill-white" />
+            ) : (
+              <Play className="h-5 w-5 text-white fill-white ml-0.5" />
+            )}
+          </button>
+          <button
+            onClick={toggleMute}
+            className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center hover:bg-black/80 transition-colors"
+            aria-label={isMuted ? "Activer le son" : "Couper le son"}
+          >
+            {isMuted ? (
+              <VolumeX className="h-5 w-5 text-white" />
+            ) : (
+              <Volume2 className="h-5 w-5 text-white" />
+            )}
+          </button>
+        </div>
+      )}
 
       {/* Description card */}
       {(() => {
