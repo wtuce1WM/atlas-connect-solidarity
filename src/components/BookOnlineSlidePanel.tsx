@@ -66,6 +66,8 @@ interface BookOnlineSlidePanelProps {
   onSearchBusinessSelect?: (businessId: string) => void;
   /** Notify parent when a nested mosaic opens/closes (to hide toolbar) */
   onMosaicStateChange?: (open: boolean) => void;
+  /** Only nested overlays should propagate mosaic visibility to the parent */
+  propagateMosaicState?: boolean;
 }
 
 type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string } | { kind: "matterport"; url: string };
