@@ -57,7 +57,7 @@ const SocialLinksCard = ({
       style={{ animationDelay, animationFillMode: "forwards" }}
     >
       <div className="flex items-center justify-center p-2">
-        <div className="flex flex-col gap-1 items-center">
+        <div className="flex flex-col gap-2 items-center">
           {menuItems.map((m) => (
             <button
               key={m.id}
