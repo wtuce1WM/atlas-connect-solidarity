@@ -10,6 +10,7 @@ interface VideoDocumentOverlayProps {
   closing: boolean;
   defaultSoundOn?: boolean;
   businessId?: string;
+  businessName?: string;
   onClose: () => void;
   onNavigate: (video: { url: string; name: string | null; description: string | null }) => void;
   onAnimationEnd: () => void;
@@ -22,12 +23,13 @@ const VideoDocumentOverlay = ({
   closing,
   defaultSoundOn = true,
   businessId,
+  businessName,
   onClose,
   onNavigate,
   onAnimationEnd,
   onOwnerClick,
 }: VideoDocumentOverlayProps) => {
-  const [descExpanded, setDescExpanded] = useState(true);
+  const [descExpanded, setDescExpanded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(!defaultSoundOn);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -263,7 +265,7 @@ const VideoDocumentOverlay = ({
                     </div>
                   ) : (
                     <h2 className="text-base md:text-xl font-bold drop-shadow-lg uppercase line-clamp-2 md:truncate" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>
-                      Détails
+                      {businessName || 'Détails'}
                     </h2>
                   )}
                 </div>
