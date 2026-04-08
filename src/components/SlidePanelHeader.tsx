@@ -12,8 +12,6 @@ interface SlidePanelHeaderProps {
   toolbarRightId?: string;
   /** On mobile/tablet, float over content with transparent bg (for immersive media panels) */
   mobileTransparent?: boolean;
-  /** Override background to black with white close button (e.g. mosaic mode) */
-  darkMode?: boolean;
 }
 
 const SlidePanelHeader = ({
@@ -24,19 +22,14 @@ const SlidePanelHeader = ({
   toolbarCenterId = "slide-panel-toolbar-center",
   toolbarRightId = "slide-panel-toolbar",
   mobileTransparent = false,
-  darkMode = false,
 }: SlidePanelHeaderProps) => {
-  const closeClass = darkMode
-    ? "bg-white text-black hover:bg-white/80 transition-colors shadow-lg"
-    : closeVariant === "destructive"
-      ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
-      : "bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity";
+  const closeClass = closeVariant === "destructive"
+    ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
+    : "bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity";
 
-  const baseClass = darkMode
-    ? "shrink-0 flex items-center justify-between px-4 py-2 bg-black z-[75] relative overflow-visible"
-    : mobileTransparent
-      ? "absolute top-0 left-0 right-0 lg:relative flex items-center justify-between px-4 py-2 bg-transparent lg:bg-card lg:border-b lg:border-border z-[75] overflow-visible"
-      : "shrink-0 flex items-center justify-between px-4 py-2 bg-card border-b border-border z-[75] relative overflow-visible";
+  const baseClass = mobileTransparent
+    ? "absolute top-0 left-0 right-0 lg:relative flex items-center justify-between px-4 py-2 bg-transparent lg:bg-card lg:border-b lg:border-border z-[75] overflow-visible"
+    : "shrink-0 flex items-center justify-between px-4 py-2 bg-card border-b border-border z-[75] relative overflow-visible";
 
   return (
     <div className={baseClass}>
