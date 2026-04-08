@@ -20,10 +20,9 @@ const FloatingSearchBar = () => {
           <button
             type="button"
             onClick={() => setOverlayOpen(true)}
-            className="w-full flex items-center gap-3 px-4 py-3.5 bg-white/90 backdrop-blur-sm border border-gold/50 rounded-xl shadow-lg text-left"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-transparent border border-white/40 rounded-xl backdrop-blur-sm"
           >
-            <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="text-sm text-muted-foreground">{placeholderText}</span>
+            <Search className="h-4 w-4 text-white shrink-0" />
           </button>
         </div>
       </div>
