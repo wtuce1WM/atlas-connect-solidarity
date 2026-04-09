@@ -1405,7 +1405,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* Full Description Overlay */}
       {showDescriptionOverlay && woDescription && (
-        <div className="absolute inset-0 -top-[3.3rem] z-[80] bg-background animate-slide-up-from-bottom overflow-y-auto">
+        <div className="absolute inset-0 -top-[3.3rem] z-[80] bg-background animate-zoom-out-center overflow-y-auto">
           <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 bg-background border-b border-border">
             <h2 className="text-sm font-semibold uppercase font-['Josefin_Sans',sans-serif] truncate">{business?.name}</h2>
             <button onClick={() => setShowDescriptionOverlay(false)} className="h-8 w-8 flex items-center justify-center rounded-full bg-black text-white shadow-lg hover:bg-black/80 transition-colors">
