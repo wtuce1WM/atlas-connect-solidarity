@@ -3072,7 +3072,7 @@ const SearchPage = () => {
             </section>
             {/* Sticky map for Destinations — shown when location known and no panel open */}
             {hasKnownLocation && !hasRightPanel && !hideDestMap && (
-              <div className="w-1/2 sticky top-0 h-screen z-[50] relative">
+              <div className="w-1/2 sticky top-0 h-screen z-[50] relative overflow-hidden">
                 <button onClick={() => setHideDestMap(true)} className="absolute top-3 left-3 z-[60] w-8 h-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors"><X className="h-4 w-4" /></button>
                 <PoiGoogleMap
                   pois={allDests}
