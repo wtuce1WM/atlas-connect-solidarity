@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { X, Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -89,15 +89,21 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName }: PanelAi
     );
   }, [answer, businesses, onClose]);
 
-  if (!open) return null;
+  const [closing, setClosing] = useState(false);
+  const handleClose = useCallback(() => {
+    setClosing(true);
+    setTimeout(() => { setClosing(false); onClose(); }, 200);
+  }, [onClose]);
+
+  if (!open && !closing) return null;
 
   return (
-    <div className="absolute inset-0 lg:-top-[3.3rem] z-[80] bg-background flex flex-col animate-in slide-in-from-bottom duration-200">
+    <div className={`absolute inset-0 lg:-top-[3.3rem] z-[80] bg-background flex flex-col ${closing ? "animate-out slide-out-to-bottom duration-200" : "animate-in slide-in-from-bottom duration-200"}`}>
       {/* Header */}
       <div className="shrink-0 flex items-center gap-3 px-4 py-3 border-b border-border">
         <button
           type="button"
-          onClick={onClose}
+          onClick={handleClose}
           className="w-9 h-9 rounded-full bg-foreground text-background flex items-center justify-center hover:opacity-90 transition-opacity"
         >
           <X className="h-4 w-4" />
