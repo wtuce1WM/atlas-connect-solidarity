@@ -927,18 +927,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   style={{ animationFillMode: 'forwards' }}
                 >
                   <div
-                    className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-gold [&_h2]:!font-bold [&_h3]:!font-bold"
+                    className={`prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-gold [&_h2]:!font-bold [&_h3]:!font-bold ${woDescription.replace(/<[^>]*>/g, "").length > 1500 ? 'pb-10' : ''}`}
                     dangerouslySetInnerHTML={{ __html: woDescription }}
                   />
                   {woDescription.replace(/<[^>]*>/g, "").length > 1500 && (
-                    <div className="sticky bottom-0 flex justify-end pt-1 pb-0.5">
                     <button
-                      className="h-8 w-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-sm"
+                      onClick={() => setShowDescriptionOverlay(true)}
+                      className="absolute bottom-3 right-3 h-8 w-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-sm"
                       title="Lire tout"
                     >
                       <Expand className="h-5 w-5 text-white" strokeWidth={3} />
                     </button>
-                    </div>
                   )}
                 </div>
               )}
