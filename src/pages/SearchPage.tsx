@@ -131,6 +131,7 @@ interface SearchResult {
 }
 
 const ITEMS_PER_PAGE = 20;
+const SERVER_PAGE_SIZE = ITEMS_PER_PAGE + 1; // Request 1 extra to compensate for the AI suggestion card slot
 
 const normalizeSearchMode = (value: unknown): "strict" | "broad" | null => {
   if (typeof value !== "string") return null;
