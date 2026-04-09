@@ -914,7 +914,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           className={`transition-all duration-300 ease-in-out ${cardsHidden ? 'translate-x-full opacity-0 pointer-events-none max-h-0 overflow-hidden' : 'translate-x-0 opacity-100'}`}
         >
         {/* Info Carousel */}
-        <div className="shrink-0 w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto">
+        <div className="shrink-0 w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto animate-slide-in-left">
           <div className="flex w-max gap-2 items-start">
             <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
             {woDescription && (
@@ -1033,7 +1033,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         </div>
 
         {/* Tab content */}
-        <div className="shrink-0 h-[9.5rem] md:h-[12.5rem] lg:h-[17.5rem]">
+        <div className="shrink-0 h-[9.5rem] md:h-[12.5rem] lg:h-[17.5rem] animate-slide-in-left">
         {/* Videos tab */}
         {activeBottomTab === "videos" && hasVideosCarousel && (
           <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
