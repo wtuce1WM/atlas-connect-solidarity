@@ -429,7 +429,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
       {showDirections && destination.latitude && destination.longitude && (() => {
         const dest = `${destination.latitude},${destination.longitude}`;
         return (
-          <div className="absolute inset-0 z-[75] bg-white flex flex-col animate-slide-in-right">
+          <div className="absolute inset-0 z-[75] bg-white flex flex-col animate-slide-up-from-bottom">
             <div className="shrink-0 flex items-center px-4 py-2 border-b bg-white">
               <button onClick={() => setShowDirections(false)} className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity" aria-label="Fermer l'itinéraire">
                 <X className="h-4 w-4" />
