@@ -49,6 +49,7 @@ import LocationPickerDialog from "@/components/LocationPickerDialog";
 import WarningOverlay from "@/components/WarningOverlay";
 import EmergencyNumbers from "@/components/EmergencyNumbers";
 import { useSearchHistory } from "@/hooks/useSearchHistory";
+import PanelSearchBar from "@/components/PanelSearchBar";
 
 interface Business {
   id: string;
