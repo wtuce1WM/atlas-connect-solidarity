@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from "react";
 import { businessUrl } from "@/lib/businessUrl";
-import { MapPin, ChevronLeft, ChevronDown, ChevronUp, X, Navigation, Minimize2, Map as MapIcon, Play, Pause, Volume2, VolumeX, Star } from "lucide-react";
+import { MapPin, ChevronLeft, ChevronDown, ChevronUp, X, Navigation, Minimize2, Map as MapIcon, Star } from "lucide-react";
+import VideoControls from "@/components/VideoControls";
 import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton, useOwnerLogo, OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 import { useNavigate } from "react-router-dom";
 import BottomTabsCarousel, { TabScrollRail, TabVideoCard, TabYouTubeCard, TabCard, type BottomTabConfig } from "@/components/BottomTabsCarousel";
