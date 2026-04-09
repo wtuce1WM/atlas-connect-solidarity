@@ -9,6 +9,8 @@ interface VoiceSearchOverlayProps {
   contained?: boolean;
 }
 
+const ACCENT = "#6050dc";
+
 const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose, onFinish, contained = false }: VoiceSearchOverlayProps) => {
   if (!isOpen) return null;
 
@@ -35,19 +37,51 @@ const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose, onFinish, contain
         )}
       </div>
 
-      {/* Mic button with pulsing rings */}
+      {/* Mic button with conic gradient ring */}
       <div className="flex-1 flex items-start justify-center pt-12">
         <div className="relative">
-          {/* Pulsing rings */}
-          <div className="absolute inset-0 -m-4 rounded-full bg-destructive/10 animate-ping" style={{ animationDuration: "1.5s" }} />
-          <div className="absolute inset-0 -m-2 rounded-full bg-destructive/5 animate-pulse" />
-          
+          {/* Outer subtle rings */}
+          <div
+            className="absolute rounded-full animate-ping pointer-events-none"
+            style={{
+              inset: "-32px",
+              border: `1.5px solid ${ACCENT}15`,
+              animationDuration: "2.4s",
+            }}
+          />
+          <div
+            className="absolute rounded-full animate-pulse pointer-events-none"
+            style={{
+              inset: "-20px",
+              border: `1px solid ${ACCENT}10`,
+            }}
+          />
+
+          {/* Spinning conic gradient ring */}
+          <div
+            className="absolute rounded-full pointer-events-none"
+            style={{
+              inset: "-6px",
+              background: `conic-gradient(from 0deg, transparent 0%, ${ACCENT} 35%, ${ACCENT}80 50%, transparent 70%)`,
+              animation: "spin 2s linear infinite",
+            }}
+          />
+          {/* Inner mask to create the ring effect */}
+          <div
+            className="absolute rounded-full bg-background pointer-events-none"
+            style={{ inset: "-2px" }}
+          />
+
           {/* Main button */}
           <button
             onClick={liveTranscript && onFinish ? onFinish : onClose}
-            className="relative w-20 h-20 rounded-full bg-destructive flex items-center justify-center shadow-lg shadow-destructive/30 transition-transform hover:scale-105"
+            className="relative w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-105"
+            style={{
+              backgroundColor: "hsl(var(--background))",
+              boxShadow: `0 0 30px ${ACCENT}20`,
+            }}
           >
-            <Mic className="h-8 w-8 text-white" />
+            <Mic className="h-8 w-8" style={{ color: ACCENT }} />
           </button>
         </div>
       </div>
