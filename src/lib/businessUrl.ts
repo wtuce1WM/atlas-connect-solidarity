@@ -4,5 +4,5 @@
  */
 export function businessUrl(business: { id: string; slug?: string | null }): string {
   const slug = (business as any).slug;
-  return `/business/${slug || business.id}`;
+  return `/fiche/${slug || business.id}`;
 }

@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate, useParams } from "react-router-dom";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import FloatingSearchBar from "@/components/FloatingSearchBar";
 import StaffRouteGuard from "@/components/StaffRouteGuard";
@@ -65,6 +65,11 @@ const queryClient = new QueryClient();
 
 const renderLazyRoute = (page: JSX.Element) => <Suspense fallback={null}>{page}</Suspense>;
 
+const BusinessRedirect = () => {
+  const { slug } = useParams();
+  return <Navigate to={`/fiche/${slug}`} replace />;
+};
+
 const GlobalFloatingSearchBar = () => {
   const location = useLocation();
   // Hide on home page and staff/affiliate backoffice pages
@@ -104,7 +109,7 @@ const AppContent = () => {
           <RouteTransition>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/business/:slug" element={renderLazyRoute(<BusinessDetail />)} />
+              <Route path="/business/:slug" element={<BusinessRedirect />} />
               <Route path="/city/:city" element={renderLazyRoute(<CityMap />)} />
               <Route path="/category/:categoryName" element={renderLazyRoute(<CategoryPage />)} />
               <Route path="/service/*" element={renderLazyRoute(<ServicePage />)} />
