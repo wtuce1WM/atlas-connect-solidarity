@@ -777,6 +777,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         onTouchMove={externalVideoInteractiveMode ? undefined : onTouchMove}
         onTouchEnd={externalVideoInteractiveMode ? undefined : onTouchEnd}
       >
+        {/* Spacer pushes content to bottom */}
+        <div className="flex-1 min-h-0" />
+
         {/* Top bar: toggle, flags, rating */}
         <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex flex-col items-center pb-5 md:pb-3 pointer-events-auto animate-[slide-in-top_0.35s_ease-out_both] mt-1 md:mt-0">
           {cardsHidden ? (
