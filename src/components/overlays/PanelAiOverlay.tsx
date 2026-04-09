@@ -103,7 +103,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName }: PanelAi
       <div className="shrink-0 flex items-center gap-3 px-4 py-3 border-b border-border">
         <button
           type="button"
-          onClick={onClose}
+          onClick={handleClose}
           className="w-9 h-9 rounded-full bg-foreground text-background flex items-center justify-center hover:opacity-90 transition-opacity"
         >
           <X className="h-4 w-4" />
