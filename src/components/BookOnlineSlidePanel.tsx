@@ -1401,7 +1401,24 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         />
       )}
 
-      {/* Directions Overlay */}
+      {/* Full Description Overlay */}
+      {showDescriptionOverlay && woDescription && (
+        <div className="absolute inset-0 -top-[3.3rem] z-[80] bg-background animate-slide-up-from-bottom overflow-y-auto">
+          <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 bg-background border-b border-border">
+            <h2 className="text-sm font-semibold uppercase font-['Josefin_Sans',sans-serif] truncate">{business?.name}</h2>
+            <button onClick={() => setShowDescriptionOverlay(false)} className="h-8 w-8 flex items-center justify-center rounded-full bg-black text-white shadow-lg hover:bg-black/80 transition-colors">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="p-4 md:p-6">
+            <div
+              className="prose max-w-none prose-josefin-headings prose-h2:text-xl prose-h3:text-lg prose-a:text-primary [&_p:empty]:min-h-[1em] [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_table]:border-collapse [&_table]:w-full [&_table]:table-fixed [&_td]:border [&_td]:border-border [&_td]:p-4 [&_td]:align-top [&_td]:text-xs [&_td_img]:w-full [&_td_img]:h-36 [&_td_img]:object-cover [&_td_img]:rounded-md [&_td_img]:block [&_th]:border [&_th]:border-border [&_th]:p-2 [&_th]:bg-muted/50 [&_th]:font-semibold [&_img]:max-w-full [&_img]:rounded-md [&_iframe]:max-w-full [&_iframe]:rounded-md [&_mark]:bg-yellow-200 [&_mark]:px-0.5 [&_blockquote]:border-l-4 [&_blockquote]:border-primary/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_hr]:border-border text-muted-foreground prose-headings:text-foreground leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: woDescription }}
+            />
+          </div>
+        </div>
+      )}
+
       {showDirections && business && (
         <div
           className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[80] bg-background"
