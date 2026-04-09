@@ -407,6 +407,9 @@ const SearchPage = () => {
     return () => mql.removeEventListener("change", onChange);
   }, []);
   const [showMobileMap, setShowMobileMap] = useState(false);
+  const [hideResultsMap, setHideResultsMap] = useState(false);
+  const [hidePoiMap, setHidePoiMap] = useState(false);
+  const [hideDestMap, setHideDestMap] = useState(false);
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [detectedSubcategory, setDetectedSubcategory] = useState<string | null>(null);
@@ -2139,6 +2142,9 @@ const SearchPage = () => {
                 setOverlaySelectedBusiness(null);
                 setIsOverlayPanelExpanded(false);
                 setActiveTab(tab.key as any);
+                setHideResultsMap(false);
+                setHidePoiMap(false);
+                setHideDestMap(false);
                 const btn = e.currentTarget;
                 const container = btn.parentElement;
                 if (container) {
@@ -2895,8 +2901,8 @@ const SearchPage = () => {
 
         return (
           <div className="flex">
-            <section className={`pb-6 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${(poiSelectedBusinessId || poiMapBusiness) ? "w-1/2" : hasKnownLocation ? "w-1/2" : "w-full"}`}>
-              <div className={`mx-auto px-4 ${(poiSelectedBusinessId || poiMapBusiness || hasKnownLocation) ? "max-w-full" : "max-w-[80%]"}`}>
+            <section className={`pb-6 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${(poiSelectedBusinessId || poiMapBusiness) ? "w-1/2" : (hasKnownLocation && !hidePoiMap) ? "w-1/2" : "w-full"}`}>
+              <div className={`mx-auto px-4 ${(poiSelectedBusinessId || poiMapBusiness || (hasKnownLocation && !hidePoiMap)) ? "max-w-full" : "max-w-[80%]"}`}>
                 {/* Sticky bar for POI — Carte badge only */}
                 <div className="sticky z-[19] bg-white lg:bg-white flex items-center justify-center px-4 gap-2 relative py-4 sm:py-4 lg:py-1.5 lg:hidden" style={{ top: '53px' }}>
                   {isSubDesktop && (
@@ -2933,8 +2939,9 @@ const SearchPage = () => {
               </div>
             </section>
             {/* Sticky map for POI — shown when location known and no panel open */}
-            {hasKnownLocation && !poiSelectedBusinessId && !poiMapBusiness && (
+            {hasKnownLocation && !poiSelectedBusinessId && !poiMapBusiness && !hidePoiMap && (
               <div className="w-1/2 sticky top-0 h-screen z-[50] relative">
+                <button onClick={() => setHidePoiMap(true)} className="absolute top-3 left-3 z-[60] w-8 h-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors"><X className="h-4 w-4" /></button>
                 <PoiGoogleMap
                   pois={allPois}
                   selectedPoiId={hoveredPoiId || null}
@@ -3012,8 +3019,8 @@ const SearchPage = () => {
         const hasRightPanel = !!destMapItem || !!selectedDestination;
         return (
           <div className="flex">
-            <section className={`pb-6 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${hasRightPanel ? "w-1/2" : hasKnownLocation ? "w-1/2" : "w-full"}`}>
-              <div className={`mx-auto px-4 ${(hasRightPanel || hasKnownLocation) ? "max-w-full" : "max-w-[80%]"}`}>
+            <section className={`pb-6 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${hasRightPanel ? "w-1/2" : (hasKnownLocation && !hideDestMap) ? "w-1/2" : "w-full"}`}>
+              <div className={`mx-auto px-4 ${(hasRightPanel || (hasKnownLocation && !hideDestMap)) ? "max-w-full" : "max-w-[80%]"}`}>
                 {/* Sticky bar for Destinations — Carte badge only */}
                 <div className="sticky z-[19] bg-white lg:bg-white flex items-center justify-center px-4 gap-2 relative py-4 sm:py-4 lg:py-1.5 lg:hidden" style={{ top: '53px' }}>
                   {isSubDesktop && (
@@ -3064,8 +3071,9 @@ const SearchPage = () => {
               </div>
             </section>
             {/* Sticky map for Destinations — shown when location known and no panel open */}
-            {hasKnownLocation && !hasRightPanel && (
+            {hasKnownLocation && !hasRightPanel && !hideDestMap && (
               <div className="w-1/2 sticky top-0 h-screen z-[50] relative">
+                <button onClick={() => setHideDestMap(true)} className="absolute top-3 left-3 z-[60] w-8 h-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors"><X className="h-4 w-4" /></button>
                 <PoiGoogleMap
                   pois={allDests}
                   selectedPoiId={hoveredDestId || null}
@@ -3257,7 +3265,7 @@ const SearchPage = () => {
                 )}
               </div>
               {/* Fallback-style cards in 4-column grid */}
-              <div className={`grid gap-4 pt-10 sm:pt-4 lg:pt-6 pb-28 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : hasKnownLocation ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
+              <div className={`grid gap-4 pt-10 sm:pt-4 lg:pt-6 pb-28 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : (hasKnownLocation && !hideResultsMap) ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
                 {paginatedBusinesses.map((business, index) => {
                   const img = business.images?.[0] || business.logo_url;
                   const avgOn20 = (business as any).computed_rating ?? business.rating ?? null;
@@ -3556,8 +3564,9 @@ const SearchPage = () => {
           ) : null}
         </div>
         {/* Right side: Sticky Google Map when city/neighborhood known */}
-        {hasKnownLocation && !compactPanelBusiness && (
+        {hasKnownLocation && !compactPanelBusiness && !hideResultsMap && (
           <div className="w-1/2 sticky top-0 h-screen z-[50] relative">
+            <button onClick={() => setHideResultsMap(true)} className="absolute top-3 left-3 z-[60] w-8 h-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors"><X className="h-4 w-4" /></button>
             <PoiGoogleMap
               pois={mapPoiItems}
               selectedPoiId={hoveredResultId || compactPanelBusiness?.id || null}
