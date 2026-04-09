@@ -169,7 +169,7 @@ const Header = ({ variant = "default", compact = false, rightContent }: HeaderPr
           >
             {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
-          <a href="/" className="flex items-center gap-2 shrink-0">
+          <a href="/" className={`items-center gap-2 shrink-0 ${compact ? "hidden md:flex" : "flex"}`}>
             <span className="text-lg font-bold tracking-tight" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em", textTransform: "uppercase" }}>
               {compact ? (
                 <span className="text-foreground">1WM</span>
