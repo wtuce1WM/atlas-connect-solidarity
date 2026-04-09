@@ -89,7 +89,7 @@ export function CtaBar({
   setBookingOverlayTitle,
   setActiveBusinessId,
 }: CtaBarProps) {
-  const hasBottomActionCtas = !!bookingCta || !!shopCta || (!cardsHidden && showGoogleMap && business?.latitude && business?.longitude);
+  const hasBottomActionCtas = (!cardsHidden && (!!bookingCta || !!shopCta)) || (!cardsHidden && showGoogleMap && business?.latitude && business?.longitude);
 
   // Hide when cards hidden + availability confirmed
   const hideStyle = (cardsHidden && fallbackPanelData && (() => {
