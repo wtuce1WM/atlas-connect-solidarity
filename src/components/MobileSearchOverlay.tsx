@@ -178,7 +178,6 @@ const MobileSearchOverlay = ({
           onClick={() => {
             if (onVoiceStart) {
               onVoiceStart();
-              setTimeout(() => onClose(), 300);
             } else {
               voice.toggleRecording();
             }
