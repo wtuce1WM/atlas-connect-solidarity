@@ -1,5 +1,4 @@
 import { useState, useEffect, lazy, Suspense } from "react";
-import { Navigate as RRNavigate } from "react-router-dom";
 import "@/hooks/useRecentlyViewedBusinesses"; // register global track-business-view listener
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
