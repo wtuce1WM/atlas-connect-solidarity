@@ -1370,10 +1370,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           <BookingOverlay
             bookingUrl={finalUrl}
             title={bookingOverlayUrl ? bookingOverlayTitle : undefined}
-            onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setBookingOverlayLoaded(false); }}
+            onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setBookingOverlayLoaded(false); setBookingOverlayHideContact(false); }}
             whatsapp={business?.whatsapp}
             phone={business?.phone}
             onLoad={() => setBookingOverlayLoaded(true)}
+            hideContact={bookingOverlayHideContact}
           />
         );
       })()}
