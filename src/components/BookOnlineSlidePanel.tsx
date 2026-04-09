@@ -923,17 +923,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           <div className="flex w-max gap-2 items-start">
             <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
             {woDescription && (
-              <div className={`snap-start shrink-0 w-[20rem] md:w-[30rem] h-[15em] md:h-[20em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10 relative`}
+              <div className="snap-start shrink-0 w-[20rem] md:w-[30rem] h-[15em] md:h-[20em] mb-4 relative animate-slide-in-left opacity-0"
                   style={{ animationFillMode: 'forwards' }}
                 >
-                  <div
-                    className={`prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-gold [&_h2]:!font-bold [&_h3]:!font-bold ${woDescription.replace(/<[^>]*>/g, "").length > 1500 ? 'pb-10' : ''}`}
-                    dangerouslySetInnerHTML={{ __html: woDescription }}
-                  />
+                  <div className="h-full rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto border border-white/10">
+                    <div
+                      className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-gold [&_h2]:!font-bold [&_h3]:!font-bold"
+                      dangerouslySetInnerHTML={{ __html: woDescription }}
+                    />
+                  </div>
                   {woDescription.replace(/<[^>]*>/g, "").length > 1500 && (
                     <button
                       onClick={() => setShowDescriptionOverlay(true)}
-                      className="absolute bottom-3 right-3 h-8 w-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-sm"
+                      className="absolute bottom-3 right-3 h-8 w-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-sm z-10"
                       title="Lire tout"
                     >
                       <Expand className="h-5 w-5 text-white" strokeWidth={3} />
