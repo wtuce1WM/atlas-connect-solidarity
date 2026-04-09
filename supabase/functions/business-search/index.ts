@@ -143,6 +143,8 @@ interface SearchParams {
   longitude?: number;
   radiusKm?: number;
   limit?: number;
+  offset?: number;
+  pageSize?: number;
 }
 
 interface Business {
