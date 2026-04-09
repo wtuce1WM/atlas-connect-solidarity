@@ -14,6 +14,7 @@ interface ContactFlipCardProps {
     email: string | null;
     website: string | null;
     website_force_external?: boolean;
+    website_presentation_mode?: string;
     latitude: number | null;
     longitude: number | null;
     is_open_24h: boolean;
