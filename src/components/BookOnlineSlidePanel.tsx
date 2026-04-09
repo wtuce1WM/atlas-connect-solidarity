@@ -938,6 +938,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     >
                       <Expand className="h-5 w-5 text-white" strokeWidth={3} />
                     </button>
+                    </div>
                   )}
                 </div>
               )}
