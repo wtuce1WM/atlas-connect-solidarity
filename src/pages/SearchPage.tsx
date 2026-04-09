@@ -38,6 +38,8 @@ import DestinationSection, { type DestinationItem } from "@/components/Destinati
 import DestinationBusinessesPanel from "@/components/DestinationBusinessesPanel";
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
 import AISearchAnswer, { parseInline, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
+import SearchResultCard from "@/components/SearchResultCard";
+import AISuggestionCard from "@/components/AISuggestionCard";
 import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
@@ -3068,8 +3070,8 @@ const SearchPage = () => {
                     </button>
                   )}
                 </div>
-                
-                
+
+
                 <DestinationSection
                   city={destCity}
                   language={language}
@@ -3304,232 +3306,34 @@ const SearchPage = () => {
               {/* Fallback-style cards in 4-column grid */}
               <div className={`grid gap-4 pt-10 sm:pt-6 lg:pt-14 pb-28 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : (hasKnownLocation && !hideResultsMap) ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
                 {paginatedBusinesses.map((business, index) => {
-                  const img = business.images?.[0] || business.logo_url;
-                  const avgOn20 = (business as any).computed_rating ?? business.rating ?? null;
-                  const totalReviews = (business as any).total_review_count ?? 0;
-                  const subcat = business.categories?.[0] || null;
-
-                   const card = (
-                     <div
-                       key={business.id}
-                       data-result-card={index === 0 ? "true" : undefined}
-                       onClick={() => openCompactPanel({ id: business.id, name: business.name } as AIBusinessData)}
+                  const card = (
+                    <SearchResultCard
+                      key={business.id}
+                      business={business as any}
+                      index={index}
+                      labelLogos={businessLabelLogos[business.id] || []}
+                      distanceKm={getDistanceKm(business)}
+                      onClick={() => openCompactPanel({ id: business.id, name: business.name } as AIBusinessData)}
                       onMouseEnter={() => setHoveredResultId(business.id)}
                       onMouseLeave={() => setHoveredResultId(null)}
-                      className="group overflow-hidden rounded-xl border border-border shadow-sm hover:shadow-md transition-all cursor-pointer relative aspect-square bg-muted"
-                    >
-                        {img ? (
-                          <img src={img} alt={business.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
-                        ) : (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <Building2 className="h-10 w-10 text-muted-foreground" />
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                        {business.wtuce_status === "verified" && (
-                          <div className="absolute top-2 right-2 z-[15]">
-                            <img src={logoGold} alt="Vérifié" className="w-12 h-12 object-contain" />
-                          </div>
-                        )}
-                        
-                        <div className="absolute top-2 left-2 z-[15] flex flex-wrap gap-1">
-                          {subcat && (
-                            <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-gold text-gold-foreground">
-                              {subcat}
-                            </span>
-                          )}
-                          {business.default_service && (
-                            <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-black text-white border border-white/20">
-                              {business.default_service}
-                            </span>
-                          )}
-                          {(() => {
-                            if (!business.is_open_24h && !business.show_opening_hours) return null;
-                            if (business.is_open_24h) {
-                              return <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#25D366] text-black">Ouvert 24h</span>;
-                            }
-                            if (!business.opening_hours) return null;
-
-                            const frToEn: Record<string, string> = {
-                              lundi: "monday", mardi: "tuesday", mercredi: "wednesday", jeudi: "thursday",
-                              vendredi: "friday", samedi: "saturday", dimanche: "sunday",
-                            };
-                            const rawOH = business.opening_hours as Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }>;
-                            const oh = Object.entries(rawOH).reduce((acc, [k, v]) => {
-                              acc[frToEn[k] || k] = v;
-                              return acc;
-                            }, {} as Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }>);
-
-                            const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-                            const now = new Date();
-                            const todayKey = days[now.getDay()];
-                            if (isCurrentlyOpenCheck(oh[todayKey])) {
-                              return <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#25D366] text-black">Ouvert</span>;
-                            }
-
-                            const nowMin = now.getHours() * 60 + now.getMinutes();
-                            const dh = oh[todayKey];
-                            let badge: string | null = null;
-                            if (dh && !dh.closed && dh.open) {
-                              const [oH, oM] = dh.open.split(":").map(Number);
-                              if (oH * 60 + (oM || 0) > nowMin) badge = `Ouvre à ${dh.open}`;
-                              else if (dh.open2 && !dh.continuous) {
-                                const [oH2, oM2] = dh.open2.split(":").map(Number);
-                                if (oH2 * 60 + (oM2 || 0) > nowMin) badge = `Ouvre à ${dh.open2}`;
-                              }
-                            }
-                            if (!badge) {
-                              const dayLabels = ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."];
-                              for (let i = 1; i <= 7; i++) {
-                                const idx = (now.getDay() + i) % 7;
-                                const nd = oh[days[idx]];
-                                if (nd && !nd.closed && nd.open) {
-                                  badge = `Ouvre ${dayLabels[idx]} à ${nd.open}`;
-                                  break;
-                                }
-                              }
-                            }
-                            if (!badge) return null;
-                            return <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary text-primary-foreground">{badge}</span>;
-                          })()}
-                        </div>
-                        <div className="absolute bottom-0 left-0 right-0 z-[15] p-3 space-y-1">
-                          {/* Label logos - above name */}
-                          {businessLabelLogos[business.id]?.length > 0 && (
-                            <div className="flex gap-2">
-                              {businessLabelLogos[business.id].map((logoUrl, li) => (
-                                <img key={li} src={logoUrl} alt="" className="h-14 w-auto object-contain drop-shadow-lg" />
-                              ))}
-                            </div>
-                          )}
-                          <p className="font-semibold text-base text-white leading-tight line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}>{business.name}</p>
-                          {avgOn20 !== null && (
-                            <div className="flex items-center gap-1.5 text-xs">
-                              <Star className="h-3 w-3 text-gold fill-gold" />
-                              <span className="font-medium text-white">{avgOn20}/20</span>
-                              {totalReviews > 0 && (
-                                <span className="text-white/70">· {totalReviews} avis</span>
-                              )}
-                            </div>
-                          )}
-                          {business.city && (
-                            <div className="flex items-center gap-1 text-xs text-white/60">
-                              <MapPin className="h-3 w-3" />
-                              <span className="truncate">{business.neighborhood ? `${business.city}, ${business.neighborhood}` : business.city}</span>
-                              {(() => {
-                                const dist = getDistanceKm(business);
-                                if (dist == null) return null;
-                                return (
-                                  <span className="ml-auto text-[10px] font-medium text-gold whitespace-nowrap">
-                                    {dist < 1 ? `${Math.round(dist * 1000)} m` : `${dist.toFixed(1)} km`}
-                                  </span>
-                                );
-                              })()}
-                            </div>
-                          )}
-                          {/* Engagements, Certifications & Logistics badges */}
-                          {(() => {
-                            const engs = (business.engagements || []);
-                            const standards = engs.filter(e => !e.startsWith("Logistique:") && !e.startsWith("Certification:"));
-                            const certifications = engs.filter(e => e.startsWith("Certification:")).map(e => e.replace("Certification:", "").trim());
-                            const logistics = engs.filter(e => e.startsWith("Logistique:")).map(e => e.replace("Logistique:", "").trim());
-                            if (standards.length === 0 && logistics.length === 0 && certifications.length === 0) return null;
-                            const getLogIcon = (l: string) => {
-                              const lower = l.toLowerCase();
-                              if (lower.includes("livraison")) return Truck;
-                              if (lower.includes("pmr") || lower.includes("handicap") || lower.includes("accès")) return Accessibility;
-                              return Package;
-                            };
-                            return (
-                              <div className="flex flex-wrap gap-1 mt-0.5">
-                                {certifications.map((c, i) => (
-                                  <span key={`c-${i}`} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-amber-500/30 text-amber-200 backdrop-blur-sm">
-                                    <Award className="h-2.5 w-2.5" />{c}
-                                  </span>
-                                ))}
-                                {standards.map((e, i) => (
-                                  <span key={`e-${i}`} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-green-500/30 text-green-200 backdrop-blur-sm">
-                                    <Leaf className="h-2.5 w-2.5" />{e}
-                                  </span>
-                                ))}
-                                {logistics.map((l, i) => {
-                                  const Icon = getLogIcon(l);
-                                  return (
-                                    <span key={`l-${i}`} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-blue-500/30 text-blue-200 backdrop-blur-sm">
-                                      <Icon className="h-2.5 w-2.5" />{l}
-                                    </span>
-                                  );
-                                })}
-                              </div>
-                            );
-                          })()}
-                        </div>
-                    </div>
+                    />
                   );
 
-                  // Insert AI suggestion card (stable slot) after the 3rd result (index 2), only on page 1 and not when showing same-category
                   if (index === 2 && currentPage === 1) {
-                    const isAiReady = !!stickyAiText;
                     return [
                       card,
-                      <div
+                      <AISuggestionCard
                         key="ai-suggestion-card"
-                        className={`overflow-hidden rounded-xl border-2 shadow-md relative aspect-square bg-gradient-to-br from-gold/5 via-background to-gold/10 flex flex-col transition-colors transition-shadow ${
-                          isAiReady
-                            ? "border-gold/60 cursor-pointer hover:shadow-lg hover:border-gold"
-                            : "border-gold/30"
-                        }`}
-                        onClick={isAiReady ? () => setShowAiPopup(true) : undefined}
-                      >
-                        <div className="absolute top-2 left-2 flex items-center gap-1.5 z-10">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gold text-gold-foreground flex items-center gap-1">
-                            <Sparkles className="h-3 w-3" />
-                            Suggestion IA
-                          </span>
-                        </div>
-
-                        {isAiReady ? (
-                          <>
-                            <div className="flex-1 flex items-center p-4 pt-10 overflow-hidden">
-                              <p className="text-sm text-foreground/80 leading-relaxed line-clamp-[10]">
-                                {stickyAiText}
-                              </p>
-                            </div>
-                            <div className="p-3 pt-0">
-                              <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                                <Sparkles className="h-2.5 w-2.5 text-gold" />
-                                <span>{language === "fr" ? "Généré par IA à partir de vos résultats" : language === "ar" ? "تم إنشاؤه بالذكاء الاصطناعي" : "AI-generated from your results"}</span>
-                              </div>
-                            </div>
-                          </>
-                        ) : (
-                          <div className="flex-1 flex flex-col items-center justify-center px-4">
-                            <Loader2 className="h-6 w-6 animate-spin text-gold mb-2" />
-                            <span className="text-xs text-muted-foreground text-center">{language === "fr" ? "Suggestion IA en cours…" : language === "ar" ? "جارٍ التحميل…" : "Loading AI suggestion…"}</span>
-                          </div>
-                        )}
-                      </div>,
+                        stickyAiText={stickyAiText}
+                        language={language}
+                        onOpen={() => setShowAiPopup(true)}
+                      />,
                     ];
                   }
 
                   return card;
                 })}
               </div>
-              {/* OLD grouped/paginated BusinessCard display:
-              {groupedBusinesses ? (
-                <div className="space-y-10">
-                  {groupedBusinesses.map((group) => (
-                    <GroupedSubcategoryRow ... />
-                  ))}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {paginatedBusinesses.map((business) => (
-                    <BusinessCard ... />
-                  ))}
-                </div>
-              )}
-              */}
 
               {/* Pagination */}
               {totalPages > 1 && (
@@ -3596,7 +3400,6 @@ const SearchPage = () => {
         {/* Right side: Sticky Google Map when city/neighborhood known */}
         {hasKnownLocation && !compactPanelBusiness && !hideResultsMap && (
           <div className="w-1/2 sticky top-0 h-screen z-[50] relative overflow-hidden">
-            <button onClick={() => setHideResultsMap(true)} className="absolute top-3 left-3 z-[60] w-8 h-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors"><X className="h-4 w-4" /></button>
             <PoiGoogleMap
               pois={mapPoiItems}
               selectedPoiId={hoveredResultId || compactPanelBusiness?.id || null}
@@ -3606,32 +3409,12 @@ const SearchPage = () => {
               }}
               center={mapCenterForResults}
               fitToMarkers
-              subcategoryIconMap={subcategoryIconMap}
-              highlightColor={{ bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" }}
-            />
-            <PanelSearchBar
-              onSearch={(params) => {
-                setSelectedCategoryFilter(null);
-                setSelectedSubcategoryFilter(null);
-                setSelectedServiceFilter(null);
-                if (params.q) { setSearchQuery(params.q); setInputValue(params.q); }
-                setActiveTab("suggestions");
-                setSelectedCity("all");
-                setIsGeoCityAutoSelected(false);
-                setSearchParams(params);
-              }}
-              onBusinessSelect={(bizId) => {
-                setCompactPanelBusiness({ id: bizId, name: "" } as any);
-                setIsCompactPanelExpanded(false);
-              }}
-              closeTrigger={mapPanelCloseTrigger}
             />
           </div>
         )}
-        </div>
+      </div>
       </section>
       )}
-
 
       {/* Mobile/Tablet Map Overlay — slide-in from right */}
       {isSubDesktop && showMobileMap && (
