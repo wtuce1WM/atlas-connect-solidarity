@@ -363,33 +363,13 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [totalMedia]);
 
-  // Sync video state
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    const onPlay = () => setVideoPaused(false);
-    const onPause = () => setVideoPaused(true);
-    const onVol = () => setVideoMuted(v.muted);
-    v.addEventListener("play", onPlay);
-    v.addEventListener("pause", onPause);
-    v.addEventListener("volumechange", onVol);
-    setVideoPaused(v.paused);
-    setVideoMuted(v.muted);
-    return () => {
-      v.removeEventListener("play", onPlay);
-      v.removeEventListener("pause", onPause);
-      v.removeEventListener("volumechange", onVol);
-    };
-  }, [currentMedia]);
+  // Shared video sync hook
+  const { videoPaused, videoMuted, pauseAndMute } = useVideoSync(videoRef as React.RefObject<HTMLVideoElement>, currentMedia);
 
   // Pause & mute video when overlay opens
   useEffect(() => {
     const overlayOpen = showDirections || !!fullscreenVideo || !!activeBusinessId;
-    if (overlayOpen && videoRef.current) {
-      videoRef.current.pause();
-      videoRef.current.muted = true;
-      setVideoMuted(true);
-    }
+    if (overlayOpen) pauseAndMute();
   }, [showDirections, fullscreenVideo, activeBusinessId]);
 
   if (isLoading) {
