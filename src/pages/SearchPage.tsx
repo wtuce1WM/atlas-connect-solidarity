@@ -1385,7 +1385,7 @@ const SearchPage = () => {
 
     // Always sort by WTUCE status first, then by rating (highest first)
     return [...filtered].sort(sortWtuceAndRating);
-  }, [allBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots, detectedNeighborhood, searchLevel]);
+  }, [allBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots, detectedNeighborhood, searchLevel, totalCount]);
 
   // Build subcategory name → icon name map
   const subcategoryIconMap = useMemo(() => {
