@@ -661,8 +661,8 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
           />
 
           {/* CTA + video controls */}
-          {destination.latitude && destination.longitude && (
-            <div className="shrink-0 py-2 flex flex-col items-center gap-2">
+          <div className={`shrink-0 ${showSearchBar ? 'absolute bottom-[56px] left-0 right-0 z-[74] pb-[14px] md:pb-[10px]' : 'py-2 lg:pb-2'} flex flex-col items-center gap-2 pointer-events-auto`}>
+            {!cardsHidden && destination.latitude && destination.longitude && (
               <div className="w-full md:w-3/4 flex justify-center gap-2">
                 <div className="flex-1 md:flex-none md:w-1/3">
                   <button
@@ -675,18 +675,11 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
                   </button>
                 </div>
               </div>
-              {currentMedia?.kind === "video" && (
-                <div className="flex items-center gap-6 md:gap-10 mt-1 animate-slide-up-from-bottom">
-                  <button type="button" onClick={() => { if (videoRef.current) { videoRef.current.paused ? videoRef.current.play() : videoRef.current.pause(); } }} className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors" aria-label={videoPaused ? "Play" : "Pause"}>
-                    {videoPaused ? <Play className="h-5 w-5 md:h-6 md:w-6" /> : <Pause className="h-5 w-5 md:h-6 md:w-6" />}
-                  </button>
-                  <button type="button" onClick={() => { if (videoRef.current) videoRef.current.muted = !videoRef.current.muted; }} className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors" aria-label={videoMuted ? "Unmute" : "Mute"}>
-                    {videoMuted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+            )}
+            {currentMedia?.kind === "video" && (
+              <VideoControls type="file" videoRef={videoRef as React.RefObject<HTMLVideoElement>} paused={videoPaused} muted={videoMuted} className="mt-2 md:mt-3 animate-slide-in-right" />
+            )}
+          </div>
         </div>
       </div>
 
