@@ -306,6 +306,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     }
   }, [businessId, resetDrag]);
 
+  const infoCarouselRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoPaused, setVideoPaused] = useState(true);
   const [videoMuted, setVideoMuted] = useState(true);
