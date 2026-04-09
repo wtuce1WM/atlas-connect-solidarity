@@ -4840,33 +4840,12 @@ serve(async (req) => {
       }
     }
 
-    // If results hit the limit, do a count query to get the true total
-    // (works for city-scoped and national queries like "maroc")
-    let totalCount: number | undefined;
-    if (businesses.length >= limit) {
-      try {
-        let countBuilder = supabase
-          .from("businesses")
-          .select("id", { count: "exact", head: true })
-          .eq("is_active", true);
+    // totalCount is always the full processed result count
+    const totalCount = businesses.length;
 
-        if (effectiveCity) {
-          countBuilder = countBuilder.ilike("city", effectiveCity);
-        }
-        if (effectiveCategory) {
-          countBuilder = countBuilder.eq("main_category", effectiveCategory);
-        }
-
-        const { count, error: countError } = await countBuilder;
-        console.log(`Count query (city=${effectiveCity || "all"}, category=${effectiveCategory || "all"}): count=${count}, error=${countError?.message || "none"}`);
-
-        if (!countError && count !== null && count > businesses.length) {
-          totalCount = count;
-        }
-      } catch (e) {
-        console.warn("Count query failed:", e);
-      }
-    }
+    // Apply server-side pagination: slice the full result set
+    const paginatedBusinesses = businesses.slice(offset, offset + pageSize);
+    console.log(`Pagination: totalCount=${totalCount}, offset=${offset}, pageSize=${pageSize}, returning=${paginatedBusinesses.length}`);
 
     // Determine disambiguation type
     // Skip disambiguation when few results (≤ 5) — the user already has a manageable list
