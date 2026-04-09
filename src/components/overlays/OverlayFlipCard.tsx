@@ -64,34 +64,34 @@ const OverlayFlipCard = ({
           className="rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 flex h-full min-h-0 flex-col gap-5 text-white"
           style={{ backfaceVisibility: "hidden" }}
         >
-          <div className="flex items-end gap-4">
-            <div className="min-w-0 flex-1">
-              <h2 className="text-xl font-bold uppercase truncate drop-shadow-lg" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>{name}</h2>
-              {hook && (
-                <p className="text-sm md:text-lg leading-relaxed tracking-[0.02em] text-white/90 mt-1 line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{hook}</p>
-              )}
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-4">
+              <h2 className="text-xl font-bold uppercase truncate drop-shadow-lg min-w-0 flex-1" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>{name}</h2>
+              <div className="flex items-center gap-2 shrink-0">
+                {showMapButton && mapMarkers.length > 0 && (
+                  <button
+                    onClick={onFlip}
+                    className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                    aria-label="Voir la carte"
+                    title="Voir sur la carte"
+                  >
+                    <MapIcon className="h-4 w-4" />
+                  </button>
+                )}
+                {description && (
+                  <button
+                    onClick={onToggleDesc}
+                    className="shrink-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                    aria-label={descExpanded ? "Replier" : "Déplier"}
+                  >
+                    {descExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+                  </button>
+                )}
+              </div>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
-              {showMapButton && mapMarkers.length > 0 && (
-                <button
-                  onClick={onFlip}
-                  className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-                  aria-label="Voir la carte"
-                  title="Voir sur la carte"
-                >
-                  <MapIcon className="h-4 w-4" />
-                </button>
-              )}
-              {description && (
-                <button
-                  onClick={onToggleDesc}
-                  className="shrink-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-                  aria-label={descExpanded ? "Replier" : "Déplier"}
-                >
-                  {descExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-                </button>
-              )}
-            </div>
+            {hook && (
+              <p className="text-sm md:text-lg leading-relaxed tracking-[0.02em] text-white/90 line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{hook}</p>
+            )}
           </div>
 
           {description && descExpanded && (
