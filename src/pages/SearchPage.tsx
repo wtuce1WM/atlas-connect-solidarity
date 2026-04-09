@@ -1663,13 +1663,14 @@ const SearchPage = () => {
       setPreciseMatch(false);
       setSearchMode(null);
       try {
-        // Use edge function for full-text search
+        // Use edge function for full-text search with server-side pagination
         const { data, error } = await supabase.functions.invoke<SearchResult>("business-search", {
           body: { 
             query: searchQuery.trim() || categoryFromUrl || undefined,
             spoken: spokenText || undefined,
             language: language,
-            limit: 500,
+            pageSize: ITEMS_PER_PAGE,
+            offset: 0,
           }
         });
 
