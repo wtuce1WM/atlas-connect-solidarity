@@ -2929,8 +2929,8 @@ const SearchPage = () => {
           <div className="flex">
             <section className={`pb-6 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${(poiSelectedBusinessId || poiMapBusiness) ? "w-1/2" : (hasKnownLocation && !hidePoiMap) ? "w-1/2" : "w-full"}`}>
               <div className={`mx-auto px-4 ${(poiSelectedBusinessId || poiMapBusiness || (hasKnownLocation && !hidePoiMap)) ? "max-w-full" : "max-w-[80%]"}`}>
-                {/* Sticky bar for POI — Carte badge only */}
-                <div className="sticky z-[19] bg-white lg:bg-white flex items-center justify-center px-4 gap-2 relative py-4 sm:py-4 lg:py-1.5 lg:hidden" style={{ top: '53px' }}>
+                {/* Sticky bar for POI — Carte badge only (mobile/tablet) + desktop spacer */}
+                <div className="sticky z-[19] bg-white lg:bg-white flex items-center justify-center px-4 gap-2 relative py-4 sm:py-4 lg:py-5 lg:pointer-events-none" style={{ top: '53px' }}>
                   {isSubDesktop && (
                     <button
                       onClick={() => setShowMobileMap(true)}
@@ -3049,8 +3049,8 @@ const SearchPage = () => {
           <div className="flex">
             <section className={`pb-6 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${hasRightPanel ? "w-1/2" : (hasKnownLocation && !hideDestMap) ? "w-1/2" : "w-full"}`}>
               <div className={`mx-auto px-4 ${(hasRightPanel || (hasKnownLocation && !hideDestMap)) ? "max-w-full" : "max-w-[80%]"}`}>
-                {/* Sticky bar for Destinations — Carte badge only */}
-                <div className="sticky z-[19] bg-white lg:bg-white flex items-center justify-center px-4 gap-2 relative py-4 sm:py-4 lg:py-1.5 lg:hidden" style={{ top: '53px' }}>
+                {/* Sticky bar for Destinations — Carte badge only (mobile/tablet) + desktop spacer */}
+                <div className="sticky z-[19] bg-white lg:bg-white flex items-center justify-center px-4 gap-2 relative py-4 sm:py-4 lg:py-5 lg:pointer-events-none" style={{ top: '53px' }}>
                   {isSubDesktop && (
                     <button
                       onClick={() => setShowMobileMap(true)}
