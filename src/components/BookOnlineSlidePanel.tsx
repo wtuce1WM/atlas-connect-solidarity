@@ -1442,7 +1442,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       )}
 
       {showPoiMapOverlay && (
-        <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[60] bg-background flex flex-col animate-slide-in-right">
+        <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[80] bg-background flex flex-col" style={{ animation: "slide-up-from-bottom 0.4s ease-out both" }}>
           <div className="shrink-0 flex items-center px-4 py-2 border-b bg-background gap-2">
             <button
               onClick={() => { setShowPoiMapOverlay(false); setPoiMapMode("poi"); }}
