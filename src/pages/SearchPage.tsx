@@ -2110,7 +2110,7 @@ const SearchPage = () => {
     }
   };
 
-  const startResult = currentPage === 1 ? 1 : PAGE_1_ITEMS + (currentPage - 2) * ITEMS_PER_PAGE + 1;
+  const startResult = (currentPage - 1) * ITEMS_PER_PAGE + 1;
   const endResult = Math.min(startResult + paginatedBusinesses.length - 1, serverTotalCount);
   const displayedResultsCount = serverTotalCount;
   const stickyAiText = useMemo(
