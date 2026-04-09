@@ -746,12 +746,13 @@ const SearchPage = () => {
       const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
     const compactPanelInterceptCloseRef = useRef<(() => boolean) | null>(null);
 
-      const openCompactPanel = useCallback((bizOrData: AIBusinessData | { id: string; name: string }) => {
+       const openCompactPanel = useCallback((bizOrData: AIBusinessData | { id: string; name: string }) => {
         hasInteractedWithCompactPanelRef.current = true;
         const b = bizOrData as AIBusinessData;
         setCompactPanelBusiness(b);
         setIsCompactPanelExpanded(false);
         setIsNestedMosaicOpen(false);
+        setMapPanelCloseTrigger(n => n + 1);
       }, []);
 
       const closeCompactPanel = useCallback(() => {
