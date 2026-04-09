@@ -3515,11 +3515,6 @@ const SearchPage = () => {
                   return card;
                 })}
               </div>
-              {filteredBusinesses.length > 0 && (
-                <p className="text-xs text-muted-foreground font-medium mt-4 text-center">
-                  {t.showing} {startResult} {t.to} {endResult} {t.of} {filteredBusinesses.length} {t.results}
-                </p>
-              )}
               {/* OLD grouped/paginated BusinessCard display:
               {groupedBusinesses ? (
                 <div className="space-y-10">
