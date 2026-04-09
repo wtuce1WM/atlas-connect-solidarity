@@ -2923,6 +2923,7 @@ const SearchPage = () => {
                    onBusinessClick={(bizId) => {
                      setPoiMapBusiness(null);
                      setPoiSelectedBusinessId(bizId);
+                     setMapPanelCloseTrigger(n => n + 1);
                    }}
                   columns={hasKnownLocation ? 2 : undefined}
                   onMapClick={hasKnownLocation ? (biz) => { setHoveredPoiId(biz.id); } : (biz) => { setPoiSelectedBusinessId(null); setPoiMapBusiness({ id: biz.id, name: biz.name, latitude: biz.latitude, longitude: biz.longitude, address: biz.address, google_maps_url: biz.google_maps_url }); }}
