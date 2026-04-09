@@ -3316,7 +3316,7 @@ const SearchPage = () => {
           ) : !showCelebrityGuide && !showSosMedecin && !showPompiers && filteredBusinesses.length > 0 ? (
             <>
                {/* Bar: Results count + Carte — STICKY 5 */}
-               <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white flex items-center justify-center px-4 gap-2 relative py-3 sm:py-3 lg:hidden" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
+               <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white flex items-center justify-center px-4 gap-2 relative py-1.5 sm:py-1.5 lg:hidden" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
                 {isSubDesktop && (
                   <button
                     onClick={() => setShowMobileMap(true)}
@@ -3328,7 +3328,7 @@ const SearchPage = () => {
                 )}
               </div>
               {/* Fallback-style cards in 4-column grid */}
-              <div className={`grid gap-4 pt-10 sm:pt-3 lg:pt-6 pb-28 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : hasKnownLocation ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
+              <div className={`grid gap-4 pt-1 sm:pt-1 lg:pt-6 pb-28 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : hasKnownLocation ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
                 {paginatedBusinesses.map((business, index) => {
                   const img = business.images?.[0] || business.logo_url;
                   const avgOn20 = (business as any).computed_rating ?? business.rating ?? null;
