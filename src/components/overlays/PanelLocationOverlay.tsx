@@ -250,7 +250,7 @@ const PanelLocationOverlay = ({ open, onClose }: PanelLocationOverlayProps) => {
   const handleConfirm = () => {
     if (activeCoords) {
       geo.setManualLocation(activeCoords, selectedAddress || geo.detectedCity || "");
-      onClose();
+      handleClose();
     }
   };
 
