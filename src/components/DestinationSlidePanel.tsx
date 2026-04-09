@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from "react";
 import { businessUrl } from "@/lib/businessUrl";
-import { MapPin, ChevronLeft, ChevronDown, ChevronUp, X, Navigation, Minimize2, Map as MapIcon, Star } from "lucide-react";
+import { MapPin, ChevronDown, ChevronUp, X, Navigation, Minimize2, Star } from "lucide-react";
 import VideoControls from "@/components/VideoControls";
 import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton, useOwnerLogo, OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 import { useNavigate } from "react-router-dom";
 import BottomTabsCarousel, { TabScrollRail, TabVideoCard, TabYouTubeCard, TabCard, type BottomTabConfig } from "@/components/BottomTabsCarousel";
 import { useDragToHide } from "@/hooks/useDragToHide";
+import { useVideoSync } from "@/hooks/useVideoSync";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import wooshSfx from "@/assets/woosh.wav";
 import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
@@ -16,6 +17,7 @@ import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import { GOLD, getVideoInfo, playWoosh } from "@/lib/overlayConstants";
 import OverlayFlipCard from "@/components/overlays/OverlayFlipCard";
+import FullscreenVideoOverlay from "@/components/overlays/FullscreenVideoOverlay";
 import { LazyFullscreenLightbox } from "@/components/overlays/LazyOverlays";
 
 interface DestinationSlidePanelProps {
@@ -89,8 +91,6 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   }, []);
 
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [videoPaused, setVideoPaused] = useState(true);
-  const [videoMuted, setVideoMuted] = useState(true);
   const {
     cardsHidden, dragOffsetY, isDragging,
     showCards, hideCards,
@@ -363,33 +363,13 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [totalMedia]);
 
-  // Sync video state
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    const onPlay = () => setVideoPaused(false);
-    const onPause = () => setVideoPaused(true);
-    const onVol = () => setVideoMuted(v.muted);
-    v.addEventListener("play", onPlay);
-    v.addEventListener("pause", onPause);
-    v.addEventListener("volumechange", onVol);
-    setVideoPaused(v.paused);
-    setVideoMuted(v.muted);
-    return () => {
-      v.removeEventListener("play", onPlay);
-      v.removeEventListener("pause", onPause);
-      v.removeEventListener("volumechange", onVol);
-    };
-  }, [currentMedia]);
+  // Shared video sync hook
+  const { videoPaused, videoMuted, pauseAndMute } = useVideoSync(videoRef as React.RefObject<HTMLVideoElement>, currentMedia);
 
   // Pause & mute video when overlay opens
   useEffect(() => {
     const overlayOpen = showDirections || !!fullscreenVideo || !!activeBusinessId;
-    if (overlayOpen && videoRef.current) {
-      videoRef.current.pause();
-      videoRef.current.muted = true;
-      setVideoMuted(true);
-    }
+    if (overlayOpen) pauseAndMute();
   }, [showDirections, fullscreenVideo, activeBusinessId]);
 
   if (isLoading) {
@@ -469,29 +449,10 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         );
       })()}
 
-      {/* Fullscreen video overlay */}
-      {fullscreenVideo && (() => {
-        const fvInfo = getVideoInfo(fullscreenVideo);
-        let embedSrc = fullscreenVideo;
-        if (fvInfo.type === "youtube") embedSrc = `https://www.youtube.com/embed/${fvInfo.id}?autoplay=1&rel=0&controls=1&modestbranding=1`;
-        else if (fvInfo.type === "vimeo") embedSrc = `https://player.vimeo.com/video/${fvInfo.id}?autoplay=1`;
-        return (
-          <div className="absolute inset-0 z-[76] bg-black flex flex-col animate-slide-in-left">
-            <div className="shrink-0 flex items-center px-3 py-2">
-              <button onClick={() => setFullscreenVideo(null)} className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors" aria-label="Fermer">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="flex-1 min-h-0">
-              {fvInfo.type === "file" ? (
-                <video src={fullscreenVideo} className="w-full h-full object-contain" autoPlay controls playsInline />
-              ) : (
-                <iframe src={embedSrc} className="w-full h-full" allow="autoplay; encrypted-media; fullscreen" allowFullScreen frameBorder="0" style={{ border: 0 }} />
-              )}
-            </div>
-          </div>
-        );
-      })()}
+      {/* Fullscreen video overlay — shared component */}
+      {fullscreenVideo && (
+        <FullscreenVideoOverlay videoUrl={fullscreenVideo} onClose={() => setFullscreenVideo(null)} />
+      )}
 
       {/* Mosaic overlay */}
       {showMosaic && (
