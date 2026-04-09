@@ -305,10 +305,10 @@ const MobileSearchOverlay = ({
               <button
                 type="button"
                 onClick={() => {
-                  onClose();
                   if (onAiSuggestionClick) {
                     onAiSuggestionClick();
                   } else {
+                    onClose();
                     navigate("/search?showAi=true");
                   }
                 }}
