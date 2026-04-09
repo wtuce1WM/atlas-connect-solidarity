@@ -771,14 +771,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* Overlaid content */}
       <div
-        className={`relative z-10 flex flex-col overflow-y-auto overflow-x-hidden overscroll-contain h-full p-4 pt-14 md:p-6 md:pt-16 lg:pt-6 ${cardsHidden ? 'pb-0' : 'pb-8'} ${effectiveMedia?.kind === "matterport" ? "pointer-events-none" : externalVideoInteractiveMode ? "pointer-events-none" : ""}`}
+        className={`relative z-10 flex flex-col justify-end overflow-y-auto overflow-x-hidden overscroll-contain h-full p-4 pt-14 md:p-6 md:pt-16 lg:pt-6 ${cardsHidden ? 'pb-0' : 'pb-8'} ${effectiveMedia?.kind === "matterport" ? "pointer-events-none" : externalVideoInteractiveMode ? "pointer-events-none" : ""}`}
         style={isDragging ? { transform: `translateY(${dragOffsetY}px)`, transition: 'none' } : undefined}
         onTouchStart={externalVideoInteractiveMode ? undefined : onTouchStart}
         onTouchMove={externalVideoInteractiveMode ? undefined : onTouchMove}
         onTouchEnd={externalVideoInteractiveMode ? undefined : onTouchEnd}
       >
-        {/* Spacer pushes content to bottom */}
-        <div className="flex-1 min-h-0" />
 
         {/* Top bar: toggle, flags, rating */}
         <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex flex-col items-center pb-5 md:pb-3 pointer-events-auto animate-[slide-in-top_0.35s_ease-out_both] mt-1 md:mt-0">
