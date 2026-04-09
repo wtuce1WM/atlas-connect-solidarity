@@ -1796,7 +1796,7 @@ const SearchPage = () => {
             setSearchMessage("");
           } else {
             setAllBusinesses(data.businesses || []);
-            setTotalCount(data.totalCount || null);
+            setTotalCount(data.totalCount ?? null);
             setSearchMessage(data.message || "");
 
             // Auto-open business detail when exact name match found
