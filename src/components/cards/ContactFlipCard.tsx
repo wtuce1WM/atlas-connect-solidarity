@@ -3,6 +3,7 @@ import { MapPin, Phone, Mail, Globe, Clock, ExternalLink, Search, Loader2, Chevr
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { formatDayHours as formatDayHoursDisplay, isCurrentlyOpen } from "@/lib/formatOpeningHours";
 import { cleanPhone, whatsappUrl } from "@/lib/phoneUtils";
+import { CTA_MODE_LABELS } from "@/components/slidepanel/CtaBar";
 
 interface ContactFlipCardProps {
   business: {
@@ -13,6 +14,7 @@ interface ContactFlipCardProps {
     email: string | null;
     website: string | null;
     website_force_external?: boolean;
+    website_presentation_mode?: string;
     latitude: number | null;
     longitude: number | null;
     is_open_24h: boolean;
@@ -98,6 +100,9 @@ const ContactFlipCard = ({
             {business.website && (() => {
               const fullWebUrl = business.website.startsWith("http") ? business.website : `https://${business.website}`;
               const forceExt = business.website_force_external;
+              const webMode = business.website_presentation_mode || 'plus_informations';
+              const webPair = CTA_MODE_LABELS[webMode] || CTA_MODE_LABELS.plus_informations;
+              const webLabel = language === 'en' ? webPair.en : webPair.fr;
               return forceExt ? (
                 <a
                   href={fullWebUrl}
@@ -106,7 +111,7 @@ const ContactFlipCard = ({
                   className="flex items-center gap-2 text-white/80 hover:text-white transition-colors normal-case tracking-normal font-['Roboto',sans-serif]"
                 >
                   <Globe className="h-4 w-4 shrink-0 text-white/60" />
-                  {language === "en" ? "Website" : "Site web"}
+                  {webLabel}
                   <ExternalLink className="h-3 w-3" />
                 </a>
               ) : (
@@ -115,7 +120,7 @@ const ContactFlipCard = ({
                   className="flex items-center gap-2 text-white/80 hover:text-white transition-colors normal-case tracking-normal font-['Roboto',sans-serif]"
                 >
                   <Globe className="h-4 w-4 shrink-0 text-white/60" />
-                  {language === "en" ? "Website" : "Site web"}
+                  {webLabel}
                 </button>
               );
             })()}
