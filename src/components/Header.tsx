@@ -75,7 +75,7 @@ const Header = ({ variant = "default", compact = false, rightContent }: HeaderPr
     ? "bg-gradient-to-b from-morocco-red to-morocco-red/80 backdrop-blur-sm"
     : variant === "city"
       ? "bg-transparent"
-      : "bg-white lg:bg-white bg-orange-500";
+      : "bg-orange-500 lg:bg-white";
 
   const navLinks = (
     <>
