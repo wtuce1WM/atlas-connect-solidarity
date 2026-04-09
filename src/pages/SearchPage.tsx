@@ -3152,7 +3152,7 @@ const SearchPage = () => {
             </section>
             {/* Sticky map for Destinations — shown when location known and no panel open */}
             {hasKnownLocation && !hasRightPanel && (
-              <div className="w-1/2 sticky top-[53px] h-[calc(100vh-53px)]">
+              <div className="w-1/2 sticky top-0 h-screen z-[50]">
                 <PoiGoogleMap
                   pois={allDests}
                   selectedPoiId={hoveredDestId || null}
