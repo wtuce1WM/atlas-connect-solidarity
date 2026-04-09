@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { DesktopMediaArrows, CardsToggleButton, useOwnerLogo } from "@/components/CardsVisibilityToggle";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
-import { MapPin, ChevronUp, X, CalendarCheck, Star, Loader2 } from "lucide-react";
+import { MapPin, ChevronUp, X, CalendarCheck, Star, Loader2, Expand } from "lucide-react";
 import VideoControls from "@/components/VideoControls";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 import { supabase } from "@/integrations/supabase/client";
@@ -115,6 +115,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const poiOpenedFromMapRef = useRef(false);
   const [nearbyFallback, setNearbyFallback] = useState<PoiMapItem[]>([]);
   
+  const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(false);
   const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ url: string; name: string | null; description: string | null } | null>(null);
   const [videoOverlayClosing, setVideoOverlayClosing] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -922,13 +923,22 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           <div className="flex w-max gap-2 items-start">
             <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
             {woDescription && (
-              <div className={`snap-start shrink-0 w-[20rem] md:w-[30rem] h-[15em] md:h-[20em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10`}
+              <div className={`snap-start shrink-0 w-[20rem] md:w-[30rem] h-[15em] md:h-[20em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10 relative`}
                   style={{ animationFillMode: 'forwards' }}
                 >
                   <div
                     className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-gold [&_h2]:!font-bold [&_h3]:!font-bold"
                     dangerouslySetInnerHTML={{ __html: woDescription }}
                   />
+                  {woDescription.replace(/<[^>]*>/g, "").length > 1500 && (
+                    <button
+                      onClick={() => setShowDescriptionOverlay(true)}
+                      className="sticky bottom-0 float-right h-7 w-7 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-sm"
+                      title="Lire tout"
+                    >
+                      <Expand className="h-3.5 w-3.5 text-white" />
+                    </button>
+                  )}
                 </div>
               )}
               {hasContactCard && (
@@ -1391,7 +1401,24 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         />
       )}
 
-      {/* Directions Overlay */}
+      {/* Full Description Overlay */}
+      {showDescriptionOverlay && woDescription && (
+        <div className="absolute inset-0 -top-[3.3rem] z-[80] bg-background animate-slide-up-from-bottom overflow-y-auto">
+          <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 bg-background border-b border-border">
+            <h2 className="text-sm font-semibold uppercase font-['Josefin_Sans',sans-serif] truncate">{business?.name}</h2>
+            <button onClick={() => setShowDescriptionOverlay(false)} className="h-8 w-8 flex items-center justify-center rounded-full bg-black text-white shadow-lg hover:bg-black/80 transition-colors">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="p-4 md:p-6">
+            <div
+              className="prose max-w-none prose-josefin-headings prose-h2:text-xl prose-h3:text-lg prose-a:text-primary [&_p:empty]:min-h-[1em] [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_table]:border-collapse [&_table]:w-full [&_table]:table-fixed [&_td]:border [&_td]:border-border [&_td]:p-4 [&_td]:align-top [&_td]:text-xs [&_td_img]:w-full [&_td_img]:h-36 [&_td_img]:object-cover [&_td_img]:rounded-md [&_td_img]:block [&_th]:border [&_th]:border-border [&_th]:p-2 [&_th]:bg-muted/50 [&_th]:font-semibold [&_img]:max-w-full [&_img]:rounded-md [&_iframe]:max-w-full [&_iframe]:rounded-md [&_mark]:bg-yellow-200 [&_mark]:px-0.5 [&_blockquote]:border-l-4 [&_blockquote]:border-primary/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_hr]:border-border text-muted-foreground prose-headings:text-foreground leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: woDescription }}
+            />
+          </div>
+        </div>
+      )}
+
       {showDirections && business && (
         <div
           className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[80] bg-background"
