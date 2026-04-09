@@ -265,7 +265,7 @@ const MobileSearchOverlay = ({
                       navigate(`/search?openBusiness=${biz.id}`);
                     }
                   }}
-                  className="flex flex-col items-center gap-1.5 group animate-slide-in-right"
+                  className="relative group animate-slide-in-right"
                   style={{ animationDelay: `${i * 80}ms`, animationFillMode: "backwards" }}
                 >
                   <div className="w-full aspect-square rounded-xl overflow-hidden bg-muted border border-border">
@@ -277,9 +277,14 @@ const MobileSearchOverlay = ({
                       </div>
                     )}
                   </div>
-                  <span className="text-xs leading-tight text-foreground text-center line-clamp-2 group-hover:underline">
-                    {biz.name}
-                  </span>
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent rounded-b-xl px-1.5 pb-1.5 pt-4">
+                    <span
+                      className="block text-xs font-semibold text-white uppercase line-clamp-2 leading-tight group-hover:underline"
+                      style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.08em', WebkitTextStroke: '0.3px' }}
+                    >
+                      {biz.name}
+                    </span>
+                  </div>
                 </button>
               ))}
             </div>
