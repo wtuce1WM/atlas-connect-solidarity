@@ -3169,7 +3169,7 @@ const SearchPage = () => {
             </section>
             {/* Sticky map for Destinations — shown when location known and no panel open */}
             {hasKnownLocation && !hasRightPanel && (
-              <div className="w-1/2 sticky top-0 h-screen z-[50]">
+              <div className="w-1/2 sticky top-0 h-screen z-[50] relative">
                 <PoiGoogleMap
                   pois={allDests}
                   selectedPoiId={hoveredDestId || null}
@@ -3182,6 +3182,22 @@ const SearchPage = () => {
                   }}
                   center={mapCenterForResults}
                   fitToMarkers
+                />
+                <PanelSearchBar
+                  onSearch={(params) => {
+                    setSelectedCategoryFilter(null);
+                    setSelectedSubcategoryFilter(null);
+                    setSelectedServiceFilter(null);
+                    if (params.q) { setSearchQuery(params.q); setInputValue(params.q); }
+                    setActiveTab("suggestions");
+                    setSelectedCity("all");
+                    setIsGeoCityAutoSelected(false);
+                    setSearchParams(params);
+                  }}
+                  onBusinessSelect={(bizId) => {
+                    setCompactPanelBusiness({ id: bizId, name: "" } as any);
+                    setIsCompactPanelExpanded(false);
+                  }}
                 />
               </div>
             )}
