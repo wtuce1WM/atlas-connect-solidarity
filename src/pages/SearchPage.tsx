@@ -1796,7 +1796,7 @@ const SearchPage = () => {
             setSearchMessage("");
           } else {
             setAllBusinesses(data.businesses || []);
-            setTotalCount(data.totalCount || null);
+            setTotalCount(data.totalCount ?? null);
             setSearchMessage(data.message || "");
 
             // Auto-open business detail when exact name match found
@@ -2399,7 +2399,7 @@ const SearchPage = () => {
                     ) : null;
                   })()}
                   <p className="text-primary font-semibold mt-2">
-                    {filteredBusinesses.length} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
+                    {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
                   </p>
                 </>
               )}
@@ -2747,7 +2747,7 @@ const SearchPage = () => {
               «&nbsp;{(spokenText || searchQuery)}{selectedCity && selectedCity !== "all" ? ` ${selectedCity}` : ""}&nbsp;»
             </p>
             <p className="text-primary font-semibold text-lg mb-5">
-              {filteredBusinesses.length} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
+              {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
             </p>
 
             {/* TTS button */}
@@ -3533,7 +3533,7 @@ const SearchPage = () => {
                 <div className="mt-12 mb-24 flex flex-col items-center gap-4">
                   {/* Results count */}
                   <p className="text-sm text-gray-400">
-                    {t.showing} {startResult} {t.to} {endResult} {t.of} {filteredBusinesses.length} {t.results}
+                    {t.showing} {startResult} {t.to} {endResult} {t.of} {displayedResultsCount} {t.results}
                   </p>
                   
                   {/* Pagination controls */}
