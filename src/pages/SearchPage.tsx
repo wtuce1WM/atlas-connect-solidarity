@@ -1278,15 +1278,15 @@ const SearchPage = () => {
   }, [effectiveCityForMap, neighborhoodCoords, citiesWithPriority, allBusinesses]);
 
   const filteredBusinesses = useMemo(() => {
-    // When a service filter is manually selected, use the direct DB results as the base
-    // instead of merging with FTS results — this ensures we get ALL matching businesses
+    // When server-side pagination is active (totalCount is set), allBusinesses already
+    // contains the correct page slice — do NOT swap in serviceFilter/subcategoryFilter
+    // results which bypass pagination and fetch up to 200 rows.
     let filtered: Business[];
-    if (selectedServiceFilter && serviceFilterBusinesses.length > 0) {
+    if (totalCount !== null) {
+      filtered = [...allBusinesses];
+    } else if (selectedServiceFilter && serviceFilterBusinesses.length > 0) {
       filtered = [...serviceFilterBusinesses];
     } else if (selectedSubcategoryFilter && subcategoryFilterBusinesses.length > 0) {
-      // When a subcategory is selected, use direct DB results to get ALL matches
-      // but merge with API results when destination enrichment added businesses
-      // (those businesses may not match the subcategory but are relevant via destination)
       const hasDestinationEnrichment = allBusinesses.some(b => b.destination_enriched);
       if (hasDestinationEnrichment && allBusinesses.length > 0) {
         const ids = new Set(subcategoryFilterBusinesses.map(b => b.id));
