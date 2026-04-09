@@ -35,7 +35,7 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
     const fetchDestinations = async () => {
       setIsLoading(true);
 
-      const selectFields = "id, name_fr, name_en, name_ar, image_url, images, hook, description, latitude, longitude, region";
+      const selectFields = "id, name_fr, name_en, name_ar, image_url, images, hook, description, latitude, longitude, region, city_ids";
 
       if (!city) {
         const { data } = await supabase
@@ -70,7 +70,11 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
         .contains("city_ids", [cityRow.id])
         .order("name_fr") as any);
 
-      const result = (destsData as DestinationItem[]) || [];
+      // Filter out destinations with empty city_ids (PostgREST contains quirk)
+      const result = ((destsData as DestinationItem[]) || []).filter(d => {
+        const ids = (d as any).city_ids;
+        return Array.isArray(ids) && ids.length > 0;
+      });
       setDestinations(result);
       onDestinationsLoaded?.(result);
       setIsLoading(false);
