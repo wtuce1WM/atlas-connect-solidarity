@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from "react";
 import { businessUrl } from "@/lib/businessUrl";
-import { MapPin, ChevronLeft, ChevronDown, ChevronUp, X, Navigation, Minimize2, Map as MapIcon, Star } from "lucide-react";
+import { MapPin, ChevronDown, ChevronUp, X, Navigation, Minimize2, Star } from "lucide-react";
 import VideoControls from "@/components/VideoControls";
 import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton, useOwnerLogo, OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 import { useNavigate } from "react-router-dom";
 import BottomTabsCarousel, { TabScrollRail, TabVideoCard, TabYouTubeCard, TabCard, type BottomTabConfig } from "@/components/BottomTabsCarousel";
 import { useDragToHide } from "@/hooks/useDragToHide";
+import { useVideoSync } from "@/hooks/useVideoSync";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import wooshSfx from "@/assets/woosh.wav";
 import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
@@ -16,6 +17,7 @@ import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import { GOLD, getVideoInfo, playWoosh } from "@/lib/overlayConstants";
 import OverlayFlipCard from "@/components/overlays/OverlayFlipCard";
+import FullscreenVideoOverlay from "@/components/overlays/FullscreenVideoOverlay";
 import { LazyFullscreenLightbox } from "@/components/overlays/LazyOverlays";
 
 interface DestinationSlidePanelProps {
