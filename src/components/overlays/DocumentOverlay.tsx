@@ -12,7 +12,7 @@ interface DocumentOverlayProps {
 
 const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverlayProps) => {
   return (
-    <div className="absolute inset-0 -top-[3.3rem] z-[60] bg-white flex flex-col animate-fade-in overflow-hidden">
+    <div className="absolute inset-0 -top-[3.3rem] z-[80] bg-white flex flex-col overflow-hidden" style={{ animation: "slide-up-from-bottom 0.4s ease-out both" }}>
       <div className="flex items-center justify-between px-4 py-2 border-b bg-white">
         <div className="flex items-center gap-3">
           <button
