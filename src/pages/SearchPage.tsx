@@ -3014,69 +3014,17 @@ const SearchPage = () => {
           <div className="flex">
             <section className={`pb-6 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${hasRightPanel ? "w-1/2" : hasKnownLocation ? "w-1/2" : "w-full"}`}>
               <div className={`mx-auto px-4 ${(hasRightPanel || hasKnownLocation) ? "max-w-full" : "max-w-[80%]"}`}>
-                {/* Sticky bar for Destinations — mirrors STICKY 5 */}
-                <div className="sticky z-[19] bg-white flex items-center justify-end px-4 gap-2 relative py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
-                  {/* Left: Carte on tablet only */}
-                  <div className="hidden sm:flex lg:hidden items-center absolute left-4">
-                    {isSubDesktop && (
-                      <button
-                        onClick={() => setShowMobileMap(true)}
-                        className="hidden sm:inline-flex lg:hidden items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
-                      >
-                        <Map className="h-4 w-4" />
-                        {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
-                      </button>
-                    )}
-                  </div>
-                  {/* Center: AI suggestion — centered on tablet via absolute */}
-                  <button
-                    onClick={() => {
-                      if (!destAiText && !isDestAiLoading) {
-                        fetchTabAiText("destinations", destCity, allDestItems.map(d => ({ name: language === "en" && d.name_en ? d.name_en : d.name_fr, city: destCity })));
-                      }
-                      setShowAiPopup(true);
-                    }}
-                    className="shrink-0 w-9 h-9 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-md sm:absolute sm:left-1/2 sm:-translate-x-1/2 lg:absolute lg:left-1/2 lg:-translate-x-1/2"
-                    title={language === "en" ? "View AI suggestion" : "Voir la suggestion IA"}
-                  >
-                    <Sparkles className="h-4 w-4" />
-                  </button>
-                  {/* Right: Carte (mobile only) + Localisation */}
-                  <div className="flex items-center gap-2 lg:ml-auto">
-                    {isSubDesktop && (
-                      <button
-                        onClick={() => setShowMobileMap(true)}
-                        className="sm:hidden inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
-                      >
-                        <Map className="h-4 w-4" />
-                        {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
-                      </button>
-                    )}
+                {/* Sticky bar for Destinations — Carte badge only */}
+                <div className="sticky z-[19] bg-white flex items-center justify-center px-4 py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
+                  {isSubDesktop && (
                     <button
-                      onClick={() => setLocationDialogOpen(true)}
-                      className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                        geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity || geo.confirmedAddress)
-                          ? "bg-gold/20 text-gold border border-gold/40"
-                          : "bg-[#C04F17] text-white border border-[#C04F17] hover:bg-[#C04F17]/90"
-                      }`}
+                      onClick={() => setShowMobileMap(true)}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
                     >
-                      {geo.isDetecting ? (
-                        <Loader className="h-3 w-3 animate-spin" />
-                      ) : geo.isEnabled ? (
-                        <MapPin className="h-3 w-3" />
-                      ) : (
-                        <MapPinOff className="h-3 w-3" />
-                      )}
-                      {geo.isDetecting
-                        ? "…"
-                        : geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity)
-                        ? `📍 ${[geo.detectedNeighborhood, geo.detectedCity].filter(Boolean).join(", ")}`
-                        : geo.isEnabled && geo.confirmedAddress
-                        ? `📍 ${geo.confirmedAddress}`
-                        : (language === "en" ? "Location" : language === "ar" ? "الموقع" : "Localisation")
-                      }
+                      <Map className="h-4 w-4" />
+                      {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
                     </button>
-                  </div>
+                  )}
                 </div>
                 
                 
