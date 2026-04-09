@@ -92,7 +92,7 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
 
   return (
     <>
-      <div className={`pt-10 sm:pt-4 lg:pt-14 pb-28 ${columns === 3 ? "grid grid-cols-1 sm:grid-cols-3 gap-3" : columns === 2 ? "grid grid-cols-1 sm:grid-cols-2 gap-3" : "grid grid-cols-1 sm:grid-cols-2 gap-3 lg:grid-cols-4"}`}>
+      <div className={`pt-10 sm:pt-6 lg:pt-14 pb-28 ${columns === 3 ? "grid grid-cols-1 sm:grid-cols-3 gap-3" : columns === 2 ? "grid grid-cols-1 sm:grid-cols-2 gap-3" : "grid grid-cols-1 sm:grid-cols-2 gap-3 lg:grid-cols-4"}`}>
         {pois.map((biz) => {
           const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
           const sources = collectRatingSources(biz);
