@@ -3535,7 +3535,7 @@ const SearchPage = () => {
               {totalPages > 1 && (
                 <div className="mb-4 flex flex-col items-center gap-1">
                   <p className="text-sm text-muted-foreground">
-                    {t.showing} {((currentPage - 1) * pageSize) + 1} {t.to} {Math.min(currentPage * pageSize, totalCount)} {t.on} {totalCount} {t.results}
+                    {t.showing} {startResult} {t.to} {endResult} sur {displayedResultsCount} {t.results}
                   </p>
                   {/* Pagination controls */}
                   <div className="flex items-center gap-2">
