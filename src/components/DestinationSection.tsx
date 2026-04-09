@@ -67,12 +67,14 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
       const { data: destsData } = await (supabase
         .from("destinations")
         .select(selectFields)
-        .not("city_ids", "is", null)
-        .neq("city_ids", "{}")
         .contains("city_ids", [cityRow.id])
         .order("name_fr") as any);
 
-      const result = (destsData as DestinationItem[]) || [];
+      // Filter out destinations with empty city_ids (PostgREST contains quirk)
+      const result = ((destsData as DestinationItem[]) || []).filter(d => {
+        const ids = (d as any).city_ids;
+        return Array.isArray(ids) && ids.length > 0;
+      });
       setDestinations(result);
       onDestinationsLoaded?.(result);
       setIsLoading(false);
