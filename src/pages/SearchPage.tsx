@@ -2094,7 +2094,7 @@ const SearchPage = () => {
           query: searchQuery.trim() || searchParams.get("category") || undefined,
           spoken: searchParams.get("spoken") || undefined,
           language: language,
-          pageSize: ITEMS_PER_PAGE,
+          pageSize: SERVER_PAGE_SIZE,
           offset,
         }
       });
