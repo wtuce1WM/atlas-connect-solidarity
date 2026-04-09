@@ -1271,8 +1271,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           </div>
         )}
         </div>
-          </>
-        )}
+        </div>
 
         {/* Availability result (cards hidden mode) */}
         <HotelAvailabilityResult
