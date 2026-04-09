@@ -229,7 +229,7 @@ const MobileSearchOverlay = ({
                     className="flex-1 flex items-center gap-3 px-3 py-2.5 text-left"
                   >
                     <Clock className="h-4 w-4 text-muted-foreground/60 shrink-0" />
-                    <span className="text-sm text-foreground" style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}>{entry.query}</span>
+                    <span className="text-sm text-foreground font-bold capitalize" style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "capitalize", letterSpacing: "0.02em" }}>{entry.query}</span>
                   </button>
                   <button
                     type="button"
