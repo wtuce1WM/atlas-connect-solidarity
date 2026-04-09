@@ -3413,6 +3413,9 @@ const SearchPage = () => {
           </div>
         )}
       </div>
+      </div>
+      </section>
+      )}
 
       {/* Mobile/Tablet Map Overlay — slide-in from right */}
       {isSubDesktop && showMobileMap && (
