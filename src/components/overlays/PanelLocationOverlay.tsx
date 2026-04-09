@@ -256,7 +256,7 @@ const PanelLocationOverlay = ({ open, onClose }: PanelLocationOverlayProps) => {
 
   const handleDisableGeo = () => {
     geo.toggle();
-    onClose();
+    handleClose();
   };
 
   const [closing, setClosing] = useState(false);
