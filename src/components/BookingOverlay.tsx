@@ -10,9 +10,10 @@ interface BookingOverlayProps {
   whatsapp?: string | null;
   phone?: string | null;
   onLoad?: () => void;
+  hideContact?: boolean;
 }
 
-const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp, phone, onLoad }: BookingOverlayProps) => {
+const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp, phone, onLoad, hideContact }: BookingOverlayProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   return (
