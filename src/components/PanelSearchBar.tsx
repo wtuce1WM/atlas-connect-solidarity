@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Search } from "lucide-react";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useToast } from "@/hooks/use-toast";
@@ -20,9 +20,11 @@ interface PanelSearchBarProps {
   onOverlayChange?: (open: boolean) => void;
   /** Use a dark (black) background instead of transparent */
   darkBackground?: boolean;
+  /** Increment to force-close all overlays from outside */
+  closeTrigger?: number;
 }
 
-const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCategory, businessName, onOverlayChange, darkBackground }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCategory, businessName, onOverlayChange, darkBackground, closeTrigger }: PanelSearchBarProps) => {
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
   // Notify parent when search overlay opens/closes
@@ -33,6 +35,16 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
   const [aiOverlayOpen, setAiOverlayOpen] = useState(false);
   const { toast } = useToast();
   const geo = useGeolocation();
+
+  // Force-close all overlays when closeTrigger changes
+  const prevTrigger = useRef(closeTrigger);
+  useEffect(() => {
+    if (closeTrigger !== undefined && closeTrigger !== prevTrigger.current) {
+      prevTrigger.current = closeTrigger;
+      setAiOverlayOpen(false);
+      setOverlay(false);
+    }
+  }, [closeTrigger, setOverlay]);
 
   const voice = useVoiceSearch({
     onTranscript: (keywords, spoken, detectedCategory, timeKeyword) => {

@@ -746,12 +746,13 @@ const SearchPage = () => {
       const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
     const compactPanelInterceptCloseRef = useRef<(() => boolean) | null>(null);
 
-      const openCompactPanel = useCallback((bizOrData: AIBusinessData | { id: string; name: string }) => {
+       const openCompactPanel = useCallback((bizOrData: AIBusinessData | { id: string; name: string }) => {
         hasInteractedWithCompactPanelRef.current = true;
         const b = bizOrData as AIBusinessData;
         setCompactPanelBusiness(b);
         setIsCompactPanelExpanded(false);
         setIsNestedMosaicOpen(false);
+        setMapPanelCloseTrigger(n => n + 1);
       }, []);
 
       const closeCompactPanel = useCallback(() => {
@@ -790,7 +791,8 @@ const SearchPage = () => {
       const [selectedDestination, setSelectedDestination] = useState<DestinationItem | null>(null);
       const [destSelectedBusinessId, setDestSelectedBusinessId] = useState<string | null>(null);
        const [destPanelExpanded, setDestPanelExpanded] = useState(false);
-     const [allDestItems, setAllDestItems] = useState<DestinationItem[]>([]);
+      const [allDestItems, setAllDestItems] = useState<DestinationItem[]>([]);
+    const [mapPanelCloseTrigger, setMapPanelCloseTrigger] = useState(0);
    const resetPanelStates = () => {
      setPoiSelectedBusinessId(null);
      setPoiPanelExpanded(false);
@@ -2921,6 +2923,7 @@ const SearchPage = () => {
                    onBusinessClick={(bizId) => {
                      setPoiMapBusiness(null);
                      setPoiSelectedBusinessId(bizId);
+                     setMapPanelCloseTrigger(n => n + 1);
                    }}
                   columns={hasKnownLocation ? 2 : undefined}
                   onMapClick={hasKnownLocation ? (biz) => { setHoveredPoiId(biz.id); } : (biz) => { setPoiSelectedBusinessId(null); setPoiMapBusiness({ id: biz.id, name: biz.name, latitude: biz.latitude, longitude: biz.longitude, address: biz.address, google_maps_url: biz.google_maps_url }); }}
@@ -2967,6 +2970,7 @@ const SearchPage = () => {
                     setCompactPanelBusiness({ id: bizId, name: "" } as any);
                     setIsCompactPanelExpanded(false);
                   }}
+                  closeTrigger={mapPanelCloseTrigger}
                 />
               </div>
             )}
@@ -3044,6 +3048,7 @@ const SearchPage = () => {
                     if (dest) {
                       setSelectedDestination(dest);
                       setDestMapItem(null);
+                      setMapPanelCloseTrigger(n => n + 1);
                     }
                   }}
                    onMapClick={hasKnownLocation ? (dest) => { setHoveredDestId(dest.id); } : (dest) => {
@@ -3102,6 +3107,7 @@ const SearchPage = () => {
                     setCompactPanelBusiness({ id: bizId, name: "" } as any);
                     setIsCompactPanelExpanded(false);
                   }}
+                  closeTrigger={mapPanelCloseTrigger}
                 />
               </div>
             )}
@@ -3594,6 +3600,7 @@ const SearchPage = () => {
                 setCompactPanelBusiness({ id: bizId, name: "" } as any);
                 setIsCompactPanelExpanded(false);
               }}
+              closeTrigger={mapPanelCloseTrigger}
             />
           </div>
         )}
@@ -3659,6 +3666,7 @@ const SearchPage = () => {
                 setCompactPanelBusiness({ id: bizId, name: "" } as any);
                 setIsCompactPanelExpanded(false);
               }}
+              closeTrigger={mapPanelCloseTrigger}
             />
           </div>
         </div>
