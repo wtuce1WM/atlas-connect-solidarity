@@ -4878,10 +4878,10 @@ serve(async (req) => {
     // This tells the frontend NOT to run the extra category fetch that would dilute precise results
     const preciseMatch = synonymWasUsed || serviceWasDetected || serviceShortcutActivated || labelShortcutActivated;
     const result: SearchResult = {
-      businesses,
+      businesses: paginatedBusinesses,
       searchLevel,
       message: getSearchLevelMessage(searchLevel, language),
-      totalResults: businesses.length,
+      totalResults: paginatedBusinesses.length,
       totalCount,
       detectedSubcategory: detectedSubcategory || null,
       detectedCity: effectiveCity || null,
@@ -4889,7 +4889,7 @@ serve(async (req) => {
       detectedCategory: intentCategory || null,
       detectedService: detectedService || null,
       intentSubcategoryConflict,
-      searchMode: serviceShortcutActivated ? "service_shortcut" : "broad", // TEST: Force broad — was: (typeof subcategorySearchConfig !== 'undefined' && subcategorySearchConfig?.search_mode) || null,
+      searchMode: serviceShortcutActivated ? "service_shortcut" : "broad",
       bundleTimeSlots: (typeof bundleTimeSlots !== 'undefined' && bundleTimeSlots.length > 0) ? bundleTimeSlots : undefined,
       disambiguationType,
       synonymUsed: synonymWasUsed || undefined,
@@ -4899,7 +4899,7 @@ serve(async (req) => {
 
     // Async log to search_logs table (fire-and-forget, don't block response)
     const _totalLatencyMs = Date.now() - _searchStartMs;
-    if (!isAutocomplete && effectiveQuery) {
+    if (!isAutocomplete && effectiveQuery && offset === 0) {
       supabase.from("search_logs").insert({
         query: query || "",
         effective_query: effectiveQuery,
@@ -4908,12 +4908,12 @@ serve(async (req) => {
         detected_subcategory: detectedSubcategory || null,
         search_mode: serviceShortcutActivated ? "service_shortcut" : (typeof subcategorySearchConfig !== 'undefined' ? subcategorySearchConfig?.search_mode : null) || null,
         search_level: searchLevel,
-        total_results: businesses.length,
+        total_results: totalCount,
         rerank_applied: !!lastRerankMeta,
         rerank_latency_ms: lastRerankMeta?.latencyMs || null,
         total_latency_ms: _totalLatencyMs,
         results_before: lastRerankMeta?.before || null,
-        results_after: lastRerankMeta?.after || businesses.slice(0, 20).map(b => b.name),
+        results_after: lastRerankMeta?.after || paginatedBusinesses.slice(0, 20).map(b => b.name),
         movements: lastRerankMeta?.movements || null,
         is_autocomplete: false,
         is_superlative: isSuperlatif,
