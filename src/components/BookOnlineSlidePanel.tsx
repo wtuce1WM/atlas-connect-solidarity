@@ -910,8 +910,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           )}
         </div>
 
-        {!cardsHidden && (
-          <>
+        <div
+          className={`transition-all duration-300 ease-in-out ${cardsHidden ? 'translate-x-full opacity-0 pointer-events-none max-h-0 overflow-hidden' : 'translate-x-0 opacity-100'}`}
+        >
         {/* Info Carousel */}
         <div className="shrink-0 w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto">
           <div className="flex w-max gap-2 items-start">
@@ -1270,8 +1271,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           </div>
         )}
         </div>
-          </>
-        )}
+        </div>
 
         {/* Availability result (cards hidden mode) */}
         <HotelAvailabilityResult
