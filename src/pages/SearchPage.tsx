@@ -1596,20 +1596,18 @@ const SearchPage = () => {
     return sortedKeys.map(key => ({ subcategory: key, businesses: groups[key] }));
   }, [filteredBusinesses, detectedSubcategory]);
 
-  // Paginate (only for non-grouped view)
+  // Paginate — server-side pagination via edge function
   // Page 1 shows 1 fewer business to account for the AI suggestion card slot
   const PAGE_1_ITEMS = ITEMS_PER_PAGE - 1;
+  const serverTotalCount = totalCount ?? filteredBusinesses.length;
   const totalPages = useMemo(() => {
-    if (filteredBusinesses.length <= PAGE_1_ITEMS) return 1;
-    return 1 + Math.ceil((filteredBusinesses.length - PAGE_1_ITEMS) / ITEMS_PER_PAGE);
-  }, [filteredBusinesses.length]);
+    if (serverTotalCount <= PAGE_1_ITEMS) return 1;
+    return 1 + Math.ceil((serverTotalCount - PAGE_1_ITEMS) / ITEMS_PER_PAGE);
+  }, [serverTotalCount]);
+  // With server-side pagination, filteredBusinesses already contains only the current page's results
   const paginatedBusinesses = useMemo(() => {
-    if (currentPage === 1) {
-      return filteredBusinesses.slice(0, PAGE_1_ITEMS);
-    }
-    const start = PAGE_1_ITEMS + (currentPage - 2) * ITEMS_PER_PAGE;
-    return filteredBusinesses.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredBusinesses, currentPage]);
+    return filteredBusinesses;
+  }, [filteredBusinesses]);
 
   // Reset page when filter changes
   useEffect(() => {
@@ -1663,13 +1661,14 @@ const SearchPage = () => {
       setPreciseMatch(false);
       setSearchMode(null);
       try {
-        // Use edge function for full-text search
+        // Use edge function for full-text search with server-side pagination
         const { data, error } = await supabase.functions.invoke<SearchResult>("business-search", {
           body: { 
             query: searchQuery.trim() || categoryFromUrl || undefined,
             spoken: spokenText || undefined,
             language: language,
-            limit: 500,
+            pageSize: ITEMS_PER_PAGE,
+            offset: 0,
           }
         });
 
@@ -2081,14 +2080,38 @@ const SearchPage = () => {
     navigate(`/search?${params.toString()}`, { replace: true });
   };
 
-  const goToPage = (page: number) => {
+  const goToPage = async (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
+
+    // Compute server offset for the requested page
+    const offset = page === 1 ? 0 : PAGE_1_ITEMS + (page - 2) * ITEMS_PER_PAGE;
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke<SearchResult>("business-search", {
+        body: {
+          query: searchQuery.trim() || searchParams.get("category") || undefined,
+          spoken: searchParams.get("spoken") || undefined,
+          language: language,
+          pageSize: ITEMS_PER_PAGE,
+          offset,
+        }
+      });
+      if (error) throw error;
+      if (data) {
+        setAllBusinesses(data.businesses || []);
+        setTotalCount(data.totalCount ?? null);
+      }
+    } catch (e) {
+      console.error("Pagination fetch failed:", e);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const startResult = currentPage === 1 ? 1 : PAGE_1_ITEMS + (currentPage - 2) * ITEMS_PER_PAGE + 1;
-  const endResult = Math.min(startResult + paginatedBusinesses.length - 1, filteredBusinesses.length);
-  const displayedResultsCount = totalCount && totalCount > filteredBusinesses.length ? totalCount : filteredBusinesses.length;
+  const endResult = Math.min(startResult + paginatedBusinesses.length - 1, serverTotalCount);
+  const displayedResultsCount = serverTotalCount;
   const stickyAiText = useMemo(
     () => aiAnswerText.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*(.*?)\*/g, "$1").replace(/\n+/g, " "),
     [aiAnswerText]

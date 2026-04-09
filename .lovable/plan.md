@@ -1,51 +1,29 @@
 
+# Plan : Pagination serveur de business-search
 
-## Stocker une phrase type TTS en base de donnees
+## Contexte
+Actuellement l'edge function retourne 500 résultats en une fois. On veut passer à 20 résultats paginés côté serveur pour améliorer la vitesse de réponse initiale.
 
-### Concept
+## Étape 1 — Edge function : ajouter `offset` et `totalCount`
+- Ajouter un paramètre `offset` (défaut: 0) dans `SearchParams`
+- Le `limit` passe à 20 par défaut
+- Ajouter un `COUNT(*)` SQL systématique (pas seulement quand on atteint la limite) pour retourner `totalCount` à chaque réponse
+- Le `COUNT(*)` doit utiliser les **mêmes filtres** que la requête principale (ville, catégorie, service, neighborhood, etc.)
+- Le tri doit rester stable (`ts_rank` + `priority_score` + `wtuce_status`) pour que offset fonctionne
 
-Utiliser la table `staff_notes` existante pour stocker une phrase d'introduction/conclusion configurable par le staff, qui sera injectee dans la reponse vocale TTS sur la page de recherche.
+## Étape 2 — Front-end : adapter SearchPage
+- Passer `limit: 20, offset: 0` dans l'appel initial
+- Stocker `totalCount` dans un state pour l'affichage du compteur
+- Quand l'utilisateur change de page (pagination), relancer l'edge function avec le bon `offset`
+- La carte Google affiche uniquement les marqueurs de la page courante (les 20 affichés)
+- Les filtres client (ville, service, horaires, engagements) dans `filteredBusinesses` restent en place pour les pages taxonomiques mais sont **bypassés** quand les résultats viennent de l'edge function paginée
 
-### Fonctionnement
+## Étape 3 — Gestion de la détection (sous-catégorie, catégorie, ville)
+- Les métadonnées de détection (`detectedSubcategory`, `detectedCity`, etc.) ne changent pas — elles sont déjà calculées côté serveur sur l'ensemble des résultats
+- Le `totalCount` servira pour le compteur affiché dans l'UI
 
-1. **Stockage** : Creer une entree dans `staff_notes` avec la cle `tts_intro_phrase` (et optionnellement `tts_outro_phrase`) contenant le texte a injecter
-2. **Lecture** : Sur `SearchPage`, charger cette phrase au montage via un `useEffect` + requete Supabase
-3. **Injection** : Prependre la phrase au debut du texte TTS genere (avant "J'ai trouve X resultats...")
-
-### Exemple concret
-
-Le staff saisit dans le backoffice :
-> "Bienvenue sur WTUCE, votre guide de confiance au Maroc."
-
-Le TTS dira :
-> "Bienvenue sur WTUCE, votre guide de confiance au Maroc. J'ai trouve 5 resultats a Essaouira. Voici les meilleurs resultats..."
-
-### Implementation technique
-
-**Etape 1 : Initialiser la donnee en base**
-
-Inserer une ligne dans `staff_notes` :
-```sql
-INSERT INTO staff_notes (key, content)
-VALUES ('tts_intro_phrase', 'Bienvenue sur WTUCE, votre guide de confiance au Maroc.')
-ON CONFLICT DO NOTHING;
-```
-
-**Etape 2 : Modifier SearchPage.tsx**
-
-- Ajouter un `useState` pour stocker la phrase chargee
-- Ajouter un `useEffect` qui fait un `supabase.from('staff_notes').select('content').eq('key', 'tts_intro_phrase').single()`
-- Prependre `introPhrase + " "` au debut de la variable `speech` dans les deux endroits ou le TTS est construit (recherche vocale automatique + bouton "Ecouter les resultats")
-
-**Etape 3 : Interface d'edition dans le backoffice**
-
-- Ajouter un champ dans `StaffDashboard` (ou un onglet existant) permettant au staff de modifier la phrase TTS
-- Simple champ texte avec bouton "Sauvegarder" qui fait un `upsert` sur `staff_notes` avec la cle `tts_intro_phrase`
-
-### Points importants
-
-- La table `staff_notes` a deja les bonnes politiques RLS : lecture/ecriture reservee au staff
-- Comme `staff_notes` est protegee par RLS (staff uniquement), il faudra faire la requete de lecture via une edge function ou rendre cette ligne specifique lisible publiquement via une politique RLS dediee
-- Pas de migration de schema necessaire, la table existe deja
-- Le texte est en clair (pas de HTML), directement utilisable par le TTS
-
+## Points d'attention
+- Le LLM rerank ne s'applique que sur les 20 premiers résultats (déjà le cas, il traite le top 20)
+- Les pages taxonomiques (ville, catégorie) continuent d'utiliser leurs propres requêtes Supabase directes — pas impactées
+- La pagination ne casse pas le SEO (les pages taxonomiques sont indépendantes)
+- Le `search_logs` doit logger le `totalCount` et non plus `businesses.length`
