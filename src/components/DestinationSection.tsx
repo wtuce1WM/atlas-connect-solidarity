@@ -67,7 +67,7 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
       const { data: destsData } = await (supabase
         .from("destinations")
         .select(selectFields)
-        .contains("city_ids", [cityRow.id])
+        .filter("city_ids", "cs", `{${cityRow.id}}`)
         .order("name_fr") as any);
 
       // Filter out destinations with empty city_ids (PostgREST contains quirk)
