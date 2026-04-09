@@ -1596,20 +1596,18 @@ const SearchPage = () => {
     return sortedKeys.map(key => ({ subcategory: key, businesses: groups[key] }));
   }, [filteredBusinesses, detectedSubcategory]);
 
-  // Paginate (only for non-grouped view)
+  // Paginate — server-side pagination via edge function
   // Page 1 shows 1 fewer business to account for the AI suggestion card slot
   const PAGE_1_ITEMS = ITEMS_PER_PAGE - 1;
+  const serverTotalCount = totalCount ?? filteredBusinesses.length;
   const totalPages = useMemo(() => {
-    if (filteredBusinesses.length <= PAGE_1_ITEMS) return 1;
-    return 1 + Math.ceil((filteredBusinesses.length - PAGE_1_ITEMS) / ITEMS_PER_PAGE);
-  }, [filteredBusinesses.length]);
+    if (serverTotalCount <= PAGE_1_ITEMS) return 1;
+    return 1 + Math.ceil((serverTotalCount - PAGE_1_ITEMS) / ITEMS_PER_PAGE);
+  }, [serverTotalCount]);
+  // With server-side pagination, filteredBusinesses already contains only the current page's results
   const paginatedBusinesses = useMemo(() => {
-    if (currentPage === 1) {
-      return filteredBusinesses.slice(0, PAGE_1_ITEMS);
-    }
-    const start = PAGE_1_ITEMS + (currentPage - 2) * ITEMS_PER_PAGE;
-    return filteredBusinesses.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredBusinesses, currentPage]);
+    return filteredBusinesses;
+  }, [filteredBusinesses]);
 
   // Reset page when filter changes
   useEffect(() => {
