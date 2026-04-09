@@ -3600,6 +3600,7 @@ const SearchPage = () => {
                 setCompactPanelBusiness({ id: bizId, name: "" } as any);
                 setIsCompactPanelExpanded(false);
               }}
+              closeTrigger={mapPanelCloseTrigger}
             />
           </div>
         )}
