@@ -35,7 +35,7 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
     const fetchDestinations = async () => {
       setIsLoading(true);
 
-      const selectFields = "id, name_fr, name_en, name_ar, image_url, images, hook, description, latitude, longitude, region";
+      const selectFields = "id, name_fr, name_en, name_ar, image_url, images, hook, description, latitude, longitude, region, city_ids";
 
       if (!city) {
         const { data } = await supabase
