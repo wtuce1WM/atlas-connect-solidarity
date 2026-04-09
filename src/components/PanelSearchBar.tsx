@@ -116,15 +116,17 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
         </div>
       )}
 
-      <div className="absolute inset-0 lg:-top-[3.3rem] z-[81]">
-        <VoiceSearchOverlay
-          isOpen={voice.status === "recording" || voice.status === "processing"}
-          liveTranscript={voice.liveTranscript}
-          onClose={() => voice.toggleRecording()}
-          onFinish={() => voice.finishRecording()}
-          contained
-        />
-      </div>
+      {(voice.status === "recording" || voice.status === "processing") && (
+        <div className="absolute inset-0 lg:-top-[3.3rem] z-[81]">
+          <VoiceSearchOverlay
+            isOpen
+            liveTranscript={voice.liveTranscript}
+            onClose={() => voice.toggleRecording()}
+            onFinish={() => voice.finishRecording()}
+            contained
+          />
+        </div>
+      )}
     </>
   );
 };
