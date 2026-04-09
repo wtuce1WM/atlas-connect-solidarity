@@ -252,7 +252,7 @@ const MobileSearchOverlay = ({
               <MapPin className="h-3.5 w-3.5" />
               {language === "fr" ? "Consultés récemment" : language === "ar" ? "تمت مشاهدتها مؤخرًا" : "Recently viewed"}
             </span>
-            <div className="flex flex-wrap gap-3 pb-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pb-2">
               {recentBusinesses.slice(0, 10).map((biz, i) => (
                 <button
                   key={biz.id}
