@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo, Suspense } from "react";
-import { MapPin, ChevronUp, X, Navigation, Minimize2, Play, Pause, Volume2, VolumeX, CalendarCheck, ShoppingBag, ExternalLink } from "lucide-react";
+import { MapPin, ChevronUp, X, Navigation, Minimize2, CalendarCheck, ShoppingBag, ExternalLink } from "lucide-react";
+import VideoControls from "@/components/VideoControls";
 import BookingOverlay from "@/components/BookingOverlay";
 import { MediaCounterBar, DesktopMediaArrows, CardsToggleButton, useOwnerLogo, OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +8,7 @@ import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import BottomTabsCarousel, { TabScrollRail, TabVideoCard, TabCard, type BottomTabConfig } from "@/components/BottomTabsCarousel";
 import { useDragToHide } from "@/hooks/useDragToHide";
+import { useVideoSync } from "@/hooks/useVideoSync";
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import wooshSfx from "@/assets/woosh.wav";
 import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
@@ -14,7 +16,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { GOLD, getVideoInfo, playWoosh } from "@/lib/overlayConstants";
 import OverlayFlipCard from "@/components/overlays/OverlayFlipCard";
+import FullscreenVideoOverlay from "@/components/overlays/FullscreenVideoOverlay";
 import { LazyDirectionsOverlay, LazyMosaicOverlay, LazyFullscreenLightbox } from "@/components/overlays/LazyOverlays";
+import { CTA_MODE_LABELS } from "@/components/slidepanel/CtaBar";
 import type { PoiMapItem } from "@/components/PoiGoogleMap";
 import { businessUrl } from "@/lib/businessUrl";
 
@@ -93,13 +97,29 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
   const [bookingOverlayTitle, setBookingOverlayTitle] = useState<string | undefined>(undefined);
 
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [videoPaused, setVideoPaused] = useState(true);
-  const [videoMuted, setVideoMuted] = useState(true);
   const {
     cardsHidden, dragOffsetY, isDragging,
     showCards, hideCards,
     onTouchStart: onDragTouchStart, onTouchMove: onDragTouchMove, onTouchEnd: onDragTouchEnd, onMouseDownDrag,
   } = useDragToHide();
+
+  // Shared video sync hook (replaces inline event listeners)
+  const images = poi?.images?.filter(Boolean) || [];
+  const ownVideos = poi?.video_1_url ? [poi.video_1_url] : [];
+  const poiFileVideos = linkedVideos.filter((v) => getVideoInfo(v.url).type === "file");
+
+  type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
+  const mediaItems: MediaItem[] = useMemo(() => [
+    ...poiFileVideos.map((cv) => ({ kind: "video" as const, url: cv.url })),
+    ...ownVideos.filter(v => getVideoInfo(v).type === "file").map((v) => ({ kind: "video" as const, url: v })),
+    ...images.map((i) => ({ kind: "image" as const, url: i })),
+  ], [poiFileVideos, ownVideos, images]);
+
+  const totalMedia = mediaItems.length;
+  const safeIndex = totalMedia > 0 ? currentMediaIndex % totalMedia : 0;
+  const currentMedia = totalMedia > 0 ? mediaItems[safeIndex] : null;
+
+  const { videoPaused, videoMuted, pauseAndMute } = useVideoSync(videoRef as React.RefObject<HTMLVideoElement>, currentMedia);
 
   // Reset state on businessId change
   useEffect(() => {
@@ -114,15 +134,10 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
     setLinkedVideos([]);
   }, [businessId]);
 
-  // Pause/mute background video when an overlay opens (directions, booking, mosaic, lightbox)
+  // Pause/mute background video when an overlay opens
   useEffect(() => {
     const overlayOpen = showDirections || showBookingOverlay || showMosaic || isLightboxOpen || !!fullscreenVideo || !!openedPoiBusinessId;
-    if (overlayOpen && videoRef.current) {
-      videoRef.current.pause();
-      videoRef.current.muted = true;
-      setVideoPaused(true);
-      setVideoMuted(true);
-    }
+    if (overlayOpen) pauseAndMute();
   }, [showDirections, showBookingOverlay, showMosaic, isLightboxOpen, fullscreenVideo, openedPoiBusinessId]);
 
   // Cosmetic URL rewriting
@@ -173,7 +188,6 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
       if (cancelled) return;
 
       if (poiIds.length === 0) {
-        // Fallback: fetch all POIs from the same city
         const poiCity = poi?.city;
         if (poiCity) {
           const { data: cityPois } = await supabase
@@ -217,24 +231,15 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
 
       setLinkedPois(
         pois.map((b) => ({
-          id: b.id,
-          name: b.name,
-          latitude: b.latitude,
-          longitude: b.longitude,
-          images: b.images,
-          city: b.city,
-          neighborhood: b.neighborhood,
-          rating: b.rating ? Number(b.rating) : null,
-          subcategory: b.main_category,
+          id: b.id, name: b.name, latitude: b.latitude, longitude: b.longitude,
+          images: b.images, city: b.city, neighborhood: b.neighborhood,
+          rating: b.rating ? Number(b.rating) : null, subcategory: b.main_category,
         }))
       );
 
       setCityPoisForTabs(
         pois.map((b) => ({
-          id: b.id,
-          name: b.name,
-          slug: b.slug,
-          images: b.images,
+          id: b.id, name: b.name, slug: b.slug, images: b.images,
           rating: b.rating ? Number(b.rating) : null,
         }))
       );
@@ -244,12 +249,11 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
     return () => { cancelled = true; };
   }, [businessId, poi?.city]);
 
-  // Fetch videos linked to this POI (business_documents.poi_id) + POI's own videos (business_documents.business_id)
+  // Fetch videos linked to this POI
   useEffect(() => {
     if (!businessId) return;
     let cancelled = false;
     const fetchVideos = async () => {
-      // Fetch both: videos from owners linked via poi_id AND videos owned by the POI itself
       const [{ data: poiLinkedDocs }, { data: ownDocs }] = await Promise.all([
         supabase
           .from("business_documents")
@@ -265,7 +269,6 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
           .order("sort_order", { ascending: true }),
       ]);
       if (cancelled) return;
-      // Merge & deduplicate by URL
       const seen = new Set<string>();
       const allDocs: typeof poiLinkedDocs = [];
       for (const d of [...(poiLinkedDocs || []), ...(ownDocs || [])]) {
@@ -294,21 +297,6 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
     fetchVideos();
     return () => { cancelled = true; };
   }, [businessId]);
-
-  const images = poi?.images?.filter(Boolean) || [];
-  const ownVideos = poi?.video_1_url ? [poi.video_1_url] : [];
-  const poiFileVideos = linkedVideos.filter((v) => getVideoInfo(v.url).type === "file");
-
-  type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
-  const mediaItems: MediaItem[] = useMemo(() => [
-    ...poiFileVideos.map((cv) => ({ kind: "video" as const, url: cv.url })),
-    ...ownVideos.filter(v => getVideoInfo(v).type === "file").map((v) => ({ kind: "video" as const, url: v })),
-    ...images.map((i) => ({ kind: "image" as const, url: i })),
-  ], [poiFileVideos, ownVideos, images]);
-
-  const totalMedia = mediaItems.length;
-  const safeIndex = totalMedia > 0 ? currentMediaIndex % totalMedia : 0;
-  const currentMedia = totalMedia > 0 ? mediaItems[safeIndex] : null;
 
   const ownerVideoDocs = useMemo(() => linkedVideos.map(cv => ({
     url: cv.url,
@@ -342,25 +330,6 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
     if (totalMedia <= 1) return;
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [totalMedia]);
-
-  // Sync video state
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    const onPlay = () => setVideoPaused(false);
-    const onPause = () => setVideoPaused(true);
-    const onVol = () => setVideoMuted(v.muted);
-    v.addEventListener("play", onPlay);
-    v.addEventListener("pause", onPause);
-    v.addEventListener("volumechange", onVol);
-    setVideoPaused(v.paused);
-    setVideoMuted(v.muted);
-    return () => {
-      v.removeEventListener("play", onPlay);
-      v.removeEventListener("pause", onPause);
-      v.removeEventListener("volumechange", onVol);
-    };
-  }, [currentMedia]);
 
   if (isLoading) {
     return (
@@ -419,29 +388,10 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
         )}
       </Suspense>
 
-      {/* Fullscreen video overlay */}
-      {fullscreenVideo && (() => {
-        const fvInfo = getVideoInfo(fullscreenVideo);
-        let embedSrc = fullscreenVideo;
-        if (fvInfo.type === "youtube") embedSrc = `https://www.youtube.com/embed/${fvInfo.id}?autoplay=1&rel=0&controls=1&modestbranding=1`;
-        else if (fvInfo.type === "vimeo") embedSrc = `https://player.vimeo.com/video/${fvInfo.id}?autoplay=1`;
-        return (
-          <div className="absolute inset-0 z-[76] bg-black flex flex-col animate-slide-in-left">
-            <div className="shrink-0 flex items-center px-3 py-2">
-              <button onClick={() => setFullscreenVideo(null)} className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors" aria-label="Fermer">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="flex-1 min-h-0">
-              {fvInfo.type === "file" ? (
-                <video src={fullscreenVideo} className="w-full h-full object-contain" autoPlay controls playsInline />
-              ) : (
-                <iframe src={embedSrc} className="w-full h-full" allow="autoplay; encrypted-media; fullscreen" allowFullScreen frameBorder="0" style={{ border: 0 }} />
-              )}
-            </div>
-          </div>
-        );
-      })()}
+      {/* Fullscreen video overlay — shared component */}
+      {fullscreenVideo && (
+        <FullscreenVideoOverlay videoUrl={fullscreenVideo} onClose={() => setFullscreenVideo(null)} />
+      )}
 
       <div className="relative w-full h-full">
         {/* Media background */}
@@ -564,23 +514,15 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
             }}
           />
 
-          {/* CTAs + video controls */}
+          {/* CTAs + video controls — using shared CTA_MODE_LABELS */}
           {(() => {
-            const ctaModeLabels: Record<string, { fr: string; en: string }> = {
-              acheter_en_ligne: { fr: 'Acheter en ligne', en: 'Shop Online' },
-              reserver_en_ligne: { fr: 'Réserver en ligne', en: 'Book Online' },
-              consulter_offre: { fr: 'Consulter notre offre', en: 'View Our Offer' },
-              plus_informations: { fr: "Plus d'informations", en: 'More Information' },
-              contactez_nous: { fr: 'Contactez nous', en: 'Contact Us' },
-              la_carte: { fr: 'La carte', en: 'The Menu' },
-              les_boissons: { fr: 'Les boissons', en: 'Drinks' },
-            };
             const ctaItems: React.ReactNode[] = [];
+            const lang = language === "en" ? "en" : "fr";
 
             // Booking / Reserve CTA
             if (poi.reserve_now_url) {
               const fullUrl = poi.reserve_now_url.startsWith("http") ? poi.reserve_now_url : `https://${poi.reserve_now_url}`;
-              const label = ctaModeLabels[poi.presentation_mode]?.[language === "en" ? "en" : "fr"] || ctaModeLabels.reserver_en_ligne[language === "en" ? "en" : "fr"];
+              const label = CTA_MODE_LABELS[poi.presentation_mode]?.[lang] || CTA_MODE_LABELS.reserver_en_ligne[lang];
               if (poi.reserve_now_force_external) {
                 ctaItems.push(
                   <a key="booking" href={fullUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-up-from-bottom" style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}>
@@ -602,7 +544,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
             // Shop CTA
             if (poi.online_shop_url) {
               const fullUrl = poi.online_shop_url.startsWith("http") ? poi.online_shop_url : `https://${poi.online_shop_url}`;
-              const label = ctaModeLabels[poi.online_shop_presentation_mode]?.[language === "en" ? "en" : "fr"] || ctaModeLabels.acheter_en_ligne[language === "en" ? "en" : "fr"];
+              const label = CTA_MODE_LABELS[poi.online_shop_presentation_mode]?.[lang] || CTA_MODE_LABELS.acheter_en_ligne[lang];
               if (poi.online_shop_force_external) {
                 ctaItems.push(
                   <a key="shop" href={fullUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-up-from-bottom" style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}>
@@ -613,7 +555,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
                 );
               } else {
                 ctaItems.push(
-                  <button key="shop" onClick={() => { setBookingOverlayUrl(fullUrl); setBookingOverlayTitle(label); setShowBookingOverlay(true); }} className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-black [&_*]:text-black normal-case tracking-normal animate-slide-up-from-bottom" style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
+                  <button key="shop" onClick={() => { setBookingOverlayUrl(fullUrl); setBookingOverlayTitle(label); setShowBookingOverlay(true); }} className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-up-from-bottom" style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}>
                     <ShoppingBag className="h-4 w-4 hidden md:block" />
                     <span className="truncate">{label}</span>
                   </button>
@@ -631,23 +573,19 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
               );
             }
 
-            if (ctaItems.length === 0) return null;
+            if (ctaItems.length === 0 && currentMedia?.kind !== "video") return null;
             return (
               <div className="shrink-0 py-2 flex flex-col items-center gap-2 pointer-events-auto">
-                <div className="w-full md:w-3/4 md:px-0 flex justify-center gap-2">
-                  {ctaItems.map((item, i) => (
-                    <div key={i} className="flex-1 md:flex-none md:w-1/3">{item}</div>
-                  ))}
-                </div>
-                {currentMedia?.kind === "video" && (
-                  <div className="flex items-center gap-6 md:gap-10 mt-1 animate-slide-up-from-bottom">
-                    <button type="button" onClick={() => { if (videoRef.current) { videoRef.current.paused ? videoRef.current.play() : videoRef.current.pause(); } }} className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors" aria-label={videoPaused ? "Play" : "Pause"}>
-                      {videoPaused ? <Play className="h-5 w-5 md:h-6 md:w-6" /> : <Pause className="h-5 w-5 md:h-6 md:w-6" />}
-                    </button>
-                    <button type="button" onClick={() => { if (videoRef.current) videoRef.current.muted = !videoRef.current.muted; }} className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors" aria-label={videoMuted ? "Unmute" : "Mute"}>
-                      {videoMuted ? <VolumeX className="h-5 w-5 md:h-6 md:w-6" /> : <Volume2 className="h-5 w-5 md:h-6 md:w-6" />}
-                    </button>
+                {ctaItems.length > 0 && (
+                  <div className="w-full md:w-3/4 md:px-0 flex justify-center gap-2">
+                    {ctaItems.map((item, i) => (
+                      <div key={i} className="flex-1 md:flex-none md:w-1/3">{item}</div>
+                    ))}
                   </div>
+                )}
+                {/* Use shared VideoControls component instead of inline buttons */}
+                {currentMedia?.kind === "video" && (
+                  <VideoControls type="file" videoRef={videoRef as React.RefObject<HTMLVideoElement>} paused={videoPaused} muted={videoMuted} className="mt-1 animate-slide-up-from-bottom" />
                 )}
               </div>
             );
