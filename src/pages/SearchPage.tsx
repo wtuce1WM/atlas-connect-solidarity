@@ -49,6 +49,7 @@ import LocationPickerDialog from "@/components/LocationPickerDialog";
 import WarningOverlay from "@/components/WarningOverlay";
 import EmergencyNumbers from "@/components/EmergencyNumbers";
 import { useSearchHistory } from "@/hooks/useSearchHistory";
+import PanelSearchBar from "@/components/PanelSearchBar";
 
 interface Business {
   id: string;
@@ -2985,7 +2986,7 @@ const SearchPage = () => {
             </section>
             {/* Sticky map for POI — shown when location known and no panel open */}
             {hasKnownLocation && !poiSelectedBusinessId && !poiMapBusiness && (
-              <div className="w-1/2 sticky top-0 h-screen z-[50]">
+              <div className="w-1/2 sticky top-0 h-screen z-[50] relative">
                 <PoiGoogleMap
                   pois={allPois}
                   selectedPoiId={hoveredPoiId || null}
@@ -2995,6 +2996,22 @@ const SearchPage = () => {
                   }}
                   center={mapCenterForResults}
                   fitToMarkers
+                />
+                <PanelSearchBar
+                  onSearch={(params) => {
+                    setSelectedCategoryFilter(null);
+                    setSelectedSubcategoryFilter(null);
+                    setSelectedServiceFilter(null);
+                    if (params.q) { setSearchQuery(params.q); setInputValue(params.q); }
+                    setActiveTab("suggestions");
+                    setSelectedCity("all");
+                    setIsGeoCityAutoSelected(false);
+                    setSearchParams(params);
+                  }}
+                  onBusinessSelect={(bizId) => {
+                    setCompactPanelBusiness({ id: bizId, name: "" } as any);
+                    setIsCompactPanelExpanded(false);
+                  }}
                 />
               </div>
             )}
@@ -3152,7 +3169,7 @@ const SearchPage = () => {
             </section>
             {/* Sticky map for Destinations — shown when location known and no panel open */}
             {hasKnownLocation && !hasRightPanel && (
-              <div className="w-1/2 sticky top-0 h-screen z-[50]">
+              <div className="w-1/2 sticky top-0 h-screen z-[50] relative">
                 <PoiGoogleMap
                   pois={allDests}
                   selectedPoiId={hoveredDestId || null}
@@ -3165,6 +3182,22 @@ const SearchPage = () => {
                   }}
                   center={mapCenterForResults}
                   fitToMarkers
+                />
+                <PanelSearchBar
+                  onSearch={(params) => {
+                    setSelectedCategoryFilter(null);
+                    setSelectedSubcategoryFilter(null);
+                    setSelectedServiceFilter(null);
+                    if (params.q) { setSearchQuery(params.q); setInputValue(params.q); }
+                    setActiveTab("suggestions");
+                    setSelectedCity("all");
+                    setIsGeoCityAutoSelected(false);
+                    setSearchParams(params);
+                  }}
+                  onBusinessSelect={(bizId) => {
+                    setCompactPanelBusiness({ id: bizId, name: "" } as any);
+                    setIsCompactPanelExpanded(false);
+                  }}
                 />
               </div>
             )}
@@ -3628,7 +3661,7 @@ const SearchPage = () => {
         </div>
         {/* Right side: Sticky Google Map when city/neighborhood known */}
         {hasKnownLocation && !compactPanelBusiness && (
-          <div className="w-1/2 sticky top-0 h-screen z-[50]">
+          <div className="w-1/2 sticky top-0 h-screen z-[50] relative">
             <PoiGoogleMap
               pois={mapPoiItems}
               selectedPoiId={hoveredResultId || compactPanelBusiness?.id || null}
@@ -3640,6 +3673,22 @@ const SearchPage = () => {
               fitToMarkers
               subcategoryIconMap={subcategoryIconMap}
               highlightColor={{ bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" }}
+            />
+            <PanelSearchBar
+              onSearch={(params) => {
+                setSelectedCategoryFilter(null);
+                setSelectedSubcategoryFilter(null);
+                setSelectedServiceFilter(null);
+                if (params.q) { setSearchQuery(params.q); setInputValue(params.q); }
+                setActiveTab("suggestions");
+                setSelectedCity("all");
+                setIsGeoCityAutoSelected(false);
+                setSearchParams(params);
+              }}
+              onBusinessSelect={(bizId) => {
+                setCompactPanelBusiness({ id: bizId, name: "" } as any);
+                setIsCompactPanelExpanded(false);
+              }}
             />
           </div>
         )}
@@ -3659,7 +3708,7 @@ const SearchPage = () => {
             <X className="h-5 w-5" />
           </button>
           {/* Map — full height */}
-          <div className="w-full h-full">
+          <div className="w-full h-full relative">
             <PoiGoogleMap
               pois={activeTab === "poi" ? allPois : activeTab === "destinations" ? allDests : mobileMapPoiItems}
               selectedPoiId={activeTab === "poi" ? (hoveredPoiId || null) : activeTab === "destinations" ? (hoveredDestId || null) : (hoveredResultId || compactPanelBusiness?.id || null)}
@@ -3687,6 +3736,24 @@ const SearchPage = () => {
               fitToMarkers
               subcategoryIconMap={activeTab === "suggestions" ? subcategoryIconMap : undefined}
               highlightColor={activeTab === "suggestions" ? { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" } : undefined}
+            />
+            <PanelSearchBar
+              onSearch={(params) => {
+                setShowMobileMap(false);
+                setSelectedCategoryFilter(null);
+                setSelectedSubcategoryFilter(null);
+                setSelectedServiceFilter(null);
+                if (params.q) { setSearchQuery(params.q); setInputValue(params.q); }
+                setActiveTab("suggestions");
+                setSelectedCity("all");
+                setIsGeoCityAutoSelected(false);
+                setSearchParams(params);
+              }}
+              onBusinessSelect={(bizId) => {
+                setShowMobileMap(false);
+                setCompactPanelBusiness({ id: bizId, name: "" } as any);
+                setIsCompactPanelExpanded(false);
+              }}
             />
           </div>
         </div>
