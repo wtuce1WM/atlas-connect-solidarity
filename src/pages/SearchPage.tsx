@@ -3628,7 +3628,7 @@ const SearchPage = () => {
         </div>
         {/* Right side: Sticky Google Map when city/neighborhood known */}
         {hasKnownLocation && !compactPanelBusiness && (
-          <div className="w-1/2 sticky top-[53px] h-[calc(100vh-53px)]">
+          <div className="w-1/2 sticky top-0 h-screen z-[50]">
             <PoiGoogleMap
               pois={mapPoiItems}
               selectedPoiId={hoveredResultId || compactPanelBusiness?.id || null}
