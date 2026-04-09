@@ -3533,7 +3533,7 @@ const SearchPage = () => {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="mt-1 mb-4 flex flex-col items-center gap-1">
+                <div className="mb-4 flex flex-col items-center gap-1">
                   
                   {/* Pagination controls */}
                   <div className="flex items-center gap-2">
