@@ -2142,6 +2142,9 @@ const SearchPage = () => {
                 setOverlaySelectedBusiness(null);
                 setIsOverlayPanelExpanded(false);
                 setActiveTab(tab.key as any);
+                setHideResultsMap(false);
+                setHidePoiMap(false);
+                setHideDestMap(false);
                 const btn = e.currentTarget;
                 const container = btn.parentElement;
                 if (container) {
