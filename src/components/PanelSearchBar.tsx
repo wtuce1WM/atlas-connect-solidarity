@@ -36,14 +36,15 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
   const { toast } = useToast();
   const geo = useGeolocation();
 
-  // Force-close sub-overlays (AI, location) when closeTrigger changes, but keep search overlay open
+  // Force-close ALL overlays when closeTrigger changes (external card click)
   const prevTrigger = useRef(closeTrigger);
   useEffect(() => {
     if (closeTrigger !== undefined && closeTrigger !== prevTrigger.current) {
       prevTrigger.current = closeTrigger;
       setAiOverlayOpen(false);
+      setOverlay(false);
     }
-  }, [closeTrigger]);
+  }, [closeTrigger, setOverlay]);
 
   const voice = useVoiceSearch({
     onTranscript: (keywords, spoken, detectedCategory, timeKeyword) => {
