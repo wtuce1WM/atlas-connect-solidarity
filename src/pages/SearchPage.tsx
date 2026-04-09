@@ -131,6 +131,7 @@ interface SearchResult {
 }
 
 const ITEMS_PER_PAGE = 20;
+const SERVER_PAGE_SIZE = ITEMS_PER_PAGE + 1; // Request 1 extra to compensate for the AI suggestion card slot
 
 const normalizeSearchMode = (value: unknown): "strict" | "broad" | null => {
   if (typeof value !== "string") return null;
@@ -1597,12 +1598,12 @@ const SearchPage = () => {
   }, [filteredBusinesses, detectedSubcategory]);
 
   // Paginate — server-side pagination via edge function
-  // Page 1 shows 1 fewer business to account for the AI suggestion card slot
-  const PAGE_1_ITEMS = ITEMS_PER_PAGE - 1;
+  // We request SERVER_PAGE_SIZE (21) from the server so that after the AI suggestion card takes 1 slot,
+  // the user still sees 20 real business results per page.
   const serverTotalCount = totalCount ?? filteredBusinesses.length;
   const totalPages = useMemo(() => {
-    if (serverTotalCount <= PAGE_1_ITEMS) return 1;
-    return 1 + Math.ceil((serverTotalCount - PAGE_1_ITEMS) / ITEMS_PER_PAGE);
+    if (serverTotalCount <= ITEMS_PER_PAGE) return 1;
+    return Math.ceil(serverTotalCount / ITEMS_PER_PAGE);
   }, [serverTotalCount]);
   // With server-side pagination, filteredBusinesses already contains only the current page's results
   const paginatedBusinesses = useMemo(() => {
@@ -1667,7 +1668,7 @@ const SearchPage = () => {
             query: searchQuery.trim() || categoryFromUrl || undefined,
             spoken: spokenText || undefined,
             language: language,
-            pageSize: ITEMS_PER_PAGE,
+            pageSize: SERVER_PAGE_SIZE,
             offset: 0,
           }
         });
@@ -2085,7 +2086,7 @@ const SearchPage = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
 
     // Compute server offset for the requested page
-    const offset = page === 1 ? 0 : PAGE_1_ITEMS + (page - 2) * ITEMS_PER_PAGE;
+    const offset = (page - 1) * ITEMS_PER_PAGE;
     setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke<SearchResult>("business-search", {
@@ -2093,7 +2094,7 @@ const SearchPage = () => {
           query: searchQuery.trim() || searchParams.get("category") || undefined,
           spoken: searchParams.get("spoken") || undefined,
           language: language,
-          pageSize: ITEMS_PER_PAGE,
+          pageSize: SERVER_PAGE_SIZE,
           offset,
         }
       });
@@ -2109,7 +2110,7 @@ const SearchPage = () => {
     }
   };
 
-  const startResult = currentPage === 1 ? 1 : PAGE_1_ITEMS + (currentPage - 2) * ITEMS_PER_PAGE + 1;
+  const startResult = (currentPage - 1) * ITEMS_PER_PAGE + 1;
   const endResult = Math.min(startResult + paginatedBusinesses.length - 1, serverTotalCount);
   const displayedResultsCount = serverTotalCount;
   const stickyAiText = useMemo(
