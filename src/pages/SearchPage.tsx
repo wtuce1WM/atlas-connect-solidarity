@@ -3708,7 +3708,7 @@ const SearchPage = () => {
             <X className="h-5 w-5" />
           </button>
           {/* Map — full height */}
-          <div className="w-full h-full">
+          <div className="w-full h-full relative">
             <PoiGoogleMap
               pois={activeTab === "poi" ? allPois : activeTab === "destinations" ? allDests : mobileMapPoiItems}
               selectedPoiId={activeTab === "poi" ? (hoveredPoiId || null) : activeTab === "destinations" ? (hoveredDestId || null) : (hoveredResultId || compactPanelBusiness?.id || null)}
@@ -3736,6 +3736,24 @@ const SearchPage = () => {
               fitToMarkers
               subcategoryIconMap={activeTab === "suggestions" ? subcategoryIconMap : undefined}
               highlightColor={activeTab === "suggestions" ? { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" } : undefined}
+            />
+            <PanelSearchBar
+              onSearch={(params) => {
+                setShowMobileMap(false);
+                setSelectedCategoryFilter(null);
+                setSelectedSubcategoryFilter(null);
+                setSelectedServiceFilter(null);
+                if (params.q) { setSearchQuery(params.q); setInputValue(params.q); }
+                setActiveTab("suggestions");
+                setSelectedCity("all");
+                setIsGeoCityAutoSelected(false);
+                setSearchParams(params);
+              }}
+              onBusinessSelect={(bizId) => {
+                setShowMobileMap(false);
+                setCompactPanelBusiness({ id: bizId, name: "" } as any);
+                setIsCompactPanelExpanded(false);
+              }}
             />
           </div>
         </div>
