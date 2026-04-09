@@ -80,7 +80,6 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
             }}
             onVoiceStart={handleVoiceStart}
             onAiSuggestionClick={() => {
-              setOverlay(false);
               setAiOverlayOpen(true);
             }}
             geoState={{
@@ -94,17 +93,16 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
               setManualCity: geo.setManualCity,
             }}
           />
+          {/* AI Suggestion overlay — on top of search overlay */}
+          <PanelAiOverlay
+            open={aiOverlayOpen}
+            onClose={() => setAiOverlayOpen(false)}
+            city={businessCity}
+            category={businessCategory}
+            businessName={businessName}
+          />
         </div>
       )}
-
-      {/* AI Suggestion overlay — covers toolbar */}
-      <PanelAiOverlay
-        open={aiOverlayOpen}
-        onClose={() => { setAiOverlayOpen(false); setOverlay(true); }}
-        city={businessCity}
-        category={businessCategory}
-        businessName={businessName}
-      />
 
       <VoiceSearchOverlay
         isOpen={voice.status === "recording" || voice.status === "processing"}
