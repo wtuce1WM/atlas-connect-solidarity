@@ -65,6 +65,11 @@ const queryClient = new QueryClient();
 
 const renderLazyRoute = (page: JSX.Element) => <Suspense fallback={null}>{page}</Suspense>;
 
+const BusinessRedirect = () => {
+  const { slug } = useParams();
+  return <Navigate to={`/fiche/${slug}`} replace />;
+};
+
 const GlobalFloatingSearchBar = () => {
   const location = useLocation();
   // Hide on home page and staff/affiliate backoffice pages
