@@ -130,7 +130,7 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
 
   return (
     <>
-      <div className={`pt-2 lg:pt-4 pb-28 ${columns === 3 ? "grid grid-cols-1 sm:grid-cols-3 gap-3" : columns === 2 ? "grid grid-cols-1 sm:grid-cols-2 gap-3" : "grid grid-cols-1 sm:grid-cols-2 gap-3 lg:grid-cols-4"}`}>
+      <div className={`pt-10 sm:pt-4 lg:pt-10 pb-28 ${columns === 3 ? "grid grid-cols-1 sm:grid-cols-3 gap-3" : columns === 2 ? "grid grid-cols-1 sm:grid-cols-2 gap-3" : "grid grid-cols-1 sm:grid-cols-2 gap-3 lg:grid-cols-4"}`}>
         {destinations.map((dest) => {
           const img = dest.image_url || (dest.images && dest.images.length > 0 ? dest.images[0] : null);
           const name = getName(dest);
