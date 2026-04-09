@@ -258,10 +258,10 @@ const MobileSearchOverlay = ({
                   key={biz.id}
                   type="button"
                   onClick={() => {
-                    onClose();
                     if (onBusinessSelect) {
                       onBusinessSelect(biz.id);
                     } else {
+                      onClose();
                       navigate(`/search?openBusiness=${biz.id}`);
                     }
                   }}
