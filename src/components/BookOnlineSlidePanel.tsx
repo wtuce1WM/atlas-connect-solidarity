@@ -935,7 +935,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   {woDescription.replace(/<[^>]*>/g, "").length > 1500 && (
                     <button
                       onClick={() => setShowDescriptionOverlay(true)}
-                      className="absolute bottom-3 right-3 ml-3 h-8 w-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-sm z-10"
+                      className="absolute bottom-3 right-3 h-9 w-9 flex items-center justify-center rounded-full bg-white/25 hover:bg-white/35 transition-colors backdrop-blur-md z-10 shadow-[0_0_8px_4px_rgba(0,0,0,0.2)]"
                       title="Lire tout"
                     >
                       <Expand className="h-5 w-5 text-white" strokeWidth={3} />
