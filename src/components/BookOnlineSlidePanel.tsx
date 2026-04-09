@@ -868,7 +868,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               pointerEvents: showHook && hookText ? 'none' : 'auto',
             }}
           >
-            {business.logo_url && (
+            {business.logo_url && business.id === businessId && (
               <div
                 className={`shrink-0 w-20 h-20 overflow-hidden hidden md:block ${business.logo_bg === 'transparent' ? '' : 'rounded-xl border-2 border-white/20 shadow-lg'}`}
                 style={{ backgroundColor: business.logo_bg === 'transparent' ? 'transparent' : (business.logo_bg || '#fff') }}
