@@ -65,7 +65,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
 
       {/* Search overlay — covers toolbar */}
       {searchOverlayOpen && (
-        <div className="absolute inset-0 lg:-top-[3.3rem] z-[80]">
+        <div className="absolute inset-0 z-[80]">
           <MobileSearchOverlay
             open={searchOverlayOpen}
             onClose={() => setOverlay(false)}
