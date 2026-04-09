@@ -3,6 +3,7 @@ import { MapPin, Phone, Mail, Globe, Clock, ExternalLink, Search, Loader2, Chevr
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { formatDayHours as formatDayHoursDisplay, isCurrentlyOpen } from "@/lib/formatOpeningHours";
 import { cleanPhone, whatsappUrl } from "@/lib/phoneUtils";
+import { CTA_MODE_LABELS } from "@/components/slidepanel/CtaBar";
 
 interface ContactFlipCardProps {
   business: {
