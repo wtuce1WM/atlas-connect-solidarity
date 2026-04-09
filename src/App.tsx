@@ -104,7 +104,7 @@ const AppContent = () => {
           <RouteTransition>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/business/:slug" element={renderLazyRoute(<BusinessDetail />)} />
+              <Route path="/business/:slug" element={<BusinessRedirect />} />
               <Route path="/city/:city" element={renderLazyRoute(<CityMap />)} />
               <Route path="/category/:categoryName" element={renderLazyRoute(<CategoryPage />)} />
               <Route path="/service/*" element={renderLazyRoute(<ServicePage />)} />
