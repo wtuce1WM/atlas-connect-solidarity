@@ -91,8 +91,6 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   }, []);
 
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [videoPaused, setVideoPaused] = useState(true);
-  const [videoMuted, setVideoMuted] = useState(true);
   const {
     cardsHidden, dragOffsetY, isDragging,
     showCards, hideCards,
