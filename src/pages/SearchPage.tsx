@@ -1668,7 +1668,7 @@ const SearchPage = () => {
             query: searchQuery.trim() || categoryFromUrl || undefined,
             spoken: spokenText || undefined,
             language: language,
-            pageSize: ITEMS_PER_PAGE,
+            pageSize: SERVER_PAGE_SIZE,
             offset: 0,
           }
         });
