@@ -3068,11 +3068,9 @@ const SearchPage = () => {
                       <Map className="h-4 w-4" />
                       {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
                     </button>
-        )}
-      </div>
-      </div>
-      </section>
-      )}
+                  )}
+                </div>
+
 
                 <DestinationSection
                   city={destCity}
