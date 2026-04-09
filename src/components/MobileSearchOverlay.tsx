@@ -265,10 +265,10 @@ const MobileSearchOverlay = ({
                       navigate(`/search?openBusiness=${biz.id}`);
                     }
                   }}
-                  className="flex flex-col items-center gap-1.5 shrink-0 w-[150px] group animate-slide-in-right"
+                  className="flex flex-col items-center gap-1.5 group animate-slide-in-right"
                   style={{ animationDelay: `${i * 80}ms`, animationFillMode: "backwards" }}
                 >
-                  <div className="w-[150px] h-[150px] rounded-xl overflow-hidden bg-muted border border-border">
+                  <div className="w-full aspect-square rounded-xl overflow-hidden bg-muted border border-border">
                     {biz.image ? (
                       <img src={biz.image} alt={biz.name} className="w-full h-full object-cover" loading="lazy" />
                     ) : (
