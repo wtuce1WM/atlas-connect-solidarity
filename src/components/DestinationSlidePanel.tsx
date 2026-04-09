@@ -662,7 +662,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
           />
 
           {/* CTA + video controls */}
-          <div className={`shrink-0 ${showSearchBar ? 'absolute bottom-[56px] left-0 right-0 z-[74] pb-[14px] md:pb-[10px]' : 'py-2 lg:pb-2'} flex flex-col items-center gap-2 pointer-events-auto`}>
+          <div className={`${cardsHidden && showSearchBar ? 'absolute bottom-[56px] left-0 right-0 z-[74] pb-[14px] md:pb-[10px]' : 'shrink-0 py-2 lg:pb-2'} flex flex-col items-center gap-2 pointer-events-auto`}>
             {!cardsHidden && destination.latitude && destination.longitude && (
               <div className="w-full md:w-3/4 flex justify-center gap-2">
                 <div className="flex-1 md:flex-none md:w-1/3">
