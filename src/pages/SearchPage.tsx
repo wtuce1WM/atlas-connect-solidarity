@@ -3069,10 +3069,8 @@ const SearchPage = () => {
                       {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
                     </button>
                   )}
-      </div>
-      </div>
-      </section>
-      )}
+                </div>
+
 
                 <DestinationSection
                   city={destCity}
