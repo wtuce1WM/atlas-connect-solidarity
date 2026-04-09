@@ -1598,12 +1598,12 @@ const SearchPage = () => {
   }, [filteredBusinesses, detectedSubcategory]);
 
   // Paginate — server-side pagination via edge function
-  // Page 1 shows 1 fewer business to account for the AI suggestion card slot
-  const PAGE_1_ITEMS = ITEMS_PER_PAGE - 1;
+  // We request SERVER_PAGE_SIZE (21) from the server so that after the AI suggestion card takes 1 slot,
+  // the user still sees 20 real business results per page.
   const serverTotalCount = totalCount ?? filteredBusinesses.length;
   const totalPages = useMemo(() => {
-    if (serverTotalCount <= PAGE_1_ITEMS) return 1;
-    return 1 + Math.ceil((serverTotalCount - PAGE_1_ITEMS) / ITEMS_PER_PAGE);
+    if (serverTotalCount <= ITEMS_PER_PAGE) return 1;
+    return Math.ceil(serverTotalCount / ITEMS_PER_PAGE);
   }, [serverTotalCount]);
   // With server-side pagination, filteredBusinesses already contains only the current page's results
   const paginatedBusinesses = useMemo(() => {
