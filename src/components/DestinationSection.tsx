@@ -67,6 +67,8 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
       const { data: destsData } = await (supabase
         .from("destinations")
         .select(selectFields)
+        .not("city_ids", "is", null)
+        .neq("city_ids", "{}")
         .contains("city_ids", [cityRow.id])
         .order("name_fr") as any);
 
