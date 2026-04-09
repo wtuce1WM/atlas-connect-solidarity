@@ -641,7 +641,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     ? `absolute inset-x-0 top-0 ${hasBottomActionCtas ? 'bottom-[160px]' : 'bottom-[88px]'} z-0`
     : "absolute inset-0 z-0";
 
-  const openDocOrBooking = useCallback((url: string, title?: string) => {
+  const openDocOrBooking = useCallback((url: string, title?: string, hideContact?: boolean) => {
     const isPdf = url?.toLowerCase().endsWith('.pdf') || url?.includes('/pdfs/');
     const isFlipbook = /issuu\.com|calameo\.com/i.test(url || '');
     if (isPdf || isFlipbook) {
@@ -652,6 +652,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       setBookingOverlayUrl(url);
       setShowBookingOverlay(true);
       setBookingOverlayTitle(title);
+      setBookingOverlayHideContact(!!hideContact);
     }
   }, []);
 
