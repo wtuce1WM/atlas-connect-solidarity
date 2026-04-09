@@ -71,6 +71,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
             onClose={() => setOverlay(false)}
             contained
             onBusinessSelect={(bizId) => {
+              setAiOverlayOpen(false);
               setOverlay(false);
               onBusinessSelect?.(bizId);
             }}
