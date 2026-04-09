@@ -61,12 +61,13 @@ interface BookOnlineSlidePanelProps {
   onSearch?: (params: Record<string, string>) => void;
   onSearchBusinessSelect?: (businessId: string) => void;
   onMosaicStateChange?: (open: boolean) => void;
+  closeTrigger?: number;
   propagateMosaicState?: boolean;
 }
 
 type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string } | { kind: "matterport"; url: string };
 
-const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect, onMosaicStateChange, propagateMosaicState = false }: BookOnlineSlidePanelProps) => {
+const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect, onMosaicStateChange, closeTrigger, propagateMosaicState = false }: BookOnlineSlidePanelProps) => {
   const [activeBusinessId, setActiveBusinessIdRaw] = useState(propBusinessId);
   const [previousBusinessId, setPreviousBusinessId] = useState<string | null>(null);
   const previousCardsHiddenRef = useRef(false);
@@ -1600,6 +1601,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           businessName={business?.name}
           onOverlayChange={setSearchOverlayActive}
           darkBackground={docOverlayLoaded || bookingOverlayLoaded}
+          closeTrigger={closeTrigger}
         />
       )}
 

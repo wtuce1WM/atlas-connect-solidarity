@@ -4053,6 +4053,7 @@ const SearchPage = () => {
                 forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
                 interceptCloseRef={compactPanelInterceptCloseRef}
                 showSearchBar
+                closeTrigger={mapPanelCloseTrigger}
                 onMosaicStateChange={setIsNestedMosaicOpen}
                 onSearch={(params) => {
                   setSelectedCategoryFilter(null);
