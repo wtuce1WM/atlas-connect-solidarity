@@ -184,7 +184,7 @@ export function CtaBar({
         <VideoControls type="youtube" iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>} playing={ytBgPlaying} muted={ytBgMuted} onPlayingChange={setYtBgPlaying} onMutedChange={setYtBgMuted} className="animate-slide-in-right" />
       )}
 
-      {cardsHidden && ctaItems.length > 0 && (
+      {ctaItems.length > 0 && (
         <div className="w-4/5 md:w-3/4 md:px-0 flex justify-center gap-2 pointer-events-auto">
           {ctaItems.map((item, i) => (
             <div key={i} className="flex-1 md:flex-none md:w-1/3">{item}</div>
