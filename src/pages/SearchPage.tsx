@@ -3408,7 +3408,7 @@ const SearchPage = () => {
                 if (biz) openCompactPanel({ id: biz.id, name: biz.name } as AIBusinessData);
               }}
               center={mapCenterForResults}
-              zoom={mapZoomForResults}
+              fitToMarkers
             />
           </div>
         )}
