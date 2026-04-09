@@ -2086,7 +2086,7 @@ const SearchPage = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
 
     // Compute server offset for the requested page
-    const offset = page === 1 ? 0 : PAGE_1_ITEMS + (page - 2) * ITEMS_PER_PAGE;
+    const offset = (page - 1) * ITEMS_PER_PAGE;
     setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke<SearchResult>("business-search", {
