@@ -3333,7 +3333,86 @@ const SearchPage = () => {
 
                   return card;
                 })}
+              </div>
 
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="mb-4 flex flex-col items-center gap-1">
+                  <p className="text-sm text-muted-foreground">
+                    {t.showing} {startResult} {t.to} {endResult} sur {displayedResultsCount} {t.results}
+                  </p>
+                  {/* Pagination controls */}
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => goToPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="gap-1"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      {t.previous}
+                    </Button>
+
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNum: number;
+                        if (totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (currentPage <= 3) {
+                          pageNum = i + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                          pageNum = totalPages - 4 + i;
+                        } else {
+                          pageNum = currentPage - 2 + i;
+                        }
+                        
+                        return (
+                          <Button
+                            key={pageNum}
+                            variant={currentPage === pageNum ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => goToPage(pageNum)}
+                            className="w-10"
+                          >
+                            {pageNum}
+                          </Button>
+                        );
+                      })}
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => goToPage(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className="gap-1"
+                    >
+                      {t.next}
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : null}
+        </div>
+        {/* Right side: Sticky Google Map when city/neighborhood known */}
+        {hasKnownLocation && !compactPanelBusiness && !hideResultsMap && (
+          <div className="w-1/2 sticky top-0 h-screen z-[50] relative overflow-hidden">
+            <PoiGoogleMap
+              pois={mapPoiItems}
+              selectedPoiId={hoveredResultId || compactPanelBusiness?.id || null}
+              onPoiClick={(poiId) => {
+                const biz = filteredBusinesses.find(b => b.id === poiId);
+                if (biz) openCompactPanel({ id: biz.id, name: biz.name } as AIBusinessData);
+              }}
+              center={mapCenterForResults}
+              zoom={mapZoomForResults}
+            />
+          </div>
+        )}
+      </div>
 
       {/* Mobile/Tablet Map Overlay — slide-in from right */}
       {isSubDesktop && showMobileMap && (
