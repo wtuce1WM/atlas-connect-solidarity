@@ -2747,7 +2747,7 @@ const SearchPage = () => {
               «&nbsp;{(spokenText || searchQuery)}{selectedCity && selectedCity !== "all" ? ` ${selectedCity}` : ""}&nbsp;»
             </p>
             <p className="text-primary font-semibold text-lg mb-5">
-              {filteredBusinesses.length} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
+              {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
             </p>
 
             {/* TTS button */}
