@@ -3047,6 +3047,7 @@ const SearchPage = () => {
                     if (dest) {
                       setSelectedDestination(dest);
                       setDestMapItem(null);
+                      setMapPanelCloseTrigger(n => n + 1);
                     }
                   }}
                    onMapClick={hasKnownLocation ? (dest) => { setHoveredDestId(dest.id); } : (dest) => {
