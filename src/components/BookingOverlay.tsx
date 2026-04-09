@@ -10,9 +10,10 @@ interface BookingOverlayProps {
   whatsapp?: string | null;
   phone?: string | null;
   onLoad?: () => void;
+  hideContact?: boolean;
 }
 
-const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp, phone, onLoad }: BookingOverlayProps) => {
+const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp, phone, onLoad, hideContact }: BookingOverlayProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   return (
@@ -27,7 +28,7 @@ const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp, phone, onLoad }:
           <X className="h-4 w-4" />
         </button>
         <span className="text-sm font-semibold ml-2">{title || "Réservation"}</span>
-        {whatsapp ? (
+        {!hideContact && whatsapp ? (
           <a
             href={whatsappUrl(whatsapp)}
             target="_blank"
@@ -39,7 +40,7 @@ const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp, phone, onLoad }:
           >
             <WhatsAppIcon className="h-4 w-4" />
           </a>
-        ) : phone ? (
+        ) : !hideContact && phone ? (
           <a
             href={`tel:${phone}`}
             className="absolute left-1/2 -translate-x-1/2 h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background hover:opacity-90 transition-opacity"

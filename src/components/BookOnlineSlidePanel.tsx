@@ -106,6 +106,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook'; ts: number } | null>(null);
   const [docOverlayLoaded, setDocOverlayLoaded] = useState(false);
   const [bookingOverlayLoaded, setBookingOverlayLoaded] = useState(false);
+  const [bookingOverlayHideContact, setBookingOverlayHideContact] = useState(false);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
   const [selectedKpBusinessId, setSelectedKpBusinessId] = useState<string | null>(null);
@@ -640,7 +641,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     ? `absolute inset-x-0 top-0 ${hasBottomActionCtas ? 'bottom-[160px]' : 'bottom-[88px]'} z-0`
     : "absolute inset-0 z-0";
 
-  const openDocOrBooking = useCallback((url: string, title?: string) => {
+  const openDocOrBooking = useCallback((url: string, title?: string, hideContact?: boolean) => {
     const isPdf = url?.toLowerCase().endsWith('.pdf') || url?.includes('/pdfs/');
     const isFlipbook = /issuu\.com|calameo\.com/i.test(url || '');
     if (isPdf || isFlipbook) {
@@ -651,6 +652,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       setBookingOverlayUrl(url);
       setShowBookingOverlay(true);
       setBookingOverlayTitle(title);
+      setBookingOverlayHideContact(!!hideContact);
     }
   }, []);
 
@@ -985,7 +987,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 <ExternalLinksFlipCard
                   links={externalLinks}
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard)) * 120}ms`}
-                  onOpenUrl={(url, linkTitle) => openDocOrBooking(url, linkTitle)}
+                  onOpenUrl={(url, linkTitle) => openDocOrBooking(url, linkTitle, true)}
                 />
               )}
               {business && (
@@ -1368,10 +1370,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           <BookingOverlay
             bookingUrl={finalUrl}
             title={bookingOverlayUrl ? bookingOverlayTitle : undefined}
-            onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setBookingOverlayLoaded(false); }}
+            onClose={() => { setShowBookingOverlay(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setBookingOverlayLoaded(false); setBookingOverlayHideContact(false); }}
             whatsapp={business?.whatsapp}
             phone={business?.phone}
             onLoad={() => setBookingOverlayLoaded(true)}
+            hideContact={bookingOverlayHideContact}
           />
         );
       })()}
