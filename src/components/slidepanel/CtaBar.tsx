@@ -176,20 +176,20 @@ export function CtaBar({
       className={`${showSearchBar ? 'absolute bottom-[56px] left-0 right-0 z-[74] pb-[14px] md:pb-[10px]' : 'shrink-0 py-2 lg:pb-2'} flex flex-col items-center gap-2 ${externalVideoInteractiveMode ? 'pointer-events-none' : 'pointer-events-auto'} ${cardsHidden && effectiveMedia?.kind === "matterport" ? 'mb-24' : ''}`}
       style={hideStyle}
     >
-      {!cardsHidden && ctaItems.length > 0 && (
-        <div className="w-4/5 md:w-3/4 md:px-0 flex justify-center gap-2 pointer-events-auto">
-          {ctaItems.map((item, i) => (
-            <div key={i} className="flex-1 md:flex-none md:w-1/3">{item}</div>
-          ))}
-        </div>
-      )}
-
-      {/* Video controls – in Masquer mode, render below CTAs */}
+      {/* Video controls – render ABOVE CTAs in Afficher mode */}
       {!cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type === "file" && (
         <VideoControls type="file" videoRef={videoRef as React.RefObject<HTMLVideoElement>} paused={videoPaused} muted={videoMuted} className="animate-slide-in-right" />
       )}
       {!cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" && (
         <VideoControls type="youtube" iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>} playing={ytBgPlaying} muted={ytBgMuted} onPlayingChange={setYtBgPlaying} onMutedChange={setYtBgMuted} className="animate-slide-in-right" />
+      )}
+
+      {cardsHidden && ctaItems.length > 0 && (
+        <div className="w-4/5 md:w-3/4 md:px-0 flex justify-center gap-2 pointer-events-auto">
+          {ctaItems.map((item, i) => (
+            <div key={i} className="flex-1 md:flex-none md:w-1/3">{item}</div>
+          ))}
+        </div>
       )}
 
       {/* Owner logo + badge */}
