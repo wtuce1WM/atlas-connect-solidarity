@@ -2111,7 +2111,7 @@ const SearchPage = () => {
   };
 
   const startResult = (currentPage - 1) * ITEMS_PER_PAGE + 1;
-  const endResult = Math.min(startResult + paginatedBusinesses.length - 1, serverTotalCount);
+  const endResult = Math.min(startResult + ITEMS_PER_PAGE - 1, serverTotalCount);
   const displayedResultsCount = serverTotalCount;
   const stickyAiText = useMemo(
     () => aiAnswerText.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*(.*?)\*/g, "$1").replace(/\n+/g, " "),
