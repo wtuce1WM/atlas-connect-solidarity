@@ -252,7 +252,7 @@ const MobileSearchOverlay = ({
               <MapPin className="h-3.5 w-3.5" />
               {language === "fr" ? "Consultés récemment" : language === "ar" ? "تمت مشاهدتها مؤخرًا" : "Recently viewed"}
             </span>
-            <div className="flex flex-wrap gap-3 pb-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pb-2">
               {recentBusinesses.slice(0, 10).map((biz, i) => (
                 <button
                   key={biz.id}
@@ -265,10 +265,10 @@ const MobileSearchOverlay = ({
                       navigate(`/search?openBusiness=${biz.id}`);
                     }
                   }}
-                  className="flex flex-col items-center gap-1.5 shrink-0 w-[150px] group animate-slide-in-right"
+                  className="flex flex-col items-center gap-1.5 group animate-slide-in-right"
                   style={{ animationDelay: `${i * 80}ms`, animationFillMode: "backwards" }}
                 >
-                  <div className="w-[150px] h-[150px] rounded-xl overflow-hidden bg-muted border border-border">
+                  <div className="w-full aspect-square rounded-xl overflow-hidden bg-muted border border-border">
                     {biz.image ? (
                       <img src={biz.image} alt={biz.name} className="w-full h-full object-cover" loading="lazy" />
                     ) : (
