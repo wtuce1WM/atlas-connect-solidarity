@@ -27,7 +27,7 @@ export function TabBar({ tabs, activeTab, onTabChange }: TabBarProps) {
   return (
     <div className="shrink-0 overflow-x-auto scrollbar-hide pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 pt-2 pb-1">
       <div className="flex gap-1 w-max">
-        <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
+        <div className="shrink-0 w-4 md:w-6" aria-hidden="true" />
         {tabs.map((tab) => (
           <button
             key={tab.id}
