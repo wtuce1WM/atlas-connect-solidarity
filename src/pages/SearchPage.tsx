@@ -3661,7 +3661,7 @@ const SearchPage = () => {
         </div>
         {/* Right side: Sticky Google Map when city/neighborhood known */}
         {hasKnownLocation && !compactPanelBusiness && (
-          <div className="w-1/2 sticky top-0 h-screen z-[50]">
+          <div className="w-1/2 sticky top-0 h-screen z-[50] relative">
             <PoiGoogleMap
               pois={mapPoiItems}
               selectedPoiId={hoveredResultId || compactPanelBusiness?.id || null}
@@ -3673,6 +3673,22 @@ const SearchPage = () => {
               fitToMarkers
               subcategoryIconMap={subcategoryIconMap}
               highlightColor={{ bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" }}
+            />
+            <PanelSearchBar
+              onSearch={(params) => {
+                setSelectedCategoryFilter(null);
+                setSelectedSubcategoryFilter(null);
+                setSelectedServiceFilter(null);
+                if (params.q) { setSearchQuery(params.q); setInputValue(params.q); }
+                setActiveTab("suggestions");
+                setSelectedCity("all");
+                setIsGeoCityAutoSelected(false);
+                setSearchParams(params);
+              }}
+              onBusinessSelect={(bizId) => {
+                setCompactPanelBusiness({ id: bizId, name: "" } as any);
+                setIsCompactPanelExpanded(false);
+              }}
             />
           </div>
         )}
