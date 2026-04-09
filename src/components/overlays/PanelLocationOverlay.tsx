@@ -262,7 +262,7 @@ const PanelLocationOverlay = ({ open, onClose }: PanelLocationOverlayProps) => {
   if (!open) return null;
 
   return (
-    <div className="absolute inset-0 z-[90] bg-background flex flex-col animate-in slide-in-from-bottom duration-200">
+    <div className="absolute inset-0 lg:-top-[3.3rem] z-[90] bg-background flex flex-col animate-in slide-in-from-bottom duration-200">
       {/* Header */}
       <div className="shrink-0 flex items-center gap-3 px-4 py-3 border-b border-border">
         <button
