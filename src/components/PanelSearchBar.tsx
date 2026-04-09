@@ -100,7 +100,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
       {/* AI Suggestion overlay — covers toolbar */}
       <PanelAiOverlay
         open={aiOverlayOpen}
-        onClose={() => setAiOverlayOpen(false)}
+        onClose={() => { setAiOverlayOpen(false); setOverlay(true); }}
         city={businessCity}
         category={businessCategory}
         businessName={businessName}
