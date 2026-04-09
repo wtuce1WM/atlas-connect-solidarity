@@ -969,6 +969,13 @@ const SearchPage = () => {
     }
   }, [searchQuery, categoryFromUrl, queryHasExplicitCity, geo.isEnabled, geo.detectedCity, selectedCity, cityFromUrl]);
 
+  // Reset map visibility when a new search is performed
+  useEffect(() => {
+    setHideResultsMap(false);
+    setHidePoiMap(false);
+    setHideDestMap(false);
+  }, [searchQuery]);
+
   // If query has country scope (e.g. "maroc"), force "all" cities only on initial search
   const prevQueryForCountryScopeRef = useRef<string>(searchQuery);
   useEffect(() => {
