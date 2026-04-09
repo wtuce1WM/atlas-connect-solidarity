@@ -279,8 +279,8 @@ const MobileSearchOverlay = ({
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent rounded-b-xl px-1.5 pb-1.5 pt-4">
                     <span
-                      className="block text-xs font-semibold text-white uppercase line-clamp-2 leading-tight group-hover:underline"
-                      style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.08em', WebkitTextStroke: '0.3px' }}
+                      className="block text-xs font-semibold text-white line-clamp-2 leading-tight group-hover:underline"
+                      style={{ fontFamily: "'Josefin Sans', sans-serif", textTransform: "none", letterSpacing: "0.02em" }}
                     >
                       {biz.name}
                     </span>
