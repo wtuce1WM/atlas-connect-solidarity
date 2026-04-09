@@ -20,9 +20,11 @@ interface PanelSearchBarProps {
   onOverlayChange?: (open: boolean) => void;
   /** Use a dark (black) background instead of transparent */
   darkBackground?: boolean;
+  /** Increment to force-close all overlays from outside */
+  closeTrigger?: number;
 }
 
-const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCategory, businessName, onOverlayChange, darkBackground }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCategory, businessName, onOverlayChange, darkBackground, closeTrigger }: PanelSearchBarProps) => {
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
   // Notify parent when search overlay opens/closes
