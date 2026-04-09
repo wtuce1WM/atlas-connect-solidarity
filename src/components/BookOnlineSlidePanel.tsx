@@ -1388,7 +1388,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* Directions Overlay */}
       {showDirections && business && (
-        <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[70] animate-slide-up-from-bottom bg-background">
+        <div
+          className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[70] bg-background"
+          style={{ animation: "slide-up-from-bottom 0.4s ease-out both" }}
+        >
           <DirectionsOverlay business={business} onClose={() => setShowDirections(false)} />
         </div>
       )}
