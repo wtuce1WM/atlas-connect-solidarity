@@ -12,7 +12,12 @@ export default function FrontStructureNavBar({ tabs, activeTabId, onTabClick }: 
 
   // Scroll active tab into view
   useEffect(() => {
-    if (!activeTabId || !scrollRef.current) return;
+    if (!scrollRef.current) return;
+    if (activeTabId === null) {
+      // "Votre recherche" clicked — scroll to start on mobile/tablet
+      scrollRef.current.scrollTo({ left: 0, behavior: "smooth" });
+      return;
+    }
     const activeEl = scrollRef.current.querySelector(`[data-tab-id="${activeTabId}"]`);
     if (activeEl) {
       activeEl.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
