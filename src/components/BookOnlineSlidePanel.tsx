@@ -1388,15 +1388,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           <div className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain order-[-1]">
             {descGridMode ? (
               <div className="px-2 pt-3 pb-6">
-                <div className="flex items-center justify-between mb-3 px-2">
-                  <span className="text-xs font-medium text-white/70 font-['Josefin_Sans',sans-serif]">Photos</span>
-                  <button
-                    onClick={() => setDescGridMode(false)}
-                    className="h-7 w-7 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </div>
                 <div className="grid grid-cols-3 gap-1.5">
                   {images.slice(0, 15).map((img, i) => (
                     <div
