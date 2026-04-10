@@ -50,6 +50,8 @@ import WarningOverlay from "@/components/WarningOverlay";
 import EmergencyNumbers from "@/components/EmergencyNumbers";
 import { useSearchHistory } from "@/hooks/useSearchHistory";
 import PanelSearchBar from "@/components/PanelSearchBar";
+import FrontStructureNavBar from "@/components/FrontStructureNavBar";
+import { useFrontStructureTabs } from "@/hooks/useFrontStructureTabs";
 import PoiTabContent from "@/pages/search/PoiTabContent";
 import DestinationsTabContent from "@/pages/search/DestinationsTabContent";
 import ResultsTabContent from "@/pages/search/ResultsTabContent";
@@ -135,10 +137,12 @@ const SearchPage = () => {
 
 
   const [fsFilterSubcategories, setFsFilterSubcategories] = useState<Set<string> | null>(null);
+  const [mobileFsTabId, setMobileFsTabId] = useState<string | null>(null);
 
   // Reset front structure filter when search query changes
   useEffect(() => {
     setFsFilterSubcategories(null);
+    setMobileFsTabId(null);
   }, [searchQuery]);
 
   const categoryFromUrl = searchParams.get("category") || "";
@@ -1161,6 +1165,7 @@ const SearchPage = () => {
 
   const mobileMapPoiItems: PoiMapItem[] = useMemo(() => buildMapPoiItems(filteredBusinesses, false), [buildMapPoiItems, filteredBusinesses]);
 
+  const { tabs: mobileFrontTabs } = useFrontStructureTabs(effectiveCityForMap || null);
 
     // Auto-open first result's slide panel when arriving from external link
     useEffect(() => {
@@ -2769,16 +2774,35 @@ const SearchPage = () => {
       {isSubDesktop && showMobileMap && (
         <div className="fixed inset-0 z-[201] bg-background animate-slide-in-right lg:hidden">
           {activeTab === "suggestions" ? (
-            <div className="absolute top-0 left-0 right-0 z-[80] flex items-center gap-3 px-3 py-3 backdrop-blur-sm">
-              <button
-                onClick={() => setShowMobileMap(false)}
-                className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black shadow-lg shrink-0"
-              >
-                <X className="h-4 w-4" />
-              </button>
-              <span className="text-sm font-medium text-white truncate drop-shadow-md">
-                {filteredBusinesses.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{searchQuery}"
-              </span>
+            <div className="absolute top-0 left-0 right-0 z-[80] flex flex-col backdrop-blur-sm">
+              <div className="flex items-center gap-3 px-3 py-3">
+                <button
+                  onClick={() => setShowMobileMap(false)}
+                  className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black shadow-lg shrink-0"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+                <span className="text-sm font-medium text-white truncate drop-shadow-md">
+                  {mapPoiItems.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{searchQuery}"
+                </span>
+              </div>
+              {mobileFrontTabs.length > 0 && (
+                <FrontStructureNavBar
+                  tabs={mobileFrontTabs}
+                  activeTabId={mobileFsTabId}
+                  onTabClick={(tabId) => {
+                    setMobileFsTabId(tabId);
+                    if (!tabId) {
+                      setFsFilterSubcategories(null);
+                    } else {
+                      const tab = mobileFrontTabs.find(t => t.id === tabId);
+                      if (tab) {
+                        setFsFilterSubcategories(new Set(tab.subcategoryNames));
+                      }
+                    }
+                  }}
+                />
+              )}
             </div>
           ) : (
             <button
