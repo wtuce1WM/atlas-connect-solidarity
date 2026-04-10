@@ -104,7 +104,7 @@ const PoiTabContent = ({
               setPoiSelectedBusinessId(bizId);
               setMapPanelCloseTrigger((n) => n + 1);
             }}
-            columns={hasKnownLocation ? 2 : undefined}
+            columns={hasKnownLocation && !hidePoiMap ? 2 : undefined}
             onMapClick={
               hasKnownLocation
                 ? (biz) => {
