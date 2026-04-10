@@ -1248,10 +1248,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         </div>
         </div>
 
-        {/* Spacer to prevent bottom carousel from hiding behind absolute CTA bar + search bar */}
-        {showSearchBar && !cardsHidden && (
-          <div className="shrink-0 h-[62px] md:h-[58px]" aria-hidden="true" />
-        )}
 
         {/* Availability result (cards hidden mode) */}
         <HotelAvailabilityResult
