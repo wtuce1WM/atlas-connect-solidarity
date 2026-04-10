@@ -2658,11 +2658,6 @@ const SearchPage = () => {
           filteredBusinesses={filteredBusinesses}
           paginatedBusinesses={paginatedBusinesses}
           businessLabelLogos={businessLabelLogos}
-          
-          gammes={gammes}
-          badges={badges}
-          subcategories={subcategories}
-          badgeSubcategories={badgeSubcategories}
           mapPoiItems={mapPoiItems}
           mapCenterForResults={mapCenterForResults}
           hoveredResultId={hoveredResultId}
