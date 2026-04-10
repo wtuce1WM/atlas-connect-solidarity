@@ -1075,7 +1075,7 @@ const SearchPage = () => {
         }
         return true;
       })
-      .slice(0, 100)
+      .slice(0, 300)
       .map(b => ({
         id: b.id,
         name: b.name,
@@ -1091,17 +1091,52 @@ const SearchPage = () => {
       }));
   }, [hasKnownLocation, isSubDesktop, mapCenterForResults, neighborhoodCoords, effectiveCityForMap]);
 
-  const mapPoiItemsRaw: PoiMapItem[] = useMemo(() => buildMapPoiItems(filteredBusinesses, true), [buildMapPoiItems, filteredBusinesses]);
+  // Fetch ALL city businesses for map markers (independent of pagination)
+  const [allCityMapBusinesses, setAllCityMapBusinesses] = useState<Business[]>([]);
+  useEffect(() => {
+    if (!effectiveCityForMap || !hasKnownLocation) {
+      setAllCityMapBusinesses([]);
+      return;
+    }
+    let cancelled = false;
+    const fetchAll = async () => {
+      const selectFields = "id, name, city, categories, engagements, latitude, longitude, images, neighborhood, rating, computed_rating, total_review_count";
+      let all: any[] = [];
+      let offset = 0;
+      const PAGE = 1000;
+      while (true) {
+        const { data } = await supabase
+          .from("businesses")
+          .select(selectFields)
+          .eq("is_active", true)
+          .ilike("city", effectiveCityForMap)
+          .range(offset, offset + PAGE - 1);
+        if (!data || data.length === 0) break;
+        all.push(...data);
+        if (data.length < PAGE) break;
+        offset += PAGE;
+      }
+      if (!cancelled) setAllCityMapBusinesses(all as Business[]);
+    };
+    fetchAll();
+    return () => { cancelled = true; };
+  }, [effectiveCityForMap, hasKnownLocation]);
+
+  const mapPoiItemsAll: PoiMapItem[] = useMemo(() => {
+    const source = allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
+    return buildMapPoiItems(source, true);
+  }, [buildMapPoiItems, allCityMapBusinesses, filteredBusinesses]);
+
   const mapPoiItems: PoiMapItem[] = useMemo(() => {
-    if (!fsFilterSubcategories) return mapPoiItemsRaw;
-    // Filter map markers to only show businesses matching the selected front_structure tab
-    const matchingIds = new Set(
-      filteredBusinesses
-        .filter(b => b.categories?.some(cat => fsFilterSubcategories.has(cat)))
-        .map(b => b.id)
-    );
-    return mapPoiItemsRaw.filter(p => matchingIds.has(p.id));
-  }, [mapPoiItemsRaw, fsFilterSubcategories, filteredBusinesses]);
+    if (!fsFilterSubcategories) return mapPoiItemsAll;
+    const catMap: Record<string, string[] | null> = {};
+    allCityMapBusinesses.forEach(b => { catMap[b.id] = b.categories; });
+    return mapPoiItemsAll.filter(p => {
+      const cats = catMap[p.id];
+      return cats?.some(cat => fsFilterSubcategories.has(cat));
+    });
+  }, [mapPoiItemsAll, fsFilterSubcategories, allCityMapBusinesses]);
+
   const mobileMapPoiItems: PoiMapItem[] = useMemo(() => buildMapPoiItems(filteredBusinesses, false), [buildMapPoiItems, filteredBusinesses]);
 
 
