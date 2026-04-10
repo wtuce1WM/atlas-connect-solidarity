@@ -1388,11 +1388,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           <div className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain order-[-1]">
             {descGridMode ? (
               <div className="px-2 pt-3 pb-6">
-                <div className="grid grid-cols-3 gap-1.5">
-                  {images.slice(0, 15).map((img, i) => (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5">
+                  {images.slice(0, 16).map((img, i) => (
                     <div
                       key={i}
-                      className="relative aspect-square rounded-md overflow-hidden cursor-pointer"
+                      className={`relative aspect-square rounded-md overflow-hidden cursor-pointer ${i === 15 ? 'md:hidden' : ''}`}
                       onClick={() => { setLightboxIndex(i); setIsLightboxOpen(true); }}
                     >
                       <img src={img} alt={`${business?.name} ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
