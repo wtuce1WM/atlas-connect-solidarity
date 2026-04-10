@@ -6,6 +6,8 @@ import AISuggestionCard from "@/components/AISuggestionCard";
 import PoiGoogleMap from "@/components/PoiGoogleMap";
 import type { PoiMapItem } from "@/components/PoiGoogleMap";
 import PanelSearchBar from "@/components/PanelSearchBar";
+import FrontStructureNavBar from "@/components/FrontStructureNavBar";
+import { useFrontStructureTabs } from "@/hooks/useFrontStructureTabs";
 import type { BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import type { Business } from "@/pages/search/types";
 import type { TimeSlot } from "@/lib/timeSlots";
