@@ -1387,7 +1387,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           {/* Scrollable content — fills remaining space between header and thumbnails */}
           <div className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain order-[-1]">
             {descGridMode ? (
-              <div className="px-2 pt-3 pb-6">
+              <div className="px-2 pt-3 pb-[70px]">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5">
                   {images.slice(0, 16).map((img, i) => (
                     <div
