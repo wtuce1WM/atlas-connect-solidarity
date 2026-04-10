@@ -243,17 +243,17 @@ export default function ResultsTabContent({
                 center={mapCenterForResults}
                 fitToMarkers
               />
-              <div className="absolute top-0 left-0 right-0 z-[85]">
+              <div className="absolute top-0 left-0 right-0 z-[85] flex items-center gap-3 px-3 py-3">
                 <button
                   type="button"
                   onClick={() => setHideResultsMap(true)}
-                  className="w-full flex items-center justify-center gap-3 px-4 py-3 backdrop-blur-sm"
+                  className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black shadow-lg shrink-0"
                 >
-                  <X className="h-4 w-4 text-white shrink-0" />
-                  <span className="text-sm font-medium text-white truncate">
-                    {filteredBusinesses.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{searchQuery}"
-                  </span>
+                  <X className="h-4 w-4" />
                 </button>
+                <span className="text-sm font-medium text-white truncate drop-shadow-md">
+                  {filteredBusinesses.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{searchQuery}"
+                </span>
               </div>
               <PanelSearchBar
                 onSearch={onSearchNavigate}
