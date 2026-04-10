@@ -279,7 +279,7 @@ export default function ResultsTabContent({
                     <X className="h-4 w-4" />
                   </button>
                   <span className="text-sm font-medium text-white truncate drop-shadow-md">
-                    {filteredBusinesses.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{searchQuery}"
+                    {mapPoiItems.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{searchQuery}"
                   </span>
                 </div>
                 <FrontStructureNavBar
