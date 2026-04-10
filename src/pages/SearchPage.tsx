@@ -52,6 +52,10 @@ import WarningOverlay from "@/components/WarningOverlay";
 import EmergencyNumbers from "@/components/EmergencyNumbers";
 import { useSearchHistory } from "@/hooks/useSearchHistory";
 import PanelSearchBar from "@/components/PanelSearchBar";
+import PoiTabContent from "@/pages/search/PoiTabContent";
+import DestinationsTabContent from "@/pages/search/DestinationsTabContent";
+import CelebrityGuide from "@/pages/search/CelebrityGuide";
+import { normalizeSearchMode, isZitounMask, isSosMedecinQuery, isPompiersQuery, isCelebrityQuery, normalizeText as normalizeTextUtil, formatDateFr, ITEMS_PER_PAGE, SERVER_PAGE_SIZE, CELEBRITY_IDS } from "@/pages/search/utils";
 
 interface Business {
   id: string;
