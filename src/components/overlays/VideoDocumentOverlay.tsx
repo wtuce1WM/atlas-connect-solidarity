@@ -174,27 +174,31 @@ const VideoDocumentOverlay = ({
         const currentVideoDoc = videoDocs.find(d => d.url === vidUrl);
         if (!currentVideoDoc?.owner_business_id || currentVideoDoc.owner_business_id === businessId) return null;
         return (
-          <div className="absolute bottom-40 left-0 right-0 z-20 flex flex-col items-center gap-4 pointer-events-none">
+          <div className="absolute bottom-40 left-0 right-0 z-20 flex flex-col items-center pointer-events-none">
             {currentVideoDoc.owner_logo && (
-              <div className="animate-logo-big-full-reveal max-w-[140px] max-h-[110px] md:max-w-[240px] md:max-h-[160px]">
-                <img
-                  src={currentVideoDoc.owner_logo}
-                  alt={currentVideoDoc.owner_name || ''}
-                  className="max-w-full max-h-[110px] md:max-h-[160px] object-contain"
-                  style={{ filter: 'drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))' }}
-                />
+              <div className="shrink-0 flex justify-center pointer-events-none pb-4">
+                <div className="animate-logo-big-full-reveal max-w-[140px] max-h-[110px] md:max-w-[240px] md:max-h-[160px]">
+                  <img
+                    src={currentVideoDoc.owner_logo}
+                    alt={currentVideoDoc.owner_name || ''}
+                    className="max-w-full max-h-[110px] md:max-h-[160px] object-contain"
+                    style={{ filter: 'drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))' }}
+                  />
+                </div>
               </div>
             )}
             {currentVideoDoc.owner_name && (
-              <button
-                onClick={() => onOwnerClick?.(currentVideoDoc.owner_business_id!)}
-                className="pointer-events-auto flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 hover:bg-black/85 transition-colors animate-cta-zoom-in"
-              >
-                <span className="text-xs font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                  {currentVideoDoc.owner_name} <span className="text-base">©</span>
-                </span>
-                <ChevronRight className="h-3.5 w-3.5 text-white/60 shrink-0" />
-              </button>
+              <div className="shrink-0 flex justify-center pointer-events-auto pb-4">
+                <button
+                  onClick={() => onOwnerClick?.(currentVideoDoc.owner_business_id!)}
+                  className="flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 hover:bg-black/85 transition-colors animate-cta-zoom-in"
+                >
+                  <span className="text-xs font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                    {currentVideoDoc.owner_name} <span className="text-base">©</span>
+                  </span>
+                  <ChevronRight className="h-3.5 w-3.5 text-white/60 shrink-0" />
+                </button>
+              </div>
             )}
           </div>
         );
