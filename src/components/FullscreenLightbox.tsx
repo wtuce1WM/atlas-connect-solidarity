@@ -97,7 +97,7 @@ const FullscreenLightbox = ({ items, currentIndex, onIndexChange, onClose }: Ful
     <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center" onClick={onClose}>
       <button
         onClick={(e) => { e.stopPropagation(); onClose(); }}
-        className="absolute top-6 left-6 z-20 h-10 w-10 flex items-center justify-center rounded-full bg-black/80 text-white hover:bg-black transition-colors shadow-2xl"
+        className="absolute top-6 left-6 z-20 h-10 w-10 flex items-center justify-center rounded-full bg-white text-black hover:bg-white/90 transition-colors shadow-lg"
         aria-label="Fermer"
       >
         <X className="h-5 w-5" />
