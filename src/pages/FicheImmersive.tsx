@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
+import SlidePanelHeader from "@/components/SlidePanelHeader";
 import LoadingScreen from "@/components/LoadingScreen";
 
 const FicheImmersive = () => {
@@ -9,6 +10,8 @@ const FicheImmersive = () => {
   const navigate = useNavigate();
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isMosaicOpen, setIsMosaicOpen] = useState(false);
+  const interceptCloseRef = useRef<(() => boolean) | null>(null);
 
   useEffect(() => {
     if (!slug) return;
@@ -39,12 +42,31 @@ const FicheImmersive = () => {
     );
   }
 
+  const handleClose = () => {
+    if (interceptCloseRef.current) {
+      const handled = interceptCloseRef.current();
+      if (handled) return;
+    }
+    navigate("/");
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/95 z-50">
-      <BookOnlineSlidePanel
-        businessId={businessId}
-        onClose={() => navigate("/")}
-      />
+    <div className="fixed inset-0 bg-black/95 z-50 flex flex-col overflow-visible">
+      {!isMosaicOpen && (
+        <SlidePanelHeader
+          onClose={handleClose}
+          mobileTransparent
+        />
+      )}
+      <div className="flex-1 min-h-0">
+        <BookOnlineSlidePanel
+          businessId={businessId}
+          onClose={() => navigate("/")}
+          interceptCloseRef={interceptCloseRef}
+          showSearchBar
+          onMosaicStateChange={setIsMosaicOpen}
+        />
+      </div>
     </div>
   );
 };
