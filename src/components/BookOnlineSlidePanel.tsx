@@ -421,7 +421,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     return { avgOn20: business.computed_rating ?? null, totalReviewCount: business.total_review_count ?? 0 };
   }, [business]);
 
-  const hasContactCard = !!(business?.phone || business?.whatsapp || business?.email || business?.website || business?.address);
+  const hasContactCard = !!(hasOpeningHours && !business?.is_open_24h) || !!isHotelWithPrice;
   const hasReviewsCard = avgOn20 !== null && avgOn20 > 0;
 
   // Extracted open status hook
