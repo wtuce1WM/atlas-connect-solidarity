@@ -2786,14 +2786,15 @@ const SearchPage = () => {
           {/* Map — full height */}
           <div className="w-full h-full relative">
             <PoiGoogleMap
-              pois={activeTab === "poi" ? allPois : activeTab === "destinations" ? allDests : mobileMapPoiItems}
-              selectedPoiId={activeTab === "poi" ? (hoveredPoiId || null) : activeTab === "destinations" ? (hoveredDestId || null) : (hoveredResultId || compactPanelBusiness?.id || null)}
+              pois={activeTab === "poi" ? allPois : activeTab === "destinations" ? allDests : mapPoiItems}
+              selectedPoiId={activeTab === "poi" ? (hoveredPoiId || null) : activeTab === "destinations" ? (hoveredDestId || null) : (hoveredResultId || compactPanelBusiness?.id || fsTopBusinessId || null)}
               onPoiClick={(poiId) => {
                 if (activeTab === "poi" || activeTab === "destinations") {
                   setShowMobileMap(false);
                   openCompactPanel({ id: poiId, name: "" } as AIBusinessData);
                 } else {
-                  const biz = filteredBusinesses.find(b => b.id === poiId);
+                  const biz = filteredBusinesses.find(b => b.id === poiId)
+                    || allCityMapBusinesses.find(b => b.id === poiId);
                   if (biz) {
                     setShowMobileMap(false);
                     openCompactPanel({ id: biz.id, name: biz.name } as AIBusinessData);
