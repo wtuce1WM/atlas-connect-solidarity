@@ -326,16 +326,27 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     needsFitRef.current = true;
   }
 
-  // Create/update label markers when pois change
+  // Stable ref for callbacks so overlays don't need recreation on every render
+  const onPoiClickRef = useRef(onPoiClick);
+  onPoiClickRef.current = onPoiClick;
+
+  // Create/update label markers incrementally to avoid flicker
   useEffect(() => {
     const map = mapRef.current;
     const gmaps = window.google?.maps;
     if (!map || !gmaps) return;
     const LabelMarker = createLabelMarkerClass(gmaps);
 
-    // Clear old overlays
-    overlaysRef.current.forEach((o) => o.setMap(null));
-    overlaysRef.current.clear();
+    const currentIds = new Set(pois.filter(p => p.latitude && p.longitude).map(p => p.id));
+    const existingIds = new Set(overlaysRef.current.keys());
+
+    // Remove markers no longer in the list
+    existingIds.forEach(id => {
+      if (!currentIds.has(id)) {
+        overlaysRef.current.get(id)?.setMap(null);
+        overlaysRef.current.delete(id);
+      }
+    });
 
     const bounds = new gmaps.LatLngBounds();
     let hasPoints = false;
@@ -345,6 +356,9 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
       hasPoints = true;
       const position = { lat: poi.latitude, lng: poi.longitude };
       bounds.extend(position);
+
+      // Skip if marker already exists
+      if (overlaysRef.current.has(poi.id)) return;
 
       const iconName = poi.subcategory && subcategoryIconMap
         ? subcategoryIconMap[poi.subcategory]
@@ -360,7 +374,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
         iconSvg,
         isSelected,
         () => {
-          onPoiClick?.(poi.id);
+          onPoiClickRef.current?.(poi.id);
         },
         () => {
           // Cancel any pending close
@@ -393,7 +407,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
             const el = document.querySelector(`[data-poi-id="${poi.id}"]`);
             if (el) {
               (el as HTMLElement).addEventListener("click", () => {
-                onPoiClick?.(poi.id);
+                onPoiClickRef.current?.(poi.id);
               });
             }
             // Keep infowindow open while mouse is over it
