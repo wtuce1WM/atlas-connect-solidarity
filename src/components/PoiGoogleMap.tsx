@@ -330,6 +330,22 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
   const onPoiClickRef = useRef(onPoiClick);
   onPoiClickRef.current = onPoiClick;
 
+  // Cross-fade opacity when markers change
+  const [mapOpacity, setMapOpacity] = useState(1);
+  const fadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevPoisIdsRef = useRef<string>("");
+
+  useEffect(() => {
+    const ids = pois.filter(p => p.latitude && p.longitude).map(p => p.id).sort().join(",");
+    if (prevPoisIdsRef.current && prevPoisIdsRef.current !== ids) {
+      // New set of markers — trigger cross-fade
+      setMapOpacity(0);
+      if (fadeTimerRef.current) clearTimeout(fadeTimerRef.current);
+      fadeTimerRef.current = setTimeout(() => setMapOpacity(1), 80);
+    }
+    prevPoisIdsRef.current = ids;
+  }, [pois]);
+
   // Create/update label markers incrementally to avoid flicker
   useEffect(() => {
     const map = mapRef.current;
