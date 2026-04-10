@@ -295,6 +295,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     setActiveVideoOverlay(null);
     setVideoOverlayClosing(false);
     setShowPoiMapOverlay(false);
+    setShowDescriptionOverlay(false);
     setPoiMapMode("poi");
     setNearbyFallback([]);
     if (infoCarouselRef.current) infoCarouselRef.current.scrollLeft = 0;
@@ -407,7 +408,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   // Pause/resume on overlays
   useEffect(() => {
-    const overlayOpen = showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId || !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic || !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay || showFallbackOverlay || searchOverlayActive;
+    const overlayOpen = showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId || !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic || !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay || showFallbackOverlay || searchOverlayActive || showDescriptionOverlay;
 
     if (overlayOpen) {
       overlayWasOpenRef.current = true;
@@ -434,7 +435,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     if (videoRef.current && videoRef.current.paused) {
       videoRef.current.play().catch(() => {});
     }
-  }, [showDirections, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId, docOverlay, showBookingOverlay, showYoutubeOverlay, showMosaic, externalOverlayActive, showPoiMapOverlay, activeVideoOverlay, showFallbackOverlay, searchOverlayActive]);
+  }, [showDirections, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId, docOverlay, showBookingOverlay, showYoutubeOverlay, showMosaic, externalOverlayActive, showPoiMapOverlay, activeVideoOverlay, showFallbackOverlay, searchOverlayActive, showDescriptionOverlay]);
 
 
   const bookUrl = business?.reserve_now_url || null;
