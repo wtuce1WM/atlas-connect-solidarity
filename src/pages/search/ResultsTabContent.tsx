@@ -232,18 +232,17 @@ export default function ResultsTabContent({
         {/* Right side: Sticky Google Map when city/neighborhood known */}
         {hasKnownLocation && !compactPanelBusiness && !hideResultsMap && (
           <div className="w-1/2 sticky top-0 h-screen z-[50] flex flex-col overflow-hidden">
-            <div className="z-[60] px-4 py-3 shrink-0">
-              <div className="flex items-center gap-3 px-4 py-3 bg-transparent border border-white/40 rounded-xl backdrop-blur-sm">
-                <button
-                  onClick={() => setHideResultsMap(true)}
-                  className="shrink-0"
-                >
-                  <X className="h-4 w-4 text-white" />
-                </button>
+            <div className="z-[60] py-3 px-4 bg-black shrink-0">
+              <button
+                type="button"
+                onClick={() => setHideResultsMap(true)}
+                className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-transparent border border-white/40 rounded-xl backdrop-blur-sm"
+              >
+                <X className="h-4 w-4 text-white shrink-0" />
                 <span className="text-sm font-medium text-white truncate">
                   {filteredBusinesses.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{searchQuery}"
                 </span>
-              </div>
+              </button>
             </div>
             <div className="flex-1 relative min-h-0">
               <PoiGoogleMap
