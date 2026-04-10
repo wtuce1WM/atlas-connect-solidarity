@@ -1122,20 +1122,37 @@ const SearchPage = () => {
     return () => { cancelled = true; };
   }, [effectiveCityForMap, hasKnownLocation]);
 
-  const mapPoiItemsAll: PoiMapItem[] = useMemo(() => {
-    const source = allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
-    return buildMapPoiItems(source, true);
-  }, [buildMapPoiItems, allCityMapBusinesses, filteredBusinesses]);
+  // "Tous" tab: show search results only
+  const mapPoiItemsSearch: PoiMapItem[] = useMemo(() => {
+    return buildMapPoiItems(filteredBusinesses, true);
+  }, [buildMapPoiItems, filteredBusinesses]);
 
+  // Front structure tab: filter all city businesses, sort verified+rating, take top 20
   const mapPoiItems: PoiMapItem[] = useMemo(() => {
-    if (!fsFilterSubcategories) return mapPoiItemsAll;
-    const catMap: Record<string, string[] | null> = {};
-    allCityMapBusinesses.forEach(b => { catMap[b.id] = b.categories; });
-    return mapPoiItemsAll.filter(p => {
-      const cats = catMap[p.id];
-      return cats?.some(cat => fsFilterSubcategories.has(cat));
+    if (!fsFilterSubcategories) return mapPoiItemsSearch;
+    // Filter matching businesses from full city inventory
+    const matching = allCityMapBusinesses.filter(b =>
+      b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))
+    );
+    // Sort: verified first, then by rating (businesses with <10 reviews get rating -1)
+    matching.sort((a, b) => {
+      const aVerified = (a as any).wtuce_status === 'verified' ? 0 : 1;
+      const bVerified = (b as any).wtuce_status === 'verified' ? 0 : 1;
+      if (aVerified !== bVerified) return aVerified - bVerified;
+      const aCount = (a as any).total_review_count ?? 0;
+      const bCount = (b as any).total_review_count ?? 0;
+      const aRating = aCount >= 10 ? ((a as any).computed_rating ?? a.rating ?? -1) : -1;
+      const bRating = bCount >= 10 ? ((b as any).computed_rating ?? b.rating ?? -1) : -1;
+      return bRating - aRating;
     });
-  }, [mapPoiItemsAll, fsFilterSubcategories, allCityMapBusinesses]);
+    return buildMapPoiItems(matching.slice(0, 20), true);
+  }, [mapPoiItemsSearch, fsFilterSubcategories, allCityMapBusinesses, buildMapPoiItems]);
+
+  // The top-ranked business ID for Gold marker when a tab is active
+  const fsTopBusinessId: string | null = useMemo(() => {
+    if (!fsFilterSubcategories || mapPoiItems.length === 0) return null;
+    return mapPoiItems[0]?.id || null;
+  }, [fsFilterSubcategories, mapPoiItems]);
 
   const mobileMapPoiItems: PoiMapItem[] = useMemo(() => buildMapPoiItems(filteredBusinesses, false), [buildMapPoiItems, filteredBusinesses]);
 
