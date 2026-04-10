@@ -1307,7 +1307,7 @@ const SearchPage = () => {
     } else {
       filtered = [...allBusinesses];
     }
-    if (selectedCity && selectedCity !== "all") {
+    if (selectedCity && selectedCity !== "all" && totalCount === null) {
       const normalizedQuery = normalizeText(searchQuery || "");
       filtered = filtered.filter(b => {
         if (b.city === selectedCity) return true;
