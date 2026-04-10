@@ -6,7 +6,7 @@ import { MapPin, ChevronUp, X, CalendarCheck, Star, Loader2, Expand } from "luci
 import VideoControls from "@/components/VideoControls";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 import { supabase } from "@/integrations/supabase/client";
-import { haversineKm } from "@/lib/haversine";
+
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import poiNearbyImg from "@/assets/poi-nearby.webp";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
