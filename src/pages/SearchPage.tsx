@@ -2658,7 +2658,7 @@ const SearchPage = () => {
           filteredBusinesses={filteredBusinesses}
           paginatedBusinesses={paginatedBusinesses}
           businessLabelLogos={businessLabelLogos}
-          celebrityBusinesses={celebrityBusinesses}
+          
           gammes={gammes}
           badges={badges}
           subcategories={subcategories}
