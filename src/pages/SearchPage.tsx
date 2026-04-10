@@ -1129,9 +1129,10 @@ const SearchPage = () => {
 
   const mapPoiItems: PoiMapItem[] = useMemo(() => {
     if (!fsFilterSubcategories) return mapPoiItemsAll;
-    const catMap = new Map(allCityMapBusinesses.map(b => [b.id, b.categories]));
+    const catMap: Record<string, string[] | null> = {};
+    allCityMapBusinesses.forEach(b => { catMap[b.id] = b.categories; });
     return mapPoiItemsAll.filter(p => {
-      const cats = catMap.get(p.id);
+      const cats = catMap[p.id];
       return cats?.some(cat => fsFilterSubcategories.has(cat));
     });
   }, [mapPoiItemsAll, fsFilterSubcategories, allCityMapBusinesses]);
