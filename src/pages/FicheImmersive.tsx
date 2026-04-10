@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
@@ -32,6 +32,26 @@ const FicheImmersive = () => {
     return () => { cancelled = true; };
   }, [slug]);
 
+  const handleClose = () => {
+    if (interceptCloseRef.current) {
+      const handled = interceptCloseRef.current();
+      if (handled) return;
+    }
+    navigate("/");
+  };
+
+  const handleSearch = useCallback((params: { q?: string; category?: string; city?: string }) => {
+    const sp = new URLSearchParams();
+    if (params.q) sp.set("q", params.q);
+    if (params.category) sp.set("category", params.category);
+    if (params.city) sp.set("city", params.city);
+    navigate(`/recherche?${sp.toString()}`);
+  }, [navigate]);
+
+  const handleSearchBusinessSelect = useCallback((bizId: string) => {
+    setBusinessId(bizId);
+  }, []);
+
   if (loading) return <LoadingScreen />;
 
   if (!businessId) {
@@ -41,14 +61,6 @@ const FicheImmersive = () => {
       </div>
     );
   }
-
-  const handleClose = () => {
-    if (interceptCloseRef.current) {
-      const handled = interceptCloseRef.current();
-      if (handled) return;
-    }
-    navigate("/");
-  };
 
   return (
     <div className="fixed inset-0 bg-black/95 z-50 flex flex-col overflow-visible">
@@ -65,6 +77,8 @@ const FicheImmersive = () => {
           interceptCloseRef={interceptCloseRef}
           showSearchBar
           onMosaicStateChange={setIsMosaicOpen}
+          onSearch={handleSearch}
+          onSearchBusinessSelect={handleSearchBusinessSelect}
         />
       </div>
     </div>
