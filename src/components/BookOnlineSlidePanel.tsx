@@ -1393,7 +1393,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     <div
                       key={i}
                       className={`relative aspect-square rounded-md overflow-hidden cursor-pointer ${i === 15 ? 'md:hidden' : ''}`}
-                      onClick={() => { setLightboxIndex(i); setIsLightboxOpen(true); }}
+                      onClick={() => { const mi = mediaItems.findIndex(m => m.kind === "image" && m.url === img); setLightboxIndex(mi >= 0 ? mi : i); setIsLightboxOpen(true); }}
                     >
                       <img src={img} alt={`${business?.name} ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
                     </div>
