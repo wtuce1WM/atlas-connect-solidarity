@@ -8,8 +8,6 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import { extractTimeSlot, isOpenDuringSlot, getCurrentTimePeriod, type TimeSlot, type TimePeriod } from "@/lib/timeSlots";
 import { isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHours";
 import { haversineKm } from "@/lib/haversine";
-import zitounMaskImg from "@/assets/zitoun-mask.jpg";
-import logoGold from "@/assets/logoGOLDsimple.webp";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
