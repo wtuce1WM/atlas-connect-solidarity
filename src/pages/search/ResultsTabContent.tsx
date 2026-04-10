@@ -243,11 +243,11 @@ export default function ResultsTabContent({
                 center={mapCenterForResults}
                 fitToMarkers
               />
-              <div className="absolute top-0 left-0 right-0 z-[85] py-3 px-4">
+              <div className="absolute top-0 left-0 right-0 z-[85]">
                 <button
                   type="button"
                   onClick={() => setHideResultsMap(true)}
-                  className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-transparent border border-white/40 rounded-xl backdrop-blur-sm"
+                  className="w-full flex items-center justify-center gap-3 px-4 py-3 backdrop-blur-sm"
                 >
                   <X className="h-4 w-4 text-white shrink-0" />
                   <span className="text-sm font-medium text-white truncate">
