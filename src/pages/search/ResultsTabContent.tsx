@@ -58,6 +58,8 @@ export interface ResultsTabContentProps {
     previous: string;
     next: string;
   };
+  effectiveCity?: string | null;
+  onFrontStructureFilter?: (subcategoryNames: Set<string> | null) => void;
 }
 
 export default function ResultsTabContent({
