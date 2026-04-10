@@ -1100,7 +1100,7 @@ const SearchPage = () => {
     }
     let cancelled = false;
     const fetchAll = async () => {
-      const selectFields = "id, name, city, categories, engagements, latitude, longitude, images, neighborhood, rating, computed_rating, total_review_count";
+      const selectFields = "id, name, city, categories, engagements, latitude, longitude, images, neighborhood, rating, computed_rating, total_review_count, wtuce_status";
       let all: any[] = [];
       let offset = 0;
       const PAGE = 1000;
