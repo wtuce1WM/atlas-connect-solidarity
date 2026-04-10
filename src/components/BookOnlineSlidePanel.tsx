@@ -1394,7 +1394,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             <div className="absolute inset-x-0 bottom-[4.75rem] z-20 md:bottom-[5rem]">
               <div className="flex items-center gap-1.5 px-2 py-2 bg-black/40 backdrop-blur-md border-t border-white/10">
                 {images.slice(0, 5).map((img, i) => (
-                  <div key={i} className="flex-1 min-w-0 aspect-[3/2] rounded-md overflow-hidden">
+                  <div key={i} className={`flex-1 min-w-0 aspect-[3/2] rounded-md overflow-hidden ${i >= 3 ? 'hidden md:block' : ''} ${i >= 4 ? 'md:hidden lg:block' : ''}`}>
                     <img src={img} alt={`${business?.name} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
                   </div>
                 ))}
