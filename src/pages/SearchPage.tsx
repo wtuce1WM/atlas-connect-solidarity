@@ -134,7 +134,7 @@ const SearchPage = () => {
   }, [searchParams]);
 
 
-
+  const [fsFilterSubcategories, setFsFilterSubcategories] = useState<Set<string> | null>(null);
 
   const categoryFromUrl = searchParams.get("category") || "";
   
