@@ -2691,6 +2691,8 @@ const SearchPage = () => {
           setShowMobileMap={setShowMobileMap}
           setShowAiPopup={setShowAiPopup}
           t={t}
+          effectiveCity={effectiveCityForMap}
+          onFrontStructureFilter={(subNames) => setFsFilterSubcategories(subNames)}
         />
       )}
 
