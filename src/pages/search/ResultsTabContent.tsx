@@ -263,7 +263,8 @@ export default function ResultsTabContent({
                 pois={mapPoiItems}
                 selectedPoiId={hoveredResultId || compactPanelBusiness?.id || fsTopBusinessId || null}
                 onPoiClick={(poiId) => {
-                  const biz = filteredBusinesses.find(b => b.id === poiId);
+                  const biz = filteredBusinesses.find(b => b.id === poiId)
+                    || allCityMapBusinesses?.find(b => b.id === poiId);
                   if (biz) openCompactPanel({ id: biz.id, name: biz.name } as AIBusinessData);
                 }}
                 center={mapCenterForResults}

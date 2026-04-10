@@ -2756,6 +2756,7 @@ const SearchPage = () => {
           effectiveCity={effectiveCityForMap}
            onFrontStructureFilter={(subNames) => setFsFilterSubcategories(subNames)}
            fsTopBusinessId={fsTopBusinessId}
+           allCityMapBusinesses={allCityMapBusinesses}
         />
       )}
 
