@@ -231,20 +231,8 @@ export default function ResultsTabContent({
         </div>
         {/* Right side: Sticky Google Map when city/neighborhood known */}
         {hasKnownLocation && !compactPanelBusiness && !hideResultsMap && (
-          <div className="w-1/2 sticky top-0 h-screen z-[50] flex flex-col overflow-hidden">
-            <div className="z-[60] py-3 px-4 shrink-0">
-              <button
-                type="button"
-                onClick={() => setHideResultsMap(true)}
-                className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-transparent border border-white/40 rounded-xl backdrop-blur-sm"
-              >
-                <X className="h-4 w-4 text-white shrink-0" />
-                <span className="text-sm font-medium text-white truncate">
-                  {filteredBusinesses.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{searchQuery}"
-                </span>
-              </button>
-            </div>
-            <div className="flex-1 relative min-h-0">
+          <div className="w-1/2 sticky top-0 h-screen z-[50] overflow-hidden">
+            <div className="relative h-full min-h-0">
               <PoiGoogleMap
                 pois={mapPoiItems}
                 selectedPoiId={hoveredResultId || compactPanelBusiness?.id || null}
@@ -255,6 +243,18 @@ export default function ResultsTabContent({
                 center={mapCenterForResults}
                 fitToMarkers
               />
+              <div className="absolute top-0 left-0 right-0 z-[85] py-3 px-4">
+                <button
+                  type="button"
+                  onClick={() => setHideResultsMap(true)}
+                  className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-transparent border border-white/40 rounded-xl backdrop-blur-sm"
+                >
+                  <X className="h-4 w-4 text-white shrink-0" />
+                  <span className="text-sm font-medium text-white truncate">
+                    {filteredBusinesses.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{searchQuery}"
+                  </span>
+                </button>
+              </div>
               <PanelSearchBar
                 onSearch={onSearchNavigate}
                 onBusinessSelect={onBusinessSelect}
