@@ -60,6 +60,7 @@ export interface ResultsTabContentProps {
   };
   effectiveCity?: string | null;
   onFrontStructureFilter?: (subcategoryNames: Set<string> | null) => void;
+  fsTopBusinessId?: string | null;
 }
 
 export default function ResultsTabContent({
@@ -101,6 +102,7 @@ export default function ResultsTabContent({
   t,
   effectiveCity,
   onFrontStructureFilter,
+  fsTopBusinessId,
 }: ResultsTabContentProps) {
   const { tabs: frontTabs } = useFrontStructureTabs(effectiveCity || null);
   const [activeFsTabId, setActiveFsTabId] = useState<string | null>(null);
@@ -259,7 +261,7 @@ export default function ResultsTabContent({
             <div className="relative h-full min-h-0">
               <PoiGoogleMap
                 pois={mapPoiItems}
-                selectedPoiId={hoveredResultId || compactPanelBusiness?.id || null}
+                selectedPoiId={hoveredResultId || compactPanelBusiness?.id || fsTopBusinessId || null}
                 onPoiClick={(poiId) => {
                   const biz = filteredBusinesses.find(b => b.id === poiId);
                   if (biz) openCompactPanel({ id: biz.id, name: biz.name } as AIBusinessData);
@@ -277,7 +279,7 @@ export default function ResultsTabContent({
                     <X className="h-4 w-4" />
                   </button>
                   <span className="text-sm font-medium text-white truncate drop-shadow-md">
-                    {filteredBusinesses.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{searchQuery}"
+                    {mapPoiItems.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{searchQuery}"
                   </span>
                 </div>
                 <FrontStructureNavBar
