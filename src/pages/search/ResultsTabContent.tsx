@@ -252,6 +252,7 @@ export default function ResultsTabContent({
               onSearch={onSearchNavigate}
               onBusinessSelect={onBusinessSelect}
               closeTrigger={mapPanelCloseTrigger}
+              noToolbarOffset
             />
           </div>
         )}

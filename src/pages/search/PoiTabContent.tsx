@@ -176,6 +176,7 @@ const PoiTabContent = ({
             onSearch={onSearchNavigate}
             onBusinessSelect={onBusinessSelect}
             closeTrigger={mapPanelCloseTrigger}
+            noToolbarOffset
           />
         </div>
       )}
