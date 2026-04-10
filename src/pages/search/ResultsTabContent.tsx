@@ -247,7 +247,7 @@ export default function ResultsTabContent({
                 <button
                   type="button"
                   onClick={() => setHideResultsMap(true)}
-                  className="hidden lg:flex items-center justify-center w-8 h-8 rounded-full bg-white text-black shadow-lg shrink-0"
+                  className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black shadow-lg shrink-0"
                 >
                   <X className="h-4 w-4" />
                 </button>
