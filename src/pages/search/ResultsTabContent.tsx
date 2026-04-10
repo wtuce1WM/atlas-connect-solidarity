@@ -286,7 +286,6 @@ export default function ResultsTabContent({
                   onTabClick={handleFsTabClick}
                 />
               </div>
-              </div>
               <PanelSearchBar
                 onSearch={onSearchNavigate}
                 onBusinessSelect={onBusinessSelect}
