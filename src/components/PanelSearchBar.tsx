@@ -22,9 +22,11 @@ interface PanelSearchBarProps {
   darkBackground?: boolean;
   /** Increment to force-close all overlays from outside */
   closeTrigger?: number;
+  /** When true, skip the negative top offset used to cover a toolbar (e.g. inside a map panel) */
+  noToolbarOffset?: boolean;
 }
 
-const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCategory, businessName, onOverlayChange, darkBackground, closeTrigger }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCategory, businessName, onOverlayChange, darkBackground, closeTrigger, noToolbarOffset }: PanelSearchBarProps) => {
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
   // Notify parent when search overlay opens/closes
@@ -76,7 +78,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
 
       {/* Search overlay — covers toolbar */}
       {searchOverlayOpen && (
-        <div className="absolute inset-0 lg:-top-[3.3rem] z-[80]">
+        <div className={`absolute inset-0 ${noToolbarOffset ? "" : "lg:-top-[3.3rem]"} z-[80]`}>
           <MobileSearchOverlay
             open={searchOverlayOpen}
             onClose={() => setOverlay(false)}
@@ -117,7 +119,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
       )}
 
       {(voice.status === "recording" || voice.status === "processing") && (
-        <div className="absolute inset-0 lg:-top-[3.3rem] z-[81]">
+        <div className={`absolute inset-0 ${noToolbarOffset ? "" : "lg:-top-[3.3rem]"} z-[81]`}>
           <VoiceSearchOverlay
             isOpen
             liveTranscript={voice.liveTranscript}
