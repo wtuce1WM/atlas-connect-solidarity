@@ -1491,16 +1491,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       )}
 
       {showPoiMapOverlay && (
-        <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[80] bg-background flex flex-col" style={{ animation: "slide-up-from-bottom 0.4s ease-out both" }}>
-          <div className="shrink-0 flex items-center px-4 py-2 border-b bg-background gap-2">
+        <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[80] flex flex-col" style={{ animation: "slide-up-from-bottom 0.4s ease-out both" }}>
+          <div className="sticky top-0 z-10 flex items-center px-4 py-2 gap-2 bg-black/30 backdrop-blur-sm">
             <button
               onClick={() => { setShowPoiMapOverlay(false); setPoiMapMode("poi"); }}
-              className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
+              className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-opacity"
               aria-label="Fermer"
             >
               <X className="h-4 w-4" />
             </button>
-            <span className="text-sm font-medium truncate">
+            <span className="text-sm font-bold text-white truncate drop-shadow-md">
               {poiMapMode === "destinations"
                 ? (language === "en" ? "Where are you going?" : "Où allez-vous ?")
                 : poiBusinesses.length > 0
@@ -1508,7 +1508,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   : (language === "en" ? "Nearby establishments" : "Établissements à proximité")}
             </span>
           </div>
-          <div className="flex-1 min-h-0">
+          <div className="flex-1 min-h-0 -mt-[3.25rem]">
             <PoiGoogleMap
               pois={poiMapMode === "destinations"
                 ? [
