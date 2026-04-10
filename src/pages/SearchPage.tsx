@@ -2796,7 +2796,7 @@ const SearchPage = () => {
                   <X className="h-4 w-4" />
                 </button>
                 <span className="text-sm font-medium text-white truncate drop-shadow-md">
-                  {mapPoiItems.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{searchQuery}"
+                  {mobileMapPoiItemsFinal.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{searchQuery}"
                 </span>
               </div>
               {mobileFrontTabs.length > 0 && (
@@ -2828,7 +2828,7 @@ const SearchPage = () => {
           {/* Map — full height */}
           <div className="w-full h-full relative">
             <PoiGoogleMap
-              pois={activeTab === "poi" ? allPois : activeTab === "destinations" ? allDests : mapPoiItems}
+              pois={activeTab === "poi" ? allPois : activeTab === "destinations" ? allDests : mobileMapPoiItemsFinal}
               selectedPoiId={activeTab === "poi" ? (hoveredPoiId || null) : activeTab === "destinations" ? (hoveredDestId || null) : (hoveredResultId || compactPanelBusiness?.id || fsTopBusinessId || null)}
               onPoiClick={(poiId) => {
                 if (activeTab === "poi" || activeTab === "destinations") {
