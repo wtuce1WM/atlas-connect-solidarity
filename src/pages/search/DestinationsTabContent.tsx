@@ -100,7 +100,7 @@ const DestinationsTabContent = ({
           <DestinationSection
             city={destCity}
             language={language}
-            columns={hasKnownLocation ? 2 : undefined}
+            columns={hasKnownLocation && !hideDestMap ? 2 : undefined}
             onDestinationClick={(destId) => {
               const dest = allDestItems.find((d) => d.id === destId);
               if (dest) {
