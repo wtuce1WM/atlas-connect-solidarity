@@ -1075,7 +1075,7 @@ const SearchPage = () => {
         }
         return true;
       })
-      .slice(0, 100)
+      .slice(0, 300)
       .map(b => ({
         id: b.id,
         name: b.name,
