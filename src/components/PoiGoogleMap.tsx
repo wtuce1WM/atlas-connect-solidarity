@@ -502,7 +502,27 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     const poi = pois.find((p) => p.id === selectedPoiId);
     if (!poi?.latitude || !poi?.longitude) return;
 
+    // Wait for initial fitBounds to complete before animating
+    if (!hasFittedRef.current) {
+      const waitForFit = setInterval(() => {
+        if (hasFittedRef.current) {
+          clearInterval(waitForFit);
+          // Re-trigger by forcing a state update isn't needed — just run inline
+          doAnimateToPoi(poi);
+        }
+      }, 100);
+      const timeout = setTimeout(() => clearInterval(waitForFit), 3000);
+      return () => { clearInterval(waitForFit); clearTimeout(timeout); };
+    }
+
+    doAnimateToPoi(poi);
+  }, [selectedPoiId, pois]);
+
+  const animateRafRef = useRef<number | null>(null);
+  const doAnimateToPoi = useRef((poi: PoiMapItem) => {
     const map = mapRef.current;
+    if (!map || !poi.latitude || !poi.longitude) return;
+    if (animateRafRef.current) cancelAnimationFrame(animateRafRef.current);
     const target = { lat: poi.latitude, lng: poi.longitude };
     const startCenter = map.getCenter();
     if (!startCenter) { map.panTo(target); return; }
@@ -510,7 +530,6 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     const startLat = startCenter.lat();
     const startLng = startCenter.lng();
     const startZoom = map.getZoom() || 12;
-    // Compute geographic distance (degrees) to calibrate animation
     const dLat = target.lat - startLat;
     const dLng = target.lng - startLng;
     const distance = Math.sqrt(dLat * dLat + dLng * dLng);
@@ -519,7 +538,6 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     const targetZoom = Math.max(startZoom, isFar ? 13 : 14);
     const zoomDelta = Math.abs(targetZoom - startZoom);
 
-    // Adaptive duration: short for nearby pans, longer for big jumps
     const baseDuration = isFar
       ? Math.min(1200 + distance * 3000, 3500)
       : distance < 0.005
@@ -528,51 +546,38 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     const zoomBonus = zoomDelta * 120;
     const DURATION = Math.round(Math.min(baseDuration + zoomBonus, 4000));
 
-    // Adaptive easing for position: snappy close, smooth mid
     const posEase = distance < 0.005
-      ? (t: number) => 1 - Math.pow(1 - t, 3) // ease-out cubic
-      : (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; // ease-in-out cubic
+      ? (t: number) => 1 - Math.pow(1 - t, 3)
+      : (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
-    // For far distances: "fly" zoom curve — zoom out to a cruise altitude then back down
-    // Cruise altitude = midpoint zoom between current and a pulled-back level
     const cruiseZoom = isFar
-      ? Math.min(startZoom, targetZoom) - Math.min(3 + distance * 8, 6) // pull back 3-6 zoom levels
+      ? Math.min(startZoom, targetZoom) - Math.min(3 + distance * 8, 6)
       : startZoom;
-    const minCruise = Math.max(cruiseZoom, 5); // never go below zoom 5
+    const minCruise = Math.max(cruiseZoom, 5);
 
     const startTime = performance.now();
-    let rafId: number;
     const animate = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / DURATION, 1);
       const t = posEase(progress);
-
       const lat = startLat + dLat * t;
       const lng = startLng + dLng * t;
-
       let zoom: number;
       if (isFar) {
-        // Parabolic zoom: zoom out during first half, zoom in during second half
-        // z(t) = startZoom + (minCruise - startZoom) * up(t) + (targetZoom - minCruise) * down(t)
-        // Simplified: use a sine-based curve that dips in the middle
-        const zoomDip = Math.sin(progress * Math.PI); // 0→1→0 bell curve
+        const zoomDip = Math.sin(progress * Math.PI);
         const linearZoom = startZoom + (targetZoom - startZoom) * progress;
         const dipAmount = linearZoom - minCruise;
         zoom = linearZoom - dipAmount * zoomDip;
       } else {
         zoom = startZoom + (targetZoom - startZoom) * t;
       }
-
       map.moveCamera({ center: { lat, lng }, zoom });
-
       if (progress < 1) {
-        rafId = requestAnimationFrame(animate);
+        animateRafRef.current = requestAnimationFrame(animate);
       }
     };
-
-    rafId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(rafId);
-  }, [selectedPoiId, pois]);
+    animateRafRef.current = requestAnimationFrame(animate);
+  }).current;
 
   if (!ready) {
     return (
