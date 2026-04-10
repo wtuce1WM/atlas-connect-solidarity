@@ -2,12 +2,14 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { DesktopMediaArrows, CardsToggleButton, useOwnerLogo } from "@/components/CardsVisibilityToggle";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
-import { MapPin, ChevronUp, X, CalendarCheck, Star, Loader2, Expand, Plus } from "lucide-react";
+import { MapPin, ChevronUp, X, CalendarCheck, Star, Loader2, Expand, Plus, RefreshCw } from "lucide-react";
 import VideoControls from "@/components/VideoControls";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 import { supabase } from "@/integrations/supabase/client";
 
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
+import wooshSfx from "@/assets/woosh.wav";
+import { playWoosh } from "@/lib/overlayConstants";
 import poiNearbyImg from "@/assets/poi-nearby.webp";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
@@ -117,6 +119,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   
   const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(false);
   const [descGridMode, setDescGridMode] = useState(false);
+  const [descGridPage, setDescGridPage] = useState(0);
   const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ url: string; name: string | null; description: string | null } | null>(null);
   const [videoOverlayClosing, setVideoOverlayClosing] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -1379,25 +1382,37 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           {!images[0] && <div className="absolute inset-0 bg-background" />}
           {/* Sticky header — order-[-2] to stay above content */}
           <div className="relative z-30 shrink-0 flex items-center gap-3 px-4 py-3 bg-transparent backdrop-blur-sm border-b border-white/10 order-[-2]">
-            <button onClick={() => { if (descGridMode) { setDescGridMode(false); } else { setShowDescriptionOverlay(false); } }} className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0">
+            <button onClick={() => { if (descGridMode) { setDescGridMode(false); setDescGridPage(0); } else { setShowDescriptionOverlay(false); } }} className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0">
               <X className="h-4 w-4" />
             </button>
-            <h2 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] truncate text-white">{business?.name}</h2>
+            <h2 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] truncate text-white flex-1">{business?.name}</h2>
+            {descGridMode && images.length > 15 && (
+              <button
+                onClick={() => { playWoosh(wooshSfx); setDescGridPage(p => p === 0 ? 1 : 0); }}
+                className="h-8 w-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors shrink-0"
+                title={descGridPage === 0 ? "Voir plus de photos" : "Retour"}
+              >
+                <RefreshCw className="h-4 w-4" />
+              </button>
+            )}
           </div>
           {/* Scrollable content — fills remaining space between header and thumbnails */}
           <div className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain order-[-1]">
             {descGridMode ? (
               <div className="px-2 pt-3 pb-[70px]">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5">
-                  {images.slice(0, 16).map((img, i) => (
-                    <div
-                      key={i}
-                      className={`relative aspect-square rounded-md overflow-hidden cursor-pointer ${i === 15 ? 'md:hidden' : ''}`}
-                      onClick={() => { const mi = mediaItems.findIndex(m => m.kind === "image" && m.url === img); setLightboxIndex(mi >= 0 ? mi : i); setIsLightboxOpen(true); }}
-                    >
-                      <img src={img} alt={`${business?.name} ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
-                    </div>
-                  ))}
+                  {(descGridPage === 0 ? images.slice(0, 15) : images.slice(15, 30)).map((img, i) => {
+                    const realIndex = descGridPage === 0 ? i : i + 15;
+                    return (
+                      <div
+                        key={`${descGridPage}-${i}`}
+                        className="relative aspect-square rounded-md overflow-hidden cursor-pointer"
+                        onClick={() => { const mi = mediaItems.findIndex(m => m.kind === "image" && m.url === img); setLightboxIndex(mi >= 0 ? mi : realIndex); setIsLightboxOpen(true); }}
+                      >
+                        <img src={img} alt={`${business?.name} ${realIndex + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ) : (
