@@ -1374,30 +1374,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             </div>
           )}
           {!images[0] && <div className="absolute inset-0 bg-background" />}
-          {/* Sticky header */}
-          <div className="sticky top-0 z-30 shrink-0 flex items-center gap-3 px-4 py-3 bg-black/30 backdrop-blur-sm border-b border-white/10">
+          {/* Sticky header — order-[-2] to stay above content */}
+          <div className="relative z-30 shrink-0 flex items-center gap-3 px-4 py-3 bg-black/30 backdrop-blur-sm border-b border-white/10 order-[-2]">
             <button onClick={() => setShowDescriptionOverlay(false)} className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0">
               <X className="h-4 w-4" />
             </button>
             <h2 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] truncate text-white">{business?.name}</h2>
           </div>
-          {/* Thumbnails strip — shrink-0 in flex column */}
-          {images.length > 0 && (
-            <div className="relative z-20 shrink-0">
-              <div className="flex items-center gap-1.5 px-2 py-2 bg-black/40 backdrop-blur-md border-t border-white/10">
-                {images.slice(0, 5).map((img, i) => (
-                  <div key={i} className={`relative flex-1 min-w-0 aspect-[3/2] rounded-md overflow-hidden ${i >= 3 ? 'hidden md:block' : ''} ${i >= 4 ? 'md:hidden lg:block' : ''}`}>
-                    <img src={img} alt={`${business?.name} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                      <Plus className="h-6 w-6 text-white drop-shadow-lg" strokeWidth={3} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          {/* Searchbar spacer — reserve space for the absolute-positioned PanelSearchBar */}
-          <div className="shrink-0 h-[4.75rem] md:h-[5rem]" />
           {/* Scrollable content — fills remaining space between header and thumbnails */}
           <div className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain order-[-1]">
             <div className="px-4 pt-4 pb-6 md:px-6 md:pt-6">
