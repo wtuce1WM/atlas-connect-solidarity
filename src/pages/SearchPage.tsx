@@ -3221,7 +3221,7 @@ const SearchPage = () => {
         <div className={`pt-4 ${hasKnownLocation && !compactPanelBusiness ? "w-1/2 overflow-visible" : "w-full"} mx-auto px-4 ${compactPanelBusiness ? "max-w-full" : hasKnownLocation ? "max-w-full" : "max-w-full lg:max-w-[80%]"}`}
         >
           {/* Filters: City + Geo toggle — on mobile shown before hero via order */}
-          <div className={`${isCategoryFilterActive ? 'mb-3' : 'mb-8'} flex flex-wrap items-center gap-3 ${isMobile ? 'hidden' : ''}`}>
+          <div className={`${isCategoryFilterActive ? 'mb-3' : 'mb-8'} flex flex-wrap items-center gap-3 ${isMobile ? 'hidden' : ''} ${!activeTimeSlot ? 'lg:mb-0 lg:hidden' : ''}`}>
             {/* Time slot indicator */}
             {activeTimeSlot && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold/20 border border-gold/40 text-gold text-xs font-medium">
