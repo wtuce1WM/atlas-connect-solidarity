@@ -1390,6 +1390,23 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               />
             </div>
           </div>
+          {/* Thumbnails strip */}
+          {images.length > 0 && (
+            <div className="relative z-20 shrink-0">
+              <div className="flex items-center gap-1.5 px-2 py-2 bg-black/40 backdrop-blur-md border-t border-white/10">
+                {images.slice(0, 5).map((img, i) => (
+                  <div key={i} className={`relative flex-1 min-w-0 aspect-[3/2] rounded-md overflow-hidden ${i >= 3 ? 'hidden md:block' : ''} ${i >= 4 ? 'md:hidden lg:block' : ''}`}>
+                    <img src={img} alt={`${business?.name} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                      <Plus className="h-6 w-6 text-white drop-shadow-lg" strokeWidth={3} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* Searchbar spacer */}
+          <div className="shrink-0 h-[4.75rem] md:h-[5rem]" />
         </div>
       )}
 
