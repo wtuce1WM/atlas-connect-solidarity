@@ -627,6 +627,18 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
                 </div>
               </div>
             )}
+
+            {/* Owner logo + badge */}
+            <OwnerLogoOverlay logoBigOverlay={logoBigOverlay} logoBigFadingOut={logoBigFadingOut} cardsHidden={cardsHidden} currentMediaUrl={currentMedia?.url} videoDocs={ownerVideoDocs} currentBusinessId={destinationId} />
+            <OwnerBadge
+              cardsHidden={cardsHidden} currentMediaKind={currentMedia?.kind} currentMediaUrl={currentMedia?.url}
+              videoDocs={ownerVideoDocs} currentBusinessId={destinationId}
+              onNavigateToOwner={(ownerId) => {
+                const cv = cityVideos.find(v => v.businessId === ownerId);
+                if (cv?.ownerSlug) navigate(businessUrl({ id: cv.businessId, slug: cv.ownerSlug }));
+              }}
+            />
+
             {currentMedia?.kind === "video" && (
               <VideoControls type="file" videoRef={videoRef as React.RefObject<HTMLVideoElement>} paused={videoPaused} muted={videoMuted} className="mt-2 md:mt-3 animate-slide-in-right" />
             )}
