@@ -903,6 +903,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               )}
               {hasContactCard && (
                 <ContactFlipCard
+                  key={business.id}
                   business={business}
                   language={language}
                   hasOpeningHours={!!hasOpeningHours}
