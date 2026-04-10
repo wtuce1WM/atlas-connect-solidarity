@@ -1,0 +1,86 @@
+import type { PoiMapItem } from "@/components/PoiGoogleMap";
+import type { DestinationItem } from "@/components/DestinationSection";
+import type { BusinessCardData, Gamme, Badge, SubcategoryRef, BadgeSubcategoryRef } from "@/components/BusinessCard";
+import type { BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
+import type { TimeSlot } from "@/lib/timeSlots";
+
+export interface Business {
+  id: string;
+  name: string;
+  description: string | null;
+  city: string;
+  region: string;
+  address?: string | null;
+  phone: string | null;
+  whatsapp: string | null;
+  skype: string | null;
+  website: string | null;
+  logo_url: string | null;
+  images: string[] | null;
+  main_category: string | null;
+  categories: string[] | null;
+  services: string[] | null;
+  wtuce_status: string | null;
+  is_regulated_activity: boolean | null;
+  distance_km: number | null;
+  latitude: number | null;
+  longitude: number | null;
+  google_maps_url: string | null;
+  rating: number | null;
+  gamme_id: string | null;
+  badge_id: string | null;
+  hook_fr: string | null;
+  hook_en: string | null;
+  hook_ar: string | null;
+  google_rating?: number | null;
+  tripadvisor_rating?: number | null;
+  restaurant_guru_rating?: number | null;
+  trustpilot_rating?: number | null;
+  getyourguide_rating?: number | null;
+  viator_rating?: number | null;
+  avis_verifies_rating?: number | null;
+  tourradar_rating?: number | null;
+  google_review_count?: number | null;
+  tripadvisor_review_count?: number | null;
+  restaurant_guru_review_count?: number | null;
+  trustpilot_review_count?: number | null;
+  getyourguide_review_count?: number | null;
+  viator_review_count?: number | null;
+  avis_verifies_review_count?: number | null;
+  tourradar_review_count?: number | null;
+  opening_hours?: Record<string, { open?: string; close?: string; closed?: boolean; continuous?: boolean }> | null;
+  show_opening_hours?: boolean | null;
+  is_open_24h?: boolean | null;
+  vacation_dates?: unknown;
+  zone_chalandise?: string | null;
+  is_visible_locale?: boolean;
+  zone_city_ids?: string[] | null;
+  destination_enriched?: boolean;
+  default_service?: string | null;
+  neighborhood?: string | null;
+  engagements?: string[];
+  online_shop_url?: string | null;
+  presentation_mode?: string | null;
+}
+
+export interface SearchResult {
+  businesses: Business[];
+  searchLevel: string;
+  message: string;
+  totalResults: number;
+  totalCount?: number;
+  detectedSubcategory?: string | null;
+  detectedCity?: string | null;
+  detectedNeighborhood?: string | null;
+  detectedCategory?: string | null;
+  detectedService?: string | null;
+  intentSubcategoryConflict?: boolean;
+  searchMode?: string | null;
+  bundleTimeSlots?: string[];
+  disambiguationType?: "needs_category" | "needs_city" | null;
+  synonymUsed?: boolean;
+  preciseMatch?: boolean;
+  exactNameMatchIsolation?: boolean;
+}
+
+export type { PoiMapItem, DestinationItem, BusinessCardData, Gamme, Badge, SubcategoryRef, BadgeSubcategoryRef, AIBusinessData, TimeSlot };

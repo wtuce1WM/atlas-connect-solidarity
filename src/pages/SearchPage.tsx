@@ -52,249 +52,15 @@ import WarningOverlay from "@/components/WarningOverlay";
 import EmergencyNumbers from "@/components/EmergencyNumbers";
 import { useSearchHistory } from "@/hooks/useSearchHistory";
 import PanelSearchBar from "@/components/PanelSearchBar";
+import PoiTabContent from "@/pages/search/PoiTabContent";
+import DestinationsTabContent from "@/pages/search/DestinationsTabContent";
+import CelebrityGuide from "@/pages/search/CelebrityGuide";
+import { normalizeSearchMode, isZitounMask, isSosMedecinQuery, isPompiersQuery, isCelebrityQuery, normalizeText as normalizeTextUtil, formatDateFr, ITEMS_PER_PAGE, SERVER_PAGE_SIZE, CELEBRITY_IDS } from "@/pages/search/utils";
 
-interface Business {
-  id: string;
-  name: string;
-  description: string | null;
-  city: string;
-  region: string;
-  address?: string | null;
-  phone: string | null;
-  whatsapp: string | null;
-  skype: string | null;
-  website: string | null;
-  logo_url: string | null;
-  images: string[] | null;
-  main_category: string | null;
-  categories: string[] | null;
-  services: string[] | null;
-  wtuce_status: string | null;
-  is_regulated_activity: boolean | null;
-  distance_km: number | null;
-  latitude: number | null;
-  longitude: number | null;
-  google_maps_url: string | null;
-  rating: number | null;
-  gamme_id: string | null;
-  badge_id: string | null;
-  hook_fr: string | null;
-  hook_en: string | null;
-  hook_ar: string | null;
-  google_rating?: number | null;
-  tripadvisor_rating?: number | null;
-  restaurant_guru_rating?: number | null;
-  trustpilot_rating?: number | null;
-  getyourguide_rating?: number | null;
-  viator_rating?: number | null;
-  avis_verifies_rating?: number | null;
-  tourradar_rating?: number | null;
-  google_review_count?: number | null;
-  tripadvisor_review_count?: number | null;
-  restaurant_guru_review_count?: number | null;
-  trustpilot_review_count?: number | null;
-  getyourguide_review_count?: number | null;
-  viator_review_count?: number | null;
-  avis_verifies_review_count?: number | null;
-  tourradar_review_count?: number | null;
-  opening_hours?: Record<string, { open?: string; close?: string; closed?: boolean; continuous?: boolean }> | null;
-  show_opening_hours?: boolean | null;
-  is_open_24h?: boolean | null;
-  vacation_dates?: unknown;
-  zone_chalandise?: string | null;
-  is_visible_locale?: boolean;
-  zone_city_ids?: string[] | null;
-  destination_enriched?: boolean;
-  default_service?: string | null;
-  neighborhood?: string | null;
-  engagements?: string[];
-  online_shop_url?: string | null;
-  presentation_mode?: string | null;
-}
+import type { Business, SearchResult } from "@/pages/search/types";
 
-interface SearchResult {
-  businesses: Business[];
-  searchLevel: string;
-  message: string;
-  totalResults: number;
-  totalCount?: number;
-  detectedSubcategory?: string | null;
-  detectedCity?: string | null;
-  detectedNeighborhood?: string | null;
-  detectedCategory?: string | null;
-  detectedService?: string | null;
-  intentSubcategoryConflict?: boolean;
-  searchMode?: string | null;
-  bundleTimeSlots?: string[];
-  disambiguationType?: "needs_category" | "needs_city" | null;
-  synonymUsed?: boolean;
-  preciseMatch?: boolean;
-  exactNameMatchIsolation?: boolean;
-}
 
-const ITEMS_PER_PAGE = 20;
-const SERVER_PAGE_SIZE = ITEMS_PER_PAGE + 1; // Request 1 extra to compensate for the AI suggestion card slot
 
-const normalizeSearchMode = (value: unknown): "strict" | "broad" | null => {
-  if (typeof value !== "string") return null;
-  const normalized = value.trim().toLowerCase();
-  if (normalized.includes("strict")) return "strict";
-  if (normalized.includes("broad")) return "broad";
-  return null;
-};
-
-const isZitounMask = (query: string) => {
-  const normalized = query.toLowerCase().replace(/\s+/g, " ").trim();
-  return (
-    normalized.includes("zitoun mask") ||
-    normalized.includes("zitoun musk") ||
-    normalized.includes("zitoun mas") ||
-    normalized.includes("zitoun mus")
-  );
-};
-
-const isSosMedecinQuery = (query: string) => {
-  const normalized = query.toLowerCase().replace(/\s+/g, " ").trim();
-  return (
-    normalized.includes("sos médecin") ||
-    normalized.includes("sos medecin") ||
-    normalized.includes("sos docteur") ||
-    normalized.includes("besoin d'un docteur") ||
-    normalized.includes("besoin d un docteur") ||
-    normalized.includes("besoin d'un médecin") ||
-    normalized.includes("besoin d un medecin") ||
-    normalized.includes("médecin urgence") ||
-    normalized.includes("medecin urgence") ||
-    normalized.includes("docteur urgence") ||
-    normalized.includes("urgence médicale") ||
-    normalized.includes("urgence medicale") ||
-    normalized.includes("appeler un médecin") ||
-    normalized.includes("appeler un medecin") ||
-    normalized.includes("appeler un docteur") ||
-    normalized.includes("je suis malade") ||
-    normalized.includes("mal en point")
-  );
-};
-
-const isPompiersQuery = (query: string) => {
-  const normalized = query.toLowerCase().replace(/\s+/g, " ").trim();
-  return (
-    normalized.includes("pompier") ||
-    normalized.includes("incendie") ||
-    normalized.includes("il y a le feu") ||
-    normalized.includes("ça brûle") ||
-    normalized.includes("ca brule") ||
-    normalized.includes("tout brûle") ||
-    normalized.includes("maison en feu") ||
-    normalized.includes("voiture en feu") ||
-    normalized.includes("feu de forêt") ||
-    normalized.includes("feu de foret") ||
-    normalized.includes("appeler les pompiers") ||
-    normalized.includes("sapeurs") ||
-    normalized.includes("brigade") ||
-    normalized.includes("protection civile feu") ||
-    /\bau feu\b/.test(normalized) && !normalized.includes("feu de bois") && !normalized.includes("feu de charbon") && !normalized.includes("feu de braise")
-  );
-};
-
-const isCelebrityQuery = (query: string) => {
-  const normalized = query.toLowerCase().replace(/\s+/g, " ").trim();
-  return (
-    normalized.includes("célébrité") ||
-    normalized.includes("celebrite") ||
-    normalized.includes("célébrités") ||
-    normalized.includes("star ") ||
-    normalized.includes("stars ") ||
-    normalized.includes("people marrakech") ||
-    normalized.includes("vip marrakech") ||
-    normalized.includes("famous") ||
-    normalized.includes("personnalité")
-  );
-};
-
-const CelebrityEntry = ({ name, desc, id }: { name: string; desc: string; id?: string }) => (
-  <div className="flex gap-3">
-    {id ? (
-      <Link
-        to={`/business/${id}`}
-        className="text-gold font-semibold text-sm min-w-[160px] shrink-0 hover:text-gold/70 underline underline-offset-2 decoration-gold/40 transition-colors"
-      >
-        {name} ↗
-      </Link>
-    ) : (
-      <span className="text-gold/50 font-semibold text-sm min-w-[160px] shrink-0">{name}</span>
-    )}
-    <span className="text-white/60 text-sm">{desc}</span>
-  </div>
-);
-
-const CelebrityGuide = () => (
-  <div className="max-w-2xl mx-auto mb-10 rounded-2xl overflow-hidden border border-gold/30 shadow-2xl bg-gradient-to-br from-black to-zinc-900">
-    <div className="px-6 py-5 border-b border-gold/20 bg-gradient-to-r from-gold/10 to-transparent">
-      <p className="text-gold font-semibold text-lg">👑 Guide insider — Célébrités à Marrakech</p>
-      <p className="text-white/50 text-sm mt-0.5">Palaces, tables & nuits — les adresses qui font la légende</p>
-    </div>
-
-    <div className="px-6 py-5 space-y-5">
-      {/* Hotels */}
-      <div>
-        <p className="text-gold/80 text-xs font-semibold uppercase tracking-widest mb-3">🌴 Palaces iconiques</p>
-        <div className="space-y-2">
-          <CelebrityEntry name="La Mamounia" id="3bb71910-c17e-4ce1-a130-42c369a645a7" desc="Le grand classique — jardins légendaires, histoire glamour, incontournable du Festival du Film." />
-          <CelebrityEntry name="Royal Mansour" id="0961b2f5-c259-483a-b877-3d251acdbbd9" desc="Ultra-exclusif — chaque client dans son propre riad privé. Intimité maximale." />
-          <CelebrityEntry name="Amanjena" id="e7019579-408a-4b3c-90d7-41c6dbff9063" desc="Refuge de stars en quête de calme absolu. Minimalisme chic, loin de l'agitation." />
-          <CelebrityEntry name="Mandarin Oriental" id="590225e3-0887-4d79-a8f6-571ac148cca5" desc="Villas avec piscines privées, spa d'exception, discrétion totale." />
-          <CelebrityEntry name="El Fenn" id="641ab942-63a5-499e-999a-e09915b1d02f" desc="Bohème & arty. Rooftop mythique, clientèle mode et cinéma." />
-          <CelebrityEntry name="Selman Marrakech" id="5b09bebd-7cb5-4698-b447-bf5f198811f4" desc="Chic contemporain, haras privé de chevaux arabes, atmosphère glamour." />
-          <CelebrityEntry name="Riad Kniza" id="307aa4e4-03b7-4006-808c-6df07c6b5eab" desc="Riad de charme discret, prisé par les célébrités en quête d'authenticité et de confidentialité en médina." />
-        </div>
-      </div>
-
-      {/* Restaurants */}
-      <div className="border-t border-white/10 pt-4">
-        <p className="text-gold/80 text-xs font-semibold uppercase tracking-widest mb-3">🍽️ Où dînent les célébrités</p>
-        <div className="space-y-2">
-          <CelebrityEntry name="Nobu Marrakech" id="c5a21f81-94fc-4b5e-8f89-822a43dabdec" desc="Cuisine japonaise iconique, rooftop vibrant, clientèle ultra-glam." />
-          <CelebrityEntry name="Dar Yacout" id="da42a132-4948-4c5f-afa3-f0b37df6811e" desc="Institution marocaine théâtrale. Stars du cinéma et invités du Festival adorent." />
-          <CelebrityEntry name="Restaurant Le Jardin" id="c6af063a-0636-4746-bd14-50060721e5f5" desc="Déjeuner chic et discret dans un riad végétal. Très apprécié des artistes." />
-          <CelebrityEntry name="Rooftop Bar El Fenn" id="d04e2a2b-faa4-4675-b861-c8f90df30c7f" desc="Arty, solaire, intime. Un repaire créatif pour les célébrités low profile." />
-        </div>
-      </div>
-
-      {/* Nightlife */}
-      <div className="border-t border-white/10 pt-4">
-        <p className="text-gold/80 text-xs font-semibold uppercase tracking-widest mb-3">🌙 Où elles sortent la nuit</p>
-        <div className="space-y-2">
-          <CelebrityEntry name="Theatro Marrakech" id="be0d6bbb-6daa-4f25-b5c6-32c3650e7f6d" desc="Le club iconique — shows spectaculaires, DJ internationaux, ambiance VIP." />
-          <CelebrityEntry name="So Lounge" desc="Glamour chic en Palmeraie, parfait pour soirées sélectes." />
-          <CelebrityEntry name="Comptoir Darna" id="21dfaabb-56fe-4da0-9942-34b2803465cf" desc="Dîner-spectacle, danse orientale et jazz lounge. Très apprécié du cinéma français." />
-          <CelebrityEntry name="555 Famous Club" desc="Ambiance internationale, soirées tardives, clientèle people." />
-        </div>
-      </div>
-    </div>
-
-    <div className="px-6 py-3 border-t border-gold/20 bg-gold/5">
-      <p className="text-white/30 text-xs italic">Présence maximale : janvier–février (Couture Week), mai (Festival du Film), décembre–janvier.</p>
-    </div>
-  </div>
-);
-
-// IDs des établissements du guide célébrités (dans l'ordre d'affichage souhaité)
-const CELEBRITY_IDS = [
-  "3bb71910-c17e-4ce1-a130-42c369a645a7", // La Mamounia
-  "0961b2f5-c259-483a-b877-3d251acdbbd9", // Royal Mansour
-  "e7019579-408a-4b3c-90d7-41c6dbff9063", // Amanjena
-  "590225e3-0887-4d79-a8f6-571ac148cca5", // Mandarin Oriental
-  "641ab942-63a5-499e-999a-e09915b1d02f", // Boutique El Fenn
-  "5b09bebd-7cb5-4698-b447-bf5f198811f4", // Selman Marrakech
-  "307aa4e4-03b7-4006-808c-6df07c6b5eab", // Riad Kniza
-  "c5a21f81-94fc-4b5e-8f89-822a43dabdec", // Nobu Marrakech
-  "da42a132-4948-4c5f-afa3-f0b37df6811e", // Dar Yacout
-  "c6af063a-0636-4746-bd14-50060721e5f5", // Restaurant Le Jardin
-  "d04e2a2b-faa4-4675-b861-c8f90df30c7f", // Rooftop Bar El Fenn
-  "be0d6bbb-6daa-4f25-b5c6-32c3650e7f6d", // Theatro Marrakech
-  "21dfaabb-56fe-4da0-9942-34b2803465cf", // Comptoir Darna
-];
 
 // Horizontal scroll row for grouped subcategory view
 const GroupedSubcategoryRow = ({
@@ -784,26 +550,12 @@ const SearchPage = () => {
      const [hoveredResultId, setHoveredResultId] = useState<string | null>(null);
      const [hoveredPoiId, setHoveredPoiId] = useState<string | null>(null);
      const [hoveredDestId, setHoveredDestId] = useState<string | null>(null);
-     const [poiSelectedBusinessId, setPoiSelectedBusinessId] = useState<string | null>(null);
-     const [poiPanelExpanded, setPoiPanelExpanded] = useState(false);
-     const [poiBusinessImageCount, setPoiBusinessImageCount] = useState(0);
-     const [poiMapBusiness, setPoiMapBusiness] = useState<{ name: string; latitude: number | null; longitude: number | null; address: string | null; google_maps_url: string | null; id: string } | null>(null);
      const [allPois, setAllPois] = useState<PoiMapItem[]>([]);
-     const [destMapItem, setDestMapItem] = useState<{ id: string; name_fr: string; latitude: number | null; longitude: number | null } | null>(null);
      const [allDests, setAllDests] = useState<PoiMapItem[]>([]);
-      const [selectedDestination, setSelectedDestination] = useState<DestinationItem | null>(null);
-      const [destSelectedBusinessId, setDestSelectedBusinessId] = useState<string | null>(null);
-       const [destPanelExpanded, setDestPanelExpanded] = useState(false);
       const [allDestItems, setAllDestItems] = useState<DestinationItem[]>([]);
     const [mapPanelCloseTrigger, setMapPanelCloseTrigger] = useState(0);
    const resetPanelStates = () => {
-     setPoiSelectedBusinessId(null);
-     setPoiPanelExpanded(false);
-     setPoiMapBusiness(null);
-     setDestMapItem(null);
-     setSelectedDestination(null);
-     setDestSelectedBusinessId(null);
-     setDestPanelExpanded(false);
+     // Child tab components manage their own panel state now
    };
    const [locationDialogOpen, setLocationDialogOpen] = useState(false);
    const heroAiRef = useRef<HTMLDivElement>(null);
@@ -899,14 +651,7 @@ const SearchPage = () => {
      return () => observer.disconnect();
    }, [searchQuery, allBusinesses.length]);
 
-  const normalizeText = (value: string) =>
-    value
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9\s]/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
+  const normalizeText = normalizeTextUtil;
 
   // Detect country-level terms (e.g. "maroc", "morocco") → national scope, no city filter
   const queryHasCountryScope = useMemo(() => {
@@ -2658,8 +2403,7 @@ const SearchPage = () => {
                         // For destinations, close overlay and navigate to destination
                         setShowAiPopup(false);
                         setOverlaySelectedBusiness(null);
-                        const dest = allDestItems.find(d => d.id === b.id);
-                        if (dest) setSelectedDestination(dest);
+                        // Destination click handled by DestinationsTabContent
                       } else {
                         setShowAiPopup(false);
                         setOverlaySelectedBusiness(null);
@@ -2941,125 +2685,79 @@ const SearchPage = () => {
         </section>
       )}
 
-      {activeTab === "poi" && (() => {
-        const poiCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
+      {activeTab === "poi" && (
+        <PoiTabContent
+          selectedCity={selectedCity}
+          detectedCity={detectedCity}
+          language={language}
+          hasKnownLocation={hasKnownLocation}
+          isSubDesktop={isSubDesktop}
+          hidePoiMap={hidePoiMap}
+          setHidePoiMap={setHidePoiMap}
+          setShowMobileMap={setShowMobileMap}
+          mapCenterForResults={mapCenterForResults}
+          citiesWithPriority={citiesWithPriority}
+          voiceStatus={voiceStatus}
+          mapPanelCloseTrigger={mapPanelCloseTrigger}
+          setMapPanelCloseTrigger={setMapPanelCloseTrigger}
+          allPois={allPois}
+          setAllPois={setAllPois}
+          hoveredPoiId={hoveredPoiId}
+          setHoveredPoiId={setHoveredPoiId}
+          onSearchNavigate={(params) => {
+            setSelectedCategoryFilter(null);
+            setSelectedSubcategoryFilter(null);
+            setSelectedServiceFilter(null);
+            if (params.q) { setSearchQuery(params.q); setInputValue(params.q); }
+            setActiveTab("suggestions");
+            setSelectedCity("all");
+            setIsGeoCityAutoSelected(false);
+            setSearchParams(params);
+          }}
+          onBusinessSelect={(bizId) => {
+            setCompactPanelBusiness({ id: bizId, name: "" } as any);
+            setIsCompactPanelExpanded(false);
+          }}
+        />
+      )}
 
-        return (
-          <div className="flex">
-            <section className={`pb-6 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${(poiSelectedBusinessId || poiMapBusiness) ? "w-1/2" : (hasKnownLocation && !hidePoiMap) ? "w-1/2" : "w-full"}`}>
-              <div className={`pt-4 mx-auto px-4 ${(poiSelectedBusinessId || poiMapBusiness || (hasKnownLocation && !hidePoiMap)) ? "max-w-full" : "max-w-[80%]"}`}>
-                {/* Sticky bar for POI — Carte badge only (mobile/tablet) + desktop spacer */}
-                <div className="sticky z-[19] bg-white lg:bg-white flex items-center justify-center px-4 gap-2 relative py-4 sm:py-4 lg:py-1.5 lg:hidden" style={{ top: '53px' }}>
-                  {isSubDesktop && (
-                    <button
-                      onClick={() => setShowMobileMap(true)}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
-                    >
-                      <Map className="h-4 w-4" />
-                      {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
-                    </button>
-                  )}
-                </div>
-                <PoiSection
-                  city={poiCity}
-                  language={language}
-                   onBusinessClick={(bizId) => {
-                     setPoiMapBusiness(null);
-                     setPoiSelectedBusinessId(bizId);
-                     setMapPanelCloseTrigger(n => n + 1);
-                   }}
-                  columns={hasKnownLocation ? 2 : undefined}
-                  onMapClick={hasKnownLocation ? (biz) => { setHoveredPoiId(biz.id); } : (biz) => { setPoiSelectedBusinessId(null); setPoiMapBusiness({ id: biz.id, name: biz.name, latitude: biz.latitude, longitude: biz.longitude, address: biz.address, google_maps_url: biz.google_maps_url }); }}
-                   onPoisLoaded={(loadedPois) => setAllPois(loadedPois.map(p => {
-                    const avgOn20 = (p as any).computed_rating ?? p.rating ?? null;
-                    const totalReviews = (p as any).total_review_count ?? 0;
-                    return { id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude, images: p.images, city: p.city, neighborhood: p.neighborhood, avgOn20, totalReviews };
-                  }))}
-                  onHover={setHoveredPoiId}
-                />
-                {allPois.length > 0 && (
-                  <p className="text-xs text-muted-foreground font-medium mt-4 text-center">
-                    {language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt"}{poiCity && ` — ${poiCity}`} · {allPois.length} {language === "en" ? "results" : "résultats"}
-                  </p>
-                )}
-              </div>
-            </section>
-            {/* Sticky map for POI — shown when location known and no panel open */}
-            {hasKnownLocation && !poiSelectedBusinessId && !poiMapBusiness && !hidePoiMap && (
-              <div className="w-1/2 sticky top-0 h-screen z-[50] relative overflow-hidden">
-                <button onClick={() => setHidePoiMap(true)} className="absolute top-3 left-3 z-[60] w-8 h-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors"><X className="h-4 w-4" /></button>
-                <PoiGoogleMap
-                  pois={allPois}
-                  selectedPoiId={hoveredPoiId || null}
-                  onPoiClick={(poiId) => {
-                    setPoiMapBusiness(null);
-                    setPoiSelectedBusinessId(poiId);
-                  }}
-                  center={mapCenterForResults}
-                  fitToMarkers
-                />
-                <PanelSearchBar
-                  onSearch={(params) => {
-                    setSelectedCategoryFilter(null);
-                    setSelectedSubcategoryFilter(null);
-                    setSelectedServiceFilter(null);
-                    if (params.q) { setSearchQuery(params.q); setInputValue(params.q); }
-                    setActiveTab("suggestions");
-                    setSelectedCity("all");
-                    setIsGeoCityAutoSelected(false);
-                    setSearchParams(params);
-                  }}
-                  onBusinessSelect={(bizId) => {
-                    setCompactPanelBusiness({ id: bizId, name: "" } as any);
-                    setIsCompactPanelExpanded(false);
-                  }}
-                  closeTrigger={mapPanelCloseTrigger}
-                />
-              </div>
-            )}
-            {poiSelectedBusinessId && poiPanelExpanded && (
-              <div
-                className="fixed inset-0 top-[53px] z-[39] bg-black/40 backdrop-blur-[2px]"
-                style={{ opacity: 0, animation: "panelFadeIn 0.2s ease-out 0.1s forwards" }}
-                onClick={() => setPoiPanelExpanded(false)}
-              />
-            )}
-            {poiSelectedBusinessId && (
-              <div className={`fixed top-0 left-0 right-0 bottom-0 z-40 bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:left-auto lg:bottom-auto lg:border-l lg:border-border lg:transition-[width] lg:duration-300 lg:ease-out ${poiPanelExpanded ? "lg:w-full border-l-2 border-border shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "lg:w-1/2"}`} style={{ height: isSubDesktop ? undefined : "100vh" }}>
-                <BookOnlineSlidePanel
-                  businessId={poiSelectedBusinessId}
-                  onClose={() => { setPoiSelectedBusinessId(null); setPoiPanelExpanded(false); }}
-                  forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
-                />
-              </div>
-            )}
-            {poiMapBusiness && (
-              <div className={`fixed top-0 left-0 right-0 z-40 bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-up-from-bottom lg:w-1/2 lg:left-auto lg:border-l lg:border-border`} style={{ height: "100vh" }}>
-                <SlidePanelHeader
-                  onClose={() => setPoiMapBusiness(null)}
-                  centerContent={poiMapBusiness.name}
-                />
-                <div className="flex-1 min-h-0">
-                  <PoiGoogleMap
-                    pois={allPois}
-                    selectedPoiId={poiMapBusiness.id}
-                    center={(() => {
-                      const city = citiesWithPriority.find(c => c.name === selectedCity);
-                      if (city?.latitude && city?.longitude) return { lat: city.latitude, lng: city.longitude };
-                      return undefined;
-                    })()}
-                    fitToMarkers
-                    onPoiClick={(poiId) => {
-                      const poi = allPois.find(p => p.id === poiId);
-                      if (poi) setPoiMapBusiness({ id: poi.id, name: poi.name, latitude: poi.latitude, longitude: poi.longitude, address: null, google_maps_url: null });
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        );
-      })()}
+      {activeTab === "destinations" && (
+        <DestinationsTabContent
+          selectedCity={selectedCity}
+          detectedCity={detectedCity}
+          language={language}
+          hasKnownLocation={hasKnownLocation}
+          isSubDesktop={isSubDesktop}
+          hideDestMap={hideDestMap}
+          setHideDestMap={setHideDestMap}
+          setShowMobileMap={setShowMobileMap}
+          mapCenterForResults={mapCenterForResults}
+          citiesWithPriority={citiesWithPriority}
+          voiceStatus={voiceStatus}
+          mapPanelCloseTrigger={mapPanelCloseTrigger}
+          setMapPanelCloseTrigger={setMapPanelCloseTrigger}
+          allDests={allDests}
+          setAllDests={setAllDests}
+          allDestItems={allDestItems}
+          setAllDestItems={setAllDestItems}
+          hoveredDestId={hoveredDestId}
+          setHoveredDestId={setHoveredDestId}
+          onSearchNavigate={(params) => {
+            setSelectedCategoryFilter(null);
+            setSelectedSubcategoryFilter(null);
+            setSelectedServiceFilter(null);
+            if (params.q) { setSearchQuery(params.q); setInputValue(params.q); }
+            setActiveTab("suggestions");
+            setSelectedCity("all");
+            setIsGeoCityAutoSelected(false);
+            setSearchParams(params);
+          }}
+          onBusinessSelect={(bizId) => {
+            setCompactPanelBusiness({ id: bizId, name: "" } as any);
+            setIsCompactPanelExpanded(false);
+          }}
+        />
+      )}
 
       {activeTab === "destinations" && (() => {
         const destCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
