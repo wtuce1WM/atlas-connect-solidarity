@@ -1397,30 +1397,60 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             )}
           </div>
           {/* Scrollable content — fills remaining space between header and thumbnails */}
-          <div className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain order-[-1]">
+          <div className="relative z-10 flex-1 min-h-0 order-[-1]" style={{ perspective: "1200px" }}>
             {descGridMode ? (
-              <div className="px-2 pt-3 pb-[70px]">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5">
-                  {(descGridPage === 0 ? images.slice(0, 15) : images.slice(15, 30)).map((img, i) => {
-                    const realIndex = descGridPage === 0 ? i : i + 15;
-                    return (
-                      <div
-                        key={`${descGridPage}-${i}`}
-                        className="relative aspect-square rounded-md overflow-hidden cursor-pointer"
-                        onClick={() => { const mi = mediaItems.findIndex(m => m.kind === "image" && m.url === img); setLightboxIndex(mi >= 0 ? mi : realIndex); setIsLightboxOpen(true); }}
-                      >
-                        <img src={img} alt={`${business?.name} ${realIndex + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
-                      </div>
-                    );
-                  })}
+              <div
+                className="w-full h-full"
+                style={{
+                  transformStyle: "preserve-3d",
+                  transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+                  transform: descGridPage === 0 ? "rotateY(0deg)" : "rotateY(180deg)",
+                }}
+              >
+                {/* Front face — images 1-15 */}
+                <div className="absolute inset-0 overflow-y-auto overscroll-contain" style={{ backfaceVisibility: "hidden" }}>
+                  <div className="px-2 pt-3 pb-[70px]">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5">
+                      {images.slice(0, 15).map((img, i) => (
+                        <div
+                          key={`front-${i}`}
+                          className="relative aspect-square rounded-md overflow-hidden cursor-pointer"
+                          onClick={() => { const mi = mediaItems.findIndex(m => m.kind === "image" && m.url === img); setLightboxIndex(mi >= 0 ? mi : i); setIsLightboxOpen(true); }}
+                        >
+                          <img src={img} alt={`${business?.name} ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                {/* Back face — images 16-30 */}
+                <div className="absolute inset-0 overflow-y-auto overscroll-contain" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
+                  <div className="px-2 pt-3 pb-[70px]">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5">
+                      {images.slice(15, 30).map((img, i) => {
+                        const realIndex = i + 15;
+                        return (
+                          <div
+                            key={`back-${i}`}
+                            className="relative aspect-square rounded-md overflow-hidden cursor-pointer"
+                            onClick={() => { const mi = mediaItems.findIndex(m => m.kind === "image" && m.url === img); setLightboxIndex(mi >= 0 ? mi : realIndex); setIsLightboxOpen(true); }}
+                          >
+                            <img src={img} alt={`${business?.name} ${realIndex + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               </div>
             ) : (
-              <div className="px-4 pt-4 pb-6 md:px-6 md:pt-6">
-                <div
-                  className="prose max-w-none prose-josefin-headings prose-h2:text-xl prose-h3:text-lg prose-a:text-primary [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold [&_p:empty]:min-h-[1em] [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_table]:border-collapse [&_table]:w-full [&_table]:table-fixed [&_td]:border [&_td]:border-white/20 [&_td]:p-4 [&_td]:align-top [&_td]:text-xs [&_td_img]:w-full [&_td_img]:h-36 [&_td_img]:object-cover [&_td_img]:rounded-md [&_td_img]:block [&_th]:border [&_th]:border-white/20 [&_th]:p-2 [&_th]:bg-white/10 [&_th]:font-semibold [&_img]:max-w-full [&_img]:rounded-md [&_iframe]:max-w-full [&_iframe]:rounded-md [&_mark]:bg-yellow-500/40 [&_mark]:px-0.5 [&_blockquote]:border-l-4 [&_blockquote]:border-white/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_hr]:border-white/20 [&_*]:!text-white prose-headings:!text-white prose-strong:!text-white leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: woDescription }}
-                />
+              <div className="w-full h-full overflow-y-auto overscroll-contain">
+                <div className="px-4 pt-4 pb-6 md:px-6 md:pt-6">
+                  <div
+                    className="prose max-w-none prose-josefin-headings prose-h2:text-xl prose-h3:text-lg prose-a:text-primary [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold [&_p:empty]:min-h-[1em] [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_table]:border-collapse [&_table]:w-full [&_table]:table-fixed [&_td]:border [&_td]:border-white/20 [&_td]:p-4 [&_td]:align-top [&_td]:text-xs [&_td_img]:w-full [&_td_img]:h-36 [&_td_img]:object-cover [&_td_img]:rounded-md [&_td_img]:block [&_th]:border [&_th]:border-white/20 [&_th]:p-2 [&_th]:bg-white/10 [&_th]:font-semibold [&_img]:max-w-full [&_img]:rounded-md [&_iframe]:max-w-full [&_iframe]:rounded-md [&_mark]:bg-yellow-500/40 [&_mark]:px-0.5 [&_blockquote]:border-l-4 [&_blockquote]:border-white/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_hr]:border-white/20 [&_*]:!text-white prose-headings:!text-white prose-strong:!text-white leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: woDescription }}
+                  />
+                </div>
               </div>
             )}
           </div>
