@@ -61,6 +61,7 @@ export interface ResultsTabContentProps {
   effectiveCity?: string | null;
   onFrontStructureFilter?: (subcategoryNames: Set<string> | null) => void;
   fsTopBusinessId?: string | null;
+  allCityMapBusinesses?: Business[];
 }
 
 export default function ResultsTabContent({
@@ -103,6 +104,7 @@ export default function ResultsTabContent({
   effectiveCity,
   onFrontStructureFilter,
   fsTopBusinessId,
+  allCityMapBusinesses,
 }: ResultsTabContentProps) {
   const { tabs: frontTabs } = useFrontStructureTabs(effectiveCity || null);
   const [activeFsTabId, setActiveFsTabId] = useState<string | null>(null);
