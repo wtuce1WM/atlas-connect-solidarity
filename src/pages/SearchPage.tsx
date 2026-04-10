@@ -1287,11 +1287,13 @@ const SearchPage = () => {
   }, [effectiveCityForMap, neighborhoodCoords, citiesWithPriority, allBusinesses]);
 
   const filteredBusinesses = useMemo(() => {
-    // When server-side pagination is active (totalCount is set), allBusinesses already
-    // contains the correct page slice — do NOT swap in serviceFilter/subcategoryFilter
-    // results which bypass pagination and fetch up to 200 rows.
+    const isServerPaginatedResults = totalCount !== null;
+
+    // When server-side pagination is active, the backend already returned the exact
+    // slice and ordering for the current page. Keep that slice intact so the grid,
+    // map and pagination counter stay synchronized.
     let filtered: Business[];
-    if (totalCount !== null) {
+    if (isServerPaginatedResults) {
       filtered = [...allBusinesses];
     } else if (selectedServiceFilter && serviceFilterBusinesses.length > 0) {
       filtered = [...serviceFilterBusinesses];
@@ -1307,7 +1309,8 @@ const SearchPage = () => {
     } else {
       filtered = [...allBusinesses];
     }
-    if (selectedCity && selectedCity !== "all" && totalCount === null) {
+
+    if (!isServerPaginatedResults && selectedCity && selectedCity !== "all") {
       const normalizedQuery = normalizeText(searchQuery || "");
       filtered = filtered.filter(b => {
         if (b.city === selectedCity) return true;
@@ -1324,20 +1327,21 @@ const SearchPage = () => {
         return false;
       });
     }
-    // Apply category filter from CityCategoryFilter
-    if (selectedCategoryFilter) {
+
+    if (!isServerPaginatedResults && selectedCategoryFilter) {
       filtered = filtered.filter(b => b.main_category === selectedCategoryFilter);
     }
+
     // Apply subcategory filter — but only if at least one business matches
     // (prevents false-positive subcategory detection from hiding name-match results, e.g. "Jardin Majorelle")
-    if (selectedSubcategoryFilter) {
+    if (!isServerPaginatedResults && selectedSubcategoryFilter) {
       const subcatMatches = filtered.filter(b => b.categories && b.categories.includes(selectedSubcategoryFilter));
       if (subcatMatches.length > 0) {
         filtered = subcatMatches;
       }
     }
-    // Apply neighborhood filter when detected from search query
-    if (detectedNeighborhood) {
+
+    if (!isServerPaginatedResults && detectedNeighborhood) {
       const nhLower = detectedNeighborhood.toLowerCase();
       const nhFiltered = filtered.filter(b => {
         const bNh = (b.neighborhood || "").toLowerCase();
@@ -1347,16 +1351,16 @@ const SearchPage = () => {
         filtered = nhFiltered;
       }
     }
-    // Apply service filter
-    if (selectedServiceFilter) {
+
+    if (!isServerPaginatedResults && selectedServiceFilter) {
       filtered = filtered.filter(b => b.services && b.services.includes(selectedServiceFilter));
     }
-    // Apply "More filters" engagement/commodité filter
-    if (moreFilterMatchingIds) {
+
+    if (!isServerPaginatedResults && moreFilterMatchingIds) {
       filtered = filtered.filter(b => moreFilterMatchingIds.has(b.id));
     }
-    // Apply "More filters" time slot filter
-    if (moreFilterTimeSlots.length > 0) {
+
+    if (!isServerPaginatedResults && moreFilterTimeSlots.length > 0) {
       const slotRanges: Record<string, { startHour: number; endHour: number }> = {
         matinee: { startHour: 7, endHour: 11 },
         dejeuner: { startHour: 12, endHour: 14 },
@@ -1375,6 +1379,7 @@ const SearchPage = () => {
         });
       });
     }
+
     const hasActiveSearch = !!searchQuery.trim() || !!categoryFromUrl;
 
     if (activeTimeSlot) {
@@ -1389,11 +1394,12 @@ const SearchPage = () => {
           rest.push(b);
         }
       }
-      return hasActiveSearch ? [...openDuring, ...rest] : [...openDuring.sort(sortWtuceAndRating), ...rest.sort(sortWtuceAndRating)];
+      return isServerPaginatedResults || hasActiveSearch
+        ? [...openDuring, ...rest]
+        : [...openDuring.sort(sortWtuceAndRating), ...rest.sort(sortWtuceAndRating)];
     }
 
-    // Always sort by WTUCE status first, then by rating (highest first)
-    return [...filtered].sort(sortWtuceAndRating);
+    return isServerPaginatedResults ? filtered : [...filtered].sort(sortWtuceAndRating);
   }, [allBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots, detectedNeighborhood, searchLevel, totalCount]);
 
   // Build subcategory name → icon name map
