@@ -2731,7 +2731,7 @@ serve(async (req) => {
       const scBase = scNorm.replace(/s$/, "");
       if (nhBase === scBase || nhNorm === scBase || nhBase === scNorm) {
         console.log(`Suppressed neighborhood "${detectedNeighborhood}" — conflicts with subcategory "${detectedSubcategory}"`);
-        (detectedNeighborhood as any) = null;
+        detectedNeighborhood = null;
       }
     }
 
