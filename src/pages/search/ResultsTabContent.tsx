@@ -119,10 +119,10 @@ export default function ResultsTabContent({
     }
   };
 
-  // Reset active tab when city changes
+  // Reset active tab when city or search query changes
   useEffect(() => {
     setActiveFsTabId(null);
-  }, [effectiveCity]);
+  }, [effectiveCity, searchQuery]);
 
   return (
     <section

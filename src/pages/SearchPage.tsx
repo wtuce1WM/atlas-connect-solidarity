@@ -136,6 +136,11 @@ const SearchPage = () => {
 
   const [fsFilterSubcategories, setFsFilterSubcategories] = useState<Set<string> | null>(null);
 
+  // Reset front structure filter when search query changes
+  useEffect(() => {
+    setFsFilterSubcategories(null);
+  }, [searchQuery]);
+
   const categoryFromUrl = searchParams.get("category") || "";
   
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
