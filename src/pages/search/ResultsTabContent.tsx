@@ -261,7 +261,7 @@ export default function ResultsTabContent({
             <div className="relative h-full min-h-0">
               <PoiGoogleMap
                 pois={mapPoiItems}
-                selectedPoiId={hoveredResultId || compactPanelBusiness?.id || null}
+                selectedPoiId={hoveredResultId || compactPanelBusiness?.id || fsTopBusinessId || null}
                 onPoiClick={(poiId) => {
                   const biz = filteredBusinesses.find(b => b.id === poiId);
                   if (biz) openCompactPanel({ id: biz.id, name: biz.name } as AIBusinessData);
