@@ -330,6 +330,22 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
   const onPoiClickRef = useRef(onPoiClick);
   onPoiClickRef.current = onPoiClick;
 
+  // Cross-fade opacity when markers change
+  const [mapOpacity, setMapOpacity] = useState(1);
+  const fadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevPoisIdsRef = useRef<string>("");
+
+  useEffect(() => {
+    const ids = pois.filter(p => p.latitude && p.longitude).map(p => p.id).sort().join(",");
+    if (prevPoisIdsRef.current && prevPoisIdsRef.current !== ids) {
+      // New set of markers — trigger cross-fade
+      setMapOpacity(0);
+      if (fadeTimerRef.current) clearTimeout(fadeTimerRef.current);
+      fadeTimerRef.current = setTimeout(() => setMapOpacity(1), 80);
+    }
+    prevPoisIdsRef.current = ids;
+  }, [pois]);
+
   // Create/update label markers incrementally to avoid flicker
   useEffect(() => {
     const map = mapRef.current;
@@ -569,7 +585,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
   return (
     <>
       <style>{`.gm-style { background-color: hsl(var(--map-surface)) !important; } .gm-style .gm-style-iw-chr { display: none !important; } .gm-style .gm-style-iw { padding: 0 !important; background: transparent !important; box-shadow: none !important; border-radius: 10px !important; } .gm-style .gm-style-iw-d { overflow: hidden !important; background: transparent !important; } .gm-style .gm-style-iw-tc { display: none !important; } .gm-style .gm-style-iw-t::after { display: none !important; } .gm-style .gm-fullscreen-control { display: none !important; } .gm-style .gm-bundled-control button[aria-label*="location" i], .gm-style .gm-bundled-control button[aria-label*="position" i], .gm-style .gm-bundled-control button[title*="location" i], .gm-style button.gm-control-active[draggable="false"][aria-label] { display: none !important; } .gm-style .gmnoprint[role="menubar"] ~ .gmnoprint:not([role]) { display: none !important; }`}</style>
-      <div ref={mapShellRef} className="relative h-full w-full overflow-hidden bg-map-surface">
+      <div ref={mapShellRef} className="relative h-full w-full overflow-hidden bg-map-surface" style={{ opacity: mapOpacity, transition: "opacity 0.25s ease-in-out" }}>
         <div ref={containerRef} className="h-full w-full bg-map-surface" />
       </div>
     </>
