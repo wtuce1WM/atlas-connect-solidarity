@@ -1172,13 +1172,11 @@ const SearchPage = () => {
     return buildFsCategoryItems(false);
   }, [mobileMapPoiItems, fsFilterSubcategories, buildFsCategoryItems]);
 
-  // The top-ranked business ID for Gold marker when a tab is active
+  // The top-ranked business ID for Gold marker (always highlight #1)
   const fsTopBusinessId: string | null = useMemo(() => {
-    if (!fsFilterSubcategories) return null;
-    // Use whichever list has items (mobile or desktop)
     const items = mapPoiItems.length > 0 ? mapPoiItems : mobileMapPoiItemsFinal;
     return items[0]?.id || null;
-  }, [fsFilterSubcategories, mapPoiItems, mobileMapPoiItemsFinal]);
+  }, [mapPoiItems, mobileMapPoiItemsFinal]);
 
   const { tabs: mobileFrontTabs } = useFrontStructureTabs(effectiveCityForMap || null);
 
