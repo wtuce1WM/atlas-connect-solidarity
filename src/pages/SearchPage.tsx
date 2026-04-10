@@ -134,7 +134,7 @@ const SearchPage = () => {
   }, [searchParams]);
 
 
-
+  const [fsFilterSubcategories, setFsFilterSubcategories] = useState<Set<string> | null>(null);
 
   const categoryFromUrl = searchParams.get("category") || "";
   
@@ -1091,7 +1091,17 @@ const SearchPage = () => {
       }));
   }, [hasKnownLocation, isSubDesktop, mapCenterForResults, neighborhoodCoords, effectiveCityForMap]);
 
-  const mapPoiItems: PoiMapItem[] = useMemo(() => buildMapPoiItems(filteredBusinesses, true), [buildMapPoiItems, filteredBusinesses]);
+  const mapPoiItemsRaw: PoiMapItem[] = useMemo(() => buildMapPoiItems(filteredBusinesses, true), [buildMapPoiItems, filteredBusinesses]);
+  const mapPoiItems: PoiMapItem[] = useMemo(() => {
+    if (!fsFilterSubcategories) return mapPoiItemsRaw;
+    // Filter map markers to only show businesses matching the selected front_structure tab
+    const matchingIds = new Set(
+      filteredBusinesses
+        .filter(b => b.categories?.some(cat => fsFilterSubcategories.has(cat)))
+        .map(b => b.id)
+    );
+    return mapPoiItemsRaw.filter(p => matchingIds.has(p.id));
+  }, [mapPoiItemsRaw, fsFilterSubcategories, filteredBusinesses]);
   const mobileMapPoiItems: PoiMapItem[] = useMemo(() => buildMapPoiItems(filteredBusinesses, false), [buildMapPoiItems, filteredBusinesses]);
 
 
@@ -2691,6 +2701,8 @@ const SearchPage = () => {
           setShowMobileMap={setShowMobileMap}
           setShowAiPopup={setShowAiPopup}
           t={t}
+          effectiveCity={effectiveCityForMap}
+          onFrontStructureFilter={(subNames) => setFsFilterSubcategories(subNames)}
         />
       )}
 

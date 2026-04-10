@@ -6,6 +6,8 @@ import AISuggestionCard from "@/components/AISuggestionCard";
 import PoiGoogleMap from "@/components/PoiGoogleMap";
 import type { PoiMapItem } from "@/components/PoiGoogleMap";
 import PanelSearchBar from "@/components/PanelSearchBar";
+import FrontStructureNavBar from "@/components/FrontStructureNavBar";
+import { useFrontStructureTabs } from "@/hooks/useFrontStructureTabs";
 import type { BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import type { Business } from "@/pages/search/types";
 import type { TimeSlot } from "@/lib/timeSlots";
@@ -56,6 +58,8 @@ export interface ResultsTabContentProps {
     previous: string;
     next: string;
   };
+  effectiveCity?: string | null;
+  onFrontStructureFilter?: (subcategoryNames: Set<string> | null) => void;
 }
 
 export default function ResultsTabContent({
@@ -95,7 +99,27 @@ export default function ResultsTabContent({
   setShowMobileMap,
   setShowAiPopup,
   t,
+  effectiveCity,
+  onFrontStructureFilter,
 }: ResultsTabContentProps) {
+  const { tabs: frontTabs } = useFrontStructureTabs(effectiveCity || null);
+  const [activeFsTabId, setActiveFsTabId] = useState<string | null>(null);
+
+  const handleFsTabClick = (tabId: string | null) => {
+    setActiveFsTabId(tabId);
+    if (!tabId) {
+      onFrontStructureFilter?.(null);
+    } else {
+      const tab = frontTabs.find(t => t.id === tabId);
+      onFrontStructureFilter?.(tab?.subcategoryNames || null);
+    }
+  };
+
+  // Reset active tab when city changes
+  useEffect(() => {
+    setActiveFsTabId(null);
+  }, [effectiveCity]);
+
   return (
     <section
       ref={resultsRef}
@@ -243,17 +267,24 @@ export default function ResultsTabContent({
                 center={mapCenterForResults}
                 fitToMarkers
               />
-              <div className="absolute top-0 left-0 right-0 z-[80] flex items-center gap-3 px-3 py-3 backdrop-blur-sm">
-                <button
-                  type="button"
-                  onClick={() => setHideResultsMap(true)}
-                  className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black shadow-lg shrink-0"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-                <span className="text-sm font-medium text-white truncate drop-shadow-md">
-                  {filteredBusinesses.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{searchQuery}"
-                </span>
+              <div className="absolute top-0 left-0 right-0 z-[80] flex flex-col backdrop-blur-sm">
+                <div className="flex items-center gap-3 px-3 py-3">
+                  <button
+                    type="button"
+                    onClick={() => setHideResultsMap(true)}
+                    className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black shadow-lg shrink-0"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                  <span className="text-sm font-medium text-white truncate drop-shadow-md">
+                    {filteredBusinesses.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{searchQuery}"
+                  </span>
+                </div>
+                <FrontStructureNavBar
+                  tabs={frontTabs}
+                  activeTabId={activeFsTabId}
+                  onTabClick={handleFsTabClick}
+                />
               </div>
               <PanelSearchBar
                 onSearch={onSearchNavigate}
