@@ -24,7 +24,7 @@ const BackdropMap = ({ children }: { children: React.ReactNode }) => (
 
 const FicheImmersive = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [businessId, setBusinessId] = useState<string | null>(null);
+  const [redirectTo, setRedirectTo] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -34,13 +34,18 @@ const FicheImmersive = () => {
     (async () => {
       const { data } = await supabase
         .from("businesses")
-        .select("id")
+        .select("id, name, city")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
       if (cancelled) return;
       if (data) {
-        setBusinessId(data.id);
+        // Build a search URL with the business name as query so the page has context
+        const params = new URLSearchParams();
+        params.set("openBusiness", data.id);
+        if (data.name) params.set("q", data.name);
+        if (data.city) params.set("t", data.city);
+        setRedirectTo(`/search?${params.toString()}`);
       } else {
         setNotFound(true);
       }
@@ -67,8 +72,8 @@ const FicheImmersive = () => {
     );
   }
 
-  if (businessId) {
-    return <Navigate to={`/search?openBusiness=${businessId}`} replace />;
+  if (redirectTo) {
+    return <Navigate to={redirectTo} replace />;
   }
 
   return null;
