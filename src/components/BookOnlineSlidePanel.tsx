@@ -1363,7 +1363,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       )}
 
       {/* Full Description Overlay */}
-      {showDescriptionOverlay && woDescription && (
+      {showDescriptionOverlay && woDescription && (() => {
+        const [showDescGrid, setShowDescGrid] = React.useState(false);
+        return (
         <div className="absolute inset-0 top-0 lg:-top-[3.3rem] z-[80] animate-zoom-out-center overflow-hidden flex flex-col">
           {/* Background image */}
           {images[0] && (
