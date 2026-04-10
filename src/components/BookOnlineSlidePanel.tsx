@@ -8,6 +8,8 @@ import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } 
 import { supabase } from "@/integrations/supabase/client";
 
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
+import wooshSfx from "@/assets/woosh.wav";
+import { playWoosh } from "@/lib/overlayConstants";
 import poiNearbyImg from "@/assets/poi-nearby.webp";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem as LightboxMediaItem } from "@/components/FullscreenLightbox";
@@ -117,6 +119,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   
   const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(false);
   const [descGridMode, setDescGridMode] = useState(false);
+  const [descGridPage, setDescGridPage] = useState(0);
   const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ url: string; name: string | null; description: string | null } | null>(null);
   const [videoOverlayClosing, setVideoOverlayClosing] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
