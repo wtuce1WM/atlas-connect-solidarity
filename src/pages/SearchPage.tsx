@@ -2796,7 +2796,7 @@ const SearchPage = () => {
                   <X className="h-4 w-4" />
                 </button>
                 <span className="text-sm font-medium text-white truncate drop-shadow-md">
-                  {mobileMapPoiItemsFinal.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{searchQuery}"
+                  {mobileMapPoiItemsFinal.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{mobileFsTabId ? `${mobileFrontTabs.find(t => t.id === mobileFsTabId)?.name || ''} ${effectiveCity || ''}`.trim() : searchQuery}"
                 </span>
               </div>
               {mobileFrontTabs.length > 0 && (
