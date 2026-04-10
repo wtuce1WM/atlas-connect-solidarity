@@ -1397,22 +1397,50 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             )}
           </div>
           {/* Scrollable content — fills remaining space between header and thumbnails */}
-          <div className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain order-[-1]">
+          <div className="relative z-10 flex-1 min-h-0 order-[-1]" style={{ perspective: "1200px" }}>
             {descGridMode ? (
-              <div className="px-2 pt-3 pb-[70px]">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5">
-                  {(descGridPage === 0 ? images.slice(0, 15) : images.slice(15, 30)).map((img, i) => {
-                    const realIndex = descGridPage === 0 ? i : i + 15;
-                    return (
-                      <div
-                        key={`${descGridPage}-${i}`}
-                        className="relative aspect-square rounded-md overflow-hidden cursor-pointer"
-                        onClick={() => { const mi = mediaItems.findIndex(m => m.kind === "image" && m.url === img); setLightboxIndex(mi >= 0 ? mi : realIndex); setIsLightboxOpen(true); }}
-                      >
-                        <img src={img} alt={`${business?.name} ${realIndex + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
-                      </div>
-                    );
-                  })}
+              <div
+                className="w-full h-full"
+                style={{
+                  transformStyle: "preserve-3d",
+                  transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+                  transform: descGridPage === 0 ? "rotateY(0deg)" : "rotateY(180deg)",
+                }}
+              >
+                {/* Front face — images 1-15 */}
+                <div className="absolute inset-0 overflow-y-auto overscroll-contain" style={{ backfaceVisibility: "hidden" }}>
+                  <div className="px-2 pt-3 pb-[70px]">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5">
+                      {images.slice(0, 15).map((img, i) => (
+                        <div
+                          key={`front-${i}`}
+                          className="relative aspect-square rounded-md overflow-hidden cursor-pointer"
+                          onClick={() => { const mi = mediaItems.findIndex(m => m.kind === "image" && m.url === img); setLightboxIndex(mi >= 0 ? mi : i); setIsLightboxOpen(true); }}
+                        >
+                          <img src={img} alt={`${business?.name} ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                {/* Back face — images 16-30 */}
+                <div className="absolute inset-0 overflow-y-auto overscroll-contain" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
+                  <div className="px-2 pt-3 pb-[70px]">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5">
+                      {images.slice(15, 30).map((img, i) => {
+                        const realIndex = i + 15;
+                        return (
+                          <div
+                            key={`back-${i}`}
+                            className="relative aspect-square rounded-md overflow-hidden cursor-pointer"
+                            onClick={() => { const mi = mediaItems.findIndex(m => m.kind === "image" && m.url === img); setLightboxIndex(mi >= 0 ? mi : realIndex); setIsLightboxOpen(true); }}
+                          >
+                            <img src={img} alt={`${business?.name} ${realIndex + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               </div>
             ) : (
