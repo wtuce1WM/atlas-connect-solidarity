@@ -101,7 +101,7 @@ export default function ResultsTabContent({
       ref={resultsRef}
       className={`bg-white pb-6 lg:pb-4 transition-all duration-300 [overflow-anchor:none] ${compactPanelBusiness ? "w-full lg:w-1/2" : "w-full"}`}
     >
-        <div className={hasKnownLocation && !compactPanelBusiness && !hideResultsMap ? "flex gap-0" : ""}>
+        <div className={hasKnownLocation && !compactPanelBusiness && !hideResultsMap ? "" : ""}>
           <div className={`pt-4 ${hasKnownLocation && !compactPanelBusiness && !hideResultsMap ? "w-1/2 overflow-visible" : "w-full"} mx-auto px-4 ${compactPanelBusiness || (hasKnownLocation && !hideResultsMap) ? "max-w-full" : "max-w-full lg:max-w-[80%]"}`}>
           {/* Filters: Time slot indicator */}
           <div className={`${isCategoryFilterActive ? 'mb-3' : 'mb-8'} flex flex-wrap items-center gap-3 ${isMobile ? 'hidden' : ''} ${!activeTimeSlot ? 'lg:mb-0 lg:hidden' : ''}`}>
