@@ -1749,9 +1749,13 @@ const SearchPage = () => {
             // Skip auto-filter for synonyms, heuristic fallbacks, conflict-merges, or preciseMatch with heuristic
             // Conflict merge means backend intentionally returned cross-category results (e.g. Poisson + Poissonnerie)
             // Also skip when results span multiple main_categories (cross-category service matches, e.g. "Céramique")
+            // IMPORTANT: when server-side pagination is active, the backend already produced the correct page slice.
+            // Re-applying auto-detected category/subcategory/service filters on the client would shrink the page
+            // and desync the visible cards from the pagination counter.
             const resultMainCategories = new Set(businesses.map(b => b.main_category).filter(Boolean));
             const isMultiCategoryResult = resultMainCategories.size > 1;
-            const shouldSkipAutoFilter = data.exactNameMatchIsolation || data.synonymUsed || data.intentSubcategoryConflict || isHeuristicFallbackWithPrecise || isHeuristicFallback || (data.preciseMatch && !safeDetectedSubcategory) || isMultiCategoryResult;
+            const isServerPaginated = typeof data.totalCount === "number";
+            const shouldSkipAutoFilter = isServerPaginated || data.exactNameMatchIsolation || data.synonymUsed || data.intentSubcategoryConflict || isHeuristicFallbackWithPrecise || isHeuristicFallback || (data.preciseMatch && !safeDetectedSubcategory) || isMultiCategoryResult;
             setSelectedCategoryFilter(shouldSkipAutoFilter ? null : parentCategory);
             setSelectedSubcategoryFilter(shouldSkipAutoFilter ? null : finalDetectedSubcategory);
             // Auto-select detected service filter so the direct DB subcategory fetch
