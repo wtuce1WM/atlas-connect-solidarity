@@ -1381,21 +1381,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             </button>
             <h2 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] truncate text-white">{business?.name}</h2>
           </div>
-          {/* Scrollable content */}
-          <div className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain">
-            <div className={`px-4 pt-4 ${images.length > 0 ? "pb-[176px] md:pb-[160px] lg:pb-[148px]" : "pb-[84px] md:pb-[92px]"} md:px-6 md:pt-6`}>
-              <div
-                className="prose max-w-none prose-josefin-headings prose-h2:text-xl prose-h3:text-lg prose-a:text-primary [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold [&_p:empty]:min-h-[1em] [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_table]:border-collapse [&_table]:w-full [&_table]:table-fixed [&_td]:border [&_td]:border-white/20 [&_td]:p-4 [&_td]:align-top [&_td]:text-xs [&_td_img]:w-full [&_td_img]:h-36 [&_td_img]:object-cover [&_td_img]:rounded-md [&_td_img]:block [&_th]:border [&_th]:border-white/20 [&_th]:p-2 [&_th]:bg-white/10 [&_th]:font-semibold [&_img]:max-w-full [&_img]:rounded-md [&_iframe]:max-w-full [&_iframe]:rounded-md [&_mark]:bg-yellow-500/40 [&_mark]:px-0.5 [&_blockquote]:border-l-4 [&_blockquote]:border-white/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_hr]:border-white/20 [&_*]:!text-white prose-headings:!text-white prose-strong:!text-white leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: woDescription }}
-              />
-            </div>
-          </div>
-          <div className={`pointer-events-none absolute inset-x-0 bottom-0 z-[15] ${images.length > 0 ? "h-[176px] md:h-[160px] lg:h-[148px]" : "h-[84px] md:h-[92px]"}`}>
-            <div className="absolute inset-0 bg-black/85 backdrop-blur-xl" />
-          </div>
+          {/* Thumbnails strip — shrink-0 in flex column */}
           {images.length > 0 && (
-            <div className="absolute inset-x-0 bottom-[4.75rem] z-20 md:bottom-[5rem]">
-              <div className="flex items-center gap-1.5 px-2 py-2 bg-black/85 backdrop-blur-md border-t border-white/10">
+            <div className="relative z-20 shrink-0">
+              <div className="flex items-center gap-1.5 px-2 py-2 bg-black/40 backdrop-blur-md border-t border-white/10">
                 {images.slice(0, 5).map((img, i) => (
                   <div key={i} className={`flex-1 min-w-0 aspect-[3/2] rounded-md overflow-hidden ${i >= 3 ? 'hidden md:block' : ''} ${i >= 4 ? 'md:hidden lg:block' : ''}`}>
                     <img src={img} alt={`${business?.name} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
@@ -1404,6 +1393,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               </div>
             </div>
           )}
+          {/* Searchbar spacer — reserve space for the absolute-positioned PanelSearchBar */}
+          <div className="shrink-0 h-[4.75rem] md:h-[5rem]" />
+          {/* Scrollable content — fills remaining space between header and thumbnails */}
+          <div className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain order-[-1]">
+            <div className="px-4 pt-4 pb-6 md:px-6 md:pt-6">
+              <div
+                className="prose max-w-none prose-josefin-headings prose-h2:text-xl prose-h3:text-lg prose-a:text-primary [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold [&_p:empty]:min-h-[1em] [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_table]:border-collapse [&_table]:w-full [&_table]:table-fixed [&_td]:border [&_td]:border-white/20 [&_td]:p-4 [&_td]:align-top [&_td]:text-xs [&_td_img]:w-full [&_td_img]:h-36 [&_td_img]:object-cover [&_td_img]:rounded-md [&_td_img]:block [&_th]:border [&_th]:border-white/20 [&_th]:p-2 [&_th]:bg-white/10 [&_th]:font-semibold [&_img]:max-w-full [&_img]:rounded-md [&_iframe]:max-w-full [&_iframe]:rounded-md [&_mark]:bg-yellow-500/40 [&_mark]:px-0.5 [&_blockquote]:border-l-4 [&_blockquote]:border-white/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_hr]:border-white/20 [&_*]:!text-white prose-headings:!text-white prose-strong:!text-white leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: woDescription }}
+              />
+            </div>
+          </div>
         </div>
       )}
 
