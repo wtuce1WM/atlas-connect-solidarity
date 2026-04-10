@@ -2697,13 +2697,26 @@ const SearchPage = () => {
       {/* Mobile/Tablet Map Overlay — slide-in from right */}
       {isSubDesktop && showMobileMap && (
         <div className="fixed inset-0 z-[201] bg-background animate-slide-in-right lg:hidden">
-          {/* Close button overlaid on map — top-left */}
-          <button
-            onClick={() => setShowMobileMap(false)}
-            className="absolute top-3 left-3 z-10 w-9 h-9 rounded-full bg-foreground text-background flex items-center justify-center shadow-lg hover:bg-foreground/90 transition-colors"
-          >
-            <X className="h-5 w-5" />
-          </button>
+          {activeTab === "suggestions" ? (
+            <div className="absolute top-0 left-0 right-0 z-[85] flex items-center gap-3 px-3 py-3 backdrop-blur-sm">
+              <button
+                onClick={() => setShowMobileMap(false)}
+                className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black shadow-lg shrink-0"
+              >
+                <X className="h-4 w-4" />
+              </button>
+              <span className="text-sm font-medium text-white truncate drop-shadow-md">
+                {filteredBusinesses.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{searchQuery}"
+              </span>
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowMobileMap(false)}
+              className="absolute top-3 left-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white text-black shadow-lg transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
           {/* Map — full height */}
           <div className="w-full h-full relative">
             <PoiGoogleMap
