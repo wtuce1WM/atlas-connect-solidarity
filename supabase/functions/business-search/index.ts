@@ -808,7 +808,7 @@ serve(async (req) => {
     const isSuperlatif = effectiveQuery ? detectSuperlative(effectiveQuery) : false;
 
 // ── Parallelize independent DB lookups ──
-    const [cityDetection, detectedNeighborhood, webOnlySvcRow, relData, configsData] = await Promise.all([
+    const [cityDetection, detectedNeighborhoodRaw, webOnlySvcRow, relData, configsData] = await Promise.all([
       // 1. City detection
       effectiveQuery ? detectCityInQueryDynamic(effectiveQuery, supabase) : Promise.resolve(null),
       // 2. Neighborhood detection
