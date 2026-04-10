@@ -502,7 +502,25 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     const poi = pois.find((p) => p.id === selectedPoiId);
     if (!poi?.latitude || !poi?.longitude) return;
 
+    // Wait for initial fitBounds to complete before animating
+    if (!hasFittedRef.current) {
+      const waitForFit = setInterval(() => {
+        if (hasFittedRef.current) {
+          clearInterval(waitForFit);
+          // Re-trigger by forcing a state update isn't needed — just run inline
+          doAnimateToPoi(poi);
+        }
+      }, 100);
+      const timeout = setTimeout(() => clearInterval(waitForFit), 3000);
+      return () => { clearInterval(waitForFit); clearTimeout(timeout); };
+    }
+
+    doAnimateToPoi(poi);
+  }, [selectedPoiId, pois]);
+
+  const doAnimateToPoi = (poi: PoiMapItem) => {
     const map = mapRef.current;
+    if (!map || !poi.latitude || !poi.longitude) return;
     const target = { lat: poi.latitude, lng: poi.longitude };
     const startCenter = map.getCenter();
     if (!startCenter) { map.panTo(target); return; }
