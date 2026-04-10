@@ -1,6 +1,7 @@
 /// <reference types="@types/google.maps" />
 import { useEffect, useRef, useState, useMemo } from "react";
 import { Loader2, Maximize2, Minimize2 } from "lucide-react";
+import goldPinUrl from "@/assets/location-pin-gold.webp";
 
 export interface PoiMapItem {
   id: string;
@@ -191,22 +192,32 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       position:absolute;
       transform:translate(-50%,-100%) ${scale};
       transition:transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
-      display:flex;align-items:center;gap:4px;
-      background:${bg};color:${fg};
-      border:1.5px solid ${border};
-      border-radius:6px;padding:3px 8px 3px 5px;
-      font-family:system-ui,-apple-system,sans-serif;
-      font-size:11px;font-weight:600;
-      white-space:nowrap;cursor:pointer;
-      box-shadow:${shadow};z-index:${z};
-      line-height:1.2;
+      display:flex;flex-direction:column;align-items:center;gap:0;
+      cursor:pointer;z-index:${z};
     `;
 
       const iconHtml = this.iconSvg
         ? `<span style="display:flex;align-items:center;flex-shrink:0;opacity:0.9;">${this.iconSvg}</span>`
         : "";
       const shortName = this.name.length > 22 ? this.name.slice(0, 20) + "…" : this.name;
-      this.div.innerHTML = `${iconHtml}<span>${shortName}</span>`;
+
+      const pinHtml = this.highlighted
+        ? `<img src="${goldPinUrl}" style="width:32px;height:auto;filter:brightness(1.1) sepia(1) saturate(3) hue-rotate(-10deg) drop-shadow(0 2px 4px rgba(0,0,0,0.4));margin-bottom:-2px;" />`
+        : "";
+
+      const labelHtml = `<div style="
+        display:flex;align-items:center;gap:4px;
+        background:${bg};color:${fg};
+        border:1.5px solid ${border};
+        border-radius:6px;padding:3px 8px 3px 5px;
+        font-family:system-ui,-apple-system,sans-serif;
+        font-size:11px;font-weight:600;
+        white-space:nowrap;
+        box-shadow:${shadow};
+        line-height:1.2;
+      ">${iconHtml}<span>${shortName}</span></div>`;
+
+      this.div.innerHTML = `${pinHtml}${labelHtml}`;
     }
   };
 
