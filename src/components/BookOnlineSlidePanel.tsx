@@ -1388,8 +1388,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           <div className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain order-[-1]">
             {descGridMode ? (
               <div className="px-2 pt-3 pb-6">
-                <div className="grid grid-cols-3 gap-1.5">
-                  {images.slice(0, 15).map((img, i) => (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5">
+                  {images.slice(0, isMobile ? 16 : 15).map((img, i) => (
                     <div
                       key={i}
                       className="relative aspect-square rounded-md overflow-hidden cursor-pointer"
