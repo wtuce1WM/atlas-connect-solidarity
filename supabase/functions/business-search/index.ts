@@ -4809,7 +4809,6 @@ serve(async (req) => {
       }
     }
 
-    let detectedNeighborhood = detectedNeighborhoodRaw;
 
     // ── Exact name match isolation: if query IS a business name, return only that business ──
     // This prevents "Baberrih Hotel" from returning all hotels just because "Hotel" is in search_vector
