@@ -1383,13 +1383,24 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           </div>
           {/* Scrollable content */}
           <div className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain">
-            <div className="px-4 pt-4 pb-[60px] md:px-6 md:pt-6">
+            <div className={`px-4 pt-4 ${images.length > 0 ? "pb-[138px] md:pb-[148px]" : "pb-[84px] md:pb-[92px]"} md:px-6 md:pt-6`}>
               <div
                 className="prose max-w-none prose-josefin-headings prose-h2:text-xl prose-h3:text-lg prose-a:text-primary [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold [&_p:empty]:min-h-[1em] [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_table]:border-collapse [&_table]:w-full [&_table]:table-fixed [&_td]:border [&_td]:border-white/20 [&_td]:p-4 [&_td]:align-top [&_td]:text-xs [&_td_img]:w-full [&_td_img]:h-36 [&_td_img]:object-cover [&_td_img]:rounded-md [&_td_img]:block [&_th]:border [&_th]:border-white/20 [&_th]:p-2 [&_th]:bg-white/10 [&_th]:font-semibold [&_img]:max-w-full [&_img]:rounded-md [&_iframe]:max-w-full [&_iframe]:rounded-md [&_mark]:bg-yellow-500/40 [&_mark]:px-0.5 [&_blockquote]:border-l-4 [&_blockquote]:border-white/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_hr]:border-white/20 [&_*]:!text-white prose-headings:!text-white prose-strong:!text-white leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: woDescription }}
               />
             </div>
           </div>
+          {images.length > 0 && (
+            <div className="absolute inset-x-0 bottom-[4.75rem] z-20 md:bottom-[5rem]">
+              <div className="flex items-center gap-1.5 px-2 py-2 bg-black/40 backdrop-blur-md border-t border-white/10">
+                {images.slice(0, 5).map((img, i) => (
+                  <div key={i} className="flex-1 min-w-0 aspect-[3/2] rounded-md overflow-hidden">
+                    <img src={img} alt={`${business?.name} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -1600,19 +1611,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           </div>
         </div>
       )}
-
-
-      {/* Description overlay image thumbnails strip - above search bar */}
-      {showDescriptionOverlay && images.length > 0 && (
-        <div className="relative z-[85] flex items-center gap-1.5 px-2 py-2 bg-black/40 backdrop-blur-md border-t border-white/10">
-          {images.slice(0, 5).map((img, i) => (
-            <div key={i} className="flex-1 min-w-0 aspect-[3/2] rounded-md overflow-hidden">
-              <img src={img} alt={`${business?.name} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
-            </div>
-          ))}
-        </div>
-      )}
-
       {/* Search bar */}
       {showSearchBar && (
         <PanelSearchBar
