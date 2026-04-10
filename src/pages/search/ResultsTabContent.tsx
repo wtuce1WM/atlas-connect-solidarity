@@ -102,6 +102,7 @@ export default function ResultsTabContent({
   t,
   effectiveCity,
   onFrontStructureFilter,
+  fsTopBusinessId,
 }: ResultsTabContentProps) {
   const { tabs: frontTabs } = useFrontStructureTabs(effectiveCity || null);
   const [activeFsTabId, setActiveFsTabId] = useState<string | null>(null);
