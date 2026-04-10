@@ -159,10 +159,10 @@ export function useOwnerLogo(
       return;
     }
     const cm = mediaItems[currentMediaIndex];
-    if (cm?.kind !== "video") return;
+    if (cm?.kind !== "video") { setLogoBigOverlay(null); return; }
     const doc = videoDocs.find((d) => d.url === cm.url);
-    if (!doc?.owner_business_id || doc.owner_business_id === currentBusinessId) return;
-    if (!doc.owner_logo) return;
+    if (!doc?.owner_business_id || doc.owner_business_id === currentBusinessId) { setLogoBigOverlay(null); return; }
+    if (!doc.owner_logo) { setLogoBigOverlay(null); return; }
     setLogoBigFadingOut(false);
     setLogoBigOverlay({ src: doc.owner_logo, name: doc.owner_name || "", ownerId: doc.owner_business_id });
     logoBigTimersRef.current.forEach(clearTimeout);
