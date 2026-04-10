@@ -1405,7 +1405,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* Full Description Overlay */}
       {showDescriptionOverlay && woDescription && (
-        <div className="absolute inset-0 -top-[3.3rem] bottom-14 z-[70] animate-zoom-out-center overflow-hidden">
+        <div className="absolute inset-0 -top-[3.3rem] z-[70] animate-zoom-out-center overflow-hidden">
           {/* Background image */}
           {images[0] && (
             <div
