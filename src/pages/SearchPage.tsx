@@ -1165,6 +1165,7 @@ const SearchPage = () => {
 
   const mobileMapPoiItems: PoiMapItem[] = useMemo(() => buildMapPoiItems(filteredBusinesses, false), [buildMapPoiItems, filteredBusinesses]);
 
+  const { tabs: mobileFrontTabs } = useFrontStructureTabs(effectiveCityForMap || null);
 
     // Auto-open first result's slide panel when arriving from external link
     useEffect(() => {
