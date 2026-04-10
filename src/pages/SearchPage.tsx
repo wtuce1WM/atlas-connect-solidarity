@@ -1142,11 +1142,11 @@ const SearchPage = () => {
   // Helper: sort and slice for front structure category filtering
   const buildFsCategoryItems = useCallback((guardDesktop: boolean): PoiMapItem[] => {
     if (!fsFilterSubcategories) return [];
-    console.log('[FS-DEBUG] guardDesktop:', guardDesktop, 'allCityMapBusinesses:', allCityMapBusinesses.length, 'fsFilterSubcategories:', [...fsFilterSubcategories]);
-    const matching = allCityMapBusinesses.filter(b =>
+    // Use allCityMapBusinesses when available, fall back to filteredBusinesses
+    const pool = allCityMapBusinesses.length > 0 ? allCityMapBusinesses : filteredBusinesses;
+    const matching = pool.filter(b =>
       b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))
     );
-    console.log('[FS-DEBUG] matching:', matching.length, 'sample categories:', allCityMapBusinesses.slice(0, 3).map(b => b.categories));
     matching.sort((a, b) => {
       const aVerified = (a as any).wtuce_status === 'verified' ? 0 : 1;
       const bVerified = (b as any).wtuce_status === 'verified' ? 0 : 1;
@@ -1157,10 +1157,8 @@ const SearchPage = () => {
       const bRating = bCount >= 10 ? ((b as any).computed_rating ?? b.rating ?? -1) : -1;
       return bRating - aRating;
     });
-    const result = buildMapPoiItems(matching.slice(0, 20), guardDesktop);
-    console.log('[FS-DEBUG] buildMapPoiItems result:', result.length, 'hasKnownLocation:', hasKnownLocation, 'isSubDesktop:', isSubDesktop);
-    return result;
-  }, [fsFilterSubcategories, allCityMapBusinesses, buildMapPoiItems, hasKnownLocation, isSubDesktop]);
+    return buildMapPoiItems(matching.slice(0, 20), guardDesktop);
+  }, [fsFilterSubcategories, allCityMapBusinesses, filteredBusinesses, buildMapPoiItems]);
 
   // Desktop map items
   const mapPoiItems: PoiMapItem[] = useMemo(() => {
