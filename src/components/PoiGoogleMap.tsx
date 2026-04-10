@@ -1,6 +1,7 @@
 /// <reference types="@types/google.maps" />
 import { useEffect, useRef, useState, useMemo } from "react";
 import { Loader2, Maximize2, Minimize2 } from "lucide-react";
+import goldPinUrl from "@/assets/location-pin-gold.webp";
 
 export interface PoiMapItem {
   id: string;
