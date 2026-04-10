@@ -6,7 +6,7 @@ import { MapPin, ChevronUp, X, CalendarCheck, Star, Loader2, Expand } from "luci
 import VideoControls from "@/components/VideoControls";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 import { supabase } from "@/integrations/supabase/client";
-import { haversineKm } from "@/lib/haversine";
+
 import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import poiNearbyImg from "@/assets/poi-nearby.webp";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
@@ -113,7 +113,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [showPoiMapOverlay, setShowPoiMapOverlay] = useState(false);
   const [poiMapMode, setPoiMapMode] = useState<"poi" | "destinations">("poi");
   const poiOpenedFromMapRef = useRef(false);
-  const [nearbyFallback, setNearbyFallback] = useState<PoiMapItem[]>([]);
+  
   
   const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(false);
   const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ url: string; name: string | null; description: string | null } | null>(null);
@@ -297,7 +297,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     setShowPoiMapOverlay(false);
     setShowDescriptionOverlay(false);
     setPoiMapMode("poi");
-    setNearbyFallback([]);
     if (infoCarouselRef.current) infoCarouselRef.current.scrollLeft = 0;
     setAvailabilityOverlayCtx(null);
     if (!cameFromFallback) {
@@ -315,48 +314,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [videoPaused, setVideoPaused] = useState(true);
   const [videoMuted, setVideoMuted] = useState(true);
 
-  // Nearby fallback
-  useEffect(() => {
-    if (poiBusinesses.length > 0 || !business?.latitude || !business?.longitude) {
-      setNearbyFallback([]);
-      return;
-    }
-    let cancelled = false;
-    const fetchNearby = async () => {
-      const lat = business.latitude!;
-      const lng = business.longitude!;
-      const delta = 5 / 111;
-      const { data } = await supabase
-        .from("businesses")
-        .select("id, name, latitude, longitude, images, city, neighborhood, is_master, kp_regroupement")
-        .eq("is_active", true)
-        .gte("latitude", lat - delta)
-        .lte("latitude", lat + delta)
-        .gte("longitude", lng - delta)
-        .lte("longitude", lng + delta)
-        .neq("id", business.id);
-      if (cancelled || !data) return;
-      const currentKp = business.kp_regroupement;
-      const filtered = currentKp ? data.filter((b: any) => b.kp_regroupement !== currentKp) : data;
-      const inRadius = filtered.filter((b: any) =>
-        b.latitude && b.longitude && haversineKm(lat, lng, b.latitude, b.longitude) <= 5
-      );
-      const coordMap = new Map<string, any>();
-      for (const b of inRadius) {
-        const key = `${b.latitude?.toFixed(6)},${b.longitude?.toFixed(6)}`;
-        const existing = coordMap.get(key);
-        if (!existing) coordMap.set(key, b);
-        else if (b.is_master && !existing.is_master) coordMap.set(key, b);
-      }
-      const deduped = Array.from(coordMap.values()).map((b: any) => ({
-        id: b.id, name: b.name, latitude: b.latitude, longitude: b.longitude,
-        images: b.images, city: b.city, neighborhood: b.neighborhood,
-      } as PoiMapItem));
-      if (!cancelled) setNearbyFallback(deduped);
-    };
-    fetchNearby();
-    return () => { cancelled = true; };
-  }, [poiBusinesses.length, business?.id, business?.latitude, business?.longitude]);
 
   const keepMutedRef = useRef(false);
   const muteLockSrcRef = useRef<string | null>(null);
@@ -1226,7 +1183,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   </div>
                 );
               })}
-              {(poiBusinesses.length > 0 || nearbyFallback.length > 0) && business?.latitude && business?.longitude && (
+              {poiBusinesses.length > 0 && business?.latitude && business?.longitude && (
                 <div className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
                   style={bottomTabInitialRef.current ? { animationDelay: `${kpSubcategoryItems.length * 120}ms`, animationFillMode: 'forwards' } : undefined}
                   onClick={() => setShowPoiMapOverlay(true)}
@@ -1270,7 +1227,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   </div>
                 );
               })}
-              {(poiBusinesses.length > 0 || nearbyFallback.length > 0) && business?.latitude && business?.longitude && (
+              {poiBusinesses.length > 0 && business?.latitude && business?.longitude && (
                 <div className={`shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 ${slideInClass} cursor-pointer hover:border-white/30 transition-colors`}
                   style={bottomTabInitialRef.current ? { animationDelay: `${kpRelated.length * 120}ms`, animationFillMode: 'forwards' } : undefined}
                   onClick={() => setShowPoiMapOverlay(true)}
@@ -1531,7 +1488,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       images: business.images, city: business.city, neighborhood: business.neighborhood,
                       markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
                     } as PoiMapItem] : []),
-                    ...((poiBusinesses.length > 0 ? poiBusinesses : nearbyFallback).map(p => ({
+                    ...(poiBusinesses.map(p => ({
                       id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude,
                       images: p.images, city: p.city, neighborhood: p.neighborhood,
                     } as PoiMapItem))),
