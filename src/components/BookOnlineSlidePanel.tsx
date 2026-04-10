@@ -1418,7 +1418,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           )}
           {!images[0] && <div className="absolute inset-0 bg-background" />}
           {/* Sticky header */}
-          <div className="relative z-20 shrink-0 flex items-center gap-3 px-4 py-3 bg-black/60 backdrop-blur-md border-b border-white/10">
+          <div className="relative z-20 shrink-0 flex items-center gap-3 px-4 py-3 bg-transparent backdrop-blur-sm border-b border-white/10">
             <button onClick={() => setShowDescriptionOverlay(false)} className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0">
               <X className="h-4 w-4" />
             </button>
