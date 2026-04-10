@@ -172,7 +172,7 @@ export function CtaBar({
   }
   return (
     <div
-      className={`${showSearchBar ? 'sticky bottom-0 left-0 right-0 z-[74] pb-[70px] md:pb-[66px] mt-2' : 'shrink-0 py-2 lg:pb-2'} flex flex-col items-center gap-2 ${externalVideoInteractiveMode ? 'pointer-events-none' : 'pointer-events-auto'} ${cardsHidden && effectiveMedia?.kind === "matterport" ? 'mb-24' : ''}`}
+      className={`${showSearchBar ? 'sticky bottom-0 left-0 right-0 z-[74] pb-[62px] md:pb-[58px] mt-2' : 'shrink-0 py-2 lg:pb-2'} flex flex-col items-center gap-2 ${externalVideoInteractiveMode ? 'pointer-events-none' : 'pointer-events-auto'} ${cardsHidden && effectiveMedia?.kind === "matterport" ? 'mb-24' : ''}`}
       style={hideStyle}
     >
       {ctaItems.length > 0 && (
