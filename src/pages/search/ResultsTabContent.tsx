@@ -60,6 +60,7 @@ export interface ResultsTabContentProps {
   };
   effectiveCity?: string | null;
   onFrontStructureFilter?: (subcategoryNames: Set<string> | null) => void;
+  fsTopBusinessId?: string | null;
 }
 
 export default function ResultsTabContent({

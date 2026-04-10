@@ -2754,7 +2754,8 @@ const SearchPage = () => {
           setShowAiPopup={setShowAiPopup}
           t={t}
           effectiveCity={effectiveCityForMap}
-          onFrontStructureFilter={(subNames) => setFsFilterSubcategories(subNames)}
+           onFrontStructureFilter={(subNames) => setFsFilterSubcategories(subNames)}
+           fsTopBusinessId={fsTopBusinessId}
         />
       )}
 
