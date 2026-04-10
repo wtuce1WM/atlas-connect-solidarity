@@ -37,7 +37,7 @@ export default function FrontStructureNavBar({ tabs, activeTabId, onTabClick }: 
         }`}
         style={{ fontFamily: "'Josefin Sans', sans-serif" }}
       >
-        Tous
+        Votre recherche
       </button>
       {tabs.map((tab) => (
         <button
