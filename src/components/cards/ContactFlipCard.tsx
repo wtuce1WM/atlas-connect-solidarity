@@ -78,62 +78,6 @@ const ContactFlipCard = ({
                 </div>
               </div>
             )}
-            {business.phone && !business.whatsapp && (
-              <a
-                href={`tel:${cleanPhone(business.phone)}`}
-                className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
-              >
-                <Phone className="h-4 w-4 shrink-0 text-white/60" />
-                {business.phone}
-              </a>
-            )}
-            {business.whatsapp && (
-              <a
-                href={whatsappUrl(business.whatsapp)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-[#25D366] hover:text-[#20bd5a] transition-colors"
-              >
-                <WhatsAppIcon className="h-4 w-4 shrink-0" />
-                WhatsApp
-              </a>
-            )}
-            {business.email && (
-              <a
-                href={`mailto:${business.email}`}
-                className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
-              >
-                <Mail className="h-4 w-4 shrink-0 text-white/60" />
-                Email
-              </a>
-            )}
-            {business.website && (() => {
-              const fullWebUrl = business.website.startsWith("http") ? business.website : `https://${business.website}`;
-              const forceExt = business.website_force_external;
-              const webMode = business.website_presentation_mode || 'plus_informations';
-              const webPair = CTA_MODE_LABELS[webMode] || CTA_MODE_LABELS.plus_informations;
-              const webLabel = language === 'en' ? webPair.en : webPair.fr;
-              return forceExt ? (
-                <a
-                  href={fullWebUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-white/80 hover:text-white transition-colors normal-case tracking-normal font-['Roboto',sans-serif]"
-                >
-                  <Globe className="h-4 w-4 shrink-0 text-white/60" />
-                  {webLabel}
-                  <ExternalLink className="h-3 w-3" />
-                </a>
-              ) : (
-                <button
-                  onClick={() => onOpenWebsite?.(fullWebUrl)}
-                  className="flex items-center gap-2 text-white/80 hover:text-white transition-colors normal-case tracking-normal font-['Roboto',sans-serif]"
-                >
-                  <Globe className="h-4 w-4 shrink-0 text-white/60" />
-                  {webLabel}
-                </button>
-              );
-            })()}
 
             {/* Hotel availability date picker */}
             {hasHotelMapping && (
