@@ -821,6 +821,8 @@ serve(async (req) => {
       supabase.from("subcategory_search_config").select("subcategory_id, search_mode, max_results, boost_weight, synonyms, subcategories!inner(name_fr)").then((r: any) => r.data),
     ]);
 
+    let detectedNeighborhood = detectedNeighborhoodRaw;
+
     const detectedCity = cityDetection?.cityName || null;
     const detectedCityMatchedTerm = cityDetection?.matchedTerm || null;
     let effectiveCity = city || detectedCity || undefined;
