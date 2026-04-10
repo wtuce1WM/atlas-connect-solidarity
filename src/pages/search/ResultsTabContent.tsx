@@ -232,7 +232,7 @@ export default function ResultsTabContent({
         {/* Right side: Sticky Google Map when city/neighborhood known */}
         {hasKnownLocation && !compactPanelBusiness && !hideResultsMap && (
           <div className="w-1/2 sticky top-0 h-screen z-[50] flex flex-col overflow-hidden">
-            <div className="z-[60] flex items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-md border-b border-white/10 shrink-0">
+            <div className="z-[60] flex items-center gap-2 px-4 py-3 shrink-0">
               <button
                 onClick={() => setHideResultsMap(true)}
                 className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 text-white shadow-lg hover:bg-white/30 transition-colors shrink-0"
