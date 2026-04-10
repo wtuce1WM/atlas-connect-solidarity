@@ -1494,7 +1494,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[80] flex flex-col" style={{ animation: "slide-up-from-bottom 0.4s ease-out both" }}>
           <div className="sticky top-0 z-10 flex items-center px-4 py-2 gap-2 bg-black/30 backdrop-blur-sm">
             <button
-              onClick={() => { setShowPoiMapOverlay(false); setPoiMapMode("poi"); }}
+              onClick={() => { setShowPoiMapOverlay(false); setPoiMapMode("poi"); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
               className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-opacity"
               aria-label="Fermer"
             >
