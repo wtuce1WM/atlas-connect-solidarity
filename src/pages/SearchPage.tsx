@@ -8,8 +8,6 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import { extractTimeSlot, isOpenDuringSlot, getCurrentTimePeriod, type TimeSlot, type TimePeriod } from "@/lib/timeSlots";
 import { isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHours";
 import { haversineKm } from "@/lib/haversine";
-import zitounMaskImg from "@/assets/zitoun-mask.jpg";
-import logoGold from "@/assets/logoGOLDsimple.webp";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -54,9 +52,8 @@ import { useSearchHistory } from "@/hooks/useSearchHistory";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import PoiTabContent from "@/pages/search/PoiTabContent";
 import DestinationsTabContent from "@/pages/search/DestinationsTabContent";
-import CelebrityGuide from "@/pages/search/CelebrityGuide";
 import ResultsTabContent from "@/pages/search/ResultsTabContent";
-import { normalizeSearchMode, isZitounMask, isSosMedecinQuery, isPompiersQuery, isCelebrityQuery, normalizeText as normalizeTextUtil, formatDateFr, ITEMS_PER_PAGE, SERVER_PAGE_SIZE, CELEBRITY_IDS } from "@/pages/search/utils";
+import { normalizeSearchMode, normalizeText as normalizeTextUtil, formatDateFr, ITEMS_PER_PAGE, SERVER_PAGE_SIZE } from "@/pages/search/utils";
 
 import type { Business, SearchResult } from "@/pages/search/types";
 
@@ -98,7 +95,7 @@ const SearchPage = () => {
   const [subcategories, setSubcategories] = useState<SubcategoryRef[]>([]);
   const [badgeSubcategories, setBadgeSubcategories] = useState<BadgeSubcategoryRef[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeEasterEggNames, setActiveEasterEggNames] = useState<Set<string>>(new Set());
+  
   const [currentPage, setCurrentPage] = useState(1);
   const cityFromUrl = searchParams.get("city") || "";
   const [selectedCity, setSelectedCity] = useState<string>(cityFromUrl || "all");
@@ -136,15 +133,11 @@ const SearchPage = () => {
     }
   }, [searchParams]);
 
-  // Fetch active easter eggs once
-  useEffect(() => {
-    supabase.from("easter_eggs").select("name, is_active").eq("is_active", true).then(({ data }) => {
-      if (data) setActiveEasterEggNames(new Set(data.map((e: any) => e.name)));
-    });
-  }, []);
+
+
 
   const categoryFromUrl = searchParams.get("category") || "";
-  const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
+  
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
   const [aiAnswerText, setAiAnswerText] = useState<string>("");
   const [poiAiText, setPoiAiText] = useState<string>("");
@@ -1580,23 +1573,8 @@ const SearchPage = () => {
     })();
   }, [allBusinesses]);
 
-  // Fetch celebrity businesses on mount (used when celebrity query detected)
-  useEffect(() => {
-    supabase
-      .from("businesses")
-      .select("*")
-      .in("id", CELEBRITY_IDS)
-      .then(({ data }) => {
-        if (data) {
-          // Preserve the manual ordering from CELEBRITY_IDS
-          const ordered = CELEBRITY_IDS
-            .map(id => data.find(b => b.id === id))
-            .filter(Boolean)
-            .map(b => ({ ...b, distance_km: null })) as Business[];
-          setCelebrityBusinesses(ordered);
-        }
-      });
-  }, []);
+
+
 
   // Build rich TTS description for a business
   const buildBusinessTTSLine = useCallback((b: Business, index: number) => {
@@ -1804,10 +1782,6 @@ const SearchPage = () => {
     setStickyAiVisibleWordIndex(Number.MAX_SAFE_INTEGER);
   }, [stickyAiAnimationNonce, stickyAiText, stickyAiWordCount, isAiRegenerating]);
 
-  const showZitounEasterEgg = !isLoading && activeEasterEggNames.has("Zitoun Musk") && isZitounMask(spokenText || searchQuery);
-  const showCelebrityGuide = !isLoading && activeEasterEggNames.has("Célébrités") && isCelebrityQuery(spokenText || searchQuery);
-  const showSosMedecin = activeEasterEggNames.has("SOS Médecin") && isSosMedecinQuery(spokenText || searchQuery);
-  const showPompiers = activeEasterEggNames.has("Pompiers") && isPompiersQuery(spokenText || searchQuery);
 
   return (
     <div className="min-h-screen bg-white" style={{ overflowX: 'clip' }}>
@@ -2681,11 +2655,6 @@ const SearchPage = () => {
           filteredBusinesses={filteredBusinesses}
           paginatedBusinesses={paginatedBusinesses}
           businessLabelLogos={businessLabelLogos}
-          celebrityBusinesses={celebrityBusinesses}
-          gammes={gammes}
-          badges={badges}
-          subcategories={subcategories}
-          badgeSubcategories={badgeSubcategories}
           mapPoiItems={mapPoiItems}
           mapCenterForResults={mapCenterForResults}
           hoveredResultId={hoveredResultId}
@@ -2701,10 +2670,6 @@ const SearchPage = () => {
           spokenText={spokenText}
           activeTimeSlot={activeTimeSlot}
           language={language}
-          showZitounEasterEgg={showZitounEasterEgg}
-          showCelebrityGuide={showCelebrityGuide}
-          showSosMedecin={showSosMedecin}
-          showPompiers={showPompiers}
           openCompactPanel={openCompactPanel}
           getDistanceKm={getDistanceKm}
           setShowMobileMap={setShowMobileMap}
