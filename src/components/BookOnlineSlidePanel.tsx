@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { DesktopMediaArrows, CardsToggleButton, useOwnerLogo } from "@/components/CardsVisibilityToggle";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
-import { MapPin, ChevronUp, X, CalendarCheck, Star, Loader2, Expand } from "lucide-react";
+import { MapPin, ChevronUp, X, CalendarCheck, Star, Loader2, Expand, Plus } from "lucide-react";
 import VideoControls from "@/components/VideoControls";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 import { supabase } from "@/integrations/supabase/client";
@@ -1386,8 +1386,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             <div className="relative z-20 shrink-0">
               <div className="flex items-center gap-1.5 px-2 py-2 bg-black/40 backdrop-blur-md border-t border-white/10">
                 {images.slice(0, 5).map((img, i) => (
-                  <div key={i} className={`flex-1 min-w-0 aspect-[3/2] rounded-md overflow-hidden ${i >= 3 ? 'hidden md:block' : ''} ${i >= 4 ? 'md:hidden lg:block' : ''}`}>
+                  <div key={i} className={`relative flex-1 min-w-0 aspect-[3/2] rounded-md overflow-hidden ${i >= 3 ? 'hidden md:block' : ''} ${i >= 4 ? 'md:hidden lg:block' : ''}`}>
                     <img src={img} alt={`${business?.name} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                      <Plus className="h-6 w-6 text-white drop-shadow-lg" strokeWidth={3} />
+                    </div>
                   </div>
                 ))}
               </div>
