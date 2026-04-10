@@ -1,10 +1,11 @@
 import { useRef, useState, useCallback, useEffect } from "react";
-import { Building2, ChevronLeft, ChevronRight, Map, Clock, MapPin } from "lucide-react";
+import { Building2, ChevronLeft, ChevronRight, Map, Clock, MapPin, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SearchResultCard from "@/components/SearchResultCard";
 import AISuggestionCard from "@/components/AISuggestionCard";
 import PoiGoogleMap from "@/components/PoiGoogleMap";
 import type { PoiMapItem } from "@/components/PoiGoogleMap";
+import PanelSearchBar from "@/components/PanelSearchBar";
 import type { BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import type { Business } from "@/pages/search/types";
 import type { TimeSlot } from "@/lib/timeSlots";
@@ -15,6 +16,10 @@ export interface ResultsTabContentProps {
   compactPanelBusiness: AIBusinessData | null;
   hasKnownLocation: boolean;
   hideResultsMap: boolean;
+  setHideResultsMap: (v: boolean) => void;
+  mapPanelCloseTrigger: number;
+  onSearchNavigate: (params: Record<string, string>) => void;
+  onBusinessSelect: (bizId: string) => void;
   isCategoryFilterActive: boolean;
   isMobile: boolean;
   isSubDesktop: boolean;
@@ -59,6 +64,10 @@ export default function ResultsTabContent({
   compactPanelBusiness,
   hasKnownLocation,
   hideResultsMap,
+  setHideResultsMap,
+  mapPanelCloseTrigger,
+  onSearchNavigate,
+  onBusinessSelect,
   isCategoryFilterActive,
   isMobile,
   isSubDesktop,
@@ -223,6 +232,12 @@ export default function ResultsTabContent({
         {/* Right side: Sticky Google Map when city/neighborhood known */}
         {hasKnownLocation && !compactPanelBusiness && !hideResultsMap && (
           <div className="w-1/2 sticky top-0 h-screen z-[50] relative overflow-hidden">
+            <button
+              onClick={() => setHideResultsMap(true)}
+              className="absolute top-3 left-3 z-[60] w-8 h-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
             <PoiGoogleMap
               pois={mapPoiItems}
               selectedPoiId={hoveredResultId || compactPanelBusiness?.id || null}
@@ -232,6 +247,11 @@ export default function ResultsTabContent({
               }}
               center={mapCenterForResults}
               fitToMarkers
+            />
+            <PanelSearchBar
+              onSearch={onSearchNavigate}
+              onBusinessSelect={onBusinessSelect}
+              closeTrigger={mapPanelCloseTrigger}
             />
           </div>
         )}

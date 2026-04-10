@@ -2648,6 +2648,22 @@ const SearchPage = () => {
           compactPanelBusiness={compactPanelBusiness}
           hasKnownLocation={hasKnownLocation}
           hideResultsMap={hideResultsMap}
+          setHideResultsMap={setHideResultsMap}
+          mapPanelCloseTrigger={mapPanelCloseTrigger}
+          onSearchNavigate={(params) => {
+            setSelectedCategoryFilter(null);
+            setSelectedSubcategoryFilter(null);
+            setSelectedServiceFilter(null);
+            if (params.q) { setSearchQuery(params.q); setInputValue(params.q); }
+            setActiveTab("suggestions");
+            setSelectedCity("all");
+            setIsGeoCityAutoSelected(false);
+            setSearchParams(params);
+          }}
+          onBusinessSelect={(bizId) => {
+            setCompactPanelBusiness({ id: bizId, name: "" } as any);
+            setIsCompactPanelExpanded(false);
+          }}
           isCategoryFilterActive={isCategoryFilterActive}
           isMobile={isMobile}
           isSubDesktop={isSubDesktop}
