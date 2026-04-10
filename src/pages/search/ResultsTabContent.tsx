@@ -231,8 +231,8 @@ export default function ResultsTabContent({
         </div>
         {/* Right side: Sticky Google Map when city/neighborhood known */}
         {hasKnownLocation && !compactPanelBusiness && !hideResultsMap && (
-          <div className="w-1/2 sticky top-0 h-screen z-[50] relative overflow-hidden">
-            <div className="sticky top-0 z-[60] flex items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-md border-b border-white/10">
+          <div className="w-1/2 sticky top-0 h-screen z-[50] flex flex-col overflow-hidden">
+            <div className="z-[60] flex items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-md border-b border-white/10 shrink-0">
               <button
                 onClick={() => setHideResultsMap(true)}
                 className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 text-white shadow-lg hover:bg-white/30 transition-colors shrink-0"
@@ -243,22 +243,24 @@ export default function ResultsTabContent({
                 {filteredBusinesses.length} {language === "en" ? "results for" : language === "ar" ? "نتائج لـ" : "résultats pour"} "{searchQuery}"
               </span>
             </div>
-            <PoiGoogleMap
-              pois={mapPoiItems}
-              selectedPoiId={hoveredResultId || compactPanelBusiness?.id || null}
-              onPoiClick={(poiId) => {
-                const biz = filteredBusinesses.find(b => b.id === poiId);
-                if (biz) openCompactPanel({ id: biz.id, name: biz.name } as AIBusinessData);
-              }}
-              center={mapCenterForResults}
-              fitToMarkers
-            />
-            <PanelSearchBar
-              onSearch={onSearchNavigate}
-              onBusinessSelect={onBusinessSelect}
-              closeTrigger={mapPanelCloseTrigger}
-              noToolbarOffset
-            />
+            <div className="flex-1 relative min-h-0">
+              <PoiGoogleMap
+                pois={mapPoiItems}
+                selectedPoiId={hoveredResultId || compactPanelBusiness?.id || null}
+                onPoiClick={(poiId) => {
+                  const biz = filteredBusinesses.find(b => b.id === poiId);
+                  if (biz) openCompactPanel({ id: biz.id, name: biz.name } as AIBusinessData);
+                }}
+                center={mapCenterForResults}
+                fitToMarkers
+              />
+              <PanelSearchBar
+                onSearch={onSearchNavigate}
+                onBusinessSelect={onBusinessSelect}
+                closeTrigger={mapPanelCloseTrigger}
+                noToolbarOffset
+              />
+            </div>
           </div>
         )}
       </div>
