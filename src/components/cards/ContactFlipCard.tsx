@@ -68,6 +68,16 @@ const ContactFlipCard = ({
           style={{ backfaceVisibility: "hidden" }}
         >
           <div className="space-y-2.5 text-sm">
+            {/* Opening hours shown first */}
+            {hasOpeningHours && !business.is_open_24h && <OpeningHoursBlock business={business} language={language} />}
+            {openBadgeInfo?.text && (
+              <div className="flex justify-center mt-2">
+                <div className={`flex items-center gap-1 rounded-full py-1 px-3 text-[10px] font-bold uppercase tracking-wider ${openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"}`}>
+                  <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
+                  {openBadgeInfo.text}
+                </div>
+              </div>
+            )}
             {business.phone && !business.whatsapp && (
               <a
                 href={`tel:${cleanPhone(business.phone)}`}
