@@ -41,7 +41,7 @@ const FicheImmersive = () => {
   }
 
   if (businessId) {
-    return <Navigate to={`/recherche?openBusiness=${businessId}`} replace />;
+    return <Navigate to={`/search?openBusiness=${businessId}`} replace />;
   }
 
   return null;
