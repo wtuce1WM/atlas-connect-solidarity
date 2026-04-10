@@ -933,7 +933,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       dangerouslySetInnerHTML={{ __html: woDescription }}
                     />
                   </div>
-                  {woDescription.replace(/<[^>]*>/g, "").length > 1500 && (
+                  {woDescription.replace(/<[^>]*>/g, "").length > 1000 && (
                     <button
                       onClick={() => setShowDescriptionOverlay(true)}
                       className="absolute bottom-3 right-3 h-9 w-9 flex items-center justify-center rounded-full bg-white/25 hover:bg-white/35 transition-colors backdrop-blur-md z-10 shadow-[0_0_8px_4px_rgba(0,0,0,0.2)]"
