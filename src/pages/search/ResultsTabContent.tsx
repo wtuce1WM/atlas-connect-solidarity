@@ -99,9 +99,9 @@ export default function ResultsTabContent({
   return (
     <section
       ref={resultsRef}
-      className={`bg-white pb-6 lg:pb-4 transition-all duration-300 [overflow-anchor:none] ${compactPanelBusiness ? "w-full lg:w-1/2" : "w-full"}`}
+      className={`bg-white pb-6 lg:pb-4 [overflow-anchor:none] ${compactPanelBusiness ? "w-full lg:w-1/2" : "w-full"}`}
     >
-        <div className={hasKnownLocation && !compactPanelBusiness && !hideResultsMap ? "" : ""}>
+        <div className={hasKnownLocation && !compactPanelBusiness && !hideResultsMap ? "flex gap-0" : ""}>
           <div className={`pt-4 ${hasKnownLocation && !compactPanelBusiness && !hideResultsMap ? "w-1/2 overflow-visible" : "w-full"} mx-auto px-4 ${compactPanelBusiness || (hasKnownLocation && !hideResultsMap) ? "max-w-full" : "max-w-full lg:max-w-[80%]"}`}>
           {/* Filters: Time slot indicator */}
           <div className={`${isCategoryFilterActive ? 'mb-3' : 'mb-8'} flex flex-wrap items-center gap-3 ${isMobile ? 'hidden' : ''} ${!activeTimeSlot ? 'lg:mb-0 lg:hidden' : ''}`}>
@@ -231,7 +231,7 @@ export default function ResultsTabContent({
         </div>
         {/* Right side: Sticky Google Map when city/neighborhood known */}
         {hasKnownLocation && !compactPanelBusiness && !hideResultsMap && (
-          <div className="fixed top-0 right-0 w-1/2 h-screen z-[50] overflow-hidden">
+          <div className="w-1/2 sticky top-0 h-screen z-[50] overflow-hidden">
             <div className="relative h-full min-h-0">
               <PoiGoogleMap
                 pois={mapPoiItems}
