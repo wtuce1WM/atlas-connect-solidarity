@@ -2403,8 +2403,7 @@ const SearchPage = () => {
                         // For destinations, close overlay and navigate to destination
                         setShowAiPopup(false);
                         setOverlaySelectedBusiness(null);
-                        const dest = allDestItems.find(d => d.id === b.id);
-                        if (dest) setSelectedDestination(dest);
+                        // Destination click handled by DestinationsTabContent
                       } else {
                         setShowAiPopup(false);
                         setOverlaySelectedBusiness(null);
