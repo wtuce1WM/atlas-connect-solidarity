@@ -116,6 +116,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   
   
   const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(false);
+  const [descGridMode, setDescGridMode] = useState(false);
   const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ url: string; name: string | null; description: string | null } | null>(null);
   const [videoOverlayClosing, setVideoOverlayClosing] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -296,6 +297,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     setVideoOverlayClosing(false);
     setShowPoiMapOverlay(false);
     setShowDescriptionOverlay(false);
+    setDescGridMode(false);
     setPoiMapMode("poi");
     if (infoCarouselRef.current) infoCarouselRef.current.scrollLeft = 0;
     setAvailabilityOverlayCtx(null);
@@ -1377,26 +1379,55 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           {!images[0] && <div className="absolute inset-0 bg-background" />}
           {/* Sticky header — order-[-2] to stay above content */}
           <div className="relative z-30 shrink-0 flex items-center gap-3 px-4 py-3 bg-transparent backdrop-blur-sm border-b border-white/10 order-[-2]">
-            <button onClick={() => setShowDescriptionOverlay(false)} className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0">
+            <button onClick={() => { setShowDescriptionOverlay(false); setDescGridMode(false); }} className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0">
               <X className="h-4 w-4" />
             </button>
             <h2 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] truncate text-white">{business?.name}</h2>
           </div>
           {/* Scrollable content — fills remaining space between header and thumbnails */}
           <div className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain order-[-1]">
-            <div className="px-4 pt-4 pb-6 md:px-6 md:pt-6">
-              <div
-                className="prose max-w-none prose-josefin-headings prose-h2:text-xl prose-h3:text-lg prose-a:text-primary [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold [&_p:empty]:min-h-[1em] [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_table]:border-collapse [&_table]:w-full [&_table]:table-fixed [&_td]:border [&_td]:border-white/20 [&_td]:p-4 [&_td]:align-top [&_td]:text-xs [&_td_img]:w-full [&_td_img]:h-36 [&_td_img]:object-cover [&_td_img]:rounded-md [&_td_img]:block [&_th]:border [&_th]:border-white/20 [&_th]:p-2 [&_th]:bg-white/10 [&_th]:font-semibold [&_img]:max-w-full [&_img]:rounded-md [&_iframe]:max-w-full [&_iframe]:rounded-md [&_mark]:bg-yellow-500/40 [&_mark]:px-0.5 [&_blockquote]:border-l-4 [&_blockquote]:border-white/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_hr]:border-white/20 [&_*]:!text-white prose-headings:!text-white prose-strong:!text-white leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: woDescription }}
-              />
-            </div>
+            {descGridMode ? (
+              <div className="px-2 pt-3 pb-6">
+                <div className="flex items-center justify-between mb-3 px-2">
+                  <span className="text-xs font-medium text-white/70 font-['Josefin_Sans',sans-serif]">Photos</span>
+                  <button
+                    onClick={() => setDescGridMode(false)}
+                    className="h-7 w-7 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {images.slice(0, 15).map((img, i) => (
+                    <div
+                      key={i}
+                      className="relative aspect-square rounded-md overflow-hidden cursor-pointer"
+                      onClick={() => { setLightboxIndex(i); setIsLightboxOpen(true); }}
+                    >
+                      <img src={img} alt={`${business?.name} ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="px-4 pt-4 pb-6 md:px-6 md:pt-6">
+                <div
+                  className="prose max-w-none prose-josefin-headings prose-h2:text-xl prose-h3:text-lg prose-a:text-primary [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold [&_p:empty]:min-h-[1em] [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_table]:border-collapse [&_table]:w-full [&_table]:table-fixed [&_td]:border [&_td]:border-white/20 [&_td]:p-4 [&_td]:align-top [&_td]:text-xs [&_td_img]:w-full [&_td_img]:h-36 [&_td_img]:object-cover [&_td_img]:rounded-md [&_td_img]:block [&_th]:border [&_th]:border-white/20 [&_th]:p-2 [&_th]:bg-white/10 [&_th]:font-semibold [&_img]:max-w-full [&_img]:rounded-md [&_iframe]:max-w-full [&_iframe]:rounded-md [&_mark]:bg-yellow-500/40 [&_mark]:px-0.5 [&_blockquote]:border-l-4 [&_blockquote]:border-white/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_hr]:border-white/20 [&_*]:!text-white prose-headings:!text-white prose-strong:!text-white leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: woDescription }}
+                />
+              </div>
+            )}
           </div>
           {/* Thumbnails strip */}
-          {images.length > 0 && (
+          {images.length > 0 && !descGridMode && (
             <div className="relative z-20 shrink-0">
               <div className="flex items-center gap-1.5 px-2 py-2 bg-transparent backdrop-blur-sm border-t border-white/10">
                 {images.slice(0, 5).map((img, i) => (
-                  <div key={i} className={`relative flex-1 min-w-0 aspect-[3/2] rounded-md overflow-hidden ${i >= 3 ? 'hidden md:block' : ''} ${i >= 4 ? 'md:hidden lg:block' : ''}`}>
+                  <div
+                    key={i}
+                    className={`relative flex-1 min-w-0 aspect-[3/2] rounded-md overflow-hidden cursor-pointer ${i >= 3 ? 'hidden md:block' : ''} ${i >= 4 ? 'md:hidden lg:block' : ''}`}
+                    onClick={() => setDescGridMode(true)}
+                  >
                     <img src={img} alt={`${business?.name} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                       <Plus className="h-6 w-6 text-white drop-shadow-lg" strokeWidth={3} />
