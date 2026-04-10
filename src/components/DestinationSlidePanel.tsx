@@ -611,18 +611,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
             return <BottomTabsCarousel tabs={tabs} activeTab={activeBottomTab} onTabChange={(id) => { bottomTabInitialRef.current = false; setActiveBottomTab(id); }} />;
           })()}
 
-          {/* Owner logo + badge */}
-          <OwnerLogoOverlay logoBigOverlay={logoBigOverlay} logoBigFadingOut={logoBigFadingOut} cardsHidden={cardsHidden} currentMediaUrl={currentMedia?.url} videoDocs={ownerVideoDocs} currentBusinessId={destinationId} />
-          <OwnerBadge
-            cardsHidden={cardsHidden} currentMediaKind={currentMedia?.kind} currentMediaUrl={currentMedia?.url}
-            videoDocs={ownerVideoDocs} currentBusinessId={destinationId}
-            onNavigateToOwner={(ownerId) => {
-              const cv = cityVideos.find(v => v.businessId === ownerId);
-              if (cv?.ownerSlug) navigate(businessUrl({ id: cv.businessId, slug: cv.ownerSlug }));
-            }}
-          />
-
-          {/* CTA + video controls */}
+          {/* CTA + owner logo + badge + video controls */}
           <div className={`${cardsHidden && showSearchBar ? 'absolute bottom-[56px] left-0 right-0 z-[74] pb-[14px] md:pb-[10px]' : 'shrink-0 py-2 lg:pb-2'} flex flex-col items-center gap-2 pointer-events-auto`}>
             {!cardsHidden && destination.latitude && destination.longitude && (
               <div className="w-full md:w-3/4 flex justify-center gap-2">
@@ -638,6 +627,18 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
                 </div>
               </div>
             )}
+
+            {/* Owner logo + badge */}
+            <OwnerLogoOverlay logoBigOverlay={logoBigOverlay} logoBigFadingOut={logoBigFadingOut} cardsHidden={cardsHidden} currentMediaUrl={currentMedia?.url} videoDocs={ownerVideoDocs} currentBusinessId={destinationId} />
+            <OwnerBadge
+              cardsHidden={cardsHidden} currentMediaKind={currentMedia?.kind} currentMediaUrl={currentMedia?.url}
+              videoDocs={ownerVideoDocs} currentBusinessId={destinationId}
+              onNavigateToOwner={(ownerId) => {
+                const cv = cityVideos.find(v => v.businessId === ownerId);
+                if (cv?.ownerSlug) navigate(businessUrl({ id: cv.businessId, slug: cv.ownerSlug }));
+              }}
+            />
+
             {currentMedia?.kind === "video" && (
               <VideoControls type="file" videoRef={videoRef as React.RefObject<HTMLVideoElement>} paused={videoPaused} muted={videoMuted} className="mt-2 md:mt-3 animate-slide-in-right" />
             )}
