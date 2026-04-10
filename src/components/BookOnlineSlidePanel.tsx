@@ -1504,8 +1504,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               {poiMapMode === "destinations"
                 ? (language === "en" ? "Where are you going?" : "Où allez-vous ?")
                 : poiBusinesses.length > 0
-                  ? (language === "en" ? "Nearby points of interest" : "Points d'intérêt à proximité")
-                  : (language === "en" ? "Nearby establishments" : "Établissements à proximité")}
+                  ? (language === "en" ? `Nearby points of interest of ${business?.name}` : `Points d'intérêt à proximité de ${business?.name}`)
+                  : (language === "en" ? `Nearby establishments of ${business?.name}` : `Établissements à proximité de ${business?.name}`)}
             </span>
           </div>
           <div className="flex-1 min-h-0 -mt-[3.25rem]">
