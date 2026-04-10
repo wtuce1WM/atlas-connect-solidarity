@@ -2718,6 +2718,21 @@ serve(async (req) => {
       }
     }
 
+    // ── Suppress neighborhood when it conflicts with a detected subcategory ──
+    // e.g. "plage d'essaouira" → neighborhood "Plage" + subcategory "Plages" both match "plage"
+    // The subcategory intent should take priority; neighborhood filter would empty results.
+    if (detectedNeighborhood && detectedSubcategory) {
+      const nhNorm = stripAccentsGlobal(detectedNeighborhood.toLowerCase().trim());
+      const scNorm = stripAccentsGlobal(detectedSubcategory.toLowerCase().trim());
+      // Check if neighborhood name is a substring/stem of the subcategory or vice versa
+      const nhBase = nhNorm.replace(/s$/, "");
+      const scBase = scNorm.replace(/s$/, "");
+      if (nhBase === scBase || nhNorm === scBase || nhBase === scNorm) {
+        console.log(`Suppressed neighborhood "${detectedNeighborhood}" — conflicts with subcategory "${detectedSubcategory}"`);
+        (detectedNeighborhood as any) = null;
+      }
+    }
+
     // When a service was detected, build a clean query for tsquery matching.
     // Remove noise words (like "achat") that don't exist in search vectors, keep service name + city etc.
     let queryForExpansion = effectiveQuery;
