@@ -54,9 +54,8 @@ import { useSearchHistory } from "@/hooks/useSearchHistory";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import PoiTabContent from "@/pages/search/PoiTabContent";
 import DestinationsTabContent from "@/pages/search/DestinationsTabContent";
-import CelebrityGuide from "@/pages/search/CelebrityGuide";
 import ResultsTabContent from "@/pages/search/ResultsTabContent";
-import { normalizeSearchMode, isZitounMask, isSosMedecinQuery, isPompiersQuery, isCelebrityQuery, normalizeText as normalizeTextUtil, formatDateFr, ITEMS_PER_PAGE, SERVER_PAGE_SIZE, CELEBRITY_IDS } from "@/pages/search/utils";
+import { normalizeSearchMode, normalizeText as normalizeTextUtil, formatDateFr, ITEMS_PER_PAGE, SERVER_PAGE_SIZE } from "@/pages/search/utils";
 
 import type { Business, SearchResult } from "@/pages/search/types";
 
