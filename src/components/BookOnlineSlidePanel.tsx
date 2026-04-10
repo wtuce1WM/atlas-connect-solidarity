@@ -1371,12 +1371,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               className="absolute inset-0 bg-cover bg-center"
               style={{ backgroundImage: `url(${images[0]})` }}
             >
-              <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+              <div className="absolute inset-0 bg-black/50" />
             </div>
           )}
           {!images[0] && <div className="absolute inset-0 bg-background" />}
           {/* Sticky header — order-[-2] to stay above content */}
-          <div className="relative z-30 shrink-0 flex items-center gap-3 px-4 py-3 bg-black/60 backdrop-blur-md border-b border-white/10 order-[-2]">
+          <div className="relative z-30 shrink-0 flex items-center gap-3 px-4 py-3 bg-black/30 backdrop-blur-md border-b border-white/10 order-[-2]">
             <button onClick={() => setShowDescriptionOverlay(false)} className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0">
               <X className="h-4 w-4" />
             </button>
@@ -1394,7 +1394,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           {/* Thumbnails strip */}
           {images.length > 0 && (
             <div className="relative z-20 shrink-0">
-              <div className="flex items-center gap-1.5 px-2 py-2 bg-black/60 backdrop-blur-md border-t border-white/10">
+              <div className="flex items-center gap-1.5 px-2 py-2 bg-black/30 backdrop-blur-md border-t border-white/10">
                 {images.slice(0, 5).map((img, i) => (
                   <div key={i} className={`relative flex-1 min-w-0 aspect-[3/2] rounded-md overflow-hidden ${i >= 3 ? 'hidden md:block' : ''} ${i >= 4 ? 'md:hidden lg:block' : ''}`}>
                     <img src={img} alt={`${business?.name} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
