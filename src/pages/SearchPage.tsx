@@ -665,14 +665,7 @@ const SearchPage = () => {
      return () => observer.disconnect();
    }, [searchQuery, allBusinesses.length]);
 
-  const normalizeText = (value: string) =>
-    value
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9\s]/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
+  const normalizeText = normalizeTextUtil;
 
   // Detect country-level terms (e.g. "maroc", "morocco") → national scope, no city filter
   const queryHasCountryScope = useMemo(() => {
