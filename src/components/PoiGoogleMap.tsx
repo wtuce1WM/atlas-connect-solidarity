@@ -202,7 +202,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       const shortName = this.name.length > 22 ? this.name.slice(0, 20) + "…" : this.name;
 
       const pinHtml = this.highlighted
-        ? `<img src="${goldPinUrl}" style="width:32px;height:auto;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));margin-bottom:-2px;" />`
+        ? `<img src="${goldPinUrl}" style="width:32px;height:auto;filter:brightness(1.1) sepia(1) saturate(3) hue-rotate(-10deg) drop-shadow(0 2px 4px rgba(0,0,0,0.4));margin-bottom:-2px;" />`
         : "";
 
       const labelHtml = `<div style="
