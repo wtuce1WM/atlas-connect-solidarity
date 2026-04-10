@@ -366,22 +366,7 @@ export function useBookOnlineData(businessId: string) {
         const poiIds = ((poiLinks || []) as { poi_business_id: string }[]).map((p) => p.poi_business_id);
 
         if (poiIds.length === 0) {
-          // Fallback: fetch all POIs from the same city
-          const bizCity = biz?.city;
-          if (bizCity) {
-            const { data: cityPois } = await supabase
-              .from("businesses")
-              .select("id, name, images, logo_url, latitude, longitude, city, neighborhood")
-              .eq("is_active", true)
-              .eq("is_poi", true)
-              .eq("city", bizCity)
-              .neq("id", businessId)
-              .order("priority_score", { ascending: false })
-              .limit(50);
-            if (!isCancelled) setPoiBusinesses((cityPois || []) as PoiBusiness[]);
-          } else {
-            if (!isCancelled) setPoiBusinesses([]);
-          }
+          if (!isCancelled) setPoiBusinesses([]);
           return;
         }
 
