@@ -231,7 +231,7 @@ export default function ResultsTabContent({
         </div>
         {/* Right side: Sticky Google Map when city/neighborhood known */}
         {hasKnownLocation && !compactPanelBusiness && !hideResultsMap && (
-          <div className="w-1/2 sticky top-0 h-screen z-[50] overflow-hidden">
+          <div className="fixed top-0 right-0 w-1/2 h-screen z-[50] overflow-hidden">
             <div className="relative h-full min-h-0">
               <PoiGoogleMap
                 pois={mapPoiItems}
