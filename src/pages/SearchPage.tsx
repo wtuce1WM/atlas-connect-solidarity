@@ -2698,7 +2698,7 @@ const SearchPage = () => {
       {isSubDesktop && showMobileMap && (
         <div className="fixed inset-0 z-[201] bg-background animate-slide-in-right lg:hidden">
           {activeTab === "suggestions" ? (
-            <div className="absolute top-0 left-0 right-0 z-[90] flex items-center gap-3 px-3 py-3 backdrop-blur-sm">
+            <div className="absolute top-0 left-0 right-0 z-[80] flex items-center gap-3 px-3 py-3 backdrop-blur-sm">
               <button
                 onClick={() => setShowMobileMap(false)}
                 className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black shadow-lg shrink-0"
