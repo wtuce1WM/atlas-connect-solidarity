@@ -99,7 +99,27 @@ export default function ResultsTabContent({
   setShowMobileMap,
   setShowAiPopup,
   t,
+  effectiveCity,
+  onFrontStructureFilter,
 }: ResultsTabContentProps) {
+  const { tabs: frontTabs } = useFrontStructureTabs(effectiveCity || null);
+  const [activeFsTabId, setActiveFsTabId] = useState<string | null>(null);
+
+  const handleFsTabClick = (tabId: string | null) => {
+    setActiveFsTabId(tabId);
+    if (!tabId) {
+      onFrontStructureFilter?.(null);
+    } else {
+      const tab = frontTabs.find(t => t.id === tabId);
+      onFrontStructureFilter?.(tab?.subcategoryNames || null);
+    }
+  };
+
+  // Reset active tab when city changes
+  useEffect(() => {
+    setActiveFsTabId(null);
+  }, [effectiveCity]);
+
   return (
     <section
       ref={resultsRef}
