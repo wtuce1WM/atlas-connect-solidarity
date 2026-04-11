@@ -62,6 +62,18 @@ const RichTextEditor = ({ content, onChange, placeholder, maxHeight }: RichTextE
         class:
           "prose prose-sm prose-josefin-headings max-w-none min-h-[300px] p-3 focus:outline-none [&_table]:border-collapse [&_td]:border [&_td]:border-border [&_td]:p-2 [&_th]:border [&_th]:border-border [&_th]:p-2 [&_th]:bg-muted [&_img]:max-w-full [&_img]:rounded-md [&_iframe]:max-w-full [&_iframe]:rounded-md",
       },
+      transformPastedHTML(html) {
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        doc.querySelectorAll("[style]").forEach((el) => {
+          const s = (el as HTMLElement).style;
+          s.removeProperty("color");
+          s.removeProperty("background-color");
+          s.removeProperty("background");
+          if (!s.length) el.removeAttribute("style");
+        });
+        doc.querySelectorAll("font[color]").forEach((el) => el.removeAttribute("color"));
+        return doc.body.innerHTML;
+      },
     },
   });
 
