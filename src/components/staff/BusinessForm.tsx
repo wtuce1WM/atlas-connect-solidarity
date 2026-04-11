@@ -2809,7 +2809,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 value={formData.website}
                 onChange={(e) => handleChange("website", e.target.value)}
                 placeholder="https://"
-                className="w-48 min-w-0 shrink"
+                className="w-1/3 min-w-0 shrink-0"
               />
               {formData.website && (
                 <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("website", "")}>
@@ -2900,7 +2900,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 value={formData.reserve_now_url}
                 onChange={(e) => handleChange("reserve_now_url", e.target.value)}
                 placeholder="https://"
-                className="w-48 min-w-0 shrink"
+                className="w-1/3 min-w-0 shrink-0"
               />
               {formData.reserve_now_url && (
                 <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("reserve_now_url", "")}>
@@ -2978,7 +2978,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 value={formData.online_shop_url}
                 onChange={(e) => handleChange("online_shop_url", e.target.value)}
                 placeholder="https://"
-                className="w-48 min-w-0 shrink"
+                className="w-1/3 min-w-0 shrink-0"
               />
               {formData.online_shop_url && (
                 <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("online_shop_url", "")}>
