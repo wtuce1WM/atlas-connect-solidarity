@@ -1380,7 +1380,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               className="absolute inset-0 bg-cover bg-center"
               style={{ backgroundImage: `url(${images[0]})` }}
             >
-              <div className="absolute inset-0 bg-black/50" />
+              <div className={`absolute inset-0 transition-colors duration-300 ${descGridMode ? 'bg-black/75' : 'bg-black/50'}`} />
             </div>
           )}
           {!images[0] && <div className="absolute inset-0 bg-background" />}
