@@ -21,6 +21,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface EventRow {
   id: string;
@@ -176,31 +187,50 @@ const EventManagement = () => {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-10"></TableHead>
               <TableHead>Nom</TableHead>
               <TableHead>Hook</TableHead>
               <TableHead>Début</TableHead>
               <TableHead>Fin</TableHead>
               <TableHead>KP</TableHead>
-              <TableHead className="w-24">Actions</TableHead>
+              <TableHead className="w-12"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {events.map(ev => (
               <TableRow key={ev.id}>
+                <TableCell>
+                  <Button size="icon" variant="ghost" onClick={() => openEdit(ev)}>
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </TableCell>
                 <TableCell className="font-medium">{ev.name}</TableCell>
                 <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">{ev.hook}</TableCell>
                 <TableCell className="text-sm">{ev.start_date || "—"}</TableCell>
                 <TableCell className="text-sm">{ev.end_date || "—"}</TableCell>
                 <TableCell className="text-sm">{ev.kp_regroupement?.length || 0}</TableCell>
                 <TableCell>
-                  <div className="flex gap-1">
-                    <Button size="icon" variant="ghost" onClick={() => openEdit(ev)}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button size="icon" variant="ghost" onClick={() => handleDelete(ev.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button size="icon" variant="ghost">
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Supprimer cet événement ?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          L'événement « {ev.name} » sera supprimé définitivement. Cette action est irréversible.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Annuler</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDelete(ev.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                          Supprimer
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </TableCell>
               </TableRow>
             ))}
