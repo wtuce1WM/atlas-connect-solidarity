@@ -1386,64 +1386,67 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               <X className="h-4 w-4" />
             </button>
             <h2 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] truncate text-white flex-1">{business?.name}</h2>
-            {descGridMode && images.length > 15 && (
-              <button
-                onClick={() => { playWoosh(wooshSfx); setDescGridPage(p => p === 0 ? 1 : 0); }}
-                className="h-8 w-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors shrink-0"
-                title={descGridPage === 0 ? "Voir plus de photos" : "Retour"}
-              >
-                <RefreshCw className="h-4 w-4" />
-              </button>
-            )}
           </div>
           {/* Scrollable content — fills remaining space between header and thumbnails */}
           <div className="relative z-10 flex-1 min-h-0 order-[-1]" style={{ perspective: "1200px" }}>
-            {descGridMode ? (
-              <div
-                className="w-full h-full"
-                style={{
-                  transformStyle: "preserve-3d",
-                  transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
-                  transform: descGridPage === 0 ? "rotateY(0deg)" : "rotateY(180deg)",
-                }}
-              >
-                {/* Front face — images 1-15 */}
-                <div className="absolute inset-0 overflow-y-auto overscroll-contain" style={{ backfaceVisibility: "hidden" }}>
-                  <div className="px-2 pt-3 pb-[70px]">
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5">
-                      {images.slice(0, 15).map((img, i) => (
-                        <div
-                          key={`front-${i}`}
-                          className="relative aspect-square rounded-md overflow-hidden cursor-pointer"
-                          onClick={() => { const mi = mediaItems.findIndex(m => m.kind === "image" && m.url === img); setLightboxIndex(mi >= 0 ? mi : i); setIsLightboxOpen(true); }}
-                        >
-                          <img src={img} alt={`${business?.name} ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
+            {descGridMode ? (() => {
+              const GRID_PAGE_SIZE = 9;
+              const totalGridPages = Math.ceil(images.length / GRID_PAGE_SIZE);
+              const currentPageImages = images.slice(descGridPage * GRID_PAGE_SIZE, (descGridPage + 1) * GRID_PAGE_SIZE);
+              const globalOffset = descGridPage * GRID_PAGE_SIZE;
+              return (
+                <div className="w-full h-full flex flex-col">
+                  <div className="flex-1 min-h-0 relative" style={{ perspective: "1200px" }}>
+                    <div
+                      key={descGridPage}
+                      className="absolute inset-0 overflow-y-auto overscroll-contain"
+                      style={{
+                        animation: "desc-grid-flip 0.5s cubic-bezier(0.4, 0, 0.2, 1) both",
+                      }}
+                    >
+                      <div className="px-2 pt-3 pb-[70px]">
+                        <div className="grid grid-cols-3 gap-1.5">
+                          {currentPageImages.map((img, i) => {
+                            const realIndex = globalOffset + i;
+                            return (
+                              <div
+                                key={`grid-${realIndex}`}
+                                className="relative aspect-square rounded-lg overflow-hidden cursor-pointer"
+                                onClick={() => { const mi = mediaItems.findIndex(m => m.kind === "image" && m.url === img); setLightboxIndex(mi >= 0 ? mi : realIndex); setIsLightboxOpen(true); }}
+                              >
+                                <img src={img} alt={`${business?.name} ${realIndex + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
+                              </div>
+                            );
+                          })}
                         </div>
-                      ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-                {/* Back face — images 16-30 */}
-                <div className="absolute inset-0 overflow-y-auto overscroll-contain" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
-                  <div className="px-2 pt-3 pb-[70px]">
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5">
-                      {images.slice(15, 30).map((img, i) => {
-                        const realIndex = i + 15;
-                        return (
-                          <div
-                            key={`back-${i}`}
-                            className="relative aspect-square rounded-md overflow-hidden cursor-pointer"
-                            onClick={() => { const mi = mediaItems.findIndex(m => m.kind === "image" && m.url === img); setLightboxIndex(mi >= 0 ? mi : realIndex); setIsLightboxOpen(true); }}
-                          >
-                            <img src={img} alt={`${business?.name} ${realIndex + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
-                          </div>
-                        );
-                      })}
+                  {/* Pagination controls */}
+                  {totalGridPages > 1 && (
+                    <div className="shrink-0 flex items-center justify-center gap-3 py-3 bg-transparent backdrop-blur-sm border-t border-white/10">
+                      <button
+                        onClick={() => { playWoosh(wooshSfx); setDescGridPage(p => p - 1); }}
+                        disabled={descGridPage === 0}
+                        className="h-8 w-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </button>
+                      <span className="text-white text-xs font-medium font-['Josefin_Sans',sans-serif]">
+                        {descGridPage + 1} / {totalGridPages}
+                      </span>
+                      <button
+                        onClick={() => { playWoosh(wooshSfx); setDescGridPage(p => p + 1); }}
+                        disabled={descGridPage >= totalGridPages - 1}
+                        className="h-8 w-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
                     </div>
-                  </div>
+                  )}
                 </div>
-              </div>
-            ) : (
+              );
+            })() : (
               <div className="w-full h-full overflow-y-auto overscroll-contain">
                 <div className="px-4 pt-4 pb-6 md:px-6 md:pt-6">
                   <div
@@ -1462,7 +1465,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   <div
                     key={i}
                     className={`relative flex-1 min-w-0 aspect-[3/2] rounded-md overflow-hidden cursor-pointer ${i >= 3 ? 'hidden md:block' : ''} ${i >= 4 ? 'md:hidden lg:block' : ''}`}
-                    onClick={() => setDescGridMode(true)}
+                    onClick={() => { setDescGridMode(true); setDescGridPage(0); }}
                   >
                     <img src={img} alt={`${business?.name} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/30">
