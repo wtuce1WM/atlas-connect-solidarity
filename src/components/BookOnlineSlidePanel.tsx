@@ -1405,8 +1405,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                         animationName: "descGridFlip",
                       }}
                     >
-                      }}
-                    >
                       <div className="px-2 pt-3 pb-[70px]">
                         <div className="grid grid-cols-3 gap-1.5">
                           {currentPageImages.map((img, i) => {
