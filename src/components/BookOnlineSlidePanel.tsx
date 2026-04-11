@@ -1480,7 +1480,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             const groups: { key: string; icon: React.ReactNode; items: { label: string; logo?: string | null; onClick: () => void }[] }[] = [];
             if (menuDocs.length > 0) groups.push({
               key: 'menu',
-              icon: <span className="flex items-center justify-center w-4 h-4">{categoryIcon ? <DynamicIcon name={categoryIcon} size={14} /> : <Newspaper className="h-3.5 w-3.5" />}</span>,
+              icon: <span className="flex items-center justify-center w-5 h-5">{categoryIcon ? <DynamicIcon name={categoryIcon} size={18} /> : <Newspaper className="h-[18px] w-[18px]" />}</span>,
               items: menuDocs.map(doc => ({ label: doc.name || 'Menu', onClick: () => { setShowDescriptionOverlay(false); setTimeout(() => openDocOrBooking(doc.url, doc.name || 'Menu'), 150); } })),
             });
             if (menuSummaries.length > 0) groups.push({
