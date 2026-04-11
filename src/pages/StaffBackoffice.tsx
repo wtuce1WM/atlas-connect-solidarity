@@ -266,7 +266,7 @@ const StaffBackoffice = () => {
         }
         if (docs && (docs as any[]).length > 0) {
           await supabase.from("business_documents" as any).insert(
-            (docs as any[]).map((d: any) => ({ business_id: data.id, type: d.type, url: d.url, name: d.name, language: d.language, icon: d.icon, sort_order: d.sort_order, poi_id: d.poi_id, destination_id: d.destination_id }))
+            (docs as any[]).map((d: any) => ({ business_id: data.id, type: d.type, url: d.url, name: d.name, language: d.language, icon: d.icon, sort_order: d.sort_order, poi_id: d.poi_id, destination_id: d.destination_id, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: d.popup || false, force_external: d.force_external || false, start_date: d.start_date || null, end_date: d.end_date || null, show_on_front: d.show_on_front || false, front_sort_order: d.front_sort_order || 0 }))
           );
         }
         if (destinations && destinations.length > 0) {
