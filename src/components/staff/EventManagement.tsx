@@ -145,6 +145,7 @@ const EventManagement = () => {
       videos: form.videos,
       kp_regroupement: form.kp_regroupement,
       logo_url: form.logo_url || null,
+      type: form.type || null,
     };
 
     let error;
