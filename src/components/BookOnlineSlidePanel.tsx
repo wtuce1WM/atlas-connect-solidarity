@@ -1487,7 +1487,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             if (menuSummaries.length > 0) groups.push({
               key: 'ai',
               icon: <Sparkles className="h-[22px] w-[22px]" />,
-              items: menuSummaries.map(ms => ({ label: ms.title || 'Menu IA', onClick: () => { setShowDescriptionOverlay(false); } })),
+              items: menuSummaries.map(ms => ({ label: ms.title || 'Menu IA', onClick: () => { setDescOverlayContent({ html: ms.content || '', title: ms.title || 'Menu IA' }); setDescGridMode(false); setSidebarOpenGroup(null); } })),
             });
             if (externalLinks.length > 0) groups.push({
               key: 'ext',
