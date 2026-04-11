@@ -1411,7 +1411,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               const currentPageImages = images.slice(descGridPage * GRID_PAGE_SIZE, (descGridPage + 1) * GRID_PAGE_SIZE);
               const globalOffset = descGridPage * GRID_PAGE_SIZE;
               return (
-                <div className="w-full h-full flex flex-col items-center">
+                <div className="w-full h-full flex flex-col items-center overflow-hidden">
                   <div className="flex-1" />
                   {totalGridPages > 1 && (
                     <div className="flex items-center gap-3 mb-auto">
