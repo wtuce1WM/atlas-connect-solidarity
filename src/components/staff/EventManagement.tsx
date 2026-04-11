@@ -299,7 +299,7 @@ const EventManagement = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6">
-          {/* Left column: fields */}
+          {/* Left column: Nom, Type, Hook */}
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -341,45 +341,13 @@ const EventManagement = () => {
                 )}
               </div>
             </div>
-
             <div>
               <Label>Hook</Label>
               <Input value={form.hook} onChange={e => setForm(p => ({ ...p, hook: e.target.value }))} />
             </div>
-
-            {/* Dates + KP on same row */}
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <Label>Date de début</Label>
-                <Input type="date" value={form.start_date} onChange={e => setForm(p => ({ ...p, start_date: e.target.value }))} />
-              </div>
-              <div>
-                <Label>Date de fin</Label>
-                <Input type="date" value={form.end_date} onChange={e => setForm(p => ({ ...p, end_date: e.target.value }))} />
-              </div>
-              <div>
-                <Label>KP Regroupement ({form.kp_regroupement.length}/20)</Label>
-                <Input
-                  placeholder="Code KP puis Entrée"
-                  value={kpInput}
-                  onChange={e => setKpInput(e.target.value)}
-                  onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addKp(kpInput); } }}
-                />
-              </div>
-            </div>
-            {form.kp_regroupement.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {form.kp_regroupement.map((kp, i) => (
-                  <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-0.5 rounded text-sm">
-                    {kp}
-                    <button type="button" onClick={() => removeKp(i)} className="text-muted-foreground hover:text-destructive">×</button>
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
 
-          {/* Right column: Logo only */}
+          {/* Right column: Logo */}
           <div className="space-y-2 w-48">
             <Label className="text-base font-semibold">Logo</Label>
             <LogoUploader
@@ -388,6 +356,37 @@ const EventManagement = () => {
             />
           </div>
         </div>
+
+        {/* Full-width: Dates + KP */}
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <Label>Date de début</Label>
+            <Input type="date" value={form.start_date} onChange={e => setForm(p => ({ ...p, start_date: e.target.value }))} />
+          </div>
+          <div>
+            <Label>Date de fin</Label>
+            <Input type="date" value={form.end_date} onChange={e => setForm(p => ({ ...p, end_date: e.target.value }))} />
+          </div>
+          <div>
+            <Label>KP Regroupement ({form.kp_regroupement.length}/20)</Label>
+            <Input
+              placeholder="Code KP puis Entrée"
+              value={kpInput}
+              onChange={e => setKpInput(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addKp(kpInput); } }}
+            />
+          </div>
+        </div>
+        {form.kp_regroupement.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {form.kp_regroupement.map((kp, i) => (
+              <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-0.5 rounded text-sm">
+                {kp}
+                <button type="button" onClick={() => removeKp(i)} className="text-muted-foreground hover:text-destructive">×</button>
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Full-width: Description, Images, Videos */}
         <div className="space-y-6">
