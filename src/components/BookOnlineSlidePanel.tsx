@@ -1411,9 +1411,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               const currentPageImages = images.slice(descGridPage * GRID_PAGE_SIZE, (descGridPage + 1) * GRID_PAGE_SIZE);
               const globalOffset = descGridPage * GRID_PAGE_SIZE;
               return (
-                <div className="w-full h-full flex flex-col items-center justify-center">
+                <div className="w-full h-full flex flex-col items-center">
+                  <div className="flex-1" />
                   {totalGridPages > 1 && (
-                    <div className="flex items-center gap-3 mb-3">
+                    <div className="flex items-center gap-3 mb-auto">
                       <button
                         onClick={() => { playWoosh(wooshSfx); setDescGridPage(p => p - 1); }}
                         disabled={descGridPage === 0}
@@ -1433,6 +1434,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       </button>
                     </div>
                   )}
+                  <div className="flex-1" />
                   <div className="w-full max-w-2xl px-3 relative" style={{ perspective: "1200px" }}>
                     <div
                       key={descGridPage}
