@@ -3128,6 +3128,17 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                       handleChange("region", selectedCity.region);
                     }
                     handleChange("neighborhood", "");
+                    // Auto-assign destination for Marrakech / Essaouira
+                    const CITY_DESTINATION_MAP: Record<string, string> = {
+                      "Marrakech": "d0bb2ac7-9fee-4e1d-8625-b23e1d28aa9e",
+                      "Essaouira": "3947db1f-daaa-4f7f-a617-e5988d9d86db",
+                    };
+                    const autoDestId = CITY_DESTINATION_MAP[value];
+                    if (autoDestId) {
+                      setSelectedDestinationIds(prev =>
+                        prev.includes(autoDestId) ? prev : [...prev, autoDestId]
+                      );
+                    }
                   }
                 }}
               >
