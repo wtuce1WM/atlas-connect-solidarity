@@ -546,7 +546,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   }, [effectiveMedia?.kind, effectiveMedia?.url, business?.default_sound_on]);
 
   const [isFileVideoVertical, setIsFileVideoVertical] = useState(false);
+  const [isFileVideoSquare, setIsFileVideoSquare] = useState(false);
   const isVerticalVideo = videoInfo ? (videoInfo.type === "file" ? isFileVideoVertical : videoInfo.isVertical) : false;
+  const isSquareVideo = videoInfo?.type === "file" && isFileVideoSquare;
   const externalVideoInteractiveMode = cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type !== "file";
 
   // Listen for YouTube "ended"
