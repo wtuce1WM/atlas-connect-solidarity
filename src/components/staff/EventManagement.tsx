@@ -233,8 +233,7 @@ const EventManagement = () => {
               <RichTextEditor
                 content={form.description}
                 onChange={html => setForm(p => ({ ...p, description: html }))}
-                placeholder="Description de l'événement..."
-                maxHeight="500px"
+                maxHeight="600px"
               />
             </div>
           </div>
