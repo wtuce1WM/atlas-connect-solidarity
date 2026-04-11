@@ -1420,17 +1420,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               const currentPageImages = images.slice(descGridPage * GRID_PAGE_SIZE, (descGridPage + 1) * GRID_PAGE_SIZE);
               const globalOffset = descGridPage * GRID_PAGE_SIZE;
               return (
-                <div className="w-full h-full flex flex-col">
-                  <div className="flex-1 min-h-0 relative" style={{ perspective: "1200px" }}>
+                <div className="w-full h-full flex flex-col items-center justify-center">
+                  <div className="w-full max-w-md relative" style={{ perspective: "1200px" }}>
                     <div
                       key={descGridPage}
-                      className="absolute inset-0 overflow-y-auto overscroll-contain"
                       style={{
                         animation: "0.5s cubic-bezier(0.4, 0, 0.2, 1) both",
                         animationName: "descGridFlip",
                       }}
                     >
-                      <div className="px-2 pt-3 pb-[70px]">
+                      <div className="px-3">
                         <div className="grid grid-cols-3 gap-1.5">
                           {currentPageImages.map((img, i) => {
                             const realIndex = globalOffset + i;
