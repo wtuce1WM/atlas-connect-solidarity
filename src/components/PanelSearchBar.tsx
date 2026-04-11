@@ -78,7 +78,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
 
       {/* Search overlay — covers toolbar */}
       {searchOverlayOpen && (
-        <div className={`absolute inset-0 ${noToolbarOffset ? "" : "lg:-top-[3.3rem]"} z-[80]`}>
+        <div className={`absolute inset-0 ${noToolbarOffset ? "" : "lg:-top-[3.3rem]"} z-[90]`}>
           <MobileSearchOverlay
             open={searchOverlayOpen}
             onClose={() => setOverlay(false)}
@@ -119,7 +119,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
       )}
 
       {(voice.status === "recording" || voice.status === "processing") && (
-        <div className={`absolute inset-0 ${noToolbarOffset ? "" : "lg:-top-[3.3rem]"} z-[81]`}>
+        <div className={`absolute inset-0 ${noToolbarOffset ? "" : "lg:-top-[3.3rem]"} z-[91]`}>
           <VoiceSearchOverlay
             isOpen
             liveTranscript={voice.liveTranscript}
