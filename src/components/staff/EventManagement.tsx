@@ -339,6 +339,7 @@ const EventManagement = () => {
                     <div className="flex items-center gap-2">
                       <div className="flex-1">
                         <VideoUploader
+                          compact
                           videoUrl={url}
                           onChange={newUrl => {
                             setForm(p => ({

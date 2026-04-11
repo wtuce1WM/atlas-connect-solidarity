@@ -11,6 +11,7 @@ interface VideoUploaderProps {
   onChange: (url: string) => void;
   businessId?: string;
   maxSizeMB?: number;
+  compact?: boolean;
 }
 
 const formatFileSize = (bytes: number) => {
@@ -27,6 +28,7 @@ const VideoUploader = ({
   onChange,
   businessId,
   maxSizeMB = 100,
+  compact = false,
 }: VideoUploaderProps) => {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -142,7 +144,7 @@ const VideoUploader = ({
       {/* Current video preview */}
       {videoUrl && (
         <div className="space-y-2">
-          <div className="relative aspect-video w-full max-w-2xl rounded-lg overflow-hidden border bg-black">
+          <div className={cn("relative rounded-lg overflow-hidden border bg-black", compact ? "w-32 h-20" : "aspect-video w-full max-w-2xl")}>
             {videoUrl.includes("youtube.com") || videoUrl.includes("youtu.be") ? (
               <iframe
                 src={`https://www.youtube.com/embed/${
