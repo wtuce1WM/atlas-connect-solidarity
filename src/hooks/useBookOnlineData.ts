@@ -520,6 +520,7 @@ export function useBookOnlineData(businessId: string) {
       };
 
       const fetchPoiLinkedVideos = async () => {
+        if (ownHostedCount >= 5) return;
         const { data: poiVids } = await supabase
           .from("business_documents")
           .select("url, name, city, price, price_type, description, thumbnail_url, business_id")
