@@ -4882,8 +4882,7 @@ serve(async (req) => {
       });
     }
 
-    // Debug: log first 25 businesses after sort
-    console.log(`POST-SORT order (first 25):`, businesses.slice(0, 25).map((b, i) => `${i+1}. ${b.name} ps=${b.priority_score} cr=${(b as any).computed_rating} rc=${(b as any).total_review_count} st=${b.wtuce_status}`).join(' | '));
+
 
     // totalCount is always the full processed result count
     const totalCount = businesses.length;
