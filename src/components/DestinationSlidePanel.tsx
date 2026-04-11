@@ -256,45 +256,27 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     return () => { cancelled = true; };
   }, [destinationId, destination?.city_ids]);
 
-  // Fetch city-linked videos (by city name OR by destination_id)
+  // Fetch destination-linked videos (by destination_id)
   useEffect(() => {
-    if (!destination?.name_fr) return;
+    if (!destinationId) return;
     let cancelled = false;
-    const fetchCityVideos = async () => {
-      // Fetch videos matching city name and videos matching destination_id in parallel
-      const [cityRes, destRes] = await Promise.all([
-        supabase
-          .from("business_documents")
-          .select("url, name, thumbnail_url, business_id")
-          .eq("type", "video")
-          .eq("city", destination.name_fr)
-          .order("sort_order", { ascending: true }),
-        supabase
-          .from("business_documents")
-          .select("url, name, thumbnail_url, business_id")
-          .eq("type", "video")
-          .eq("destination_id", destinationId)
-          .order("sort_order", { ascending: true }),
-      ]);
+    const fetchDestVideos = async () => {
+      const { data: docs } = await supabase
+        .from("business_documents")
+        .select("url, name, thumbnail_url, business_id")
+        .eq("type", "video")
+        .eq("destination_id", destinationId)
+        .order("sort_order", { ascending: true });
       if (cancelled) return;
-      // Merge and deduplicate by URL
-      const allDocs: typeof cityRes.data = [];
-      const seenUrls = new Set<string>();
-      for (const doc of [...(cityRes.data || []), ...(destRes.data || [])]) {
-        if (!seenUrls.has(doc.url)) {
-          seenUrls.add(doc.url);
-          allDocs.push(doc);
-        }
-      }
-      if (allDocs.length === 0) { if (!cancelled) setCityVideos([]); return; }
-      const ownerIds = [...new Set(allDocs.map(d => d.business_id))];
+      if (!docs || docs.length === 0) { setCityVideos([]); return; }
+      const ownerIds = [...new Set(docs.map(d => d.business_id))];
       const { data: owners } = await supabase
         .from("businesses")
         .select("id, name, logo_url, slug")
         .in("id", ownerIds);
       if (cancelled) return;
       const ownerMap = new Map((owners || []).map(o => [o.id, o]));
-      setCityVideos(allDocs.map(d => {
+      setCityVideos(docs.map(d => {
         const owner = ownerMap.get(d.business_id);
         return {
           url: d.url, name: d.name,
@@ -306,9 +288,9 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         };
       }));
     };
-    fetchCityVideos();
+    fetchDestVideos();
     return () => { cancelled = true; };
-  }, [destination?.name_fr, destinationId]);
+  }, [destinationId]);
 
   // Fetch YouTube titles
   const videos = destination?.videos?.filter(Boolean) || [];
