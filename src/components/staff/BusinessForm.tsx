@@ -2791,9 +2791,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               {formData.website ? (
-                <Label htmlFor="website_pres"><a href={formData.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Site web ↗</a></Label>
+                <Label htmlFor="website_pres"><a href={formData.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">URL 1 ↗</a></Label>
               ) : (
-                <Label htmlFor="website_pres">Site web</Label>
+                <Label htmlFor="website_pres">URL 1</Label>
               )}
             </div>
 
@@ -2809,7 +2809,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 value={formData.website}
                 onChange={(e) => handleChange("website", e.target.value)}
                 placeholder="https://"
-                className="flex-1 min-w-0"
+                className="w-48 min-w-0 shrink"
               />
               {formData.website && (
                 <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("website", "")}>
@@ -2884,9 +2884,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           {/* Réserver maintenant */}
           <div className="space-y-1">
             {formData.reserve_now_url ? (
-              <Label htmlFor="reserve_now_pres"><a href={formData.reserve_now_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Lien "Réserver maintenant" ↗</a></Label>
+              <Label htmlFor="reserve_now_pres"><a href={formData.reserve_now_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">URL 2 ↗</a></Label>
             ) : (
-              <Label htmlFor="reserve_now_pres">Lien "Réserver maintenant"</Label>
+              <Label htmlFor="reserve_now_pres">URL 2</Label>
             )}
             <div className="flex items-center gap-2">
               <Switch
@@ -2900,7 +2900,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 value={formData.reserve_now_url}
                 onChange={(e) => handleChange("reserve_now_url", e.target.value)}
                 placeholder="https://"
-                className="flex-1 min-w-0"
+                className="w-48 min-w-0 shrink"
               />
               {formData.reserve_now_url && (
                 <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("reserve_now_url", "")}>
@@ -2962,9 +2962,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           {/* Boutique en ligne */}
           <div className="space-y-1">
             {formData.online_shop_url ? (
-              <Label htmlFor="online_shop_pres"><a href={formData.online_shop_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Boutique en ligne ↗</a></Label>
+              <Label htmlFor="online_shop_pres"><a href={formData.online_shop_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">URL 3 ↗</a></Label>
             ) : (
-              <Label htmlFor="online_shop_pres">Boutique en ligne</Label>
+              <Label htmlFor="online_shop_pres">URL 3</Label>
             )}
             <div className="flex items-center gap-2">
               <Switch
@@ -2978,7 +2978,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 value={formData.online_shop_url}
                 onChange={(e) => handleChange("online_shop_url", e.target.value)}
                 placeholder="https://"
-                className="flex-1 min-w-0"
+                className="w-48 min-w-0 shrink"
               />
               {formData.online_shop_url && (
                 <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("online_shop_url", "")}>
