@@ -1877,6 +1877,7 @@ export type Database = {
           id: string
           images: string[] | null
           kp_regroupement: string[] | null
+          logo_url: string | null
           name: string
           start_date: string | null
           updated_at: string
@@ -1890,6 +1891,7 @@ export type Database = {
           id?: string
           images?: string[] | null
           kp_regroupement?: string[] | null
+          logo_url?: string | null
           name: string
           start_date?: string | null
           updated_at?: string
@@ -1903,6 +1905,7 @@ export type Database = {
           id?: string
           images?: string[] | null
           kp_regroupement?: string[] | null
+          logo_url?: string | null
           name?: string
           start_date?: string | null
           updated_at?: string
