@@ -206,7 +206,7 @@ export const OwnerLogoOverlay = ({ logoBigOverlay, logoBigFadingOut, cardsHidden
         <img
           src={logoBigOverlay.src}
           alt={logoBigOverlay.name}
-          className="max-w-full max-h-[110px] md:max-h-[160px] object-contain"
+          className="w-full h-auto max-w-full max-h-[110px] md:max-h-[160px] object-contain"
           style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
         />
       </div>
