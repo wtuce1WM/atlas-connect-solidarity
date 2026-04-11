@@ -610,24 +610,19 @@ const DisplayPanel = () => (
       </Collapsible>
     </div>
 
-    <HelpContentPanel title="Guide Affichage" icon={<HelpCircle className="h-5 w-5" />}>
-      <p className="text-sm text-muted-foreground leading-relaxed">
-        Ce panneau documente les paramètres d'affichage actuels du site.
-        Chaque section décrit les valeurs CSS, les classes Tailwind, et les tokens
-        de design utilisés dans les composants du front-end.
+    <div className="w-72 shrink-0 sticky top-4 p-4 rounded-lg border bg-muted/30 space-y-3">
+      <h3 className="text-sm font-semibold flex items-center gap-2"><HelpCircle className="h-4 w-4" /> Guide Affichage</h3>
+      <p className="text-xs text-muted-foreground leading-relaxed">
+        Ce panneau documente les paramètres d'affichage actuels du site : classes Tailwind, tokens de design, valeurs CSS.
       </p>
-      <p className="text-sm text-muted-foreground leading-relaxed mt-3">
-        Les sections sont regroupées par zone :
-      </p>
-      <ul className="text-sm text-muted-foreground mt-2 space-y-1.5 list-disc pl-5">
-        <li><strong>Header</strong> : barre de navigation fixe, hamburger universel, sidebar desktop 50%</li>
-        <li><strong>Accueil</strong> : Hero, polices, onglets catégories, LogoCSSSpinner</li>
-        <li><strong>Onglets</strong> : barre sticky de recherche (Résultats/Carte/POI/Destinations)</li>
-        <li><strong>SlidePanel</strong> : fiche établissement, onglets internes, CTAs dynamiques</li>
-        <li><strong>Overlay IA</strong> : réponse textuelle générée par IA</li>
-        <li><strong>Résumé IA</strong> : panneau latéral avec désambiguïsation</li>
+      <ul className="text-xs text-muted-foreground space-y-1 list-disc pl-4">
+        <li><strong>Header</strong> : hamburger universel, sidebar desktop 50%</li>
+        <li><strong>Accueil</strong> : Hero, polices, onglets catégories</li>
+        <li><strong>Onglets</strong> : barre sticky de recherche</li>
+        <li><strong>SlidePanel</strong> : fiche, CTAs dynamiques</li>
+        <li><strong>Overlay IA</strong> : réponse textuelle IA</li>
       </ul>
-    </HelpContentPanel>
+    </div>
   </div>
 );
 
