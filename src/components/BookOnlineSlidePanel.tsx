@@ -1477,7 +1477,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           </div>
           {/* Right sticky sidebar — Menu / Menu IA / External links */}
           {!descGridMode && (menuDocs.length > 0 || menuSummaries.length > 0 || externalLinks.length > 0) && (() => {
-            const groups: { key: string; icon: React.ReactNode; items: { label: string; onClick: () => void }[] }[] = [];
+            const groups: { key: string; icon: React.ReactNode; items: { label: string; logo?: string | null; onClick: () => void }[] }[] = [];
             if (menuDocs.length > 0) groups.push({
               key: 'menu',
               icon: <span className="flex items-center justify-center w-4 h-4">{categoryIcon ? <DynamicIcon name={categoryIcon} size={14} /> : <Newspaper className="h-3.5 w-3.5" />}</span>,
@@ -1493,6 +1493,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               icon: <Newspaper className="h-3.5 w-3.5" />,
               items: externalLinks.filter(l => l.url && l.url !== '#' && l.url !== '*').map(link => ({
                 label: link.name || (() => { try { return new URL(link.url).hostname.replace('www.', ''); } catch { return 'Lien'; } })(),
+                logo: link.icon,
                 onClick: () => { setShowDescriptionOverlay(false); setTimeout(() => openDocOrBooking(link.url, link.name || 'Lien externe'), 150); },
               })),
             });
@@ -1518,8 +1519,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                             onClick={item.onClick}
                             className="flex items-center gap-1.5 h-7 rounded-full bg-white/20 backdrop-blur-md border border-white/20 text-white hover:bg-white/35 transition-colors shadow-lg px-2.5 pr-3 text-[11px] font-medium whitespace-nowrap"
                           >
-                            {g.icon}
-                            {item.label}
+                            {item.logo ? (
+                              <img src={item.logo} alt={item.label} className="h-4 w-4 object-contain rounded-sm" loading="lazy" />
+                            ) : (
+                              <span className="text-[11px]">{item.label}</span>
+                            )}
+                            {item.logo && <span className="text-[11px]">{item.label}</span>}
                           </button>
                         ))}
                       </div>
