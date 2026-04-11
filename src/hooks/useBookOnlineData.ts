@@ -642,16 +642,14 @@ export function useBookOnlineData(businessId: string) {
     });
   }, [destinations, language]);
 
-  // Derived: all video URLs (linked first, then legacy, then own docs)
+  // Derived: all video URLs — own hosted Supabase storage first, then linked/owner, then rest
   const allVideoUrls = useMemo(() => {
     const legacyVideo = business?.video_1_url?.trim() || null;
-    // videoDocs already has linked videos prepended (see fetch above)
-    // Separate linked (external owner) from own videos to preserve linked-first order
-    const linkedUrls = videoDocs.filter(d => d.owner_business_id && d.owner_business_id !== businessId).map(d => d.url).filter(Boolean);
-    const ownDocUrls = videoDocs.filter(d => !d.owner_business_id || d.owner_business_id === businessId).map(d => d.url).filter(Boolean);
-    const urls = [...linkedUrls];
-    if (legacyVideo && !urls.includes(legacyVideo) && !ownDocUrls.includes(legacyVideo)) urls.push(legacyVideo);
-    urls.push(...ownDocUrls.filter(u => !urls.includes(u)));
+    const ownHosted = videoDocs.filter(d => /supabase\.co\/storage\//i.test(d.url)).map(d => d.url);
+    const linked = videoDocs.filter(d => d.owner_business_id && d.owner_business_id !== businessId && !/supabase\.co\/storage\//i.test(d.url)).map(d => d.url);
+    const rest = videoDocs.filter(d => !/supabase\.co\/storage\//i.test(d.url) && (!d.owner_business_id || d.owner_business_id === businessId)).map(d => d.url);
+    const urls = [...ownHosted, ...linked, ...rest].filter(Boolean);
+    if (legacyVideo && !urls.includes(legacyVideo)) urls.push(legacyVideo);
     return urls;
   }, [business?.video_1_url, videoDocs, businessId]);
 
