@@ -122,6 +122,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [descGridMode, setDescGridMode] = useState(false);
    const [descGridPage, setDescGridPage] = useState(0);
    const [sidebarOpenGroup, setSidebarOpenGroup] = useState<string | null>(null);
+   const [descOverlayContent, setDescOverlayContent] = useState<{ html: string; title: string } | null>(null);
   const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ url: string; name: string | null; description: string | null } | null>(null);
   const [videoOverlayClosing, setVideoOverlayClosing] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -303,6 +304,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     setShowPoiMapOverlay(false);
     setShowDescriptionOverlay(false);
     setDescGridMode(false);
+    setDescOverlayContent(null);
     setPoiMapMode("poi");
     if (infoCarouselRef.current) infoCarouselRef.current.scrollLeft = 0;
     setAvailabilityOverlayCtx(null);
@@ -1390,7 +1392,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           {!images[0] && <div className="absolute inset-0 bg-background" />}
           {/* Sticky header — order-[-2] to stay above content */}
           <div className="relative z-30 shrink-0 flex items-center gap-3 px-4 py-3 bg-transparent backdrop-blur-sm border-b border-white/10 order-[-2]">
-            <button onClick={() => { if (descGridMode) { setDescGridMode(false); setDescGridPage(0); } else { setShowDescriptionOverlay(false); } }} className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0">
+            <button onClick={() => { if (descGridMode) { setDescGridMode(false); setDescGridPage(0); } else if (descOverlayContent) { setDescOverlayContent(null); } else { setShowDescriptionOverlay(false); } }} className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0">
               <X className="h-4 w-4" />
             </button>
             <h2 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] truncate text-white flex-1">{business?.name}</h2>
@@ -1467,9 +1469,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             })() : (
               <div className="w-full h-full overflow-y-auto overscroll-contain">
                 <div className="px-4 pt-4 pb-6 md:px-6 md:pt-6">
+                  {descOverlayContent && (
+                    <div className="flex items-center gap-2 mb-4">
+                      <Sparkles className="h-4 w-4 text-gold shrink-0" />
+                      <h3 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] text-white">{descOverlayContent.title}</h3>
+                    </div>
+                  )}
                   <div
                     className="prose max-w-none prose-josefin-headings prose-h2:text-xl prose-h3:text-lg prose-a:text-primary [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold [&_p:empty]:min-h-[1em] [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_table]:border-collapse [&_table]:w-full [&_table]:table-fixed [&_td]:border [&_td]:border-white/20 [&_td]:p-4 [&_td]:align-top [&_td]:text-xs [&_td_img]:w-full [&_td_img]:h-36 [&_td_img]:object-cover [&_td_img]:rounded-md [&_td_img]:block [&_th]:border [&_th]:border-white/20 [&_th]:p-2 [&_th]:bg-white/10 [&_th]:font-semibold [&_img]:max-w-full [&_img]:rounded-md [&_iframe]:max-w-full [&_iframe]:rounded-md [&_mark]:bg-yellow-500/40 [&_mark]:px-0.5 [&_blockquote]:border-l-4 [&_blockquote]:border-white/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_hr]:border-white/20 [&_*]:!text-white prose-headings:!text-white prose-strong:!text-white leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: woDescription }}
+                    dangerouslySetInnerHTML={{ __html: descOverlayContent ? descOverlayContent.html : woDescription }}
                   />
                 </div>
               </div>
@@ -1486,7 +1494,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             if (menuSummaries.length > 0) groups.push({
               key: 'ai',
               icon: <Sparkles className="h-[22px] w-[22px]" />,
-              items: menuSummaries.map(ms => ({ label: ms.title || 'Menu IA', onClick: () => { setShowDescriptionOverlay(false); } })),
+              items: menuSummaries.map(ms => ({ label: ms.title || 'Menu IA', onClick: () => { setDescOverlayContent({ html: ms.content || '', title: ms.title || 'Menu IA' }); setDescGridMode(false); setSidebarOpenGroup(null); } })),
             });
             if (externalLinks.length > 0) groups.push({
               key: 'ext',
