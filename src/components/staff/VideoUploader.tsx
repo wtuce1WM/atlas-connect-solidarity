@@ -28,6 +28,7 @@ const VideoUploader = ({
   onChange,
   businessId,
   maxSizeMB = 100,
+  compact = false,
 }: VideoUploaderProps) => {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
