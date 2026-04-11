@@ -4011,6 +4011,12 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             <SortableContext items={flipbookDocs.map((d) => d._uid)} strategy={verticalListSortingStrategy}>
               {flipbookDocs.map((doc, idx) => (
                 <SortableDocRow key={doc._uid} id={doc._uid}>
+              <Switch
+                checked={doc.force_external}
+                onCheckedChange={(checked) => setFlipbookDocs(prev => prev.map((d, i) => i === idx ? { ...d, force_external: checked } : d))}
+                title="Ouvrir en lien externe"
+                className="shrink-0"
+              />
               <div className="relative shrink-0 group">
                 {doc.icon ? (
                   <img src={getDocIconSrc(doc.icon)} alt="" className="h-9 w-9 object-contain rounded border border-input p-0.5 cursor-pointer" />
