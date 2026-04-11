@@ -10,6 +10,13 @@ import ImageUploader from "./ImageUploader";
 import VideoUploader from "./VideoUploader";
 import LogoUploader from "./LogoUploader";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
