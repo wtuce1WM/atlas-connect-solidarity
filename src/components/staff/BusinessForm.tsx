@@ -734,6 +734,20 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
   );
 };
 
+/** Map legacy unified_cta free-text to a presentation_mode enum value */
+const inferPresentationMode = (cta: string | null | undefined): string | undefined => {
+  if (!cta) return undefined;
+  const lower = cta.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  if (/acheter|shop/i.test(lower)) return "acheter_en_ligne";
+  if (/reserver|book|reserv/i.test(lower)) return "reserver_en_ligne";
+  if (/offre|offer|consulter/i.test(lower)) return "consulter_offre";
+  if (/contact/i.test(lower)) return "contactez_nous";
+  if (/carte|menu/i.test(lower)) return "la_carte";
+  if (/boisson|drink/i.test(lower)) return "les_boissons";
+  if (/info|plus/i.test(lower)) return "plus_informations";
+  return undefined;
+};
+
 const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: BusinessFormProps) => {
   // Set of broken URL values for quick lookup
   const brokenUrlSet = useMemo(() => new Set(brokenLinks.map(bl => bl.url)), [brokenLinks]);
