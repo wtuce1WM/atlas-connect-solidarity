@@ -1492,7 +1492,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             </div>
           )}
           {/* Searchbar spacer */}
-          <div className="shrink-0 h-[3.5rem] md:h-[5rem]" />
+          <div className="shrink-0 h-[3.5rem] md:h-[3.75rem]" />
         </div>
       )}
 
