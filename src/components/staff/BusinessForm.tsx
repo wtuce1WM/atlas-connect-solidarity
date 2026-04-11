@@ -4437,6 +4437,431 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </AlertDialog>
         </div>
 
+        {/* Labels */}
+        <Accordion type="single" collapsible>
+          <AccordionItem value="labels" className="border-none">
+            <div className="p-4 bg-muted rounded-lg">
+              <AccordionTrigger className="py-0 hover:no-underline">
+                <Label className="text-base font-semibold flex items-center gap-2 cursor-pointer">
+                  <Award className="h-4 w-4" />
+                  Labels / Certifications
+                  {businessLabels.length > 0 && (
+                    <span className="ml-1.5 bg-primary text-primary-foreground rounded-full px-1.5 py-0 text-[10px] font-semibold">{businessLabels.length}</span>
+                  )}
+                </Label>
+              </AccordionTrigger>
+              <AccordionContent className="pt-3 pb-0">
+                <BusinessLabelsEditor
+                  businessId={business?.id}
+                  value={businessLabels}
+                  onChange={setBusinessLabels}
+                />
+              </AccordionContent>
+            </div>
+          </AccordionItem>
+        </Accordion>
+
+        {/* ═══════ Réseaux sociaux ═══════ */}
+        <div id="section-social" className="p-4 bg-indigo-50 border border-indigo-200 rounded-lg space-y-4" style={{ scrollMarginTop: '160px' }}>
+          <div className="flex items-center justify-between">
+            <Label className="text-xl font-semibold">Réseaux sociaux</Label>
+            <Button type="button" variant="outline" size="sm" className="text-destructive hover:bg-destructive/10" onClick={() => setShowClearSocial(true)}>
+              <Trash2 className="h-3 w-3 mr-1" /> Tout effacer
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[
+              { key: "facebook_url", label: "Facebook", icon: <FacebookIcon className="text-[#1877F2]" />, placeholder: "https://facebook.com/..." },
+              { key: "instagram_url", label: "Instagram", icon: <InstagramIcon className="text-[#E4405F]" />, placeholder: "https://instagram.com/..." },
+              { key: "twitter_url", label: "Twitter / X", icon: <TwitterIcon />, placeholder: "https://x.com/..." },
+              { key: "linkedin_url", label: "LinkedIn", icon: <LinkedInIcon className="text-[#0A66C2]" />, placeholder: "https://linkedin.com/..." },
+              { key: "youtube_url", label: "YouTube", icon: <YouTubeIcon className="text-[#FF0000]" />, placeholder: "https://youtube.com/..." },
+              { key: "tiktok_url", label: "TikTok", icon: <TikTokIcon />, placeholder: "https://tiktok.com/@..." },
+              { key: "pinterest_url", label: "Pinterest", icon: <PinterestIcon className="text-[#E60023]" />, placeholder: "https://pinterest.com/..." },
+              { key: "vimeo_url", label: "Vimeo", icon: <VimeoIcon className="text-[#1AB7EA]" />, placeholder: "https://vimeo.com/..." },
+              { key: "snapchat_url", label: "Snapchat", icon: <SnapchatIcon className="text-[#FFFC00]" />, placeholder: "https://snapchat.com/add/..." },
+            ].map(({ key, label, icon, placeholder }) => (
+              <div key={key} className="space-y-1">
+                <Label className="flex items-center gap-2 text-sm">
+                  {icon}
+                  {(formData as any)[key] ? (
+                    <a href={(formData as any)[key]} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">{label} ↗</a>
+                  ) : label}
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={(formData as any)[key] || ""}
+                    onChange={(e) => handleChange(key, e.target.value)}
+                    placeholder={placeholder}
+                    className="flex-1"
+                  />
+                  {(formData as any)[key] && (
+                    <Button type="button" variant="ghost" size="sm" className="text-destructive px-2" onClick={() => handleChange(key, "")}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+          <SocialPostsEditor businessId={business?.id || ""} />
+        </div>
+
+        {/* ═══════ Plateformes de réservation ═══════ */}
+        <div id="section-booking" className="p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-4" style={{ scrollMarginTop: '160px' }}>
+          <div className="flex items-center justify-between">
+            <Label className="text-xl font-semibold">Plateformes de réservation</Label>
+            <Button type="button" variant="outline" size="sm" className="text-destructive hover:bg-destructive/10" onClick={() => setShowClearBooking(true)}>
+              <Trash2 className="h-3 w-3 mr-1" /> Tout effacer
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[
+              { key: "tripadvisor_url", label: "TripAdvisor", icon: <TripAdvisorIcon className="text-[#34E0A1]" />, placeholder: "https://tripadvisor.com/..." },
+              { key: "booking_url", label: "Booking.com", icon: <BookingIcon className="text-[#003580]" />, placeholder: "https://booking.com/..." },
+              { key: "airbnb_url", label: "Airbnb", icon: <AirbnbIcon className="text-[#FF5A5F]" />, placeholder: "https://airbnb.com/..." },
+              { key: "hotels_com_url", label: "Hotels.com", placeholder: "https://hotels.com/..." },
+              { key: "trivago_url", label: "Trivago", placeholder: "https://trivago.com/..." },
+              { key: "getyourguide_url", label: "GetYourGuide", placeholder: "https://getyourguide.com/..." },
+              { key: "viator_url", label: "Viator", placeholder: "https://viator.com/..." },
+              { key: "tourradar_url", label: "TourRadar", placeholder: "https://tourradar.com/..." },
+            ].map(({ key, label, icon, placeholder }) => (
+              <div key={key} className="space-y-1">
+                <Label className="flex items-center gap-2 text-sm">
+                  {icon || null}
+                  {(formData as any)[key] ? (
+                    <a href={(formData as any)[key]} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">{label} ↗</a>
+                  ) : label}
+                </Label>
+                <div className="flex gap-1">
+                  <Input value={(formData as any)[key] || ""} onChange={(e) => handleChange(key, e.target.value)} placeholder={placeholder} className="flex-1" />
+                  {(formData as any)[key] && (
+                    <Button type="button" variant="ghost" size="icon" className="h-10 w-10 text-muted-foreground hover:text-destructive shrink-0" onClick={() => handleChange(key, "")}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+            <div className="space-y-1">
+              <Label className="text-sm">Autre plateforme</Label>
+              <div className="flex gap-2">
+                <Input value={(formData as any).other_booking_name || ""} onChange={(e) => handleChange("other_booking_name", e.target.value)} placeholder="Nom" className="w-32" />
+                <Input value={(formData as any).other_booking_url || ""} onChange={(e) => handleChange("other_booking_url", e.target.value)} placeholder="URL" className="flex-1" />
+                {(formData as any).other_booking_url && (
+                  <Button type="button" variant="ghost" size="icon" className="h-10 w-10 text-muted-foreground hover:text-destructive shrink-0" onClick={() => { handleChange("other_booking_name", ""); handleChange("other_booking_url", ""); }}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label className="flex items-center gap-2 text-sm"><img src={glovoLogo} alt="Glovo" className="h-4 w-4 object-contain" /> Glovo</Label>
+              <div className="flex gap-1">
+                <Input value={(formData as any).glovo_url || ""} onChange={(e) => handleChange("glovo_url", e.target.value)} placeholder="https://glovoapp.com/..." className="flex-1" />
+                {(formData as any).glovo_url && (
+                  <Button type="button" variant="ghost" size="icon" className="h-10 w-10 text-muted-foreground hover:text-destructive shrink-0" onClick={() => handleChange("glovo_url", "")}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ═══════ Avis clients ═══════ */}
+        <div id="section-avis" className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg space-y-4" style={{ scrollMarginTop: '160px' }}>
+          <Label className="text-xl font-semibold">Avis clients</Label>
+          <div className="space-y-1">
+            <Label className="text-sm font-medium">Note manuelle (/20)</Label>
+            <div className="flex items-center gap-3">
+              <Input type="number" step="0.1" min="0" max="20" value={(formData as any).rating || ""} onChange={(e) => handleChange("rating", e.target.value)} placeholder="Ex: 16.5" className="w-32" />
+              {(() => {
+                const fd = formData as any;
+                const { avg, total } = computeReviewsFromForm(fd);
+                return (
+                  <div className="flex flex-wrap items-center gap-2">
+                    {avg !== null && (
+                      <span className="flex items-center gap-1 text-amber-600 font-semibold text-sm">
+                        <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+                        Calculée : {avg}/20 ({total} avis)
+                      </span>
+                    )}
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={handleFetchReviewsAndSaveCalculation}
+                      disabled={isReviewCalcLoading || !business?.id}
+                    >
+                      {isReviewCalcLoading ? (
+                        <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                      ) : (
+                        <Save className="h-3 w-3 mr-1" />
+                      )}
+                      Récupérer les avis &amp; sauvegarder
+                    </Button>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              { urlKey: "google_reviews_url", ratingKey: "google_rating", countKey: "google_review_count", label: "Google", icon: <GoogleMapsIcon className="text-[#4285F4]" /> },
+              { urlKey: "tripadvisor_review_url", ratingKey: "tripadvisor_rating", countKey: "tripadvisor_review_count", label: "TripAdvisor", icon: <TripAdvisorIcon className="text-[#34E0A1]" /> },
+              { urlKey: "restaurant_guru_url", ratingKey: "restaurant_guru_rating", countKey: "restaurant_guru_review_count", label: "Restaurant Guru", icon: <img src={restaurantGuruLogo} alt="RG" className="h-4 w-4 object-contain" /> },
+              { urlKey: "getyourguide_url", ratingKey: "getyourguide_rating", countKey: "getyourguide_review_count", label: "GetYourGuide" },
+              { urlKey: "viator_url", ratingKey: "viator_rating", countKey: "viator_review_count", label: "Viator" },
+              { urlKey: "tourradar_url", ratingKey: "tourradar_rating", countKey: "tourradar_review_count", label: "TourRadar" },
+              { urlKey: "avis_verifies_url", ratingKey: "avis_verifies_rating", countKey: "avis_verifies_review_count", label: "Avis Vérifiés" },
+              { urlKey: "trustpilot_url", ratingKey: "trustpilot_rating", countKey: "trustpilot_review_count", label: "Trustpilot" },
+              { urlKey: "kayak_url", ratingKey: "kayak_rating", countKey: "kayak_review_count", label: "Kayak" },
+            ].map(({ urlKey, ratingKey, countKey, label, icon }) => (
+              <div key={ratingKey} className="p-3 border rounded-lg bg-white/50 space-y-2">
+                <Label className="flex items-center gap-2 text-sm font-medium">{icon || null} {label}</Label>
+                <div className="space-y-1">
+                  <div className="flex gap-1">
+                    <Input value={(formData as any)[urlKey] || ""} onChange={(e) => handleChange(urlKey, e.target.value)} placeholder="URL avis" className="text-xs flex-1" />
+                    {(formData as any)[urlKey] && (
+                      <>
+                        <a href={(formData as any)[urlKey]} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:text-primary shrink-0">
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </a>
+                        <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0" onClick={() => { handleChange(urlKey, ""); handleChange(ratingKey as any, ""); handleChange(countKey as any, ""); }}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Input type="number" step="0.1" min="0" max="5" value={(formData as any)[ratingKey] ?? ""} onChange={(e) => handleChange(ratingKey as any, e.target.value)} placeholder="Note /5" className="w-20 text-xs" />
+                    <Input type="number" min="0" value={(formData as any)[countKey] ?? ""} onChange={(e) => handleChange(countKey as any, e.target.value)} placeholder="Nb avis" className="w-20 text-xs" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ═══════ Engagements ═══════ */}
+        <div id="section-services" className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg space-y-4" style={{ scrollMarginTop: '160px' }}>
+          <Label className="text-xl font-semibold">Engagements, Certifications & Commodités</Label>
+          <div className="space-y-2">
+            <Label className="text-base font-semibold">🏅 Certifications</Label>
+            <div className="flex flex-wrap gap-2">
+              {allCustomCerts.map((cert) => {
+                const isChecked = ((formData as any).engagements || []).includes(`Certification:${cert}`);
+                return (
+                  <label key={cert} className="flex items-center gap-2 cursor-pointer hover:bg-background p-2 rounded-md transition-colors">
+                    <input type="checkbox" checked={isChecked} onChange={() => {
+                      const engs = [...((formData as any).engagements || [])];
+                      const val = `Certification:${cert}`;
+                      handleChange("engagements", isChecked ? engs.filter((e: string) => e !== val) : [...engs, val]);
+                    }} className="h-4 w-4 rounded border-input" />
+                    <span className="text-sm">{cert}</span>
+                  </label>
+                );
+              })}
+            </div>
+            <div className="flex items-center gap-2">
+              <Input id="input-add-cert" placeholder="Ajouter une certification..." className="h-8 text-sm flex-1 max-w-xs" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const val = (e.target as HTMLInputElement).value.trim(); if (val) { setQuickAddDialog({ type: "certification", value: val }); (e.target as HTMLInputElement).value = ""; } } }} />
+              <Button type="button" variant="outline" size="sm" className="h-8 px-3" onClick={() => { const el = document.getElementById("input-add-cert") as HTMLInputElement; const val = el?.value.trim(); if (val) { setQuickAddDialog({ type: "certification", value: val }); el.value = ""; } }}><Plus className="h-3.5 w-3.5 mr-1" /> Créer</Button>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label className="text-base font-semibold">🌱 Engagements RSE</Label>
+            <div className="flex flex-wrap gap-2">
+              {allCustomEngs.map((eng) => {
+                const isChecked = ((formData as any).engagements || []).includes(eng);
+                return (
+                  <label key={eng} className="flex items-center gap-2 cursor-pointer hover:bg-background p-2 rounded-md transition-colors">
+                    <input type="checkbox" checked={isChecked} onChange={() => {
+                      const engs = [...((formData as any).engagements || [])];
+                      handleChange("engagements", isChecked ? engs.filter((e: string) => e !== eng) : [...engs, eng]);
+                    }} className="h-4 w-4 rounded border-input" />
+                    <span className="text-sm">{eng}</span>
+                  </label>
+                );
+              })}
+            </div>
+            <div className="flex items-center gap-2">
+              <Input id="input-add-eng" placeholder="Ajouter un engagement..." className="h-8 text-sm flex-1 max-w-xs" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const val = (e.target as HTMLInputElement).value.trim(); if (val) { setQuickAddDialog({ type: "engagement", value: val }); (e.target as HTMLInputElement).value = ""; } } }} />
+              <Button type="button" variant="outline" size="sm" className="h-8 px-3" onClick={() => { const el = document.getElementById("input-add-eng") as HTMLInputElement; const val = el?.value.trim(); if (val) { setQuickAddDialog({ type: "engagement", value: val }); el.value = ""; } }}><Plus className="h-3.5 w-3.5 mr-1" /> Créer</Button>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label className="text-base font-semibold">📦 Commodités / Logistique</Label>
+            <div className="flex flex-wrap gap-2">
+              {allCustomCommodites.map((com) => {
+                const isChecked = ((formData as any).engagements || []).includes(`Logistique:${com}`);
+                return (
+                  <label key={com} className="flex items-center gap-2 cursor-pointer hover:bg-background p-2 rounded-md transition-colors">
+                    <input type="checkbox" checked={isChecked} onChange={() => {
+                      const engs = [...((formData as any).engagements || [])];
+                      const val = `Logistique:${com}`;
+                      handleChange("engagements", isChecked ? engs.filter((e: string) => e !== val) : [...engs, val]);
+                    }} className="h-4 w-4 rounded border-input" />
+                    <span className="text-sm">{com}</span>
+                  </label>
+                );
+              })}
+            </div>
+            <div className="flex items-center gap-2">
+              <Input id="input-add-comm" placeholder="Ajouter une commodité..." className="h-8 text-sm flex-1 max-w-xs" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const val = (e.target as HTMLInputElement).value.trim(); if (val) { setQuickAddDialog({ type: "commodite", value: val }); (e.target as HTMLInputElement).value = ""; } } }} />
+              <Button type="button" variant="outline" size="sm" className="h-8 px-3" onClick={() => { const el = document.getElementById("input-add-comm") as HTMLInputElement; const val = el?.value.trim(); if (val) { setQuickAddDialog({ type: "commodite", value: val }); el.value = ""; } }}><Plus className="h-3.5 w-3.5 mr-1" /> Créer</Button>
+            </div>
+          </div>
+          {((formData as any).engagements || []).length > 0 && (
+            <div className="space-y-1">
+              <Label className="text-sm text-muted-foreground">Engagements sélectionnés ({((formData as any).engagements || []).length})</Label>
+              <div className="flex flex-wrap gap-1">
+                {((formData as any).engagements || []).map((eng: string) => (
+                  <Badge key={eng} variant="secondary" className="text-xs">
+                    {eng}
+                    <button type="button" onClick={() => handleChange("engagements", ((formData as any).engagements || []).filter((e: string) => e !== eng))} className="ml-1 hover:text-destructive">×</button>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ═══════ Badges ═══════ */}
+        <div id="section-badges" className="p-4 bg-purple-50 border border-purple-200 rounded-lg space-y-4" style={{ scrollMarginTop: '160px' }}>
+          <Label className="text-xl font-semibold">Badges</Label>
+          <div className="space-y-2">
+            <Label className="text-base font-semibold">🏷️ Badges assignés ({selectedBadgeIds.length})</Label>
+            <div className="flex flex-wrap gap-x-4 gap-y-2">
+              {availableBadges.map(badge => {
+                const isChecked = selectedBadgeIds.includes(badge.id);
+                const isDefault = defaultBadgeId === badge.id;
+                return (
+                  <div key={badge.id} className="flex items-center gap-1.5">
+                    <Checkbox
+                      id={`badge-${badge.id}`}
+                      checked={isChecked}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          const next = [...selectedBadgeIds, badge.id];
+                          setSelectedBadgeIds(next);
+                          if (next.length === 1) setDefaultBadgeId(badge.id);
+                        } else {
+                          const next = selectedBadgeIds.filter(id => id !== badge.id);
+                          setSelectedBadgeIds(next);
+                          if (defaultBadgeId === badge.id) setDefaultBadgeId(next[0] || null);
+                        }
+                      }}
+                    />
+                    <label htmlFor={`badge-${badge.id}`} className="text-sm cursor-pointer select-none flex items-center gap-1">
+                      {badge.name_fr}
+                      {isChecked && (
+                        <button
+                          type="button"
+                          className={`ml-1 text-[10px] px-1.5 py-0.5 rounded-full border transition-colors ${isDefault ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted text-muted-foreground border-border hover:border-primary/50'}`}
+                          onClick={(e) => { e.preventDefault(); setDefaultBadgeId(badge.id); }}
+                          title="Définir comme badge par défaut"
+                        >
+                          {isDefault ? '★ défaut' : '☆'}
+                        </button>
+                      )}
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        <div id="section-taxonomie" className="p-4 bg-orange-50 border border-orange-200 rounded-lg space-y-6" style={{ scrollMarginTop: '160px' }}>
+          <Label className="text-xl font-semibold">Taxonomie</Label>
+          
+          {/* Sous-catégories */}
+          <div className="space-y-3">
+            <Label>Sous-catégories</Label>
+            {formData.main_category ? (
+            availableSubcategories.length > 0 ? (
+              <div className="columns-2 md:columns-3 lg:columns-4 gap-3 p-4 border rounded-lg bg-muted/30">
+                {availableSubcategories.map((subcat) => (
+                  <label
+                    key={subcat}
+                    className="flex items-center gap-2 cursor-pointer hover:bg-background p-2 rounded-md transition-colors break-inside-avoid"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={formData.categories.includes(subcat)}
+                      onChange={() => handleCategoryToggle(subcat)}
+                      className="h-4 w-4 rounded border-input"
+                    />
+                    <span className="text-sm">{subcat}</span>
+                  </label>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground text-sm italic">
+                Aucune sous-catégorie disponible pour cette catégorie.
+              </p>
+            )
+          ) : (
+            <p className="text-muted-foreground text-sm italic">
+              Sélectionnez d'abord une catégorie principale.
+            </p>
+          )}
+          {formData.categories.length > 0 && (
+            <>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {formData.categories.map((cat) => (
+                  <span
+                    key={cat}
+                    className="inline-flex items-center gap-1 px-2 py-1 bg-gold/10 text-gold rounded-md text-sm"
+                  >
+                    {cat}
+                    <button
+                      type="button"
+                      onClick={() => handleCategoryToggle(cat)}
+                      className="hover:text-destructive"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+              {formData.categories.length > 1 && (
+                <div className="mt-3 grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Sous-catégorie par défaut</Label>
+                    <Select
+                      value={formData.categories[0] || ""}
+                      onValueChange={(value) => {
+                        const newCategories = [
+                          value,
+                          ...formData.categories.filter((c) => c !== value),
+                        ];
+                        handleChange("categories", newCategories);
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Choisir la sous-catégorie par défaut..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background z-50">
+                        {formData.categories.map((cat) => (
+                          <SelectItem key={cat} value={cat}>
+                            {cat}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      La sous-catégorie par défaut sera affichée en premier sur la fiche.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
