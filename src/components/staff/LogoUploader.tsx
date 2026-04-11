@@ -189,7 +189,7 @@ const LogoUploader = ({
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           className={cn(
-            "border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer hover:border-primary/50 w-fit",
+            "border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer hover:border-primary/50 w-fit bg-neutral-700 text-white",
             uploading && "pointer-events-none opacity-50"
           )}
         >
