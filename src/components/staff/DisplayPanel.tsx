@@ -1,5 +1,5 @@
 import React from "react";
-import { HelpCircle, ChevronRight } from "lucide-react";
+import { HelpCircle, Monitor, ChevronRight } from "lucide-react";
 import { HelpContentPanel } from "@/components/staff/ScrollToTopButton";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
