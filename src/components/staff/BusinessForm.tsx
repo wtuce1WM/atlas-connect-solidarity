@@ -1180,10 +1180,10 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   });
 
   // --- Business documents (menus, flipbooks, external links & videos) ---
-  type DocEntry = { id?: string; _uid: string; url: string; name: string; language: string; icon: string };
+  type DocEntry = { id?: string; _uid: string; url: string; name: string; language: string; icon: string; force_external: boolean };
   const [menuDocs, setMenuDocs] = useState<DocEntry[]>([]);
   const [flipbookDocs, setFlipbookDocs] = useState<DocEntry[]>([]);
-  type ExternalLinkEntry = { id?: string; _uid: string; url: string; name: string; language: string; image_url: string; description: string };
+  type ExternalLinkEntry = { id?: string; _uid: string; url: string; name: string; language: string; image_url: string; description: string; force_external: boolean };
   const [externalLinkDocs, setExternalLinkDocs] = useState<ExternalLinkEntry[]>([]);
   const [videoDocs, setVideoDocs] = useState<VideoDocEntry[]>([]);
   const [videoDescDialogIdx, setVideoDescDialogIdx] = useState<number | null>(null);
@@ -1202,9 +1202,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         .eq("business_id", business.id)
         .order("sort_order");
       if (data) {
-        setMenuDocs((data as any[]).filter((d: any) => d.type === "menu").map((d: any) => ({ id: d.id, _uid: d.id || crypto.randomUUID(), url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "" })));
-        setFlipbookDocs((data as any[]).filter((d: any) => d.type === "flipbook").map((d: any) => ({ id: d.id, _uid: d.id || crypto.randomUUID(), url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "" })));
-        setExternalLinkDocs((data as any[]).filter((d: any) => d.type === "external_link").map((d: any) => ({ id: d.id, _uid: d.id || crypto.randomUUID(), url: d.url, name: d.name || "", language: d.language || "", image_url: d.icon || "", description: d.description || "presse" })));
+        setMenuDocs((data as any[]).filter((d: any) => d.type === "menu").map((d: any) => ({ id: d.id, _uid: d.id || crypto.randomUUID(), url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "", force_external: !!(d as any).force_external })));
+        setFlipbookDocs((data as any[]).filter((d: any) => d.type === "flipbook").map((d: any) => ({ id: d.id, _uid: d.id || crypto.randomUUID(), url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "", force_external: !!(d as any).force_external })));
+        setExternalLinkDocs((data as any[]).filter((d: any) => d.type === "external_link").map((d: any) => ({ id: d.id, _uid: d.id || crypto.randomUUID(), url: d.url, name: d.name || "", language: d.language || "", image_url: d.icon || "", description: d.description || "presse", force_external: !!(d as any).force_external })));
         setVideoDocs((data as any[]).filter((d: any) => d.type === "video").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: !!(d as any).popup, start_date: d.start_date || null, end_date: d.end_date || null })));
       }
     };
@@ -2094,11 +2094,11 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
         await supabase.from("business_documents" as any).delete().eq("business_id", businessId);
         const allDocs = [
-          ...menuDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "menu" as const, url: d.url.trim(), name: d.name || null, language: d.language || null, icon: d.icon || null, sort_order: i, popup: false })),
-          ...flipbookDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "flipbook" as const, url: d.url.trim(), name: d.name || null, language: d.language || null, icon: d.icon || null, sort_order: i, popup: false })),
+          ...menuDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "menu" as const, url: d.url.trim(), name: d.name || null, language: d.language || null, icon: d.icon || null, sort_order: i, popup: false, force_external: d.force_external || false })),
+          ...flipbookDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "flipbook" as const, url: d.url.trim(), name: d.name || null, language: d.language || null, icon: d.icon || null, sort_order: i, popup: false, force_external: d.force_external || false })),
           ...externalLinkDocs
             .filter((d) => d.name.trim())
-            .map((d, i) => ({ business_id: businessId, type: "external_link" as const, url: d.url.trim() || "", name: d.name.trim(), language: d.language || null, icon: d.image_url || null, sort_order: i, description: d.description || "presse", popup: false })),
+            .map((d, i) => ({ business_id: businessId, type: "external_link" as const, url: d.url.trim() || "", name: d.name.trim(), language: d.language || null, icon: d.image_url || null, sort_order: i, description: d.description || "presse", popup: false, force_external: d.force_external || false })),
           ...videoDocsWithThumbs.map((d, i) => ({ business_id: businessId, type: "video" as const, url: d.url, name: d.name || null, language: null, icon: null, sort_order: i, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: d.popup || false, start_date: d.start_date || null, end_date: d.end_date || null })),
         ];
         if (allDocs.length > 0) {
@@ -3769,7 +3769,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         <div id="section-menu" className="space-y-2" style={{ scrollMarginTop: '160px' }}>
           <div className="flex items-center justify-between">
             <Label className="text-base font-semibold">Menu (URL)</Label>
-            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setMenuDocs(prev => [...prev, { _uid: crypto.randomUUID(), url: "", name: "", language: "", icon: "" }])}>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setMenuDocs(prev => [...prev, { _uid: crypto.randomUUID(), url: "", name: "", language: "", icon: "", force_external: false }])}>
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
@@ -3882,6 +3882,12 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <option key={code} value={code}>{label}</option>
                 ))}
               </select>
+              <Switch
+                checked={doc.force_external}
+                onCheckedChange={(checked) => setMenuDocs(prev => prev.map((d, i) => i === idx ? { ...d, force_external: checked } : d))}
+                title="Ouvrir en lien externe"
+                className="shrink-0"
+              />
               <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setMenuDocs(prev => prev.filter((_, i) => i !== idx))}>
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -3990,7 +3996,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label className="text-base font-semibold">📖 Flipbook (Issuu, Calaméo…)</Label>
-            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setFlipbookDocs(prev => [...prev, { _uid: crypto.randomUUID(), url: "", name: "", language: "", icon: "" }])}>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setFlipbookDocs(prev => [...prev, { _uid: crypto.randomUUID(), url: "", name: "", language: "", icon: "", force_external: false }])}>
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
@@ -4050,6 +4056,12 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <option key={code} value={code}>{label}</option>
                 ))}
               </select>
+              <Switch
+                checked={doc.force_external}
+                onCheckedChange={(checked) => setFlipbookDocs(prev => prev.map((d, i) => i === idx ? { ...d, force_external: checked } : d))}
+                title="Ouvrir en lien externe"
+                className="shrink-0"
+              />
               <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setFlipbookDocs(prev => prev.filter((_, i) => i !== idx))}>
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -4065,7 +4077,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label className="text-base font-semibold">🔗 Liens Externes</Label>
-            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setExternalLinkDocs(prev => [...prev, { _uid: crypto.randomUUID(), url: "", name: "", language: "", image_url: "", description: "presse" }])}>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setExternalLinkDocs(prev => [...prev, { _uid: crypto.randomUUID(), url: "", name: "", language: "", image_url: "", description: "presse", force_external: false }])}>
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
@@ -4195,6 +4207,12 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <option key={code} value={code}>{label}</option>
                 ))}
               </select>
+              <Switch
+                checked={doc.force_external}
+                onCheckedChange={(checked) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, force_external: checked } : d))}
+                title="Ouvrir en lien externe"
+                className="shrink-0"
+              />
               <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setExternalLinkDocs(prev => prev.filter((_, i) => i !== idx))}>
                 <Trash2 className="h-4 w-4" />
               </Button>
