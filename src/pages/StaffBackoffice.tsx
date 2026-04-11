@@ -784,7 +784,6 @@ const StaffBackoffice = () => {
               <HotelMappingManagement />
             </TabsContent>
 
-            <TabsContent value="overview">
           </Tabs>
         )}
       </main>
