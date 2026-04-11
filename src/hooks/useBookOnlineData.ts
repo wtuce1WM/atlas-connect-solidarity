@@ -315,7 +315,9 @@ export function useBookOnlineData(businessId: string) {
         owner_logo: null as string | null,
         owner_instagram: null as string | null,
       })) as VideoDoc[];
-      setVideoDocs(vDocs.filter((d) => d.url));
+      const filteredVDocs = vDocs.filter((d) => d.url);
+      setVideoDocs(filteredVDocs);
+      const ownHostedCount = filteredVDocs.filter((v) => /supabase\.co\/storage\//i.test(v.url)).length;
 
       // Important: render panel as soon as core data is ready
       setIsLoading(false);
