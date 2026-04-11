@@ -61,7 +61,7 @@ const SortableVideoItem = ({ id, url, index, setForm, toast }: { id: string; url
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
   return (
-    <div ref={setNodeRef} style={style} className="space-y-1">
+    <div ref={setNodeRef} style={style} className="space-y-1 w-64 shrink-0">
       <div className="flex items-center gap-2">
         <button type="button" {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1 text-muted-foreground hover:text-foreground">
           <GripVertical className="h-4 w-4" />
@@ -117,13 +117,15 @@ const VideosDndList = ({ form, setForm, toast }: { form: typeof EMPTY_FORM; setF
 
   return (
     <div className="space-y-3">
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={videoIds} strategy={verticalListSortingStrategy}>
-          {form.videos.map((url, i) => (
-            <SortableVideoItem key={videoIds[i]} id={videoIds[i]} url={url} index={i} setForm={setForm} toast={toast} />
-          ))}
-        </SortableContext>
-      </DndContext>
+      <div className="flex flex-wrap gap-3">
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={videoIds} strategy={verticalListSortingStrategy}>
+            {form.videos.map((url, i) => (
+              <SortableVideoItem key={videoIds[i]} id={videoIds[i]} url={url} index={i} setForm={setForm} toast={toast} />
+            ))}
+          </SortableContext>
+        </DndContext>
+      </div>
       {form.videos.length < 10 && (
         <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => setForm(p => ({ ...p, videos: [...p.videos, ""] }))}>
           <Plus className="h-4 w-4" /> Ajouter une vidéo
