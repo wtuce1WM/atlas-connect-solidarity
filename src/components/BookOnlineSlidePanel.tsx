@@ -1480,17 +1480,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             const groups: { key: string; icon: React.ReactNode; items: { label: string; logo?: string | null; onClick: () => void }[] }[] = [];
             if (menuDocs.length > 0) groups.push({
               key: 'menu',
-              icon: <span className="flex items-center justify-center w-5 h-5">{categoryIcon ? <DynamicIcon name={categoryIcon} size={18} /> : <Newspaper className="h-[18px] w-[18px]" />}</span>,
+              icon: <span className="flex items-center justify-center w-6 h-6">{categoryIcon ? <DynamicIcon name={categoryIcon} size={22} /> : <Newspaper className="h-[22px] w-[22px]" />}</span>,
               items: menuDocs.map(doc => ({ label: doc.name || 'Menu', onClick: () => { setShowDescriptionOverlay(false); setTimeout(() => openDocOrBooking(doc.url, doc.name || 'Menu'), 150); } })),
             });
             if (menuSummaries.length > 0) groups.push({
               key: 'ai',
-              icon: <Sparkles className="h-[18px] w-[18px]" />,
+              icon: <Sparkles className="h-[22px] w-[22px]" />,
               items: menuSummaries.map(ms => ({ label: ms.title || 'Menu IA', onClick: () => { setShowDescriptionOverlay(false); } })),
             });
             if (externalLinks.length > 0) groups.push({
               key: 'ext',
-              icon: <Newspaper className="h-[18px] w-[18px]" />,
+              icon: <Newspaper className="h-[22px] w-[22px]" />,
               items: externalLinks.filter(l => l.url && l.url !== '#' && l.url !== '*').map(link => ({
                 label: link.name || (() => { try { return new URL(link.url).hostname.replace('www.', ''); } catch { return 'Lien'; } })(),
                 logo: link.icon,
@@ -1505,7 +1505,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     <div key={g.key} className="flex flex-col items-end">
                       <button
                         onClick={() => setSidebarOpenGroup(isOpen ? null : g.key)}
-                        className={`flex items-center justify-center h-8 w-8 rounded-full border border-white/10 text-white transition-colors shadow-lg ${isOpen ? 'bg-black/90' : 'bg-black/80 hover:bg-black/90'}`}
+                        className={`flex items-center justify-center h-10 w-10 rounded-full border border-white/10 text-white transition-colors shadow-lg ${isOpen ? 'bg-black/90' : 'bg-black/80 hover:bg-black/90'}`}
                       >
                         {g.icon}
                       </button>
