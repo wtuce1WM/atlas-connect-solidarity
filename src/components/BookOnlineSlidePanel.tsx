@@ -1401,7 +1401,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       key={descGridPage}
                       className="absolute inset-0 overflow-y-auto overscroll-contain"
                       style={{
-                        animation: "desc-grid-flip 0.5s cubic-bezier(0.4, 0, 0.2, 1) both",
+                        animation: "0.5s cubic-bezier(0.4, 0, 0.2, 1) both",
+                        animationName: "descGridFlip",
+                      }}
+                    >
                       }}
                     >
                       <div className="px-2 pt-3 pb-[70px]">
