@@ -1421,7 +1421,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               const globalOffset = descGridPage * GRID_PAGE_SIZE;
               return (
                 <div className="w-full h-full flex flex-col items-center justify-center">
-                  <div className="w-full max-w-md relative" style={{ perspective: "1200px" }}>
+                  <div className="w-full max-w-2xl px-3 relative" style={{ perspective: "1200px" }}>
                     <div
                       key={descGridPage}
                       style={{
