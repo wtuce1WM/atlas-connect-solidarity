@@ -17,7 +17,7 @@ const BookingOverlay = ({ bookingUrl, title, onClose, whatsapp, phone, onLoad, h
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   return (
-    <div className="absolute inset-0 z-[85] bg-white flex flex-col" style={{ marginTop: "-3.25rem", animation: "slide-up-from-bottom 0.4s ease-out both" }}>
+    <div className="absolute inset-0 z-[85] bg-white flex flex-col" style={{ marginTop: "-3.5rem", animation: "slide-up-from-bottom 0.4s ease-out both" }}>
       <div className="relative flex items-center px-4 py-2 border-b bg-white shrink-0">
         <button
           onClick={onClose}
