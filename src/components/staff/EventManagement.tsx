@@ -10,6 +10,13 @@ import ImageUploader from "./ImageUploader";
 import VideoUploader from "./VideoUploader";
 import LogoUploader from "./LogoUploader";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -40,6 +47,7 @@ interface EventRow {
   videos: string[];
   kp_regroupement: string[];
   logo_url: string | null;
+  type: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -54,6 +62,7 @@ const EMPTY_FORM = {
   videos: [] as string[],
   kp_regroupement: [] as string[],
   logo_url: "",
+  type: "",
 };
 
 const EventManagement = () => {
@@ -65,6 +74,14 @@ const EventManagement = () => {
   const [form, setForm] = useState({ ...EMPTY_FORM });
   const [saving, setSaving] = useState(false);
   const [kpInput, setKpInput] = useState("");
+  const [eventTypes, setEventTypes] = useState<string[]>([]);
+  const [newTypeInput, setNewTypeInput] = useState("");
+  const [showNewType, setShowNewType] = useState(false);
+
+  const fetchEventTypes = async () => {
+    const { data } = await supabase.from("event_types").select("name").order("name");
+    if (data) setEventTypes(data.map(d => (d as any).name));
+  };
 
   const fetchEvents = async () => {
     setLoading(true);
@@ -76,7 +93,7 @@ const EventManagement = () => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchEvents(); }, []);
+  useEffect(() => { fetchEvents(); fetchEventTypes(); }, []);
 
   const openNew = () => {
     setEditingId(null);
@@ -98,8 +115,11 @@ const EventManagement = () => {
       videos: ev.videos || [],
       kp_regroupement: ev.kp_regroupement || [],
       logo_url: ev.logo_url || "",
+      type: ev.type || "",
     });
     setKpInput("");
+    setShowNewType(false);
+    setNewTypeInput("");
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: "instant" });
   };
@@ -125,6 +145,7 @@ const EventManagement = () => {
       videos: form.videos,
       kp_regroupement: form.kp_regroupement,
       logo_url: form.logo_url || null,
+      type: form.type || null,
     };
 
     let error;
@@ -170,6 +191,20 @@ const EventManagement = () => {
     setForm(prev => ({ ...prev, kp_regroupement: prev.kp_regroupement.filter((_, i) => i !== idx) }));
   };
 
+  const addNewType = async () => {
+    const trimmed = newTypeInput.trim();
+    if (!trimmed) return;
+    const { error } = await supabase.from("event_types").insert({ name: trimmed } as any);
+    if (error) {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    } else {
+      await fetchEventTypes();
+      setForm(p => ({ ...p, type: trimmed }));
+      setNewTypeInput("");
+      setShowNewType(false);
+    }
+  };
+
   // ── FORM VIEW ──
   if (showForm) {
     return (
@@ -186,9 +221,45 @@ const EventManagement = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left column */}
           <div className="space-y-4">
-            <div>
-              <Label>Nom *</Label>
-              <Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Nom *</Label>
+                <Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />
+              </div>
+              <div>
+                <Label>Type</Label>
+                {showNewType ? (
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Nouveau type..."
+                      value={newTypeInput}
+                      onChange={e => setNewTypeInput(e.target.value)}
+                      onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addNewType(); } }}
+                    />
+                    <Button size="sm" onClick={addNewType} className="shrink-0">OK</Button>
+                    <Button size="sm" variant="ghost" onClick={() => { setShowNewType(false); setNewTypeInput(""); }} className="shrink-0">
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <Select value={form.type} onValueChange={v => setForm(p => ({ ...p, type: v === "__none__" ? "" : v }))}>
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Aucun" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">Aucun</SelectItem>
+                        {eventTypes.map(t => (
+                          <SelectItem key={t} value={t}>{t}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button size="icon" variant="outline" onClick={() => setShowNewType(true)} title="Ajouter un type">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div>
@@ -333,6 +404,7 @@ const EventManagement = () => {
             <TableRow>
               <TableHead className="w-10"></TableHead>
               <TableHead>Nom</TableHead>
+              <TableHead>Type</TableHead>
               <TableHead>Hook</TableHead>
               <TableHead>Début</TableHead>
               <TableHead>Fin</TableHead>
@@ -349,6 +421,7 @@ const EventManagement = () => {
                   </Button>
                 </TableCell>
                 <TableCell className="font-medium">{ev.name}</TableCell>
+                <TableCell className="text-sm text-muted-foreground">{ev.type || "—"}</TableCell>
                 <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">{ev.hook}</TableCell>
                 <TableCell className="text-sm">{ev.start_date || "—"}</TableCell>
                 <TableCell className="text-sm">{ev.end_date || "—"}</TableCell>

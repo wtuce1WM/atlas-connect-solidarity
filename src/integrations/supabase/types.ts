@@ -1868,6 +1868,24 @@ export type Database = {
         }
         Relationships: []
       }
+      event_types: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           created_at: string
@@ -1880,6 +1898,7 @@ export type Database = {
           logo_url: string | null
           name: string
           start_date: string | null
+          type: string | null
           updated_at: string
           videos: string[] | null
         }
@@ -1894,6 +1913,7 @@ export type Database = {
           logo_url?: string | null
           name: string
           start_date?: string | null
+          type?: string | null
           updated_at?: string
           videos?: string[] | null
         }
@@ -1908,6 +1928,7 @@ export type Database = {
           logo_url?: string | null
           name?: string
           start_date?: string | null
+          type?: string | null
           updated_at?: string
           videos?: string[] | null
         }
