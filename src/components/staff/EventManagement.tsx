@@ -146,7 +146,6 @@ const EventManagement = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Supprimer cet événement ?")) return;
     const { error } = await supabase.from("events").delete().eq("id", id);
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
