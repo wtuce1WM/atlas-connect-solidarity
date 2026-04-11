@@ -3784,6 +3784,12 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             <SortableContext items={menuDocs.map((d) => d._uid)} strategy={verticalListSortingStrategy}>
               {menuDocs.map((doc, idx) => (
                 <SortableDocRow key={doc._uid} id={doc._uid}>
+              <Switch
+                checked={doc.force_external}
+                onCheckedChange={(checked) => setMenuDocs(prev => prev.map((d, i) => i === idx ? { ...d, force_external: checked } : d))}
+                title="Ouvrir en lien externe"
+                className="shrink-0"
+              />
               <div className="relative shrink-0 group">
                 {doc.icon ? (
                   <img src={getDocIconSrc(doc.icon)} alt="" className="h-9 w-9 object-contain rounded border border-input p-0.5 cursor-pointer" />
@@ -3882,12 +3888,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <option key={code} value={code}>{label}</option>
                 ))}
               </select>
-              <Switch
-                checked={doc.force_external}
-                onCheckedChange={(checked) => setMenuDocs(prev => prev.map((d, i) => i === idx ? { ...d, force_external: checked } : d))}
-                title="Ouvrir en lien externe"
-                className="shrink-0"
-              />
               <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setMenuDocs(prev => prev.filter((_, i) => i !== idx))}>
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -4011,6 +4011,12 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             <SortableContext items={flipbookDocs.map((d) => d._uid)} strategy={verticalListSortingStrategy}>
               {flipbookDocs.map((doc, idx) => (
                 <SortableDocRow key={doc._uid} id={doc._uid}>
+              <Switch
+                checked={doc.force_external}
+                onCheckedChange={(checked) => setFlipbookDocs(prev => prev.map((d, i) => i === idx ? { ...d, force_external: checked } : d))}
+                title="Ouvrir en lien externe"
+                className="shrink-0"
+              />
               <div className="relative shrink-0 group">
                 {doc.icon ? (
                   <img src={getDocIconSrc(doc.icon)} alt="" className="h-9 w-9 object-contain rounded border border-input p-0.5 cursor-pointer" />
@@ -4056,12 +4062,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <option key={code} value={code}>{label}</option>
                 ))}
               </select>
-              <Switch
-                checked={doc.force_external}
-                onCheckedChange={(checked) => setFlipbookDocs(prev => prev.map((d, i) => i === idx ? { ...d, force_external: checked } : d))}
-                title="Ouvrir en lien externe"
-                className="shrink-0"
-              />
               <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setFlipbookDocs(prev => prev.filter((_, i) => i !== idx))}>
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -4092,6 +4092,12 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             <SortableContext items={externalLinkDocs.map((d) => d._uid)} strategy={verticalListSortingStrategy}>
               {externalLinkDocs.map((doc, idx) => (
                 <SortableDocRow key={doc._uid} id={doc._uid}>
+              <Switch
+                checked={doc.force_external}
+                onCheckedChange={(checked) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, force_external: checked } : d))}
+                title="Ouvrir en lien externe"
+                className="shrink-0"
+              />
               {/* Image upload thumbnail */}
               <label className="shrink-0 cursor-pointer relative group">
                 {doc.image_url ? (
@@ -4207,12 +4213,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <option key={code} value={code}>{label}</option>
                 ))}
               </select>
-              <Switch
-                checked={doc.force_external}
-                onCheckedChange={(checked) => setExternalLinkDocs(prev => prev.map((d, i) => i === idx ? { ...d, force_external: checked } : d))}
-                title="Ouvrir en lien externe"
-                className="shrink-0"
-              />
               <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setExternalLinkDocs(prev => prev.filter((_, i) => i !== idx))}>
                 <Trash2 className="h-4 w-4" />
               </Button>
