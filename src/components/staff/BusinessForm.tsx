@@ -4384,7 +4384,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <AlertDialogFooter>
                 <AlertDialogCancel>Annuler</AlertDialogCancel>
                 <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => {
-                  setVideoDocs([{ url: "", name: "", popup: false, linked_business_id: null, destination_id: null, poi_id: null, service_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, start_date: null, end_date: null, price: null, price_type: null, thumbnail_url: null }]);
+                  setVideoDocs([]);
                   handleChange("video_1_url", "");
                   toast({ title: "Toutes les vidéos ont été supprimées" });
                 }}>Supprimer</AlertDialogAction>
