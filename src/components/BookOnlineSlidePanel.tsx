@@ -1480,28 +1480,36 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               {menuDocs.length > 0 && (
                 <button
                   onClick={() => { setShowDescriptionOverlay(false); setTimeout(() => openDocOrBooking(menuDocs[0].url, menuDocs[0].name || 'Menu'), 150); }}
-                  className="group flex items-center justify-center h-9 w-9 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white hover:bg-white/30 transition-colors shadow-lg"
-                  title="Menu"
+                  className="group flex items-center h-9 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white hover:bg-white/30 transition-all shadow-lg px-2.5 gap-0 hover:gap-1.5 hover:pr-3"
                 >
-                  {categoryIcon ? <DynamicIcon name={categoryIcon} size={16} /> : <Newspaper className="h-4 w-4" />}
+                  <span className="shrink-0 flex items-center justify-center w-4 h-4">
+                    {categoryIcon ? <DynamicIcon name={categoryIcon} size={16} /> : <Newspaper className="h-4 w-4" />}
+                  </span>
+                  <span className="max-w-0 overflow-hidden whitespace-nowrap text-xs font-medium opacity-0 group-hover:max-w-[8rem] group-hover:opacity-100 transition-all duration-300">
+                    {menuDocs[0].name || 'Menu'}
+                  </span>
                 </button>
               )}
               {menuSummaries.length > 0 && (
                 <button
                   onClick={() => { setShowDescriptionOverlay(false); }}
-                  className="group flex items-center justify-center h-9 w-9 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white hover:bg-white/30 transition-colors shadow-lg"
-                  title="Menu IA"
+                  className="group flex items-center h-9 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white hover:bg-white/30 transition-all shadow-lg px-2.5 gap-0 hover:gap-1.5 hover:pr-3"
                 >
-                  <Sparkles className="h-4 w-4" />
+                  <Sparkles className="h-4 w-4 shrink-0" />
+                  <span className="max-w-0 overflow-hidden whitespace-nowrap text-xs font-medium opacity-0 group-hover:max-w-[8rem] group-hover:opacity-100 transition-all duration-300">
+                    Menu IA
+                  </span>
                 </button>
               )}
               {externalLinks.length > 0 && (
                 <button
                   onClick={() => { setShowDescriptionOverlay(false); setTimeout(() => { const el = document.querySelector('[data-card="external-links"]'); el?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 300); }}
-                  className="group flex items-center justify-center h-9 w-9 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white hover:bg-white/30 transition-colors shadow-lg"
-                  title="Liens externes"
+                  className="group flex items-center h-9 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white hover:bg-white/30 transition-all shadow-lg px-2.5 gap-0 hover:gap-1.5 hover:pr-3"
                 >
-                  <Newspaper className="h-4 w-4" />
+                  <Newspaper className="h-4 w-4 shrink-0" />
+                  <span className="max-w-0 overflow-hidden whitespace-nowrap text-xs font-medium opacity-0 group-hover:max-w-[8rem] group-hover:opacity-100 transition-all duration-300">
+                    Presse
+                  </span>
                 </button>
               )}
             </div>
