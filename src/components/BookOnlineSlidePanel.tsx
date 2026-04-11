@@ -1477,7 +1477,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             <div className="absolute right-2 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-2">
               {menuDocs.length > 0 && (
                 <button
-                  onClick={() => openDocOrBooking(menuDocs[0].url, menuDocs[0].name || 'Menu')}
+                  onClick={() => { setShowDescriptionOverlay(false); setTimeout(() => openDocOrBooking(menuDocs[0].url, menuDocs[0].name || 'Menu'), 150); }}
                   className="group flex items-center justify-center h-9 w-9 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white hover:bg-white/30 transition-colors shadow-lg"
                   title="Menu"
                 >
@@ -1495,7 +1495,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               )}
               {externalLinks.length > 0 && (
                 <button
-                  onClick={() => { setShowDescriptionOverlay(false); }}
+                  onClick={() => { setShowDescriptionOverlay(false); setTimeout(() => { const el = document.querySelector('[data-card="external-links"]'); el?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 300); }}
                   className="group flex items-center justify-center h-9 w-9 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white hover:bg-white/30 transition-colors shadow-lg"
                   title="Liens externes"
                 >
