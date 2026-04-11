@@ -387,20 +387,8 @@ const EventManagement = () => {
                 maxHeight="600px"
               />
             </div>
-          </div>
 
-          {/* Right column: Logo, Images & Videos */}
-          <div className="space-y-6">
-            {/* Logo */}
-            <div className="space-y-2">
-              <Label className="text-base font-semibold">Logo</Label>
-              <LogoUploader
-                logoUrl={form.logo_url}
-                onChange={url => setForm(p => ({ ...p, logo_url: url }))}
-              />
-            </div>
-
-            {/* Images */}
+            {/* Images - below description */}
             <div>
               <Label className="text-base font-semibold">Images ({form.images.length}/10)</Label>
               <ImageUploader
@@ -410,10 +398,22 @@ const EventManagement = () => {
               />
             </div>
 
-            {/* Videos */}
+            {/* Videos - below images */}
             <div>
               <Label className="text-base font-semibold">Vidéos ({form.videos.length}/10)</Label>
               <VideosDndList form={form} setForm={setForm} toast={toast} />
+            </div>
+          </div>
+
+          {/* Right column: Logo */}
+          <div className="space-y-6">
+            {/* Logo */}
+            <div className="space-y-2">
+              <Label className="text-base font-semibold">Logo</Label>
+              <LogoUploader
+                logoUrl={form.logo_url}
+                onChange={url => setForm(p => ({ ...p, logo_url: url }))}
+              />
             </div>
           </div>
         </div>
