@@ -1904,6 +1904,9 @@ export type Database = {
           start_date: string | null
           type: string | null
           updated_at: string
+          url: string | null
+          url_cta: string | null
+          url_force_external: boolean | null
           videos: string[] | null
         }
         Insert: {
@@ -1923,6 +1926,9 @@ export type Database = {
           start_date?: string | null
           type?: string | null
           updated_at?: string
+          url?: string | null
+          url_cta?: string | null
+          url_force_external?: boolean | null
           videos?: string[] | null
         }
         Update: {
@@ -1942,6 +1948,9 @@ export type Database = {
           start_date?: string | null
           type?: string | null
           updated_at?: string
+          url?: string | null
+          url_cta?: string | null
+          url_force_external?: boolean | null
           videos?: string[] | null
         }
         Relationships: []
