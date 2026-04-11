@@ -894,12 +894,21 @@ const SearchPage = () => {
     return haversineKm(geo.coords.lat, geo.coords.lng, b.latitude, b.longitude);
   }, [geo.isEnabled, geo.coords, subcategories]);
 
-  // Sort: WTUCE verified first (by rating desc), then non-verified (by rating desc)
+  // Sort: WTUCE verified first (by priority_score desc), then non-verified (by rating desc, ignoring <10 reviews)
   const sortWtuceAndRating = (a: Business, b: Business) => {
     const aVerified = a.wtuce_status === "verified" ? 0 : 1;
     const bVerified = b.wtuce_status === "verified" ? 0 : 1;
     if (aVerified !== bVerified) return aVerified - bVerified;
-    return (getEffectiveRating(b) ?? -1) - (getEffectiveRating(a) ?? -1);
+    // Verified: sort by priority_score descending
+    if (aVerified === 0) {
+      return ((b as any).priority_score || 0) - ((a as any).priority_score || 0);
+    }
+    // Non-verified: sort by rating desc, but treat <10 reviews as no rating
+    const aCount = (a as any).total_review_count ?? 0;
+    const bCount = (b as any).total_review_count ?? 0;
+    const aRating = aCount >= 10 ? (getEffectiveRating(a) ?? -1) : -1;
+    const bRating = bCount >= 10 ? (getEffectiveRating(b) ?? -1) : -1;
+    return bRating - aRating;
   };
 
   // Filter businesses by city. Include businesses that cover the city via zone_city_ids.
