@@ -1891,11 +1891,14 @@ export type Database = {
           created_at: string
           description: string | null
           end_date: string | null
+          google_maps_url: string | null
           hook: string | null
           id: string
           images: string[] | null
           kp_regroupement: string[] | null
+          latitude: number | null
           logo_url: string | null
+          longitude: number | null
           name: string
           recurrence: string | null
           start_date: string | null
@@ -1907,11 +1910,14 @@ export type Database = {
           created_at?: string
           description?: string | null
           end_date?: string | null
+          google_maps_url?: string | null
           hook?: string | null
           id?: string
           images?: string[] | null
           kp_regroupement?: string[] | null
+          latitude?: number | null
           logo_url?: string | null
+          longitude?: number | null
           name: string
           recurrence?: string | null
           start_date?: string | null
@@ -1923,11 +1929,14 @@ export type Database = {
           created_at?: string
           description?: string | null
           end_date?: string | null
+          google_maps_url?: string | null
           hook?: string | null
           id?: string
           images?: string[] | null
           kp_regroupement?: string[] | null
+          latitude?: number | null
           logo_url?: string | null
+          longitude?: number | null
           name?: string
           recurrence?: string | null
           start_date?: string | null
