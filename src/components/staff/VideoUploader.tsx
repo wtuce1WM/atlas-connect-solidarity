@@ -11,6 +11,7 @@ interface VideoUploaderProps {
   onChange: (url: string) => void;
   businessId?: string;
   maxSizeMB?: number;
+  compact?: boolean;
 }
 
 const formatFileSize = (bytes: number) => {
