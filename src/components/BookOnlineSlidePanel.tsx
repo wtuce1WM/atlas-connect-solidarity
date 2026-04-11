@@ -546,7 +546,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   }, [effectiveMedia?.kind, effectiveMedia?.url, business?.default_sound_on]);
 
   const [isFileVideoVertical, setIsFileVideoVertical] = useState(false);
+  const [isFileVideoSquare, setIsFileVideoSquare] = useState(false);
   const isVerticalVideo = videoInfo ? (videoInfo.type === "file" ? isFileVideoVertical : videoInfo.isVertical) : false;
+  const isSquareVideo = videoInfo?.type === "file" && isFileVideoSquare;
   const externalVideoInteractiveMode = cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type !== "file";
 
   // Listen for YouTube "ended"
@@ -668,7 +670,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               ref={videoRef}
               key={effectiveMedia.url}
               src={effectiveMedia.url}
-              className={`w-full h-full bg-black ${isVerticalVideo ? "object-cover" : "object-contain"}`}
+              className={`w-full h-full bg-black ${(isVerticalVideo || isSquareVideo) ? "object-cover" : "object-contain"}`}
               autoPlay
               loop
               playsInline
@@ -689,7 +691,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               }}
               onLoadedMetadata={(e) => {
                 const v = e.currentTarget;
-                setIsFileVideoVertical(v.videoHeight > v.videoWidth);
+                 const ratio = v.videoWidth > 0 ? v.videoHeight / v.videoWidth : 1;
+                 setIsFileVideoVertical(v.videoHeight > v.videoWidth);
+                 setIsFileVideoSquare(ratio >= 0.9 && ratio <= 1.1);
               }}
             />
           ) : (
