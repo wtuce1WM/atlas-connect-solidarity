@@ -1503,17 +1503,23 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   </span>
                 </button>
               ))}
-              {externalLinks.length > 0 && (
+              {externalLinks.map((link, i) => (
                 <button
-                  onClick={() => { setShowDescriptionOverlay(false); setTimeout(() => { const el = document.querySelector('[data-card="external-links"]'); el?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 300); }}
+                  key={`ext-${i}`}
+                  onClick={() => {
+                    if (link.url && link.url !== '#' && link.url !== '*') {
+                      setShowDescriptionOverlay(false);
+                      setTimeout(() => openDocOrBooking(link.url, link.name || 'Lien externe'), 150);
+                    }
+                  }}
                   className="group flex items-center h-8 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white hover:bg-white/30 transition-all shadow-lg px-2 gap-0 hover:gap-1.5 hover:pr-3"
                 >
                   <Newspaper className="h-3.5 w-3.5 shrink-0" />
                   <span className="max-w-0 overflow-hidden whitespace-nowrap text-[11px] font-medium opacity-0 group-hover:max-w-[10rem] group-hover:opacity-100 transition-all duration-300">
-                    Presse
+                    {link.name || new URL(link.url).hostname.replace('www.', '')}
                   </span>
                 </button>
-              )}
+              ))}
             </div>
           )}
           {images.length > 0 && !descGridMode && (
