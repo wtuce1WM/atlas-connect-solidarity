@@ -191,6 +191,20 @@ const EventManagement = () => {
     setForm(prev => ({ ...prev, kp_regroupement: prev.kp_regroupement.filter((_, i) => i !== idx) }));
   };
 
+  const addNewType = async () => {
+    const trimmed = newTypeInput.trim();
+    if (!trimmed) return;
+    const { error } = await supabase.from("event_types").insert({ name: trimmed } as any);
+    if (error) {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    } else {
+      await fetchEventTypes();
+      setForm(p => ({ ...p, type: trimmed }));
+      setNewTypeInput("");
+      setShowNewType(false);
+    }
+  };
+
   // ── FORM VIEW ──
   if (showForm) {
     return (
@@ -207,9 +221,45 @@ const EventManagement = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left column */}
           <div className="space-y-4">
-            <div>
-              <Label>Nom *</Label>
-              <Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Nom *</Label>
+                <Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />
+              </div>
+              <div>
+                <Label>Type</Label>
+                {showNewType ? (
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Nouveau type..."
+                      value={newTypeInput}
+                      onChange={e => setNewTypeInput(e.target.value)}
+                      onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addNewType(); } }}
+                    />
+                    <Button size="sm" onClick={addNewType} className="shrink-0">OK</Button>
+                    <Button size="sm" variant="ghost" onClick={() => { setShowNewType(false); setNewTypeInput(""); }} className="shrink-0">
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <Select value={form.type} onValueChange={v => setForm(p => ({ ...p, type: v === "__none__" ? "" : v }))}>
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Aucun" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">Aucun</SelectItem>
+                        {eventTypes.map(t => (
+                          <SelectItem key={t} value={t}>{t}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button size="icon" variant="outline" onClick={() => setShowNewType(true)} title="Ajouter un type">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div>
