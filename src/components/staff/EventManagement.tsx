@@ -143,19 +143,6 @@ interface EventRow {
   updated_at: string;
 }
 
-const EMPTY_FORM = {
-  name: "",
-  hook: "",
-  description: "",
-  start_date: "",
-  end_date: "",
-  images: [] as string[],
-  videos: [] as string[],
-  kp_regroupement: [] as string[],
-  logo_url: "",
-  type: "",
-};
-
 const EventManagement = () => {
   const { toast } = useToast();
   const [events, setEvents] = useState<EventRow[]>([]);
