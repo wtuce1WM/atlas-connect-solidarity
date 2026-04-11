@@ -1081,9 +1081,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     website_presentation_mode: inferPresentationMode((business as any)?.unified_cta) || (business as any)?.website_presentation_mode || "plus_informations",
     online_shop_presentation_mode: inferPresentationMode((business as any)?.unified_cta) || (business as any)?.online_shop_presentation_mode || "acheter_en_ligne",
     unified_cta: (business as any)?.unified_cta || "",
-    website_cta: (business as any)?.website_cta || "",
-    reserve_now_cta: (business as any)?.reserve_now_cta || "",
-    online_shop_cta: (business as any)?.online_shop_cta || "",
+    website_cta: (business as any)?.website_cta || (business as any)?.unified_cta || "",
+    reserve_now_cta: (business as any)?.reserve_now_cta || (business as any)?.unified_cta || "",
+    online_shop_cta: (business as any)?.online_shop_cta || (business as any)?.unified_cta || "",
     carousel_badge: (business as any)?.carousel_badge || "",
   });
 
