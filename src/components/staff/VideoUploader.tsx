@@ -144,7 +144,7 @@ const VideoUploader = ({
       {/* Current video preview */}
       {videoUrl && (
         <div className="space-y-2">
-          <div className={cn("relative rounded-lg overflow-hidden border bg-black", compact ? "w-32 h-20" : "aspect-video w-full max-w-2xl")}>
+          <div className={cn("relative rounded-lg overflow-hidden border bg-black", compact ? "w-24 h-[60px]" : "aspect-video w-full max-w-2xl")}>
             {videoUrl.includes("youtube.com") || videoUrl.includes("youtu.be") ? (
               <iframe
                 src={`https://www.youtube.com/embed/${
