@@ -1511,7 +1511,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       </button>
                       <div
                         className="flex flex-col gap-1 mt-1 overflow-hidden transition-all duration-300 ease-in-out"
-                        style={{ maxHeight: isOpen ? `${g.items.length * 32}px` : '0px', opacity: isOpen ? 1 : 0 }}
+                        style={{ maxHeight: isOpen ? `${g.items.length * 44}px` : '0px', opacity: isOpen ? 1 : 0 }}
                       >
                         {g.items.map((item, i) => (
                           <button
