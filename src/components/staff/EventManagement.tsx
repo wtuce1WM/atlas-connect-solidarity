@@ -404,6 +404,7 @@ const EventManagement = () => {
             <TableRow>
               <TableHead className="w-10"></TableHead>
               <TableHead>Nom</TableHead>
+              <TableHead>Type</TableHead>
               <TableHead>Hook</TableHead>
               <TableHead>Début</TableHead>
               <TableHead>Fin</TableHead>
@@ -420,6 +421,7 @@ const EventManagement = () => {
                   </Button>
                 </TableCell>
                 <TableCell className="font-medium">{ev.name}</TableCell>
+                <TableCell className="text-sm text-muted-foreground">{ev.type || "—"}</TableCell>
                 <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">{ev.hook}</TableCell>
                 <TableCell className="text-sm">{ev.start_date || "—"}</TableCell>
                 <TableCell className="text-sm">{ev.end_date || "—"}</TableCell>
