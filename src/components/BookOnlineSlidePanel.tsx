@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { DesktopMediaArrows, CardsToggleButton, useOwnerLogo } from "@/components/CardsVisibilityToggle";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
-import { MapPin, ChevronUp, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, UtensilsCrossed, Sparkles, ExternalLink } from "lucide-react";
+import { MapPin, ChevronUp, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper } from "lucide-react";
 import VideoControls from "@/components/VideoControls";
+import DynamicIcon from "@/components/DynamicIcon";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -1480,7 +1481,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   className="group flex items-center justify-center h-9 w-9 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white hover:bg-white/30 transition-colors shadow-lg"
                   title="Menu"
                 >
-                  <UtensilsCrossed className="h-4 w-4" />
+                  {categoryIcon ? <DynamicIcon name={categoryIcon} size={16} /> : <Newspaper className="h-4 w-4" />}
                 </button>
               )}
               {menuSummaries.length > 0 && (
@@ -1498,7 +1499,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   className="group flex items-center justify-center h-9 w-9 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white hover:bg-white/30 transition-colors shadow-lg"
                   title="Liens externes"
                 >
-                  <ExternalLink className="h-4 w-4" />
+                  <Newspaper className="h-4 w-4" />
                 </button>
               )}
             </div>
