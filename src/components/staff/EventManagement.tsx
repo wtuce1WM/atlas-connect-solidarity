@@ -39,6 +39,94 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+const EMPTY_FORM = {
+  name: "",
+  hook: "",
+  description: "",
+  start_date: "",
+  end_date: "",
+  images: [] as string[],
+  videos: [] as string[],
+  kp_regroupement: [] as string[],
+  logo_url: "",
+  type: "",
+};
+
+/* ── Sortable video item ── */
+const SortableVideoItem = ({ id, url, index, setForm, toast }: { id: string; url: string; index: number; setForm: React.Dispatch<React.SetStateAction<typeof EMPTY_FORM>>; toast: any }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
+  return (
+    <div ref={setNodeRef} style={style} className="space-y-1">
+      <div className="flex items-center gap-2">
+        <button type="button" {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1 text-muted-foreground hover:text-foreground">
+          <GripVertical className="h-4 w-4" />
+        </button>
+        <div className="flex-1">
+          <VideoUploader
+            compact
+            videoUrl={url}
+            onChange={newUrl => setForm(p => ({ ...p, videos: p.videos.map((v, vi) => vi === index ? newUrl : v) }))}
+          />
+        </div>
+        <Button type="button" size="icon" variant="ghost" onClick={() => setForm(p => ({ ...p, videos: p.videos.filter((_, vi) => vi !== index) }))}>
+          <X className="h-4 w-4 text-destructive" />
+        </Button>
+      </div>
+      <div className="flex items-center gap-1 ml-8">
+        <Link className="h-3 w-3 text-muted-foreground" />
+        <Input
+          placeholder="Coller l'ID vidéo (business_documents)"
+          className="h-6 text-xs font-mono"
+          onPaste={async (e) => {
+            const pastedId = e.clipboardData.getData("text").trim();
+            if (!pastedId || pastedId.length < 30) return;
+            e.preventDefault();
+            const { data } = await supabase.from("business_documents").select("url").eq("id", pastedId).eq("type", "video").maybeSingle();
+            if ((data as any)?.url) {
+              setForm(p => ({ ...p, videos: p.videos.map((v, vi) => vi === index ? (data as any).url : v) }));
+              toast({ title: "Vidéo liée ✓", description: `URL récupérée depuis l'ID ${pastedId.substring(0, 8)}…` });
+            } else {
+              toast({ variant: "destructive", title: "ID introuvable", description: "Aucune vidéo trouvée avec cet identifiant." });
+            }
+          }}
+        />
+      </div>
+    </div>
+  );
+};
+
+/* ── Videos DnD list ── */
+const VideosDndList = ({ form, setForm, toast }: { form: typeof EMPTY_FORM; setForm: React.Dispatch<React.SetStateAction<typeof EMPTY_FORM>>; toast: any }) => {
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+  const videoIds = form.videos.map((_, i) => `evt-vid-${i}`);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = videoIds.indexOf(active.id as string);
+    const newIndex = videoIds.indexOf(over.id as string);
+    setForm(p => ({ ...p, videos: arrayMove(p.videos, oldIndex, newIndex) }));
+  };
+
+  return (
+    <div className="space-y-3">
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={videoIds} strategy={verticalListSortingStrategy}>
+          {form.videos.map((url, i) => (
+            <SortableVideoItem key={videoIds[i]} id={videoIds[i]} url={url} index={i} setForm={setForm} toast={toast} />
+          ))}
+        </SortableContext>
+      </DndContext>
+      {form.videos.length < 10 && (
+        <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => setForm(p => ({ ...p, videos: [...p.videos, ""] }))}>
+          <Plus className="h-4 w-4" /> Ajouter une vidéo
+        </Button>
+      )}
+    </div>
+  );
+};
+
 interface EventRow {
   id: string;
   name: string;
