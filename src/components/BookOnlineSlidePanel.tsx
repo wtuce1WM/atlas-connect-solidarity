@@ -1486,7 +1486,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                             if (min == null && max == null) return null;
                             return (
                               <div className="flex-1 min-w-[140px] rounded-xl border border-gold/30 bg-gold/10 backdrop-blur-sm px-4 py-3">
-                                <span className="block text-[10px] uppercase tracking-widest text-gold/70 font-['Josefin_Sans',sans-serif] mb-1">Budget moyen / pers.</span>
+                                <span className="block text-[10px] font-bold uppercase tracking-widest text-gold/70 font-['Josefin_Sans',sans-serif] mb-1">Budget moyen / pers.</span>
                                 <span className="text-lg font-bold text-gold font-['Josefin_Sans',sans-serif]">
                                   {min != null && max != null ? `${min} – ${max} ${currency}` : `${min ?? max} ${currency}`}
                                 </span>
@@ -1494,9 +1494,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                             );
                           })()}
                           {descOverlayContent.priceDetails && (
-                            <div className="flex-1 min-w-[140px] rounded-xl border border-white/15 bg-white/5 backdrop-blur-sm px-4 py-3">
-                              <span className="block text-[10px] uppercase tracking-widest text-white/50 font-['Josefin_Sans',sans-serif] mb-1">Détail des prix</span>
-                              <span className="text-sm text-white/90 leading-relaxed whitespace-pre-line">{descOverlayContent.priceDetails}</span>
+                            <div className="flex-1 min-w-[140px] rounded-xl border backdrop-blur-sm px-4 py-3" style={{ borderColor: 'rgba(192,79,23,0.35)', backgroundColor: 'rgba(192,79,23,0.1)' }}>
+                              <span className="block text-[10px] font-bold uppercase tracking-widest font-['Josefin_Sans',sans-serif] mb-1" style={{ color: 'rgba(192,79,23,0.7)' }}>Détail des prix</span>
+                              <span className="text-sm leading-relaxed whitespace-pre-line" style={{ color: '#C04F17' }} dangerouslySetInnerHTML={{ __html: descOverlayContent.priceDetails }} />
                             </div>
                           )}
                         </div>
