@@ -1605,7 +1605,24 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         </div>
       )}
 
-      {showDirections && business && (
+      {/* External Links Overlay */}
+      {showExtLinksOverlay && externalLinks.length > 0 && (
+        <div className="absolute inset-0 z-[75] flex items-center justify-center bg-black/70 backdrop-blur-sm" style={{ animation: "panelFadeIn 0.3s ease-out both" }}>
+          <button
+            onClick={() => setShowExtLinksOverlay(false)}
+            className="absolute top-3 right-3 z-10 flex items-center justify-center h-8 w-8 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+          <div className="w-full max-w-sm px-4">
+            <ExternalLinksFlipCard
+              links={externalLinks}
+              onOpenUrl={(url, title) => { setShowExtLinksOverlay(false); openDocOrBooking(url, title, true); }}
+            />
+          </div>
+        </div>
+      )}
+
         <div
           className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[80] bg-background"
           style={{ animation: "slide-up-from-bottom 0.4s ease-out both" }}
