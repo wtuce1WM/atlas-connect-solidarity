@@ -5,8 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, CalendarDays, Save, X } from "lucide-react";
+import { Plus, Edit, Trash2, Save, ArrowLeft, X } from "lucide-react";
 import RichTextEditor from "./RichTextEditor";
+import ImageUploader from "./ImageUploader";
+import VideoUploader from "./VideoUploader";
 import {
   Table,
   TableBody,
@@ -15,12 +17,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -62,14 +58,10 @@ const EventManagement = () => {
   const { toast } = useToast();
   const [events, setEvents] = useState<EventRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ ...EMPTY_FORM });
   const [saving, setSaving] = useState(false);
-
-  // temp inputs for array fields
-  const [imageInput, setImageInput] = useState("");
-  const [videoInput, setVideoInput] = useState("");
   const [kpInput, setKpInput] = useState("");
 
   const fetchEvents = async () => {
@@ -87,10 +79,9 @@ const EventManagement = () => {
   const openNew = () => {
     setEditingId(null);
     setForm({ ...EMPTY_FORM });
-    setImageInput("");
-    setVideoInput("");
     setKpInput("");
-    setDialogOpen(true);
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: "instant" });
   };
 
   const openEdit = (ev: EventRow) => {
@@ -105,10 +96,14 @@ const EventManagement = () => {
       videos: ev.videos || [],
       kp_regroupement: ev.kp_regroupement || [],
     });
-    setImageInput("");
-    setVideoInput("");
     setKpInput("");
-    setDialogOpen(true);
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: "instant" });
+  };
+
+  const handleCancel = () => {
+    setShowForm(false);
+    setEditingId(null);
   };
 
   const handleSave = async () => {
@@ -139,7 +134,8 @@ const EventManagement = () => {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     } else {
       toast({ title: editingId ? "Événement mis à jour" : "Événement créé" });
-      setDialogOpen(false);
+      setShowForm(false);
+      setEditingId(null);
       fetchEvents();
     }
     setSaving(false);
@@ -155,20 +151,161 @@ const EventManagement = () => {
     }
   };
 
-  const addToArray = (field: "images" | "videos" | "kp_regroupement", value: string, max: number) => {
-    const trimmed = value.trim();
+  const addKp = () => {
+    const trimmed = kpInput.trim();
     if (!trimmed) return;
-    if (form[field].length >= max) {
-      toast({ title: `Maximum ${max} éléments`, variant: "destructive" });
+    if (form.kp_regroupement.length >= 20) {
+      toast({ title: "Maximum 20 éléments", variant: "destructive" });
       return;
     }
-    setForm(prev => ({ ...prev, [field]: [...prev[field], trimmed] }));
+    setForm(prev => ({ ...prev, kp_regroupement: [...prev.kp_regroupement, trimmed] }));
+    setKpInput("");
   };
 
-  const removeFromArray = (field: "images" | "videos" | "kp_regroupement", idx: number) => {
-    setForm(prev => ({ ...prev, [field]: prev[field].filter((_, i) => i !== idx) }));
+  const removeKp = (idx: number) => {
+    setForm(prev => ({ ...prev, kp_regroupement: prev.kp_regroupement.filter((_, i) => i !== idx) }));
   };
 
+  // ── FORM VIEW ──
+  if (showForm) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" onClick={handleCancel} className="gap-2">
+            <ArrowLeft className="h-4 w-4" /> Retour
+          </Button>
+          <h2 className="text-xl font-semibold">
+            {editingId ? "Modifier l'événement" : "Nouvel événement"}
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Left column */}
+          <div className="space-y-4">
+            <div>
+              <Label>Nom *</Label>
+              <Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />
+            </div>
+
+            <div>
+              <Label>Hook</Label>
+              <Textarea value={form.hook} onChange={e => setForm(p => ({ ...p, hook: e.target.value }))} rows={2} />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Date de début</Label>
+                <Input type="date" value={form.start_date} onChange={e => setForm(p => ({ ...p, start_date: e.target.value }))} />
+              </div>
+              <div>
+                <Label>Date de fin</Label>
+                <Input type="date" value={form.end_date} onChange={e => setForm(p => ({ ...p, end_date: e.target.value }))} />
+              </div>
+            </div>
+
+            {/* KP Regroupement */}
+            <div>
+              <Label>KP Regroupement ({form.kp_regroupement.length}/20)</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Code KP"
+                  value={kpInput}
+                  onChange={e => setKpInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addKp(); } }}
+                />
+                <Button type="button" variant="outline" size="sm" onClick={addKp}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              {form.kp_regroupement.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {form.kp_regroupement.map((kp, i) => (
+                    <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-0.5 rounded text-sm">
+                      {kp}
+                      <button type="button" onClick={() => removeKp(i)} className="text-muted-foreground hover:text-destructive">×</button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Description RichText */}
+            <div>
+              <Label>Description</Label>
+              <RichTextEditor
+                content={form.description}
+                onChange={html => setForm(p => ({ ...p, description: html }))}
+                placeholder="Description de l'événement..."
+                maxHeight="300px"
+              />
+            </div>
+          </div>
+
+          {/* Right column: Images & Videos */}
+          <div className="space-y-6">
+            <div>
+              <Label className="text-base font-semibold">Images ({form.images.length}/10)</Label>
+              <ImageUploader
+                images={form.images}
+                onChange={images => setForm(p => ({ ...p, images }))}
+                maxImages={10}
+              />
+            </div>
+
+            <div>
+              <Label className="text-base font-semibold">Vidéos ({form.videos.length}/10)</Label>
+              <div className="space-y-3">
+                {form.videos.map((url, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <div className="flex-1">
+                      <VideoUploader
+                        videoUrl={url}
+                        onChange={newUrl => {
+                          setForm(p => ({
+                            ...p,
+                            videos: p.videos.map((v, vi) => vi === i ? newUrl : v),
+                          }));
+                        }}
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => setForm(p => ({ ...p, videos: p.videos.filter((_, vi) => vi !== i) }))}
+                    >
+                      <X className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                ))}
+                {form.videos.length < 10 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                    onClick={() => setForm(p => ({ ...p, videos: [...p.videos, ""] }))}
+                  >
+                    <Plus className="h-4 w-4" /> Ajouter une vidéo
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Save bar */}
+        <div className="flex justify-end gap-2 border-t pt-4">
+          <Button variant="outline" onClick={handleCancel}>Annuler</Button>
+          <Button onClick={handleSave} disabled={saving} className="gap-2">
+            <Save className="h-4 w-4" /> {saving ? "Enregistrement..." : "Enregistrer"}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── LIST VIEW ──
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -236,145 +373,6 @@ const EventManagement = () => {
           </TableBody>
         </Table>
       )}
-
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editingId ? "Modifier l'événement" : "Nouvel événement"}</DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            {/* Name */}
-            <div>
-              <Label>Nom *</Label>
-              <Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />
-            </div>
-
-            {/* Hook */}
-            <div>
-              <Label>Hook</Label>
-              <Textarea value={form.hook} onChange={e => setForm(p => ({ ...p, hook: e.target.value }))} rows={2} />
-            </div>
-
-            {/* Description RichText */}
-            <div>
-              <Label>Description</Label>
-              <RichTextEditor
-                content={form.description}
-                onChange={html => setForm(p => ({ ...p, description: html }))}
-                placeholder="Description de l'événement..."
-                maxHeight="300px"
-              />
-            </div>
-
-            {/* Dates */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Date de début</Label>
-                <Input type="date" value={form.start_date} onChange={e => setForm(p => ({ ...p, start_date: e.target.value }))} />
-              </div>
-              <div>
-                <Label>Date de fin</Label>
-                <Input type="date" value={form.end_date} onChange={e => setForm(p => ({ ...p, end_date: e.target.value }))} />
-              </div>
-            </div>
-
-            {/* Images (max 10) */}
-            <div>
-              <Label>Images ({form.images.length}/10)</Label>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="URL de l'image"
-                  value={imageInput}
-                  onChange={e => setImageInput(e.target.value)}
-                  onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addToArray("images", imageInput, 10); setImageInput(""); } }}
-                />
-                <Button type="button" variant="outline" size="sm" onClick={() => { addToArray("images", imageInput, 10); setImageInput(""); }}>
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              {form.images.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {form.images.map((url, i) => (
-                    <div key={i} className="relative group">
-                      <img src={url} alt="" className="h-16 w-16 object-cover rounded border" />
-                      <button
-                        type="button"
-                        onClick={() => removeFromArray("images", i)}
-                        className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full h-5 w-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Videos (max 10) */}
-            <div>
-              <Label>Vidéos ({form.videos.length}/10)</Label>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="URL de la vidéo"
-                  value={videoInput}
-                  onChange={e => setVideoInput(e.target.value)}
-                  onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addToArray("videos", videoInput, 10); setVideoInput(""); } }}
-                />
-                <Button type="button" variant="outline" size="sm" onClick={() => { addToArray("videos", videoInput, 10); setVideoInput(""); }}>
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              {form.videos.length > 0 && (
-                <ul className="mt-2 space-y-1">
-                  {form.videos.map((url, i) => (
-                    <li key={i} className="flex items-center gap-2 text-sm">
-                      <span className="truncate flex-1 text-muted-foreground">{url}</span>
-                      <Button type="button" size="icon" variant="ghost" className="h-6 w-6" onClick={() => removeFromArray("videos", i)}>
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {/* KP Regroupement (max 20) */}
-            <div>
-              <Label>KP Regroupement ({form.kp_regroupement.length}/20)</Label>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Code KP"
-                  value={kpInput}
-                  onChange={e => setKpInput(e.target.value)}
-                  onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addToArray("kp_regroupement", kpInput, 20); setKpInput(""); } }}
-                />
-                <Button type="button" variant="outline" size="sm" onClick={() => { addToArray("kp_regroupement", kpInput, 20); setKpInput(""); }}>
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              {form.kp_regroupement.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {form.kp_regroupement.map((kp, i) => (
-                    <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-0.5 rounded text-sm">
-                      {kp}
-                      <button type="button" onClick={() => removeFromArray("kp_regroupement", i)} className="text-muted-foreground hover:text-destructive">×</button>
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Save */}
-            <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>Annuler</Button>
-              <Button onClick={handleSave} disabled={saving} className="gap-2">
-                <Save className="h-4 w-4" /> {saving ? "Enregistrement..." : "Enregistrer"}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
