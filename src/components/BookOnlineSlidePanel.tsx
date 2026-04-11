@@ -670,7 +670,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               ref={videoRef}
               key={effectiveMedia.url}
               src={effectiveMedia.url}
-              className={`w-full h-full bg-black ${isVerticalVideo ? "object-cover" : "object-contain"}`}
+              className={`w-full h-full bg-black ${(isVerticalVideo || isSquareVideo) ? "object-cover" : "object-contain"}`}
               autoPlay
               loop
               playsInline
@@ -691,7 +691,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               }}
               onLoadedMetadata={(e) => {
                 const v = e.currentTarget;
-                setIsFileVideoVertical(v.videoHeight > v.videoWidth);
+                 const ratio = v.videoWidth > 0 ? v.videoHeight / v.videoWidth : 1;
+                 setIsFileVideoVertical(v.videoHeight > v.videoWidth);
+                 setIsFileVideoSquare(ratio >= 0.9 && ratio <= 1.1);
               }}
             />
           ) : (
