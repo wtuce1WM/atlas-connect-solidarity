@@ -136,7 +136,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   }, [onMosaicStateChange, propagateMosaicState]);
   const showMosaic = showMosaicRaw;
   const [ytBgPlaying, setYtBgPlaying] = useState(true);
-  const [ytBgMuted, setYtBgMuted] = useState(false);
+  const [ytBgMuted, setYtBgMuted] = useState(true);
   const [youtubeVideoCount, setYoutubeVideoCount] = useState<number | null>(null);
   const [youtubeIsPlaying, setYoutubeIsPlaying] = useState(false);
   const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
@@ -290,7 +290,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     setIsLightboxOpen(false);
     setShowMosaic(false);
     setYtBgPlaying(true);
-    setYtBgMuted(!(business?.default_sound_on ?? true));
+    setYtBgMuted(true);
     setShowHook(false);
     setYoutubeVideoCount(null);
     setActiveYoutubeVideo(null);
@@ -681,7 +681,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     keepMutedRef.current = false;
                     muteLockSrcRef.current = null;
                   } else {
-                    videoRef.current.muted = !(business?.default_sound_on ?? true);
+                    videoRef.current.muted = true;
                     keepMutedRef.current = false;
                     muteLockSrcRef.current = null;
                   }
