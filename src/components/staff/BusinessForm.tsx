@@ -1064,8 +1064,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     reserve_now_force_external: (business as any)?.reserve_now_force_external ?? false,
     online_shop_force_external: (business as any)?.online_shop_force_external ?? false,
     
-    website_presentation_mode: (business as any)?.website_presentation_mode || "plus_informations",
-    online_shop_presentation_mode: (business as any)?.online_shop_presentation_mode || "acheter_en_ligne",
+    website_presentation_mode: (business as any)?.website_presentation_mode || inferPresentationMode((business as any)?.unified_cta) || "plus_informations",
+    online_shop_presentation_mode: (business as any)?.online_shop_presentation_mode || inferPresentationMode((business as any)?.unified_cta) || "acheter_en_ligne",
     unified_cta: (business as any)?.unified_cta || "",
     website_cta: (business as any)?.website_cta || "",
     reserve_now_cta: (business as any)?.reserve_now_cta || "",
