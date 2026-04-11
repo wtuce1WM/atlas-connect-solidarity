@@ -2927,7 +2927,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 value={normalizeCtaValue((formData as any).website_cta) || ""}
                 onValueChange={(value) => handleChange("website_cta", normalizeCtaValue(value))}
               >
-                <SelectTrigger className="w-52 shrink-0">
+                <SelectTrigger className="w-64 shrink-0">
                   <SelectValue placeholder="🎯 CTA" />
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50">
@@ -2940,7 +2940,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 value={(formData as any).website_presentation_mode || "plus_informations"}
                 onValueChange={(value) => handleChange("website_presentation_mode", value)}
               >
-                <SelectTrigger className="w-52 shrink-0">
+                <SelectTrigger className="w-64 shrink-0">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50">
@@ -3002,7 +3002,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 value={normalizeCtaValue((formData as any).reserve_now_cta) || ""}
                 onValueChange={(value) => handleChange("reserve_now_cta", normalizeCtaValue(value))}
               >
-                <SelectTrigger className="w-52 shrink-0">
+                <SelectTrigger className="w-64 shrink-0">
                   <SelectValue placeholder="🎯 CTA" />
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50">
@@ -3015,7 +3015,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 value={(formData as any).presentation_mode || "reserver_en_ligne"}
                 onValueChange={(value) => handleChange("presentation_mode", value)}
               >
-                <SelectTrigger className="w-52 shrink-0">
+                <SelectTrigger className="w-64 shrink-0">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50">
@@ -3077,7 +3077,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 value={normalizeCtaValue((formData as any).online_shop_cta) || ""}
                 onValueChange={(value) => handleChange("online_shop_cta", normalizeCtaValue(value))}
               >
-                <SelectTrigger className="w-52 shrink-0">
+                <SelectTrigger className="w-64 shrink-0">
                   <SelectValue placeholder="🎯 CTA" />
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50">
@@ -3090,7 +3090,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 value={(formData as any).online_shop_presentation_mode || "acheter_en_ligne"}
                 onValueChange={(value) => handleChange("online_shop_presentation_mode", value)}
               >
-                <SelectTrigger className="w-52 shrink-0">
+                <SelectTrigger className="w-64 shrink-0">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50">
