@@ -1066,6 +1066,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     website_presentation_mode: (business as any)?.website_presentation_mode || "plus_informations",
     online_shop_presentation_mode: (business as any)?.online_shop_presentation_mode || "acheter_en_ligne",
     unified_cta: (business as any)?.unified_cta || "",
+    website_cta: (business as any)?.website_cta || "",
+    reserve_now_cta: (business as any)?.reserve_now_cta || "",
+    online_shop_cta: (business as any)?.online_shop_cta || "",
     carousel_badge: (business as any)?.carousel_badge || "",
   });
 
@@ -1854,6 +1857,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       website_presentation_mode: (formData as any).website_presentation_mode || "plus_informations",
       online_shop_presentation_mode: (formData as any).online_shop_presentation_mode || "acheter_en_ligne",
       unified_cta: (formData as any).unified_cta || null,
+      website_cta: (formData as any).website_cta || null,
+      reserve_now_cta: (formData as any).reserve_now_cta || null,
+      online_shop_cta: (formData as any).online_shop_cta || null,
       computed_rating: (formData as any).computed_rating !== "" && (formData as any).computed_rating != null ? parseFloat((formData as any).computed_rating) : null,
       total_review_count: (formData as any).total_review_count !== "" && (formData as any).total_review_count != null ? parseInt((formData as any).total_review_count) : null,
       carousel_badge: (formData as any).carousel_badge || null,
