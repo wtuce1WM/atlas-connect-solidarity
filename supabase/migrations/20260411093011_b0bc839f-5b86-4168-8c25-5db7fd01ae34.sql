@@ -1,0 +1,3 @@
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS website_cta TEXT DEFAULT NULL;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS reserve_now_cta TEXT DEFAULT NULL;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS online_shop_cta TEXT DEFAULT NULL;

@@ -1066,6 +1066,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     website_presentation_mode: (business as any)?.website_presentation_mode || "plus_informations",
     online_shop_presentation_mode: (business as any)?.online_shop_presentation_mode || "acheter_en_ligne",
     unified_cta: (business as any)?.unified_cta || "",
+    website_cta: (business as any)?.website_cta || "",
+    reserve_now_cta: (business as any)?.reserve_now_cta || "",
+    online_shop_cta: (business as any)?.online_shop_cta || "",
     carousel_badge: (business as any)?.carousel_badge || "",
   });
 
@@ -1854,6 +1857,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       website_presentation_mode: (formData as any).website_presentation_mode || "plus_informations",
       online_shop_presentation_mode: (formData as any).online_shop_presentation_mode || "acheter_en_ligne",
       unified_cta: (formData as any).unified_cta || null,
+      website_cta: (formData as any).website_cta || null,
+      reserve_now_cta: (formData as any).reserve_now_cta || null,
+      online_shop_cta: (formData as any).online_shop_cta || null,
       computed_rating: (formData as any).computed_rating !== "" && (formData as any).computed_rating != null ? parseFloat((formData as any).computed_rating) : null,
       total_review_count: (formData as any).total_review_count !== "" && (formData as any).total_review_count != null ? parseInt((formData as any).total_review_count) : null,
       carousel_badge: (formData as any).carousel_badge || null,
@@ -2791,15 +2797,31 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               )}
             </div>
 
-            {/* Unified CTA dropdown */}
-            <div className="space-y-1">
-              <Label>🎯 CTA unifié (commun aux 3 URLs)</Label>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={(formData as any).website_force_external}
+                onCheckedChange={(checked) => handleChange("website_force_external", checked)}
+                title="Ouvrir en lien externe"
+                className="shrink-0"
+              />
+              <Input
+                id="website_pres"
+                value={formData.website}
+                onChange={(e) => handleChange("website", e.target.value)}
+                placeholder="https://"
+                className="flex-1 min-w-0"
+              />
+              {formData.website && (
+                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("website", "")}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
               <Select
-                value={(formData as any).unified_cta || ""}
-                onValueChange={(value) => handleChange("unified_cta", value)}
+                value={(formData as any).website_cta || ""}
+                onValueChange={(value) => handleChange("website_cta", value)}
               >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="— Aucun —" />
+                <SelectTrigger className="w-40 shrink-0">
+                  <SelectValue placeholder="🎯 CTA" />
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50">
                   <SelectItem value="achetez">Achetez</SelectItem>
@@ -2824,32 +2846,11 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <SelectItem value="spa">Spa</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Switch
-                checked={(formData as any).website_force_external}
-                onCheckedChange={(checked) => handleChange("website_force_external", checked)}
-                title="Ouvrir en lien externe"
-                className="shrink-0"
-              />
-              <Input
-                id="website_pres"
-                value={formData.website}
-                onChange={(e) => handleChange("website", e.target.value)}
-                placeholder="https://"
-                className="flex-1"
-              />
-              {formData.website && (
-                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("website", "")}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              )}
               <Select
                 value={(formData as any).website_presentation_mode || "plus_informations"}
                 onValueChange={(value) => handleChange("website_presentation_mode", value)}
               >
-                <SelectTrigger className="w-48 shrink-0">
+                <SelectTrigger className="w-44 shrink-0">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50">
@@ -2898,7 +2899,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 value={formData.reserve_now_url}
                 onChange={(e) => handleChange("reserve_now_url", e.target.value)}
                 placeholder="https://"
-                className="flex-1"
+                className="flex-1 min-w-0"
               />
               {formData.reserve_now_url && (
                 <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("reserve_now_url", "")}>
@@ -2906,10 +2907,40 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 </Button>
               )}
               <Select
+                value={(formData as any).reserve_now_cta || ""}
+                onValueChange={(value) => handleChange("reserve_now_cta", value)}
+              >
+                <SelectTrigger className="w-40 shrink-0">
+                  <SelectValue placeholder="🎯 CTA" />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  <SelectItem value="achetez">Achetez</SelectItem>
+                  <SelectItem value="boissons">Boissons</SelectItem>
+                  <SelectItem value="carte_des_soins">Carte des soins</SelectItem>
+                  <SelectItem value="carte_des_vins">Carte des vins</SelectItem>
+                  <SelectItem value="cocktails">Cocktails</SelectItem>
+                  <SelectItem value="contactez_moi">Contactez-moi</SelectItem>
+                  <SelectItem value="contactez_nous">Contactez-nous</SelectItem>
+                  <SelectItem value="day_pass">Day Pass</SelectItem>
+                  <SelectItem value="hammam">Hammam</SelectItem>
+                  <SelectItem value="hotel">Hotel</SelectItem>
+                  <SelectItem value="la_carte">La carte</SelectItem>
+                  <SelectItem value="menu">Menu</SelectItem>
+                  <SelectItem value="nos_services">Nos services</SelectItem>
+                  <SelectItem value="notre_offre">Notre offre</SelectItem>
+                  <SelectItem value="plus_informations">Plus d'informations</SelectItem>
+                  <SelectItem value="reservez">Réservez</SelectItem>
+                  <SelectItem value="restaurant">Restaurant</SelectItem>
+                  <SelectItem value="riad">Riad</SelectItem>
+                  <SelectItem value="site_web">Site web</SelectItem>
+                  <SelectItem value="spa">Spa</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select
                 value={(formData as any).presentation_mode || "reserver_en_ligne"}
                 onValueChange={(value) => handleChange("presentation_mode", value)}
               >
-                <SelectTrigger className="w-48 shrink-0">
+                <SelectTrigger className="w-44 shrink-0">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50">
@@ -2945,7 +2976,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 value={formData.online_shop_url}
                 onChange={(e) => handleChange("online_shop_url", e.target.value)}
                 placeholder="https://"
-                className="flex-1"
+                className="flex-1 min-w-0"
               />
               {formData.online_shop_url && (
                 <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("online_shop_url", "")}>
@@ -2953,10 +2984,40 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 </Button>
               )}
               <Select
+                value={(formData as any).online_shop_cta || ""}
+                onValueChange={(value) => handleChange("online_shop_cta", value)}
+              >
+                <SelectTrigger className="w-40 shrink-0">
+                  <SelectValue placeholder="🎯 CTA" />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  <SelectItem value="achetez">Achetez</SelectItem>
+                  <SelectItem value="boissons">Boissons</SelectItem>
+                  <SelectItem value="carte_des_soins">Carte des soins</SelectItem>
+                  <SelectItem value="carte_des_vins">Carte des vins</SelectItem>
+                  <SelectItem value="cocktails">Cocktails</SelectItem>
+                  <SelectItem value="contactez_moi">Contactez-moi</SelectItem>
+                  <SelectItem value="contactez_nous">Contactez-nous</SelectItem>
+                  <SelectItem value="day_pass">Day Pass</SelectItem>
+                  <SelectItem value="hammam">Hammam</SelectItem>
+                  <SelectItem value="hotel">Hotel</SelectItem>
+                  <SelectItem value="la_carte">La carte</SelectItem>
+                  <SelectItem value="menu">Menu</SelectItem>
+                  <SelectItem value="nos_services">Nos services</SelectItem>
+                  <SelectItem value="notre_offre">Notre offre</SelectItem>
+                  <SelectItem value="plus_informations">Plus d'informations</SelectItem>
+                  <SelectItem value="reservez">Réservez</SelectItem>
+                  <SelectItem value="restaurant">Restaurant</SelectItem>
+                  <SelectItem value="riad">Riad</SelectItem>
+                  <SelectItem value="site_web">Site web</SelectItem>
+                  <SelectItem value="spa">Spa</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select
                 value={(formData as any).online_shop_presentation_mode || "acheter_en_ligne"}
                 onValueChange={(value) => handleChange("online_shop_presentation_mode", value)}
               >
-                <SelectTrigger className="w-48 shrink-0">
+                <SelectTrigger className="w-44 shrink-0">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50">

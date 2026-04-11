@@ -992,6 +992,7 @@ export type Database = {
           min_price: number | null
           name: string
           neighborhood: string | null
+          online_shop_cta: string | null
           online_shop_force_external: boolean
           online_shop_presentation_mode: string
           online_shop_url: string | null
@@ -1014,6 +1015,7 @@ export type Database = {
           priority_score: number | null
           rating: number | null
           region: string | null
+          reserve_now_cta: string | null
           reserve_now_force_external: boolean
           reserve_now_url: string | null
           restaurant_guru_rating: number | null
@@ -1052,6 +1054,7 @@ export type Database = {
           video_1_url: string | null
           vimeo_url: string | null
           website: string | null
+          website_cta: string | null
           website_force_external: boolean
           website_presentation_mode: string
           whatsapp: string | null
@@ -1143,6 +1146,7 @@ export type Database = {
           min_price?: number | null
           name: string
           neighborhood?: string | null
+          online_shop_cta?: string | null
           online_shop_force_external?: boolean
           online_shop_presentation_mode?: string
           online_shop_url?: string | null
@@ -1165,6 +1169,7 @@ export type Database = {
           priority_score?: number | null
           rating?: number | null
           region?: string | null
+          reserve_now_cta?: string | null
           reserve_now_force_external?: boolean
           reserve_now_url?: string | null
           restaurant_guru_rating?: number | null
@@ -1203,6 +1208,7 @@ export type Database = {
           video_1_url?: string | null
           vimeo_url?: string | null
           website?: string | null
+          website_cta?: string | null
           website_force_external?: boolean
           website_presentation_mode?: string
           whatsapp?: string | null
@@ -1294,6 +1300,7 @@ export type Database = {
           min_price?: number | null
           name?: string
           neighborhood?: string | null
+          online_shop_cta?: string | null
           online_shop_force_external?: boolean
           online_shop_presentation_mode?: string
           online_shop_url?: string | null
@@ -1316,6 +1323,7 @@ export type Database = {
           priority_score?: number | null
           rating?: number | null
           region?: string | null
+          reserve_now_cta?: string | null
           reserve_now_force_external?: boolean
           reserve_now_url?: string | null
           restaurant_guru_rating?: number | null
@@ -1354,6 +1362,7 @@ export type Database = {
           video_1_url?: string | null
           vimeo_url?: string | null
           website?: string | null
+          website_cta?: string | null
           website_force_external?: boolean
           website_presentation_mode?: string
           whatsapp?: string | null
@@ -4093,6 +4102,7 @@ export type Database = {
               min_price: number | null
               name: string
               neighborhood: string | null
+              online_shop_cta: string | null
               online_shop_force_external: boolean
               online_shop_presentation_mode: string
               online_shop_url: string | null
@@ -4115,6 +4125,7 @@ export type Database = {
               priority_score: number | null
               rating: number | null
               region: string | null
+              reserve_now_cta: string | null
               reserve_now_force_external: boolean
               reserve_now_url: string | null
               restaurant_guru_rating: number | null
@@ -4153,6 +4164,7 @@ export type Database = {
               video_1_url: string | null
               vimeo_url: string | null
               website: string | null
+              website_cta: string | null
               website_force_external: boolean
               website_presentation_mode: string
               whatsapp: string | null
@@ -4260,6 +4272,7 @@ export type Database = {
               min_price: number | null
               name: string
               neighborhood: string | null
+              online_shop_cta: string | null
               online_shop_force_external: boolean
               online_shop_presentation_mode: string
               online_shop_url: string | null
@@ -4282,6 +4295,7 @@ export type Database = {
               priority_score: number | null
               rating: number | null
               region: string | null
+              reserve_now_cta: string | null
               reserve_now_force_external: boolean
               reserve_now_url: string | null
               restaurant_guru_rating: number | null
@@ -4320,6 +4334,7 @@ export type Database = {
               video_1_url: string | null
               vimeo_url: string | null
               website: string | null
+              website_cta: string | null
               website_force_external: boolean
               website_presentation_mode: string
               whatsapp: string | null
