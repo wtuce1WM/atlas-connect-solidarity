@@ -1043,6 +1043,7 @@ export type Database = {
           trustpilot_review_count: number | null
           trustpilot_url: string | null
           twitter_url: string | null
+          unified_cta: string | null
           updated_at: string
           vacation_dates: Json | null
           viator_rating: number | null
@@ -1193,6 +1194,7 @@ export type Database = {
           trustpilot_review_count?: number | null
           trustpilot_url?: string | null
           twitter_url?: string | null
+          unified_cta?: string | null
           updated_at?: string
           vacation_dates?: Json | null
           viator_rating?: number | null
@@ -1343,6 +1345,7 @@ export type Database = {
           trustpilot_review_count?: number | null
           trustpilot_url?: string | null
           twitter_url?: string | null
+          unified_cta?: string | null
           updated_at?: string
           vacation_dates?: Json | null
           viator_rating?: number | null
@@ -4141,6 +4144,7 @@ export type Database = {
               trustpilot_review_count: number | null
               trustpilot_url: string | null
               twitter_url: string | null
+              unified_cta: string | null
               updated_at: string
               vacation_dates: Json | null
               viator_rating: number | null
@@ -4307,6 +4311,7 @@ export type Database = {
               trustpilot_review_count: number | null
               trustpilot_url: string | null
               twitter_url: string | null
+              unified_cta: string | null
               updated_at: string
               vacation_dates: Json | null
               viator_rating: number | null
