@@ -12,6 +12,7 @@ import RichTextEditor from "./RichTextEditor";
 import ImageUploader from "./ImageUploader";
 import VideoUploader from "./VideoUploader";
 import LogoUploader from "./LogoUploader";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -54,6 +55,9 @@ const EMPTY_FORM = {
   google_maps_url: "",
   latitude: "" as string | number,
   longitude: "" as string | number,
+  url: "",
+  url_cta: "",
+  url_force_external: false,
 };
 
 /* ── Sortable video item ── */
@@ -150,6 +154,9 @@ interface EventRow {
   google_maps_url: string | null;
   latitude: number | null;
   longitude: number | null;
+  url: string | null;
+  url_cta: string | null;
+  url_force_external: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -209,6 +216,9 @@ const EventManagement = () => {
       google_maps_url: ev.google_maps_url || "",
       latitude: ev.latitude ?? "",
       longitude: ev.longitude ?? "",
+      url: (ev as any).url || "",
+      url_cta: (ev as any).url_cta || "",
+      url_force_external: (ev as any).url_force_external ?? false,
     });
     setKpInput("");
     setShowNewType(false);
@@ -243,6 +253,9 @@ const EventManagement = () => {
       google_maps_url: form.google_maps_url || null,
       latitude: form.latitude ? Number(form.latitude) : null,
       longitude: form.longitude ? Number(form.longitude) : null,
+      url: form.url || null,
+      url_cta: form.url_cta || null,
+      url_force_external: form.url_force_external,
     };
 
     let error;
