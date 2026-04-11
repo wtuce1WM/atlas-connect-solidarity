@@ -1519,7 +1519,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             if (menuDocs.length > 0) groups.push({
               key: 'menu',
               icon: <span className="flex items-center justify-center w-6 h-6">{categoryIcon ? <DynamicIcon name={categoryIcon} size={22} /> : <Newspaper className="h-[22px] w-[22px]" />}</span>,
-              items: menuDocs.map(doc => ({ label: doc.name || 'Menu', onClick: () => { setShowDescriptionOverlay(false); setTimeout(() => openDocOrBooking(doc.url, doc.name || 'Menu'), 150); } })),
+              items: menuDocs.map(doc => ({ label: doc.name || 'Menu', onClick: () => { openDocOrBooking(doc.url, doc.name || 'Menu'); } })),
             });
             if (menuSummaries.length > 0) groups.push({
               key: 'ai',
@@ -1529,7 +1529,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             if (externalLinks.length > 0) groups.push({
               key: 'ext',
               icon: <ExternalLink className="h-[22px] w-[22px]" />,
-              directClick: () => { setShowDescriptionOverlay(false); setTimeout(() => setShowExtLinksOverlay(true), 150); },
+              directClick: () => { setShowExtLinksOverlay(true); },
               items: [],
             });
             return (
