@@ -514,7 +514,11 @@ export function useBookOnlineData(businessId: string) {
           setVideoDocs((prev) => {
             const existingUrls = new Set(prev.map((v) => v.url));
             const newVids = linked.filter((v) => !existingUrls.has(v.url));
-            return newVids.length > 0 ? [...newVids, ...prev] : prev;
+            if (newVids.length === 0) return prev;
+            // Insert linked/owner videos after own hosted Supabase storage videos
+            const ownHosted = prev.filter(v => /supabase\.co\/storage\//i.test(v.url));
+            const rest = prev.filter(v => !/supabase\.co\/storage\//i.test(v.url));
+            return [...ownHosted, ...newVids, ...rest];
           });
         }
       };
