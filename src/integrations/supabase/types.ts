@@ -495,6 +495,7 @@ export type Database = {
           description: string | null
           destination_id: string | null
           end_date: string | null
+          force_external: boolean
           front_sort_order: number
           icon: string | null
           id: string
@@ -522,6 +523,7 @@ export type Database = {
           description?: string | null
           destination_id?: string | null
           end_date?: string | null
+          force_external?: boolean
           front_sort_order?: number
           icon?: string | null
           id?: string
@@ -549,6 +551,7 @@ export type Database = {
           description?: string | null
           destination_id?: string | null
           end_date?: string | null
+          force_external?: boolean
           front_sort_order?: number
           icon?: string | null
           id?: string
