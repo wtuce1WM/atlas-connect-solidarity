@@ -460,3 +460,8 @@ html.hide-scrollbar-panel-open::-webkit-scrollbar {
 .animate-fullscreen-logo-out {
   animation: fullscreenOverlayFadeOut 0.6s ease-in forwards;
 }
+
+@keyframes descGridFlip {
+  0% { opacity: 0; transform: rotateY(90deg); }
+  100% { opacity: 1; transform: rotateY(0deg); }
+}
