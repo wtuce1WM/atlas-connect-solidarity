@@ -1470,10 +1470,38 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               <div className="w-full h-full overflow-y-auto overscroll-contain">
                 <div className="px-4 pt-4 pb-6 md:px-6 md:pt-6">
                   {descOverlayContent && (
-                    <div className="flex items-center gap-2 mb-4">
-                      <Sparkles className="h-4 w-4 text-gold shrink-0" />
-                      <h3 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] text-white">{descOverlayContent.title}</h3>
-                    </div>
+                    <>
+                      <div className="flex items-center gap-2 mb-4">
+                        <Sparkles className="h-4 w-4 text-gold shrink-0" />
+                        <h3 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] text-white">{descOverlayContent.title}</h3>
+                      </div>
+                      {/* Price info blocks */}
+                      {(descOverlayContent.avgPriceRange || descOverlayContent.priceDetails) && (
+                        <div className="flex flex-wrap gap-3 mb-5">
+                          {descOverlayContent.avgPriceRange && (() => {
+                            const pr = descOverlayContent.avgPriceRange as Record<string, unknown>;
+                            const min = pr?.min ?? pr?.from;
+                            const max = pr?.max ?? pr?.to;
+                            const currency = (pr?.currency as string) || 'MAD';
+                            if (min == null && max == null) return null;
+                            return (
+                              <div className="flex-1 min-w-[140px] rounded-xl border border-gold/30 bg-gold/10 backdrop-blur-sm px-4 py-3">
+                                <span className="block text-[10px] uppercase tracking-widest text-gold/70 font-['Josefin_Sans',sans-serif] mb-1">Budget moyen / pers.</span>
+                                <span className="text-lg font-bold text-gold font-['Josefin_Sans',sans-serif]">
+                                  {min != null && max != null ? `${min} – ${max} ${currency}` : `${min ?? max} ${currency}`}
+                                </span>
+                              </div>
+                            );
+                          })()}
+                          {descOverlayContent.priceDetails && (
+                            <div className="flex-1 min-w-[140px] rounded-xl border border-white/15 bg-white/5 backdrop-blur-sm px-4 py-3">
+                              <span className="block text-[10px] uppercase tracking-widest text-white/50 font-['Josefin_Sans',sans-serif] mb-1">Détail des prix</span>
+                              <span className="text-sm text-white/90 leading-relaxed whitespace-pre-line">{descOverlayContent.priceDetails}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </>
                   )}
                   <div
                     className="prose max-w-none prose-josefin-headings prose-h2:text-xl prose-h3:text-lg prose-a:text-primary [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold [&_p:empty]:min-h-[1em] [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 [&_table]:border-collapse [&_table]:w-full [&_table]:table-fixed [&_td]:border [&_td]:border-white/20 [&_td]:p-4 [&_td]:align-top [&_td]:text-xs [&_td_img]:w-full [&_td_img]:h-36 [&_td_img]:object-cover [&_td_img]:rounded-md [&_td_img]:block [&_th]:border [&_th]:border-white/20 [&_th]:p-2 [&_th]:bg-white/10 [&_th]:font-semibold [&_img]:max-w-full [&_img]:rounded-md [&_iframe]:max-w-full [&_iframe]:rounded-md [&_mark]:bg-yellow-500/40 [&_mark]:px-0.5 [&_blockquote]:border-l-4 [&_blockquote]:border-white/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_hr]:border-white/20 [&_*]:!text-white prose-headings:!text-white prose-strong:!text-white leading-relaxed"
