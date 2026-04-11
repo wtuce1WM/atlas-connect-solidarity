@@ -1617,7 +1617,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         <div className="absolute inset-0 -top-[3.5rem] z-[85] flex items-center justify-center bg-black/70 backdrop-blur-sm" style={{ animation: "panelFadeIn 0.3s ease-out both" }}>
           <button
             onClick={() => setShowExtLinksOverlay(false)}
-            className="absolute top-3 right-3 z-10 flex items-center justify-center h-8 w-8 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+            className="absolute top-3 left-3 z-10 flex items-center justify-center h-9 w-9 rounded-full bg-white text-black shadow-lg hover:opacity-90 transition-opacity"
           >
             <X className="h-4 w-4" />
           </button>
