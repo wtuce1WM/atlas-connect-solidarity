@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { DesktopMediaArrows, CardsToggleButton, useOwnerLogo } from "@/components/CardsVisibilityToggle";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
-import { MapPin, ChevronUp, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus } from "lucide-react";
+import { MapPin, ChevronUp, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon } from "lucide-react";
 import VideoControls from "@/components/VideoControls";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 import { supabase } from "@/integrations/supabase/client";
@@ -1390,7 +1390,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               <X className="h-4 w-4" />
             </button>
             <h2 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] truncate text-white flex-1">{business?.name}</h2>
-            {descGridMode && (() => {
+            {descGridMode ? (() => {
               const GRID_PAGE_SIZE = 9;
               const totalGridPages = Math.ceil(images.length / GRID_PAGE_SIZE);
               return totalGridPages > 1 ? (
@@ -1414,7 +1414,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   </button>
                 </div>
               ) : null;
-            })()}
+            })() : images.length > 0 && (
+              <button
+                onClick={() => { setDescGridMode(true); setDescGridPage(0); }}
+                className="h-8 w-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors shrink-0"
+              >
+                <ImageIcon className="h-4 w-4" />
+              </button>
+            )}
           </div>
           {/* Scrollable content — fills remaining space between header and thumbnails */}
           <div className="relative z-10 flex-1 min-h-0 order-[-1]" style={{ perspective: "1200px" }}>
