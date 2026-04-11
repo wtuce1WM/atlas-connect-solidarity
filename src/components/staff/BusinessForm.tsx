@@ -529,7 +529,7 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
           <p className="text-[9px] text-muted-foreground truncate" title={doc.url}>
             {doc.url.includes("supabase.co/storage") ? "📦" : "🌐"} {doc.url.split('/').pop()?.substring(0, 25)}
           </p>
-          {doc.id && <p className="text-[8px] text-muted-foreground/60 truncate font-mono" title={doc.id}>ID: {doc.id.substring(0, 8)}</p>}
+          {doc.id && <p className="text-[8px] text-muted-foreground/60 truncate font-mono cursor-pointer hover:text-primary" title={`Cliquer pour copier: ${doc.id}`} onClick={() => { navigator.clipboard.writeText(doc.id); toast({ title: "ID copié", description: doc.id }); }}>ID: {doc.id.substring(0, 8)}</p>}
         </div>
       ) : (
         <div className="space-y-1">
