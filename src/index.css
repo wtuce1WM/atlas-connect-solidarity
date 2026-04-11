@@ -183,7 +183,10 @@ body {
   letter-spacing: 0.02em;
 }
 
-.rich-price-html,
+.rich-price-html {
+  -webkit-text-fill-color: currentColor !important;
+}
+
 .rich-price-html * {
   color: inherit !important;
   -webkit-text-fill-color: currentColor !important;
