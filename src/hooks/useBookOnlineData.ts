@@ -551,7 +551,7 @@ export function useBookOnlineData(businessId: string) {
           const seenUrls = new Set<string>();
           const linked = (poiVids as any[])
             .filter((d) => {
-              if (!d.url || seenUrls.has(d.url)) return false;
+              if (!d.url || seenUrls.has(d.url) || !ownerMap.has(d.business_id)) return false;
               seenUrls.add(d.url);
               return true;
             })
