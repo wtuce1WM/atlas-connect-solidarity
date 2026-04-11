@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Save, ArrowLeft, X, Link, GripVertical } from "lucide-react";
+import { Plus, Edit, Trash2, Save, ArrowLeft, X, Link, GripVertical, MapPinned } from "lucide-react";
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -51,6 +51,9 @@ const EMPTY_FORM = {
   logo_url: "",
   type: "",
   recurrence: "",
+  google_maps_url: "",
+  latitude: "" as string | number,
+  longitude: "" as string | number,
 };
 
 /* ── Sortable video item ── */
@@ -142,6 +145,9 @@ interface EventRow {
   kp_regroupement: string[];
   logo_url: string | null;
   type: string | null;
+  google_maps_url: string | null;
+  latitude: number | null;
+  longitude: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -198,6 +204,9 @@ const EventManagement = () => {
       logo_url: ev.logo_url || "",
       type: ev.type || "",
       recurrence: (ev as any).recurrence || "",
+      google_maps_url: ev.google_maps_url || "",
+      latitude: ev.latitude ?? "",
+      longitude: ev.longitude ?? "",
     });
     setKpInput("");
     setShowNewType(false);
@@ -229,6 +238,9 @@ const EventManagement = () => {
       logo_url: form.logo_url || null,
       type: form.type || null,
       recurrence: form.recurrence || null,
+      google_maps_url: form.google_maps_url || null,
+      latitude: form.latitude ? Number(form.latitude) : null,
+      longitude: form.longitude ? Number(form.longitude) : null,
     };
 
     let error;
@@ -405,8 +417,95 @@ const EventManagement = () => {
           </div>
         )}
 
-        {/* Full-width: Description, Images, Videos */}
+        {/* Full-width: Google Maps, Description, Images, Videos */}
         <div className="space-y-6">
+          {/* Google Maps row */}
+          <div className="flex gap-4 items-end">
+            <div className="space-y-2 flex-1 min-w-0">
+              <Label className="flex items-center gap-2">
+                <MapPinned className="h-4 w-4 text-[#4285F4]" />
+                {form.google_maps_url ? (
+                  <a href={form.google_maps_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">
+                    Google Maps ↗
+                  </a>
+                ) : (
+                  "Google Maps"
+                )}
+              </Label>
+              <div className="flex gap-2">
+                <Input
+                  value={form.google_maps_url}
+                  onChange={e => setForm(p => ({ ...p, google_maps_url: e.target.value }))}
+                  onBlur={async (e) => {
+                    const val = e.target.value?.trim();
+                    if (!val || !val.includes("google") || (form.latitude && form.longitude)) return;
+                    try {
+                      const { data, error } = await supabase.functions.invoke("resolve-maps-url", { body: { url: val } });
+                      if (error) throw error;
+                      if (data?.lat && data?.lng) {
+                        setForm(p => ({
+                          ...p,
+                          latitude: data.lat,
+                          longitude: data.lng,
+                          google_maps_url: data.resolvedUrl || p.google_maps_url,
+                        }));
+                        toast({ title: "GPS auto-détecté", description: `Lat: ${data.lat}, Lng: ${data.lng}` });
+                      }
+                    } catch { /* silent */ }
+                  }}
+                  placeholder="https://maps.google.com/..."
+                  className="flex-1"
+                />
+                {form.google_maps_url && (
+                  <Button type="button" variant="ghost" size="icon" onClick={() => setForm(p => ({ ...p, google_maps_url: "" }))} className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0">
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+            <div className="flex gap-2 items-end shrink-0">
+              <div className="space-y-1" style={{ width: '120px' }}>
+                <Label className="text-xs">Lat</Label>
+                <Input type="number" step="any" value={form.latitude} onChange={e => setForm(p => ({ ...p, latitude: e.target.value }))} placeholder="31.6295" className="text-xs h-8" />
+              </div>
+              <div className="space-y-1" style={{ width: '120px' }}>
+                <Label className="text-xs">Lng</Label>
+                <Input type="number" step="any" value={form.longitude} onChange={e => setForm(p => ({ ...p, longitude: e.target.value }))} placeholder="-7.9811" className="text-xs h-8" />
+              </div>
+              {form.google_maps_url && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 text-xs h-8 shrink-0"
+                  onClick={async () => {
+                    try {
+                      toast({ title: "Résolution de l'URL...", description: "Extraction via Google Places API." });
+                      const { data, error } = await supabase.functions.invoke("resolve-maps-url", { body: { url: form.google_maps_url } });
+                      if (error) throw error;
+                      if (data?.lat && data?.lng) {
+                        setForm(p => ({
+                          ...p,
+                          latitude: data.lat,
+                          longitude: data.lng,
+                          google_maps_url: data.resolvedUrl || p.google_maps_url,
+                        }));
+                        toast({ title: "GPS récupéré", description: `Lat: ${data.lat}, Lng: ${data.lng}` });
+                      } else {
+                        toast({ variant: "destructive", title: "Impossible d'extraire les coordonnées" });
+                      }
+                    } catch (err: any) {
+                      toast({ variant: "destructive", title: "Erreur", description: err.message || "Impossible de résoudre l'URL." });
+                    }
+                  }}
+                >
+                  <MapPinned className="h-3.5 w-3.5" />
+                  GPS
+                </Button>
+              )}
+            </div>
+          </div>
+
           <div>
             <Label>Description</Label>
             <RichTextEditor
