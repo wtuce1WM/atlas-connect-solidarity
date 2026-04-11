@@ -1480,17 +1480,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             const groups: { key: string; icon: React.ReactNode; items: { label: string; logo?: string | null; onClick: () => void }[] }[] = [];
             if (menuDocs.length > 0) groups.push({
               key: 'menu',
-              icon: <span className="flex items-center justify-center w-4 h-4">{categoryIcon ? <DynamicIcon name={categoryIcon} size={14} /> : <Newspaper className="h-3.5 w-3.5" />}</span>,
+              icon: <span className="flex items-center justify-center w-5 h-5">{categoryIcon ? <DynamicIcon name={categoryIcon} size={18} /> : <Newspaper className="h-[18px] w-[18px]" />}</span>,
               items: menuDocs.map(doc => ({ label: doc.name || 'Menu', onClick: () => { setShowDescriptionOverlay(false); setTimeout(() => openDocOrBooking(doc.url, doc.name || 'Menu'), 150); } })),
             });
             if (menuSummaries.length > 0) groups.push({
               key: 'ai',
-              icon: <Sparkles className="h-3.5 w-3.5" />,
+              icon: <Sparkles className="h-[18px] w-[18px]" />,
               items: menuSummaries.map(ms => ({ label: ms.title || 'Menu IA', onClick: () => { setShowDescriptionOverlay(false); } })),
             });
             if (externalLinks.length > 0) groups.push({
               key: 'ext',
-              icon: <Newspaper className="h-3.5 w-3.5" />,
+              icon: <Newspaper className="h-[18px] w-[18px]" />,
               items: externalLinks.filter(l => l.url && l.url !== '#' && l.url !== '*').map(link => ({
                 label: link.name || (() => { try { return new URL(link.url).hostname.replace('www.', ''); } catch { return 'Lien'; } })(),
                 logo: link.icon,
