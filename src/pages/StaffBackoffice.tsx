@@ -33,6 +33,7 @@ import ServiceManagement from "@/components/staff/ServiceManagement";
 import KeywordManagement from "@/components/staff/KeywordManagement";
 import HotelMappingManagement from "@/components/staff/HotelMappingManagement";
 import SocialLinksManagement from "@/components/staff/SocialLinksManagement";
+import EventManagement from "@/components/staff/EventManagement";
 
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -749,11 +750,7 @@ const StaffBackoffice = () => {
             </TabsContent>
 
             <TabsContent value="events">
-              <div className="text-center py-16 text-muted-foreground">
-                <CalendarDays className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <h3 className="text-lg font-semibold mb-2">Events</h3>
-                <p className="text-sm">Section en cours de développement.</p>
-              </div>
+              <EventManagement />
             </TabsContent>
 
             <TabsContent value="overview">
