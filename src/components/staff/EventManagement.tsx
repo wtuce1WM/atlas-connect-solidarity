@@ -367,12 +367,12 @@ const EventManagement = () => {
                           if (!pastedId || pastedId.length < 30) return;
                           e.preventDefault();
                           const { data } = await supabase
-                            .from("business_documents" as any)
+                            .from("business_documents")
                             .select("url")
                             .eq("id", pastedId)
                             .eq("type", "video")
                             .maybeSingle();
-                          if (data?.url) {
+                          if ((data as any)?.url) {
                             setForm(p => ({
                               ...p,
                               videos: p.videos.map((v, vi) => vi === i ? (data as any).url : v),
