@@ -2869,14 +2869,14 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <button
                 type="button"
                 className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded px-2 py-1 transition-colors mt-1"
-                title="Copier l'URL du site web vers Réserver maintenant"
+                title="Copier l'URL 1 vers URL 2"
                 onClick={() => {
                   handleChange("reserve_now_url", formData.website);
-                  toast({ title: "URL copiée vers \"Réserver maintenant\"" });
+                  toast({ title: "URL copiée vers URL 2" });
                 }}
               >
                 <ArrowDown className="h-4 w-4" />
-                <span>↓ Copier vers Réserver maintenant</span>
+                <span>↓ Copier vers URL 2</span>
               </button>
             )}
           </div>
@@ -2957,6 +2957,20 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             </div>
             {(formData as any).reserve_now_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
             <BrokenUrlBadge url={formData.reserve_now_url} />
+            {formData.reserve_now_url && (
+              <button
+                type="button"
+                className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded px-2 py-1 transition-colors mt-1"
+                title="Copier l'URL 2 vers URL 3"
+                onClick={() => {
+                  handleChange("online_shop_url", formData.reserve_now_url);
+                  toast({ title: "URL copiée vers URL 3" });
+                }}
+              >
+                <ArrowDown className="h-4 w-4" />
+                <span>↓ Copier vers URL 3</span>
+              </button>
+            )}
           </div>
 
           {/* Boutique en ligne */}
