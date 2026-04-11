@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { DesktopMediaArrows, CardsToggleButton, useOwnerLogo } from "@/components/CardsVisibilityToggle";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
-import { MapPin, ChevronUp, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper } from "lucide-react";
+import { MapPin, ChevronUp, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink } from "lucide-react";
 import VideoControls from "@/components/VideoControls";
 import DynamicIcon from "@/components/DynamicIcon";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
@@ -126,6 +126,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ url: string; name: string | null; description: string | null } | null>(null);
   const [videoOverlayClosing, setVideoOverlayClosing] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [showExtLinksOverlay, setShowExtLinksOverlay] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showHook, setShowHook] = useState(false);
   
@@ -305,6 +306,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     setShowDescriptionOverlay(false);
     setDescGridMode(false);
     setDescOverlayContent(null);
+    setShowExtLinksOverlay(false);
     setPoiMapMode("poi");
     if (infoCarouselRef.current) infoCarouselRef.current.scrollLeft = 0;
     setAvailabilityOverlayCtx(null);
@@ -1513,7 +1515,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           </div>
           {/* Right sticky sidebar — Menu / Menu IA / External links */}
           {!descGridMode && (menuDocs.length > 0 || menuSummaries.length > 0 || externalLinks.length > 0) && (() => {
-            const groups: { key: string; icon: React.ReactNode; items: { label: string; logo?: string | null; onClick: () => void }[] }[] = [];
+            const groups: { key: string; icon: React.ReactNode; directClick?: () => void; items: { label: string; logo?: string | null; onClick: () => void }[] }[] = [];
             if (menuDocs.length > 0) groups.push({
               key: 'menu',
               icon: <span className="flex items-center justify-center w-6 h-6">{categoryIcon ? <DynamicIcon name={categoryIcon} size={22} /> : <Newspaper className="h-[22px] w-[22px]" />}</span>,
@@ -1526,16 +1528,25 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             });
             if (externalLinks.length > 0) groups.push({
               key: 'ext',
-              icon: <Newspaper className="h-[22px] w-[22px]" />,
-              items: externalLinks.filter(l => l.url && l.url !== '#' && l.url !== '*').map(link => ({
-                label: link.name || (() => { try { return new URL(link.url).hostname.replace('www.', ''); } catch { return 'Lien'; } })(),
-                logo: link.icon,
-                onClick: () => { setShowDescriptionOverlay(false); setTimeout(() => openDocOrBooking(link.url, link.name || 'Lien externe'), 150); },
-              })),
+              icon: <ExternalLink className="h-[22px] w-[22px]" />,
+              directClick: () => { setShowDescriptionOverlay(false); setTimeout(() => setShowExtLinksOverlay(true), 150); },
+              items: [],
             });
             return (
               <div className="absolute right-2 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-end">
                 {groups.map(g => {
+                  if (g.directClick) {
+                    return (
+                      <div key={g.key} className="flex flex-col items-end">
+                        <button
+                          onClick={g.directClick}
+                          className="flex items-center justify-center h-10 w-10 rounded-full border border-white/10 text-white transition-colors shadow-lg bg-black/80 hover:bg-black/90"
+                        >
+                          {g.icon}
+                        </button>
+                      </div>
+                    );
+                  }
                   const isOpen = sidebarOpenGroup === g.key;
                   return (
                     <div key={g.key} className="flex flex-col items-end"
@@ -1592,6 +1603,24 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           )}
           {/* Searchbar spacer */}
           <div className="shrink-0 h-[3.5rem] md:h-[3.75rem]" />
+        </div>
+      )}
+
+      {/* External Links Overlay */}
+      {showExtLinksOverlay && externalLinks.length > 0 && (
+        <div className="absolute inset-0 z-[75] flex items-center justify-center bg-black/70 backdrop-blur-sm" style={{ animation: "panelFadeIn 0.3s ease-out both" }}>
+          <button
+            onClick={() => setShowExtLinksOverlay(false)}
+            className="absolute top-3 right-3 z-10 flex items-center justify-center h-8 w-8 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+          <div className="w-full max-w-sm px-4">
+            <ExternalLinksFlipCard
+              links={externalLinks}
+              onOpenUrl={(url, title) => { setShowExtLinksOverlay(false); openDocOrBooking(url, title, true); }}
+            />
+          </div>
         </div>
       )}
 
