@@ -1050,7 +1050,7 @@ const SearchPage = () => {
         : [...openDuring.sort(sortWtuceAndRating), ...rest.sort(sortWtuceAndRating)];
     }
 
-    return isServerPaginatedResults ? filtered : [...filtered].sort(sortWtuceAndRating);
+    return [...filtered].sort(sortWtuceAndRating);
   }, [allBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots, detectedNeighborhood, searchLevel, totalCount]);
 
   // Build subcategory name → icon name map
