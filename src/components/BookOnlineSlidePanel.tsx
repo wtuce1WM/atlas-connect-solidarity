@@ -1615,7 +1615,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           >
             <X className="h-4 w-4" />
           </button>
-          <div className="w-full max-w-sm px-4">
+          <div className="w-full max-w-lg px-4">
             <ExternalLinksFlipCard
               links={externalLinks}
               onOpenUrl={(url, title) => { setShowExtLinksOverlay(false); openDocOrBooking(url, title, true); }}
