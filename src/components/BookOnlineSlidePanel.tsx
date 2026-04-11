@@ -1623,6 +1623,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         </div>
       )}
 
+      {showDirections && business && (
         <div
           className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[80] bg-background"
           style={{ animation: "slide-up-from-bottom 0.4s ease-out both" }}
