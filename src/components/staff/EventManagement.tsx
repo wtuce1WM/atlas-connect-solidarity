@@ -552,13 +552,15 @@ const EventManagement = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__none__">Aucun</SelectItem>
-                  <SelectItem value="Acheter">Acheter</SelectItem>
-                  <SelectItem value="Réserver">Réserver</SelectItem>
-                  <SelectItem value="Plus d'informations">Plus d'informations</SelectItem>
-                  <SelectItem value="Consulter">Consulter</SelectItem>
-                  <SelectItem value="Voir le programme">Voir le programme</SelectItem>
-                  <SelectItem value="S'inscrire">S'inscrire</SelectItem>
-                  <SelectItem value="Billetterie">Billetterie</SelectItem>
+                  {[
+                    "Acheter en ligne", "Achetez", "Boissons", "Carte des soins", "Carte des vins",
+                    "Cocktails", "Consulter notre offre", "Contactez-moi", "Contactez nous",
+                    "Day Pass", "Forfaits", "Hammam", "Hotel", "La carte", "Les boissons",
+                    "Menu", "Nos services", "Notre offre", "Plus d'informations",
+                    "Réserver en ligne", "Réservez", "Restaurant", "Riad", "Site web", "Spa",
+                  ].map(opt => (
+                    <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
