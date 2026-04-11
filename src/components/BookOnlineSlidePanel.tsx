@@ -1412,6 +1412,27 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               const globalOffset = descGridPage * GRID_PAGE_SIZE;
               return (
                 <div className="w-full h-full flex flex-col items-center justify-center">
+                  {totalGridPages > 1 && (
+                    <div className="flex items-center gap-3 mb-3">
+                      <button
+                        onClick={() => { playWoosh(wooshSfx); setDescGridPage(p => p - 1); }}
+                        disabled={descGridPage === 0}
+                        className="h-8 w-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </button>
+                      <span className="text-white text-xs font-medium font-['Josefin_Sans',sans-serif] min-w-[2rem] text-center">
+                        {descGridPage + 1} / {totalGridPages}
+                      </span>
+                      <button
+                        onClick={() => { playWoosh(wooshSfx); setDescGridPage(p => p + 1); }}
+                        disabled={descGridPage >= totalGridPages - 1}
+                        className="h-8 w-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )}
                   <div className="w-full max-w-2xl px-3 relative" style={{ perspective: "1200px" }}>
                     <div
                       key={descGridPage}
