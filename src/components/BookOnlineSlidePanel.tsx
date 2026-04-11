@@ -1394,31 +1394,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               <X className="h-4 w-4" />
             </button>
             <h2 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] truncate text-white flex-1">{business?.name}</h2>
-            {descGridMode ? (() => {
-              const GRID_PAGE_SIZE = 9;
-              const totalGridPages = Math.ceil(images.length / GRID_PAGE_SIZE);
-              return totalGridPages > 1 ? (
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => { playWoosh(wooshSfx); setDescGridPage(p => p - 1); }}
-                    disabled={descGridPage === 0}
-                    className="h-8 w-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </button>
-                  <span className="text-white text-xs font-medium font-['Josefin_Sans',sans-serif] min-w-[2rem] text-center">
-                    {descGridPage + 1} / {totalGridPages}
-                  </span>
-                  <button
-                    onClick={() => { playWoosh(wooshSfx); setDescGridPage(p => p + 1); }}
-                    disabled={descGridPage >= totalGridPages - 1}
-                    className="h-8 w-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
-                </div>
-              ) : null;
-            })() : images.length > 0 && (
+            {!descGridMode && images.length > 0 && (
               <button
                 onClick={() => { setDescGridMode(true); setDescGridPage(0); }}
                 className="h-8 w-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors shrink-0"
