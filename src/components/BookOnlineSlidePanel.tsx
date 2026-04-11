@@ -694,7 +694,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             />
           ) : (
             <div className={`w-full h-full overflow-hidden bg-black ${videoInfo?.type === "youtube" ? "relative" : ""}`}>
-              {videoInfo?.type === "youtube" && !isVerticalVideo && !cardsHidden && (
+              {videoInfo?.type === "youtube" && !isVerticalVideo && (
                 <div className="absolute inset-x-0 top-0 h-16 bg-black z-10" />
               )}
               <iframe
