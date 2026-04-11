@@ -4411,8 +4411,31 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             popupImageUrl={(formData as any).popup_image_url || null}
             onPopupChange={(url) => handleChange("popup_image_url", url || "")}
           />
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button type="button" variant="destructive" className="w-full font-bold">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Supprimer toutes les images ({formData.images?.length || 0})
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Supprimer les {formData.images?.length || 0} image(s) de cet établissement ? Irréversible après sauvegarde.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => {
+                  handleChange("images", []);
+                  handleChange("popup_image_url", "");
+                  toast({ title: "Toutes les images ont été supprimées" });
+                }}>Supprimer</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
-
 
 
         <div className="space-y-3">
