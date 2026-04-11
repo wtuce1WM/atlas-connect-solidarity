@@ -148,7 +148,7 @@ const LogoUploader = ({
         <div className="relative inline-block">
           <div
             className={cn(
-              "w-32 h-32 rounded-lg border p-2 flex items-center justify-center overflow-hidden",
+              "w-32 h-32 rounded-lg border p-2 flex items-center justify-center overflow-hidden bg-neutral-700",
               isBroken && "ring-2 ring-amber-500"
             )}
             style={{
