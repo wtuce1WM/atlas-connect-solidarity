@@ -4857,6 +4857,31 @@ serve(async (req) => {
       }
     }
 
+    // ── Final sort: align with global ranking policy before pagination ──
+    // 1. Verified first, sorted by priority_score DESC
+    // 2. Non-verified: priority_score DESC, then computed_rating DESC (ignore rating if < 10 reviews)
+    if (!exactNameMatchIsolation) {
+      businesses.sort((a, b) => {
+        const aV = a.wtuce_status === "verified" ? 0 : 1;
+        const bV = b.wtuce_status === "verified" ? 0 : 1;
+        if (aV !== bV) return aV - bV;
+        // Verified tier: priority_score DESC
+        if (aV === 0) {
+          return (b.priority_score || 0) - (a.priority_score || 0);
+        }
+        // Non-verified tier: priority_score DESC first
+        const aPrio = a.priority_score || 0;
+        const bPrio = b.priority_score || 0;
+        if (aPrio !== bPrio) return bPrio - aPrio;
+        // Then computed_rating DESC, but ignore if < 10 reviews
+        const aCount = (a as any).total_review_count ?? 0;
+        const bCount = (b as any).total_review_count ?? 0;
+        const aRating = aCount >= 10 ? ((a as any).computed_rating ?? (a as any).rating ?? -1) : -1;
+        const bRating = bCount >= 10 ? ((b as any).computed_rating ?? (b as any).rating ?? -1) : -1;
+        return bRating - aRating;
+      });
+    }
+
     // totalCount is always the full processed result count
     const totalCount = businesses.length;
 
