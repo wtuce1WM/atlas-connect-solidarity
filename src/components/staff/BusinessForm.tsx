@@ -1080,6 +1080,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     account_type: (business as any)?.account_type || "",
     zone_chalandise: (business as any)?.zone_chalandise || "locale",
     is_visible_locale: (business as any)?.is_visible_locale ?? true,
+    hide_description: (business as any)?.hide_description ?? false,
     presentation_mode: inferPresentationMode((business as any)?.unified_cta) || (business as any)?.presentation_mode || "reserver_en_ligne",
     languages: (business as any)?.languages || [],
     affiliate_id: (business as any)?.affiliate_id || "",
@@ -1872,6 +1873,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       account_type: formData.account_type || null,
       zone_chalandise: (formData as any).zone_chalandise || null,
       is_visible_locale: (formData as any).is_visible_locale ?? false,
+      hide_description: (formData as any).hide_description ?? false,
       presentation_mode: (formData as any).presentation_mode || "reserver_en_ligne",
       zone_city_ids: (formData as any).zone_chalandise === "nationale" && (formData as any).zone_city_ids?.length > 0 ? (formData as any).zone_city_ids : [],
       languages: (formData as any).languages?.length > 0 ? (formData as any).languages : [],
@@ -3522,7 +3524,16 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="description">Description</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="description">Description</Label>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={(formData as any).hide_description}
+                onCheckedChange={(checked) => handleChange("hide_description", checked)}
+              />
+              <span className="text-xs text-muted-foreground">{(formData as any).hide_description ? "Désactivé sur le front" : "Visible sur le front"}</span>
+            </div>
+          </div>
           <RichTextEditor
             content={formData.description}
             onChange={(html) => handleChange("description", html)}

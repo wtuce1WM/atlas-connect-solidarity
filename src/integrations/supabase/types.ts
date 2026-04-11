@@ -952,6 +952,7 @@ export type Database = {
           google_rating: number | null
           google_review_count: number | null
           google_reviews_url: string | null
+          hide_description: boolean
           hook_ar: string | null
           hook_en: string | null
           hook_fr: string | null
@@ -1106,6 +1107,7 @@ export type Database = {
           google_rating?: number | null
           google_review_count?: number | null
           google_reviews_url?: string | null
+          hide_description?: boolean
           hook_ar?: string | null
           hook_en?: string | null
           hook_fr?: string | null
@@ -1260,6 +1262,7 @@ export type Database = {
           google_rating?: number | null
           google_review_count?: number | null
           google_reviews_url?: string | null
+          hide_description?: boolean
           hook_ar?: string | null
           hook_en?: string | null
           hook_fr?: string | null
@@ -4062,6 +4065,7 @@ export type Database = {
               google_rating: number | null
               google_review_count: number | null
               google_reviews_url: string | null
+              hide_description: boolean
               hook_ar: string | null
               hook_en: string | null
               hook_fr: string | null
@@ -4232,6 +4236,7 @@ export type Database = {
               google_rating: number | null
               google_review_count: number | null
               google_reviews_url: string | null
+              hide_description: boolean
               hook_ar: string | null
               hook_en: string | null
               hook_fr: string | null
