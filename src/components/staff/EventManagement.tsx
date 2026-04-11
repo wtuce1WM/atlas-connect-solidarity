@@ -47,6 +47,7 @@ interface EventRow {
   videos: string[];
   kp_regroupement: string[];
   logo_url: string | null;
+  type: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -61,6 +62,7 @@ const EMPTY_FORM = {
   videos: [] as string[],
   kp_regroupement: [] as string[],
   logo_url: "",
+  type: "",
 };
 
 const EventManagement = () => {
