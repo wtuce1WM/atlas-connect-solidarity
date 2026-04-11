@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN hide_description boolean NOT NULL DEFAULT false;
