@@ -197,6 +197,7 @@ const EventManagement = () => {
       kp_regroupement: ev.kp_regroupement || [],
       logo_url: ev.logo_url || "",
       type: ev.type || "",
+      recurrence: (ev as any).recurrence || "",
     });
     setKpInput("");
     setShowNewType(false);
