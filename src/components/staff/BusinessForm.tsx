@@ -1065,6 +1065,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     
     website_presentation_mode: (business as any)?.website_presentation_mode || "plus_informations",
     online_shop_presentation_mode: (business as any)?.online_shop_presentation_mode || "acheter_en_ligne",
+    unified_cta: (business as any)?.unified_cta || "",
     carousel_badge: (business as any)?.carousel_badge || "",
   });
 
@@ -1852,6 +1853,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       
       website_presentation_mode: (formData as any).website_presentation_mode || "plus_informations",
       online_shop_presentation_mode: (formData as any).online_shop_presentation_mode || "acheter_en_ligne",
+      unified_cta: (formData as any).unified_cta || null,
       computed_rating: (formData as any).computed_rating !== "" && (formData as any).computed_rating != null ? parseFloat((formData as any).computed_rating) : null,
       total_review_count: (formData as any).total_review_count !== "" && (formData as any).total_review_count != null ? parseInt((formData as any).total_review_count) : null,
       carousel_badge: (formData as any).carousel_badge || null,
@@ -2788,6 +2790,42 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 <Label htmlFor="website_pres">Site web</Label>
               )}
             </div>
+
+            {/* Unified CTA dropdown */}
+            <div className="space-y-1">
+              <Label>🎯 CTA unifié (commun aux 3 URLs)</Label>
+              <Select
+                value={(formData as any).unified_cta || ""}
+                onValueChange={(value) => handleChange("unified_cta", value)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="— Aucun —" />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  <SelectItem value="achetez">Achetez</SelectItem>
+                  <SelectItem value="boissons">Boissons</SelectItem>
+                  <SelectItem value="carte_des_soins">Carte des soins</SelectItem>
+                  <SelectItem value="carte_des_vins">Carte des vins</SelectItem>
+                  <SelectItem value="cocktails">Cocktails</SelectItem>
+                  <SelectItem value="contactez_moi">Contactez-moi</SelectItem>
+                  <SelectItem value="contactez_nous">Contactez-nous</SelectItem>
+                  <SelectItem value="day_pass">Day Pass</SelectItem>
+                  <SelectItem value="hammam">Hammam</SelectItem>
+                  <SelectItem value="hotel">Hotel</SelectItem>
+                  <SelectItem value="la_carte">La carte</SelectItem>
+                  <SelectItem value="menu">Menu</SelectItem>
+                  <SelectItem value="nos_services">Nos services</SelectItem>
+                  <SelectItem value="notre_offre">Notre offre</SelectItem>
+                  <SelectItem value="plus_informations">Plus d'informations</SelectItem>
+                  <SelectItem value="reservez">Réservez</SelectItem>
+                  <SelectItem value="restaurant">Restaurant</SelectItem>
+                  <SelectItem value="riad">Riad</SelectItem>
+                  <SelectItem value="site_web">Site web</SelectItem>
+                  <SelectItem value="spa">Spa</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="flex items-center gap-2">
               <Switch
                 checked={(formData as any).website_force_external}
