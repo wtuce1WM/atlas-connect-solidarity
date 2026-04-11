@@ -521,6 +521,50 @@ const EventManagement = () => {
             </div>
           </div>
 
+          {/* URL + CTA + Toggle */}
+          <div className="space-y-1">
+            <Label>
+              {form.url ? (
+                <a href={form.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">URL ↗</a>
+              ) : "URL"}
+            </Label>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={form.url_force_external}
+                onCheckedChange={checked => setForm(p => ({ ...p, url_force_external: checked }))}
+                title="Ouvrir en lien externe"
+                className="shrink-0"
+              />
+              <Input
+                value={form.url}
+                onChange={e => setForm(p => ({ ...p, url: e.target.value }))}
+                placeholder="https://..."
+                className="flex-1 min-w-0"
+              />
+              {form.url && (
+                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" onClick={() => setForm(p => ({ ...p, url: "" }))}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+              <Select value={form.url_cta || "__none__"} onValueChange={v => setForm(p => ({ ...p, url_cta: v === "__none__" ? "" : v }))}>
+                <SelectTrigger className="w-64 shrink-0">
+                  <SelectValue placeholder="🎯 CTA" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">Aucun</SelectItem>
+                  <SelectItem value="Acheter">Acheter</SelectItem>
+                  <SelectItem value="Réserver">Réserver</SelectItem>
+                  <SelectItem value="Plus d'informations">Plus d'informations</SelectItem>
+                  <SelectItem value="Consulter">Consulter</SelectItem>
+                  <SelectItem value="Voir le programme">Voir le programme</SelectItem>
+                  <SelectItem value="S'inscrire">S'inscrire</SelectItem>
+                  <SelectItem value="Billetterie">Billetterie</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {form.url_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
+          </div>
+
           <div>
             <Label>Description</Label>
             <RichTextEditor
