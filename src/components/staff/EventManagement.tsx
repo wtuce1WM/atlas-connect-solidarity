@@ -73,25 +73,27 @@ const SortableVideoItem = ({ id, url, index, setForm, toast }: { id: string; url
           <X className="h-4 w-4 text-destructive" />
         </Button>
       </div>
-      <div className="flex items-center gap-1 ml-8">
-        <Link className="h-3 w-3 text-muted-foreground" />
-        <Input
-          placeholder="Coller l'ID vidéo (business_documents)"
-          className="h-6 text-xs font-mono"
-          onPaste={async (e) => {
-            const pastedId = e.clipboardData.getData("text").trim();
-            if (!pastedId || pastedId.length < 30) return;
-            e.preventDefault();
-            const { data } = await supabase.from("business_documents").select("url").eq("id", pastedId).eq("type", "video").maybeSingle();
-            if ((data as any)?.url) {
-              setForm(p => ({ ...p, videos: p.videos.map((v, vi) => vi === index ? (data as any).url : v) }));
-              toast({ title: "Vidéo liée ✓", description: `URL récupérée depuis l'ID ${pastedId.substring(0, 8)}…` });
-            } else {
-              toast({ variant: "destructive", title: "ID introuvable", description: "Aucune vidéo trouvée avec cet identifiant." });
-            }
-          }}
-        />
-      </div>
+      {!url && (
+        <div className="flex items-center gap-1 ml-8">
+          <Link className="h-3 w-3 text-muted-foreground" />
+          <Input
+            placeholder="Coller l'ID vidéo (business_documents)"
+            className="h-6 text-xs font-mono"
+            onPaste={async (e) => {
+              const pastedId = e.clipboardData.getData("text").trim();
+              if (!pastedId || pastedId.length < 30) return;
+              e.preventDefault();
+              const { data } = await supabase.from("business_documents").select("url").eq("id", pastedId).eq("type", "video").maybeSingle();
+              if ((data as any)?.url) {
+                setForm(p => ({ ...p, videos: p.videos.map((v, vi) => vi === index ? (data as any).url : v) }));
+                toast({ title: "Vidéo liée ✓", description: `URL récupérée depuis l'ID ${pastedId.substring(0, 8)}…` });
+              } else {
+                toast({ variant: "destructive", title: "ID introuvable", description: "Aucune vidéo trouvée avec cet identifiant." });
+              }
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 };
