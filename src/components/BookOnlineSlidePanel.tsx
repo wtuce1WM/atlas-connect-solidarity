@@ -642,7 +642,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const destName = (d: Destination) => language === "en" && d.name_en ? d.name_en : d.name_fr;
 
   return (
-    <div className="h-full overflow-visible overscroll-none bg-black relative">
+    <div className="h-full overflow-hidden overscroll-none bg-black relative">
       {/* Toolbar portals */}
       <ToolbarPortals
         business={business}
