@@ -903,7 +903,10 @@ const SearchPage = () => {
     if (aVerified === 0) {
       return ((b as any).priority_score || 0) - ((a as any).priority_score || 0);
     }
-    // Non-verified: sort by rating desc, but treat <10 reviews as no rating
+    // Non-verified: priority_score first, then rating desc (ignore <10 reviews)
+    const aPrio = (a as any).priority_score || 0;
+    const bPrio = (b as any).priority_score || 0;
+    if (aPrio !== bPrio) return bPrio - aPrio;
     const aCount = (a as any).total_review_count ?? 0;
     const bCount = (b as any).total_review_count ?? 0;
     const aRating = aCount >= 10 ? (getEffectiveRating(a) ?? -1) : -1;
