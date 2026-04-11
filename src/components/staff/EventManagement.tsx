@@ -74,6 +74,14 @@ const EventManagement = () => {
   const [form, setForm] = useState({ ...EMPTY_FORM });
   const [saving, setSaving] = useState(false);
   const [kpInput, setKpInput] = useState("");
+  const [eventTypes, setEventTypes] = useState<string[]>([]);
+  const [newTypeInput, setNewTypeInput] = useState("");
+  const [showNewType, setShowNewType] = useState(false);
+
+  const fetchEventTypes = async () => {
+    const { data } = await supabase.from("event_types").select("name").order("name");
+    if (data) setEventTypes(data.map(d => (d as any).name));
+  };
 
   const fetchEvents = async () => {
     setLoading(true);
