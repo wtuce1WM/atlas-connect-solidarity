@@ -50,6 +50,7 @@ const EMPTY_FORM = {
   kp_regroupement: [] as string[],
   logo_url: "",
   type: "",
+  recurrence: "",
 };
 
 /* ── Sortable video item ── */
