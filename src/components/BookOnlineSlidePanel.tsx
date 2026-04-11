@@ -1526,12 +1526,18 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               icon: <Sparkles className="h-[22px] w-[22px]" />,
               items: menuSummaries.map(ms => ({ label: ms.title || 'Menu IA', onClick: () => { setDescOverlayContent({ html: ms.content || '', title: ms.title || 'Menu IA', priceDetails: ms.price_details, avgPriceRange: ms.avg_price_range }); setDescGridMode(false); setSidebarOpenGroup(null); } })),
             });
-            if (externalLinks.length > 0) groups.push({
-              key: 'ext',
-              icon: <ExternalLink className="h-[22px] w-[22px]" />,
-              directClick: () => { setShowExtLinksOverlay(true); },
-              items: [],
-            });
+            if (externalLinks.length > 0) {
+              const extDesc = externalLinks[0]?.description?.toLowerCase() || "";
+              const extIcon = (extDesc === "presse" || extDesc === "media")
+                ? <Newspaper className="h-[22px] w-[22px]" />
+                : <ExternalLink className="h-[22px] w-[22px]" />;
+              groups.push({
+                key: 'ext',
+                icon: extIcon,
+                directClick: () => { setShowExtLinksOverlay(true); },
+                items: [],
+              });
+            }
             return (
               <div className="absolute right-2 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-end">
                 {groups.map(g => {
