@@ -1868,6 +1868,48 @@ export type Database = {
         }
         Relationships: []
       }
+      events: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_date: string | null
+          hook: string | null
+          id: string
+          images: string[] | null
+          kp_regroupement: string[] | null
+          name: string
+          start_date: string | null
+          updated_at: string
+          videos: string[] | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          hook?: string | null
+          id?: string
+          images?: string[] | null
+          kp_regroupement?: string[] | null
+          name: string
+          start_date?: string | null
+          updated_at?: string
+          videos?: string[] | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          hook?: string | null
+          id?: string
+          images?: string[] | null
+          kp_regroupement?: string[] | null
+          name?: string
+          start_date?: string | null
+          updated_at?: string
+          videos?: string[] | null
+        }
+        Relationships: []
+      }
       front_structure: {
         Row: {
           created_at: string
