@@ -183,6 +183,18 @@ body {
   letter-spacing: 0.02em;
 }
 
+.rich-price-html,
+.rich-price-html * {
+  color: inherit !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+.rich-price-html b,
+.rich-price-html strong {
+  color: inherit !important;
+  font-weight: 700 !important;
+}
+
 /* Card 1 headings: sentence case only (first letter uppercase) */
 .card1-headings h1,
 .card1-headings h2,
