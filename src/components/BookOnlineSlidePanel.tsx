@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { DesktopMediaArrows, CardsToggleButton, useOwnerLogo } from "@/components/CardsVisibilityToggle";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
-import { MapPin, ChevronUp, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink } from "lucide-react";
+import { MapPin, ChevronUp, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle } from "lucide-react";
 import VideoControls from "@/components/VideoControls";
 import DynamicIcon from "@/components/DynamicIcon";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
@@ -1514,7 +1514,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             )}
           </div>
           {/* Right sticky sidebar — Menu / Menu IA / External links */}
-          {!descGridMode && (menuDocs.length > 0 || menuSummaries.length > 0 || externalLinks.length > 0) && (() => {
+          {!descGridMode && (menuDocs.length > 0 || menuSummaries.length > 0 || externalLinks.length > 0 || hasReviewsCard) && (() => {
             const groups: { key: string; icon: React.ReactNode; directClick?: () => void; items: { label: string; logo?: string | null; onClick: () => void }[] }[] = [];
             if (menuDocs.length > 0) groups.push({
               key: 'menu',
@@ -1535,6 +1535,21 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 key: 'ext',
                 icon: extIcon,
                 directClick: () => { setShowExtLinksOverlay(true); },
+                items: [],
+              });
+            }
+            if (hasReviewsCard) {
+              const reviewHtml = reviewPlatforms
+                .filter(p => p.rating && p.count)
+                .map(p => `<p><strong>${p.name}</strong> — ${p.rating}/5 (${p.count} avis)</p>`)
+                .join("");
+              const textsHtml = reviewTexts.length > 0
+                ? "<hr/>" + reviewTexts.slice(0, 10).map(r => `<blockquote><p>${r.text}</p><footer>— ${r.author_name || "Anonyme"}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`).join("")
+                : "";
+              groups.push({
+                key: 'reviews',
+                icon: <MessageCircle className="h-[22px] w-[22px]" />,
+                directClick: () => { setDescOverlayContent({ html: reviewHtml + textsHtml, title: `Avis clients (${totalReviewCount})` }); setDescGridMode(false); setSidebarOpenGroup(null); },
                 items: [],
               });
             }
