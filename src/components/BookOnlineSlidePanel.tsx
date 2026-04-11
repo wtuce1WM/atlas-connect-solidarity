@@ -1502,9 +1502,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 {groups.map(g => {
                   const isOpen = sidebarOpenGroup === g.key;
                   return (
-                    <div key={g.key} className="flex flex-col items-end">
+                    <div key={g.key} className="flex flex-col items-end"
+                      onMouseEnter={() => setSidebarOpenGroup(g.key)}
+                      onMouseLeave={() => setSidebarOpenGroup(null)}
+                    >
                       <button
-                        onClick={() => setSidebarOpenGroup(isOpen ? null : g.key)}
                         className={`flex items-center justify-center h-10 w-10 rounded-full border border-white/10 text-white transition-colors shadow-lg ${isOpen ? 'bg-black/90' : 'bg-black/80 hover:bg-black/90'}`}
                       >
                         {g.icon}
