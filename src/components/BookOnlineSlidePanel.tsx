@@ -1474,7 +1474,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   {descOverlayContent && (
                     <>
                       <div className="flex items-center gap-2 mb-4">
-                        <Sparkles className="h-4 w-4 text-gold shrink-0" />
+                        {descOverlayContent.title?.toLowerCase().startsWith("avis") || descOverlayContent.title?.toLowerCase().startsWith("customer")
+                          ? <Star className="h-4 w-4 text-gold fill-gold shrink-0" />
+                          : <Sparkles className="h-4 w-4 text-gold shrink-0" />}
                         <h3 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] text-white">{descOverlayContent.title}</h3>
                       </div>
                       {/* Price info blocks */}
