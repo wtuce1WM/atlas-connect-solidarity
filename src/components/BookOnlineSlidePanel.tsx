@@ -1513,7 +1513,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           </div>
           {/* Right sticky sidebar — Menu / Menu IA / External links */}
           {!descGridMode && (menuDocs.length > 0 || menuSummaries.length > 0 || externalLinks.length > 0) && (() => {
-            const groups: { key: string; icon: React.ReactNode; items: { label: string; logo?: string | null; onClick: () => void }[] }[] = [];
+            const groups: { key: string; icon: React.ReactNode; directClick?: () => void; items: { label: string; logo?: string | null; onClick: () => void }[] }[] = [];
             if (menuDocs.length > 0) groups.push({
               key: 'menu',
               icon: <span className="flex items-center justify-center w-6 h-6">{categoryIcon ? <DynamicIcon name={categoryIcon} size={22} /> : <Newspaper className="h-[22px] w-[22px]" />}</span>,
@@ -1526,12 +1526,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             });
             if (externalLinks.length > 0) groups.push({
               key: 'ext',
-              icon: <Newspaper className="h-[22px] w-[22px]" />,
-              items: externalLinks.filter(l => l.url && l.url !== '#' && l.url !== '*').map(link => ({
-                label: link.name || (() => { try { return new URL(link.url).hostname.replace('www.', ''); } catch { return 'Lien'; } })(),
-                logo: link.icon,
-                onClick: () => { setShowDescriptionOverlay(false); setTimeout(() => openDocOrBooking(link.url, link.name || 'Lien externe'), 150); },
-              })),
+              icon: <ExternalLink className="h-[22px] w-[22px]" />,
+              directClick: () => { setShowDescriptionOverlay(false); setTimeout(() => setShowExtLinksOverlay(true), 150); },
+              items: [],
             });
             return (
               <div className="absolute right-2 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-end">
