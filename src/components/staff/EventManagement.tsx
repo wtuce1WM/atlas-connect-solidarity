@@ -115,8 +115,11 @@ const EventManagement = () => {
       videos: ev.videos || [],
       kp_regroupement: ev.kp_regroupement || [],
       logo_url: ev.logo_url || "",
+      type: ev.type || "",
     });
     setKpInput("");
+    setShowNewType(false);
+    setNewTypeInput("");
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: "instant" });
   };
