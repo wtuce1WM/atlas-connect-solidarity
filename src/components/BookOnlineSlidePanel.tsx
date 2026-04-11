@@ -1476,38 +1476,40 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           </div>
           {/* Right sticky sidebar — Menu / Menu IA / External links */}
           {!descGridMode && (menuDocs.length > 0 || menuSummaries.length > 0 || externalLinks.length > 0) && (
-            <div className="absolute right-2 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-2">
-              {menuDocs.length > 0 && (
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5">
+              {menuDocs.map((doc, i) => (
                 <button
-                  onClick={() => { setShowDescriptionOverlay(false); setTimeout(() => openDocOrBooking(menuDocs[0].url, menuDocs[0].name || 'Menu'), 150); }}
-                  className="group flex items-center h-9 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white hover:bg-white/30 transition-all shadow-lg px-2.5 gap-0 hover:gap-1.5 hover:pr-3"
+                  key={`menu-${i}`}
+                  onClick={() => { setShowDescriptionOverlay(false); setTimeout(() => openDocOrBooking(doc.url, doc.name || 'Menu'), 150); }}
+                  className="group flex items-center h-8 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white hover:bg-white/30 transition-all shadow-lg px-2 gap-0 hover:gap-1.5 hover:pr-3"
                 >
                   <span className="shrink-0 flex items-center justify-center w-4 h-4">
-                    {categoryIcon ? <DynamicIcon name={categoryIcon} size={16} /> : <Newspaper className="h-4 w-4" />}
+                    {categoryIcon ? <DynamicIcon name={categoryIcon} size={14} /> : <Newspaper className="h-3.5 w-3.5" />}
                   </span>
-                  <span className="max-w-0 overflow-hidden whitespace-nowrap text-xs font-medium opacity-0 group-hover:max-w-[8rem] group-hover:opacity-100 transition-all duration-300">
-                    {menuDocs[0].name || 'Menu'}
+                  <span className="max-w-0 overflow-hidden whitespace-nowrap text-[11px] font-medium opacity-0 group-hover:max-w-[10rem] group-hover:opacity-100 transition-all duration-300">
+                    {doc.name || 'Menu'}
                   </span>
                 </button>
-              )}
-              {menuSummaries.length > 0 && (
+              ))}
+              {menuSummaries.map((ms, i) => (
                 <button
+                  key={`ai-${i}`}
                   onClick={() => { setShowDescriptionOverlay(false); }}
-                  className="group flex items-center h-9 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white hover:bg-white/30 transition-all shadow-lg px-2.5 gap-0 hover:gap-1.5 hover:pr-3"
+                  className="group flex items-center h-8 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white hover:bg-white/30 transition-all shadow-lg px-2 gap-0 hover:gap-1.5 hover:pr-3"
                 >
-                  <Sparkles className="h-4 w-4 shrink-0" />
-                  <span className="max-w-0 overflow-hidden whitespace-nowrap text-xs font-medium opacity-0 group-hover:max-w-[8rem] group-hover:opacity-100 transition-all duration-300">
-                    Menu IA
+                  <Sparkles className="h-3.5 w-3.5 shrink-0" />
+                  <span className="max-w-0 overflow-hidden whitespace-nowrap text-[11px] font-medium opacity-0 group-hover:max-w-[10rem] group-hover:opacity-100 transition-all duration-300">
+                    {ms.title || 'Menu IA'}
                   </span>
                 </button>
-              )}
+              ))}
               {externalLinks.length > 0 && (
                 <button
                   onClick={() => { setShowDescriptionOverlay(false); setTimeout(() => { const el = document.querySelector('[data-card="external-links"]'); el?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 300); }}
-                  className="group flex items-center h-9 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white hover:bg-white/30 transition-all shadow-lg px-2.5 gap-0 hover:gap-1.5 hover:pr-3"
+                  className="group flex items-center h-8 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white hover:bg-white/30 transition-all shadow-lg px-2 gap-0 hover:gap-1.5 hover:pr-3"
                 >
-                  <Newspaper className="h-4 w-4 shrink-0" />
-                  <span className="max-w-0 overflow-hidden whitespace-nowrap text-xs font-medium opacity-0 group-hover:max-w-[8rem] group-hover:opacity-100 transition-all duration-300">
+                  <Newspaper className="h-3.5 w-3.5 shrink-0" />
+                  <span className="max-w-0 overflow-hidden whitespace-nowrap text-[11px] font-medium opacity-0 group-hover:max-w-[10rem] group-hover:opacity-100 transition-all duration-300">
                     Presse
                   </span>
                 </button>
