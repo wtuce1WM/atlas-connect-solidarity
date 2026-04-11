@@ -181,11 +181,6 @@ const VideoUploader = ({
               <X className="h-4 w-4" />
             </button>
           </div>
-
-          {/* URL info */}
-          <p className="text-xs text-muted-foreground truncate max-w-2xl" title={videoUrl}>
-            {isStorageUrl(videoUrl) ? "📦 Stockée en interne" : "🌐 URL externe"} — {videoUrl}
-          </p>
         </div>
       )}
 
