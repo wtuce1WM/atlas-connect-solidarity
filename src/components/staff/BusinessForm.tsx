@@ -2832,6 +2832,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <SelectItem value="contactez_moi">Contactez-moi</SelectItem>
                   <SelectItem value="contactez_nous">Contactez-nous</SelectItem>
                   <SelectItem value="day_pass">Day Pass</SelectItem>
+                  <SelectItem value="forfaits">Forfaits</SelectItem>
                   <SelectItem value="hammam">Hammam</SelectItem>
                   <SelectItem value="hotel">Hotel</SelectItem>
                   <SelectItem value="la_carte">La carte</SelectItem>
@@ -2922,6 +2923,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <SelectItem value="contactez_moi">Contactez-moi</SelectItem>
                   <SelectItem value="contactez_nous">Contactez-nous</SelectItem>
                   <SelectItem value="day_pass">Day Pass</SelectItem>
+                  <SelectItem value="forfaits">Forfaits</SelectItem>
                   <SelectItem value="hammam">Hammam</SelectItem>
                   <SelectItem value="hotel">Hotel</SelectItem>
                   <SelectItem value="la_carte">La carte</SelectItem>
@@ -2999,6 +3001,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <SelectItem value="contactez_moi">Contactez-moi</SelectItem>
                   <SelectItem value="contactez_nous">Contactez-nous</SelectItem>
                   <SelectItem value="day_pass">Day Pass</SelectItem>
+                  <SelectItem value="forfaits">Forfaits</SelectItem>
                   <SelectItem value="hammam">Hammam</SelectItem>
                   <SelectItem value="hotel">Hotel</SelectItem>
                   <SelectItem value="la_carte">La carte</SelectItem>
