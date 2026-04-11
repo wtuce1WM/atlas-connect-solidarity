@@ -120,7 +120,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   
   const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(false);
   const [descGridMode, setDescGridMode] = useState(false);
-  const [descGridPage, setDescGridPage] = useState(0);
+   const [descGridPage, setDescGridPage] = useState(0);
+   const [sidebarOpenGroup, setSidebarOpenGroup] = useState<string | null>(null);
   const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ url: string; name: string | null; description: string | null } | null>(null);
   const [videoOverlayClosing, setVideoOverlayClosing] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
