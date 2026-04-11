@@ -1045,9 +1045,7 @@ const SearchPage = () => {
           rest.push(b);
         }
       }
-      return isServerPaginatedResults || hasActiveSearch
-        ? [...openDuring, ...rest]
-        : [...openDuring.sort(sortWtuceAndRating), ...rest.sort(sortWtuceAndRating)];
+      return [...openDuring.sort(sortWtuceAndRating), ...rest.sort(sortWtuceAndRating)];
     }
 
     return [...filtered].sort(sortWtuceAndRating);
