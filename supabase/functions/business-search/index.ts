@@ -4882,6 +4882,8 @@ serve(async (req) => {
       });
     }
 
+
+
     // totalCount is always the full processed result count
     const totalCount = businesses.length;
 
