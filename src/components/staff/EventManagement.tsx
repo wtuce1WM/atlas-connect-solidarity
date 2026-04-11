@@ -228,6 +228,7 @@ const EventManagement = () => {
       kp_regroupement: form.kp_regroupement,
       logo_url: form.logo_url || null,
       type: form.type || null,
+      recurrence: form.recurrence || null,
     };
 
     let error;
