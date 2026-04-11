@@ -3,12 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Edit, Trash2, Save, ArrowLeft, X } from "lucide-react";
 import RichTextEditor from "./RichTextEditor";
 import ImageUploader from "./ImageUploader";
 import VideoUploader from "./VideoUploader";
+import LogoUploader from "./LogoUploader";
 import {
   Table,
   TableBody,
@@ -39,6 +39,7 @@ interface EventRow {
   images: string[];
   videos: string[];
   kp_regroupement: string[];
+  logo_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -52,6 +53,7 @@ const EMPTY_FORM = {
   images: [] as string[],
   videos: [] as string[],
   kp_regroupement: [] as string[],
+  logo_url: "",
 };
 
 const EventManagement = () => {
@@ -95,6 +97,7 @@ const EventManagement = () => {
       images: ev.images || [],
       videos: ev.videos || [],
       kp_regroupement: ev.kp_regroupement || [],
+      logo_url: ev.logo_url || "",
     });
     setKpInput("");
     setShowForm(true);
@@ -121,6 +124,7 @@ const EventManagement = () => {
       images: form.images,
       videos: form.videos,
       kp_regroupement: form.kp_regroupement,
+      logo_url: form.logo_url || null,
     };
 
     let error;
@@ -151,8 +155,8 @@ const EventManagement = () => {
     }
   };
 
-  const addKp = () => {
-    const trimmed = kpInput.trim();
+  const addKp = (value: string) => {
+    const trimmed = value.trim();
     if (!trimmed) return;
     if (form.kp_regroupement.length >= 20) {
       toast({ title: "Maximum 20 éléments", variant: "destructive" });
@@ -189,10 +193,11 @@ const EventManagement = () => {
 
             <div>
               <Label>Hook</Label>
-              <Textarea value={form.hook} onChange={e => setForm(p => ({ ...p, hook: e.target.value }))} rows={2} />
+              <Input value={form.hook} onChange={e => setForm(p => ({ ...p, hook: e.target.value }))} />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            {/* Dates + KP on same row */}
+            <div className="grid grid-cols-3 gap-4">
               <div>
                 <Label>Date de début</Label>
                 <Input type="date" value={form.start_date} onChange={e => setForm(p => ({ ...p, start_date: e.target.value }))} />
@@ -201,48 +206,51 @@ const EventManagement = () => {
                 <Label>Date de fin</Label>
                 <Input type="date" value={form.end_date} onChange={e => setForm(p => ({ ...p, end_date: e.target.value }))} />
               </div>
-            </div>
-
-            {/* KP Regroupement */}
-            <div>
-              <Label>KP Regroupement ({form.kp_regroupement.length}/20)</Label>
-              <div className="flex gap-2">
+              <div>
+                <Label>KP Regroupement ({form.kp_regroupement.length}/20)</Label>
                 <Input
-                  placeholder="Code KP"
+                  placeholder="Code KP puis Entrée"
                   value={kpInput}
                   onChange={e => setKpInput(e.target.value)}
-                  onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addKp(); } }}
+                  onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addKp(kpInput); } }}
                 />
-                <Button type="button" variant="outline" size="sm" onClick={addKp}>
-                  <Plus className="h-4 w-4" />
-                </Button>
               </div>
-              {form.kp_regroupement.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {form.kp_regroupement.map((kp, i) => (
-                    <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-0.5 rounded text-sm">
-                      {kp}
-                      <button type="button" onClick={() => removeKp(i)} className="text-muted-foreground hover:text-destructive">×</button>
-                    </span>
-                  ))}
-                </div>
-              )}
             </div>
+            {form.kp_regroupement.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {form.kp_regroupement.map((kp, i) => (
+                  <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-0.5 rounded text-sm">
+                    {kp}
+                    <button type="button" onClick={() => removeKp(i)} className="text-muted-foreground hover:text-destructive">×</button>
+                  </span>
+                ))}
+              </div>
+            )}
 
-            {/* Description RichText */}
+            {/* Description RichText - taller */}
             <div>
               <Label>Description</Label>
               <RichTextEditor
                 content={form.description}
                 onChange={html => setForm(p => ({ ...p, description: html }))}
                 placeholder="Description de l'événement..."
-                maxHeight="300px"
+                maxHeight="500px"
               />
             </div>
           </div>
 
-          {/* Right column: Images & Videos */}
+          {/* Right column: Logo, Images & Videos */}
           <div className="space-y-6">
+            {/* Logo */}
+            <div className="space-y-2">
+              <Label className="text-base font-semibold">Logo</Label>
+              <LogoUploader
+                logoUrl={form.logo_url}
+                onChange={url => setForm(p => ({ ...p, logo_url: url }))}
+              />
+            </div>
+
+            {/* Images */}
             <div>
               <Label className="text-base font-semibold">Images ({form.images.length}/10)</Label>
               <ImageUploader
@@ -252,6 +260,7 @@ const EventManagement = () => {
               />
             </div>
 
+            {/* Videos */}
             <div>
               <Label className="text-base font-semibold">Vidéos ({form.videos.length}/10)</Label>
               <div className="space-y-3">
