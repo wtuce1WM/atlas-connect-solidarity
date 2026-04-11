@@ -734,6 +734,20 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
   );
 };
 
+/** Map legacy unified_cta free-text to a presentation_mode enum value */
+const inferPresentationMode = (cta: string | null | undefined): string | undefined => {
+  if (!cta) return undefined;
+  const lower = cta.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  if (/acheter|shop/i.test(lower)) return "acheter_en_ligne";
+  if (/reserver|book|reserv/i.test(lower)) return "reserver_en_ligne";
+  if (/offre|offer|consulter/i.test(lower)) return "consulter_offre";
+  if (/contact/i.test(lower)) return "contactez_nous";
+  if (/carte|menu/i.test(lower)) return "la_carte";
+  if (/boisson|drink/i.test(lower)) return "les_boissons";
+  if (/info|plus/i.test(lower)) return "plus_informations";
+  return undefined;
+};
+
 const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: BusinessFormProps) => {
   // Set of broken URL values for quick lookup
   const brokenUrlSet = useMemo(() => new Set(brokenLinks.map(bl => bl.url)), [brokenLinks]);
@@ -974,7 +988,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     account_type: (business as any)?.account_type || "",
     zone_chalandise: (business as any)?.zone_chalandise || "locale",
     is_visible_locale: (business as any)?.is_visible_locale ?? true,
-    presentation_mode: (business as any)?.presentation_mode || "reserver_en_ligne",
+    presentation_mode: (business as any)?.presentation_mode || inferPresentationMode((business as any)?.unified_cta) || "reserver_en_ligne",
     languages: (business as any)?.languages || [],
     affiliate_id: (business as any)?.affiliate_id || "",
     internal_notes: (business as any)?.internal_notes || "",
@@ -1064,8 +1078,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     reserve_now_force_external: (business as any)?.reserve_now_force_external ?? false,
     online_shop_force_external: (business as any)?.online_shop_force_external ?? false,
     
-    website_presentation_mode: (business as any)?.website_presentation_mode || "plus_informations",
-    online_shop_presentation_mode: (business as any)?.online_shop_presentation_mode || "acheter_en_ligne",
+    website_presentation_mode: (business as any)?.website_presentation_mode || inferPresentationMode((business as any)?.unified_cta) || "plus_informations",
+    online_shop_presentation_mode: (business as any)?.online_shop_presentation_mode || inferPresentationMode((business as any)?.unified_cta) || "acheter_en_ligne",
     unified_cta: (business as any)?.unified_cta || "",
     website_cta: (business as any)?.website_cta || "",
     reserve_now_cta: (business as any)?.reserve_now_cta || "",
