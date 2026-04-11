@@ -152,7 +152,6 @@ const LogoUploader = ({
               isBroken && "ring-2 ring-amber-500"
             )}
           >
-          >
             {isBroken ? (
               <div className="flex flex-col items-center text-amber-500">
                 <AlertTriangle className="h-8 w-8" />
