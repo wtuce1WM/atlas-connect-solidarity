@@ -1539,17 +1539,41 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               });
             }
             if (hasReviewsCard) {
-              const reviewHtml = reviewPlatforms
-                .filter(p => p.rating && p.count)
-                .map(p => `<p><strong>${p.name}</strong> — ${p.rating}/5 (${p.count} avis)</p>`)
-                .join("");
-              const textsHtml = reviewTexts.length > 0
-                ? "<hr/>" + reviewTexts.slice(0, 10).map(r => `<blockquote><p>${r.text}</p><footer>— ${r.author_name || "Anonyme"}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`).join("")
-                : "";
+              const buildReviewHtml = (texts: { text: string | null; author_name: string | null; source: string }[], translated?: string[]) => {
+                const platformsHtml = reviewPlatforms
+                  .filter(p => p.rating && p.count)
+                  .map(p => `<p><strong>${p.name}</strong> — ${p.rating}/5 (${p.count} ${language === "en" ? "reviews" : "avis"})</p>`)
+                  .join("");
+                const textsHtml = texts.length > 0
+                  ? "<hr/>" + texts.slice(0, 10).map((r, i) => {
+                    const displayText = translated?.[i] || r.text || "";
+                    return `<blockquote><p>${displayText}</p><footer>— ${r.author_name || (language === "en" ? "Anonymous" : "Anonyme")}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`;
+                  }).join("")
+                  : "";
+                return platformsHtml + textsHtml;
+              };
               groups.push({
                 key: 'reviews',
-                icon: <MessageCircle className="h-[22px] w-[22px]" />,
-                directClick: () => { setDescOverlayContent({ html: reviewHtml + textsHtml, title: `Avis clients (${totalReviewCount})` }); setDescGridMode(false); setSidebarOpenGroup(null); },
+                icon: <Star className="h-[22px] w-[22px] text-gold fill-gold" />,
+                directClick: async () => {
+                  const title = language === "en" ? `Customer reviews (${totalReviewCount})` : `Avis clients (${totalReviewCount})`;
+                  setDescOverlayContent({ html: buildReviewHtml(reviewTexts), title });
+                  setDescGridMode(false);
+                  setSidebarOpenGroup(null);
+                  // Translate if needed
+                  const targetLang = language === "en" ? "en" : language === "ar" ? "ar" : "fr";
+                  const needsTranslation = reviewTexts.some(r => r.language && r.language !== targetLang);
+                  if (needsTranslation && reviewTexts.some(r => r.text)) {
+                    try {
+                      const { data, error } = await supabase.functions.invoke("translate-reviews", {
+                        body: { reviews: reviewTexts.filter(r => r.text).map(r => ({ text: r.text })), targetLanguage: targetLang },
+                      });
+                      if (!error && data?.translations?.length) {
+                        setDescOverlayContent({ html: buildReviewHtml(reviewTexts, data.translations), title });
+                      }
+                    } catch (e) { console.error("Translation error:", e); }
+                  }
+                },
                 items: [],
               });
             }
