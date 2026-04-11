@@ -93,7 +93,7 @@ const EventManagement = () => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchEvents(); }, []);
+  useEffect(() => { fetchEvents(); fetchEventTypes(); }, []);
 
   const openNew = () => {
     setEditingId(null);
