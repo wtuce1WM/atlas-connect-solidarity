@@ -1614,10 +1614,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* External Links Overlay */}
       {showExtLinksOverlay && externalLinks.length > 0 && (
-        <div className="absolute inset-0 -top-[3.5rem] z-[85] flex items-center justify-center bg-black/70 backdrop-blur-sm" style={{ animation: "panelFadeIn 0.3s ease-out both" }}>
+        <div className="absolute inset-0 lg:-top-[3.5rem] z-[85] flex items-center justify-center bg-black/70 backdrop-blur-sm" style={{ animation: "panelFadeIn 0.3s ease-out both" }}>
           <button
             onClick={() => setShowExtLinksOverlay(false)}
-            className="absolute top-[4rem] left-3 z-10 flex items-center justify-center h-9 w-9 rounded-full bg-white text-black shadow-lg hover:opacity-90 transition-opacity"
+            className="absolute top-3 left-3 z-10 flex items-center justify-center h-9 w-9 rounded-full bg-white text-black shadow-lg hover:opacity-90 transition-opacity"
           >
             <X className="h-4 w-4" />
           </button>
