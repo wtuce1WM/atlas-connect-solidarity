@@ -748,7 +748,14 @@ const StaffBackoffice = () => {
               }} />
             </TabsContent>
 
-            <TabsContent value="overview">
+            <TabsContent value="events">
+              <div className="text-center py-16 text-muted-foreground">
+                <CalendarDays className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <h3 className="text-lg font-semibold mb-2">Events</h3>
+                <p className="text-sm">Section en cours de développement.</p>
+              </div>
+            </TabsContent>
+
               <BusinessOverviewTab
                 businesses={businesses}
                 loading={loading}
