@@ -35,11 +35,11 @@ const DisplayPanel = () => (
                   <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Structure</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <DisplayParam label="Balise HTML" value="<header>" />
-                    <DisplayParam label="Position" value="fixed top-0 left-0 right-0" />
-                    <DisplayParam label="Z-index" value="z-50" />
-                    <DisplayParam label="Conteneur" value="container mx-auto" />
+                    <DisplayParam label="Position" value="fixed left-0 right-0 top-0" />
+                    <DisplayParam label="Z-index" value="z-30" />
+                    <DisplayParam label="Conteneur" value="mx-auto lg:w-1/2 lg:mr-auto lg:ml-0" />
                     <DisplayParam label="Padding" value="px-4 py-3" />
-                    <DisplayParam label="Layout" value="flex items-center justify-between gap-3" />
+                    <DisplayParam label="Layout" value="flex items-center" />
                   </div>
                 </div>
                 <div>
@@ -51,28 +51,33 @@ const DisplayPanel = () => (
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Logo</h3>
+                  <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Logo / Branding</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <DisplayParam label="Balise" value="<a> → <img> + <span>" />
-                    <DisplayParam label="Image" value="logoGOLDsimpleSML.webp" />
-                    <DisplayParam label="Taille image" value="h-9 w-9 object-contain" />
-                    <DisplayParam label="Texte 1" value='"ONE WORLD"' preview={<span className="text-gold font-bold">ONE WORLD</span>} />
-                    <DisplayParam label="Texte 2" value='"MOROCCO"' preview={<span className="text-black font-bold">MOROCCO</span>} />
-                    <DisplayParam label="Police texte" value="text-lg font-bold tracking-tight" />
-                    <DisplayParam label="Couleur texte 1" value="text-gold" preview={<div className="w-8 h-8 rounded border" style={{ backgroundColor: 'hsl(var(--gold))' }} />} />
-                    <DisplayParam label="Couleur texte 2" value="text-black" preview={<div className="w-8 h-8 rounded border bg-black" />} />
-                    <DisplayParam label="Responsive" value="hidden sm:inline (texte masqué mobile)" />
+                    <DisplayParam label="Balise" value='<a href="/"> → <span>' />
+                    <DisplayParam label="Texte normal" value='"ONE WORLD MOROCCO"' preview={<span className="font-bold" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>ONE WORLD MOROCCO</span>} />
+                    <DisplayParam label="Texte compact" value='"1WM" (prop compact=true)' preview={<span className="font-bold" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>1WM</span>} />
+                    <DisplayParam label="Police" value="text-lg font-bold tracking-tight, Josefin Sans" />
+                    <DisplayParam label="Couleur texte" value="text-foreground (unifié)" />
+                    <DisplayParam label="Responsive compact" value='hidden md:flex (logo masqué mobile si compact)' />
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Menu</h3>
+                  <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Hamburger</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <DisplayParam label="Icône ouvert" value="<X> (lucide)" />
-                    <DisplayParam label="Icône fermé" value="<Menu> (lucide)" />
-                    <DisplayParam label="Taille icône" value="h-6 w-6" />
-                    <DisplayParam label="Couleur icône" value="text-black" />
-                    <DisplayParam label="Fond dropdown" value="bg-background border-t border-border" />
-                    <DisplayParam label="Layout dropdown" value="flex-col items-center gap-4 px-4 py-6" />
+                    <DisplayParam label="Icône ouvert" value="<X> (lucide) h-6 w-6" />
+                    <DisplayParam label="Icône fermé" value="<Menu> (lucide) h-6 w-6" />
+                    <DisplayParam label="Bouton" value="w-10 h-10 rounded-lg hover:bg-muted/50" />
+                    <DisplayParam label="Couleur" value="text-foreground" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Menu déployé</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <DisplayParam label="Mobile/Tablette" value="Dropdown pleine largeur, bg-white, max-h-[calc(100vh-53px)] overflow-y-auto" />
+                    <DisplayParam label="Desktop (lg+)" value="Sidebar gauche w-1/2, bg-white, pleine hauteur. Zone droite bg-black/20 ferme au clic." />
+                    <DisplayParam label="Animation mobile" value="animate-in slide-in-from-top-2 fade-in duration-150" />
+                    <DisplayParam label="Animation desktop" value="animate-in slide-in-from-left-2 fade-in duration-200" />
+                    <DisplayParam label="Contenu footer" value="Description marque, icônes sociales, liens entreprise, WhatsApp, contact, copyright" />
                   </div>
                 </div>
                 <div>
@@ -88,11 +93,9 @@ const DisplayPanel = () => (
                         </tr>
                       </thead>
                       <tbody className="divide-y">
-                        <tr><td className="py-2 pr-4">Notre Mission</td><td className="py-2 pr-4 font-mono text-xs">/mission</td><td className="py-2 pr-4 font-mono text-xs">footer.ourMission</td><td className="py-2 text-xs">text-foreground hover:text-gold</td></tr>
-                        <tr><td className="py-2 pr-4">Recherche</td><td className="py-2 pr-4 font-mono text-xs">/search</td><td className="py-2 pr-4 font-mono text-xs">—</td><td className="py-2 text-xs">text-foreground hover:text-gold</td></tr>
-                        <tr><td className="py-2 pr-4">Hôtels</td><td className="py-2 pr-4 font-mono text-xs">/hotels</td><td className="py-2 pr-4 font-mono text-xs">—</td><td className="py-2 text-xs">text-foreground hover:text-gold</td></tr>
-                        <tr><td className="py-2 pr-4">Contact</td><td className="py-2 pr-4 font-mono text-xs">/contact</td><td className="py-2 pr-4 font-mono text-xs">footer.contact</td><td className="py-2 text-xs">text-foreground hover:text-gold</td></tr>
-                        <tr><td className="py-2 pr-4 font-semibold">Rejoignez-nous</td><td className="py-2 pr-4 font-mono text-xs">/devenir-affilie</td><td className="py-2 pr-4 font-mono text-xs">nav.joinNow</td><td className="py-2 text-xs">bg-gold text-gold-foreground rounded-lg px-4 py-2 font-semibold</td></tr>
+                        <tr><td className="py-2 pr-4">Notre Mission</td><td className="py-2 pr-4 font-mono text-xs">/mission</td><td className="py-2 pr-4 font-mono text-xs">footer.ourMission</td><td className="py-2 text-xs">text-foreground text-sm font-semibold hover:text-gold</td></tr>
+                        <tr><td className="py-2 pr-4">Contact</td><td className="py-2 pr-4 font-mono text-xs">/contact</td><td className="py-2 pr-4 font-mono text-xs">footer.contact</td><td className="py-2 text-xs">text-foreground text-sm font-semibold hover:text-gold</td></tr>
+                        <tr><td className="py-2 pr-4 font-semibold">Rejoignez-nous</td><td className="py-2 pr-4 font-mono text-xs">/devenir-affilie</td><td className="py-2 pr-4 font-mono text-xs">nav.joinNow</td><td className="py-2 text-xs">bg-gold text-gold-foreground rounded-lg px-4 py-2 text-sm font-semibold</td></tr>
                       </tbody>
                     </table>
                   </div>
@@ -100,8 +103,8 @@ const DisplayPanel = () => (
                 <div>
                   <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Comportement</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <DisplayParam label="Fermeture auto" value="Clic à l'extérieur (mousedown listener)" />
-                    <DisplayParam label="Props" value='variant: "default" | "morocco" | "city"' />
+                    <DisplayParam label="Fermeture auto" value="Clic zone d'ombre droite (desktop) ou navigation (tous)" />
+                    <DisplayParam label="Props" value='variant: "default" | "morocco" | "city", compact?: boolean, rightContent?: ReactNode' />
                   </div>
                 </div>
               </div>
@@ -181,20 +184,59 @@ const DisplayPanel = () => (
                 <div>
                   <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Typographie du Hero (HeroSection)</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <DisplayParam label="Sous-titre (plateforme)" value="text-sm md:text-base text-foreground/70 font-medium tracking-wide" />
-                    <DisplayParam label="H1 principal" value="text-3xl md:text-4xl lg:text-5xl font-bold text-black" />
+                    <DisplayParam label="Sous-titre (plateforme)" value="text-lg md:text-base text-foreground/70 font-medium tracking-wide text-center" />
+                    <DisplayParam label="H1 principal" value="text-3xl md:text-4xl lg:text-5xl font-bold text-black text-center" />
                     <DisplayParam label="H1 balise" value="<h1>" />
-                    <DisplayParam label="H1 max-width" value="max-w-4xl" />
-                    <DisplayParam label="H1 min-height" value="min-h-[4.5rem] md:min-h-[3rem]" />
-                    <DisplayParam label="H1 alignement" value="text-center" />
+                    <DisplayParam label="H1 max-width" value="max-w-5xl" />
+                    <DisplayParam label="H1 responsive" value="hidden md:block (masqué sur mobile)" />
+                    <DisplayParam label="H1 contenu dynamique" value="Varie selon la catégorie sélectionnée (all, Hôtellerie, Restauration...)" />
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Onglets catégories</h3>
+                  <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Onglets catégories (Hero)</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <DisplayParam label="Label actif" value="text-sm font-semibold text-black" />
-                    <DisplayParam label="Label inactif" value="text-sm text-muted-foreground" />
-                    <DisplayParam label="Icône taille" value="h-6 w-6 md:h-7 md:w-7" />
+                    <DisplayParam label="Layout" value="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide" />
+                    <DisplayParam label="Label actif" value="text-sm font-semibold text-black border-b-2 border-black" />
+                    <DisplayParam label="Label inactif" value="text-sm font-semibold text-black/60 border-transparent" />
+                    <DisplayParam label="Hover inactif" value="hover:text-black hover:border-black/40" />
+                    <DisplayParam label="Icône taille" value="h-5 w-5 shrink-0" />
+                    <DisplayParam label="Scroll auto" value="Centrage automatique de l'onglet actif au clic" />
+                  </div>
+                  <div className="overflow-x-auto mt-3">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Clé</th>
+                          <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Label FR</th>
+                          <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Label EN</th>
+                          <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Icône</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        <tr><td className="py-2 pr-4 font-mono text-xs">all</td><td className="py-2 pr-4">Tout</td><td className="py-2 pr-4">All</td><td className="py-2 text-xs">LayoutGrid</td></tr>
+                        <tr><td className="py-2 pr-4 font-mono text-xs">Hôtellerie</td><td className="py-2 pr-4">Hôtels</td><td className="py-2 pr-4">Hotels</td><td className="py-2 text-xs">BedDouble</td></tr>
+                        <tr><td className="py-2 pr-4 font-mono text-xs">Restauration</td><td className="py-2 pr-4">Restaurants</td><td className="py-2 pr-4">Restaurants</td><td className="py-2 text-xs">UtensilsCrossed</td></tr>
+                        <tr><td className="py-2 pr-4 font-mono text-xs">Tourisme</td><td className="py-2 pr-4">Activités</td><td className="py-2 pr-4">Activities</td><td className="py-2 text-xs">Mountain</td></tr>
+                        <tr><td className="py-2 pr-4 font-mono text-xs">Commerce</td><td className="py-2 pr-4">Commerce</td><td className="py-2 pr-4">Shopping</td><td className="py-2 text-xs">ShoppingBag</td></tr>
+                        <tr><td className="py-2 pr-4 font-mono text-xs">Bien-être</td><td className="py-2 pr-4">Bien-être</td><td className="py-2 pr-4">Wellness</td><td className="py-2 text-xs">Sparkles</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Logo CSS (LogoCSSSpinner)</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <DisplayParam label="Taille" value="w-56 h-56 md:w-80 md:h-80" />
+                    <DisplayParam label="Position" value="absolute, flex items-start justify-center pt-24" />
+                    <DisplayParam label="Z-index" value="z-[20] lg:z-[90]" />
+                    <DisplayParam label="Interaction" value="pointer-events-none" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Fond Hero</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <DisplayParam label="Overlay gradient" value="bg-gradient-to-b from-white/20 via-white/40 to-white" />
+                    <DisplayParam label="Image de fond" value="Désactivée (commentée)" />
                   </div>
                 </div>
               </div>
@@ -386,6 +428,34 @@ const DisplayPanel = () => (
                     <DisplayParam label="Icône" value="Clock h-4 w-4" />
                   </div>
                 </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">CTAs — Boutons d'action</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <DisplayParam label="Source des libellés" value="Champs website_cta, reserve_now_cta, online_shop_cta en DB" />
+                    <DisplayParam label="Modes de présentation" value="website_presentation_mode, presentation_mode, online_shop_presentation_mode" />
+                    <DisplayParam label="Contrôle externe" value="website_force_external, reserve_now_force_external, online_shop_force_external" />
+                  </div>
+                  <div className="overflow-x-auto mt-3">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Mode</th>
+                          <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Libellé FR</th>
+                          <th className="text-left py-2 font-medium text-muted-foreground">Libellé EN</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        <tr><td className="py-2 pr-4 font-mono text-xs">acheter_en_ligne</td><td className="py-2 pr-4">Acheter en ligne</td><td className="py-2">Shop Online</td></tr>
+                        <tr><td className="py-2 pr-4 font-mono text-xs">reserver_en_ligne</td><td className="py-2 pr-4">Réserver en ligne</td><td className="py-2">Book Online</td></tr>
+                        <tr><td className="py-2 pr-4 font-mono text-xs">consulter_offre</td><td className="py-2 pr-4">Consulter notre offre</td><td className="py-2">View Our Offer</td></tr>
+                        <tr><td className="py-2 pr-4 font-mono text-xs">plus_informations</td><td className="py-2 pr-4">Plus d'informations</td><td className="py-2">More Information</td></tr>
+                        <tr><td className="py-2 pr-4 font-mono text-xs">contactez_nous</td><td className="py-2 pr-4">Contactez nous</td><td className="py-2">Contact Us</td></tr>
+                        <tr><td className="py-2 pr-4 font-mono text-xs">la_carte</td><td className="py-2 pr-4">La carte</td><td className="py-2">The Menu</td></tr>
+                        <tr><td className="py-2 pr-4 font-mono text-xs">les_boissons</td><td className="py-2 pr-4">Les boissons</td><td className="py-2">Drinks</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </CollapsibleContent>
@@ -520,33 +590,17 @@ const DisplayPanel = () => (
                   <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Corps du texte IA</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <DisplayParam label="Taille" value="text-base (16px)" />
-                    <DisplayParam label="Couleur" value="text-foreground/80" />
+                    <DisplayParam label="Couleur" value="text-foreground" />
                     <DisplayParam label="Interligne" value="leading-relaxed" />
-                    <DisplayParam label="Mise en forme" value="whitespace-pre-line" />
+                    <DisplayParam label="Animation" value="reveal mot par mot (45ms), opacity + blur + translate-y" />
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Chargement</h3>
+                  <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Noms d'établissements (liens cliquables)</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <DisplayParam label="Spinner" value="Loader2 h-6 w-6 animate-spin text-gold" />
-                    <DisplayParam label="Texte" value="text-sm italic text-muted-foreground" />
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Boutons d'action (Listen / Geo / Mic)</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <DisplayParam label="Taille" value="w-16 h-16 rounded-full" />
-                    <DisplayParam label="Fond" value="bg-black" />
-                    <DisplayParam label="Icônes" value="h-7 w-7 text-white (Volume2, MapPin, Mic)" />
-                    <DisplayParam label="Hover" value="hover:scale-105" />
-                    <DisplayParam label="Ombre" value="shadow-lg" />
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Adresse géolocalisée</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <DisplayParam label="Police" value="text-sm font-medium text-muted-foreground" />
-                    <DisplayParam label="Emoji" value="📍 préfixe" />
+                    <DisplayParam label="Police" value="text-base font-semibold (16px, 600)" />
+                    <DisplayParam label="Décoration" value="underline decoration-gold/40 underline-offset-2" />
+                    <DisplayParam label="Hover" value="hover:decoration-gold" />
                   </div>
                 </div>
               </div>
@@ -555,15 +609,25 @@ const DisplayPanel = () => (
         </Card>
       </Collapsible>
     </div>
-    <div className="hidden xl:block w-96 shrink-0 sticky top-20">
-      <div className="bg-card border border-border rounded-xl shadow-sm p-4 max-h-[calc(100vh-6rem)] overflow-y-auto">
-        <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
-          <HelpCircle className="h-4 w-4 text-muted-foreground" />
-          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Aide — Design tokens</span>
-        </div>
-        <HelpContentPanel />
-      </div>
-    </div>
+
+    <HelpContentPanel title="Guide Affichage" icon={<HelpCircle className="h-5 w-5" />}>
+      <p className="text-sm text-muted-foreground leading-relaxed">
+        Ce panneau documente les paramètres d'affichage actuels du site.
+        Chaque section décrit les valeurs CSS, les classes Tailwind, et les tokens
+        de design utilisés dans les composants du front-end.
+      </p>
+      <p className="text-sm text-muted-foreground leading-relaxed mt-3">
+        Les sections sont regroupées par zone :
+      </p>
+      <ul className="text-sm text-muted-foreground mt-2 space-y-1.5 list-disc pl-5">
+        <li><strong>Header</strong> : barre de navigation fixe, hamburger universel, sidebar desktop 50%</li>
+        <li><strong>Accueil</strong> : Hero, polices, onglets catégories, LogoCSSSpinner</li>
+        <li><strong>Onglets</strong> : barre sticky de recherche (Résultats/Carte/POI/Destinations)</li>
+        <li><strong>SlidePanel</strong> : fiche établissement, onglets internes, CTAs dynamiques</li>
+        <li><strong>Overlay IA</strong> : réponse textuelle générée par IA</li>
+        <li><strong>Résumé IA</strong> : panneau latéral avec désambiguïsation</li>
+      </ul>
+    </HelpContentPanel>
   </div>
 );
 
