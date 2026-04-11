@@ -120,7 +120,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   
   const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(false);
   const [descGridMode, setDescGridMode] = useState(false);
-  const [descGridPage, setDescGridPage] = useState(0);
+   const [descGridPage, setDescGridPage] = useState(0);
+   const [sidebarOpenGroup, setSidebarOpenGroup] = useState<string | null>(null);
   const [activeVideoOverlay, setActiveVideoOverlay] = useState<{ url: string; name: string | null; description: string | null } | null>(null);
   const [videoOverlayClosing, setVideoOverlayClosing] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -1475,79 +1476,59 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             )}
           </div>
           {/* Right sticky sidebar — Menu / Menu IA / External links */}
-          {!descGridMode && (menuDocs.length > 0 || menuSummaries.length > 0 || externalLinks.length > 0) && (
-            <div className="absolute right-2 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-2">
-              {/* Menu group */}
-              {menuDocs.length > 0 && (
-                <div className="group relative flex flex-col items-end">
-                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white cursor-pointer hover:bg-white/30 transition-colors shadow-lg">
-                    <span className="flex items-center justify-center w-4 h-4">
-                      {categoryIcon ? <DynamicIcon name={categoryIcon} size={14} /> : <Newspaper className="h-3.5 w-3.5" />}
-                    </span>
-                  </div>
-                  <div className="absolute right-0 top-0 pt-9 hidden group-hover:flex flex-col gap-1 min-w-max">
-                    {menuDocs.map((doc, i) => (
+          {!descGridMode && (menuDocs.length > 0 || menuSummaries.length > 0 || externalLinks.length > 0) && (() => {
+            const groups: { key: string; icon: React.ReactNode; items: { label: string; onClick: () => void }[] }[] = [];
+            if (menuDocs.length > 0) groups.push({
+              key: 'menu',
+              icon: <span className="flex items-center justify-center w-4 h-4">{categoryIcon ? <DynamicIcon name={categoryIcon} size={14} /> : <Newspaper className="h-3.5 w-3.5" />}</span>,
+              items: menuDocs.map(doc => ({ label: doc.name || 'Menu', onClick: () => { setShowDescriptionOverlay(false); setTimeout(() => openDocOrBooking(doc.url, doc.name || 'Menu'), 150); } })),
+            });
+            if (menuSummaries.length > 0) groups.push({
+              key: 'ai',
+              icon: <Sparkles className="h-3.5 w-3.5" />,
+              items: menuSummaries.map(ms => ({ label: ms.title || 'Menu IA', onClick: () => { setShowDescriptionOverlay(false); } })),
+            });
+            if (externalLinks.length > 0) groups.push({
+              key: 'ext',
+              icon: <Newspaper className="h-3.5 w-3.5" />,
+              items: externalLinks.filter(l => l.url && l.url !== '#' && l.url !== '*').map(link => ({
+                label: link.name || (() => { try { return new URL(link.url).hostname.replace('www.', ''); } catch { return 'Lien'; } })(),
+                onClick: () => { setShowDescriptionOverlay(false); setTimeout(() => openDocOrBooking(link.url, link.name || 'Lien externe'), 150); },
+              })),
+            });
+            return (
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-end">
+                {groups.map(g => {
+                  const isOpen = sidebarOpenGroup === g.key;
+                  return (
+                    <div key={g.key} className="flex flex-col items-end">
                       <button
-                        key={`menu-${i}`}
-                        onClick={() => { setShowDescriptionOverlay(false); setTimeout(() => openDocOrBooking(doc.url, doc.name || 'Menu'), 150); }}
-                        className="flex items-center gap-1.5 h-7 rounded-full bg-white/20 backdrop-blur-md border border-white/20 text-white hover:bg-white/35 transition-colors shadow-lg px-2.5 pr-3 text-[11px] font-medium whitespace-nowrap"
+                        onClick={() => setSidebarOpenGroup(isOpen ? null : g.key)}
+                        className={`flex items-center justify-center h-8 w-8 rounded-full backdrop-blur-sm border border-white/20 text-white transition-colors shadow-lg ${isOpen ? 'bg-white/30' : 'bg-white/15 hover:bg-white/25'}`}
                       >
-                        <span className="flex items-center justify-center w-3.5 h-3.5">
-                          {categoryIcon ? <DynamicIcon name={categoryIcon} size={12} /> : <Newspaper className="h-3 w-3" />}
-                        </span>
-                        {doc.name || 'Menu'}
+                        {g.icon}
                       </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {/* Menu IA group */}
-              {menuSummaries.length > 0 && (
-                <div className="group relative flex flex-col items-end">
-                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white cursor-pointer hover:bg-white/30 transition-colors shadow-lg">
-                    <Sparkles className="h-3.5 w-3.5" />
-                  </div>
-                  <div className="absolute right-0 top-0 pt-9 hidden group-hover:flex flex-col gap-1 min-w-max">
-                    {menuSummaries.map((ms, i) => (
-                      <button
-                        key={`ai-${i}`}
-                        onClick={() => { setShowDescriptionOverlay(false); }}
-                        className="flex items-center gap-1.5 h-7 rounded-full bg-white/20 backdrop-blur-md border border-white/20 text-white hover:bg-white/35 transition-colors shadow-lg px-2.5 pr-3 text-[11px] font-medium whitespace-nowrap"
+                      <div
+                        className="flex flex-col gap-1 mt-1 overflow-hidden transition-all duration-300 ease-in-out"
+                        style={{ maxHeight: isOpen ? `${g.items.length * 32}px` : '0px', opacity: isOpen ? 1 : 0 }}
                       >
-                        <Sparkles className="h-3 w-3" />
-                        {ms.title || 'Menu IA'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {/* Presse / External links group */}
-              {externalLinks.length > 0 && (
-                <div className="group relative flex flex-col items-end">
-                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white cursor-pointer hover:bg-white/30 transition-colors shadow-lg">
-                    <Newspaper className="h-3.5 w-3.5" />
-                  </div>
-                  <div className="absolute right-0 top-0 pt-9 hidden group-hover:flex flex-col gap-1 min-w-max">
-                    {externalLinks.map((link, i) => (
-                      <button
-                        key={`ext-${i}`}
-                        onClick={() => {
-                          if (link.url && link.url !== '#' && link.url !== '*') {
-                            setShowDescriptionOverlay(false);
-                            setTimeout(() => openDocOrBooking(link.url, link.name || 'Lien externe'), 150);
-                          }
-                        }}
-                        className="flex items-center gap-1.5 h-7 rounded-full bg-white/20 backdrop-blur-md border border-white/20 text-white hover:bg-white/35 transition-colors shadow-lg px-2.5 pr-3 text-[11px] font-medium whitespace-nowrap"
-                      >
-                        <Newspaper className="h-3 w-3" />
-                        {link.name || (() => { try { return new URL(link.url).hostname.replace('www.', ''); } catch { return 'Lien'; } })()}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+                        {g.items.map((item, i) => (
+                          <button
+                            key={i}
+                            onClick={item.onClick}
+                            className="flex items-center gap-1.5 h-7 rounded-full bg-white/20 backdrop-blur-md border border-white/20 text-white hover:bg-white/35 transition-colors shadow-lg px-2.5 pr-3 text-[11px] font-medium whitespace-nowrap"
+                          >
+                            {g.icon}
+                            {item.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
           {images.length > 0 && !descGridMode && (
             <div className="relative z-20 shrink-0">
               <div className="flex items-center gap-1.5 px-2 py-1 md:py-2 bg-transparent backdrop-blur-sm border-t border-white/10">
