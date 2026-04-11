@@ -1461,6 +1461,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       </div>
                     </div>
                   </div>
+                  <div className="flex-1" />
                 </div>
               );
             })() : (
