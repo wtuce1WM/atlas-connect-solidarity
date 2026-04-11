@@ -1505,7 +1505,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     <div key={g.key} className="flex flex-col items-end">
                       <button
                         onClick={() => setSidebarOpenGroup(isOpen ? null : g.key)}
-                        className={`flex items-center justify-center h-8 w-8 rounded-full border border-white/10 text-white transition-colors shadow-lg ${isOpen ? 'bg-black/90' : 'bg-black/80 hover:bg-black/90'}`}
+                        className={`flex items-center justify-center h-10 w-10 rounded-full border border-white/10 text-white transition-colors shadow-lg ${isOpen ? 'bg-black/90' : 'bg-black/80 hover:bg-black/90'}`}
                       >
                         {g.icon}
                       </button>
