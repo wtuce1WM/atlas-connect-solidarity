@@ -756,6 +756,7 @@ const StaffBackoffice = () => {
               </div>
             </TabsContent>
 
+            <TabsContent value="overview">
               <BusinessOverviewTab
                 businesses={businesses}
                 loading={loading}
