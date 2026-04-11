@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Plus, Search, Edit, Trash2, Eye, EyeOff, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle, LayoutDashboard, Crown, CheckCircle, Settings2, ArrowLeft, ClipboardList, Wrench, Key, Hotel } from "lucide-react";
+import { LogOut, Plus, Search, Edit, Trash2, Eye, EyeOff, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle, LayoutDashboard, Crown, CheckCircle, Settings2, ArrowLeft, ClipboardList, Wrench, Key, Hotel, CalendarDays } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import BusinessForm from "@/components/staff/BusinessForm";
 import BusinessTable, { type PriceCacheEntry } from "@/components/staff/BusinessTable";
@@ -398,6 +398,10 @@ const StaffBackoffice = () => {
                 <Building2 className="h-4 w-4" />
                 Entreprises
               </TabsTrigger>
+              <TabsTrigger value="events" className="gap-2">
+                <CalendarDays className="h-4 w-4" />
+                Events
+              </TabsTrigger>
               <TabsTrigger value="overview" className="gap-2">
                 <ClipboardList className="h-4 w-4" />
                 Overview
@@ -744,6 +748,14 @@ const StaffBackoffice = () => {
               }} />
             </TabsContent>
 
+            <TabsContent value="events">
+              <div className="text-center py-16 text-muted-foreground">
+                <CalendarDays className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <h3 className="text-lg font-semibold mb-2">Events</h3>
+                <p className="text-sm">Section en cours de développement.</p>
+              </div>
+            </TabsContent>
+
             <TabsContent value="overview">
               <BusinessOverviewTab
                 businesses={businesses}
@@ -771,7 +783,6 @@ const StaffBackoffice = () => {
             <TabsContent value="hotel-mapping">
               <HotelMappingManagement />
             </TabsContent>
-
 
           </Tabs>
         )}
