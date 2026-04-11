@@ -737,7 +737,7 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
 /** Map legacy unified_cta free-text to a presentation_mode enum value */
 const inferPresentationMode = (cta: string | null | undefined): string | undefined => {
   if (!cta) return undefined;
-  const lower = cta.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const lower = cta.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
   if (/acheter|shop/i.test(lower)) return "acheter_en_ligne";
   if (/reserver|book|reserv/i.test(lower)) return "reserver_en_ligne";
   if (/offre|offer|consulter/i.test(lower)) return "consulter_offre";
@@ -746,6 +746,98 @@ const inferPresentationMode = (cta: string | null | undefined): string | undefin
   if (/boisson|drink/i.test(lower)) return "les_boissons";
   if (/info|plus/i.test(lower)) return "plus_informations";
   return undefined;
+};
+
+const CTA_SELECT_OPTIONS = [
+  "Acheter en ligne",
+  "Achetez",
+  "Boissons",
+  "Carte des soins",
+  "Carte des vins",
+  "Cocktails",
+  "Consulter notre offre",
+  "Contactez-moi",
+  "Contactez nous",
+  "Day Pass",
+  "Forfaits",
+  "Hammam",
+  "Hotel",
+  "La carte",
+  "Les boissons",
+  "Menu",
+  "Nos services",
+  "Notre offre",
+  "Plus d'informations",
+  "Réserver en ligne",
+  "Réservez",
+  "Restaurant",
+  "Riad",
+  "Site web",
+  "Spa",
+] as const;
+
+const CTA_VALUE_LABELS: Record<string, string> = {
+  "acheter en ligne": "Acheter en ligne",
+  achetez: "Achetez",
+  boissons: "Boissons",
+  "carte des soins": "Carte des soins",
+  "carte des vins": "Carte des vins",
+  cocktails: "Cocktails",
+  "consulter offre": "Consulter notre offre",
+  "consulter notre offre": "Consulter notre offre",
+  "contactez moi": "Contactez-moi",
+  "contactez nous": "Contactez nous",
+  "day pass": "Day Pass",
+  forfaits: "Forfaits",
+  hammam: "Hammam",
+  hotel: "Hotel",
+  "la carte": "La carte",
+  "les boissons": "Les boissons",
+  menu: "Menu",
+  "nos services": "Nos services",
+  "notre offre": "Notre offre",
+  "plus informations": "Plus d'informations",
+  "plus dinformations": "Plus d'informations",
+  "reserver en ligne": "Réserver en ligne",
+  reservez: "Réservez",
+  restaurant: "Restaurant",
+  riad: "Riad",
+  "site web": "Site web",
+  spa: "Spa",
+};
+
+const normalizeCtaKey = (value: string) =>
+  value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[’']/g, "")
+    .replace(/_/g, " ")
+    .replace(/-/g, " ")
+    .replace(/\s+/g, " ");
+
+const normalizeCtaValue = (value: string | null | undefined): string => {
+  if (!value) return "";
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+
+  const normalizedKey = normalizeCtaKey(trimmed);
+  const mappedLabel = CTA_VALUE_LABELS[normalizedKey];
+  if (mappedLabel) return mappedLabel;
+
+  const directMatch = CTA_SELECT_OPTIONS.find((option) => normalizeCtaKey(option) === normalizedKey);
+  if (directMatch) return directMatch;
+
+  const inferredMode = inferPresentationMode(trimmed);
+  return inferredMode ? CTA_VALUE_LABELS[normalizeCtaKey(inferredMode)] || trimmed : trimmed;
+};
+
+const getCtaOptions = (currentValue: string | null | undefined) => {
+  const normalizedValue = normalizeCtaValue(currentValue);
+  return normalizedValue && !CTA_SELECT_OPTIONS.some((option) => option === normalizedValue)
+    ? [normalizedValue, ...CTA_SELECT_OPTIONS]
+    : [...CTA_SELECT_OPTIONS];
 };
 
 const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: BusinessFormProps) => {
@@ -1081,9 +1173,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     website_presentation_mode: inferPresentationMode((business as any)?.unified_cta) || (business as any)?.website_presentation_mode || "plus_informations",
     online_shop_presentation_mode: inferPresentationMode((business as any)?.unified_cta) || (business as any)?.online_shop_presentation_mode || "acheter_en_ligne",
     unified_cta: (business as any)?.unified_cta || "",
-    website_cta: (business as any)?.website_cta || (business as any)?.unified_cta || "",
-    reserve_now_cta: (business as any)?.reserve_now_cta || (business as any)?.unified_cta || "",
-    online_shop_cta: (business as any)?.online_shop_cta || (business as any)?.unified_cta || "",
+    website_cta: normalizeCtaValue((business as any)?.website_cta) || normalizeCtaValue((business as any)?.website_presentation_mode) || normalizeCtaValue((business as any)?.unified_cta) || "",
+    reserve_now_cta: normalizeCtaValue((business as any)?.reserve_now_cta) || normalizeCtaValue((business as any)?.presentation_mode) || normalizeCtaValue((business as any)?.unified_cta) || "",
+    online_shop_cta: normalizeCtaValue((business as any)?.online_shop_cta) || normalizeCtaValue((business as any)?.online_shop_presentation_mode) || normalizeCtaValue((business as any)?.unified_cta) || "",
     carousel_badge: (business as any)?.carousel_badge || "",
   });
 
@@ -2832,34 +2924,16 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 </Button>
               )}
               <Select
-                value={(formData as any).website_cta || ""}
-                onValueChange={(value) => handleChange("website_cta", value)}
+                value={normalizeCtaValue((formData as any).website_cta) || ""}
+                onValueChange={(value) => handleChange("website_cta", normalizeCtaValue(value))}
               >
                 <SelectTrigger className="w-40 shrink-0">
                   <SelectValue placeholder="🎯 CTA" />
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50">
-                  <SelectItem value="achetez">Achetez</SelectItem>
-                  <SelectItem value="boissons">Boissons</SelectItem>
-                  <SelectItem value="carte_des_soins">Carte des soins</SelectItem>
-                  <SelectItem value="carte_des_vins">Carte des vins</SelectItem>
-                  <SelectItem value="cocktails">Cocktails</SelectItem>
-                  <SelectItem value="contactez_moi">Contactez-moi</SelectItem>
-                  <SelectItem value="contactez_nous">Contactez-nous</SelectItem>
-                  <SelectItem value="day_pass">Day Pass</SelectItem>
-                  <SelectItem value="forfaits">Forfaits</SelectItem>
-                  <SelectItem value="hammam">Hammam</SelectItem>
-                  <SelectItem value="hotel">Hotel</SelectItem>
-                  <SelectItem value="la_carte">La carte</SelectItem>
-                  <SelectItem value="menu">Menu</SelectItem>
-                  <SelectItem value="nos_services">Nos services</SelectItem>
-                  <SelectItem value="notre_offre">Notre offre</SelectItem>
-                  <SelectItem value="plus_informations">Plus d'informations</SelectItem>
-                  <SelectItem value="reservez">Réservez</SelectItem>
-                  <SelectItem value="restaurant">Restaurant</SelectItem>
-                  <SelectItem value="riad">Riad</SelectItem>
-                  <SelectItem value="site_web">Site web</SelectItem>
-                  <SelectItem value="spa">Spa</SelectItem>
+                  {getCtaOptions((formData as any).website_cta).map((option) => (
+                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <Select
@@ -2925,34 +2999,16 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 </Button>
               )}
               <Select
-                value={(formData as any).reserve_now_cta || ""}
-                onValueChange={(value) => handleChange("reserve_now_cta", value)}
+                value={normalizeCtaValue((formData as any).reserve_now_cta) || ""}
+                onValueChange={(value) => handleChange("reserve_now_cta", normalizeCtaValue(value))}
               >
                 <SelectTrigger className="w-40 shrink-0">
                   <SelectValue placeholder="🎯 CTA" />
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50">
-                  <SelectItem value="achetez">Achetez</SelectItem>
-                  <SelectItem value="boissons">Boissons</SelectItem>
-                  <SelectItem value="carte_des_soins">Carte des soins</SelectItem>
-                  <SelectItem value="carte_des_vins">Carte des vins</SelectItem>
-                  <SelectItem value="cocktails">Cocktails</SelectItem>
-                  <SelectItem value="contactez_moi">Contactez-moi</SelectItem>
-                  <SelectItem value="contactez_nous">Contactez-nous</SelectItem>
-                  <SelectItem value="day_pass">Day Pass</SelectItem>
-                  <SelectItem value="forfaits">Forfaits</SelectItem>
-                  <SelectItem value="hammam">Hammam</SelectItem>
-                  <SelectItem value="hotel">Hotel</SelectItem>
-                  <SelectItem value="la_carte">La carte</SelectItem>
-                  <SelectItem value="menu">Menu</SelectItem>
-                  <SelectItem value="nos_services">Nos services</SelectItem>
-                  <SelectItem value="notre_offre">Notre offre</SelectItem>
-                  <SelectItem value="plus_informations">Plus d'informations</SelectItem>
-                  <SelectItem value="reservez">Réservez</SelectItem>
-                  <SelectItem value="restaurant">Restaurant</SelectItem>
-                  <SelectItem value="riad">Riad</SelectItem>
-                  <SelectItem value="site_web">Site web</SelectItem>
-                  <SelectItem value="spa">Spa</SelectItem>
+                  {getCtaOptions((formData as any).reserve_now_cta).map((option) => (
+                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <Select
@@ -3018,34 +3074,16 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 </Button>
               )}
               <Select
-                value={(formData as any).online_shop_cta || ""}
-                onValueChange={(value) => handleChange("online_shop_cta", value)}
+                value={normalizeCtaValue((formData as any).online_shop_cta) || ""}
+                onValueChange={(value) => handleChange("online_shop_cta", normalizeCtaValue(value))}
               >
                 <SelectTrigger className="w-40 shrink-0">
                   <SelectValue placeholder="🎯 CTA" />
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50">
-                  <SelectItem value="achetez">Achetez</SelectItem>
-                  <SelectItem value="boissons">Boissons</SelectItem>
-                  <SelectItem value="carte_des_soins">Carte des soins</SelectItem>
-                  <SelectItem value="carte_des_vins">Carte des vins</SelectItem>
-                  <SelectItem value="cocktails">Cocktails</SelectItem>
-                  <SelectItem value="contactez_moi">Contactez-moi</SelectItem>
-                  <SelectItem value="contactez_nous">Contactez-nous</SelectItem>
-                  <SelectItem value="day_pass">Day Pass</SelectItem>
-                  <SelectItem value="forfaits">Forfaits</SelectItem>
-                  <SelectItem value="hammam">Hammam</SelectItem>
-                  <SelectItem value="hotel">Hotel</SelectItem>
-                  <SelectItem value="la_carte">La carte</SelectItem>
-                  <SelectItem value="menu">Menu</SelectItem>
-                  <SelectItem value="nos_services">Nos services</SelectItem>
-                  <SelectItem value="notre_offre">Notre offre</SelectItem>
-                  <SelectItem value="plus_informations">Plus d'informations</SelectItem>
-                  <SelectItem value="reservez">Réservez</SelectItem>
-                  <SelectItem value="restaurant">Restaurant</SelectItem>
-                  <SelectItem value="riad">Riad</SelectItem>
-                  <SelectItem value="site_web">Site web</SelectItem>
-                  <SelectItem value="spa">Spa</SelectItem>
+                  {getCtaOptions((formData as any).online_shop_cta).map((option) => (
+                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <Select
