@@ -538,7 +538,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   const videoInfo = useMemo(() => {
     if (effectiveMedia?.kind !== "video") return null;
-    const base = getVideoEmbed(effectiveMedia.url, window.location.origin, { background: true, defaultSoundOn: business?.default_sound_on ?? true });
+    const base = getVideoEmbed(effectiveMedia.url, window.location.origin, { background: true, defaultSoundOn: false });
     if (base.type === "youtube") {
       return { ...base, embedUrl: base.embedUrl.replace(/controls=0/, "controls=1").replace(/disablekb=1/, "disablekb=0") };
     }
