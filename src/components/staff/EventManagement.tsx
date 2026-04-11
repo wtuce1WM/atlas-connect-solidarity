@@ -298,8 +298,8 @@ const EventManagement = () => {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left column */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6">
+          {/* Left column: fields */}
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -377,44 +377,41 @@ const EventManagement = () => {
                 ))}
               </div>
             )}
-
-            {/* Description RichText - taller */}
-            <div>
-              <Label>Description</Label>
-              <RichTextEditor
-                content={form.description}
-                onChange={html => setForm(p => ({ ...p, description: html }))}
-                maxHeight="600px"
-              />
-            </div>
-
-            {/* Images - below description */}
-            <div>
-              <Label className="text-base font-semibold">Images ({form.images.length}/10)</Label>
-              <ImageUploader
-                images={form.images}
-                onChange={images => setForm(p => ({ ...p, images }))}
-                maxImages={10}
-              />
-            </div>
-
-            {/* Videos - below images */}
-            <div>
-              <Label className="text-base font-semibold">Vidéos ({form.videos.length}/10)</Label>
-              <VideosDndList form={form} setForm={setForm} toast={toast} />
-            </div>
           </div>
 
-          {/* Right column: Logo */}
-          <div className="space-y-6">
-            {/* Logo */}
-            <div className="space-y-2">
-              <Label className="text-base font-semibold">Logo</Label>
-              <LogoUploader
-                logoUrl={form.logo_url}
-                onChange={url => setForm(p => ({ ...p, logo_url: url }))}
-              />
-            </div>
+          {/* Right column: Logo only */}
+          <div className="space-y-2 w-48">
+            <Label className="text-base font-semibold">Logo</Label>
+            <LogoUploader
+              logoUrl={form.logo_url}
+              onChange={url => setForm(p => ({ ...p, logo_url: url }))}
+            />
+          </div>
+        </div>
+
+        {/* Full-width: Description, Images, Videos */}
+        <div className="space-y-6">
+          <div>
+            <Label>Description</Label>
+            <RichTextEditor
+              content={form.description}
+              onChange={html => setForm(p => ({ ...p, description: html }))}
+              maxHeight="600px"
+            />
+          </div>
+
+          <div>
+            <Label className="text-base font-semibold">Images ({form.images.length}/10)</Label>
+            <ImageUploader
+              images={form.images}
+              onChange={images => setForm(p => ({ ...p, images }))}
+              maxImages={10}
+            />
+          </div>
+
+          <div>
+            <Label className="text-base font-semibold">Vidéos ({form.videos.length}/10)</Label>
+            <VideosDndList form={form} setForm={setForm} toast={toast} />
           </div>
         </div>
 
