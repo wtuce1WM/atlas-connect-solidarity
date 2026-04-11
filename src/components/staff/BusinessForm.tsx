@@ -69,6 +69,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
 type Business = Tables<"businesses">;
@@ -4407,7 +4408,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <AlertDialogAction
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 onClick={() => {
-                  setVideoDocs([{ url: "", name: "", language: null, icon: null, popup: false, linked_business_id: null, destination_id: null, poi_id: null, service_id: null, subcategory_id: null, city: null, neighborhood: null, show_on_front: false, front_sort_order: 0, description: null, start_date: null, end_date: null, price: null, price_type: null, thumbnail_url: null }]);
+                  setVideoDocs([{ url: "", name: "", popup: false, linked_business_id: null, destination_id: null, poi_id: null, service_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, start_date: null, end_date: null, price: null, price_type: null, thumbnail_url: null }]);
                   handleChange("images", []);
                   handleChange("video_1_url", "");
                   handleChange("popup_image_url", "");
