@@ -1517,14 +1517,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                           <button
                             key={i}
                             onClick={item.onClick}
-                            className="flex items-center gap-1.5 h-7 rounded-full bg-white/20 backdrop-blur-md border border-white/20 text-white hover:bg-white/35 transition-colors shadow-lg px-2.5 pr-3 text-[11px] font-medium whitespace-nowrap"
+                            className={`flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/20 text-white hover:bg-white/35 transition-colors shadow-lg whitespace-nowrap ${item.logo ? 'h-9 w-9 p-1.5' : 'h-7 gap-1.5 px-2.5 pr-3 text-[11px] font-medium'}`}
                           >
                             {item.logo ? (
-                              <img src={item.logo} alt={item.label} className="h-4 w-4 object-contain rounded-sm" loading="lazy" />
+                              <img src={item.logo} alt={item.label} className="h-full w-full object-contain rounded-sm" loading="lazy" />
                             ) : (
                               <span className="text-[11px]">{item.label}</span>
                             )}
-                            {item.logo && <span className="text-[11px]">{item.label}</span>}
                           </button>
                         ))}
                       </div>
