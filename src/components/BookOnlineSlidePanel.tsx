@@ -304,6 +304,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     setShowPoiMapOverlay(false);
     setShowDescriptionOverlay(false);
     setDescGridMode(false);
+    setDescOverlayContent(null);
     setPoiMapMode("poi");
     if (infoCarouselRef.current) infoCarouselRef.current.scrollLeft = 0;
     setAvailabilityOverlayCtx(null);
