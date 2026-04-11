@@ -4367,6 +4367,31 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           />
         </div>
 
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button type="button" variant="destructive" className="w-full font-bold">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Supprimer toutes les vidéos ({videoDocs.filter(d => d.url.trim()).length})
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Supprimer les {videoDocs.filter(d => d.url.trim()).length} vidéo(s) de cet établissement ? Irréversible après sauvegarde.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => {
+                  setVideoDocs([{ url: "", name: "", popup: false, linked_business_id: null, destination_id: null, poi_id: null, service_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, start_date: null, end_date: null, price: null, price_type: null, thumbnail_url: null }]);
+                  handleChange("video_1_url", "");
+                  toast({ title: "Toutes les vidéos ont été supprimées" });
+                }}>Supprimer</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
 
 
         {/* Images */}
@@ -4386,40 +4411,31 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             popupImageUrl={(formData as any).popup_image_url || null}
             onPopupChange={(url) => handleChange("popup_image_url", url || "")}
           />
-        </div>
-
-        {/* Delete all media button */}
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button type="button" variant="destructive" size="lg" className="w-full text-base font-bold py-4">
-              <Trash2 className="h-5 w-5 mr-2" />
-              Supprimer toutes les vidéos et images
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
-              <AlertDialogDescription>
-                Cette action supprimera toutes les vidéos ({videoDocs.filter(d => d.url.trim()).length}) et toutes les images ({formData.images?.length || 0}) de cet établissement. Cette action est irréversible après sauvegarde.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Annuler</AlertDialogCancel>
-              <AlertDialogAction
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                onClick={() => {
-                  setVideoDocs([{ url: "", name: "", popup: false, linked_business_id: null, destination_id: null, poi_id: null, service_id: null, subcategory_id: null, city: null, neighborhood: null, description: null, start_date: null, end_date: null, price: null, price_type: null, thumbnail_url: null }]);
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button type="button" variant="destructive" className="w-full font-bold">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Supprimer toutes les images ({formData.images?.length || 0})
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Supprimer les {formData.images?.length || 0} image(s) de cet établissement ? Irréversible après sauvegarde.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => {
                   handleChange("images", []);
-                  handleChange("video_1_url", "");
                   handleChange("popup_image_url", "");
-                  toast({ title: "Toutes les vidéos et images ont été supprimées" });
-                }}
-              >
-                Supprimer tout
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+                  toast({ title: "Toutes les images ont été supprimées" });
+                }}>Supprimer</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
 
         {/* Labels */}
         <Accordion type="single" collapsible>
@@ -4844,6 +4860,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             </>
           )}
         </div>
+
 
 
         <div className="space-y-3">
