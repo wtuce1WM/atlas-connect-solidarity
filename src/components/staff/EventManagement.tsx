@@ -335,26 +335,55 @@ const EventManagement = () => {
               <Label className="text-base font-semibold">Vidéos ({form.videos.length}/10)</Label>
               <div className="space-y-3">
                 {form.videos.map((url, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <div className="flex-1">
-                      <VideoUploader
-                        videoUrl={url}
-                        onChange={newUrl => {
-                          setForm(p => ({
-                            ...p,
-                            videos: p.videos.map((v, vi) => vi === i ? newUrl : v),
-                          }));
+                  <div key={i} className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1">
+                        <VideoUploader
+                          videoUrl={url}
+                          onChange={newUrl => {
+                            setForm(p => ({
+                              ...p,
+                              videos: p.videos.map((v, vi) => vi === i ? newUrl : v),
+                            }));
+                          }}
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => setForm(p => ({ ...p, videos: p.videos.filter((_, vi) => vi !== i) }))}
+                      >
+                        <X className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Link className="h-3 w-3 text-muted-foreground" />
+                      <Input
+                        placeholder="Coller l'ID vidéo (business_documents)"
+                        className="h-6 text-xs font-mono"
+                        onPaste={async (e) => {
+                          const pastedId = e.clipboardData.getData("text").trim();
+                          if (!pastedId || pastedId.length < 30) return;
+                          e.preventDefault();
+                          const { data } = await supabase
+                            .from("business_documents" as any)
+                            .select("url")
+                            .eq("id", pastedId)
+                            .eq("type", "video")
+                            .maybeSingle();
+                          if (data?.url) {
+                            setForm(p => ({
+                              ...p,
+                              videos: p.videos.map((v, vi) => vi === i ? (data as any).url : v),
+                            }));
+                            toast({ title: "Vidéo liée ✓", description: `URL récupérée depuis l'ID ${pastedId.substring(0, 8)}…` });
+                          } else {
+                            toast({ variant: "destructive", title: "ID introuvable", description: "Aucune vidéo trouvée avec cet identifiant." });
+                          }
                         }}
                       />
                     </div>
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => setForm(p => ({ ...p, videos: p.videos.filter((_, vi) => vi !== i) }))}
-                    >
-                      <X className="h-4 w-4 text-destructive" />
-                    </Button>
                   </div>
                 ))}
                 {form.videos.length < 10 && (
