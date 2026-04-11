@@ -3921,32 +3921,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                       onChange={(html) => setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, price_details: html } : s))}
                       placeholder="Entrées 220–450 MAD · Plats 290–970 MAD · Desserts 200–250 MAD..."
                       maxHeight="180px"
-          />
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button type="button" variant="destructive" className="w-full font-bold">
-                <Trash2 className="h-4 w-4 mr-2" />
-                Supprimer toutes les images ({formData.images?.length || 0})
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Supprimer les {formData.images?.length || 0} image(s) de cet établissement ? Irréversible après sauvegarde.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Annuler</AlertDialogCancel>
-                <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => {
-                  handleChange("images", []);
-                  handleChange("popup_image_url", "");
-                  toast({ title: "Toutes les images ont été supprimées" });
-                }}>Supprimer</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
+                    />
+                  </div>
                 </div>
               </div>
             ))}
