@@ -50,6 +50,7 @@ const EMPTY_FORM = {
   kp_regroupement: [] as string[],
   logo_url: "",
   type: "",
+  recurrence: "",
 };
 
 /* ── Sortable video item ── */
@@ -196,6 +197,7 @@ const EventManagement = () => {
       kp_regroupement: ev.kp_regroupement || [],
       logo_url: ev.logo_url || "",
       type: ev.type || "",
+      recurrence: (ev as any).recurrence || "",
     });
     setKpInput("");
     setShowNewType(false);
@@ -226,6 +228,7 @@ const EventManagement = () => {
       kp_regroupement: form.kp_regroupement,
       logo_url: form.logo_url || null,
       type: form.type || null,
+      recurrence: form.recurrence || null,
     };
 
     let error;
@@ -301,7 +304,7 @@ const EventManagement = () => {
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6">
           {/* Left column: Nom, Type, Hook */}
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div>
                 <Label>Nom *</Label>
                 <Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />
@@ -339,6 +342,20 @@ const EventManagement = () => {
                     </Button>
                   </div>
                 )}
+              </div>
+              <div>
+                <Label>Récurrence</Label>
+                <Select value={form.recurrence || "__none__"} onValueChange={v => setForm(p => ({ ...p, recurrence: v === "__none__" ? "" : v }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Aucune" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">Aucune</SelectItem>
+                    <SelectItem value="yearly">Tous les ans</SelectItem>
+                    <SelectItem value="weekly">Une fois par semaine</SelectItem>
+                    <SelectItem value="monthly">Une fois par mois</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div>

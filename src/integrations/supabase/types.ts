@@ -1897,6 +1897,7 @@ export type Database = {
           kp_regroupement: string[] | null
           logo_url: string | null
           name: string
+          recurrence: string | null
           start_date: string | null
           type: string | null
           updated_at: string
@@ -1912,6 +1913,7 @@ export type Database = {
           kp_regroupement?: string[] | null
           logo_url?: string | null
           name: string
+          recurrence?: string | null
           start_date?: string | null
           type?: string | null
           updated_at?: string
@@ -1927,6 +1929,7 @@ export type Database = {
           kp_regroupement?: string[] | null
           logo_url?: string | null
           name?: string
+          recurrence?: string | null
           start_date?: string | null
           type?: string | null
           updated_at?: string
