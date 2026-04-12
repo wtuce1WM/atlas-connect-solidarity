@@ -324,6 +324,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   }, [businessId, resetDrag]);
 
   const infoCarouselRef = useRef<HTMLDivElement>(null);
+
+  /** Scroll the info carousel so that `el` is horizontally centered */
+  const centerCardInCarousel = (el: HTMLElement) => {
+    const container = infoCarouselRef.current;
+    if (!container) return;
+    const cardCenter = el.offsetLeft + el.offsetWidth / 2;
+    const targetScroll = cardCenter - container.clientWidth / 2;
+    container.scrollTo({ left: targetScroll, behavior: 'smooth' });
+  };
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoPaused, setVideoPaused] = useState(true);
   const [videoMuted, setVideoMuted] = useState(true);
