@@ -641,19 +641,24 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   const appStoreLinks = useMemo(() => {
     const links: { type: "app_store" | "google_play"; url: string }[] = [];
+    const seen = new Set<string>();
     const checks = [
-      { cta: business?.presentation_mode, mode: business?.presentation_mode, url: bookingCta?.fullUrl },
-      { cta: (business as any)?.online_shop_cta || (business as any)?.online_shop_presentation_mode, mode: (business as any)?.online_shop_presentation_mode, url: shopCta?.fullUrl },
-      { cta: (business as any)?.url_4_cta || (business as any)?.url_4_presentation_mode, mode: (business as any)?.url_4_presentation_mode, url: url4Cta?.fullUrl },
-      { cta: (business as any)?.url_5_cta || (business as any)?.url_5_presentation_mode, mode: (business as any)?.url_5_presentation_mode, url: url5Cta?.fullUrl },
+      { key: business?.presentation_mode, url: business?.website },
+      { key: (business as any)?.reserve_now_cta || business?.presentation_mode, url: business?.reserve_now_url },
+      { key: (business as any)?.online_shop_cta || (business as any)?.online_shop_presentation_mode, url: business?.online_shop_url },
+      { key: (business as any)?.url_4_cta || (business as any)?.url_4_presentation_mode, url: (business as any)?.url_4 },
+      { key: (business as any)?.url_5_cta || (business as any)?.url_5_presentation_mode, url: (business as any)?.url_5 },
     ];
     for (const c of checks) {
-      const key = c.cta || c.mode;
-      if (key === "app_store" && c.url) links.push({ type: "app_store", url: c.url });
-      if (key === "google_play" && c.url) links.push({ type: "google_play", url: c.url });
+      if (!c.url || !c.key) continue;
+      const fullUrl = c.url.startsWith("http") ? c.url : `https://${c.url}`;
+      if ((c.key === "app_store" || c.key === "google_play") && !seen.has(c.key)) {
+        seen.add(c.key);
+        links.push({ type: c.key, url: fullUrl });
+      }
     }
     return links;
-  }, [business?.presentation_mode, (business as any)?.online_shop_cta, (business as any)?.online_shop_presentation_mode, (business as any)?.url_4_cta, (business as any)?.url_4_presentation_mode, (business as any)?.url_5_cta, (business as any)?.url_5_presentation_mode, bookingCta, shopCta, url4Cta, url5Cta]);
+  }, [business]);
 
   const hasBottomActionCtas = !!bookingCta || !!shopCta || !!url4Cta || !!url5Cta || (!cardsHidden && showGoogleMap && business?.latitude && business?.longitude);
   const externalVideoBackgroundClass = externalVideoInteractiveMode && showSearchBar
