@@ -626,14 +626,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     fallbackValue: string | null | undefined,
     defaultKey: keyof typeof CTA_MODE_LABELS,
   ) => {
-    // Try preferred value first
-    if (preferredValue) {
-      const match = CTA_MODE_LABELS[preferredValue] || CTA_MODE_LABELS[normalizeCtaMode(preferredValue) || ""];
-      if (match) return language === 'en' ? match.en : match.fr;
-      // Custom label: use as-is
-      return preferredValue;
-    }
-    // Try fallback value
+    // Custom label always wins
+    if (preferredValue) return preferredValue;
+    // Fallback to presentation mode mapping
     if (fallbackValue) {
       const match = CTA_MODE_LABELS[fallbackValue] || CTA_MODE_LABELS[normalizeCtaMode(fallbackValue) || ""];
       if (match) return language === 'en' ? match.en : match.fr;
