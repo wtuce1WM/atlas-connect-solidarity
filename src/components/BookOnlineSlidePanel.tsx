@@ -129,6 +129,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [videoOverlayClosing, setVideoOverlayClosing] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [showExtLinksOverlay, setShowExtLinksOverlay] = useState(false);
+  const [extLinksOrigin, setExtLinksOrigin] = useState<'carousel' | 'description'>('carousel');
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showHook, setShowHook] = useState(false);
   
