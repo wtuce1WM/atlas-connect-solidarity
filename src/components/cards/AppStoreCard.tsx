@@ -32,7 +32,7 @@ export default function AppStoreCard({ links, animationDelay = "0ms" }: AppStore
             <img
               src={link.type === "app_store" ? appStoreBadge : googlePlayBadge}
               alt={link.type === "app_store" ? "App Store" : "Google Play"}
-              className="h-12 md:h-14 w-auto"
+              className="h-8 w-auto"
             />
           </a>
         ))}
