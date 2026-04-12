@@ -35,7 +35,7 @@ import MosaicOverlay from "@/components/MosaicOverlay";
 import YouTubeShortsCarousel, { type YouTubeVideo } from "@/components/YouTubeShortsCarousel";
 import { useDragToHide } from "@/hooks/useDragToHide";
 import { useNavigate } from "react-router-dom";
-import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
+import BusinessMap from "@/components/BusinessMap";
 
 // Extracted hook and overlay components
 import { useBookOnlineData } from "@/hooks/useBookOnlineData";
@@ -1940,48 +1940,79 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             </span>
           </div>
           <div className="flex-1 min-h-0 -mt-[3.25rem]">
-            <PoiGoogleMap
-              pois={poiMapMode === "destinations"
-                ? [
-                    ...(business?.latitude && business?.longitude ? [{
-                      id: `self-${business.id}`, name: business.name,
-                      latitude: business.latitude, longitude: business.longitude,
-                      images: business.images, city: business.city, neighborhood: business.neighborhood,
-                      markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
-                    } as PoiMapItem] : []),
-                    ...destinations.filter(d => d.latitude && d.longitude).map(d => ({
-                      id: d.id, name: d.name_fr, latitude: d.latitude!, longitude: d.longitude!,
-                      images: (d.images && d.images.length > 0) ? d.images : (d.image_url ? [d.image_url] : null),
-                      city: null, neighborhood: null,
-                    } as PoiMapItem)),
-                  ]
-                : [
-                    ...(business?.latitude && business?.longitude ? [{
-                      id: `self-${business.id}`, name: business.name,
-                      latitude: business.latitude, longitude: business.longitude,
-                      images: business.images, city: business.city, neighborhood: business.neighborhood,
-                      markerColor: { bg: "#D4AF37", fg: "#1a1a1a", border: "#D4AF37" },
-                    } as PoiMapItem] : []),
-                    ...(poiBusinesses.map(p => ({
-                      id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude,
-                      images: p.images, city: p.city, neighborhood: p.neighborhood,
-                    } as PoiMapItem))),
-                  ]
-              }
-              selectedPoiId={null}
-              center={business?.latitude && business?.longitude ? { lat: business.latitude, lng: business.longitude } : undefined}
-              onPoiClick={(poiId) => {
-                if (poiId.startsWith("self-")) return;
+            <BusinessMap
+              businesses={(() => {
+                const items: any[] = [];
+                // Current business as gold marker
+                if (business?.latitude && business?.longitude) {
+                  items.push({
+                    id: business.id,
+                    name: business.name,
+                    city: business.city || "",
+                    address: business.address,
+                    phone: business.phone,
+                    whatsapp: business.whatsapp,
+                    main_category: business.main_category,
+                    categories: business.categories,
+                    latitude: business.latitude,
+                    longitude: business.longitude,
+                    logo_url: business.logo_url,
+                    neighborhood: business.neighborhood,
+                    images: business.images,
+                    hook_fr: business.hook_fr,
+                    computed_rating: business.computed_rating,
+                    total_review_count: business.total_review_count,
+                  });
+                }
                 if (poiMapMode === "destinations") {
-                  setSelectedDestinationId(poiId);
+                  destinations.filter(d => d.latitude && d.longitude).forEach(d => {
+                    items.push({
+                      id: d.id,
+                      name: d.name_fr,
+                      city: "",
+                      latitude: d.latitude!,
+                      longitude: d.longitude!,
+                      images: (d.images && d.images.length > 0) ? d.images : (d.image_url ? [d.image_url] : null),
+                    });
+                  });
+                } else {
+                  poiBusinesses.forEach(p => {
+                    items.push({
+                      id: p.id,
+                      name: p.name,
+                      city: p.city || "",
+                      address: p.address,
+                      phone: p.phone,
+                      whatsapp: p.whatsapp,
+                      main_category: p.main_category,
+                      categories: p.categories,
+                      latitude: p.latitude,
+                      longitude: p.longitude,
+                      logo_url: p.logo_url,
+                      neighborhood: p.neighborhood,
+                      images: p.images,
+                      hook_fr: p.hook_fr,
+                      computed_rating: p.computed_rating,
+                      total_review_count: p.total_review_count,
+                    });
+                  });
+                }
+                return items;
+              })()}
+              center={business?.latitude && business?.longitude ? { lat: business.latitude, lng: business.longitude } : undefined}
+              height="100%"
+              forceOverview
+              onBusinessClick={(biz) => {
+                if (biz.id === business?.id) return;
+                if (poiMapMode === "destinations") {
+                  setSelectedDestinationId(biz.id);
                 } else if (poiBusinesses.length > 0) {
                   poiOpenedFromMapRef.current = true;
-                  setSelectedPoiBusinessId(poiId);
+                  setSelectedPoiBusinessId(biz.id);
                 } else {
-                  setSelectedKpBusinessId(poiId);
+                  setSelectedKpBusinessId(biz.id);
                 }
               }}
-              fitToMarkers
             />
           </div>
         </div>
