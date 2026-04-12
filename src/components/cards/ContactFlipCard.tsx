@@ -128,7 +128,7 @@ const ContactFlipCard = ({
   // Front height: compact for hotel CTA-only, or standard for non-hotel
   const frontHeight = showHotel ? "7em" : "7em";
   // Back height for hotel calendar
-  const hotelBackHeight = tallHeight ? "21.6em" : "12.6em";
+  const hotelBackHeight = tallHeight ? "24em" : "22em";
 
   return (
     <div
@@ -166,8 +166,8 @@ const ContactFlipCard = ({
                   {openBadgeInfo.text}
                 </div>
               )}
-              <span className="flex items-center gap-1.5 text-[10px] text-white/40 uppercase tracking-wider">
-                <Search className="h-3 w-3" />
+              <span className="flex items-center gap-1.5 text-[11px] text-white/60 uppercase tracking-wider font-extrabold">
+                <Search className="h-3.5 w-3.5" />
                 {isEn ? "Check availability ›" : "Vérifier la disponibilité ›"}
               </span>
             </div>
