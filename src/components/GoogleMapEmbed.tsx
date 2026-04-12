@@ -119,7 +119,7 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
         </div>
 
         {/* Map Container */}
-        <div className={`relative ${fillHeight ? "flex-1 min-h-0" : "h-[450px]"}`}>
+        <div className={`relative overflow-hidden ${fillHeight ? "flex-1 min-h-0" : "h-[450px]"}`}>
           {activeView === "map" ? (
             <iframe
               src={mapEmbedUrl}
@@ -139,6 +139,9 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
               title={`Street View de ${businessName}`}
             />
           )}
+          {/* Overlays to hide Google controls */}
+          <div className="absolute top-0 left-0 right-0 h-[40px] bg-gradient-to-b from-background/80 to-transparent pointer-events-none" />
+          <div className="absolute bottom-0 left-0 right-0 h-[26px] bg-background pointer-events-auto" />
         </div>
 
         {/* Action Buttons */}
