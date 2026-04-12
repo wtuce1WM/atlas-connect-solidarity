@@ -29,6 +29,7 @@ import ExternalLinksFlipCard from "@/components/cards/ExternalLinksFlipCard";
 import SocialLinksCard from "@/components/cards/SocialLinksCard";
 import MenuSummaryCard from "@/components/cards/MenuSummaryCard";
 import MapCard from "@/components/cards/MapCard";
+import AppStoreCard from "@/components/cards/AppStoreCard";
 import DirectionsOverlay from "@/components/DirectionsOverlay";
 import MosaicOverlay from "@/components/MosaicOverlay";
 import YouTubeShortsCarousel, { type YouTubeVideo } from "@/components/YouTubeShortsCarousel";
@@ -637,6 +638,22 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     const pair = CTA_MODE_LABELS[mode] || CTA_MODE_LABELS.acheter_en_ligne;
     return language === 'en' ? pair.en : pair.fr;
   }, [(business as any)?.url_5_cta, (business as any)?.url_5_presentation_mode, language]);
+
+  const appStoreLinks = useMemo(() => {
+    const links: { type: "app_store" | "google_play"; url: string }[] = [];
+    const checks = [
+      { cta: business?.presentation_mode, mode: business?.presentation_mode, url: bookingCta?.fullUrl },
+      { cta: (business as any)?.online_shop_cta || (business as any)?.online_shop_presentation_mode, mode: (business as any)?.online_shop_presentation_mode, url: shopCta?.fullUrl },
+      { cta: (business as any)?.url_4_cta || (business as any)?.url_4_presentation_mode, mode: (business as any)?.url_4_presentation_mode, url: url4Cta?.fullUrl },
+      { cta: (business as any)?.url_5_cta || (business as any)?.url_5_presentation_mode, mode: (business as any)?.url_5_presentation_mode, url: url5Cta?.fullUrl },
+    ];
+    for (const c of checks) {
+      const key = c.cta || c.mode;
+      if (key === "app_store" && c.url) links.push({ type: "app_store", url: c.url });
+      if (key === "google_play" && c.url) links.push({ type: "google_play", url: c.url });
+    }
+    return links;
+  }, [business?.presentation_mode, (business as any)?.online_shop_cta, (business as any)?.online_shop_presentation_mode, (business as any)?.url_4_cta, (business as any)?.url_4_presentation_mode, (business as any)?.url_5_cta, (business as any)?.url_5_presentation_mode, bookingCta, shopCta, url4Cta, url5Cta]);
 
   const hasBottomActionCtas = !!bookingCta || !!shopCta || !!url4Cta || !!url5Cta || (!cardsHidden && showGoogleMap && business?.latitude && business?.longitude);
   const externalVideoBackgroundClass = externalVideoInteractiveMode && showSearchBar
