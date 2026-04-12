@@ -1040,7 +1040,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       dangerouslySetInnerHTML={{ __html: woDescription }}
                     />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-12 h-12 rounded-full bg-black/10 backdrop-blur-md border-[3px] border-white/80 flex items-center justify-center group-hover:bg-black/25 transition-colors">
+                      <div className="w-12 h-12 rounded-full bg-black/10 backdrop-blur-md border-2 border-white/80 flex items-center justify-center group-hover:bg-black/25 transition-colors">
                         <span className="text-2xl text-white font-light leading-none">+</span>
                       </div>
                     </div>
