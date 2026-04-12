@@ -752,6 +752,8 @@ const inferPresentationMode = (cta: string | null | undefined): string | undefin
 const CTA_SELECT_OPTIONS = [
   "Acheter en ligne",
   "Achetez",
+  "Application",
+  "Billetterie",
   "Boissons",
   "Carte des soins",
   "Carte des vins",
@@ -769,6 +771,7 @@ const CTA_SELECT_OPTIONS = [
   "Nos services",
   "Notre offre",
   "Plus d'informations",
+  "Programme",
   "Réserver en ligne",
   "Réservez",
   "Restaurant",
@@ -776,8 +779,6 @@ const CTA_SELECT_OPTIONS = [
   "Séances",
   "Site web",
   "Spa",
-  "Billetterie",
-  "Application",
 ] as const;
 
 const CTA_VALUE_LABELS: Record<string, string> = {
@@ -811,6 +812,7 @@ const CTA_VALUE_LABELS: Record<string, string> = {
   spa: "Spa",
   billetterie: "Billetterie",
   application: "Application",
+  programme: "Programme",
 };
 
 const normalizeCtaKey = (value: string) =>
