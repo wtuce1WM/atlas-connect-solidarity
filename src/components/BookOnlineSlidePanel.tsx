@@ -1030,15 +1030,20 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
             {woDescription && (
               <div
-                  className="snap-start shrink-0 w-[20rem] h-[7em] mb-4 relative animate-slide-in-left opacity-0 overflow-hidden rounded-2xl cursor-pointer"
+                  className="snap-start shrink-0 w-[20rem] h-[7em] mb-4 relative animate-slide-in-left opacity-0 overflow-hidden rounded-2xl cursor-pointer group"
                   style={{ animationFillMode: 'forwards' }}
                   onClick={() => setShowDescriptionOverlay(true)}
                 >
-                  <div className="h-full rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-hidden border border-white/10 pointer-events-none">
+                  <div className="h-full rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-hidden border border-white/10 pointer-events-none relative">
                     <div
-                      className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings prose-h2:text-base prose-h3:text-lg card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-gold [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold"
+                      className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings prose-h2:text-base prose-h3:text-lg card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-gold [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold opacity-30"
                       dangerouslySetInnerHTML={{ __html: woDescription }}
                     />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+                        <span className="text-2xl text-white font-light leading-none">+</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
