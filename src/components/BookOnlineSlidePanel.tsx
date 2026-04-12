@@ -991,10 +991,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         >
         {/* Info Carousel */}
         <div ref={infoCarouselRef} className="shrink-0 w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto animate-slide-in-left">
-          <div className="flex w-max gap-2 items-start">
+          <div className="flex w-max gap-2 items-start min-h-[15em] md:min-h-[20em]">
             <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
             {woDescription && (
-              <div className="snap-start shrink-0 w-[20rem] md:w-[30rem] max-h-[15em] md:max-h-[20em] mb-4 relative animate-slide-in-left opacity-0"
+              <div className="snap-start shrink-0 w-[20rem] md:w-[30rem] max-h-[12.6em] mb-4 relative animate-slide-in-left opacity-0"
                   style={{ animationFillMode: 'forwards' }}
                 >
                   <div className="h-full rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto border border-white/10">
