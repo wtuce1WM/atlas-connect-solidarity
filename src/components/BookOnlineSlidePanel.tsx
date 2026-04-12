@@ -436,6 +436,39 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const hasContactCard = !!(hasOpeningHours && !business?.is_open_24h) || !!isHotelWithPrice;
   const hasReviewsCard = avgOn20 !== null && avgOn20 > 0;
 
+  const handleOpenReviews = useCallback(async () => {
+    if (!hasReviewsCard) return;
+    const buildReviewHtml = (texts: typeof reviewTexts, translated?: string[]) => {
+      const platformsHtml = reviewPlatforms
+        .filter(p => p.rating && p.count)
+        .map(p => `<p><strong>${p.name}</strong> — ${p.rating}/5 (${p.count} ${language === "en" ? "reviews" : "avis"})</p>`)
+        .join("");
+      const textsHtml = texts.length > 0
+        ? "<hr/>" + texts.slice(0, 10).map((r, i) => {
+          const displayText = translated?.[i] || r.text || "";
+          return `<blockquote><p>${displayText}</p><footer>— ${r.author_name || (language === "en" ? "Anonymous" : "Anonyme")}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`;
+        }).join("")
+        : "";
+      return platformsHtml + textsHtml;
+    };
+    const title = language === "en" ? `Customer reviews (${totalReviewCount})` : `Avis clients (${totalReviewCount})`;
+    setDescOverlayContent({ html: buildReviewHtml(reviewTexts), title });
+    setDescGridMode(false);
+    setShowDescriptionOverlay(true);
+    const targetLang = language === "en" ? "en" : language === "ar" ? "ar" : "fr";
+    const needsTranslation = reviewTexts.some(r => r.language && r.language !== targetLang);
+    if (needsTranslation && reviewTexts.some(r => r.text)) {
+      try {
+        const { data, error } = await supabase.functions.invoke("translate-reviews", {
+          body: { reviews: reviewTexts.filter(r => r.text).map(r => ({ text: r.text })), targetLanguage: targetLang },
+        });
+        if (!error && data?.translations?.length) {
+          setDescOverlayContent({ html: buildReviewHtml(reviewTexts, data.translations), title });
+        }
+      } catch (e) { console.error("Translation error:", e); }
+    }
+  }, [hasReviewsCard, reviewPlatforms, reviewTexts, totalReviewCount, language]);
+
   // Extracted open status hook
   const openBadgeInfo = useOpenStatus({ business, language });
 
@@ -888,7 +921,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 </button>
                 <div className="min-w-0 flex items-center justify-end">
                   {avgOn20 !== null && avgOn20 > 0 && (
-                    <div className="md:hidden flex items-center gap-0.5 bg-black/40 backdrop-blur-sm rounded-full py-0.5 px-1.5">
+                    <div className="md:hidden flex items-center gap-0.5 bg-black/40 backdrop-blur-sm rounded-full py-0.5 px-1.5 cursor-pointer" onClick={handleOpenReviews}>
                       <Star className="h-3 w-3 text-gold fill-gold" />
                       <span className="text-xs font-bold text-white">{avgOn20}</span>
                       <span className="text-[9px] text-white/60">/20</span>
@@ -919,7 +952,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 </div>
               ) : undefined}
               rightSlot={avgOn20 !== null && avgOn20 > 0 ? (
-                <div className="md:hidden flex items-center gap-0.5 bg-black/40 backdrop-blur-sm rounded-full py-0.5 px-1.5">
+                <div className="md:hidden flex items-center gap-0.5 bg-black/40 backdrop-blur-sm rounded-full py-0.5 px-1.5 cursor-pointer" onClick={handleOpenReviews}>
                   <Star className="h-3 w-3 text-gold fill-gold" />
                   <span className="text-xs font-bold text-white">{avgOn20}</span>
                   <span className="text-[9px] text-white/60">/20</span>
@@ -973,7 +1006,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             </div>
           )}
           {avgOn20 !== null && avgOn20 > 0 && (
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 shrink-0 hidden md:flex flex-col items-center ml-4 pl-4 border-l border-white/20">
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 shrink-0 hidden md:flex flex-col items-center ml-4 pl-4 border-l border-white/20 cursor-pointer hover:opacity-80 transition-opacity" onClick={handleOpenReviews}>
               <div className="flex items-center gap-1">
                 <Star className="h-4 w-4 text-gold fill-gold" />
                 <span className="text-lg font-bold text-white">{avgOn20}</span>
