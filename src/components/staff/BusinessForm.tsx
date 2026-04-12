@@ -739,6 +739,7 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
 const inferPresentationMode = (cta: string | null | undefined): string | undefined => {
   if (!cta) return undefined;
   const lower = cta.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  if (/accreditation/i.test(lower)) return "accreditations";
   if (/acheter|shop/i.test(lower)) return "acheter_en_ligne";
   if (/reserver|book|reserv/i.test(lower)) return "reserver_en_ligne";
   if (/offre|offer|consulter/i.test(lower)) return "consulter_offre";
@@ -752,6 +753,7 @@ const inferPresentationMode = (cta: string | null | undefined): string | undefin
 const CTA_SELECT_OPTIONS = [
   "Acheter en ligne",
   "Achetez",
+  "Accréditations",
   "App Store",
   "Application",
   "Billetterie",
@@ -787,6 +789,8 @@ const CTA_SELECT_OPTIONS = [
 const CTA_VALUE_LABELS: Record<string, string> = {
   "acheter en ligne": "Acheter en ligne",
   achetez: "Achetez",
+  accreditation: "Accréditations",
+  accreditations: "Accréditations",
   boissons: "Boissons",
   "carte des soins": "Carte des soins",
   "carte des vins": "Carte des vins",
