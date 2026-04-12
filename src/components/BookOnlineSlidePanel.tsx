@@ -1563,6 +1563,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               groups.push({
                 key: 'reviews',
                 icon: <Star className="h-[22px] w-[22px] text-gold fill-gold" />,
+                tooltip: language === "en" ? "Customer reviews" : "Avis clients",
                 directClick: async () => {
                   const title = language === "en" ? `Customer reviews (${totalReviewCount})` : `Avis clients (${totalReviewCount})`;
                   setDescOverlayContent({ html: buildReviewHtml(reviewTexts), title });
