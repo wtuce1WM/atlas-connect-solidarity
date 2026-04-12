@@ -17,10 +17,10 @@ export default function AppStoreCard({ links, animationDelay = "0ms" }: AppStore
 
   return (
     <div
-      className="snap-start shrink-0 w-auto h-[15em] md:h-[20em] mb-4 relative animate-slide-in-left opacity-0"
+      className="snap-start shrink-0 w-auto mb-4 relative animate-slide-in-left opacity-0"
       style={{ animationFillMode: "forwards", animationDelay }}
     >
-      <div className="h-full rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white border border-white/10 flex flex-col items-center justify-center gap-4">
+      <div className="rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white border border-white/10 flex flex-col items-center justify-center gap-4">
         {links.map((link) => (
           <a
             key={link.type}
