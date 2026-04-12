@@ -121,7 +121,7 @@ const ContactFlipCard = ({
     >
       <div className="h-full rounded-2xl p-3 text-white flex flex-col">
         {/* Scrollable content area */}
-        <div className="flex-1 min-h-0 overflow-y-auto">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
           {/* Opening hours */}
           {showHours && <OpeningHoursBlock business={business} language={language} />}
           {openBadgeInfo?.text && (
