@@ -174,6 +174,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   }, [fallbackPanelData]);
 
   const destInterceptCloseRef = useRef<(() => boolean) | null>(null);
+  const kpInterceptCloseRef = useRef<(() => boolean) | null>(null);
 
   // --- Cosmetic URL rewriting effects ---
   useEffect(() => {
