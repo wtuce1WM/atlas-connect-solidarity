@@ -1049,24 +1049,26 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 </div>
               )}
               {hasContactCard && (
-                <ContactFlipCard
-                  key={business.id}
-                  business={business}
-                  language={language}
-                  hasOpeningHours={!!hasOpeningHours}
-                  tallHeight={false}
-                  animationDelay={woDescription ? "120ms" : "0ms"}
-                  hasHotelMapping={isHotelWithPrice}
-                  isSearchingAvailability={hotelSearchLoading}
-                  onCheckAvailability={handleCheckAvailability}
-                  openBadgeInfo={openBadgeInfo}
-                  onOpenWebsite={(url) => {
-                    setBookingOverlayLoaded(false);
-                    setBookingOverlayUrl(url);
-                    setBookingOverlayTitle(language === "en" ? "Website" : "Site web");
-                    setShowBookingOverlay(true);
-                  }}
-                />
+                <div onMouseEnter={(e) => e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })}>
+                  <ContactFlipCard
+                    key={business.id}
+                    business={business}
+                    language={language}
+                    hasOpeningHours={!!hasOpeningHours}
+                    tallHeight={false}
+                    animationDelay={woDescription ? "120ms" : "0ms"}
+                    hasHotelMapping={isHotelWithPrice}
+                    isSearchingAvailability={hotelSearchLoading}
+                    onCheckAvailability={handleCheckAvailability}
+                    openBadgeInfo={openBadgeInfo}
+                    onOpenWebsite={(url) => {
+                      setBookingOverlayLoaded(false);
+                      setBookingOverlayUrl(url);
+                      setBookingOverlayTitle(language === "en" ? "Website" : "Site web");
+                      setShowBookingOverlay(true);
+                    }}
+                  />
+                </div>
               )}
               {showGoogleMap && business && (business.latitude || business.google_maps_url) && (
                 <div onMouseEnter={(e) => e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })}>
