@@ -597,17 +597,50 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     return { fullUrl, forceExternal };
   }, [shopUrl, business?.online_shop_force_external]);
 
-  const bookingCtaLabel = useMemo(() => {
-    const mode = business?.presentation_mode || 'reserver_en_ligne';
-    const pair = CTA_MODE_LABELS[mode] || CTA_MODE_LABELS.reserver_en_ligne;
-    return language === 'en' ? pair.en : pair.fr;
-  }, [business?.presentation_mode, language]);
+  const normalizeCtaMode = (value: string | null | undefined) => {
+    if (!value) return null;
 
-  const shopCtaLabel = useMemo(() => {
-    const mode = (business as any)?.online_shop_presentation_mode || 'acheter_en_ligne';
-    const pair = CTA_MODE_LABELS[mode] || CTA_MODE_LABELS.acheter_en_ligne;
+    const normalizedValue = value
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[’']/g, "")
+      .replace(/&/g, " ")
+      .replace(/[\s/-]+/g, "_")
+      .replace(/[^a-z0-9_]/g, "")
+      .replace(/_+/g, "_")
+      .replace(/^_+|_+$/g, "");
+
+    return normalizedValue || null;
+  };
+
+  const resolveCtaLabel = (
+    preferredValue: string | null | undefined,
+    fallbackValue: string | null | undefined,
+    defaultKey: keyof typeof CTA_MODE_LABELS,
+  ) => {
+    const candidates = [preferredValue, fallbackValue]
+      .map((candidate) => {
+        if (!candidate) return null;
+        return CTA_MODE_LABELS[candidate] || CTA_MODE_LABELS[normalizeCtaMode(candidate) || ""] || null;
+      })
+      .filter(Boolean);
+
+    const pair = candidates[0] || CTA_MODE_LABELS[defaultKey];
     return language === 'en' ? pair.en : pair.fr;
-  }, [(business as any)?.online_shop_presentation_mode, language]);
+  };
+
+  const bookingCtaLabel = resolveCtaLabel(
+    (business as any)?.reserve_now_cta,
+    business?.presentation_mode,
+    'reserver_en_ligne',
+  );
+
+  const shopCtaLabel = resolveCtaLabel(
+    (business as any)?.online_shop_cta,
+    (business as any)?.online_shop_presentation_mode,
+    'acheter_en_ligne',
+  );
 
   const url4Cta = useMemo(() => {
     const url = (business as any)?.url_4;
@@ -616,13 +649,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     return { fullUrl, forceExternal: (business as any)?.url_4_force_external };
   }, [(business as any)?.url_4, (business as any)?.url_4_force_external]);
 
-  const url4CtaLabel = useMemo(() => {
-    const cta = (business as any)?.url_4_cta;
-    if (cta) { const pair = CTA_MODE_LABELS[cta]; if (pair) return language === 'en' ? pair.en : pair.fr; }
-    const mode = (business as any)?.url_4_presentation_mode || 'acheter_en_ligne';
-    const pair = CTA_MODE_LABELS[mode] || CTA_MODE_LABELS.acheter_en_ligne;
-    return language === 'en' ? pair.en : pair.fr;
-  }, [(business as any)?.url_4_cta, (business as any)?.url_4_presentation_mode, language]);
+  const url4CtaLabel = resolveCtaLabel(
+    (business as any)?.url_4_cta,
+    (business as any)?.url_4_presentation_mode,
+    'acheter_en_ligne',
+  );
 
   const url5Cta = useMemo(() => {
     const url = (business as any)?.url_5;
@@ -631,13 +662,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     return { fullUrl, forceExternal: (business as any)?.url_5_force_external };
   }, [(business as any)?.url_5, (business as any)?.url_5_force_external]);
 
-  const url5CtaLabel = useMemo(() => {
-    const cta = (business as any)?.url_5_cta;
-    if (cta) { const pair = CTA_MODE_LABELS[cta]; if (pair) return language === 'en' ? pair.en : pair.fr; }
-    const mode = (business as any)?.url_5_presentation_mode || 'acheter_en_ligne';
-    const pair = CTA_MODE_LABELS[mode] || CTA_MODE_LABELS.acheter_en_ligne;
-    return language === 'en' ? pair.en : pair.fr;
-  }, [(business as any)?.url_5_cta, (business as any)?.url_5_presentation_mode, language]);
+  const url5CtaLabel = resolveCtaLabel(
+    (business as any)?.url_5_cta,
+    (business as any)?.url_5_presentation_mode,
+    'acheter_en_ligne',
+  );
 
   const appStoreLinks = useMemo(() => {
     const links: { type: "app_store" | "google_play"; url: string }[] = [];
