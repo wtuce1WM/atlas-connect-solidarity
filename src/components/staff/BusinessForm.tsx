@@ -3269,7 +3269,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             <div className="flex items-center gap-2">
               <Label className="text-sm whitespace-nowrap">📺 Média prioritaire</Label>
               <select
-                value={formData.show_videos ? "videos" : formData.prioritize_images ? "images" : (formData.matterport_url ? "matterport" : "images")}
+                value={formData.show_videos ? "videos" : formData.prioritize_images ? "images" : (formData.matterport_url ? "matterport" : "default")}
                 onChange={(e) => {
                   const v = e.target.value;
                   handleChange("show_videos", v === "videos");
@@ -3277,9 +3277,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 }}
                 className="h-9 rounded-md border border-input bg-background px-3 text-sm w-48"
               >
+                <option value="default">✨ Mode automatique</option>
                 <option value="videos">🎬 Carrousel vidéo</option>
                 <option value="images">🖼️ Prioriser images</option>
-                
                 <option value="matterport">🏠 Visite virtuelle 3D</option>
               </select>
             </div>
