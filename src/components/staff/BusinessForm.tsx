@@ -763,6 +763,7 @@ const CTA_SELECT_OPTIONS = [
   "Contactez-moi",
   "Contactez nous",
   "Day Pass",
+  "En savoir +",
   "Forfaits",
   "Google Play",
   "Hammam",
@@ -817,6 +818,8 @@ const CTA_VALUE_LABELS: Record<string, string> = {
   "app store": "App Store",
   "google play": "Google Play",
   programme: "Programme",
+  "en savoir +": "En savoir +",
+  "en savoir plus": "En savoir +",
 };
 
 const normalizeCtaKey = (value: string) =>
