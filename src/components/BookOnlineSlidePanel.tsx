@@ -29,6 +29,7 @@ import ExternalLinksFlipCard from "@/components/cards/ExternalLinksFlipCard";
 import SocialLinksCard from "@/components/cards/SocialLinksCard";
 import MenuSummaryCard from "@/components/cards/MenuSummaryCard";
 import MapCard from "@/components/cards/MapCard";
+import AppStoreCard from "@/components/cards/AppStoreCard";
 import DirectionsOverlay from "@/components/DirectionsOverlay";
 import MosaicOverlay from "@/components/MosaicOverlay";
 import YouTubeShortsCarousel, { type YouTubeVideo } from "@/components/YouTubeShortsCarousel";
@@ -638,6 +639,27 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     return language === 'en' ? pair.en : pair.fr;
   }, [(business as any)?.url_5_cta, (business as any)?.url_5_presentation_mode, language]);
 
+  const appStoreLinks = useMemo(() => {
+    const links: { type: "app_store" | "google_play"; url: string }[] = [];
+    const seen = new Set<string>();
+    const checks = [
+      { key: business?.presentation_mode, url: business?.website },
+      { key: (business as any)?.reserve_now_cta || business?.presentation_mode, url: business?.reserve_now_url },
+      { key: (business as any)?.online_shop_cta || (business as any)?.online_shop_presentation_mode, url: business?.online_shop_url },
+      { key: (business as any)?.url_4_cta || (business as any)?.url_4_presentation_mode, url: (business as any)?.url_4 },
+      { key: (business as any)?.url_5_cta || (business as any)?.url_5_presentation_mode, url: (business as any)?.url_5 },
+    ];
+    for (const c of checks) {
+      if (!c.url || !c.key) continue;
+      const fullUrl = c.url.startsWith("http") ? c.url : `https://${c.url}`;
+      if ((c.key === "app_store" || c.key === "google_play") && !seen.has(c.key)) {
+        seen.add(c.key);
+        links.push({ type: c.key, url: fullUrl });
+      }
+    }
+    return links;
+  }, [business]);
+
   const hasBottomActionCtas = !!bookingCta || !!shopCta || !!url4Cta || !!url5Cta || (!cardsHidden && showGoogleMap && business?.latitude && business?.longitude);
   const externalVideoBackgroundClass = externalVideoInteractiveMode && showSearchBar
     ? `absolute inset-x-0 top-0 ${hasBottomActionCtas ? 'bottom-[160px]' : 'bottom-[88px]'} z-0`
@@ -1026,6 +1048,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   language={language}
                   onOpenUrl={(url, title) => openDocOrBooking(url, title)}
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0)) * 120}ms`}
+                />
+              )}
+              {appStoreLinks.length > 0 && (
+                <AppStoreCard
+                  links={appStoreLinks}
+                  animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0) + 1) * 120}ms`}
                 />
               )}
               <div className="shrink-0 w-4" aria-hidden="true" />
