@@ -962,7 +962,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 pointerEvents: showHook ? 'auto' : 'none',
               }}
             >
-              <p className="text-sm md:text-lg text-white/90 text-center leading-relaxed md:pr-28" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{hookText}</p>
+              <p className={`text-sm md:text-lg text-white/90 text-center leading-relaxed ${hasReviewsCard ? 'md:pr-28' : ''}`} style={{ fontFamily: "'Josefin Sans', sans-serif" }}>{hookText}</p>
             </div>
           )}
           {avgOn20 !== null && avgOn20 > 0 && (
