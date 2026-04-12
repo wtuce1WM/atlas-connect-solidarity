@@ -29,8 +29,12 @@ interface CtaBarProps {
   effectiveMedia: any;
   bookingCta: { fullUrl: string; forceExternal?: boolean } | null;
   shopCta: { fullUrl: string; forceExternal?: boolean } | null;
+  url4Cta?: { fullUrl: string; forceExternal?: boolean } | null;
+  url5Cta?: { fullUrl: string; forceExternal?: boolean } | null;
   bookingCtaLabel: string;
   shopCtaLabel: string;
+  url4CtaLabel?: string;
+  url5CtaLabel?: string;
   fallbackPanelData: any;
   // Logo overlay
   logoBigOverlay: any;
