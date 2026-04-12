@@ -128,7 +128,7 @@ const ContactFlipCard = ({
   // Front height: compact for hotel CTA-only, or standard for non-hotel
   const frontHeight = showHotel ? "7em" : "7em";
   // Back height for hotel calendar
-  const hotelBackHeight = tallHeight ? "24em" : "22em";
+  const hotelBackHeight = tallHeight ? "28em" : "26em";
 
   return (
     <div
