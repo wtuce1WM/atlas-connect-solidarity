@@ -1673,7 +1673,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                           {descOverlayContent.priceDetails && (
                             <div className="flex-1 min-w-[140px] rounded-xl border border-terracotta/20 px-4 py-3 bg-white">
                               <span className="block text-[10px] font-extrabold uppercase tracking-widest font-['Josefin_Sans',sans-serif] text-terracotta/70 mb-1">Détail des prix</span>
-                              <div className="rich-price-html text-sm font-normal leading-relaxed whitespace-pre-line text-terracotta [&_li]:text-base [&_p]:text-base" style={{ fontSize: '0.925rem' }} dangerouslySetInnerHTML={{ __html: descOverlayContent.priceDetails }} />
+                              <div className="rich-price-html text-sm font-normal leading-relaxed whitespace-pre-line text-terracotta [&_li]:text-base [&_p]:text-base" style={{ fontSize: '0.925rem' }} dangerouslySetInnerHTML={{ __html: descOverlayContent.priceDetails.replace(/([\u{1F300}-\u{1F9FF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2702}-\u{27B0}])/gu, '<span style="font-size:1.5em;line-height:1">$1</span>') }} />
                             </div>
                           )}
                         </div>
