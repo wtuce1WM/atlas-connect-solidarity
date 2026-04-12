@@ -70,7 +70,7 @@ interface CardsToggleButtonProps {
 
 export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDownDrag, leftSlot, rightSlot }: CardsToggleButtonProps) => {
   return (
-    <div className="w-full shrink-0 pointer-events-auto relative z-20">
+    <div className="w-full shrink-0 pointer-events-auto relative z-20 animate-fade-in" style={{ opacity: 0, animationDelay: '3s', animationFillMode: 'forwards' }}>
       <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center h-[32px] mb-2">
         <div className="min-w-0 flex items-center justify-start">
           {!cardsHidden && leftSlot}
