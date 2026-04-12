@@ -1624,7 +1624,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     </div>
                   )}
                   <div className="flex-1" />
-                  <div className="w-full max-w-2xl px-3 relative" style={{ perspective: "1200px" }}>
+                  <div className="w-full max-w-2xl mx-auto px-3 relative" style={{ perspective: "1200px" }}>
                     <div
                       key={descGridPage}
                       style={{
