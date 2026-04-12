@@ -61,31 +61,25 @@ const SocialLinksCard = ({
 
   return (
     <div
-      className={`snap-start shrink-0 w-fit rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 flex flex-col animate-slide-in-left opacity-0 transition-all duration-300 ease-in-out ${expanded ? '' : 'h-[6.5em] overflow-hidden'}`}
+      className={`snap-start shrink-0 w-fit rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 flex flex-col animate-slide-in-left opacity-0 ${expanded ? '' : 'h-[6.5em] overflow-hidden'}`}
       style={{ animationDelay, animationFillMode: "forwards" }}
       onMouseEnter={() => hasHidden && setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
     >
       <div className="flex items-center justify-center p-2">
         <div className={`gap-2 ${useTwoColumns ? 'grid grid-cols-2' : 'flex flex-col items-center'}`}>
-          {menuItems.map((m) => (
-            <button
-              key={m.id}
-              onClick={() => onOpenUrl?.(m.url, m.name || (language === "en" ? "Menu" : "La Carte"))}
-              className="min-w-[5rem] rounded-xl flex items-center justify-center bg-white/10 hover:bg-white/20 transition-colors px-3 py-2"
-            >
-              <span className="text-[10px] text-white/90 text-center whitespace-nowrap" style={{ fontFamily: "'Roboto', sans-serif" }}>
-                {m.name || (language === "en" ? "Menu" : "Carte")}
-              </span>
-            </button>
-          ))}
-          {links.map((link) => (
+          {links.map((link, i) => (
             <a
               key={link.name}
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center group transition-all duration-300 opacity-100"
+              className="flex items-center justify-center group transition-all duration-300"
+              style={{
+                opacity: expanded ? 1 : undefined,
+                transform: expanded ? 'translateY(0)' : undefined,
+                transition: `opacity 300ms ease ${i * 50}ms, transform 300ms ease ${i * 50}ms`,
+              }}
             >
               <div
                 className="w-10 h-10 rounded-xl flex items-center justify-center text-white transition-transform group-hover:scale-110 shadow-lg"
@@ -94,6 +88,22 @@ const SocialLinksCard = ({
                 {link.icon}
               </div>
             </a>
+          ))}
+          {menuItems.map((m, i) => (
+            <button
+              key={m.id}
+              onClick={() => onOpenUrl?.(m.url, m.name || (language === "en" ? "Menu" : "La Carte"))}
+              className="min-w-[5rem] rounded-xl flex items-center justify-center bg-white/10 hover:bg-white/20 transition-colors px-3 py-2"
+              style={{
+                opacity: expanded ? 1 : undefined,
+                transform: expanded ? 'translateY(0)' : undefined,
+                transition: `opacity 300ms ease ${(links.length + i) * 50}ms, transform 300ms ease ${(links.length + i) * 50}ms`,
+              }}
+            >
+              <span className="text-[10px] text-white/90 text-center whitespace-nowrap" style={{ fontFamily: "'Roboto', sans-serif" }}>
+                {m.name || (language === "en" ? "Menu" : "Carte")}
+              </span>
+            </button>
           ))}
         </div>
       </div>
