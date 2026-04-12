@@ -45,6 +45,8 @@ const ContactFlipCard = ({
   openBadgeInfo,
 }: ContactFlipCardProps) => {
   const isEn = language === "en";
+  const [flipped, setFlipped] = useState(false);
+
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const defaultCheckout = new Date(tomorrow);
@@ -114,130 +116,179 @@ const ContactFlipCard = ({
   const showHours = hasOpeningHours && !business.is_open_24h;
   const showHotel = hasHotelMapping;
 
+  // Determine card height based on flip state
+  const frontHeight = showHotel
+    ? (tallHeight ? "21.6em" : "12.6em")
+    : "7em";
+  const backHeight = tallHeight ? "21.6em" : "12.6em";
+
   return (
     <div
-      className={`snap-start shrink-0 w-[20rem] ${tallHeight ? 'h-[21.6em] md:h-[28.8em]' : 'max-h-[12.6em]'} mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 ${className}`}
-      style={{ animationDelay, animationFillMode: "forwards" }}
+      className={`snap-start shrink-0 w-[20rem] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 transition-[height] duration-500 ease-in-out ${className}`}
+      style={{
+        perspective: "1000px",
+        animationDelay,
+        animationFillMode: "forwards",
+        height: showHotel
+          ? (tallHeight ? "21.6em" : "12.6em")
+          : (flipped ? backHeight : frontHeight),
+      }}
     >
-      <div className="h-full rounded-2xl p-3 text-white flex flex-col">
-        {/* Scrollable content area */}
-        <div className="flex-1 min-h-0 overflow-hidden">
-          {/* Opening hours */}
-          {showHours && <OpeningHoursBlock business={business} language={language} />}
-          {openBadgeInfo?.text && (
-            <div className="flex justify-center mt-2">
-              <div className={`flex items-center gap-1 rounded-full py-1 px-3 text-[10px] font-bold uppercase tracking-wider ${openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"}`}>
-                <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
-                {openBadgeInfo.text}
-              </div>
-            </div>
-          )}
+      <div
+        className="relative w-full h-full transition-transform duration-500"
+        style={{
+          transformStyle: "preserve-3d",
+          transform: showHotel ? "rotateY(0deg)" : (flipped ? "rotateY(180deg)" : "rotateY(0deg)"),
+        }}
+      >
+        {/* ─── FRONT ─── */}
+        <div
+          className="absolute inset-0 rounded-2xl text-white flex flex-col"
+          style={{ backfaceVisibility: "hidden" }}
+        >
+          {showHotel ? (
+            /* Hotel mode: show calendar directly, no flip */
+            <div className="h-full rounded-2xl p-3 flex flex-col">
+              <div className="flex-1 min-h-0 overflow-hidden">
+                {/* Hotel availability calendar */}
+                <div className="flex flex-col">
+                  <div className="flex gap-1 mb-2">
+                    <button
+                      onClick={() => setSelectingField("checkin")}
+                      className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-semibold transition-colors ${
+                        selectingField === "checkin" ? "bg-white text-black" : "bg-white/10 text-white/70"
+                      }`}
+                    >
+                      <span className="block text-[8px] uppercase tracking-wider opacity-60">
+                        {isEn ? "CHECK-IN" : "ARRIVÉE"}
+                      </span>
+                      {checkIn.split("-").reverse().join("/")}
+                    </button>
+                    <button
+                      onClick={() => setSelectingField("checkout")}
+                      className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-semibold transition-colors ${
+                        selectingField === "checkout" ? "bg-white text-black" : "bg-white/10 text-white/70"
+                      }`}
+                    >
+                      <span className="block text-[8px] uppercase tracking-wider opacity-60">
+                        {isEn ? "CHECK-OUT" : "DÉPART"}
+                      </span>
+                      {checkOut.split("-").reverse().join("/")}
+                    </button>
+                    <div className="bg-white/10 rounded-lg px-2 py-1.5 flex flex-col items-center">
+                      <span className="block text-[8px] uppercase tracking-wider opacity-60">
+                        <Users className="h-3 w-3 inline" />
+                      </span>
+                      <select
+                        value={adults}
+                        onChange={e => setAdults(Number(e.target.value))}
+                        className="bg-transparent text-white font-bold text-xs cursor-pointer text-center outline-none [color-scheme:dark] w-8"
+                      >
+                        {[1, 2, 3, 4].map(n => <option key={n} value={n}>{n}</option>)}
+                      </select>
+                    </div>
+                  </div>
 
-          {/* Hotel availability — calendar directly on front */}
-          {showHotel && (
-            <div className={`flex flex-col ${showHours ? "mt-2 pt-2 border-t border-white/20" : ""}`}>
-              {/* Field tabs */}
-              <div className="flex gap-1 mb-2">
-                <button
-                  onClick={() => setSelectingField("checkin")}
-                  className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-semibold transition-colors ${
-                    selectingField === "checkin" ? "bg-white text-black" : "bg-white/10 text-white/70"
-                  }`}
-                >
-                  <span className="block text-[8px] uppercase tracking-wider opacity-60">
-                    {isEn ? "CHECK-IN" : "ARRIVÉE"}
-                  </span>
-                  {checkIn.split("-").reverse().join("/")}
-                </button>
-                <button
-                  onClick={() => setSelectingField("checkout")}
-                  className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-semibold transition-colors ${
-                    selectingField === "checkout" ? "bg-white text-black" : "bg-white/10 text-white/70"
-                  }`}
-                >
-                  <span className="block text-[8px] uppercase tracking-wider opacity-60">
-                    {isEn ? "CHECK-OUT" : "DÉPART"}
-                  </span>
-                  {checkOut.split("-").reverse().join("/")}
-                </button>
-                <div className="bg-white/10 rounded-lg px-2 py-1.5 flex flex-col items-center">
-                  <span className="block text-[8px] uppercase tracking-wider opacity-60">
-                    <Users className="h-3 w-3 inline" />
-                  </span>
-                  <select
-                    value={adults}
-                    onChange={e => setAdults(Number(e.target.value))}
-                    className="bg-transparent text-white font-bold text-xs cursor-pointer text-center outline-none [color-scheme:dark] w-8"
-                  >
-                    {[1, 2, 3, 4].map(n => <option key={n} value={n}>{n}</option>)}
-                  </select>
+                  <div className="flex items-center justify-between mb-1">
+                    <button onClick={prevMonth} className="p-1 hover:bg-white/10 rounded">
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <span className="text-xs font-semibold">
+                      {monthNames[calendarMonth.month]} {calendarMonth.year}
+                    </span>
+                    <button onClick={nextMonth} className="p-1 hover:bg-white/10 rounded">
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-7 gap-0 mb-0.5">
+                    {dayLabels.map(d => (
+                      <div key={d} className="text-center text-[9px] text-white/40 font-medium">{d}</div>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-7 gap-0 content-start">
+                    {Array.from({ length: startOffset }).map((_, i) => (
+                      <div key={`empty-${i}`} />
+                    ))}
+                    {Array.from({ length: daysInMonth }, (_, i) => {
+                      const day = i + 1;
+                      const dateStr = `${calendarMonth.year}-${String(calendarMonth.month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+                      const isPast = dateStr <= todayStr;
+                      const isCheckIn = dateStr === checkIn;
+                      const isCheckOut = dateStr === checkOut;
+                      const inRange = isInRange(dateStr);
+
+                      return (
+                        <button
+                          key={day}
+                          onClick={() => handleDayClick(day)}
+                          disabled={isPast}
+                          className={`aspect-square flex items-center justify-center text-[11px] rounded-md transition-colors
+                            ${isPast ? "text-white/20 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"}
+                            ${isCheckIn ? "bg-white text-black font-bold" : ""}
+                            ${isCheckOut ? "bg-white text-black font-bold" : ""}
+                            ${inRange ? "bg-white/15" : ""}
+                          `}
+                        >
+                          {day}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
-              {/* Calendar header */}
-              <div className="flex items-center justify-between mb-1">
-                <button onClick={prevMonth} className="p-1 hover:bg-white/10 rounded">
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <span className="text-xs font-semibold">
-                  {monthNames[calendarMonth.month]} {calendarMonth.year}
+              <button
+                onClick={() => onCheckAvailability?.(checkIn, checkOut, adults)}
+                disabled={isSearchingAvailability}
+                className="mt-2 w-fit mx-auto px-5 py-2.5 rounded-full bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 normal-case tracking-normal font-['Roboto',sans-serif] shrink-0"
+              >
+                {isSearchingAvailability ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                {isEn ? "Check availability" : "Vérifier la disponibilité"}
+              </button>
+            </div>
+          ) : (
+            /* Non-hotel mode: front shows badge + "Consultez les horaires" */
+            <div
+              className="h-full flex flex-col items-center justify-center gap-2 cursor-pointer px-4"
+              onClick={() => showHours && setFlipped(true)}
+            >
+              {openBadgeInfo?.text && (
+                <div className={`flex items-center gap-1 rounded-full py-1 px-3 text-[10px] font-bold uppercase tracking-wider ${openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"}`}>
+                  <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
+                  {openBadgeInfo.text}
+                </div>
+              )}
+              {showHours && (
+                <span className="text-[10px] text-white/40 uppercase tracking-wider">
+                  {isEn ? "View hours ›" : "Consultez les horaires ›"}
                 </span>
-                <button onClick={nextMonth} className="p-1 hover:bg-white/10 rounded">
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
-
-              {/* Day labels */}
-              <div className="grid grid-cols-7 gap-0 mb-0.5">
-                {dayLabels.map(d => (
-                  <div key={d} className="text-center text-[9px] text-white/40 font-medium">{d}</div>
-                ))}
-              </div>
-
-              {/* Calendar grid */}
-              <div className="grid grid-cols-7 gap-0 content-start">
-                {Array.from({ length: startOffset }).map((_, i) => (
-                  <div key={`empty-${i}`} />
-                ))}
-                {Array.from({ length: daysInMonth }, (_, i) => {
-                  const day = i + 1;
-                  const dateStr = `${calendarMonth.year}-${String(calendarMonth.month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-                  const isPast = dateStr <= todayStr;
-                  const isCheckIn = dateStr === checkIn;
-                  const isCheckOut = dateStr === checkOut;
-                  const inRange = isInRange(dateStr);
-
-                  return (
-                    <button
-                      key={day}
-                      onClick={() => handleDayClick(day)}
-                      disabled={isPast}
-                      className={`aspect-square flex items-center justify-center text-[11px] rounded-md transition-colors
-                        ${isPast ? "text-white/20 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"}
-                        ${isCheckIn ? "bg-white text-black font-bold" : ""}
-                        ${isCheckOut ? "bg-white text-black font-bold" : ""}
-                        ${inRange ? "bg-white/15" : ""}
-                      `}
-                    >
-                      {day}
-                    </button>
-                  );
-                })}
-              </div>
+              )}
             </div>
           )}
         </div>
 
-        {/* CTA — pinned at bottom, always visible */}
-        {showHotel && (
-          <button
-            onClick={() => onCheckAvailability?.(checkIn, checkOut, adults)}
-            disabled={isSearchingAvailability}
-            className="mt-2 w-fit mx-auto px-5 py-2.5 rounded-full bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 normal-case tracking-normal font-['Roboto',sans-serif] shrink-0"
+        {/* ─── BACK — Opening hours detail (non-hotel only) ─── */}
+        {!showHotel && showHours && (
+          <div
+            className="absolute inset-0 rounded-2xl p-3 text-white overflow-y-auto"
+            style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
           >
-            {isSearchingAvailability ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-            {isEn ? "Check availability" : "Vérifier la disponibilité"}
-          </button>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[10px] font-semibold text-gold uppercase tracking-wider">
+                <Clock className="h-3 w-3 inline mr-1" />
+                {isEn ? "Hours" : "Horaires"}
+              </p>
+              <button
+                onClick={() => setFlipped(false)}
+                className="text-xs text-white/50 hover:text-white transition-colors uppercase tracking-wider"
+              >
+                ← {isEn ? "Back" : "Retour"}
+              </button>
+            </div>
+            <OpeningHoursBlock business={business} language={language} />
+          </div>
         )}
       </div>
     </div>
@@ -275,10 +326,6 @@ function OpeningHoursBlock({
 
   return (
     <div className="pt-1">
-      <p className="text-xs font-semibold text-gold uppercase tracking-wider mb-1.5">
-        <Clock className="h-3 w-3 inline mr-1" />
-        {language === "en" ? "Hours" : "Horaires"}
-      </p>
       {business.is_open_24h ? (
         <p className="text-white/80 text-sm">Ouvert 24h/24</p>
       ) : hours ? (
