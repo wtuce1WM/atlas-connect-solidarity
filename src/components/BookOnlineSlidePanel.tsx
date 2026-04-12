@@ -941,9 +941,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 <img src={business.logo_url} alt="" className={`w-full h-full object-contain ${business.logo_bg === 'transparent' ? '' : 'p-1'}`} />
               </div>
             )}
-            <div className="min-w-0 flex-1 text-center md:text-left md:pr-28">
+            <div className={`min-w-0 flex-1 text-center md:text-left ${hasReviewsCard ? 'md:pr-28' : ''}`}>
               <div className="flex items-start gap-2">
-                <h2 className={`text-base md:text-xl font-bold uppercase min-w-0 flex-1 line-clamp-2 md:truncate`} style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>{business.name}</h2>
+                <h2 className={`text-base md:text-xl font-bold uppercase min-w-0 flex-1 ${hasReviewsCard ? 'line-clamp-2 md:truncate' : 'line-clamp-3 md:line-clamp-2'}`} style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: '0.12em', WebkitTextStroke: '0.8px currentColor', textShadow: '0 0 0 currentColor' }}>{business.name}</h2>
               </div>
               {(business.city || business.neighborhood || business.address) && (
                 <p className={`text-xs md:text-sm text-white/80 flex items-center gap-1 mt-0.5 justify-center md:justify-start truncate${business.name.length > 18 ? ' hidden lg:flex' : ''}`}>
