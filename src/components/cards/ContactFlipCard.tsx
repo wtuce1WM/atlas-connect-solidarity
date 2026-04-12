@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 import { Clock, Search, Loader2, ChevronLeft, ChevronRight, Users } from "lucide-react";
 import { formatDayHours as formatDayHoursDisplay, isCurrentlyOpen } from "@/lib/formatOpeningHours";
 
@@ -116,11 +116,19 @@ const ContactFlipCard = ({
   const showHours = hasOpeningHours && !business.is_open_24h;
   const showHotel = hasHotelMapping;
 
+  const backRef = useRef<HTMLDivElement>(null);
+  const [backHeight, setBackHeight] = useState(0);
+
+  useLayoutEffect(() => {
+    if (backRef.current) {
+      setBackHeight(backRef.current.scrollHeight);
+    }
+  }, [showHours, business.opening_hours]);
+
   // Determine card height based on flip state
   const frontHeight = showHotel
     ? (tallHeight ? "21.6em" : "12.6em")
     : "7em";
-  const backHeight = tallHeight ? "21.6em" : "12.6em";
 
   return (
     <div
@@ -131,7 +139,7 @@ const ContactFlipCard = ({
         animationFillMode: "forwards",
         height: showHotel
           ? (tallHeight ? "21.6em" : "12.6em")
-          : (flipped ? backHeight : frontHeight),
+          : (flipped && backHeight > 0 ? `${backHeight}px` : frontHeight),
       }}
     >
       <div
@@ -272,7 +280,8 @@ const ContactFlipCard = ({
         {/* ─── BACK — Opening hours detail (non-hotel only) ─── */}
         {!showHotel && showHours && (
           <div
-            className="absolute inset-0 rounded-2xl p-3 text-white overflow-y-auto"
+            ref={backRef}
+            className="absolute inset-0 rounded-2xl p-3 text-white"
             style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
           >
             <div className="flex items-center justify-between mb-2">
