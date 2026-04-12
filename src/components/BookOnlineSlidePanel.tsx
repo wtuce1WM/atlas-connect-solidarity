@@ -208,6 +208,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         if (selectedDestinationId && destInterceptCloseRef.current?.()) return true;
         if (selectedDestinationId) { setSelectedDestinationId(null); return true; }
         if (selectedPoiBusinessId) { setSelectedPoiBusinessId(null); return true; }
+        if (selectedKpBusinessId && kpInterceptCloseRef.current?.()) return true;
         if (selectedKpBusinessId) { setSelectedKpBusinessId(null); return true; }
         return false;
       };
