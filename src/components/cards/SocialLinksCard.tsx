@@ -59,7 +59,7 @@ const SocialLinksCard = ({
 
   return (
     <div
-      className="snap-start shrink-0 w-fit h-[7em] rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 overflow-hidden flex flex-col animate-slide-in-left opacity-0 transition-all duration-300 ease-in-out"
+      className={`snap-start shrink-0 w-fit rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 flex flex-col animate-slide-in-left opacity-0 transition-all duration-300 ease-in-out ${expanded ? '' : 'h-[7em] overflow-hidden'}`}
       style={{ animationDelay, animationFillMode: "forwards" }}
       onMouseEnter={() => hasHidden && setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
@@ -77,25 +77,22 @@ const SocialLinksCard = ({
               </span>
             </button>
           ))}
-          {links.map((link, i) => {
-            const hidden = i >= visibleCount && !expanded;
-            return (
-              <a
-                key={link.name}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`flex flex-col items-center group transition-all duration-300 ${hidden ? "h-0 opacity-0 overflow-hidden m-0 p-0" : "opacity-100"}`}
+          {links.map((link) => (
+            <a
+              key={link.name}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center group transition-all duration-300 opacity-100"
+            >
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-white transition-transform group-hover:scale-110 shadow-lg"
+                style={{ backgroundColor: link.color }}
               >
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center text-white transition-transform group-hover:scale-110 shadow-lg"
-                  style={{ backgroundColor: link.color }}
-                >
-                  {link.icon}
-                </div>
-              </a>
-            );
-          })}
+                {link.icon}
+              </div>
+            </a>
+          ))}
         </div>
       </div>
     </div>
