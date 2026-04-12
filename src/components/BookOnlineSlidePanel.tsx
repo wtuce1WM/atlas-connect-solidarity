@@ -325,12 +325,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   const infoCarouselRef = useRef<HTMLDivElement>(null);
 
-  /** Scroll the info carousel so that `el` is horizontally centered */
+  /** Scroll the info carousel so that `el` is horizontally centered in the visible panel area */
   const centerCardInCarousel = (el: HTMLElement) => {
     const container = infoCarouselRef.current;
     if (!container) return;
+    // The container has negative margins (-ml-4 = 16px on mobile, -ml-6 = 24px on desktop)
+    // so the visible panel center is offset from the container's left edge
+    const style = getComputedStyle(container);
+    const marginLeft = Math.abs(parseFloat(style.marginLeft) || 0);
+    const panelVisibleWidth = container.clientWidth - marginLeft;
     const cardCenter = el.offsetLeft + el.offsetWidth / 2;
-    const targetScroll = cardCenter - container.clientWidth / 2;
+    const targetScroll = cardCenter - marginLeft - panelVisibleWidth / 2;
     container.scrollTo({ left: targetScroll, behavior: 'smooth' });
   };
   const videoRef = useRef<HTMLVideoElement>(null);
