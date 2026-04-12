@@ -1068,13 +1068,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 />
               )}
               {externalLinks.length > 0 && (
-                <div data-card="external-links">
-                  <ExternalLinksFlipCard
-                    links={externalLinks}
-                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard)) * 120}ms`}
-                    onOpenUrl={(url, linkTitle) => openDocOrBooking(url, linkTitle, true)}
-                  />
-                </div>
+                <ExternalLinksFlipCard
+                  links={externalLinks}
+                  animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard)) * 120}ms`}
+                  onOpenUrl={(url, linkTitle) => openDocOrBooking(url, linkTitle, true)}
+                />
               )}
               {appStoreLinks.length > 0 && (
                 <AppStoreCard
