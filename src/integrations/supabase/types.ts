@@ -1051,6 +1051,14 @@ export type Database = {
           twitter_url: string | null
           unified_cta: string | null
           updated_at: string
+          url_4: string | null
+          url_4_cta: string | null
+          url_4_force_external: boolean
+          url_4_presentation_mode: string
+          url_5: string | null
+          url_5_cta: string | null
+          url_5_force_external: boolean
+          url_5_presentation_mode: string
           vacation_dates: Json | null
           viator_rating: number | null
           viator_review_count: number | null
@@ -1206,6 +1214,14 @@ export type Database = {
           twitter_url?: string | null
           unified_cta?: string | null
           updated_at?: string
+          url_4?: string | null
+          url_4_cta?: string | null
+          url_4_force_external?: boolean
+          url_4_presentation_mode?: string
+          url_5?: string | null
+          url_5_cta?: string | null
+          url_5_force_external?: boolean
+          url_5_presentation_mode?: string
           vacation_dates?: Json | null
           viator_rating?: number | null
           viator_review_count?: number | null
@@ -1361,6 +1377,14 @@ export type Database = {
           twitter_url?: string | null
           unified_cta?: string | null
           updated_at?: string
+          url_4?: string | null
+          url_4_cta?: string | null
+          url_4_force_external?: boolean
+          url_4_presentation_mode?: string
+          url_5?: string | null
+          url_5_cta?: string | null
+          url_5_force_external?: boolean
+          url_5_presentation_mode?: string
           vacation_dates?: Json | null
           viator_rating?: number | null
           viator_review_count?: number | null
@@ -4251,6 +4275,14 @@ export type Database = {
               twitter_url: string | null
               unified_cta: string | null
               updated_at: string
+              url_4: string | null
+              url_4_cta: string | null
+              url_4_force_external: boolean
+              url_4_presentation_mode: string
+              url_5: string | null
+              url_5_cta: string | null
+              url_5_force_external: boolean
+              url_5_presentation_mode: string
               vacation_dates: Json | null
               viator_rating: number | null
               viator_review_count: number | null
@@ -4422,6 +4454,14 @@ export type Database = {
               twitter_url: string | null
               unified_cta: string | null
               updated_at: string
+              url_4: string | null
+              url_4_cta: string | null
+              url_4_force_external: boolean
+              url_4_presentation_mode: string
+              url_5: string | null
+              url_5_cta: string | null
+              url_5_force_external: boolean
+              url_5_presentation_mode: string
               vacation_dates: Json | null
               viator_rating: number | null
               viator_review_count: number | null
