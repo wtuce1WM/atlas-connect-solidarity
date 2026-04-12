@@ -1170,7 +1170,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         </div>
 
         {/* Tabs bar */}
-        <div className={`shrink-0 overflow-x-auto scrollbar-hide pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 pt-2 md:pt-3 pb-1 ${isLoading ? "invisible" : ""}`}>
+        <div className={`shrink-0 overflow-x-auto scrollbar-hide pointer-events-auto relative z-20 w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 pt-2 md:pt-3 pb-1 ${isLoading ? "invisible" : ""}`}>
           <div className="flex gap-1 w-max">
             <div className="shrink-0 w-2 md:w-4" aria-hidden="true" />
             {bottomTabs.map((tab) => (
@@ -1194,7 +1194,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         </div>
 
         {/* Tab content */}
-        <div className="shrink-0 h-[9.5rem] md:h-[12.5rem] lg:h-[17.5rem] animate-slide-in-left">
+        <div className="shrink-0 h-[9.5rem] md:h-[12.5rem] lg:h-[17.5rem] animate-slide-in-left relative z-20">
         {/* Videos tab */}
         {activeBottomTab === "videos" && hasVideosCarousel && (
           <div className="shrink-0 pointer-events-auto w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory mt-2">
