@@ -1031,7 +1031,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
             {woDescription && (
               <div
-                  className="snap-start shrink-0 w-[20rem] h-[7em] mb-4 relative animate-slide-in-left opacity-0 overflow-hidden rounded-2xl cursor-pointer group"
+                  className="snap-start shrink-0 w-[20rem] h-[6.5em] mb-4 relative animate-slide-in-left opacity-0 overflow-hidden rounded-2xl cursor-pointer group"
                   style={{ animationFillMode: 'forwards' }}
                   onClick={() => setShowDescriptionOverlay(true)}
                 >
