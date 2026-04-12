@@ -614,6 +614,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     return normalizedValue || null;
   };
 
+  const isAppStoreCta = (ctaKey: string | null | undefined, presentationMode: string | null | undefined) => {
+    const raw = ctaKey || presentationMode;
+    if (!raw) return false;
+    const n = raw.toLowerCase().replace(/[\s_-]+/g, '');
+    return n === 'appstore' || n === 'googleplay';
+  };
+
   const resolveCtaLabel = (
     preferredValue: string | null | undefined,
     fallbackValue: string | null | undefined,
