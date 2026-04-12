@@ -5,6 +5,8 @@ import { FacebookIcon, TwitterIcon, WhatsAppIcon, LinkedInIcon } from "@/compone
 interface ShareButtonProps {
   /** Optional custom title for the share text. Defaults to document.title */
   title?: string;
+  /** Optional custom URL to share (e.g. OG proxy URL). Defaults to window.location.href */
+  shareUrl?: string;
   /** Button color variant */
   variant?: "light" | "dark" | "gold";
   className?: string;
