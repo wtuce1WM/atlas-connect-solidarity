@@ -532,7 +532,7 @@ const BusinessDetail = () => {
               </h1>
               <div className="flex items-center gap-2">
                 <BookmarkButton businessId={business.id} variant={isVerified ? "gold" : "dark"} />
-                <ShareButton title={business.name} variant={isVerified ? "gold" : "dark"} />
+                <ShareButton title={business.name} variant={isVerified ? "gold" : "dark"} shareUrl={buildOgShareUrl(routeSlug || business.id)} />
               </div>
             </div>
             {/* Labels - desktop only */}
