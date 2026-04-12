@@ -54,6 +54,8 @@ const SocialLinksCard = ({
 
   if (links.length === 0 && menuItems.length === 0) return null;
 
+  const totalItems = menuItems.length + links.length;
+  const useTwoColumns = totalItems > 4;
   const visibleCount = menuItems.length > 0 ? Math.max(0, 3 - menuItems.length) : 3;
   const hasHidden = links.length > visibleCount;
 
@@ -65,12 +67,12 @@ const SocialLinksCard = ({
       onMouseLeave={() => setExpanded(false)}
     >
       <div className="flex items-center justify-center p-2">
-        <div className="flex flex-col gap-2 items-center">
+        <div className={`gap-2 ${useTwoColumns ? 'grid grid-cols-2' : 'flex flex-col items-center'}`}>
           {menuItems.map((m) => (
             <button
               key={m.id}
               onClick={() => onOpenUrl?.(m.url, m.name || (language === "en" ? "Menu" : "La Carte"))}
-              className="w-full min-w-[5rem] rounded-xl flex items-center justify-center bg-white/10 hover:bg-white/20 transition-colors px-3 py-2"
+              className="min-w-[5rem] rounded-xl flex items-center justify-center bg-white/10 hover:bg-white/20 transition-colors px-3 py-2"
             >
               <span className="text-[10px] text-white/90 text-center whitespace-nowrap" style={{ fontFamily: "'Roboto', sans-serif" }}>
                 {m.name || (language === "en" ? "Menu" : "Carte")}
@@ -83,7 +85,7 @@ const SocialLinksCard = ({
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex flex-col items-center group transition-all duration-300 opacity-100"
+              className="flex items-center justify-center group transition-all duration-300 opacity-100"
             >
               <div
                 className="w-10 h-10 rounded-xl flex items-center justify-center text-white transition-transform group-hover:scale-110 shadow-lg"
