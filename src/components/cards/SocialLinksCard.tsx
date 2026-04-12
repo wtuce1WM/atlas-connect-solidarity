@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { FacebookIcon, InstagramIcon, TikTokIcon, YouTubeIcon, TwitterIcon, LinkedInIcon, PinterestIcon, VimeoIcon, SnapchatIcon } from "@/components/staff/SocialMediaIcons";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 
@@ -36,6 +37,8 @@ const SocialLinksCard = ({
   menuItems = [], language = "fr", onOpenUrl,
   animationDelay = "0ms",
 }: SocialLinksCardProps) => {
+  const [expanded, setExpanded] = useState(false);
+
   const links: SocialLink[] = [
     instagram && { name: "Instagram", url: instagram, icon: <InstagramIcon className="h-4 w-4" />, color: "#E4405F" },
     facebook && { name: "Facebook", url: facebook, icon: <FacebookIcon className="h-4 w-4" />, color: "#1877F2" },
@@ -51,20 +54,16 @@ const SocialLinksCard = ({
 
   if (links.length === 0 && menuItems.length === 0) return null;
 
-  // Show limited icons by default, expand on hover
   const visibleCount = menuItems.length > 0 ? Math.max(0, 3 - menuItems.length) : 3;
+  const hasHidden = links.length > visibleCount;
 
   return (
     <div
-      className="snap-start shrink-0 w-fit rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 overflow-visible flex flex-col animate-slide-in-left opacity-0 group/social transition-all duration-300 ease-in-out relative z-10"
-      style={{ animationDelay, animationFillMode: "forwards", height: "7em" }}
+      className="snap-start shrink-0 w-fit rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 overflow-hidden flex flex-col animate-slide-in-left opacity-0 transition-all duration-300 ease-in-out"
+      style={{ animationDelay, animationFillMode: "forwards" }}
+      onMouseEnter={() => hasHidden && setExpanded(true)}
+      onMouseLeave={() => setExpanded(false)}
     >
-      <div
-        className="absolute top-0 left-0 w-full rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 transition-all duration-300 ease-in-out overflow-hidden"
-        style={{ height: "7em" }}
-        onMouseEnter={(e) => { e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`; }}
-        onMouseLeave={(e) => { e.currentTarget.style.height = "7em"; }}
-      >
       <div className="flex items-center justify-center p-2">
         <div className="flex flex-col gap-2 items-center">
           {menuItems.map((m) => (
@@ -78,24 +77,26 @@ const SocialLinksCard = ({
               </span>
             </button>
           ))}
-          {links.map((link, i) => (
-            <a
-              key={link.name}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`flex flex-col items-center group ${i >= visibleCount ? "opacity-0 group-hover/social:opacity-100 transition-opacity duration-300" : ""}`}
-            >
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center text-white transition-transform group-hover:scale-110 shadow-lg"
-                style={{ backgroundColor: link.color }}
+          {links.map((link, i) => {
+            const hidden = i >= visibleCount && !expanded;
+            return (
+              <a
+                key={link.name}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`flex flex-col items-center group transition-all duration-300 ${hidden ? "h-0 opacity-0 overflow-hidden m-0 p-0" : "opacity-100"}`}
               >
-                {link.icon}
-              </div>
-            </a>
-          ))}
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-white transition-transform group-hover:scale-110 shadow-lg"
+                  style={{ backgroundColor: link.color }}
+                >
+                  {link.icon}
+                </div>
+              </a>
+            );
+          })}
         </div>
-      </div>
       </div>
     </div>
   );
