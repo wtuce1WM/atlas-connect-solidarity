@@ -1,5 +1,5 @@
 import React from "react";
-import { ExternalLink, MapPin, CalendarCheck, ShoppingBag } from "lucide-react";
+import { ExternalLink, MapPin, CalendarCheck, ShoppingBag, Play } from "lucide-react";
 import VideoControls from "@/components/VideoControls";
 import { OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 
@@ -27,6 +27,7 @@ interface CtaBarProps {
   cardsHidden: boolean;
   showSearchBar?: boolean;
   showGoogleMap: boolean;
+  showCards?: () => void;
   externalVideoInteractiveMode: boolean;
   effectiveMedia: any;
   bookingCta: { fullUrl: string; forceExternal?: boolean } | null;
