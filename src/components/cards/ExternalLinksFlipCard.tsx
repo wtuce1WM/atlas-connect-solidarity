@@ -23,7 +23,7 @@ const ExternalLinksFlipCard = ({
   className = "",
   onOpenUrl,
 }: ExternalLinksFlipCardProps) => {
-  const [flipped, setFlipped] = useState(false);
+  
 
   const deriveTitle = () => {
     const desc = links[0]?.description?.toLowerCase() || "";
