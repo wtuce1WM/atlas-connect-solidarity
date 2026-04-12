@@ -1590,13 +1590,18 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 {groups.map(g => {
                   if (g.directClick) {
                     return (
-                      <div key={g.key} className="flex flex-col items-end">
+                      <div key={g.key} className="group relative flex flex-col items-end">
                         <button
                           onClick={g.directClick}
                           className="flex items-center justify-center h-10 w-10 rounded-full border border-white/10 text-white transition-colors shadow-lg bg-black/80 hover:bg-black/90"
                         >
                           {g.icon}
                         </button>
+                        {g.tooltip && (
+                          <span className="pointer-events-none absolute right-12 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-md bg-black/90 px-2.5 py-1 text-xs text-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            {g.tooltip}
+                          </span>
+                        )}
                       </div>
                     );
                   }
