@@ -214,8 +214,7 @@ export function CtaBar({
       )
     );
   }
-
-
+  if (!cardsHidden && showGoogleMap && business.latitude && business.longitude) {
     ctaItems.push(
       <button
         key="directions"
