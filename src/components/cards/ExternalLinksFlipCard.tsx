@@ -104,7 +104,7 @@ const ExternalLinksFlipCard = ({
   return (
     <TooltipProvider delayDuration={300}>
       <div
-        className={`snap-start shrink-0 w-[20rem] h-[6.5em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 overflow-hidden ${onClick ? 'cursor-pointer' : ''} ${className}`}
+        className={`snap-start shrink-0 w-[16rem] h-[6.5em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 overflow-hidden ${onClick ? 'cursor-pointer' : ''} ${className}`}
         style={{ animationDelay, animationFillMode: "forwards" }}
         onClick={onClick}
       >
