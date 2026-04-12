@@ -1190,6 +1190,14 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     website_cta: normalizeCtaValue((business as any)?.website_cta) || normalizeCtaValue((business as any)?.website_presentation_mode) || normalizeCtaValue((business as any)?.unified_cta) || "",
     reserve_now_cta: normalizeCtaValue((business as any)?.reserve_now_cta) || normalizeCtaValue((business as any)?.presentation_mode) || normalizeCtaValue((business as any)?.unified_cta) || "",
     online_shop_cta: normalizeCtaValue((business as any)?.online_shop_cta) || normalizeCtaValue((business as any)?.online_shop_presentation_mode) || normalizeCtaValue((business as any)?.unified_cta) || "",
+    url_4: (business as any)?.url_4 || "",
+    url_4_cta: normalizeCtaValue((business as any)?.url_4_cta) || "",
+    url_4_force_external: (business as any)?.url_4_force_external ?? false,
+    url_4_presentation_mode: (business as any)?.url_4_presentation_mode || "acheter_en_ligne",
+    url_5: (business as any)?.url_5 || "",
+    url_5_cta: normalizeCtaValue((business as any)?.url_5_cta) || "",
+    url_5_force_external: (business as any)?.url_5_force_external ?? false,
+    url_5_presentation_mode: (business as any)?.url_5_presentation_mode || "acheter_en_ligne",
     carousel_badge: (business as any)?.carousel_badge || "",
   });
 
