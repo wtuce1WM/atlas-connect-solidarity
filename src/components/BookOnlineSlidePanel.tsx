@@ -1036,12 +1036,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 >
                   <div className="h-full rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-hidden border border-white/10 pointer-events-none relative">
                     <div
-                      className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings prose-h2:text-base prose-h3:text-lg card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-gold [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold opacity-30"
+                      className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings prose-h2:text-base prose-h3:text-lg card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-gold [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold opacity-10"
                       dangerouslySetInnerHTML={{ __html: woDescription }}
                     />
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="w-12 h-12 rounded-full bg-black/10 backdrop-blur-md border-2 border-white/80 flex items-center justify-center group-hover:bg-black/25 transition-colors">
-                        <span className="text-2xl text-white/10 font-light leading-none">+</span>
+                        <span className="text-2xl text-white font-light leading-none">+</span>
                       </div>
                     </div>
                   </div>
