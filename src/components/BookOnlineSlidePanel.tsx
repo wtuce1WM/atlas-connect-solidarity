@@ -1040,12 +1040,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           className={`transition-all duration-300 ease-in-out ${cardsHidden ? 'translate-x-full opacity-0 pointer-events-none max-h-0 overflow-hidden' : 'translate-x-0 opacity-100'}`}
         >
         {/* Info Carousel */}
-        <div ref={infoCarouselRef} className="shrink-0 w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto animate-slide-in-left">
-          <div className="flex w-max gap-2 items-start min-h-[15em] md:min-h-[20em]">
-            <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
+        <div ref={infoCarouselRef} className={`shrink-0 ${!showGoogleMap ? 'w-full' : 'w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6'} overflow-x-auto pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto animate-slide-in-left`}>
+          <div className={`flex ${!showGoogleMap ? 'w-full' : 'w-max'} gap-2 items-start min-h-[15em] md:min-h-[20em]`}>
+            {showGoogleMap && <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />}
               {woDescription && !showGoogleMap && (
                 <div
-                  className="snap-start shrink-0 w-[calc(100vw-4.5rem)] md:w-[calc(100vw-28rem)] lg:w-[calc(100vw-32rem)] mb-4 relative animate-slide-in-left opacity-0 overflow-hidden rounded-2xl"
+                  className="snap-start shrink-0 flex-1 min-w-0 mb-4 relative animate-slide-in-left opacity-0 overflow-hidden rounded-2xl"
                   style={{ animationFillMode: 'forwards' }}
                   onMouseEnter={(e) => {
                     centerCardInCarousel(e.currentTarget);
@@ -1155,7 +1155,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0) + Number(appStoreLinks.length > 0)) * 120}ms`}
                 />
               )}
-              <div className="shrink-0 w-4" aria-hidden="true" />
+              {showGoogleMap && <div className="shrink-0 w-4" aria-hidden="true" />}
           </div>
         </div>
 
