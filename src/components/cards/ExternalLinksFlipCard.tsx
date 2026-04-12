@@ -80,7 +80,7 @@ const ExternalLinksFlipCard = ({
   return (
     <TooltipProvider delayDuration={300}>
       <div
-        className={`snap-start shrink-0 w-full max-w-[28rem] h-[18em] md:h-[24em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 ${className}`}
+        className={`snap-start shrink-0 w-full max-w-[28rem] h-[7em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 ${className}`}
         style={{ perspective: "1000px", animationDelay, animationFillMode: "forwards" }}
       >
         <div
