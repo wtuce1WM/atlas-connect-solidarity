@@ -1662,7 +1662,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               groups.push({
                 key: 'ext',
                 icon: extIcon,
-                directClick: () => { setShowExtLinksOverlay(true); },
+                directClick: () => { setExtLinksOrigin('description'); setShowExtLinksOverlay(true); },
                 items: [],
                 tooltip: extLabel,
               });
