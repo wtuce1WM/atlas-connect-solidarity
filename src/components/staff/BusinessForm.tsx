@@ -3139,6 +3139,125 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             <BrokenUrlBadge url={formData.online_shop_url} />
           </div>
 
+          {/* URL 4 */}
+          <div className="space-y-1">
+            {(formData as any).url_4 ? (
+              <Label><a href={(formData as any).url_4} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">URL 4 ↗</a></Label>
+            ) : (
+              <Label>URL 4</Label>
+            )}
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={(formData as any).url_4_force_external}
+                onCheckedChange={(checked) => handleChange("url_4_force_external", checked)}
+                title="Ouvrir en lien externe"
+                className="shrink-0"
+              />
+              <Input
+                value={(formData as any).url_4 || ""}
+                onChange={(e) => handleChange("url_4", e.target.value)}
+                placeholder="https://"
+                className="w-1/3 min-w-0 shrink-0"
+              />
+              {(formData as any).url_4 && (
+                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("url_4", "")}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+              <Select
+                value={normalizeCtaValue((formData as any).url_4_cta) || ""}
+                onValueChange={(value) => handleChange("url_4_cta", normalizeCtaValue(value))}
+              >
+                <SelectTrigger className="w-64 shrink-0">
+                  <SelectValue placeholder="🎯 CTA" />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  {getCtaOptions((formData as any).url_4_cta).map((option) => (
+                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={(formData as any).url_4_presentation_mode || "acheter_en_ligne"}
+                onValueChange={(value) => handleChange("url_4_presentation_mode", value)}
+              >
+                <SelectTrigger className="w-64 shrink-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  <SelectItem value="acheter_en_ligne">Acheter en ligne</SelectItem>
+                  <SelectItem value="reserver_en_ligne">Réserver en ligne</SelectItem>
+                  <SelectItem value="consulter_offre">Consulter notre offre</SelectItem>
+                  <SelectItem value="plus_informations">Plus d'informations</SelectItem>
+                  <SelectItem value="contactez_nous">Contactez nous</SelectItem>
+                  <SelectItem value="la_carte">La carte</SelectItem>
+                  <SelectItem value="les_boissons">Les boissons</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {(formData as any).url_4_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
+            <BrokenUrlBadge url={(formData as any).url_4} />
+          </div>
+
+          {/* URL 5 */}
+          <div className="space-y-1">
+            {(formData as any).url_5 ? (
+              <Label><a href={(formData as any).url_5} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">URL 5 ↗</a></Label>
+            ) : (
+              <Label>URL 5</Label>
+            )}
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={(formData as any).url_5_force_external}
+                onCheckedChange={(checked) => handleChange("url_5_force_external", checked)}
+                title="Ouvrir en lien externe"
+                className="shrink-0"
+              />
+              <Input
+                value={(formData as any).url_5 || ""}
+                onChange={(e) => handleChange("url_5", e.target.value)}
+                placeholder="https://"
+                className="w-1/3 min-w-0 shrink-0"
+              />
+              {(formData as any).url_5 && (
+                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("url_5", "")}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+              <Select
+                value={normalizeCtaValue((formData as any).url_5_cta) || ""}
+                onValueChange={(value) => handleChange("url_5_cta", normalizeCtaValue(value))}
+              >
+                <SelectTrigger className="w-64 shrink-0">
+                  <SelectValue placeholder="🎯 CTA" />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  {getCtaOptions((formData as any).url_5_cta).map((option) => (
+                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={(formData as any).url_5_presentation_mode || "acheter_en_ligne"}
+                onValueChange={(value) => handleChange("url_5_presentation_mode", value)}
+              >
+                <SelectTrigger className="w-64 shrink-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  <SelectItem value="acheter_en_ligne">Acheter en ligne</SelectItem>
+                  <SelectItem value="reserver_en_ligne">Réserver en ligne</SelectItem>
+                  <SelectItem value="consulter_offre">Consulter notre offre</SelectItem>
+                  <SelectItem value="plus_informations">Plus d'informations</SelectItem>
+                  <SelectItem value="contactez_nous">Contactez nous</SelectItem>
+                  <SelectItem value="la_carte">La carte</SelectItem>
+                  <SelectItem value="les_boissons">Les boissons</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {(formData as any).url_5_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
+            <BrokenUrlBadge url={(formData as any).url_5} />
+          </div>
           <div className="flex flex-wrap items-center gap-6">
             <div className="flex items-center gap-2">
               <Label className="text-sm whitespace-nowrap">📺 Média prioritaire</Label>
