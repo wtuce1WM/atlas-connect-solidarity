@@ -994,7 +994,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           <div className="flex w-max gap-2 items-start min-h-[15em] md:min-h-[20em]">
             <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
             {woDescription && (
-              <div className="snap-start shrink-0 w-[20rem] md:w-[30rem] max-h-[12.6em] mb-4 relative animate-slide-in-left opacity-0"
+              <div className="snap-start shrink-0 w-[20rem] md:w-[30rem] max-h-[12.6em] mb-4 relative animate-slide-in-left opacity-0 overflow-hidden rounded-2xl"
                   style={{ animationFillMode: 'forwards' }}
                 >
                   <div className="h-full rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto border border-white/10">
