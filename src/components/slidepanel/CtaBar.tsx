@@ -29,8 +29,12 @@ interface CtaBarProps {
   effectiveMedia: any;
   bookingCta: { fullUrl: string; forceExternal?: boolean } | null;
   shopCta: { fullUrl: string; forceExternal?: boolean } | null;
+  url4Cta?: { fullUrl: string; forceExternal?: boolean } | null;
+  url5Cta?: { fullUrl: string; forceExternal?: boolean } | null;
   bookingCtaLabel: string;
   shopCtaLabel: string;
+  url4CtaLabel?: string;
+  url5CtaLabel?: string;
   fallbackPanelData: any;
   // Logo overlay
   logoBigOverlay: any;
@@ -69,8 +73,12 @@ export function CtaBar({
   effectiveMedia,
   bookingCta,
   shopCta,
+  url4Cta,
+  url5Cta,
   bookingCtaLabel,
   shopCtaLabel,
+  url4CtaLabel,
+  url5CtaLabel,
   fallbackPanelData,
   logoBigOverlay,
   logoBigFadingOut,
@@ -95,7 +103,7 @@ export function CtaBar({
   setBookingOverlayTitle,
   setActiveBusinessId,
 }: CtaBarProps) {
-  const hasBottomActionCtas = (!cardsHidden && (!!bookingCta || !!shopCta)) || (!cardsHidden && showGoogleMap && business?.latitude && business?.longitude);
+  const hasBottomActionCtas = (!cardsHidden && (!!bookingCta || !!shopCta || !!url4Cta || !!url5Cta)) || (!cardsHidden && showGoogleMap && business?.latitude && business?.longitude);
 
   // Hide when cards hidden + availability confirmed
   const hideStyle = (cardsHidden && fallbackPanelData && (() => {
@@ -163,6 +171,49 @@ export function CtaBar({
     );
   }
 
+  // URL 4 CTA
+  if (url4Cta && !cardsHidden) {
+    const label = url4CtaLabel || 'URL 4';
+    ctaItems.push(
+      url4Cta.forceExternal ? (
+        <a key="url4" href={url4Cta.fullUrl} target="_blank" rel="noopener noreferrer"
+          className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left"
+          style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}>
+          <ExternalLink className="h-4 w-4 hidden md:block" />
+          <span className="truncate">{label}</span>
+        </a>
+      ) : (
+        <button key="url4"
+          onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(url4Cta.fullUrl); setBookingOverlayTitle(label); setShowBookingOverlay(true); }}
+          className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left"
+          style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}>
+          <span className="truncate">{label}</span>
+        </button>
+      )
+    );
+  }
+
+  // URL 5 CTA
+  if (url5Cta && !cardsHidden) {
+    const label = url5CtaLabel || 'URL 5';
+    ctaItems.push(
+      url5Cta.forceExternal ? (
+        <a key="url5" href={url5Cta.fullUrl} target="_blank" rel="noopener noreferrer"
+          className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left"
+          style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}>
+          <ExternalLink className="h-4 w-4 hidden md:block" />
+          <span className="truncate">{label}</span>
+        </a>
+      ) : (
+        <button key="url5"
+          onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(url5Cta.fullUrl); setBookingOverlayTitle(label); setShowBookingOverlay(true); }}
+          className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left"
+          style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}>
+          <span className="truncate">{label}</span>
+        </button>
+      )
+    );
+  }
   if (!cardsHidden && showGoogleMap && business.latitude && business.longitude) {
     ctaItems.push(
       <button
