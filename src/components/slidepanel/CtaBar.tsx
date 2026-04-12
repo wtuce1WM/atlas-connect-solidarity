@@ -14,6 +14,7 @@ export const CTA_MODE_LABELS: Record<string, { fr: string; en: string }> = {
   seances: { fr: 'Séances', en: 'Sessions' },
   billetterie: { fr: 'Billetterie', en: 'Tickets' },
   application: { fr: 'Application', en: 'Application' },
+  programme: { fr: 'Programme', en: 'Program' },
 };
 
 interface CtaBarProps {
