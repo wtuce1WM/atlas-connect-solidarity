@@ -44,8 +44,8 @@ const ExternalLinksFlipCard = ({
     }
   };
 
-  const frontLinks = links.slice(0, 9);
-  const backLinks = links.slice(9);
+  const frontLinks = links.slice(0, 2);
+  const backLinks = links.slice(2);
   const hasBack = backLinks.length > 0;
 
   const renderLinkButton = (link: ExternalLinkItem) => (
@@ -109,7 +109,7 @@ const ExternalLinksFlipCard = ({
                 </button>
               )}
             </div>
-            <div className="flex-1 grid grid-cols-3 grid-rows-3 gap-1.5">
+            <div className="flex-1 grid grid-cols-2 gap-1.5">
               {frontLinks.map(renderLinkButton)}
             </div>
           </div>
