@@ -455,6 +455,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     const title = language === "en" ? `Customer reviews (${totalReviewCount})` : `Avis clients (${totalReviewCount})`;
     setDescOverlayContent({ html: buildReviewHtml(reviewTexts), title });
     setDescGridMode(false);
+    setDescOverlayDirect(true);
     setShowDescriptionOverlay(true);
     const targetLang = language === "en" ? "en" : language === "ar" ? "ar" : "fr";
     const needsTranslation = reviewTexts.some(r => r.language && r.language !== targetLang);
@@ -1518,7 +1519,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           {!images[0] && <div className="absolute inset-0 bg-background" />}
           {/* Sticky header — order-[-2] to stay above content */}
           <div className="relative z-30 shrink-0 flex items-center gap-3 px-4 py-3 bg-transparent backdrop-blur-sm border-b border-white/10 order-[-2]">
-            <button onClick={() => { if (descGridMode) { setDescGridMode(false); setDescGridPage(0); } else if (descOverlayContent) { setDescOverlayContent(null); } else { setShowDescriptionOverlay(false); } }} className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0">
+            <button onClick={() => { if (descGridMode) { setDescGridMode(false); setDescGridPage(0); } else if (descOverlayContent && !descOverlayDirect) { setDescOverlayContent(null); } else { setShowDescriptionOverlay(false); setDescOverlayContent(null); setDescOverlayDirect(false); } }} className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0">
               <X className="h-4 w-4" />
             </button>
             <h2 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] truncate text-white flex-1">{business?.name}</h2>
