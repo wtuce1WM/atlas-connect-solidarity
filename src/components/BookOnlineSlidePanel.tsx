@@ -102,6 +102,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   // UI state
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+  const [matterportPinnedInHiddenMode, setMatterportPinnedInHiddenMode] = useState(true);
   const [descExpanded, setDescExpanded] = useState(true);
   const [showDirections, setShowDirections] = useState(false);
   const [showBookingOverlay, setShowBookingOverlay] = useState(false);
@@ -283,6 +284,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   } = useDragToHide();
   useEffect(() => { hideCardsRef.current = hideCards; }, [hideCards]);
   useEffect(() => { currentCardsHiddenRef.current = cardsHidden; }, [cardsHidden]);
+  useEffect(() => {
+    if (cardsHidden) setMatterportPinnedInHiddenMode(true);
+  }, [cardsHidden, businessId]);
 
   // Track recently viewed
   useEffect(() => {
@@ -593,15 +597,23 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const totalMedia = mediaItems.length;
   const safeIndex = totalMedia > 0 ? currentMediaIndex % totalMedia : 0;
   const currentMedia = totalMedia > 0 ? mediaItems[safeIndex] : null;
-  const matterportItem = useMemo(() => mediaItems.find(m => m.kind === "matterport") || null, [mediaItems]);
-  const effectiveMedia = (cardsHidden && matterportItem) ? matterportItem : currentMedia;
+  const matterportIndex = useMemo(() => mediaItems.findIndex((m) => m.kind === "matterport"), [mediaItems]);
+  const matterportItem = matterportIndex >= 0 ? mediaItems[matterportIndex] : null;
+  const effectiveMedia = (cardsHidden && matterportPinnedInHiddenMode && matterportItem) ? matterportItem : currentMedia;
 
   const { logoBigOverlay, logoBigFadingOut } = useOwnerLogo(cardsHidden, currentMediaIndex, mediaItems, videoDocs, businessId);
 
   const goMedia = useCallback((dir: 1 | -1) => {
     if (totalMedia <= 1) return;
+
+    if (cardsHidden && matterportPinnedInHiddenMode && matterportIndex >= 0) {
+      setMatterportPinnedInHiddenMode(false);
+      setCurrentMediaIndex((matterportIndex + dir + totalMedia) % totalMedia);
+      return;
+    }
+
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
-  }, [totalMedia]);
+  }, [cardsHidden, matterportPinnedInHiddenMode, matterportIndex, totalMedia]);
 
   const videoInfo = useMemo(() => {
     if (effectiveMedia?.kind !== "video") return null;
