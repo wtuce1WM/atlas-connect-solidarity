@@ -242,7 +242,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     } else {
       interceptCloseRef.current = null;
     }
-  }, [previousBusinessId, cameFromFallback, fallbackPanelData, interceptCloseRef, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId]);
+  }, [previousBusinessId, cameFromFallback, fallbackPanelData, interceptCloseRef, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId, showDescriptionOverlay, showDirections, showBookingOverlay, docOverlay, showMosaic, showYoutubeOverlay]);
 
   const hideCardsRef = useRef<() => void>(() => {});
   const hasSerpMapping = !!serpApiMapping || !!liteApiHotelId;
