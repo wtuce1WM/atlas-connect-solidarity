@@ -1460,6 +1460,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           cardsHidden={cardsHidden}
           showSearchBar={showSearchBar}
           showGoogleMap={showGoogleMap}
+          showCards={showCards}
           externalVideoInteractiveMode={externalVideoInteractiveMode}
           effectiveMedia={effectiveMedia}
           bookingCta={isAppStoreCta((business as any)?.reserve_now_cta, business?.presentation_mode) ? null : bookingCta}
