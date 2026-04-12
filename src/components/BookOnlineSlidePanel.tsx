@@ -436,6 +436,39 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const hasContactCard = !!(hasOpeningHours && !business?.is_open_24h) || !!isHotelWithPrice;
   const hasReviewsCard = avgOn20 !== null && avgOn20 > 0;
 
+  const handleOpenReviews = useCallback(async () => {
+    if (!hasReviewsCard) return;
+    const buildReviewHtml = (texts: typeof reviewTexts, translated?: string[]) => {
+      const platformsHtml = reviewPlatforms
+        .filter(p => p.rating && p.count)
+        .map(p => `<p><strong>${p.name}</strong> — ${p.rating}/5 (${p.count} ${language === "en" ? "reviews" : "avis"})</p>`)
+        .join("");
+      const textsHtml = texts.length > 0
+        ? "<hr/>" + texts.slice(0, 10).map((r, i) => {
+          const displayText = translated?.[i] || r.text || "";
+          return `<blockquote><p>${displayText}</p><footer>— ${r.author_name || (language === "en" ? "Anonymous" : "Anonyme")}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`;
+        }).join("")
+        : "";
+      return platformsHtml + textsHtml;
+    };
+    const title = language === "en" ? `Customer reviews (${totalReviewCount})` : `Avis clients (${totalReviewCount})`;
+    setDescOverlayContent({ html: buildReviewHtml(reviewTexts), title });
+    setDescGridMode(false);
+    setShowDescriptionOverlay(true);
+    const targetLang = language === "en" ? "en" : language === "ar" ? "ar" : "fr";
+    const needsTranslation = reviewTexts.some(r => r.language && r.language !== targetLang);
+    if (needsTranslation && reviewTexts.some(r => r.text)) {
+      try {
+        const { data, error } = await supabase.functions.invoke("translate-reviews", {
+          body: { reviews: reviewTexts.filter(r => r.text).map(r => ({ text: r.text })), targetLanguage: targetLang },
+        });
+        if (!error && data?.translations?.length) {
+          setDescOverlayContent({ html: buildReviewHtml(reviewTexts, data.translations), title });
+        }
+      } catch (e) { console.error("Translation error:", e); }
+    }
+  }, [hasReviewsCard, reviewPlatforms, reviewTexts, totalReviewCount, language]);
+
   // Extracted open status hook
   const openBadgeInfo = useOpenStatus({ business, language });
 
