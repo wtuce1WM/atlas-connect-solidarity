@@ -11,6 +11,9 @@ export const CTA_MODE_LABELS: Record<string, { fr: string; en: string }> = {
   contactez_nous: { fr: 'Contactez nous', en: 'Contact Us' },
   la_carte: { fr: 'La carte', en: 'The Menu' },
   les_boissons: { fr: 'Les boissons', en: 'Drinks' },
+  seances: { fr: 'Séances', en: 'Sessions' },
+  billetterie: { fr: 'Billetterie', en: 'Tickets' },
+  application: { fr: 'Application', en: 'Application' },
 };
 
 interface CtaBarProps {
