@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { ExternalLink } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -15,6 +14,8 @@ interface ExternalLinksFlipCardProps {
   animationDelay?: string;
   className?: string;
   onOpenUrl?: (url: string, title?: string) => void;
+  /** "carousel" = compact 2-logo card; "overlay" = full grid with all logos */
+  variant?: "carousel" | "overlay";
 }
 
 const ExternalLinksFlipCard = ({
@@ -22,8 +23,8 @@ const ExternalLinksFlipCard = ({
   animationDelay = "0ms",
   className = "",
   onOpenUrl,
+  variant = "carousel",
 }: ExternalLinksFlipCardProps) => {
-  
 
   const deriveTitle = () => {
     const desc = links[0]?.description?.toLowerCase() || "";
@@ -44,9 +45,7 @@ const ExternalLinksFlipCard = ({
     }
   };
 
-  const frontLinks = links.slice(0, 2);
-  const backLinks = links.slice(2);
-  const hasBack = backLinks.length > 0;
+  const displayLinks = variant === "carousel" ? links.slice(0, 2) : links;
 
   const renderLinkButton = (link: ExternalLinkItem) => (
     <Tooltip key={link.id}>
@@ -77,6 +76,28 @@ const ExternalLinksFlipCard = ({
     </Tooltip>
   );
 
+  if (variant === "overlay") {
+    return (
+      <TooltipProvider delayDuration={300}>
+        <div
+          className={`w-full max-w-[28rem] rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 ${className}`}
+        >
+          <div className="rounded-2xl p-4 text-white flex flex-col">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                <ExternalLink className="w-4 h-4" />
+                {cardTitle}
+              </h3>
+            </div>
+            <div className="grid grid-cols-3 gap-1.5" style={{ gridAutoRows: "3.5rem" }}>
+              {displayLinks.map(renderLinkButton)}
+            </div>
+          </div>
+        </div>
+      </TooltipProvider>
+    );
+  }
+
   return (
     <TooltipProvider delayDuration={300}>
       <div
@@ -91,7 +112,7 @@ const ExternalLinksFlipCard = ({
             </h3>
           </div>
           <div className="flex-1 min-h-0 grid grid-cols-2 gap-1.5">
-            {frontLinks.map(renderLinkButton)}
+            {displayLinks.map(renderLinkButton)}
           </div>
         </div>
       </div>
