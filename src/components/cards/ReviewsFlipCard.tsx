@@ -37,11 +37,17 @@ const ReviewsFlipCard = ({
   const [flipped, setFlipped] = useState(false);
 
   const activePlatforms = platforms.filter((p) => p.rating && p.count);
+  const backHeight = Math.max(15, 4 + activePlatforms.length * 2.8);
 
   return (
     <div
-      className={`snap-start shrink-0 w-[20rem] h-[15em] md:h-[20em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 ${className}`}
-      style={{ perspective: "1000px", animationDelay, animationFillMode: "forwards" }}
+      className={`snap-start shrink-0 w-[20rem] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 transition-[height] duration-500 ease-in-out ${className}`}
+      style={{
+        perspective: "1000px",
+        animationDelay,
+        animationFillMode: "forwards",
+        height: flipped ? `${backHeight}em` : "7em",
+      }}
     >
       <div
         className="relative w-full h-full transition-transform duration-500"
