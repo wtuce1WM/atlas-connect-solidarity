@@ -14,6 +14,8 @@ interface ExternalLinksFlipCardProps {
   animationDelay?: string;
   className?: string;
   onOpenUrl?: (url: string, title?: string) => void;
+  /** Called when the whole card is clicked (carousel mode) */
+  onClick?: () => void;
   /** "carousel" = compact 2-logo card; "overlay" = full grid with all logos */
   variant?: "carousel" | "overlay";
 }
