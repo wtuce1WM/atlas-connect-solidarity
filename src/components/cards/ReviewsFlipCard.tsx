@@ -46,7 +46,7 @@ const ReviewsFlipCard = ({
         perspective: "1000px",
         animationDelay,
         animationFillMode: "forwards",
-        height: flipped ? `${backHeight}em` : "7em",
+        height: flipped ? `${backHeight}em` : "6.5em",
       }}
     >
       <div
