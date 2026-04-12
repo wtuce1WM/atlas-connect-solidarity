@@ -626,14 +626,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     fallbackValue: string | null | undefined,
     defaultKey: keyof typeof CTA_MODE_LABELS,
   ) => {
-    const candidates = [preferredValue, fallbackValue]
-      .map((candidate) => {
-        if (!candidate) return null;
-        return CTA_MODE_LABELS[candidate] || CTA_MODE_LABELS[normalizeCtaMode(candidate) || ""] || null;
-      })
-      .filter(Boolean);
-
-    const pair = candidates[0] || CTA_MODE_LABELS[defaultKey];
+    // Try preferred value first
+    if (preferredValue) {
+      const match = CTA_MODE_LABELS[preferredValue] || CTA_MODE_LABELS[normalizeCtaMode(preferredValue) || ""];
+      if (match) return language === 'en' ? match.en : match.fr;
+      // Custom label: use as-is
+      return preferredValue;
+    }
+    // Try fallback value
+    if (fallbackValue) {
+      const match = CTA_MODE_LABELS[fallbackValue] || CTA_MODE_LABELS[normalizeCtaMode(fallbackValue) || ""];
+      if (match) return language === 'en' ? match.en : match.fr;
+    }
+    const pair = CTA_MODE_LABELS[defaultKey];
     return language === 'en' ? pair.en : pair.fr;
   };
 
