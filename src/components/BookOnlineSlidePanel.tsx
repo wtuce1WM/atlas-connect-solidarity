@@ -203,8 +203,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   // Close interceptor
   useEffect(() => {
     if (!interceptCloseRef) return;
-    if (selectedDestinationId || selectedPoiBusinessId || selectedKpBusinessId) {
+    if (showDescriptionOverlay || showDirections || showBookingOverlay || !!docOverlay || showMosaic || showYoutubeOverlay || selectedDestinationId || selectedPoiBusinessId || selectedKpBusinessId) {
       interceptCloseRef.current = () => {
+        // First: close any internal overlay in the current panel
+        if (showDescriptionOverlay) { setShowDescriptionOverlay(false); setDescOverlayContent(null); setDescOverlayDirect(false); return true; }
+        if (showMosaic) { setShowMosaic(false); return true; }
+        if (showYoutubeOverlay) { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); setYoutubeIsPlaying(false); return true; }
+        if (showBookingOverlay) { setShowBookingOverlay(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setBookingOverlayLoaded(false); setBookingOverlayHideContact(false); return true; }
+        if (docOverlay) { setDocOverlay(null); setDocOverlayLoaded(false); return true; }
+        if (showDirections) { setShowDirections(false); return true; }
+        // Then: delegate to child sub-overlays
         if (selectedDestinationId && destInterceptCloseRef.current?.()) return true;
         if (selectedDestinationId) { setSelectedDestinationId(null); return true; }
         if (selectedPoiBusinessId) { setSelectedPoiBusinessId(null); return true; }
