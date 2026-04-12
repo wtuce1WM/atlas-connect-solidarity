@@ -431,6 +431,8 @@ const BusinessDetail = () => {
     title: business ? `${business.name}${business.city ? ` – ${business.city}` : ""}` : "Chargement…",
     description: seoDescription || undefined,
     canonical: business ? `/business/${(business as any).slug || business.id}` : undefined,
+    ogImage: business?.images?.[0] || undefined,
+    ogUrl: business ? `/business/${(business as any).slug || business.id}` : undefined,
     jsonLd: seoJsonLd,
   });
 
