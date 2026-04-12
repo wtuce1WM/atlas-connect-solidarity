@@ -1048,15 +1048,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   }}
                 />
               )}
-              {menuSummaries.length > 0 && (
-                <MenuSummaryCard
-                  summaries={menuSummaries}
-                  language={language}
-                  tallHeight={false}
-                  animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
-                  categoryIcon={categoryIcon}
-                />
-              )}
               {hasReviewsCard && (
                 <ReviewsFlipCard
                   avgOn20={avgOn20!}
