@@ -235,9 +235,9 @@ export function CtaBar({
       style={hideStyle}
     >
       {ctaItems.length > 0 && (
-        <div className="w-4/5 md:w-3/4 md:px-0 flex justify-center gap-2 pointer-events-auto">
+        <div className={`w-4/5 md:w-3/4 md:px-0 pointer-events-auto ${ctaItems.length === 4 ? 'grid grid-cols-2 gap-2' : 'flex justify-center gap-2'}`}>
           {ctaItems.map((item, i) => (
-            <div key={i} className="flex-1 md:flex-none md:w-1/3">{item}</div>
+            <div key={i} className={ctaItems.length === 4 ? '' : 'flex-1 md:flex-none md:w-1/3'}>{item}</div>
           ))}
         </div>
       )}
