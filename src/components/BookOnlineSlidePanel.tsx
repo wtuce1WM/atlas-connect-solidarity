@@ -1894,6 +1894,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           <BookOnlineSlidePanel
             businessId={selectedKpBusinessId}
             onClose={() => { setSelectedKpBusinessId(null); onMosaicStateChange?.(false); }}
+            interceptCloseRef={kpInterceptCloseRef}
             showSearchBar={showSearchBar}
             onSearch={onSearch}
             onSearchBusinessSelect={onSearchBusinessSelect}
