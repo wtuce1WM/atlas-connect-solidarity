@@ -14,6 +14,8 @@ export const CTA_MODE_LABELS: Record<string, { fr: string; en: string }> = {
   seances: { fr: 'Séances', en: 'Sessions' },
   billetterie: { fr: 'Billetterie', en: 'Tickets' },
   application: { fr: 'Application', en: 'Application' },
+  app_store: { fr: 'App Store', en: 'App Store' },
+  google_play: { fr: 'Google Play', en: 'Google Play' },
   programme: { fr: 'Programme', en: 'Program' },
 };
 
