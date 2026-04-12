@@ -72,6 +72,7 @@ export function CtaBar({
   cardsHidden,
   showSearchBar,
   showGoogleMap,
+  showCards,
   externalVideoInteractiveMode,
   effectiveMedia,
   bookingCta,
