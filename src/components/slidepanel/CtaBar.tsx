@@ -28,6 +28,7 @@ interface CtaBarProps {
   showSearchBar?: boolean;
   showGoogleMap: boolean;
   showCards?: () => void;
+  onMatterportPlay?: () => void;
   externalVideoInteractiveMode: boolean;
   effectiveMedia: any;
   bookingCta: { fullUrl: string; forceExternal?: boolean } | null;
@@ -73,6 +74,7 @@ export function CtaBar({
   showSearchBar,
   showGoogleMap,
   showCards,
+  onMatterportPlay,
   externalVideoInteractiveMode,
   effectiveMedia,
   bookingCta,
@@ -288,10 +290,10 @@ export function CtaBar({
       )}
 
       {/* Matterport Play → switch to Afficher mode */}
-      {cardsHidden && effectiveMedia?.kind === "matterport" && showCards && (
+      {cardsHidden && effectiveMedia?.kind === "matterport" && onMatterportPlay && (
         <button
           type="button"
-          onClick={showCards}
+          onClick={onMatterportPlay}
           className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors pointer-events-auto mt-2 md:mt-3 animate-slide-in-right"
           aria-label="Play"
         >

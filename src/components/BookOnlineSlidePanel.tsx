@@ -1461,6 +1461,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           showSearchBar={showSearchBar}
           showGoogleMap={showGoogleMap}
           showCards={showCards}
+          onMatterportPlay={() => {
+            const firstNonMatterportIdx = mediaItems.findIndex(m => m.kind !== "matterport");
+            if (firstNonMatterportIdx >= 0) setCurrentMediaIndex(firstNonMatterportIdx);
+            showCards();
+            // Auto-play if it's a video
+            setTimeout(() => { videoRef.current?.play()?.catch(() => {}); }, 100);
+          }}
           externalVideoInteractiveMode={externalVideoInteractiveMode}
           effectiveMedia={effectiveMedia}
           bookingCta={isAppStoreCta((business as any)?.reserve_now_cta, business?.presentation_mode) ? null : bookingCta}
