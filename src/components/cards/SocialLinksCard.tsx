@@ -59,7 +59,7 @@ const SocialLinksCard = ({
 
   return (
     <div
-      className="snap-start shrink-0 w-fit rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 overflow-hidden flex flex-col animate-slide-in-left opacity-0 transition-all duration-300 ease-in-out"
+      className="snap-start shrink-0 w-fit h-[7em] rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 overflow-hidden flex flex-col animate-slide-in-left opacity-0 transition-all duration-300 ease-in-out"
       style={{ animationDelay, animationFillMode: "forwards" }}
       onMouseEnter={() => hasHidden && setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
