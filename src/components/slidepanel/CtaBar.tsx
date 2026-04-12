@@ -28,6 +28,7 @@ interface CtaBarProps {
   showSearchBar?: boolean;
   showGoogleMap: boolean;
   showCards?: () => void;
+  onMatterportPlay?: () => void;
   externalVideoInteractiveMode: boolean;
   effectiveMedia: any;
   bookingCta: { fullUrl: string; forceExternal?: boolean } | null;
@@ -73,6 +74,7 @@ export function CtaBar({
   showSearchBar,
   showGoogleMap,
   showCards,
+  onMatterportPlay,
   externalVideoInteractiveMode,
   effectiveMedia,
   bookingCta,
