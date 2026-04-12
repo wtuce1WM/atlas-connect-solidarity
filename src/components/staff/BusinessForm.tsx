@@ -773,8 +773,11 @@ const CTA_SELECT_OPTIONS = [
   "Réservez",
   "Restaurant",
   "Riad",
+  "Séances",
   "Site web",
   "Spa",
+  "Billetterie",
+  "Application",
 ] as const;
 
 const CTA_VALUE_LABELS: Record<string, string> = {
@@ -803,8 +806,11 @@ const CTA_VALUE_LABELS: Record<string, string> = {
   reservez: "Réservez",
   restaurant: "Restaurant",
   riad: "Riad",
+  seances: "Séances",
   "site web": "Site web",
   spa: "Spa",
+  billetterie: "Billetterie",
+  application: "Application",
 };
 
 const normalizeCtaKey = (value: string) =>
