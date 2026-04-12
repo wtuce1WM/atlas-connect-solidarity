@@ -56,11 +56,15 @@ const SocialLinksCard = ({
 
   return (
     <div
-      className="snap-start shrink-0 w-fit rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 overflow-hidden flex flex-col animate-slide-in-left opacity-0 group/social transition-all duration-300 ease-in-out"
+      className="snap-start shrink-0 w-fit rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 overflow-visible flex flex-col animate-slide-in-left opacity-0 group/social transition-all duration-300 ease-in-out relative z-10"
       style={{ animationDelay, animationFillMode: "forwards", height: "7em" }}
-      onMouseEnter={(e) => { e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`; }}
-      onMouseLeave={(e) => { e.currentTarget.style.height = "7em"; }}
     >
+      <div
+        className="absolute top-0 left-0 w-full rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 transition-all duration-300 ease-in-out overflow-hidden"
+        style={{ height: "7em" }}
+        onMouseEnter={(e) => { e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`; }}
+        onMouseLeave={(e) => { e.currentTarget.style.height = "7em"; }}
+      >
       <div className="flex items-center justify-center p-2">
         <div className="flex flex-col gap-2 items-center">
           {menuItems.map((m) => (
@@ -91,6 +95,7 @@ const SocialLinksCard = ({
             </a>
           ))}
         </div>
+      </div>
       </div>
     </div>
   );
