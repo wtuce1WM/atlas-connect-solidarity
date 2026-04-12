@@ -140,7 +140,7 @@ export function ToolbarPortals({
 
       {/* Right portal: Share */}
       {toolbarPortal && !shouldHide && createPortal(
-        <ShareButton title={business.name} variant="dark" className="shrink-0" />,
+        <ShareButton title={business.name} variant="dark" className="shrink-0" shareUrl={business.slug ? buildOgShareUrl(business.slug) : undefined} />,
         toolbarPortal
       )}
     </>
