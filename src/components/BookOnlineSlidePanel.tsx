@@ -1671,9 +1671,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                             );
                           })()}
                           {descOverlayContent.priceDetails && (
-                            <div className="flex-1 min-w-[140px] rounded-xl border backdrop-blur-md px-4 py-3" style={{ borderColor: 'rgba(192,79,23,0.35)', backgroundColor: 'rgba(255,255,255,0.45)' }}>
+                            <div className="flex-1 min-w-[140px] rounded-xl border border-terracotta/20 px-4 py-3 bg-white">
                               <span className="block text-[10px] font-extrabold uppercase tracking-widest font-['Josefin_Sans',sans-serif] text-terracotta/70 mb-1">Détail des prix</span>
-                              <div className="rich-price-html text-sm font-normal leading-relaxed whitespace-pre-line text-terracotta" dangerouslySetInnerHTML={{ __html: descOverlayContent.priceDetails }} />
+                              <div className="rich-price-html text-sm font-normal leading-relaxed whitespace-pre-line text-terracotta [&_li]:text-base [&_p]:text-base" style={{ fontSize: '0.925rem' }} dangerouslySetInnerHTML={{ __html: descOverlayContent.priceDetails }} />
                             </div>
                           )}
                         </div>
