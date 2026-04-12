@@ -132,7 +132,7 @@ const ContactFlipCard = ({
 
   return (
     <div
-      className={`snap-start shrink-0 ${showHotel ? 'w-[20rem]' : 'w-fit min-w-[16rem]'} mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 transition-[height] duration-500 ease-in-out ${className}`}
+      className={`snap-start shrink-0 ${showHotel ? (flipped ? 'w-[20rem]' : 'w-fit min-w-[16rem]') : 'w-fit min-w-[16rem]'} mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 transition-[height,width] duration-500 ease-in-out ${className}`}
       style={{
         perspective: "1000px",
         animationDelay,
