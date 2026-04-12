@@ -608,7 +608,37 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     return language === 'en' ? pair.en : pair.fr;
   }, [(business as any)?.online_shop_presentation_mode, language]);
 
-  const hasBottomActionCtas = !!bookingCta || !!shopCta || (!cardsHidden && showGoogleMap && business?.latitude && business?.longitude);
+  const url4Cta = useMemo(() => {
+    const url = (business as any)?.url_4;
+    if (!url) return null;
+    const fullUrl = url.startsWith("http") ? url : `https://${url}`;
+    return { fullUrl, forceExternal: (business as any)?.url_4_force_external };
+  }, [(business as any)?.url_4, (business as any)?.url_4_force_external]);
+
+  const url4CtaLabel = useMemo(() => {
+    const cta = (business as any)?.url_4_cta;
+    if (cta) { const pair = CTA_MODE_LABELS[cta]; if (pair) return language === 'en' ? pair.en : pair.fr; }
+    const mode = (business as any)?.url_4_presentation_mode || 'acheter_en_ligne';
+    const pair = CTA_MODE_LABELS[mode] || CTA_MODE_LABELS.acheter_en_ligne;
+    return language === 'en' ? pair.en : pair.fr;
+  }, [(business as any)?.url_4_cta, (business as any)?.url_4_presentation_mode, language]);
+
+  const url5Cta = useMemo(() => {
+    const url = (business as any)?.url_5;
+    if (!url) return null;
+    const fullUrl = url.startsWith("http") ? url : `https://${url}`;
+    return { fullUrl, forceExternal: (business as any)?.url_5_force_external };
+  }, [(business as any)?.url_5, (business as any)?.url_5_force_external]);
+
+  const url5CtaLabel = useMemo(() => {
+    const cta = (business as any)?.url_5_cta;
+    if (cta) { const pair = CTA_MODE_LABELS[cta]; if (pair) return language === 'en' ? pair.en : pair.fr; }
+    const mode = (business as any)?.url_5_presentation_mode || 'acheter_en_ligne';
+    const pair = CTA_MODE_LABELS[mode] || CTA_MODE_LABELS.acheter_en_ligne;
+    return language === 'en' ? pair.en : pair.fr;
+  }, [(business as any)?.url_5_cta, (business as any)?.url_5_presentation_mode, language]);
+
+  const hasBottomActionCtas = !!bookingCta || !!shopCta || !!url4Cta || !!url5Cta || (!cardsHidden && showGoogleMap && business?.latitude && business?.longitude);
   const externalVideoBackgroundClass = externalVideoInteractiveMode && showSearchBar
     ? `absolute inset-x-0 top-0 ${hasBottomActionCtas ? 'bottom-[160px]' : 'bottom-[88px]'} z-0`
     : "absolute inset-0 z-0";
