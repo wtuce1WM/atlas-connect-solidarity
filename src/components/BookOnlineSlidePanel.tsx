@@ -1045,6 +1045,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0)) * 120}ms`}
                 />
               )}
+              {appStoreLinks.length > 0 && (
+                <AppStoreCard
+                  links={appStoreLinks}
+                  animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0) + 1) * 120}ms`}
+                />
+              )}
               <div className="shrink-0 w-4" aria-hidden="true" />
           </div>
         </div>
