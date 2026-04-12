@@ -215,6 +215,10 @@ body {
   margin: 0.1em 0;
 }
 
+.rich-price-html li::first-letter {
+  font-size: 1.35em;
+}
+
 /* Card 1 headings: sentence case only (first letter uppercase) */
 .card1-headings h1,
 .card1-headings h2,
