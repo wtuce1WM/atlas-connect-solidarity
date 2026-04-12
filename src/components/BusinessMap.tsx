@@ -477,7 +477,7 @@ const BusinessMap = ({
 
   if (isLoading || !gmapsReady) {
     return (
-      <div className="flex items-center justify-center bg-muted/30 rounded-xl" style={{ height }}>
+      <div className={`flex items-center justify-center bg-muted/30 ${height === "100%" ? "h-full" : "rounded-xl"}`} style={height !== "100%" ? { height } : undefined}>
         <Loader2 className="h-8 w-8 animate-spin text-gold" />
       </div>
     );
