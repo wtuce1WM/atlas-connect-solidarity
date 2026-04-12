@@ -25,6 +25,7 @@ const ExternalLinksFlipCard = ({
   animationDelay = "0ms",
   className = "",
   onOpenUrl,
+  onClick,
   variant = "carousel",
 }: ExternalLinksFlipCardProps) => {
 
