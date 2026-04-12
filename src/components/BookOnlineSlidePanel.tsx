@@ -642,7 +642,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const appStoreLinks = useMemo(() => {
     const links: { type: "app_store" | "google_play"; url: string }[] = [];
     const seen = new Set<string>();
-    const normalize = (v: string | null | undefined): string | null => {
+    const normalize = (v: string | null | undefined): "app_store" | "google_play" | null => {
       if (!v) return null;
       const lower = v.toLowerCase().replace(/[\s_-]+/g, '');
       if (lower === 'appstore') return 'app_store';
