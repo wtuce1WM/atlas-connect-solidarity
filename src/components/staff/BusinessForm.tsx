@@ -752,6 +752,7 @@ const inferPresentationMode = (cta: string | null | undefined): string | undefin
 const CTA_SELECT_OPTIONS = [
   "Acheter en ligne",
   "Achetez",
+  "App Store",
   "Application",
   "Billetterie",
   "Boissons",
@@ -763,6 +764,7 @@ const CTA_SELECT_OPTIONS = [
   "Contactez nous",
   "Day Pass",
   "Forfaits",
+  "Google Play",
   "Hammam",
   "Hotel",
   "La carte",
@@ -812,6 +814,8 @@ const CTA_VALUE_LABELS: Record<string, string> = {
   spa: "Spa",
   billetterie: "Billetterie",
   application: "Application",
+  "app store": "App Store",
+  "google play": "Google Play",
   programme: "Programme",
 };
 
