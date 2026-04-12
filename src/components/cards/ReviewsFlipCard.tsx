@@ -37,7 +37,7 @@ const ReviewsFlipCard = ({
   const [flipped, setFlipped] = useState(false);
 
   const activePlatforms = platforms.filter((p) => p.rating && p.count);
-  const backHeight = 4.5 + activePlatforms.length * 2.4;
+  const backHeight = 3.8 + activePlatforms.length * 2.2;
 
   return (
     <div
