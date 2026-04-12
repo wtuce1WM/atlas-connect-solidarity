@@ -5,6 +5,7 @@ import iconePhotoVideo from "@/assets/icone_photo_video.png";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import ShareButton from "@/components/ShareButton";
 import { whatsappUrl } from "@/lib/phoneUtils";
+import { buildOgShareUrl } from "@/lib/businessUrl";
 import type { YouTubeVideo } from "@/components/YouTubeShortsCarousel";
 
 interface ToolbarPortalsProps {
@@ -139,7 +140,7 @@ export function ToolbarPortals({
 
       {/* Right portal: Share */}
       {toolbarPortal && !shouldHide && createPortal(
-        <ShareButton title={business.name} variant="dark" className="shrink-0" />,
+        <ShareButton title={business.name} variant="dark" className="shrink-0" shareUrl={business.slug ? buildOgShareUrl(business.slug) : undefined} />,
         toolbarPortal
       )}
     </>

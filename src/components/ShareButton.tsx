@@ -5,17 +5,19 @@ import { FacebookIcon, TwitterIcon, WhatsAppIcon, LinkedInIcon } from "@/compone
 interface ShareButtonProps {
   /** Optional custom title for the share text. Defaults to document.title */
   title?: string;
+  /** Optional custom URL to share (e.g. OG proxy URL). Defaults to window.location.href */
+  shareUrl?: string;
   /** Button color variant */
   variant?: "light" | "dark" | "gold";
   className?: string;
 }
 
-const ShareButton = ({ title, variant = "gold", className = "" }: ShareButtonProps) => {
+const ShareButton = ({ title, shareUrl, variant = "gold", className = "" }: ShareButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const currentUrl = typeof window !== "undefined" ? window.location.href : "";
+  const currentUrl = shareUrl || (typeof window !== "undefined" ? window.location.href : "");
   const shareTitle = title || (typeof document !== "undefined" ? document.title : "");
 
   useEffect(() => {

@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { collectRatingSources, computeWeightedRatingOn20, computeWeightedRatingOn5 } from "@/lib/ratingUtils";
 import { cleanPhone, whatsappUrl } from "@/lib/phoneUtils";
+import { buildOgShareUrl } from "@/lib/businessUrl";
 import { DescriptionExpander } from "@/components/DescriptionExpander";
 import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
 import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag, Facebook, Instagram, Linkedin, Youtube, MessageCircle, Clock, AlertTriangle, ChevronDown, Play, CalendarCheck, Star, Camera, Volume2, VolumeX, Loader } from "lucide-react";
@@ -532,7 +533,7 @@ const BusinessDetail = () => {
               </h1>
               <div className="flex items-center gap-2">
                 <BookmarkButton businessId={business.id} variant={isVerified ? "gold" : "dark"} />
-                <ShareButton title={business.name} variant={isVerified ? "gold" : "dark"} />
+                <ShareButton title={business.name} variant={isVerified ? "gold" : "dark"} shareUrl={buildOgShareUrl(routeSlug || business.id)} />
               </div>
             </div>
             {/* Labels - desktop only */}
