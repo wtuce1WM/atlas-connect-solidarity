@@ -642,6 +642,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const appStoreLinks = useMemo(() => {
     const links: { type: "app_store" | "google_play"; url: string }[] = [];
     const seen = new Set<string>();
+    const normalize = (v: string | null | undefined): string | null => {
+      if (!v) return null;
+      const lower = v.toLowerCase().replace(/[\s_-]+/g, '');
+      if (lower === 'appstore') return 'app_store';
+      if (lower === 'googleplay') return 'google_play';
+      return null;
+    };
     const checks = [
       { key: business?.presentation_mode, url: business?.website },
       { key: (business as any)?.reserve_now_cta || business?.presentation_mode, url: business?.reserve_now_url },
@@ -651,10 +658,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     ];
     for (const c of checks) {
       if (!c.url || !c.key) continue;
-      const fullUrl = c.url.startsWith("http") ? c.url : `https://${c.url}`;
-      if ((c.key === "app_store" || c.key === "google_play") && !seen.has(c.key)) {
-        seen.add(c.key);
-        links.push({ type: c.key, url: fullUrl });
+      const type = normalize(c.key);
+      if (type && !seen.has(type)) {
+        seen.add(type);
+        const fullUrl = c.url.startsWith("http") ? c.url : `https://${c.url}`;
+        links.push({ type, url: fullUrl });
       }
     }
     return links;
