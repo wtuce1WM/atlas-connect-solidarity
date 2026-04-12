@@ -1517,7 +1517,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           </div>
           {/* Right sticky sidebar — Menu / Menu IA / External links */}
           {!descGridMode && (menuDocs.length > 0 || menuSummaries.length > 0 || externalLinks.length > 0 || hasReviewsCard) && (() => {
-            const groups: { key: string; icon: React.ReactNode; directClick?: () => void; items: { label: string; logo?: string | null; onClick: () => void }[] }[] = [];
+            const groups: { key: string; icon: React.ReactNode; directClick?: () => void; items: { label: string; logo?: string | null; onClick: () => void }[]; tooltip?: string }[] = [];
             if (menuDocs.length > 0) groups.push({
               key: 'menu',
               icon: <span className="flex items-center justify-center w-6 h-6">{categoryIcon ? <DynamicIcon name={categoryIcon} size={22} /> : <Newspaper className="h-[22px] w-[22px]" />}</span>,
