@@ -37,11 +37,17 @@ const ReviewsFlipCard = ({
   const [flipped, setFlipped] = useState(false);
 
   const activePlatforms = platforms.filter((p) => p.rating && p.count);
+  const backHeight = Math.max(15, 4 + activePlatforms.length * 2.8);
 
   return (
     <div
-      className={`snap-start shrink-0 w-[20rem] h-[15em] md:h-[20em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 ${className}`}
-      style={{ perspective: "1000px", animationDelay, animationFillMode: "forwards" }}
+      className={`snap-start shrink-0 w-[20rem] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 transition-[height] duration-500 ease-in-out ${className}`}
+      style={{
+        perspective: "1000px",
+        animationDelay,
+        animationFillMode: "forwards",
+        height: flipped ? `${backHeight}em` : "7em",
+      }}
     >
       <div
         className="relative w-full h-full transition-transform duration-500"
@@ -50,28 +56,25 @@ const ReviewsFlipCard = ({
           transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
         }}
       >
-        {/* FRONT — Global rating */}
+        {/* FRONT — Compact global rating */}
         <div
-          className="absolute inset-0 rounded-2xl p-4 text-white flex flex-col items-center justify-center cursor-pointer"
+          className="absolute inset-0 rounded-2xl px-4 text-white flex items-center justify-between cursor-pointer"
           style={{ backfaceVisibility: "hidden" }}
           onClick={() => activePlatforms.length > 0 && setFlipped(true)}
         >
-          <p className="text-[10px] font-semibold text-gold uppercase tracking-wider mb-3">
-            {language === "en" ? "Reviews" : "Avis clients"}
-          </p>
-          <Star className="h-8 w-8 text-gold fill-gold mb-2" />
-          <div className="flex items-baseline gap-1">
-            <span className="text-4xl font-bold text-white">{avgOn20}</span>
-            <span className="text-lg text-white/60">/20</span>
+          <div className="flex items-center gap-2">
+            <Star className="h-5 w-5 text-gold fill-gold" />
+            <span className="text-2xl font-bold text-white">{avgOn20}</span>
+            <span className="text-sm text-white/60">/20</span>
+            {totalReviewCount > 0 && (
+              <span className="text-xs text-white/50 ml-1">
+                ({totalReviewCount.toLocaleString("fr-FR")} {language === "en" ? "reviews" : "avis"})
+              </span>
+            )}
           </div>
-          {totalReviewCount > 0 && (
-            <span className="text-sm text-white/50 mt-1">
-              {totalReviewCount.toLocaleString("fr-FR")} {language === "en" ? "reviews" : "avis"}
-            </span>
-          )}
           {activePlatforms.length > 0 && (
-            <span className="text-[10px] text-white/30 mt-3 uppercase tracking-wider">
-              {language === "en" ? "Tap for details" : "Toucher pour le détail"}
+            <span className="text-[10px] text-white/30 uppercase tracking-wider">
+              {language === "en" ? "Details ›" : "Détail ›"}
             </span>
           )}
         </div>
