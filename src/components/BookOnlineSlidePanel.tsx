@@ -1076,16 +1076,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   }}
                 />
               )}
-              {hasReviewsCard && (
-                <ReviewsFlipCard
-                  avgOn20={avgOn20!}
-                  totalReviewCount={totalReviewCount}
-                  platforms={reviewPlatforms}
-                  reviewTexts={reviewTexts}
-                  language={language}
-                  animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0)) * 120}ms`}
-                />
-              )}
               {externalLinks.length > 0 && (
                 <ExternalLinksFlipCard
                   links={externalLinks}
