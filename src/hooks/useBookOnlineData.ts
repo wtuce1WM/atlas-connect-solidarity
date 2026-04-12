@@ -20,8 +20,12 @@ export interface BookOnlineBusiness {
   latitude: number | null;
   longitude: number | null;
   website: string | null;
+  website_cta: string | null;
+  website_presentation_mode: string | null;
   whatsapp: string | null;
   online_shop_url: string | null;
+  online_shop_cta: string | null;
+  online_shop_presentation_mode: string | null;
   google_maps_url: string | null;
   phone: string | null;
   skype: string | null;
@@ -58,6 +62,7 @@ export interface BookOnlineBusiness {
   online_shop_force_external: boolean;
   website_force_external: boolean;
   reserve_now_url: string | null;
+  reserve_now_cta: string | null;
   reserve_now_force_external: boolean;
   hook_fr: string | null;
   hook_en: string | null;
@@ -80,7 +85,14 @@ export interface BookOnlineBusiness {
   kp_regroupement: string | null;
   main_category: string | null;
   presentation_mode: string | null;
-  // Fields previously accessed via `as any`
+  url_4: string | null;
+  url_4_cta: string | null;
+  url_4_force_external: boolean;
+  url_4_presentation_mode: string | null;
+  url_5: string | null;
+  url_5_cta: string | null;
+  url_5_force_external: boolean;
+  url_5_presentation_mode: string | null;
   show_videos: boolean;
   computed_rating: number | null;
   total_review_count: number | null;
@@ -252,7 +264,7 @@ export function useBookOnlineData(businessId: string) {
       const [bizRes, woRes, destLinksRes, reviewsRes, extLinksRes, menuSumRes, menuDocsRes, videoDocsRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, reserve_now_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, show_videos, default_sound_on, prioritize_images, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, computed_rating, total_review_count, online_shop_force_external, website_force_external, reserve_now_force_external, hook_fr, hook_en, hook_ar, description, facebook_url, instagram_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, vimeo_url, snapchat_url, menu_url, menu_name, menu_language, video_1_url, kp_regroupement, kp_regroupement_2, kp_active, is_master, main_category, categories, presentation_mode, online_shop_presentation_mode, website_presentation_mode, min_price, gamme_id, manual_price_range, default_service, matterport_url, carousel_badge, show_youtube_tab, hide_description")
+          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, website_cta, website_presentation_mode, whatsapp, online_shop_url, online_shop_cta, online_shop_presentation_mode, reserve_now_url, reserve_now_cta, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, show_videos, default_sound_on, prioritize_images, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, computed_rating, total_review_count, online_shop_force_external, website_force_external, reserve_now_force_external, hook_fr, hook_en, hook_ar, description, facebook_url, instagram_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, vimeo_url, snapchat_url, menu_url, menu_name, menu_language, video_1_url, kp_regroupement, kp_regroupement_2, kp_active, is_master, main_category, categories, presentation_mode, url_4, url_4_cta, url_4_force_external, url_4_presentation_mode, url_5, url_5_cta, url_5_force_external, url_5_presentation_mode, min_price, gamme_id, manual_price_range, default_service, matterport_url, carousel_badge, show_youtube_tab, hide_description")
           .eq("id", businessId)
           .eq("is_active", true)
           .maybeSingle(),
