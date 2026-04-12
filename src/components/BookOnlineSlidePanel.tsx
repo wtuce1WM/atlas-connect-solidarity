@@ -129,6 +129,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [videoOverlayClosing, setVideoOverlayClosing] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [showExtLinksOverlay, setShowExtLinksOverlay] = useState(false);
+  const [extLinksOrigin, setExtLinksOrigin] = useState<'carousel' | 'description'>('carousel');
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showHook, setShowHook] = useState(false);
   
@@ -1085,7 +1086,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 <ExternalLinksFlipCard
                   links={externalLinks}
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard)) * 120}ms`}
-                  onOpenUrl={(url, linkTitle) => openDocOrBooking(url, linkTitle, true)}
+                  onClick={() => { setExtLinksOrigin('carousel'); setShowExtLinksOverlay(true); }}
                 />
               )}
               {appStoreLinks.length > 0 && (
@@ -1661,7 +1662,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               groups.push({
                 key: 'ext',
                 icon: extIcon,
-                directClick: () => { setShowExtLinksOverlay(true); },
+                directClick: () => { setExtLinksOrigin('description'); setShowExtLinksOverlay(true); },
                 items: [],
                 tooltip: extLabel,
               });

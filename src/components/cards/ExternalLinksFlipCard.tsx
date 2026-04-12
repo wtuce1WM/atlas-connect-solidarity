@@ -14,6 +14,8 @@ interface ExternalLinksFlipCardProps {
   animationDelay?: string;
   className?: string;
   onOpenUrl?: (url: string, title?: string) => void;
+  /** Called when the whole card is clicked (carousel mode) */
+  onClick?: () => void;
   /** "carousel" = compact 2-logo card; "overlay" = full grid with all logos */
   variant?: "carousel" | "overlay";
 }
@@ -23,6 +25,7 @@ const ExternalLinksFlipCard = ({
   animationDelay = "0ms",
   className = "",
   onOpenUrl,
+  onClick,
   variant = "carousel",
 }: ExternalLinksFlipCardProps) => {
 
@@ -101,10 +104,11 @@ const ExternalLinksFlipCard = ({
   return (
     <TooltipProvider delayDuration={300}>
       <div
-        className={`snap-start shrink-0 w-[20rem] h-[7em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 overflow-hidden ${className}`}
+        className={`snap-start shrink-0 w-[20rem] h-[7em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 overflow-hidden ${onClick ? 'cursor-pointer' : ''} ${className}`}
         style={{ animationDelay, animationFillMode: "forwards" }}
+        onClick={onClick}
       >
-        <div className="h-full rounded-2xl p-3 text-white flex flex-col">
+        <div className="h-full rounded-2xl p-3 text-white flex flex-col pointer-events-none">
           <div className="flex items-center justify-between mb-1.5">
             <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
               <ExternalLink className="w-4 h-4" />
