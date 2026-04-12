@@ -286,6 +286,18 @@ export function CtaBar({
       {effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" && !cardsHidden && (
         <VideoControls type="youtube" iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>} playing={ytBgPlaying} muted={ytBgMuted} onPlayingChange={setYtBgPlaying} onMutedChange={setYtBgMuted} className="mt-2 md:mt-3 animate-slide-in-right" />
       )}
+
+      {/* Matterport Play → switch to Afficher mode */}
+      {cardsHidden && effectiveMedia?.kind === "matterport" && showCards && (
+        <button
+          type="button"
+          onClick={showCards}
+          className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors pointer-events-auto mt-2 md:mt-3 animate-slide-in-right"
+          aria-label="Play"
+        >
+          <Play className="h-5 w-5 md:h-6 md:w-6" />
+        </button>
+      )}
     </div>
   );
 }
