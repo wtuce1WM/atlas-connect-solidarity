@@ -81,7 +81,7 @@ const ReviewsFlipCard = ({
 
         {/* BACK — Platform breakdown */}
         <div
-          className="absolute inset-0 rounded-2xl p-4 text-white overflow-y-auto overscroll-contain"
+          className="absolute inset-0 rounded-2xl p-4 text-white overflow-y-auto overflow-x-hidden overscroll-contain"
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
         >
           <div className="flex items-center justify-between mb-3">
