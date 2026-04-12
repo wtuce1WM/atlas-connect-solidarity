@@ -215,8 +215,18 @@ body {
   margin: 0.1em 0;
 }
 
-.rich-price-html li::first-letter {
-  font-size: 1.35em;
+@font-face {
+  font-family: 'Emoji';
+  src: local('Apple Color Emoji'), local('Segoe UI Emoji'), local('Noto Color Emoji');
+  unicode-range: U+1F000-1FFFF, U+2600-27BF, U+FE00-FE0F, U+1F900-1F9FF, U+200D;
+}
+
+.rich-price-html {
+  font-family: 'Roboto', 'Emoji', sans-serif;
+}
+
+.rich-price-html li {
+  line-height: 1.8;
 }
 
 /* Card 1 headings: sentence case only (first letter uppercase) */
