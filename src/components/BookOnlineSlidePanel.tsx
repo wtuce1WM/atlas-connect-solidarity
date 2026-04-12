@@ -1006,7 +1006,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             </div>
           )}
           {avgOn20 !== null && avgOn20 > 0 && (
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 shrink-0 hidden md:flex flex-col items-center ml-4 pl-4 border-l border-white/20">
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 shrink-0 hidden md:flex flex-col items-center ml-4 pl-4 border-l border-white/20 cursor-pointer hover:opacity-80 transition-opacity" onClick={handleOpenReviews}>
               <div className="flex items-center gap-1">
                 <Star className="h-4 w-4 text-gold fill-gold" />
                 <span className="text-lg font-bold text-white">{avgOn20}</span>
