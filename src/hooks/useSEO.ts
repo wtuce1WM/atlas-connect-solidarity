@@ -4,6 +4,8 @@ interface SEOOptions {
   title: string;
   description?: string;
   canonical?: string;
+  ogImage?: string;
+  ogUrl?: string;
   jsonLd?: Record<string, unknown>;
 }
 
@@ -15,7 +17,7 @@ const BASE_URL = "https://oneworldmorocco.com";
  * Sets document.title, meta description, canonical link and optional JSON-LD.
  * Cleans up on unmount (restores defaults).
  */
-export function useSEO({ title, description, canonical, jsonLd }: SEOOptions) {
+export function useSEO({ title, description, canonical, ogImage, ogUrl, jsonLd }: SEOOptions) {
   useEffect(() => {
     // Title
     const prevTitle = document.title;
@@ -47,6 +49,38 @@ export function useSEO({ title, description, canonical, jsonLd }: SEOOptions) {
 
     // JSON-LD
     let scriptEl: HTMLScriptElement | null = null;
+
+    // OG & Twitter meta tags
+    const ogMetas: { property: string; content: string }[] = [];
+    if (title) {
+      ogMetas.push({ property: "og:title", content: document.title });
+      ogMetas.push({ property: "twitter:title", content: document.title });
+    }
+    if (description) {
+      ogMetas.push({ property: "og:description", content: description });
+      ogMetas.push({ property: "twitter:description", content: description });
+    }
+    if (ogImage) {
+      ogMetas.push({ property: "og:image", content: ogImage });
+      ogMetas.push({ property: "twitter:image", content: ogImage });
+    }
+    if (ogUrl) {
+      const fullUrl = ogUrl.startsWith("http") ? ogUrl : `${BASE_URL}${ogUrl}`;
+      ogMetas.push({ property: "og:url", content: fullUrl });
+    }
+
+    const prevOgValues: { el: HTMLMetaElement; prev: string }[] = [];
+    for (const { property, content } of ogMetas) {
+      let el = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement | null;
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute("property", property);
+        document.head.appendChild(el);
+      }
+      prevOgValues.push({ el, prev: el.content });
+      el.content = content;
+    }
+
     if (jsonLd) {
       scriptEl = document.createElement("script");
       scriptEl.type = "application/ld+json";
@@ -62,6 +96,9 @@ export function useSEO({ title, description, canonical, jsonLd }: SEOOptions) {
       if (metaDesc && prevDesc) metaDesc.content = prevDesc;
       if (linkCanonical && prevCanonical) linkCanonical.href = prevCanonical;
       scriptEl?.remove();
+      for (const { el, prev } of prevOgValues) {
+        el.content = prev;
+      }
     };
-  }, [title, description, canonical, jsonLd]);
+  }, [title, description, canonical, ogImage, ogUrl, jsonLd]);
 }
