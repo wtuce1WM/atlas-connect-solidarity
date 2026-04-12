@@ -121,7 +121,7 @@ const ContactFlipCard = ({
 
   useLayoutEffect(() => {
     if (backRef.current) {
-      setBackHeight(backRef.current.scrollHeight);
+      setBackHeight(backRef.current.scrollHeight + 8);
     }
   }, [showHours, business.opening_hours]);
 
