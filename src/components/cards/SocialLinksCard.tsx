@@ -96,7 +96,12 @@ const SocialLinksCard = ({
           ))}
         </div>
       </div>
+      </div>
     </div>
+  );
+};
+
+export default SocialLinksCard;
   );
 };
 
