@@ -1044,8 +1044,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   style={{ animationFillMode: 'forwards' }}
                   onClick={() => setShowDescriptionOverlay(true)}
                   onMouseEnter={(e) => {
-                    const spacer = e.currentTarget.previousElementSibling;
-                    spacer?.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+                    centerCardInCarousel(e.currentTarget);
                   }}
                 >
                   <div className="h-full rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-hidden border border-white/10 pointer-events-none relative">
@@ -1065,7 +1064,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 </div>
               )}
               {hasContactCard && (
-                <div onMouseEnter={(e) => e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })}>
+                <div onMouseEnter={(e) => centerCardInCarousel(e.currentTarget)}>
                   <ContactFlipCard
                     key={business.id}
                     business={business}
@@ -1087,7 +1086,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 </div>
               )}
               {showGoogleMap && business && (business.latitude || business.google_maps_url) && (
-                <div onMouseEnter={(e) => e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })}>
+                <div onMouseEnter={(e) => centerCardInCarousel(e.currentTarget)}>
                   <MapCard
                     latitude={business.latitude}
                     longitude={business.longitude}
@@ -1103,7 +1102,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 </div>
               )}
               {externalLinks.length > 0 && (
-                <div onMouseEnter={(e) => e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })}>
+                <div onMouseEnter={(e) => centerCardInCarousel(e.currentTarget)}>
                   <ExternalLinksFlipCard
                     links={externalLinks}
                     animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard)) * 120}ms`}
