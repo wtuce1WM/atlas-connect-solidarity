@@ -1533,11 +1533,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               const extIcon = (extDesc === "presse" || extDesc === "media")
                 ? <Newspaper className="h-[22px] w-[22px]" />
                 : <ExternalLink className="h-[22px] w-[22px]" />;
+              const extLabel = extDesc === "partenaires" ? "Ils nous font confiance"
+                : extDesc === "recompenses" ? "Nous sommes reconnus par…"
+                : extDesc === "certifications" ? "Nous sommes certifiés par…"
+                : (extDesc === "presse" || extDesc === "media") ? "Ils parlent de nous"
+                : "+ d'infos";
               groups.push({
                 key: 'ext',
                 icon: extIcon,
                 directClick: () => { setShowExtLinksOverlay(true); },
                 items: [],
+                tooltip: extLabel,
               });
             }
             if (hasReviewsCard) {
