@@ -235,11 +235,26 @@ export function CtaBar({
       style={hideStyle}
     >
       {ctaItems.length > 0 && (
-        <div className={`w-4/5 md:w-3/4 md:px-0 pointer-events-auto ${ctaItems.length >= 4 ? 'grid grid-cols-2 gap-2' : 'flex justify-center gap-2'}`}>
-          {ctaItems.map((item, i) => (
-            <div key={i} className={ctaItems.length >= 4 ? (ctaItems.length === 5 && i === 4 ? 'col-span-2' : '') : 'flex-1 md:flex-none md:w-1/3'}>{item}</div>
-          ))}
-        </div>
+        ctaItems.length === 5 ? (
+          <div className="w-4/5 md:w-3/4 md:px-0 pointer-events-auto flex flex-col gap-2">
+            <div className="flex justify-center gap-2">
+              {ctaItems.slice(0, 3).map((item, i) => (
+                <div key={i} className="flex-1">{item}</div>
+              ))}
+            </div>
+            <div className="flex justify-center gap-2">
+              {ctaItems.slice(3).map((item, i) => (
+                <div key={i + 3} className="flex-1">{item}</div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className={`w-4/5 md:w-3/4 md:px-0 pointer-events-auto ${ctaItems.length === 4 ? 'grid grid-cols-2 gap-2' : 'flex justify-center gap-2'}`}>
+            {ctaItems.map((item, i) => (
+              <div key={i} className={ctaItems.length === 4 ? '' : 'flex-1 md:flex-none md:w-1/3'}>{item}</div>
+            ))}
+          </div>
+        )
       )}
 
       {/* Owner logo + badge */}
