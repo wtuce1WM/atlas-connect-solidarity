@@ -1788,7 +1788,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               </div>
             );
           })()}
-          {images.length > 0 && !descGridMode && (
+          {images.length > 1 && !descGridMode && (
             <div className="relative z-20 shrink-0">
               <div className="flex items-center gap-1.5 px-2 py-1 md:py-2 bg-transparent backdrop-blur-sm border-t border-white/10">
                 {images.slice(0, 5).map((img, i) => (
