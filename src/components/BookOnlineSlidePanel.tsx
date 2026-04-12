@@ -1517,7 +1517,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           </div>
           {/* Right sticky sidebar — Menu / Menu IA / External links */}
           {!descGridMode && (menuDocs.length > 0 || menuSummaries.length > 0 || externalLinks.length > 0 || hasReviewsCard) && (() => {
-            const groups: { key: string; icon: React.ReactNode; directClick?: () => void; items: { label: string; logo?: string | null; onClick: () => void }[] }[] = [];
+            const groups: { key: string; icon: React.ReactNode; directClick?: () => void; items: { label: string; logo?: string | null; onClick: () => void }[]; tooltip?: string }[] = [];
             if (menuDocs.length > 0) groups.push({
               key: 'menu',
               icon: <span className="flex items-center justify-center w-6 h-6">{categoryIcon ? <DynamicIcon name={categoryIcon} size={22} /> : <Newspaper className="h-[22px] w-[22px]" />}</span>,
@@ -1533,11 +1533,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               const extIcon = (extDesc === "presse" || extDesc === "media")
                 ? <Newspaper className="h-[22px] w-[22px]" />
                 : <ExternalLink className="h-[22px] w-[22px]" />;
+              const extLabel = extDesc === "partenaires" ? "Ils nous font confiance"
+                : extDesc === "recompenses" ? "Nous sommes reconnus par…"
+                : extDesc === "certifications" ? "Nous sommes certifiés par…"
+                : (extDesc === "presse" || extDesc === "media") ? "Ils parlent de nous"
+                : "+ d'infos";
               groups.push({
                 key: 'ext',
                 icon: extIcon,
                 directClick: () => { setShowExtLinksOverlay(true); },
                 items: [],
+                tooltip: extLabel,
               });
             }
             if (hasReviewsCard) {
@@ -1584,13 +1590,18 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 {groups.map(g => {
                   if (g.directClick) {
                     return (
-                      <div key={g.key} className="flex flex-col items-end">
+                      <div key={g.key} className="group relative flex flex-col items-end">
                         <button
                           onClick={g.directClick}
                           className="flex items-center justify-center h-10 w-10 rounded-full border border-white/10 text-white transition-colors shadow-lg bg-black/80 hover:bg-black/90"
                         >
                           {g.icon}
                         </button>
+                        {g.tooltip && (
+                          <span className="pointer-events-none absolute right-12 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-md bg-black/90 px-2.5 py-1 text-xs text-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            {g.tooltip}
+                          </span>
+                        )}
                       </div>
                     );
                   }
