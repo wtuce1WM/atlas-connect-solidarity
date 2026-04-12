@@ -23,7 +23,7 @@ const ExternalLinksFlipCard = ({
   className = "",
   onOpenUrl,
 }: ExternalLinksFlipCardProps) => {
-  const [flipped, setFlipped] = useState(false);
+  
 
   const deriveTitle = () => {
     const desc = links[0]?.description?.toLowerCase() || "";
@@ -80,63 +80,19 @@ const ExternalLinksFlipCard = ({
   return (
     <TooltipProvider delayDuration={300}>
       <div
-        className={`snap-start shrink-0 w-full max-w-[28rem] h-[7em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 ${className}`}
-        style={{ perspective: "1000px", animationDelay, animationFillMode: "forwards" }}
+        className={`snap-start shrink-0 w-full max-w-[28rem] h-[7em] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 overflow-hidden ${className}`}
+        style={{ animationDelay, animationFillMode: "forwards" }}
       >
-        <div
-          className="relative w-full h-full transition-transform duration-500"
-          style={{
-            transformStyle: "preserve-3d",
-            transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
-          }}
-        >
-          {/* FRONT */}
-          <div
-            className="absolute inset-0 rounded-2xl p-4 text-white flex flex-col"
-            style={{ backfaceVisibility: "hidden" }}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                <ExternalLink className="w-4 h-4" />
-                {cardTitle}
-              </h3>
-              {hasBack && (
-                <button
-                  onClick={() => setFlipped(true)}
-                  className="text-[10px] text-white/50 hover:text-white/80 transition-colors"
-                >
-                  +{backLinks.length} →
-                </button>
-              )}
-            </div>
-            <div className="flex-1 grid grid-cols-2 gap-1.5">
-              {frontLinks.map(renderLinkButton)}
-            </div>
+        <div className="h-full rounded-2xl p-3 text-white flex flex-col">
+          <div className="flex items-center justify-between mb-1.5">
+            <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+              <ExternalLink className="w-4 h-4" />
+              {cardTitle}
+            </h3>
           </div>
-
-          {/* BACK */}
-          {hasBack && (
-            <div
-              className="absolute inset-0 rounded-2xl p-4 text-white flex flex-col"
-              style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-semibold text-white/90 flex items-center gap-1.5 normal-case tracking-normal" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                  <ExternalLink className="w-4 h-4" />
-                  {cardTitle}
-                </h3>
-                <button
-                  onClick={() => setFlipped(false)}
-                  className="text-[10px] text-white/50 hover:text-white/80 transition-colors"
-                >
-                  ← Retour
-                </button>
-              </div>
-              <div className="flex-1 grid grid-cols-3 grid-rows-3 gap-1.5">
-                {backLinks.map(renderLinkButton)}
-              </div>
-            </div>
-          )}
+          <div className="flex-1 min-h-0 grid grid-cols-2 gap-1.5">
+            {frontLinks.map(renderLinkButton)}
+          </div>
         </div>
       </div>
     </TooltipProvider>
