@@ -101,3 +101,4 @@ const SocialLinksCard = ({
   );
 };
 
+export default SocialLinksCard;
