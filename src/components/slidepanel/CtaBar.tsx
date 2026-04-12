@@ -18,6 +18,7 @@ export const CTA_MODE_LABELS: Record<string, { fr: string; en: string }> = {
   google_play: { fr: 'Google Play', en: 'Google Play' },
   programme: { fr: 'Programme', en: 'Program' },
   en_savoir_plus: { fr: 'En savoir +', en: 'Learn More' },
+  accreditations: { fr: 'Accréditations', en: 'Accreditations' },
 };
 
 interface CtaBarProps {
