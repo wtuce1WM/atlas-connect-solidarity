@@ -1069,25 +1069,29 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 />
               )}
               {showGoogleMap && business && (business.latitude || business.google_maps_url) && (
-                <MapCard
-                  latitude={business.latitude}
-                  longitude={business.longitude}
-                  googleMapsUrl={business.google_maps_url}
-                  businessName={business.name}
-                  tallHeight={false}
-                  animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
-                  onClick={() => {
-                    if (business?.city && destinations.length >= 2) setPoiMapMode("destinations");
-                    setShowPoiMapOverlay(true);
-                  }}
-                />
+                <div onMouseEnter={(e) => e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })}>
+                  <MapCard
+                    latitude={business.latitude}
+                    longitude={business.longitude}
+                    googleMapsUrl={business.google_maps_url}
+                    businessName={business.name}
+                    tallHeight={false}
+                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
+                    onClick={() => {
+                      if (business?.city && destinations.length >= 2) setPoiMapMode("destinations");
+                      setShowPoiMapOverlay(true);
+                    }}
+                  />
+                </div>
               )}
               {externalLinks.length > 0 && (
-                <ExternalLinksFlipCard
-                  links={externalLinks}
-                  animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard)) * 120}ms`}
-                  onClick={() => { setExtLinksOrigin('carousel'); setShowExtLinksOverlay(true); }}
-                />
+                <div onMouseEnter={(e) => e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })}>
+                  <ExternalLinksFlipCard
+                    links={externalLinks}
+                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard)) * 120}ms`}
+                    onClick={() => { setExtLinksOrigin('carousel'); setShowExtLinksOverlay(true); }}
+                  />
+                </div>
               )}
               {appStoreLinks.length > 0 && (
                 <AppStoreCard
