@@ -2241,23 +2241,29 @@ export type Database = {
         Row: {
           business_id: string
           created_at: string
+          end_time: number | null
           generic_video_id: string
           id: string
           sort_order: number
+          start_time: number | null
         }
         Insert: {
           business_id: string
           created_at?: string
+          end_time?: number | null
           generic_video_id: string
           id?: string
           sort_order?: number
+          start_time?: number | null
         }
         Update: {
           business_id?: string
           created_at?: string
+          end_time?: number | null
           generic_video_id?: string
           id?: string
           sort_order?: number
+          start_time?: number | null
         }
         Relationships: [
           {
@@ -2286,24 +2292,30 @@ export type Database = {
       generic_video_pois: {
         Row: {
           created_at: string
+          end_time: number | null
           generic_video_id: string
           id: string
           poi_id: string
           sort_order: number
+          start_time: number | null
         }
         Insert: {
           created_at?: string
+          end_time?: number | null
           generic_video_id: string
           id?: string
           poi_id: string
           sort_order?: number
+          start_time?: number | null
         }
         Update: {
           created_at?: string
+          end_time?: number | null
           generic_video_id?: string
           id?: string
           poi_id?: string
           sort_order?: number
+          start_time?: number | null
         }
         Relationships: [
           {

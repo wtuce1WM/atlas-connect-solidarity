@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Play, Upload, Copy, Check, FileText, Instagram, X, MapPin, Building2, Search } from "lucide-react";
+import { Loader2, Play, Upload, Copy, Check, FileText, Instagram, X, MapPin, Building2, Search, GripVertical, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,7 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
   useSortable,
+  verticalListSortingStrategy,
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -71,7 +72,6 @@ const SocialLinksDialog = ({
   const [ig, setIg] = useState({ account: video.instagram_account || "", url: video.instagram_url || "", videoUrl: video.instagram_video_url || "" });
   const [tt, setTt] = useState({ account: video.tiktok_account || "", url: video.tiktok_url || "", videoUrl: video.tiktok_video_url || "" });
   const [yt, setYt] = useState({ account: video.youtube_account || "", url: video.youtube_url || "", videoUrl: video.youtube_video_url || "" });
-  
   const [saving, setSaving] = useState(false);
 
   const save = async () => {
@@ -79,15 +79,9 @@ const SocialLinksDialog = ({
     const { error } = await supabase
       .from("generic_videos" as any)
       .update({
-        instagram_account: ig.account || null,
-        instagram_url: ig.url || null,
-        instagram_video_url: ig.videoUrl || null,
-        tiktok_account: tt.account || null,
-        tiktok_url: tt.url || null,
-        tiktok_video_url: tt.videoUrl || null,
-        youtube_account: yt.account || null,
-        youtube_url: yt.url || null,
-        youtube_video_url: yt.videoUrl || null,
+        instagram_account: ig.account || null, instagram_url: ig.url || null, instagram_video_url: ig.videoUrl || null,
+        tiktok_account: tt.account || null, tiktok_url: tt.url || null, tiktok_video_url: tt.videoUrl || null,
+        youtube_account: yt.account || null, youtube_url: yt.url || null, youtube_video_url: yt.videoUrl || null,
       } as any)
       .eq("id", video.id);
     if (error) toast.error(error.message);
@@ -98,18 +92,14 @@ const SocialLinksDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Liens sociaux</DialogTitle>
-        </DialogHeader>
+        <DialogHeader><DialogTitle>Liens sociaux</DialogTitle></DialogHeader>
         <div className="space-y-4">
-          {/* Instagram */}
           <div className="space-y-2 p-3 rounded-lg border">
             <Label className="font-semibold flex items-center gap-1.5"><Instagram className="h-4 w-4" /> Instagram</Label>
             <Input placeholder="Compte (@…)" value={ig.account} onChange={e => setIg(p => ({ ...p, account: e.target.value }))} />
             <Input placeholder="URL du profil" value={ig.url} onChange={e => setIg(p => ({ ...p, url: e.target.value }))} />
             <Input placeholder="URL de la vidéo Instagram" value={ig.videoUrl} onChange={e => setIg(p => ({ ...p, videoUrl: e.target.value }))} />
           </div>
-          {/* TikTok */}
           <div className="space-y-2 p-3 rounded-lg border">
             <Label className="font-semibold flex items-center gap-1.5">
               <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1 0-5.78c.29 0 .58.04.86.11V9a6.27 6.27 0 0 0-.86-.06A6.33 6.33 0 0 0 3.16 15.3a6.33 6.33 0 0 0 6.33 6.33c3.5 0 6.33-2.84 6.33-6.33V9.14a8.16 8.16 0 0 0 4.77 1.52V7.21a4.85 4.85 0 0 1-1-.52Z"/></svg>
@@ -119,7 +109,6 @@ const SocialLinksDialog = ({
             <Input placeholder="URL du profil" value={tt.url} onChange={e => setTt(p => ({ ...p, url: e.target.value }))} />
             <Input placeholder="URL de la vidéo TikTok" value={tt.videoUrl} onChange={e => setTt(p => ({ ...p, videoUrl: e.target.value }))} />
           </div>
-          {/* YouTube */}
           <div className="space-y-2 p-3 rounded-lg border">
             <Label className="font-semibold flex items-center gap-1.5">
               <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current"><path d="M23.5 6.2a3.02 3.02 0 0 0-2.12-2.14C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.38.56A3.02 3.02 0 0 0 .5 6.2 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.8 3.02 3.02 0 0 0 2.12 2.14c1.88.56 9.38.56 9.38.56s7.5 0 9.38-.56a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.8ZM9.75 15.02V8.98L15.5 12l-5.75 3.02Z"/></svg>
@@ -131,10 +120,7 @@ const SocialLinksDialog = ({
           </div>
         </div>
         <div className="flex justify-end pt-2">
-          <Button onClick={save} disabled={saving}>
-            {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-            Enregistrer
-          </Button>
+          <Button onClick={save} disabled={saving}>{saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Enregistrer</Button>
         </div>
       </DialogContent>
     </Dialog>
@@ -142,61 +128,33 @@ const SocialLinksDialog = ({
 };
 
 /* ─── Description (RichText) dialog ─── */
-const DescriptionDialog = ({
-  video,
-  open,
-  onOpenChange,
-  onSaved,
-}: {
-  video: GenericVideo;
-  open: boolean;
-  onOpenChange: (o: boolean) => void;
-  onSaved: () => void;
-}) => {
+const DescriptionDialog = ({ video, open, onOpenChange, onSaved }: { video: GenericVideo; open: boolean; onOpenChange: (o: boolean) => void; onSaved: () => void; }) => {
   const [desc, setDesc] = useState(video.description || "");
   const [saving, setSaving] = useState(false);
-
   const save = async () => {
     setSaving(true);
-    const { error } = await supabase
-      .from("generic_videos" as any)
-      .update({ description: desc || null } as any)
-      .eq("id", video.id);
+    const { error } = await supabase.from("generic_videos" as any).update({ description: desc || null } as any).eq("id", video.id);
     if (error) toast.error(error.message);
     else { toast.success("Description enregistrée"); onSaved(); onOpenChange(false); }
     setSaving(false);
   };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Description de la vidéo</DialogTitle>
-        </DialogHeader>
+        <DialogHeader><DialogTitle>Description de la vidéo</DialogTitle></DialogHeader>
         <RichTextEditor content={desc} onChange={setDesc} maxHeight="400px" />
         <div className="flex justify-end pt-2">
-          <Button onClick={save} disabled={saving}>
-            {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-            Enregistrer
-          </Button>
+          <Button onClick={save} disabled={saving}>{saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Enregistrer</Button>
         </div>
       </DialogContent>
     </Dialog>
   );
 };
 
-/* ─── Inline POI assignment section (same pattern as POIS tab) ─── */
+/* ─── Inline POI assignment section ─── */
 interface PoiBiz { id: string; name: string; neighborhood: string | null; city: string | null; }
 
-const InlinePoiAssignment = ({
-  video,
-  onClose,
-  onSaved,
-}: {
-  video: GenericVideo;
-  onClose: () => void;
-  onSaved: () => void;
-}) => {
+const InlinePoiAssignment = ({ video, onClose, onSaved }: { video: GenericVideo; onClose: () => void; onSaved: () => void; }) => {
   const [poiBusinesses, setPoiBusinesses] = useState<PoiBiz[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [initialIds, setInitialIds] = useState<string[]>([]);
@@ -213,65 +171,37 @@ const InlinePoiAssignment = ({
       ]);
       setPoiBusinesses((pois as PoiBiz[]) || []);
       const ids = ((links as any[]) || []).map((l: any) => l.poi_id);
-      setSelectedIds(ids);
-      setInitialIds(ids);
-      setLoading(false);
+      setSelectedIds(ids); setInitialIds(ids); setLoading(false);
     };
     load();
   }, [video.id]);
 
-  const togglePoi = (poiId: string) => {
-    setSelectedIds(prev =>
-      prev.includes(poiId) ? prev.filter(id => id !== poiId) : [...prev, poiId]
-    );
-  };
-
+  const togglePoi = (poiId: string) => setSelectedIds(prev => prev.includes(poiId) ? prev.filter(id => id !== poiId) : [...prev, poiId]);
   const toggleGroup = (pois: PoiBiz[]) => {
     const ids = pois.map(p => p.id);
     const allSelected = ids.every(id => selectedIds.includes(id));
-    if (allSelected) {
-      setSelectedIds(prev => prev.filter(id => !ids.includes(id)));
-    } else {
-      setSelectedIds(prev => [...new Set([...prev, ...ids])]);
-    }
+    setSelectedIds(prev => allSelected ? prev.filter(id => !ids.includes(id)) : [...new Set([...prev, ...ids])]);
   };
-
   const isDirty = JSON.stringify([...selectedIds].sort()) !== JSON.stringify([...initialIds].sort());
 
   const save = async () => {
     setSaving(true);
     const toAdd = selectedIds.filter(id => !initialIds.includes(id));
     const toRemove = initialIds.filter(id => !selectedIds.includes(id));
-
-    if (toRemove.length > 0) {
-      await supabase.from("generic_video_pois" as any).delete().eq("generic_video_id", video.id).in("poi_id", toRemove);
-    }
-    if (toAdd.length > 0) {
-      await supabase.from("generic_video_pois" as any).insert(
-        toAdd.map(poi_id => ({ generic_video_id: video.id, poi_id })) as any
-      );
-    }
-
-    toast.success(`${selectedIds.length} POI(s) affecté(s) à la vidéo`);
-    setInitialIds([...selectedIds]);
-    onSaved();
-    onClose();
-    setSaving(false);
+    if (toRemove.length > 0) await supabase.from("generic_video_pois" as any).delete().eq("generic_video_id", video.id).in("poi_id", toRemove);
+    if (toAdd.length > 0) await supabase.from("generic_video_pois" as any).insert(toAdd.map(poi_id => ({ generic_video_id: video.id, poi_id })) as any);
+    toast.success(`${selectedIds.length} POI(s) affecté(s)`);
+    setInitialIds([...selectedIds]); onSaved(); onClose(); setSaving(false);
   };
 
   const grouped = useMemo(() => {
     const cityMap: Record<string, Record<string, PoiBiz[]>> = {};
     poiBusinesses.forEach(p => {
-      const city = p.city || "Sans ville";
-      const nb = p.neighborhood || "Sans quartier";
-      if (!cityMap[city]) cityMap[city] = {};
-      if (!cityMap[city][nb]) cityMap[city][nb] = [];
+      const city = p.city || "Sans ville"; const nb = p.neighborhood || "Sans quartier";
+      if (!cityMap[city]) cityMap[city] = {}; if (!cityMap[city][nb]) cityMap[city][nb] = [];
       cityMap[city][nb].push(p);
     });
-    return Object.entries(cityMap).map(([city, neighborhoods]) => ({
-      city,
-      neighborhoods: Object.entries(neighborhoods),
-    }));
+    return Object.entries(cityMap).map(([city, neighborhoods]) => ({ city, neighborhoods: Object.entries(neighborhoods) }));
   }, [poiBusinesses]);
 
   const isStorageVideo = video.url.includes("supabase.co/storage");
@@ -279,63 +209,26 @@ const InlinePoiAssignment = ({
   return (
     <div className="border-2 border-primary/30 rounded-lg p-4 space-y-4 bg-muted/30">
       <div className="flex items-start justify-between">
-        <h3 className="text-sm font-semibold flex items-center gap-2">
-          <MapPin className="h-4 w-4" />
-          Affectation POI
-        </h3>
+        <h3 className="text-sm font-semibold flex items-center gap-2"><MapPin className="h-4 w-4" />Affectation POI</h3>
         <Button variant="ghost" size="sm" onClick={onClose}>✕</Button>
       </div>
-
-      {/* Video preview */}
       <div className="flex items-start gap-4">
-        <button
-          className="relative bg-black rounded-lg overflow-hidden group shrink-0"
-          style={{ width: 320, aspectRatio: "16/9" }}
-          onClick={() => setLightboxUrl(video.url)}
-        >
-          {video.thumbnail_url ? (
-            <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" />
-          ) : isStorageVideo ? (
-            <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" />
-          ) : (
-            <div className="w-full h-full bg-muted flex items-center justify-center">
-              <Play className="h-8 w-8 text-muted-foreground" />
-            </div>
-          )}
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <div className="w-12 h-12 rounded-full bg-primary/80 flex items-center justify-center">
-              <Play className="h-6 w-6 text-primary-foreground fill-primary-foreground ml-0.5" />
-            </div>
-          </div>
+        <button className="relative bg-black rounded-lg overflow-hidden group shrink-0" style={{ width: 320, aspectRatio: "16/9" }} onClick={() => setLightboxUrl(video.url)}>
+          {video.thumbnail_url ? <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" /> : isStorageVideo ? <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" /> : <div className="w-full h-full bg-muted flex items-center justify-center"><Play className="h-8 w-8 text-muted-foreground" /></div>}
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><div className="w-12 h-12 rounded-full bg-primary/80 flex items-center justify-center"><Play className="h-6 w-6 text-primary-foreground fill-primary-foreground ml-0.5" /></div></div>
         </button>
         <div className="space-y-1">
           {video.name && <p className="text-sm font-semibold">{video.name}</p>}
           <p className="text-xs text-muted-foreground font-mono">{video.id}</p>
-          {video.city && (
-            <p className="text-xs text-muted-foreground flex items-center gap-1">
-              <MapPin className="h-3 w-3" /> {video.city}
-            </p>
-          )}
+          {video.city && <p className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" /> {video.city}</p>}
         </div>
       </div>
-
-      {/* POI assignment */}
-      {loading ? (
-        <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin" /></div>
-      ) : (
+      {loading ? <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin" /></div> : (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground">
-              Points d'intérêt ({selectedIds.length} sélectionné{selectedIds.length > 1 ? "s" : ""})
-            </span>
-            {isDirty && (
-              <Button size="sm" onClick={save} disabled={saving}>
-                {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                Enregistrer
-              </Button>
-            )}
+            <span className="text-xs font-medium text-muted-foreground">Points d'intérêt ({selectedIds.length} sélectionné{selectedIds.length > 1 ? "s" : ""})</span>
+            {isDirty && <Button size="sm" onClick={save} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}Enregistrer</Button>}
           </div>
-
           <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
             {grouped.map(({ city, neighborhoods }) => (
               <div key={city}>
@@ -345,38 +238,14 @@ const InlinePoiAssignment = ({
                     const ids = pois.map(p => p.id);
                     const allSelected = ids.every(id => selectedIds.includes(id));
                     const someSelected = !allSelected && ids.some(id => selectedIds.includes(id));
-
                     return (
                       <div key={neighborhood}>
                         <div className="mb-1 flex items-center gap-2">
-                          <Checkbox
-                            checked={allSelected ? true : someSelected ? "indeterminate" : false}
-                            onCheckedChange={() => toggleGroup(pois)}
-                            className="h-3.5 w-3.5 shrink-0"
-                          />
-                          <button
-                            type="button"
-                            className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-                            onClick={() => toggleGroup(pois)}
-                          >
-                            {neighborhood}
-                            <span className="text-[10px] opacity-60">({ids.length})</span>
-                          </button>
+                          <Checkbox checked={allSelected ? true : someSelected ? "indeterminate" : false} onCheckedChange={() => toggleGroup(pois)} className="h-3.5 w-3.5 shrink-0" />
+                          <button type="button" className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors" onClick={() => toggleGroup(pois)}>{neighborhood} <span className="text-[10px] opacity-60">({ids.length})</span></button>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          {pois.map(poi => {
-                            const isSelected = selectedIds.includes(poi.id);
-                            return (
-                              <Badge
-                                key={poi.id}
-                                variant={isSelected ? "default" : "outline"}
-                                className="cursor-pointer transition-colors"
-                                onClick={() => togglePoi(poi.id)}
-                              >
-                                {poi.name}
-                              </Badge>
-                            );
-                          })}
+                          {pois.map(poi => <Badge key={poi.id} variant={selectedIds.includes(poi.id) ? "default" : "outline"} className="cursor-pointer transition-colors" onClick={() => togglePoi(poi.id)}>{poi.name}</Badge>)}
                         </div>
                       </div>
                     );
@@ -387,7 +256,6 @@ const InlinePoiAssignment = ({
           </div>
         </div>
       )}
-
       {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
     </div>
   );
@@ -396,15 +264,7 @@ const InlinePoiAssignment = ({
 /* ─── Inline Business assignment section ─── */
 interface BizResult { id: string; name: string; city: string | null; main_category: string | null; }
 
-const InlineBusinessAssignment = ({
-  video,
-  onClose,
-  onSaved,
-}: {
-  video: GenericVideo;
-  onClose: () => void;
-  onSaved: () => void;
-}) => {
+const InlineBusinessAssignment = ({ video, onClose, onSaved }: { video: GenericVideo; onClose: () => void; onSaved: () => void; }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState<BizResult[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -417,19 +277,11 @@ const InlineBusinessAssignment = ({
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const { data: links } = await supabase
-        .from("generic_video_businesses" as any)
-        .select("business_id")
-        .eq("generic_video_id", video.id) as { data: any[] | null };
+      const { data: links } = await supabase.from("generic_video_businesses" as any).select("business_id").eq("generic_video_id", video.id) as { data: any[] | null };
       const ids = (links || []).map((l: any) => l.business_id);
-      setSelectedIds(ids);
-      setInitialIds(ids);
+      setSelectedIds(ids); setInitialIds(ids);
       if (ids.length > 0) {
-        const { data: biz } = await supabase
-          .from("businesses")
-          .select("id, name, city, main_category")
-          .in("id", ids)
-          .order("name");
+        const { data: biz } = await supabase.from("businesses").select("id, name, city, main_category").in("id", ids).order("name");
         setSelectedBiz((biz as BizResult[]) || []);
       }
       setLoading(false);
@@ -437,120 +289,59 @@ const InlineBusinessAssignment = ({
     load();
   }, [video.id]);
 
-  // Auto-complete: debounced search
   useEffect(() => {
     if (searchTerm.trim().length < 2) { setResults([]); return; }
     const timer = setTimeout(async () => {
-      const { data } = await supabase
-        .from("businesses")
-        .select("id, name, city, main_category")
-        .ilike("name", `%${searchTerm.trim()}%`)
-        .eq("is_active", true)
-        .order("name")
-        .limit(30);
-      setResults((data as BizResult[]) || []);
-      setShowDropdown(true);
+      const { data } = await supabase.from("businesses").select("id, name, city, main_category").ilike("name", `%${searchTerm.trim()}%`).eq("is_active", true).order("name").limit(30);
+      setResults((data as BizResult[]) || []); setShowDropdown(true);
     }, 300);
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
   const toggleBiz = (biz: BizResult) => {
-    if (selectedIds.includes(biz.id)) {
-      setSelectedIds(prev => prev.filter(id => id !== biz.id));
-      setSelectedBiz(prev => prev.filter(b => b.id !== biz.id));
-    } else {
-      setSelectedIds(prev => [...prev, biz.id]);
-      setSelectedBiz(prev => [...prev, biz]);
-    }
+    if (selectedIds.includes(biz.id)) { setSelectedIds(prev => prev.filter(id => id !== biz.id)); setSelectedBiz(prev => prev.filter(b => b.id !== biz.id)); }
+    else { setSelectedIds(prev => [...prev, biz.id]); setSelectedBiz(prev => [...prev, biz]); }
   };
-
-  const removeBiz = (id: string) => {
-    setSelectedIds(prev => prev.filter(i => i !== id));
-    setSelectedBiz(prev => prev.filter(b => b.id !== id));
-  };
-
+  const removeBiz = (id: string) => { setSelectedIds(prev => prev.filter(i => i !== id)); setSelectedBiz(prev => prev.filter(b => b.id !== id)); };
   const isDirty = JSON.stringify([...selectedIds].sort()) !== JSON.stringify([...initialIds].sort());
 
   const save = async () => {
     setSaving(true);
     const toAdd = selectedIds.filter(id => !initialIds.includes(id));
     const toRemove = initialIds.filter(id => !selectedIds.includes(id));
-
-    if (toRemove.length > 0) {
-      await supabase.from("generic_video_businesses" as any).delete().eq("generic_video_id", video.id).in("business_id", toRemove);
-    }
-    if (toAdd.length > 0) {
-      await supabase.from("generic_video_businesses" as any).insert(
-        toAdd.map(business_id => ({ generic_video_id: video.id, business_id })) as any
-      );
-    }
-
-    toast.success(`${selectedIds.length} établissement(s) affecté(s) à la vidéo`);
-    setInitialIds([...selectedIds]);
-    onSaved();
-    onClose();
-    setSaving(false);
+    if (toRemove.length > 0) await supabase.from("generic_video_businesses" as any).delete().eq("generic_video_id", video.id).in("business_id", toRemove);
+    if (toAdd.length > 0) await supabase.from("generic_video_businesses" as any).insert(toAdd.map(business_id => ({ generic_video_id: video.id, business_id })) as any);
+    toast.success(`${selectedIds.length} établissement(s) affecté(s)`);
+    setInitialIds([...selectedIds]); onSaved(); onClose(); setSaving(false);
   };
 
   return (
     <div className="border-2 border-primary/30 rounded-lg p-4 space-y-4 bg-muted/30">
       <div className="flex items-start justify-between">
-        <h3 className="text-sm font-semibold flex items-center gap-2">
-          <Building2 className="h-4 w-4" />
-          Affectation Établissements — <span className="font-mono text-xs text-muted-foreground">{video.id}</span>
-        </h3>
+        <h3 className="text-sm font-semibold flex items-center gap-2"><Building2 className="h-4 w-4" />Affectation Établissements — <span className="font-mono text-xs text-muted-foreground">{video.id}</span></h3>
         <Button variant="ghost" size="sm" onClick={onClose}>✕</Button>
       </div>
-
-      {loading ? (
-        <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-        </div>
-      ) : (
+      {loading ? <div className="flex items-center justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div> : (
         <div className="space-y-4">
-          {/* Selected businesses */}
           {selectedBiz.length > 0 && (
             <div className="space-y-2">
               <p className="text-xs font-medium text-muted-foreground">{selectedBiz.length} établissement(s) sélectionné(s)</p>
               <div className="flex flex-wrap gap-1">
                 {selectedBiz.map(b => (
-                  <Badge key={b.id} variant="default" className="text-xs gap-1">
-                    {b.name}
-                    {b.city && <span className="text-primary-foreground/60">({b.city})</span>}
-                    <button onClick={() => removeBiz(b.id)} className="ml-0.5 hover:text-destructive">
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
+                  <Badge key={b.id} variant="default" className="text-xs gap-1">{b.name}{b.city && <span className="text-primary-foreground/60">({b.city})</span>}<button onClick={() => removeBiz(b.id)} className="ml-0.5 hover:text-destructive"><X className="h-3 w-3" /></button></Badge>
                 ))}
               </div>
             </div>
           )}
-
-          {/* Autocomplete search */}
           <div className="relative max-w-xl">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              value={searchTerm}
-              onChange={e => { setSearchTerm(e.target.value); setShowDropdown(true); }}
-              onFocus={() => results.length > 0 && setShowDropdown(true)}
-              onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-              placeholder="Rechercher un établissement par nom…"
-              className="pl-9"
-            />
+            <Input value={searchTerm} onChange={e => { setSearchTerm(e.target.value); setShowDropdown(true); }} onFocus={() => results.length > 0 && setShowDropdown(true)} onBlur={() => setTimeout(() => setShowDropdown(false), 200)} placeholder="Rechercher un établissement par nom…" className="pl-9" />
             {showDropdown && results.length > 0 && (
               <div className="absolute z-20 top-full left-0 right-0 mt-1 border rounded-lg bg-popover shadow-lg max-h-60 overflow-y-auto divide-y">
                 {results.map(biz => {
                   const isSelected = selectedIds.includes(biz.id);
                   return (
-                    <button
-                      key={biz.id}
-                      onMouseDown={e => e.preventDefault()}
-                      onClick={() => toggleBiz(biz)}
-                      className={cn(
-                        "w-full text-left px-3 py-2 text-sm flex items-center gap-2 hover:bg-muted/50 transition-colors",
-                        isSelected && "bg-primary/10"
-                      )}
-                    >
+                    <button key={biz.id} onMouseDown={e => e.preventDefault()} onClick={() => toggleBiz(biz)} className={cn("w-full text-left px-3 py-2 text-sm flex items-center gap-2 hover:bg-muted/50 transition-colors", isSelected && "bg-primary/10")}>
                       <Checkbox checked={isSelected} className="pointer-events-none" />
                       <span className="font-medium">{biz.name}</span>
                       {biz.city && <span className="text-xs text-muted-foreground">— {biz.city}</span>}
@@ -561,110 +352,179 @@ const InlineBusinessAssignment = ({
               </div>
             )}
           </div>
-
-          {/* Save */}
-          {isDirty && (
-            <Button onClick={save} disabled={saving} size="sm">
-              {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-              Enregistrer ({selectedIds.length} établissement{selectedIds.length > 1 ? "s" : ""})
-            </Button>
-          )}
+          {isDirty && <Button onClick={save} disabled={saving} size="sm">{saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Enregistrer ({selectedIds.length} établissement{selectedIds.length > 1 ? "s" : ""})</Button>}
         </div>
       )}
     </div>
   );
 };
 
-interface LinkedItem { id: string; name: string; }
+/* ─── Right panel: linked items with DnD + timeframes ─── */
+interface LinkedItemWithTime { id: string; name: string; type: "poi" | "business"; start_time: number | null; end_time: number | null; sort_order: number; }
 
-const SortableLinkedItem = ({ item }: { item: LinkedItem }) => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: item.id });
+const SortableTimeItem = ({ item, onChange }: { item: LinkedItemWithTime; onChange: (id: string, field: "start_time" | "end_time", val: number | null) => void }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
   const style = { transform: CSS.Transform.toString(transform), transition };
+
+  const parseNum = (v: string) => { const n = parseFloat(v); return isNaN(n) ? null : n; };
+
   return (
-    <div ref={setNodeRef} style={style} className={cn("flex items-center gap-0.5", isDragging && "opacity-50")}>
-      <span {...attributes} {...listeners} className="cursor-grab text-muted-foreground text-[9px]">⠿</span>
-      <Badge variant="secondary" className="text-[9px] px-1 py-0 truncate max-w-[200px]">{item.name}</Badge>
+    <div ref={setNodeRef} style={style} className={cn("flex items-center gap-2 p-2 rounded-md border bg-card", isDragging && "opacity-50 shadow-lg z-50")}>
+      <span {...attributes} {...listeners} className="cursor-grab text-muted-foreground hover:text-foreground shrink-0">
+        <GripVertical className="h-4 w-4" />
+      </span>
+      <div className={cn("shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold", item.type === "poi" ? "bg-primary/10 text-primary" : "bg-accent text-accent-foreground")}>
+        {item.type === "poi" ? <MapPin className="h-3 w-3" /> : <Building2 className="h-3 w-3" />}
+      </div>
+      <span className="text-xs font-medium truncate flex-1 min-w-0">{item.name}</span>
+      <div className="flex items-center gap-1 shrink-0">
+        <Clock className="h-3 w-3 text-muted-foreground" />
+        <Input
+          type="number"
+          step="0.1"
+          min="0"
+          placeholder="0"
+          value={item.start_time ?? ""}
+          onChange={e => onChange(item.id, "start_time", parseNum(e.target.value))}
+          className="w-16 h-7 text-xs px-1.5 text-center"
+        />
+        <span className="text-[10px] text-muted-foreground">→</span>
+        <Input
+          type="number"
+          step="0.1"
+          min="0"
+          placeholder="∞"
+          value={item.end_time ?? ""}
+          onChange={e => onChange(item.id, "end_time", parseNum(e.target.value))}
+          className="w-16 h-7 text-xs px-1.5 text-center"
+        />
+        <span className="text-[10px] text-muted-foreground">s</span>
+      </div>
     </div>
   );
 };
 
-const SortableLinkedList = ({
-  items,
-  icon: Icon,
-  label,
+const RightDetailPanel = ({
+  video,
+  onClose,
+  poiItems,
+  businessItems,
   onReorder,
+  onTimeChange,
+  onSave,
+  saving,
+  isDirty,
 }: {
-  items: LinkedItem[];
-  icon: React.ElementType;
-  label: string;
-  onReorder: (reordered: LinkedItem[]) => void;
+  video: GenericVideo;
+  onClose: () => void;
+  poiItems: LinkedItemWithTime[];
+  businessItems: LinkedItemWithTime[];
+  onReorder: (items: LinkedItemWithTime[]) => void;
+  onTimeChange: (id: string, field: "start_time" | "end_time", val: number | null) => void;
+  onSave: () => void;
+  saving: boolean;
+  isDirty: boolean;
 }) => {
-  const innerSensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 3 } }));
+  const allItems = useMemo(() => [...poiItems, ...businessItems].sort((a, b) => a.sort_order - b.sort_order), [poiItems, businessItems]);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 3 } }));
+  const isStorageVideo = video.url.includes("supabase.co/storage");
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-    const oldIndex = items.findIndex(i => i.id === active.id);
-    const newIndex = items.findIndex(i => i.id === over.id);
-    onReorder(arrayMove(items, oldIndex, newIndex));
+    const oldIndex = allItems.findIndex(i => i.id === active.id);
+    const newIndex = allItems.findIndex(i => i.id === over.id);
+    const reordered = arrayMove(allItems, oldIndex, newIndex).map((item, i) => ({ ...item, sort_order: i }));
+    onReorder(reordered);
   };
-  if (items.length === 0) return null;
+
   return (
-    <div className="space-y-0.5 pt-0.5">
-      <p className="text-[9px] text-muted-foreground flex items-center gap-1">
-        <Icon className="h-2.5 w-2.5" /> {items.length} {label}
-      </p>
-      <DndContext sensors={innerSensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={items.map(i => i.id)} strategy={rectSortingStrategy}>
-          <div className="flex flex-wrap gap-1">
-            {items.map(item => <SortableLinkedItem key={item.id} item={item} />)}
-          </div>
-        </SortableContext>
-      </DndContext>
+    <div className="h-full flex flex-col border-l bg-card">
+      {/* Header */}
+      <div className="flex items-center justify-between p-3 border-b bg-muted/30">
+        <div className="flex items-center gap-2 min-w-0">
+          <Play className="h-4 w-4 text-primary shrink-0" />
+          <span className="text-sm font-semibold truncate">{video.name || "Vidéo générique"}</span>
+        </div>
+        <Button variant="ghost" size="sm" onClick={onClose}>✕</Button>
+      </div>
+
+      {/* Video preview */}
+      <div className="p-3 border-b">
+        <div className="relative bg-black rounded-lg overflow-hidden" style={{ aspectRatio: "16/9" }}>
+          {video.thumbnail_url ? <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" /> :
+            isStorageVideo ? <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" controls /> :
+            <div className="w-full h-full bg-muted flex items-center justify-center"><Play className="h-8 w-8 text-muted-foreground" /></div>}
+        </div>
+        <p className="text-[10px] text-muted-foreground font-mono mt-1">{video.id}</p>
+      </div>
+
+      {/* Sortable list */}
+      <div className="flex-1 overflow-y-auto p-3 space-y-2">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs font-semibold text-muted-foreground">
+            {allItems.length} entité{allItems.length > 1 ? "s" : ""} liée{allItems.length > 1 ? "s" : ""}
+          </p>
+          {isDirty && (
+            <Button size="sm" onClick={onSave} disabled={saving} className="h-7 text-xs">
+              {saving && <Loader2 className="h-3 w-3 animate-spin mr-1" />}
+              Enregistrer
+            </Button>
+          )}
+        </div>
+
+        {allItems.length === 0 ? (
+          <p className="text-xs text-muted-foreground text-center py-8">Aucun POI ou établissement lié à cette vidéo</p>
+        ) : (
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={allItems.map(i => i.id)} strategy={verticalListSortingStrategy}>
+              <div className="space-y-1.5">
+                {allItems.map(item => <SortableTimeItem key={item.id} item={item} onChange={onTimeChange} />)}
+              </div>
+            </SortableContext>
+          </DndContext>
+        )}
+      </div>
+
+      {/* Legend */}
+      <div className="p-3 border-t text-[10px] text-muted-foreground flex items-center gap-4">
+        <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> POI</span>
+        <span className="flex items-center gap-1"><Building2 className="h-3 w-3" /> Établissement</span>
+        <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Début → Fin (secondes)</span>
+      </div>
     </div>
   );
 };
 
-/* ─── Sortable video card ─── */
+/* ─── Sortable video card (simplified - no inline linked lists) ─── */
 const SortableVideoCard = ({
   video,
-  poiItems,
-  businessItems,
+  poiCount,
+  bizCount,
+  isSelected,
+  onSelect,
   onPreview,
   onEditSocial,
   onEditDescription,
   onEditPois,
   onEditBusinesses,
-  onReorderPois,
-  onReorderBusinesses,
 }: {
   video: GenericVideo;
-  poiItems: LinkedItem[];
-  businessItems: LinkedItem[];
+  poiCount: number;
+  bizCount: number;
+  isSelected: boolean;
+  onSelect: (v: GenericVideo) => void;
   onPreview: (url: string) => void;
   onEditSocial: (v: GenericVideo) => void;
   onEditDescription: (v: GenericVideo) => void;
   onEditPois: (v: GenericVideo) => void;
   onEditBusinesses: (v: GenericVideo) => void;
-  onReorderPois: (videoId: string, items: LinkedItem[]) => void;
-  onReorderBusinesses: (videoId: string, items: LinkedItem[]) => void;
-})  => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: video.id });
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: video.id });
   const [copiedId, setCopiedId] = useState(false);
+  const style = { transform: CSS.Transform.toString(transform), transition };
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  const copyId = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    navigator.clipboard.writeText(video.id);
-    setCopiedId(true);
-    setTimeout(() => setCopiedId(false), 1500);
-  };
-
+  const copyId = (e: React.MouseEvent) => { e.stopPropagation(); navigator.clipboard.writeText(video.id); setCopiedId(true); setTimeout(() => setCopiedId(false), 1500); };
   const isStorageVideo = video.url.includes("supabase.co/storage");
   const hasSocial = video.instagram_account || video.tiktok_account || video.youtube_account;
   const hasDesc = video.description && video.description.replace(/<[^>]*>/g, "").trim().length > 0;
@@ -673,73 +533,33 @@ const SortableVideoCard = ({
     <div
       ref={setNodeRef}
       style={style}
+      onClick={() => onSelect(video)}
       className={cn(
-        "group relative rounded-lg border bg-card overflow-hidden transition-shadow hover:shadow-md",
-        isDragging && "opacity-50 z-50"
+        "group relative rounded-lg border bg-card overflow-hidden transition-shadow hover:shadow-md cursor-pointer",
+        isDragging && "opacity-50 z-50",
+        isSelected && "ring-2 ring-primary border-primary"
       )}
     >
-      {/* Video preview */}
-      <button
-        className="relative w-full bg-black cursor-pointer"
-        style={{ aspectRatio: "16/9" }}
-        onClick={() => onPreview(video.url)}
-      >
-        {video.thumbnail_url ? (
-          <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" />
-        ) : isStorageVideo ? (
-          <video
-            src={video.url}
-            className="w-full h-full object-contain"
-            muted
-            preload="metadata"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-muted">
-            <Play className="h-8 w-8 text-muted-foreground" />
-          </div>
-        )}
+      <button className="relative w-full bg-black" style={{ aspectRatio: "16/9" }} onClick={(e) => { e.stopPropagation(); onPreview(video.url); }}>
+        {video.thumbnail_url ? <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" /> :
+          isStorageVideo ? <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" /> :
+          <div className="w-full h-full flex items-center justify-center bg-muted"><Play className="h-8 w-8 text-muted-foreground" /></div>}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="w-10 h-10 rounded-full bg-primary/80 flex items-center justify-center">
-            <Play className="h-5 w-5 text-primary-foreground fill-primary-foreground ml-0.5" />
-          </div>
+          <div className="w-10 h-10 rounded-full bg-primary/80 flex items-center justify-center"><Play className="h-5 w-5 text-primary-foreground fill-primary-foreground ml-0.5" /></div>
         </div>
-
-        {/* TXT button */}
-        <button
-          type="button"
-          onClick={(e) => { e.stopPropagation(); onEditDescription(video); }}
-          className={cn(
-            "absolute bottom-2 right-2 z-10 px-2 py-1 rounded text-[10px] font-bold transition-opacity",
-            hasDesc
-              ? "bg-primary text-primary-foreground"
-              : "bg-background/80 text-muted-foreground border border-border/50 opacity-0 group-hover:opacity-100"
-          )}
-        >
-          TXT
-        </button>
+        {hasDesc && <span className="absolute bottom-2 right-2 z-10 px-2 py-1 rounded text-[10px] font-bold bg-primary text-primary-foreground">TXT</span>}
       </button>
 
-      {/* Info */}
       <div className="p-2 space-y-1">
-        {video.name && (
-          <p className="text-xs font-medium truncate">{video.name}</p>
-        )}
-
-        {/* ID copiable */}
-        <button
-          onClick={copyId}
-          className="flex items-center gap-1 text-[10px] text-muted-foreground font-mono hover:text-foreground transition-colors"
-        >
+        {video.name && <p className="text-xs font-medium truncate">{video.name}</p>}
+        <button onClick={copyId} className="flex items-center gap-1 text-[10px] text-muted-foreground font-mono hover:text-foreground transition-colors">
           {copiedId ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
           <span className="truncate max-w-[180px]">{video.id}</span>
         </button>
-
         <div className="flex flex-wrap gap-1">
           {video.city && <Badge variant="outline" className="text-[10px] px-1.5 py-0">{video.city}</Badge>}
           {video.neighborhood && <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{video.neighborhood}</Badge>}
         </div>
-
-        {/* Social badges */}
         {hasSocial && (
           <div className="flex flex-wrap gap-1 pt-0.5">
             {video.instagram_account && <Badge variant="outline" className="text-[10px] px-1.5 py-0">IG: {video.instagram_account}</Badge>}
@@ -747,59 +567,15 @@ const SortableVideoCard = ({
             {video.youtube_account && <Badge variant="outline" className="text-[10px] px-1.5 py-0">YT: {video.youtube_account}</Badge>}
           </div>
         )}
-
-        {/* Edit social links button */}
-        <button
-          type="button"
-          onClick={() => onEditSocial(video)}
-          className="text-[10px] text-primary hover:underline"
-        >
-          {hasSocial ? "Modifier les liens sociaux" : "+ Ajouter des liens sociaux"}
-        </button>
-
-        {/* POI sortable list */}
-        <SortableLinkedList
-          items={poiItems}
-          icon={MapPin}
-          label="POI"
-          onReorder={(items) => onReorderPois(video.id, items)}
-        />
-
-        {/* Edit POIs button */}
-        <button
-          type="button"
-          onClick={() => onEditPois(video)}
-          className="text-[10px] text-primary hover:underline"
-        >
-          {poiItems.length > 0 ? `${poiItems.length} POI • Modifier` : "+ Ajouter des POI"}
-        </button>
-
-        {/* Business sortable list */}
-        <SortableLinkedList
-          items={businessItems}
-          icon={Building2}
-          label="établissement(s)"
-          onReorder={(items) => onReorderBusinesses(video.id, items)}
-        />
-
-        {/* Edit businesses button */}
-        <button
-          type="button"
-          onClick={() => onEditBusinesses(video)}
-          className="text-[10px] text-primary hover:underline"
-        >
-          {businessItems.length > 0 ? `${businessItems.length} établissement(s) • Modifier` : "+ Ajouter des établissements"}
-        </button>
+        <div className="flex flex-wrap gap-2 pt-1">
+          <button type="button" onClick={(e) => { e.stopPropagation(); onEditSocial(video); }} className="text-[10px] text-primary hover:underline">{hasSocial ? "Liens sociaux" : "+ Sociaux"}</button>
+          <button type="button" onClick={(e) => { e.stopPropagation(); onEditDescription(video); }} className="text-[10px] text-primary hover:underline">{hasDesc ? "Description" : "+ Description"}</button>
+          <button type="button" onClick={(e) => { e.stopPropagation(); onEditPois(video); }} className="text-[10px] text-primary hover:underline">{poiCount > 0 ? `${poiCount} POI` : "+ POI"}</button>
+          <button type="button" onClick={(e) => { e.stopPropagation(); onEditBusinesses(video); }} className="text-[10px] text-primary hover:underline">{bizCount > 0 ? `${bizCount} Étab.` : "+ Étab."}</button>
+        </div>
       </div>
 
-      {/* Drag handle */}
-      <div
-        {...attributes}
-        {...listeners}
-        className="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded bg-background/80 border border-border/50 text-[10px] text-muted-foreground cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        ⠿
-      </div>
+      <div {...attributes} {...listeners} className="absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded bg-background/80 border border-border/50 text-[10px] text-muted-foreground cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>⠿</div>
     </div>
   );
 };
@@ -814,9 +590,19 @@ const GenericVideosPanel = () => {
   const [socialVideo, setSocialVideo] = useState<GenericVideo | null>(null);
   const [descVideo, setDescVideo] = useState<GenericVideo | null>(null);
   const [poiVideo, setPoiVideo] = useState<GenericVideo | null>(null);
-  const [videoPoiMap, setVideoPoiMap] = useState<Record<string, LinkedItem[]>>({});
   const [businessVideo, setBusinessVideo] = useState<GenericVideo | null>(null);
-  const [videoBusinessMap, setVideoBusinessMap] = useState<Record<string, LinkedItem[]>>({});
+
+  // Selected video for right panel
+  const [selectedVideo, setSelectedVideo] = useState<GenericVideo | null>(null);
+  // Linked items with times for the right panel
+  const [panelItems, setPanelItems] = useState<LinkedItemWithTime[]>([]);
+  const [panelItemsInitial, setPanelItemsInitial] = useState<string>(""); // JSON snapshot for dirty check
+  const [panelLoading, setPanelLoading] = useState(false);
+  const [panelSaving, setPanelSaving] = useState(false);
+
+  // POI/business counts for badges
+  const [videoPoiCounts, setVideoPoiCounts] = useState<Record<string, number>>({});
+  const [videoBizCounts, setVideoBizCounts] = useState<Record<string, number>>({});
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -825,209 +611,197 @@ const GenericVideosPanel = () => {
 
   const loadVideos = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from("generic_videos" as any)
-      .select("*")
-      .order("sort_order", { ascending: true });
+    const { data } = await supabase.from("generic_videos" as any).select("*").order("sort_order", { ascending: true });
     setVideos((data as unknown as GenericVideo[]) || []);
     setLoading(false);
   }, []);
 
-  const loadPoiMap = useCallback(async () => {
-    const { data: links } = await supabase
-      .from("generic_video_pois" as any)
-      .select("generic_video_id, poi_id, sort_order") as { data: any[] | null };
-    if (!links || links.length === 0) { setVideoPoiMap({}); return; }
-    const poiIds = [...new Set(links.map((l: any) => l.poi_id))];
-    const { data: pois } = await supabase
-      .from("points_of_interest")
-      .select("id, name_fr")
-      .in("id", poiIds);
-    const nameMap: Record<string, string> = {};
-    (pois || []).forEach((p: any) => { nameMap[p.id] = p.name_fr; });
-    const map: Record<string, LinkedItem[]> = {};
-    links.sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0));
-    links.forEach((l: any) => {
-      if (!map[l.generic_video_id]) map[l.generic_video_id] = [];
-      if (nameMap[l.poi_id]) map[l.generic_video_id].push({ id: l.poi_id, name: nameMap[l.poi_id] });
-    });
-    setVideoPoiMap(map);
+  const loadCounts = useCallback(async () => {
+    const [{ data: poiLinks }, { data: bizLinks }] = await Promise.all([
+      supabase.from("generic_video_pois" as any).select("generic_video_id") as any,
+      supabase.from("generic_video_businesses" as any).select("generic_video_id") as any,
+    ]);
+    const pc: Record<string, number> = {};
+    ((poiLinks as any[]) || []).forEach((l: any) => { pc[l.generic_video_id] = (pc[l.generic_video_id] || 0) + 1; });
+    setVideoPoiCounts(pc);
+    const bc: Record<string, number> = {};
+    ((bizLinks as any[]) || []).forEach((l: any) => { bc[l.generic_video_id] = (bc[l.generic_video_id] || 0) + 1; });
+    setVideoBizCounts(bc);
   }, []);
 
-  const loadBusinessMap = useCallback(async () => {
-    const { data: links } = await supabase
-      .from("generic_video_businesses" as any)
-      .select("generic_video_id, business_id, sort_order") as { data: any[] | null };
-    if (!links || links.length === 0) { setVideoBusinessMap({}); return; }
-    const bizIds = [...new Set(links.map((l: any) => l.business_id))];
-    const { data: biz } = await supabase
-      .from("businesses")
-      .select("id, name")
-      .in("id", bizIds);
-    const nameMap: Record<string, string> = {};
-    (biz || []).forEach((b: any) => { nameMap[b.id] = b.name; });
-    const map: Record<string, LinkedItem[]> = {};
-    links.sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0));
-    links.forEach((l: any) => {
-      if (!map[l.generic_video_id]) map[l.generic_video_id] = [];
-      if (nameMap[l.business_id]) map[l.generic_video_id].push({ id: l.business_id, name: nameMap[l.business_id] });
-    });
-    setVideoBusinessMap(map);
+  const loadPanelItems = useCallback(async (videoId: string) => {
+    setPanelLoading(true);
+    const [{ data: poiLinks }, { data: bizLinks }] = await Promise.all([
+      supabase.from("generic_video_pois" as any).select("poi_id, sort_order, start_time, end_time").eq("generic_video_id", videoId) as unknown as { data: any[] | null },
+      supabase.from("generic_video_businesses" as any).select("business_id, sort_order, start_time, end_time").eq("generic_video_id", videoId) as unknown as { data: any[] | null },
+    ]);
+
+    const items: LinkedItemWithTime[] = [];
+
+    if (poiLinks && poiLinks.length > 0) {
+      const poiIds = poiLinks.map((l: any) => l.poi_id);
+      const { data: pois } = await supabase.from("points_of_interest").select("id, name_fr").in("id", poiIds);
+      const nameMap: Record<string, string> = {};
+      (pois || []).forEach((p: any) => { nameMap[p.id] = p.name_fr; });
+      poiLinks.forEach((l: any) => {
+        if (nameMap[l.poi_id]) items.push({ id: l.poi_id, name: nameMap[l.poi_id], type: "poi", start_time: l.start_time, end_time: l.end_time, sort_order: l.sort_order ?? 0 });
+      });
+    }
+
+    if (bizLinks && bizLinks.length > 0) {
+      const bizIds = bizLinks.map((l: any) => l.business_id);
+      const { data: biz } = await supabase.from("businesses").select("id, name").in("id", bizIds);
+      const nameMap: Record<string, string> = {};
+      (biz || []).forEach((b: any) => { nameMap[b.id] = b.name; });
+      bizLinks.forEach((l: any) => {
+        if (nameMap[l.business_id]) items.push({ id: l.business_id, name: nameMap[l.business_id], type: "business", start_time: l.start_time, end_time: l.end_time, sort_order: l.sort_order ?? 0 });
+      });
+    }
+
+    items.sort((a, b) => a.sort_order - b.sort_order);
+    setPanelItems(items);
+    setPanelItemsInitial(JSON.stringify(items));
+    setPanelLoading(false);
   }, []);
 
   useEffect(() => {
     loadVideos();
-    loadPoiMap();
-    loadBusinessMap();
-  }, [loadVideos, loadPoiMap, loadBusinessMap]);
+    loadCounts();
+  }, [loadVideos, loadCounts]);
+
+  useEffect(() => {
+    if (selectedVideo) loadPanelItems(selectedVideo.id);
+  }, [selectedVideo, loadPanelItems]);
+
+  const handleSelectVideo = useCallback((v: GenericVideo) => {
+    setSelectedVideo(prev => prev?.id === v.id ? null : v);
+  }, []);
 
   const handleCreate = useCallback(async () => {
     if (!uploadedUrl) return;
     setCreating(true);
     const nextOrder = videos.length > 0 ? Math.max(...videos.map(v => v.sort_order)) + 1 : 0;
-    const { error } = await supabase
-      .from("generic_videos" as any)
-      .insert({ url: uploadedUrl, sort_order: nextOrder } as any);
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success("Vidéo générique ajoutée");
-      setUploadedUrl("");
-      await loadVideos();
-    }
+    const { error } = await supabase.from("generic_videos" as any).insert({ url: uploadedUrl, sort_order: nextOrder } as any);
+    if (error) toast.error(error.message);
+    else { toast.success("Vidéo générique ajoutée"); setUploadedUrl(""); await loadVideos(); }
     setCreating(false);
   }, [uploadedUrl, videos, loadVideos]);
 
   const handleDragEnd = useCallback(async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-
     const oldIndex = videos.findIndex(v => v.id === active.id);
     const newIndex = videos.findIndex(v => v.id === over.id);
     const reordered = arrayMove(videos, oldIndex, newIndex);
     setVideos(reordered);
-
-    await Promise.all(
-      reordered.map((v, i) =>
-        supabase.from("generic_videos" as any).update({ sort_order: i } as any).eq("id", v.id)
-      )
-    );
+    await Promise.all(reordered.map((v, i) => supabase.from("generic_videos" as any).update({ sort_order: i } as any).eq("id", v.id)));
   }, [videos]);
 
-  const handleReorderPois = useCallback(async (videoId: string, items: LinkedItem[]) => {
-    setVideoPoiMap(prev => ({ ...prev, [videoId]: items }));
-    await Promise.all(
-      items.map((item, i) =>
-        supabase.from("generic_video_pois" as any).update({ sort_order: i } as any).eq("generic_video_id", videoId).eq("poi_id", item.id)
-      )
-    );
+  const handlePanelReorder = useCallback((items: LinkedItemWithTime[]) => {
+    setPanelItems(items);
   }, []);
 
-  const handleReorderBusinesses = useCallback(async (videoId: string, items: LinkedItem[]) => {
-    setVideoBusinessMap(prev => ({ ...prev, [videoId]: items }));
-    await Promise.all(
-      items.map((item, i) =>
-        supabase.from("generic_video_businesses" as any).update({ sort_order: i } as any).eq("generic_video_id", videoId).eq("business_id", item.id)
-      )
-    );
+  const handlePanelTimeChange = useCallback((id: string, field: "start_time" | "end_time", val: number | null) => {
+    setPanelItems(prev => prev.map(item => item.id === id ? { ...item, [field]: val } : item));
   }, []);
+
+  const panelIsDirty = JSON.stringify(panelItems) !== panelItemsInitial;
+
+  const handlePanelSave = useCallback(async () => {
+    if (!selectedVideo) return;
+    setPanelSaving(true);
+
+    const poiItems = panelItems.filter(i => i.type === "poi");
+    const bizItems = panelItems.filter(i => i.type === "business");
+
+    await Promise.all([
+      ...poiItems.map((item, i) =>
+        supabase.from("generic_video_pois" as any).update({ sort_order: panelItems.indexOf(item), start_time: item.start_time, end_time: item.end_time } as any).eq("generic_video_id", selectedVideo.id).eq("poi_id", item.id)
+      ),
+      ...bizItems.map((item, i) =>
+        supabase.from("generic_video_businesses" as any).update({ sort_order: panelItems.indexOf(item), start_time: item.start_time, end_time: item.end_time } as any).eq("generic_video_id", selectedVideo.id).eq("business_id", item.id)
+      ),
+    ]);
+
+    toast.success("Ordre et time frames enregistrés");
+    setPanelItemsInitial(JSON.stringify(panelItems));
+    setPanelSaving(false);
+  }, [selectedVideo, panelItems]);
 
   return (
-    <div className="space-y-6 pt-4">
-      {/* Upload zone */}
-      <div className="max-w-2xl space-y-3">
-        <VideoUploader
-          videoUrl={uploadedUrl}
-          onChange={setUploadedUrl}
-          businessId="generic"
-        />
-        {uploadedUrl && (
-          <Button onClick={handleCreate} disabled={creating}>
-            {creating && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-            <Upload className="h-4 w-4 mr-2" />
-            Ajouter comme vidéo générique
-          </Button>
+    <div className="flex" style={{ minHeight: "calc(100vh - 200px)" }}>
+      {/* Left: video grid */}
+      <div className={cn("flex-1 space-y-6 pt-4 pr-4 overflow-y-auto", selectedVideo && "w-1/2")}>
+        {/* Upload zone */}
+        <div className="max-w-2xl space-y-3">
+          <VideoUploader videoUrl={uploadedUrl} onChange={setUploadedUrl} businessId="generic" />
+          {uploadedUrl && (
+            <Button onClick={handleCreate} disabled={creating}>
+              {creating && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              <Upload className="h-4 w-4 mr-2" />Ajouter comme vidéo générique
+            </Button>
+          )}
+        </div>
+
+        {loading ? (
+          <div className="flex items-center justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+        ) : videos.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-8">Aucune vidéo générique</p>
+        ) : (
+          <>
+            <p className="text-sm text-muted-foreground">{videos.length} vidéo{videos.length > 1 ? "s" : ""} • Cliquez pour voir les entités liées</p>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={videos.map(v => v.id)} strategy={rectSortingStrategy}>
+                <div className="flex flex-wrap gap-4">
+                  {videos.map(video => (
+                    <div key={video.id} style={{ width: 260 }}>
+                      <SortableVideoCard
+                        video={video}
+                        poiCount={videoPoiCounts[video.id] || 0}
+                        bizCount={videoBizCounts[video.id] || 0}
+                        isSelected={selectedVideo?.id === video.id}
+                        onSelect={handleSelectVideo}
+                        onPreview={setLightboxUrl}
+                        onEditSocial={setSocialVideo}
+                        onEditDescription={setDescVideo}
+                        onEditPois={setPoiVideo}
+                        onEditBusinesses={setBusinessVideo}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
+          </>
         )}
       </div>
 
-      {/* Videos grid */}
-      {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      {/* Right: detail panel */}
+      {selectedVideo && (
+        <div className="w-1/2 sticky top-0 h-screen overflow-hidden">
+          {panelLoading ? (
+            <div className="h-full flex items-center justify-center border-l bg-card"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+          ) : (
+            <RightDetailPanel
+              video={selectedVideo}
+              onClose={() => setSelectedVideo(null)}
+              poiItems={panelItems.filter(i => i.type === "poi")}
+              businessItems={panelItems.filter(i => i.type === "business")}
+              onReorder={handlePanelReorder}
+              onTimeChange={handlePanelTimeChange}
+              onSave={handlePanelSave}
+              saving={panelSaving}
+              isDirty={panelIsDirty}
+            />
+          )}
         </div>
-      ) : videos.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-8">Aucune vidéo générique</p>
-      ) : (
-        <>
-          <p className="text-sm text-muted-foreground">
-            {videos.length} vidéo{videos.length > 1 ? "s" : ""} • Glissez-déposez pour réorganiser
-          </p>
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext items={videos.map(v => v.id)} strategy={rectSortingStrategy}>
-              <div className="flex flex-wrap gap-4">
-                {videos.map(video => (
-                  <div key={video.id} style={{ width: 280 }}>
-                    <SortableVideoCard
-                      video={video}
-                      poiItems={videoPoiMap[video.id] || []}
-                      businessItems={videoBusinessMap[video.id] || []}
-                      onPreview={setLightboxUrl}
-                      onEditSocial={setSocialVideo}
-                      onEditDescription={setDescVideo}
-                      onEditPois={setPoiVideo}
-                      onEditBusinesses={setBusinessVideo}
-                      onReorderPois={handleReorderPois}
-                      onReorderBusinesses={handleReorderBusinesses}
-                    />
-                  </div>
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-        </>
       )}
 
-      {lightboxUrl && (
-        <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />
-      )}
-
-      {socialVideo && (
-        <SocialLinksDialog
-          video={socialVideo}
-          open={!!socialVideo}
-          onOpenChange={(o) => !o && setSocialVideo(null)}
-          onSaved={loadVideos}
-        />
-      )}
-
-      {descVideo && (
-        <DescriptionDialog
-          video={descVideo}
-          open={!!descVideo}
-          onOpenChange={(o) => !o && setDescVideo(null)}
-          onSaved={loadVideos}
-        />
-      )}
-
-      {poiVideo && (
-        <InlinePoiAssignment
-          video={poiVideo}
-          onClose={() => setPoiVideo(null)}
-          onSaved={loadPoiMap}
-        />
-      )}
-
-      {businessVideo && (
-        <InlineBusinessAssignment
-          video={businessVideo}
-          onClose={() => setBusinessVideo(null)}
-          onSaved={loadBusinessMap}
-        />
-      )}
+      {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
+      {socialVideo && <SocialLinksDialog video={socialVideo} open={!!socialVideo} onOpenChange={(o) => !o && setSocialVideo(null)} onSaved={loadVideos} />}
+      {descVideo && <DescriptionDialog video={descVideo} open={!!descVideo} onOpenChange={(o) => !o && setDescVideo(null)} onSaved={loadVideos} />}
+      {poiVideo && <InlinePoiAssignment video={poiVideo} onClose={() => setPoiVideo(null)} onSaved={() => { loadCounts(); if (selectedVideo?.id === poiVideo.id) loadPanelItems(poiVideo.id); }} />}
+      {businessVideo && <InlineBusinessAssignment video={businessVideo} onClose={() => setBusinessVideo(null)} onSaved={() => { loadCounts(); if (selectedVideo?.id === businessVideo.id) loadPanelItems(businessVideo.id); }} />}
     </div>
   );
 };
