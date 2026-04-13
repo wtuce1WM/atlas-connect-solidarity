@@ -843,10 +843,31 @@ const GenericVideosPanel = () => {
     setVideoPoiMap(map);
   }, []);
 
+  const loadBusinessMap = useCallback(async () => {
+    const { data: links } = await supabase
+      .from("generic_video_businesses" as any)
+      .select("generic_video_id, business_id") as { data: any[] | null };
+    if (!links || links.length === 0) { setVideoBusinessMap({}); return; }
+    const bizIds = [...new Set(links.map((l: any) => l.business_id))];
+    const { data: biz } = await supabase
+      .from("businesses")
+      .select("id, name")
+      .in("id", bizIds);
+    const nameMap: Record<string, string> = {};
+    (biz || []).forEach((b: any) => { nameMap[b.id] = b.name; });
+    const map: Record<string, string[]> = {};
+    links.forEach((l: any) => {
+      if (!map[l.generic_video_id]) map[l.generic_video_id] = [];
+      if (nameMap[l.business_id]) map[l.generic_video_id].push(nameMap[l.business_id]);
+    });
+    setVideoBusinessMap(map);
+  }, []);
+
   useEffect(() => {
     loadVideos();
     loadPoiMap();
-  }, [loadVideos, loadPoiMap]);
+    loadBusinessMap();
+  }, [loadVideos, loadPoiMap, loadBusinessMap]);
 
   const handleCreate = useCallback(async () => {
     if (!uploadedUrl) return;
