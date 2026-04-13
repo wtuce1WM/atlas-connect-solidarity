@@ -201,7 +201,7 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
       };
     }));
     setLoading(false);
-  }, []);
+  }, [withSubcategory]);
 
   useEffect(() => { load(); }, [load]);
 
