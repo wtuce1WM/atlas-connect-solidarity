@@ -6,7 +6,7 @@ import {
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
   Strikethrough, Highlighter, Superscript, Subscript,
   Quote, Minus, ImagePlus, TableIcon, Youtube, Palette,
-  Plus, Trash2, ArrowDown, ArrowRight,
+  Plus, Trash2, ArrowDown, ArrowRight, Smile,
 } from "lucide-react";
 import { useCallback, useState } from "react";
 import {
@@ -41,6 +41,16 @@ const ToolbarButton = ({
 );
 
 const Sep = () => <div className="w-px h-8 bg-border mx-1" />;
+
+const EMOJI_CATEGORIES: { label: string; emojis: string[] }[] = [
+  { label: "Smileys", emojis: ["😀","😃","😄","😁","😆","😅","🤣","😂","🙂","😊","😇","🥰","😍","🤩","😘","😋","😛","🤗","🤔","😐","😑","😶","🙄","😏","😌","😴","🤤","😷","🤒","🤕","🤢","🤮","🥵","🥶","😵","🤯","🤠","🥳","😎","🤓","🧐"] },
+  { label: "Gestes", emojis: ["👍","👎","👌","✌️","🤞","🤟","🤘","🤙","👈","👉","👆","👇","☝️","✋","🤚","🖐️","🖖","👋","🤝","🙏","✍️","💪","🦾","🖕","👏","🫶","❤️‍🔥"] },
+  { label: "Objets", emojis: ["⭐","🌟","✨","💫","🔥","💯","❤️","🧡","💛","💚","💙","💜","🖤","🤍","💔","💕","💖","💗","💘","💝","🏆","🎯","🎪","🎨","🎬","🎭","🎶","🎵","📌","📍","🔗","💡","🔔","📢","📣","💰","💵","💎","🎁","🎉","🎊"] },
+  { label: "Nourriture", emojis: ["🍽️","🍴","🥄","🔪","☕","🍵","🥤","🍷","🍸","🍹","🍺","🥂","🧃","🍕","🍔","🍟","🌭","🥪","🌮","🌯","🥗","🍝","🍜","🍣","🍱","🥘","🧆","🥙","🍰","🎂","🍫","🍩","🍪","🧁","🍦","🍓","🍒","🍑","🥑","🫒","🌶️","🧀"] },
+  { label: "Voyages", emojis: ["✈️","🛩️","🚀","🛸","🚁","⛵","🛥️","🚢","🚗","🚕","🚌","🏨","🏠","🏡","🏢","🏛️","⛪","🕌","🕍","🗼","🗽","🏰","🌍","🌎","🌏","🗺️","🧭","⛰️","🏔️","🌋","🏖️","🏝️","🌅","🌄","🌇","🌆","🌃","🌉","♨️","🎡","🎢","🎠"] },
+  { label: "Nature", emojis: ["🌸","🌺","🌻","🌹","🌷","🌼","🌿","🍀","🍁","🍂","🍃","🌳","🌴","🌵","🎋","🎍","🌾","☀️","🌤️","⛅","🌥️","🌦️","🌧️","⛈️","🌩️","🌈","🌊","💧","❄️","☃️","🐾","🦋","🐝","🐞","🌙","⭐","🌠"] },
+  { label: "Symboles", emojis: ["✅","❌","⚠️","🚫","♻️","💲","©️","®️","™️","➡️","⬅️","⬆️","⬇️","↗️","↘️","↙️","↖️","↕️","↔️","🔄","🔃","➕","➖","✖️","➗","💠","🔶","🔷","🔴","🟠","🟡","🟢","🔵","🟣","⚫","⚪","🟤","🔲","🔳","▪️","▫️"] },
+];
 
 const MAX_GRID = 8;
 
@@ -201,6 +211,36 @@ const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
       <ToolbarButton onClick={addYoutube} title="Insérer vidéo YouTube">
         <Youtube className="h-4 w-4" />
       </ToolbarButton>
+
+      {/* Emoji picker */}
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button type="button" variant="ghost" size="sm" className="h-8 w-8 p-0" title="Insérer un émoji">
+            <Smile className="h-4 w-4" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-80 p-2" align="start">
+          <div className="max-h-64 overflow-y-auto space-y-2">
+            {EMOJI_CATEGORIES.map((cat) => (
+              <div key={cat.label}>
+                <p className="text-xs font-medium text-muted-foreground mb-1">{cat.label}</p>
+                <div className="flex flex-wrap gap-0.5">
+                  {cat.emojis.map((emoji) => (
+                    <button
+                      key={emoji}
+                      type="button"
+                      className="w-7 h-7 flex items-center justify-center rounded hover:bg-muted text-base cursor-pointer transition-colors"
+                      onClick={() => editor.chain().focus().insertContent(emoji).run()}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </PopoverContent>
+      </Popover>
 
       <Popover>
         <PopoverTrigger asChild>
