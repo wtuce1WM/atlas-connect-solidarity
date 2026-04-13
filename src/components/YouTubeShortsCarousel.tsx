@@ -47,6 +47,33 @@ const YouTubeShortsCarousel = ({ youtubeUrl, businessId, onVideoCount, onPlaying
       setIsLoading(true);
       setError(null);
       try {
+        // Try DB first if businessId is provided
+        if (businessId) {
+          const { data: dbVideos } = await supabase
+            .from("business_youtube_videos")
+            .select("*")
+            .eq("business_id", businessId)
+            .eq("is_visible", true)
+            .order("sort_order", { ascending: true });
+
+          if (dbVideos && dbVideos.length > 0) {
+            const items: YouTubeVideo[] = dbVideos.map((v: any) => ({
+              videoId: v.video_id,
+              title: v.title,
+              thumbnail: v.thumbnail,
+              publishedAt: v.published_at || "",
+              isShort: v.is_short,
+              durationSeconds: v.duration_seconds,
+            }));
+            setVideos(items);
+            onVideoCount?.(items.length);
+            onVideosLoaded?.(items);
+            setIsLoading(false);
+            return;
+          }
+        }
+
+        // Fallback: fetch from YouTube API
         const { data, error: fnError } = await supabase.functions.invoke("fetch-youtube-channel", {
           body: { channelUrl: youtubeUrl, maxResults: 20 },
         });
@@ -65,7 +92,7 @@ const YouTubeShortsCarousel = ({ youtubeUrl, businessId, onVideoCount, onPlaying
     };
 
     fetchVideos();
-  }, [youtubeUrl]);
+  }, [youtubeUrl, businessId]);
 
   const scroll = useCallback((dir: number) => {
     scrollRef.current?.scrollBy({ left: dir * 220, behavior: "smooth" });
