@@ -104,7 +104,7 @@ function markerSvgUrl(isVerified: boolean): string {
 }
 
 /* ── InfoWindow HTML (dark immersive style matching PoiGoogleMap) ── */
-function infoHtml(b: MapBusiness, hasClickHandler: boolean): string {
+function infoHtml(b: MapBusiness): string {
   const isVerified = b.wtuce_status === "verified";
   const subcategory = b.categories?.[0] || b.main_category || "";
   const thumbnail = b.images?.[0] || "";
@@ -120,9 +120,6 @@ function infoHtml(b: MapBusiness, hasClickHandler: boolean): string {
       </div>`
     : "";
 
-  const actionBtn = hasClickHandler
-    ? `<button data-business-id="${b.id}" style="flex:1;padding:6px 0;border-radius:6px;background:#D4AF37;color:white;font-size:11px;font-weight:600;border:none;cursor:pointer;">Voir la fiche →</button>`
-    : `<a href="/business/${b.id}" style="flex:1;padding:6px 0;border-radius:6px;background:#D4AF37;color:white;font-size:11px;font-weight:600;text-decoration:none;text-align:center;display:block;">Voir la fiche →</a>`;
 
   return `<div style="width:260px;font-family:system-ui,sans-serif;overflow:hidden;border-radius:10px;position:relative;">
     ${thumbnail
