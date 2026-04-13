@@ -243,7 +243,7 @@ const PoiAssignDialog = ({
         toAdd.map(poi_id => ({ generic_video_id: video.id, poi_id })) as any
       );
     }
-    await Promise.all(promises);
+    
     toast.success("POI enregistrés");
     onSaved();
     onOpenChange(false);
