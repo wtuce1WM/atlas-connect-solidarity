@@ -51,6 +51,7 @@ const EMPTY_FORM = {
   kp_regroupement: [] as string[],
   logo_url: "",
   type: "",
+  city_id: "",
   recurrence: "",
   google_maps_url: "",
   latitude: "" as string | number,
@@ -171,6 +172,7 @@ const EventManagement = () => {
   const [saving, setSaving] = useState(false);
   const [kpInput, setKpInput] = useState("");
   const [eventTypes, setEventTypes] = useState<string[]>([]);
+  const [cities, setCities] = useState<{ id: string; name_fr: string }[]>([]);
   const [newTypeInput, setNewTypeInput] = useState("");
   const [showNewType, setShowNewType] = useState(false);
 
@@ -189,7 +191,12 @@ const EventManagement = () => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchEvents(); fetchEventTypes(); }, []);
+  const fetchCities = async () => {
+    const { data } = await supabase.from("cities").select("id, name_fr").order("name_fr");
+    if (data) setCities(data);
+  };
+
+  useEffect(() => { fetchEvents(); fetchEventTypes(); fetchCities(); }, []);
 
   const openNew = () => {
     setEditingId(null);
@@ -212,6 +219,7 @@ const EventManagement = () => {
       kp_regroupement: ev.kp_regroupement || [],
       logo_url: ev.logo_url || "",
       type: ev.type || "",
+      city_id: (ev as any).city_id || "",
       recurrence: (ev as any).recurrence || "",
       google_maps_url: ev.google_maps_url || "",
       latitude: ev.latitude ?? "",
@@ -249,6 +257,7 @@ const EventManagement = () => {
       kp_regroupement: form.kp_regroupement,
       logo_url: form.logo_url || null,
       type: form.type || null,
+      city_id: form.city_id || null,
       recurrence: form.recurrence || null,
       google_maps_url: form.google_maps_url || null,
       latitude: form.latitude ? Number(form.latitude) : null,
@@ -369,6 +378,20 @@ const EventManagement = () => {
                     </Button>
                   </div>
                 )}
+              </div>
+              <div>
+                <Label>Ville</Label>
+                <Select value={form.city_id || "__none__"} onValueChange={v => setForm(p => ({ ...p, city_id: v === "__none__" ? "" : v }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Aucune" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">Aucune</SelectItem>
+                    {cities.map(c => (
+                      <SelectItem key={c.id} value={c.id}>{c.name_fr}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label>Récurrence</Label>
