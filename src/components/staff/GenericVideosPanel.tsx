@@ -944,10 +944,12 @@ const GenericVideosPanel = () => {
                     <SortableVideoCard
                       video={video}
                       poiNames={videoPoiMap[video.id] || []}
+                      businessNames={videoBusinessMap[video.id] || []}
                       onPreview={setLightboxUrl}
                       onEditSocial={setSocialVideo}
                       onEditDescription={setDescVideo}
                       onEditPois={setPoiVideo}
+                      onEditBusinesses={setBusinessVideo}
                     />
                   </div>
                 ))}
