@@ -178,6 +178,13 @@ const EventManagement = () => {
   const [newTypeInput, setNewTypeInput] = useState("");
   const [showNewType, setShowNewType] = useState(false);
 
+  // Linked businesses
+  const [linkedBusinessIds, setLinkedBusinessIds] = useState<string[]>([]);
+  const [linkedBusinesses, setLinkedBusinesses] = useState<{ id: string; name: string; city: string | null }[]>([]);
+  const [bizSearchQuery, setBizSearchQuery] = useState("");
+  const [bizSearchResults, setBizSearchResults] = useState<{ id: string; name: string; city: string | null }[]>([]);
+  const [bizSearching, setBizSearching] = useState(false);
+
   const fetchEventTypes = async () => {
     const { data } = await supabase.from("event_types").select("name").order("name");
     if (data) setEventTypes(data.map(d => (d as any).name));
