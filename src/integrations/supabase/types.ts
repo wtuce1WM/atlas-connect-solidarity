@@ -1912,6 +1912,7 @@ export type Database = {
       }
       events: {
         Row: {
+          city_id: string | null
           created_at: string
           description: string | null
           end_date: string | null
@@ -1934,6 +1935,7 @@ export type Database = {
           videos: string[] | null
         }
         Insert: {
+          city_id?: string | null
           created_at?: string
           description?: string | null
           end_date?: string | null
@@ -1956,6 +1958,7 @@ export type Database = {
           videos?: string[] | null
         }
         Update: {
+          city_id?: string | null
           created_at?: string
           description?: string | null
           end_date?: string | null
@@ -1977,7 +1980,15 @@ export type Database = {
           url_force_external?: boolean | null
           videos?: string[] | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "events_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       front_structure: {
         Row: {
