@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -8,19 +9,15 @@ const corsHeaders = {
 
 /** Extract channel identifier from various YouTube URL formats */
 function parseChannelUrl(url: string): { type: "handle" | "channel" | "user"; value: string } | null {
-  // @handle format: youtube.com/@handle
   const handleMatch = url.match(/youtube\.com\/@([\w.-]+)/);
   if (handleMatch) return { type: "handle", value: handleMatch[1] };
 
-  // channel ID format: youtube.com/channel/UCxxxxxxx
   const channelMatch = url.match(/youtube\.com\/channel\/(UC[\w-]+)/);
   if (channelMatch) return { type: "channel", value: channelMatch[1] };
 
-  // user format: youtube.com/user/username
   const userMatch = url.match(/youtube\.com\/user\/([\w.-]+)/);
   if (userMatch) return { type: "user", value: userMatch[1] };
 
-  // bare handle: youtube.com/c/name
   const cMatch = url.match(/youtube\.com\/c\/([\w.-]+)/);
   if (cMatch) return { type: "handle", value: cMatch[1] };
 
@@ -41,7 +38,7 @@ serve(async (req) => {
       });
     }
 
-    const { channelUrl, maxResults = 10 } = await req.json();
+    const { channelUrl, maxResults = 10, businessId, syncToDb = false } = await req.json();
     if (!channelUrl) {
       return new Response(JSON.stringify({ error: "channelUrl is required" }), {
         status: 400,
@@ -63,13 +60,11 @@ serve(async (req) => {
     if (parsed.type === "channel") {
       channelId = parsed.value;
     } else if (parsed.type === "handle") {
-      // Use search or forHandle param
       const searchUrl = `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${parsed.value}&key=${apiKey}`;
       const res = await fetch(searchUrl);
       const data = await res.json();
       channelId = data.items?.[0]?.id || null;
     } else {
-      // user format
       const searchUrl = `https://www.googleapis.com/youtube/v3/channels?part=id&forUsername=${parsed.value}&key=${apiKey}`;
       const res = await fetch(searchUrl);
       const data = await res.json();
@@ -84,7 +79,7 @@ serve(async (req) => {
     }
 
     // Step 2: Fetch latest videos from channel using search endpoint
-    const limit = Math.min(maxResults, 20);
+    const limit = Math.min(maxResults, 50);
     const searchApiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&order=date&type=video&maxResults=${limit}&key=${apiKey}`;
     const searchRes = await fetch(searchApiUrl);
     const searchData = await searchRes.json();
@@ -115,7 +110,6 @@ serve(async (req) => {
 
     const videos = (detailsData.items || []).map((item: any) => {
       const duration = item.contentDetails?.duration || "";
-      // Parse ISO 8601 duration to seconds
       const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
       const seconds = match
         ? (parseInt(match[1] || "0") * 3600) + (parseInt(match[2] || "0") * 60) + parseInt(match[3] || "0")
@@ -131,6 +125,39 @@ serve(async (req) => {
         durationSeconds: seconds,
       };
     });
+
+    // Step 4: Optionally sync to database
+    if (syncToDb && businessId) {
+      try {
+        const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+        const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+        const sb = createClient(supabaseUrl, supabaseServiceKey);
+
+        // Upsert all videos
+        const rows = videos.map((v: any, idx: number) => ({
+          business_id: businessId,
+          video_id: v.videoId,
+          title: v.title,
+          thumbnail: v.thumbnail,
+          published_at: v.publishedAt || null,
+          is_short: v.isShort,
+          duration_seconds: v.durationSeconds,
+          sort_order: idx,
+        }));
+
+        if (rows.length > 0) {
+          const { error: upsertError } = await sb
+            .from("business_youtube_videos")
+            .upsert(rows, { onConflict: "business_id,video_id", ignoreDuplicates: false });
+
+          if (upsertError) {
+            console.error("Upsert error:", upsertError);
+          }
+        }
+      } catch (dbErr) {
+        console.error("DB sync error:", dbErr);
+      }
+    }
 
     return new Response(JSON.stringify({ videos, channelId }), {
       status: 200,
