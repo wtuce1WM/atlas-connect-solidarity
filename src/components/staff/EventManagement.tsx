@@ -200,6 +200,9 @@ const EventManagement = () => {
   const [bizSearchResults, setBizSearchResults] = useState<{ id: string; name: string; city: string | null }[]>([]);
   const [bizSearching, setBizSearching] = useState(false);
 
+  // List view: event businesses count map
+  const [eventBizCounts, setEventBizCounts] = useState<Record<string, number>>({});
+
   const fetchEventTypes = async () => {
     const { data } = await supabase.from("event_types").select("name").order("name");
     if (data) setEventTypes(data.map(d => (d as any).name));
@@ -211,7 +214,20 @@ const EventManagement = () => {
       .from("events")
       .select("*")
       .order("start_date", { ascending: false });
-    if (!error && data) setEvents(data as unknown as EventRow[]);
+    if (!error && data) {
+      setEvents(data as unknown as EventRow[]);
+      // fetch biz counts
+      const ids = (data as any[]).map(e => e.id);
+      if (ids.length > 0) {
+        const { data: ebData } = await supabase
+          .from("event_businesses" as any)
+          .select("event_id")
+          .in("event_id", ids);
+        const counts: Record<string, number> = {};
+        (ebData || []).forEach((r: any) => { counts[r.event_id] = (counts[r.event_id] || 0) + 1; });
+        setEventBizCounts(counts);
+      }
+    }
     setLoading(false);
   };
 
