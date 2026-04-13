@@ -627,6 +627,77 @@ const VideoPoiAssignmentPanel = () => {
         </div>
       )}
 
+      {/* Multi-POI videos list */}
+      {!video && (
+        <>
+          <Separator />
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              Vidéos avec plusieurs POI ({multiPoiVideos.length})
+            </h3>
+            {loadingMulti ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : multiPoiVideos.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4">Aucune vidéo avec plusieurs POI</p>
+            ) : (
+              <div className="flex flex-wrap gap-4">
+                {multiPoiVideos.map(mv => (
+                  <div
+                    key={mv.id}
+                    className="group rounded-lg border bg-card overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                    style={{ width: 260 }}
+                    onClick={() => { setSearchId(mv.id); }}
+                  >
+                    <button
+                      className="relative w-full bg-black"
+                      style={{ aspectRatio: "16/9" }}
+                      onClick={(e) => { e.stopPropagation(); setLightboxUrl(mv.url); }}
+                    >
+                      {mv.thumbnail_url ? (
+                        <img src={mv.thumbnail_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-muted">
+                          <Play className="h-6 w-6 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="w-10 h-10 rounded-full bg-primary/80 flex items-center justify-center">
+                          <Play className="h-5 w-5 text-primary-foreground fill-primary-foreground ml-0.5" />
+                        </div>
+                      </div>
+                      {/* POI count badge */}
+                      <span className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold">
+                        {mv.poi_count} POI
+                      </span>
+                    </button>
+                    <div className="p-2 space-y-1">
+                      <p className="text-xs font-medium truncate">{mv.business_name}</p>
+                      {mv.name && <p className="text-[10px] text-muted-foreground truncate">{mv.name}</p>}
+                      {mv.city && (
+                        <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                          <MapPin className="h-2.5 w-2.5" /> {mv.city}
+                        </p>
+                      )}
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {mv.poi_names.slice(0, 4).map((name, i) => (
+                          <Badge key={i} variant="secondary" className="text-[9px] px-1 py-0">{name}</Badge>
+                        ))}
+                        {mv.poi_names.length > 4 && (
+                          <Badge variant="outline" className="text-[9px] px-1 py-0">+{mv.poi_names.length - 4}</Badge>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
       {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
     </div>
   );
