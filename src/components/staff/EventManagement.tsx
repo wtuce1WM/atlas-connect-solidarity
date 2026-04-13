@@ -754,6 +754,14 @@ const EventManagement = () => {
               <div className="flex flex-wrap gap-2">
                 {linkedBusinesses.map(biz => (
                   <span key={biz.id} className="inline-flex items-center gap-1.5 bg-muted px-2.5 py-1 rounded-md text-sm">
+                    <button
+                      type="button"
+                      title={form.default_business_id === biz.id ? "Établissement par défaut" : "Définir par défaut"}
+                      onClick={() => setForm(p => ({ ...p, default_business_id: p.default_business_id === biz.id ? "" : biz.id }))}
+                      className={form.default_business_id === biz.id ? "text-yellow-500" : "text-muted-foreground hover:text-yellow-500"}
+                    >
+                      <Star className={`h-3.5 w-3.5 ${form.default_business_id === biz.id ? "fill-current" : ""}`} />
+                    </button>
                     {biz.name}
                     {biz.city && <span className="text-muted-foreground text-xs">({biz.city})</span>}
                     <button type="button" onClick={() => removeLinkedBusiness(biz.id)} className="text-muted-foreground hover:text-destructive">
