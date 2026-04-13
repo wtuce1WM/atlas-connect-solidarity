@@ -439,9 +439,6 @@ const StaffFront = () => {
             <PopupPanel />
           </TabsContent>
 
-          <TabsContent value="preview-tablet">
-            <PreviewTab width={768} title="Tablette" resolutions={TABLET_RESOLUTIONS} breakpoints="md : 768px" cellSize={200} />
-          </TabsContent>
 
           <TabsContent value="preview-mobile">
             <PreviewTab width={390} title="Mobile" resolutions={MOBILE_RESOLUTIONS} breakpoints="sm : 640px" cellSize={110} />
