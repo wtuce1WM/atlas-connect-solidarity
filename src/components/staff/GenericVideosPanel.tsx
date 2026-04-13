@@ -435,6 +435,8 @@ const RightDetailPanel = ({
   onSave,
   saving,
   isDirty,
+  onEditSocial,
+  onEditDescription,
 }: {
   video: GenericVideo;
   onClose: () => void;
@@ -445,6 +447,8 @@ const RightDetailPanel = ({
   onSave: () => void;
   saving: boolean;
   isDirty: boolean;
+  onEditSocial: (v: GenericVideo) => void;
+  onEditDescription: (v: GenericVideo) => void;
 }) => {
   const allItems = useMemo(() => [...poiItems, ...businessItems].sort((a, b) => a.sort_order - b.sort_order), [poiItems, businessItems]);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 3 } }));
