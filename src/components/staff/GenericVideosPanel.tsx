@@ -886,6 +886,8 @@ const GenericVideosPanel = () => {
               onSave={handlePanelSave}
               saving={panelSaving}
               isDirty={panelIsDirty}
+              onEditSocial={setSocialVideo}
+              onEditDescription={setDescVideo}
             />
           )}
         </div>
