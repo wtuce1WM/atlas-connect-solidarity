@@ -191,7 +191,7 @@ const VideoUploader = ({
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             className={cn(
-              "border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer hover:border-primary/50",
+              "border-2 border-dashed border-muted-foreground/25 rounded-xl py-10 px-6 text-center transition-colors cursor-pointer hover:border-primary/40 bg-muted/30",
               uploading && "pointer-events-none opacity-50"
             )}
           >
@@ -199,26 +199,29 @@ const VideoUploader = ({
               type="file"
               id="video-upload"
               accept="video/mp4,video/webm,video/quicktime"
+              multiple
               onChange={(e) => handleFileUpload(e.target.files)}
               className="hidden"
               disabled={uploading}
             />
             <label htmlFor="video-upload" className="cursor-pointer">
-              <div className="flex flex-col items-center gap-2">
+              <div className="flex flex-col items-center gap-4">
                 {uploading ? (
                   <>
-                    <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
-                    <p className="text-sm text-muted-foreground">Upload en cours…</p>
+                    <Loader2 className="h-10 w-10 text-muted-foreground animate-spin" />
+                    <p className="text-sm text-muted-foreground tracking-wide">Upload en cours…</p>
                   </>
                 ) : (
                   <>
-                    <div className="p-3 bg-primary/10 rounded-full">
-                      <Upload className="h-5 w-5 text-primary" />
+                    <div className="p-4 bg-primary/10 rounded-full">
+                      <Upload className="h-6 w-6 text-primary" />
                     </div>
-                    <div>
-                      <p className="font-medium text-sm">Uploadez une vidéo</p>
-                      <p className="text-xs text-muted-foreground">
-                        MP4, WebM ou MOV • Max {maxSizeMB}MB
+                    <div className="space-y-1.5">
+                      <p className="font-semibold text-sm tracking-widest uppercase text-foreground">
+                        Glissez-déposez ou cliquez pour uploader des vidéos
+                      </p>
+                      <p className="text-xs text-muted-foreground tracking-wider uppercase">
+                        MP4, WebM, MOV • Max {maxSizeMB}MB • Plusieurs fichiers acceptés
                       </p>
                     </div>
                   </>
