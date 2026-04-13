@@ -288,7 +288,7 @@ const BusinessMap = ({
     });
 
     mapRef.current = map;
-    infoWindowRef.current = new google.maps.InfoWindow({ pixelOffset: new google.maps.Size(0, -8) });
+    infoWindowRef.current = new google.maps.InfoWindow({ pixelOffset: new google.maps.Size(0, -32) });
 
     // Create ripple overlay for selected marker
     const rippleDiv = document.createElement("div");
