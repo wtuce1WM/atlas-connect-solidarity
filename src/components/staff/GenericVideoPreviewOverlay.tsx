@@ -3,6 +3,7 @@ import { X, MapPin, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import { cn } from "@/lib/utils";
+import BusinessInfoPanel from "./BusinessInfoPanel";
 
 interface LinkedItem {
   id: string;
@@ -23,7 +24,6 @@ const GenericVideoPreviewOverlay = ({ video, onClose }: GenericVideoPreviewOverl
   const [currentTime, setCurrentTime] = useState(0);
   const [loading, setLoading] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const iframeTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const embed = getVideoEmbed(video.url, window.location.origin);
   const isFile = embed.type === "file";
@@ -74,21 +74,13 @@ const GenericVideoPreviewOverlay = ({ video, onClose }: GenericVideoPreviewOverl
   // Current active item based on time
   const activeItem = useMemo(() => {
     if (items.length === 0) return null;
-    // Find item whose timeframe contains currentTime
     const match = items.find(item => {
       const start = item.start_time ?? 0;
       const end = item.end_time ?? Infinity;
       return currentTime >= start && currentTime < end;
     });
-    // If no match by time, show first item
     return match || items[0];
   }, [items, currentTime]);
-
-  // Lazy-load BookOnlineSlidePanel to avoid circular deps
-  const [SlidePanel, setSlidePanel] = useState<any>(null);
-  useEffect(() => {
-    import("@/components/BookOnlineSlidePanel").then(mod => setSlidePanel(() => mod.default));
-  }, []);
 
   // Close on Escape
   useEffect(() => {
@@ -131,7 +123,7 @@ const GenericVideoPreviewOverlay = ({ video, onClose }: GenericVideoPreviewOverl
         )}
       </div>
 
-      {/* Right: Slide panel — 50% */}
+      {/* Right: Business info panel — 50% */}
       <div className="w-1/2 h-full bg-background overflow-hidden flex flex-col relative">
         {loading ? (
           <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">Chargement…</div>
@@ -177,15 +169,10 @@ const GenericVideoPreviewOverlay = ({ video, onClose }: GenericVideoPreviewOverl
               </div>
             </div>
 
-            {/* Slide panel — fills remaining height */}
-            <div className="flex-1 overflow-hidden relative">
-              {activeItem && SlidePanel ? (
-                <SlidePanel
-                  key={activeItem.id}
-                  businessId={activeItem.id}
-                  onClose={() => {}}
-                  forceMuted
-                />
+            {/* Business info panel */}
+            <div className="flex-1 overflow-hidden">
+              {activeItem ? (
+                <BusinessInfoPanel key={activeItem.id} businessId={activeItem.id} />
               ) : (
                 <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">
                   Sélectionnez un segment
