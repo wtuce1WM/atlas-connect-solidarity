@@ -909,7 +909,7 @@ const EventManagement = () => {
                 <TableCell className="font-medium">{ev.name}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">{ev.type || "—"}</TableCell>
                 <TableCell className="text-sm">{ev.city_id ? (cities.find(c => c.id === ev.city_id)?.name_fr || "—") : "—"}</TableCell>
-                <TableCell className="text-sm max-w-[200px] truncate">{eventBizNames[ev.id]?.join(", ") || "—"}</TableCell>
+                <TableCell className="text-sm whitespace-normal">{eventBizNames[ev.id]?.join(", ") || "—"}</TableCell>
                 <TableCell className="text-sm">{ev.recurrence || "—"}</TableCell>
                 <TableCell className="text-sm">{ev.start_date || "—"}</TableCell>
                 <TableCell className="text-sm">{ev.end_date || "—"}</TableCell>
