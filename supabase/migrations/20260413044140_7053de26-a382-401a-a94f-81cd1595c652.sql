@@ -1,0 +1,1 @@
+ALTER TABLE public.events ADD COLUMN neighborhood_id uuid REFERENCES public.neighborhoods(id) ON DELETE SET NULL DEFAULT NULL;

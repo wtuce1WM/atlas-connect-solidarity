@@ -1925,6 +1925,7 @@ export type Database = {
           logo_url: string | null
           longitude: number | null
           name: string
+          neighborhood_id: string | null
           recurrence: string | null
           start_date: string | null
           type: string | null
@@ -1948,6 +1949,7 @@ export type Database = {
           logo_url?: string | null
           longitude?: number | null
           name: string
+          neighborhood_id?: string | null
           recurrence?: string | null
           start_date?: string | null
           type?: string | null
@@ -1971,6 +1973,7 @@ export type Database = {
           logo_url?: string | null
           longitude?: number | null
           name?: string
+          neighborhood_id?: string | null
           recurrence?: string | null
           start_date?: string | null
           type?: string | null
@@ -1986,6 +1989,13 @@ export type Database = {
             columns: ["city_id"]
             isOneToOne: false
             referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_neighborhood_id_fkey"
+            columns: ["neighborhood_id"]
+            isOneToOne: false
+            referencedRelation: "neighborhoods"
             referencedColumns: ["id"]
           },
         ]
