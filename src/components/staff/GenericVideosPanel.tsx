@@ -539,6 +539,7 @@ const SortableVideoCard = ({
   onEditDescription: (v: GenericVideo) => void;
   onEditPois: (v: GenericVideo) => void;
   onEditBusinesses: (v: GenericVideo) => void;
+  onPreviewOverlay: (v: GenericVideo) => void;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: video.id });
   const [copiedId, setCopiedId] = useState(false);
