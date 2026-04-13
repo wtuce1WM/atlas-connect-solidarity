@@ -40,6 +40,16 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+const DAYS_OF_WEEK = [
+  { value: "monday", label: "Lundi" },
+  { value: "tuesday", label: "Mardi" },
+  { value: "wednesday", label: "Mercredi" },
+  { value: "thursday", label: "Jeudi" },
+  { value: "friday", label: "Vendredi" },
+  { value: "saturday", label: "Samedi" },
+  { value: "sunday", label: "Dimanche" },
+];
+
 const EMPTY_FORM = {
   name: "",
   hook: "",
@@ -54,6 +64,9 @@ const EMPTY_FORM = {
   city_id: "",
   neighborhood_id: "",
   recurrence: "",
+  days_of_week: [] as string[],
+  start_time: "",
+  end_time: "",
   google_maps_url: "",
   latitude: "" as string | number,
   longitude: "" as string | number,
@@ -291,6 +304,9 @@ const EventManagement = () => {
       city_id: (ev as any).city_id || "",
       neighborhood_id: (ev as any).neighborhood_id || "",
       recurrence: (ev as any).recurrence || "",
+      days_of_week: (ev as any).days_of_week || [],
+      start_time: (ev as any).start_time || "",
+      end_time: (ev as any).end_time || "",
       google_maps_url: ev.google_maps_url || "",
       latitude: ev.latitude ?? "",
       longitude: ev.longitude ?? "",
@@ -334,6 +350,9 @@ const EventManagement = () => {
       city_id: form.city_id || null,
       neighborhood_id: form.neighborhood_id || null,
       recurrence: form.recurrence || null,
+      days_of_week: form.days_of_week,
+      start_time: form.start_time || null,
+      end_time: form.end_time || null,
       google_maps_url: form.google_maps_url || null,
       latitude: form.latitude ? Number(form.latitude) : null,
       longitude: form.longitude ? Number(form.longitude) : null,
@@ -516,6 +535,39 @@ const EventManagement = () => {
                     <SelectItem value="monthly">Une fois par mois</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div>
+                <Label>Jours de la semaine</Label>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {DAYS_OF_WEEK.map(d => {
+                    const selected = form.days_of_week.includes(d.value);
+                    return (
+                      <button
+                        key={d.value}
+                        type="button"
+                        className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${selected ? "bg-primary text-primary-foreground border-primary" : "bg-background text-muted-foreground border-input hover:bg-muted"}`}
+                        onClick={() => setForm(p => ({
+                          ...p,
+                          days_of_week: selected
+                            ? p.days_of_week.filter(v => v !== d.value)
+                            : [...p.days_of_week, d.value],
+                        }))}
+                      >
+                        {d.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Heure de début</Label>
+                  <Input type="time" value={form.start_time} onChange={e => setForm(p => ({ ...p, start_time: e.target.value }))} />
+                </div>
+                <div>
+                  <Label>Heure de fin</Label>
+                  <Input type="time" value={form.end_time} onChange={e => setForm(p => ({ ...p, end_time: e.target.value }))} />
+                </div>
               </div>
             </div>
             <div>

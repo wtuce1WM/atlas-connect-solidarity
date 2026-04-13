@@ -1957,9 +1957,11 @@ export type Database = {
         Row: {
           city_id: string | null
           created_at: string
+          days_of_week: string[]
           default_business_id: string | null
           description: string | null
           end_date: string | null
+          end_time: string | null
           google_maps_url: string | null
           hook: string | null
           id: string
@@ -1972,6 +1974,7 @@ export type Database = {
           neighborhood_id: string | null
           recurrence: string | null
           start_date: string | null
+          start_time: string | null
           type: string | null
           updated_at: string
           url: string | null
@@ -1982,9 +1985,11 @@ export type Database = {
         Insert: {
           city_id?: string | null
           created_at?: string
+          days_of_week?: string[]
           default_business_id?: string | null
           description?: string | null
           end_date?: string | null
+          end_time?: string | null
           google_maps_url?: string | null
           hook?: string | null
           id?: string
@@ -1997,6 +2002,7 @@ export type Database = {
           neighborhood_id?: string | null
           recurrence?: string | null
           start_date?: string | null
+          start_time?: string | null
           type?: string | null
           updated_at?: string
           url?: string | null
@@ -2007,9 +2013,11 @@ export type Database = {
         Update: {
           city_id?: string | null
           created_at?: string
+          days_of_week?: string[]
           default_business_id?: string | null
           description?: string | null
           end_date?: string | null
+          end_time?: string | null
           google_maps_url?: string | null
           hook?: string | null
           id?: string
@@ -2022,6 +2030,7 @@ export type Database = {
           neighborhood_id?: string | null
           recurrence?: string | null
           start_date?: string | null
+          start_time?: string | null
           type?: string | null
           updated_at?: string
           url?: string | null
