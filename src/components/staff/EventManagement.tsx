@@ -12,6 +12,7 @@ import RichTextEditor from "./RichTextEditor";
 import ImageUploader from "./ImageUploader";
 import VideoUploader from "./VideoUploader";
 import LogoUploader from "./LogoUploader";
+import TimeSelect from "./TimeSelect";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
