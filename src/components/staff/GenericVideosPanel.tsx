@@ -397,7 +397,7 @@ const InlineDestinationAssignment = ({ video, onClose, onSaved }: { video: Gener
       setLoading(true);
       const [{ data: dests }, { data: links }, { data: cities }] = await Promise.all([
         supabase.from("destinations").select("id, name_fr, city_ids").order("name_fr"),
-        supabase.from("generic_video_destinations" as any).select("destination_id").eq("generic_video_id", video.id) as { data: any[] | null },
+        supabase.from("generic_video_destinations" as any).select("destination_id").eq("generic_video_id", video.id) as unknown as { data: any[] | null },
         supabase.from("cities").select("id, name_fr").order("name_fr"),
       ]);
       setAllDests((dests as DestItem[]) || []);
