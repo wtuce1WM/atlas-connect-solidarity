@@ -2237,6 +2237,42 @@ export type Database = {
         }
         Relationships: []
       }
+      generic_videos: {
+        Row: {
+          city: string | null
+          created_at: string
+          id: string
+          name: string | null
+          neighborhood: string | null
+          sort_order: number
+          thumbnail_url: string | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          id?: string
+          name?: string | null
+          neighborhood?: string | null
+          sort_order?: number
+          thumbnail_url?: string | null
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          id?: string
+          name?: string | null
+          neighborhood?: string | null
+          sort_order?: number
+          thumbnail_url?: string | null
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       homepage_selections: {
         Row: {
           business_id: string
