@@ -74,12 +74,11 @@ const GenericVideoPreviewOverlay = ({ video, onClose }: GenericVideoPreviewOverl
   // Current active item based on time
   const activeItem = useMemo(() => {
     if (items.length === 0) return null;
-    const match = items.find(item => {
+    return items.find(item => {
       const start = item.start_time ?? 0;
       const end = item.end_time ?? Infinity;
       return currentTime >= start && currentTime < end;
-    });
-    return match || items[0];
+    }) || null;
   }, [items, currentTime]);
 
   // Close on Escape
