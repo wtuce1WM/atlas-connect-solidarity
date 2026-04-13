@@ -1,9 +1,10 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Play, GripVertical } from "lucide-react";
 import VideoLightbox from "./VideoLightbox";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   DndContext,
   closestCenter,
@@ -35,6 +36,13 @@ interface CountryVideo {
   poi_name: string | null;
   linked_business_name: string | null;
 }
+
+interface CityOption {
+  name: string;
+  sort_order: number;
+}
+
+const NONE_CITY = "__none__";
 
 const SortableVideoCard = ({
   video,
@@ -99,6 +107,8 @@ const SortableVideoCard = ({
 
 const CountryVideosPanel = () => {
   const [videos, setVideos] = useState<CountryVideo[]>([]);
+  const [cities, setCities] = useState<CityOption[]>([]);
+  const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
@@ -107,6 +117,17 @@ const CountryVideosPanel = () => {
 
   const load = useCallback(async () => {
     setLoading(true);
+
+    // Fetch cities sorted
+    const { data: citiesData } = await supabase
+      .from("cities")
+      .select("name_fr, sort_order")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true });
+
+    if (citiesData) {
+      setCities(citiesData.map(c => ({ name: c.name_fr, sort_order: c.sort_order ?? 0 })));
+    }
 
     const { data: docs } = await supabase
       .from("business_documents")
@@ -122,7 +143,6 @@ const CountryVideosPanel = () => {
       return;
     }
 
-    // Collect all business-like IDs (owner + poi + linked)
     const allBizIds = new Set<string>();
     docs.forEach(d => {
       allBizIds.add(d.business_id);
@@ -137,7 +157,6 @@ const CountryVideosPanel = () => {
       if (data) data.forEach(b => bizMap.set(b.id, { name: b.name, city: b.city, neighborhood: b.neighborhood }));
     }
 
-    // Subcategories
     const scIds = [...new Set(docs.map(d => d.subcategory_id).filter(Boolean))] as string[];
     const scMap = new Map<string, string>();
     if (scIds.length > 0) {
@@ -148,7 +167,6 @@ const CountryVideosPanel = () => {
       }
     }
 
-    // Services
     const svcIds = [...new Set(docs.map(d => d.service_id).filter(Boolean))] as string[];
     const svcMap = new Map<string, string>();
     if (svcIds.length > 0) {
@@ -181,6 +199,14 @@ const CountryVideosPanel = () => {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  const filteredVideos = useMemo(() => {
+    if (!selectedCity) return [];
+    if (selectedCity === NONE_CITY) {
+      return videos.filter(v => !v.city);
+    }
+    return videos.filter(v => v.city === selectedCity);
+  }, [videos, selectedCity]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -222,18 +248,37 @@ const CountryVideosPanel = () => {
         </Button>
       </div>
 
-      {videos.length === 0 ? (
-        <p className="text-sm text-muted-foreground py-8 text-center">Aucune vidéo liée à une sous-catégorie sans ville.</p>
-      ) : (
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={videos.map(v => v.id)} strategy={verticalListSortingStrategy}>
-            <div className="flex flex-wrap gap-2">
-              {videos.map((v, i) => (
-                <SortableVideoCard key={v.id} video={v} index={i} onPlay={setLightboxUrl} />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-medium">Ville :</span>
+        <Select value={selectedCity || ""} onValueChange={v => setSelectedCity(v)}>
+          <SelectTrigger className="w-[220px]">
+            <SelectValue placeholder="Sélectionner une ville" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={NONE_CITY}>Aucune</SelectItem>
+            {cities.map(c => (
+              <SelectItem key={c.name} value={c.name}>{c.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {selectedCity && (
+        <>
+          {filteredVideos.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-8 text-center">Aucune vidéo pour cette sélection.</p>
+          ) : (
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={filteredVideos.map(v => v.id)} strategy={verticalListSortingStrategy}>
+                <div className="flex flex-wrap gap-2">
+                  {filteredVideos.map((v, i) => (
+                    <SortableVideoCard key={v.id} video={v} index={i} onPlay={setLightboxUrl} />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
+          )}
+        </>
       )}
 
       {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
