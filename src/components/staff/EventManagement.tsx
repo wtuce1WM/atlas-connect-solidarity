@@ -258,6 +258,9 @@ const EventManagement = () => {
   const removeLinkedBusiness = (bizId: string) => {
     setLinkedBusinessIds(prev => prev.filter(id => id !== bizId));
     setLinkedBusinesses(prev => prev.filter(b => b.id !== bizId));
+    if (form.default_business_id === bizId) {
+      setForm(p => ({ ...p, default_business_id: "" }));
+    }
   };
 
   const openNew = () => {
