@@ -407,13 +407,12 @@ const InlineBusinessAssignment = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState<BizResult[]>([]);
-  const [searching, setSearching] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [initialIds, setInitialIds] = useState<string[]>([]);
   const [selectedBiz, setSelectedBiz] = useState<BizResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -438,19 +437,22 @@ const InlineBusinessAssignment = ({
     load();
   }, [video.id]);
 
-  const search = async () => {
-    if (!searchTerm.trim()) return;
-    setSearching(true);
-    const { data } = await supabase
-      .from("businesses")
-      .select("id, name, city, main_category")
-      .ilike("name", `%${searchTerm.trim()}%`)
-      .eq("is_active", true)
-      .order("name")
-      .limit(30);
-    setResults((data as BizResult[]) || []);
-    setSearching(false);
-  };
+  // Auto-complete: debounced search
+  useEffect(() => {
+    if (searchTerm.trim().length < 2) { setResults([]); return; }
+    const timer = setTimeout(async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name, city, main_category")
+        .ilike("name", `%${searchTerm.trim()}%`)
+        .eq("is_active", true)
+        .order("name")
+        .limit(30);
+      setResults((data as BizResult[]) || []);
+      setShowDropdown(true);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const toggleBiz = (biz: BizResult) => {
     if (selectedIds.includes(biz.id)) {
@@ -490,41 +492,14 @@ const InlineBusinessAssignment = ({
     setSaving(false);
   };
 
-  const isStorageVideo = video.url.includes("supabase.co/storage");
-
   return (
     <div className="border-2 border-primary/30 rounded-lg p-4 space-y-4 bg-muted/30">
       <div className="flex items-start justify-between">
         <h3 className="text-sm font-semibold flex items-center gap-2">
           <Building2 className="h-4 w-4" />
-          Affectation Établissements
+          Affectation Établissements — <span className="font-mono text-xs text-muted-foreground">{video.id}</span>
         </h3>
         <Button variant="ghost" size="sm" onClick={onClose}>✕</Button>
-      </div>
-
-      {/* Video preview */}
-      <div className="flex items-start gap-4">
-        <button
-          className="relative bg-black rounded-lg overflow-hidden group shrink-0"
-          style={{ width: 320, aspectRatio: "16/9" }}
-          onClick={() => setLightboxUrl(video.url)}
-        >
-          {video.thumbnail_url ? (
-            <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" />
-          ) : isStorageVideo ? (
-            <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" />
-          ) : (
-            <div className="w-full h-full bg-muted flex items-center justify-center">
-              <Play className="h-8 w-8 text-muted-foreground" />
-            </div>
-          )}
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <div className="w-12 h-12 rounded-full bg-primary/80 flex items-center justify-center">
-              <Play className="h-6 w-6 text-primary-foreground fill-primary-foreground ml-0.5" />
-            </div>
-          </div>
-        </button>
-        <div className="text-xs text-muted-foreground font-mono">{video.id}</div>
       </div>
 
       {loading ? (
@@ -551,46 +526,41 @@ const InlineBusinessAssignment = ({
             </div>
           )}
 
-          {/* Search */}
-          <div className="flex gap-2 max-w-md">
-            <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && search()}
-                placeholder="Rechercher un établissement…"
-                className="pl-9"
-              />
-            </div>
-            <Button size="sm" onClick={search} disabled={searching || !searchTerm.trim()}>
-              {searching ? <Loader2 className="h-4 w-4 animate-spin" /> : "Rechercher"}
-            </Button>
+          {/* Autocomplete search */}
+          <div className="relative max-w-xl">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={searchTerm}
+              onChange={e => { setSearchTerm(e.target.value); setShowDropdown(true); }}
+              onFocus={() => results.length > 0 && setShowDropdown(true)}
+              onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+              placeholder="Rechercher un établissement par nom…"
+              className="pl-9"
+            />
+            {showDropdown && results.length > 0 && (
+              <div className="absolute z-20 top-full left-0 right-0 mt-1 border rounded-lg bg-popover shadow-lg max-h-60 overflow-y-auto divide-y">
+                {results.map(biz => {
+                  const isSelected = selectedIds.includes(biz.id);
+                  return (
+                    <button
+                      key={biz.id}
+                      onMouseDown={e => e.preventDefault()}
+                      onClick={() => toggleBiz(biz)}
+                      className={cn(
+                        "w-full text-left px-3 py-2 text-sm flex items-center gap-2 hover:bg-muted/50 transition-colors",
+                        isSelected && "bg-primary/10"
+                      )}
+                    >
+                      <Checkbox checked={isSelected} className="pointer-events-none" />
+                      <span className="font-medium">{biz.name}</span>
+                      {biz.city && <span className="text-xs text-muted-foreground">— {biz.city}</span>}
+                      {biz.main_category && <Badge variant="outline" className="text-[10px] px-1 py-0 ml-auto">{biz.main_category}</Badge>}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
-
-          {/* Results */}
-          {results.length > 0 && (
-            <div className="border rounded-lg max-h-60 overflow-y-auto divide-y">
-              {results.map(biz => {
-                const isSelected = selectedIds.includes(biz.id);
-                return (
-                  <button
-                    key={biz.id}
-                    onClick={() => toggleBiz(biz)}
-                    className={cn(
-                      "w-full text-left px-3 py-2 text-sm flex items-center gap-2 hover:bg-muted/50 transition-colors",
-                      isSelected && "bg-primary/10"
-                    )}
-                  >
-                    <Checkbox checked={isSelected} className="pointer-events-none" />
-                    <span className="font-medium">{biz.name}</span>
-                    {biz.city && <span className="text-xs text-muted-foreground">— {biz.city}</span>}
-                    {biz.main_category && <Badge variant="outline" className="text-[10px] px-1 py-0 ml-auto">{biz.main_category}</Badge>}
-                  </button>
-                );
-              })}
-            </div>
-          )}
 
           {/* Save */}
           {isDirty && (
@@ -601,8 +571,6 @@ const InlineBusinessAssignment = ({
           )}
         </div>
       )}
-
-      {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
     </div>
   );
 };
