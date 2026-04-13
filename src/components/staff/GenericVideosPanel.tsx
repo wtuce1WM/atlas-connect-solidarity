@@ -45,10 +45,13 @@ interface GenericVideo {
   created_at: string;
   instagram_account: string | null;
   instagram_url: string | null;
+  instagram_video_url: string | null;
   tiktok_account: string | null;
   tiktok_url: string | null;
+  tiktok_video_url: string | null;
   youtube_account: string | null;
   youtube_url: string | null;
+  youtube_video_url: string | null;
   description: string | null;
 }
 
@@ -64,9 +67,10 @@ const SocialLinksDialog = ({
   onOpenChange: (o: boolean) => void;
   onSaved: () => void;
 }) => {
-  const [ig, setIg] = useState({ account: video.instagram_account || "", url: video.instagram_url || "" });
-  const [tt, setTt] = useState({ account: video.tiktok_account || "", url: video.tiktok_url || "" });
-  const [yt, setYt] = useState({ account: video.youtube_account || "", url: video.youtube_url || "" });
+  const [ig, setIg] = useState({ account: video.instagram_account || "", url: video.instagram_url || "", videoUrl: video.instagram_video_url || "" });
+  const [tt, setTt] = useState({ account: video.tiktok_account || "", url: video.tiktok_url || "", videoUrl: video.tiktok_video_url || "" });
+  const [yt, setYt] = useState({ account: video.youtube_account || "", url: video.youtube_url || "", videoUrl: video.youtube_video_url || "" });
+  
   const [saving, setSaving] = useState(false);
 
   const save = async () => {
@@ -76,10 +80,13 @@ const SocialLinksDialog = ({
       .update({
         instagram_account: ig.account || null,
         instagram_url: ig.url || null,
+        instagram_video_url: ig.videoUrl || null,
         tiktok_account: tt.account || null,
         tiktok_url: tt.url || null,
+        tiktok_video_url: tt.videoUrl || null,
         youtube_account: yt.account || null,
         youtube_url: yt.url || null,
+        youtube_video_url: yt.videoUrl || null,
       } as any)
       .eq("id", video.id);
     if (error) toast.error(error.message);
@@ -99,6 +106,7 @@ const SocialLinksDialog = ({
             <Label className="font-semibold flex items-center gap-1.5"><Instagram className="h-4 w-4" /> Instagram</Label>
             <Input placeholder="Compte (@…)" value={ig.account} onChange={e => setIg(p => ({ ...p, account: e.target.value }))} />
             <Input placeholder="URL du profil" value={ig.url} onChange={e => setIg(p => ({ ...p, url: e.target.value }))} />
+            <Input placeholder="URL de la vidéo Instagram" value={ig.videoUrl} onChange={e => setIg(p => ({ ...p, videoUrl: e.target.value }))} />
           </div>
           {/* TikTok */}
           <div className="space-y-2 p-3 rounded-lg border">
@@ -108,6 +116,7 @@ const SocialLinksDialog = ({
             </Label>
             <Input placeholder="Compte (@…)" value={tt.account} onChange={e => setTt(p => ({ ...p, account: e.target.value }))} />
             <Input placeholder="URL du profil" value={tt.url} onChange={e => setTt(p => ({ ...p, url: e.target.value }))} />
+            <Input placeholder="URL de la vidéo TikTok" value={tt.videoUrl} onChange={e => setTt(p => ({ ...p, videoUrl: e.target.value }))} />
           </div>
           {/* YouTube */}
           <div className="space-y-2 p-3 rounded-lg border">
@@ -117,6 +126,7 @@ const SocialLinksDialog = ({
             </Label>
             <Input placeholder="Nom de la chaîne" value={yt.account} onChange={e => setYt(p => ({ ...p, account: e.target.value }))} />
             <Input placeholder="URL de la chaîne" value={yt.url} onChange={e => setYt(p => ({ ...p, url: e.target.value }))} />
+            <Input placeholder="URL de la vidéo YouTube" value={yt.videoUrl} onChange={e => setYt(p => ({ ...p, videoUrl: e.target.value }))} />
           </div>
         </div>
         <div className="flex justify-end pt-2">
