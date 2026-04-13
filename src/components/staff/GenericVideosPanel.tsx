@@ -804,6 +804,7 @@ const GenericVideosPanel = () => {
   const [videoPoiCounts, setVideoPoiCounts] = useState<Record<string, number>>({});
   const [videoBizCounts, setVideoBizCounts] = useState<Record<string, number>>({});
   const [videoDestCounts, setVideoDestCounts] = useState<Record<string, number>>({});
+  const [videoHasTimeframes, setVideoHasTimeframes] = useState<Record<string, boolean>>({});
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
