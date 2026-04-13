@@ -27,6 +27,25 @@ interface PoiBusiness {
   neighborhood: string | null;
 }
 
+const CopyableId = ({ id }: { id: string }) => {
+  const [copied, setCopied] = useState(false);
+  const copy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(id);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+  return (
+    <button
+      onClick={copy}
+      className="flex items-center gap-1 px-2 pt-1 text-[10px] text-muted-foreground font-mono hover:text-foreground transition-colors"
+    >
+      {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+      <span className="truncate max-w-[200px]">{id}</span>
+    </button>
+  );
+};
+
 const VideoPoiAssignmentPanel = () => {
   const [searchId, setSearchId] = useState("");
   const [video, setVideo] = useState<VideoDoc | null>(null);
