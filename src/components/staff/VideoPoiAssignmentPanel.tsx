@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import VideoLightbox from "./VideoLightbox";
 import VideoUploader from "./VideoUploader";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface VideoDoc {
   id: string;
