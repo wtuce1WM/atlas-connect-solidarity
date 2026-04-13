@@ -581,9 +581,11 @@ const GenericVideosPanel = () => {
                   <div key={video.id} style={{ width: 280 }}>
                     <SortableVideoCard
                       video={video}
+                      poiNames={videoPoiMap[video.id] || []}
                       onPreview={setLightboxUrl}
                       onEditSocial={setSocialVideo}
                       onEditDescription={setDescVideo}
+                      onEditPois={setPoiVideo}
                     />
                   </div>
                 ))}
