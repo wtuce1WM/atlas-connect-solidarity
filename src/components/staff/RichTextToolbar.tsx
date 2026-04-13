@@ -6,7 +6,7 @@ import {
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
   Strikethrough, Highlighter, Superscript, Subscript,
   Quote, Minus, ImagePlus, TableIcon, Youtube, Palette,
-  Plus, Trash2, ArrowDown, ArrowRight,
+  Plus, Trash2, ArrowDown, ArrowRight, Smile,
 } from "lucide-react";
 import { useCallback, useState } from "react";
 import {
