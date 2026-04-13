@@ -1,11 +1,13 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Loader2, Play, MapPin } from "lucide-react";
+import { Search, Loader2, Play, MapPin, Upload, Video } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
 import VideoLightbox from "./VideoLightbox";
+import VideoUploader from "./VideoUploader";
 import { toast } from "sonner";
 
 interface VideoDoc {
