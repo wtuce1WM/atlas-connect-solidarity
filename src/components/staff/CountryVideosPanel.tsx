@@ -131,10 +131,9 @@ const CountryVideosPanel = () => {
 
     const { data: docs } = await supabase
       .from("business_documents")
-      .select("id, url, name, thumbnail_url, sort_order, business_id, subcategory_id, service_id, poi_id, linked_business_id")
+      .select("id, url, name, thumbnail_url, sort_order, business_id, subcategory_id, service_id, poi_id, linked_business_id, city, neighborhood")
       .eq("type", "video")
       .not("subcategory_id", "is", null)
-      .or("city.is.null,city.eq.")
       .order("sort_order", { ascending: true });
 
     if (!docs || docs.length === 0) {
@@ -188,8 +187,8 @@ const CountryVideosPanel = () => {
         business_id: d.business_id,
         business_name: biz?.name || "—",
         subcategory_name: scMap.get(d.subcategory_id!) || "—",
-        city: biz?.city || null,
-        neighborhood: biz?.neighborhood || null,
+        city: d.city || null,
+        neighborhood: d.neighborhood || null,
         service_name: d.service_id ? (svcMap.get(d.service_id) || "—") : null,
         poi_name: d.poi_id ? (bizMap.get(d.poi_id)?.name || "—") : null,
         linked_business_name: d.linked_business_id ? (bizMap.get(d.linked_business_id)?.name || "—") : null,
