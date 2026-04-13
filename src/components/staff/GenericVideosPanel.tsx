@@ -235,17 +235,12 @@ const PoiAssignDialog = ({
     const toAdd = selectedIds.filter(id => !initialIds.includes(id));
     const toRemove = initialIds.filter(id => !selectedIds.includes(id));
 
-    const promises: Promise<any>[] = [];
     if (toRemove.length > 0) {
-      promises.push(
-        supabase.from("generic_video_pois" as any).delete().eq("generic_video_id", video.id).in("poi_id", toRemove)
-      );
+      await supabase.from("generic_video_pois" as any).delete().eq("generic_video_id", video.id).in("poi_id", toRemove);
     }
     if (toAdd.length > 0) {
-      promises.push(
-        supabase.from("generic_video_pois" as any).insert(
-          toAdd.map(poi_id => ({ generic_video_id: video.id, poi_id })) as any
-        )
+      await supabase.from("generic_video_pois" as any).insert(
+        toAdd.map(poi_id => ({ generic_video_id: video.id, poi_id })) as any
       );
     }
     await Promise.all(promises);
