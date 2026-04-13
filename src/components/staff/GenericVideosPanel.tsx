@@ -161,6 +161,7 @@ const InlinePoiAssignment = ({ video, onClose, onSaved }: { video: GenericVideo;
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [cityFilter, setCityFilter] = useState<string>("");
 
   useEffect(() => {
     const load = async () => {
@@ -194,15 +195,26 @@ const InlinePoiAssignment = ({ video, onClose, onSaved }: { video: GenericVideo;
     setInitialIds([...selectedIds]); onSaved(); onClose(); setSaving(false);
   };
 
+  const availableCities = useMemo(() => {
+    const cities = new Set<string>();
+    poiBusinesses.forEach(p => { if (p.city) cities.add(p.city); });
+    return Array.from(cities).sort();
+  }, [poiBusinesses]);
+
+  const filteredPois = useMemo(() => {
+    if (!cityFilter) return poiBusinesses;
+    return poiBusinesses.filter(p => p.city === cityFilter);
+  }, [poiBusinesses, cityFilter]);
+
   const grouped = useMemo(() => {
     const cityMap: Record<string, Record<string, PoiBiz[]>> = {};
-    poiBusinesses.forEach(p => {
+    filteredPois.forEach(p => {
       const city = p.city || "Sans ville"; const nb = p.neighborhood || "Sans quartier";
       if (!cityMap[city]) cityMap[city] = {}; if (!cityMap[city][nb]) cityMap[city][nb] = [];
       cityMap[city][nb].push(p);
     });
     return Object.entries(cityMap).map(([city, neighborhoods]) => ({ city, neighborhoods: Object.entries(neighborhoods) }));
-  }, [poiBusinesses]);
+  }, [filteredPois]);
 
   const isStorageVideo = video.url.includes("supabase.co/storage");
 
