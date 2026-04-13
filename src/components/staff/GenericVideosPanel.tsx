@@ -45,10 +45,13 @@ interface GenericVideo {
   created_at: string;
   instagram_account: string | null;
   instagram_url: string | null;
+  instagram_video_url: string | null;
   tiktok_account: string | null;
   tiktok_url: string | null;
+  tiktok_video_url: string | null;
   youtube_account: string | null;
   youtube_url: string | null;
+  youtube_video_url: string | null;
   description: string | null;
 }
 
