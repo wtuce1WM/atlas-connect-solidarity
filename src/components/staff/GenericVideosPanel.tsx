@@ -622,6 +622,7 @@ const GenericVideosPanel = () => {
   const [descVideo, setDescVideo] = useState<GenericVideo | null>(null);
   const [poiVideo, setPoiVideo] = useState<GenericVideo | null>(null);
   const [businessVideo, setBusinessVideo] = useState<GenericVideo | null>(null);
+  const [previewOverlayVideo, setPreviewOverlayVideo] = useState<GenericVideo | null>(null);
 
   // Selected video for right panel
   const [selectedVideo, setSelectedVideo] = useState<GenericVideo | null>(null);
