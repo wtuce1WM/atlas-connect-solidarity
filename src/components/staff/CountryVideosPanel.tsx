@@ -55,7 +55,7 @@ const SortableVideoCard = ({
   ].filter(Boolean);
 
   return (
-    <div ref={setNodeRef} style={style} className="flex items-center gap-3 rounded-lg border bg-background p-2">
+    <div ref={setNodeRef} style={style} className="flex items-center gap-2 rounded-lg border bg-background p-1.5 w-fit">
       <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground">
         <GripVertical className="h-4 w-4" />
       </div>
@@ -225,7 +225,7 @@ const CountryVideosPanel = () => {
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={videos.map(v => v.id)} strategy={verticalListSortingStrategy}>
-            <div className="space-y-1.5">
+            <div className="flex flex-wrap gap-2">
               {videos.map((v, i) => (
                 <SortableVideoCard key={v.id} video={v} index={i} onPlay={setLightboxUrl} />
               ))}
