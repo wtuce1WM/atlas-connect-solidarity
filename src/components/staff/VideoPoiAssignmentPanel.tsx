@@ -210,6 +210,9 @@ const VideoPoiAssignmentPanel = () => {
     }
     setSelectedPoiIds(existingPoiIds);
     setInitialPoiIds(existingPoiIds);
+    // The main doc's poi_id is the default
+    setDefaultPoiId(doc.poi_id || (existingPoiIds.length > 0 ? existingPoiIds[0] : null));
+    setInitialDefaultPoiId(doc.poi_id || (existingPoiIds.length > 0 ? existingPoiIds[0] : null));
 
     setLoading(false);
   }, [searchId]);
