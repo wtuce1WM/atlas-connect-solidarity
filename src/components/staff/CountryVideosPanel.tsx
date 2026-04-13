@@ -29,6 +29,8 @@ interface CountryVideo {
   business_id: string;
   business_name: string;
   subcategory_name: string;
+  city: string | null;
+  neighborhood: string | null;
 }
 
 const SortableVideoCard = ({
@@ -68,6 +70,11 @@ const SortableVideoCard = ({
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium truncate">{video.business_name}</p>
         <p className="text-xs text-muted-foreground truncate">{video.subcategory_name}</p>
+        {(video.city || video.neighborhood) && (
+          <p className="text-[11px] text-muted-foreground/70 truncate">
+            {[video.city, video.neighborhood].filter(Boolean).join(" · ")}
+          </p>
+        )}
         {video.name && <p className="text-[11px] text-muted-foreground/70 truncate">{video.name}</p>}
       </div>
     </div>
@@ -102,11 +109,11 @@ const CountryVideosPanel = () => {
 
     // Fetch business names
     const bizIds = [...new Set(docs.map(d => d.business_id))];
-    const bizMap = new Map<string, string>();
+    const bizMap = new Map<string, { name: string; city: string | null; neighborhood: string | null }>();
     for (let i = 0; i < bizIds.length; i += 200) {
       const batch = bizIds.slice(i, i + 200);
-      const { data } = await supabase.from("businesses").select("id, name").in("id", batch);
-      if (data) data.forEach(b => bizMap.set(b.id, b.name));
+      const { data } = await supabase.from("businesses").select("id, name, city, neighborhood").in("id", batch);
+      if (data) data.forEach(b => bizMap.set(b.id, { name: b.name, city: b.city, neighborhood: b.neighborhood }));
     }
 
     // Fetch subcategory names
@@ -120,16 +127,21 @@ const CountryVideosPanel = () => {
       }
     }
 
-    setVideos(docs.map(d => ({
-      id: d.id,
-      url: d.url,
-      name: d.name,
-      thumbnail_url: d.thumbnail_url,
-      sort_order: d.sort_order,
-      business_id: d.business_id,
-      business_name: bizMap.get(d.business_id) || "—",
-      subcategory_name: scMap.get(d.subcategory_id!) || "—",
-    })));
+    setVideos(docs.map(d => {
+      const biz = bizMap.get(d.business_id);
+      return {
+        id: d.id,
+        url: d.url,
+        name: d.name,
+        thumbnail_url: d.thumbnail_url,
+        sort_order: d.sort_order,
+        business_id: d.business_id,
+        business_name: biz?.name || "—",
+        subcategory_name: scMap.get(d.subcategory_id!) || "—",
+        city: biz?.city || null,
+        neighborhood: biz?.neighborhood || null,
+      };
+    }));
     setLoading(false);
   }, []);
 
