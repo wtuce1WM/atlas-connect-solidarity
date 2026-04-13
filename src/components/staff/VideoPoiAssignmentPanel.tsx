@@ -335,6 +335,81 @@ const VideoPoiAssignmentPanel = () => {
         </Button>
       </div>
 
+      {/* Upload section */}
+      {!video && (
+        <>
+          <Separator />
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold flex items-center gap-2">
+              <Upload className="h-4 w-4" />
+              Ou uploader une nouvelle vidéo
+            </h3>
+
+            {/* Business search */}
+            <div className="space-y-2 max-w-lg">
+              <label className="text-xs font-medium text-muted-foreground">Établissement</label>
+              {selectedUploadBusiness ? (
+                <div className="flex items-center gap-2">
+                  <Badge variant="default" className="text-sm py-1 px-3">
+                    {selectedUploadBusiness.name}
+                    {selectedUploadBusiness.city && ` — ${selectedUploadBusiness.city}`}
+                  </Badge>
+                  <Button variant="ghost" size="sm" onClick={() => { setSelectedUploadBusiness(null); setUploadedVideoUrl(""); }}>
+                    Changer
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Input
+                      placeholder="Rechercher un établissement…"
+                      value={uploadBusinessQuery}
+                      onChange={e => setUploadBusinessQuery(e.target.value)}
+                      onKeyDown={e => e.key === "Enter" && searchBusinessForUpload()}
+                      className="text-sm"
+                    />
+                    <Button size="sm" onClick={searchBusinessForUpload} disabled={searchingBusiness || !uploadBusinessQuery.trim()}>
+                      {searchingBusiness ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                  {uploadBusinessResults.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto">
+                      {uploadBusinessResults.map(biz => (
+                        <Badge
+                          key={biz.id}
+                          variant="outline"
+                          className="cursor-pointer hover:bg-accent transition-colors"
+                          onClick={() => { setSelectedUploadBusiness(biz); setUploadBusinessResults([]); }}
+                        >
+                          {biz.name} {biz.city && `(${biz.city})`}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Video upload */}
+            {selectedUploadBusiness && (
+              <div className="space-y-3 max-w-2xl">
+                <VideoUploader
+                  videoUrl={uploadedVideoUrl}
+                  onChange={setUploadedVideoUrl}
+                  businessId={selectedUploadBusiness.id}
+                />
+                {uploadedVideoUrl && (
+                  <Button onClick={handleCreateVideoDoc} disabled={creatingDoc}>
+                    {creatingDoc ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Video className="h-4 w-4 mr-2" />}
+                    Créer le document vidéo
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       {video && (
