@@ -988,6 +988,14 @@ const GenericVideosPanel = () => {
           onSaved={loadPoiMap}
         />
       )}
+
+      {businessVideo && (
+        <InlineBusinessAssignment
+          video={businessVideo}
+          onClose={() => setBusinessVideo(null)}
+          onSaved={loadBusinessMap}
+        />
+      )}
     </div>
   );
 };
