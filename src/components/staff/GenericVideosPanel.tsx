@@ -798,6 +798,7 @@ const GenericVideosPanel = () => {
                         onEditDescription={setDescVideo}
                         onEditPois={setPoiVideo}
                         onEditBusinesses={setBusinessVideo}
+                        onPreviewOverlay={setPreviewOverlayVideo}
                       />
                     </div>
                   ))}
