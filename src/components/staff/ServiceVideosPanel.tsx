@@ -31,6 +31,10 @@ interface ServiceVideo {
   business_name: string;
   service_id: string;
   service_name: string;
+  subcategory_id: string | null;
+  subcategory_name: string | null;
+  category_id: string | null;
+  category_name: string | null;
   city: string | null;
   neighborhood: string | null;
 }
@@ -38,11 +42,6 @@ interface ServiceVideo {
 interface CityOption {
   name: string;
   sort_order: number;
-}
-
-interface ServiceOption {
-  id: string;
-  name: string;
 }
 
 const ALL_VALUE = "__all__";
@@ -101,6 +100,8 @@ const ServiceVideosPanel = () => {
   const [videos, setVideos] = useState<ServiceVideo[]>([]);
   const [cities, setCities] = useState<CityOption[]>([]);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>(ALL_VALUE);
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>(ALL_VALUE);
   const [selectedService, setSelectedService] = useState<string>(ALL_VALUE);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -128,7 +129,7 @@ const ServiceVideosPanel = () => {
     while (true) {
       const { data } = await supabase
         .from("business_documents")
-        .select("id, url, name, thumbnail_url, sort_order, business_id, service_id, city, neighborhood")
+        .select("id, url, name, thumbnail_url, sort_order, business_id, service_id, subcategory_id, city, neighborhood")
         .eq("type", "video")
         .not("service_id", "is", null)
         .order("sort_order", { ascending: true })
@@ -145,13 +146,13 @@ const ServiceVideosPanel = () => {
       return;
     }
 
-    // Fetch businesses
+    // Fetch businesses (with main_category)
     const bizIds = [...new Set(allDocs.map(d => d.business_id))];
-    const bizMap = new Map<string, { name: string }>();
+    const bizMap = new Map<string, { name: string; main_category: string | null }>();
     for (let i = 0; i < bizIds.length; i += 200) {
       const batch = bizIds.slice(i, i + 200);
-      const { data } = await supabase.from("businesses").select("id, name").in("id", batch);
-      if (data) data.forEach(b => bizMap.set(b.id, { name: b.name }));
+      const { data } = await supabase.from("businesses").select("id, name, main_category").in("id", batch);
+      if (data) data.forEach(b => bizMap.set(b.id, { name: b.name, main_category: b.main_category }));
     }
 
     // Fetch services
@@ -163,19 +164,45 @@ const ServiceVideosPanel = () => {
       if (data) data.forEach(s => svcMap.set(s.id, s.name_fr));
     }
 
-    setVideos(allDocs.map(d => ({
-      id: d.id,
-      url: d.url,
-      name: d.name,
-      thumbnail_url: d.thumbnail_url,
-      sort_order: d.sort_order,
-      business_id: d.business_id,
-      business_name: bizMap.get(d.business_id)?.name || "—",
-      service_id: d.service_id,
-      service_name: svcMap.get(d.service_id) || "—",
-      city: d.city || null,
-      neighborhood: d.neighborhood || null,
-    })));
+    // Fetch subcategories
+    const subIds = [...new Set(allDocs.map(d => d.subcategory_id).filter(Boolean))] as string[];
+    const subMap = new Map<string, { name: string; category_id: string | null }>();
+    for (let i = 0; i < subIds.length; i += 200) {
+      const batch = subIds.slice(i, i + 200);
+      const { data } = await supabase.from("subcategories").select("id, name_fr, category_id").in("id", batch);
+      if (data) data.forEach(s => subMap.set(s.id, { name: s.name_fr, category_id: s.category_id }));
+    }
+
+    // Fetch categories
+    const catIds = [...new Set([...subMap.values()].map(s => s.category_id).filter(Boolean))] as string[];
+    const catMap = new Map<string, string>();
+    for (let i = 0; i < catIds.length; i += 200) {
+      const batch = catIds.slice(i, i + 200);
+      const { data } = await supabase.from("categories").select("id, name_fr").in("id", batch);
+      if (data) data.forEach(c => catMap.set(c.id, c.name_fr));
+    }
+
+    setVideos(allDocs.map(d => {
+      const sub = d.subcategory_id ? subMap.get(d.subcategory_id) : null;
+      const catId = sub?.category_id || null;
+      return {
+        id: d.id,
+        url: d.url,
+        name: d.name,
+        thumbnail_url: d.thumbnail_url,
+        sort_order: d.sort_order,
+        business_id: d.business_id,
+        business_name: bizMap.get(d.business_id)?.name || "—",
+        service_id: d.service_id,
+        service_name: svcMap.get(d.service_id) || "—",
+        subcategory_id: d.subcategory_id || null,
+        subcategory_name: sub?.name || null,
+        category_id: catId,
+        category_name: catId ? catMap.get(catId) || null : null,
+        city: d.city || null,
+        neighborhood: d.neighborhood || null,
+      };
+    }));
     setLoading(false);
   }, []);
 
@@ -188,41 +215,90 @@ const ServiceVideosPanel = () => {
     return [...citySet].sort((a, b) => (cityOrder.get(a) ?? 9999) - (cityOrder.get(b) ?? 9999));
   }, [videos, cities]);
 
-  // Services present in videos for the selected city
-  const videoServices = useMemo(() => {
+  // Helper: videos filtered by city only
+  const cityFilteredVideos = useMemo(() => {
     if (!selectedCity) return [];
-    let cityVideos = videos;
-    if (selectedCity === "__none__") {
-      cityVideos = videos.filter(v => !v.city);
-    } else {
-      cityVideos = videos.filter(v => v.city === selectedCity);
+    if (selectedCity === "__none__") return videos.filter(v => !v.city);
+    return videos.filter(v => v.city === selectedCity);
+  }, [videos, selectedCity]);
+
+  // Categories present in city-filtered videos
+  const videoCategories = useMemo(() => {
+    const catSet = new Map<string, string>();
+    cityFilteredVideos.forEach(v => {
+      if (v.category_id && v.category_name && !catSet.has(v.category_id)) {
+        catSet.set(v.category_id, v.category_name);
+      }
+    });
+    return [...catSet.entries()]
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [cityFilteredVideos]);
+
+  // Subcategories filtered by selected category
+  const videoSubcategories = useMemo(() => {
+    let base = cityFilteredVideos;
+    if (selectedCategory !== ALL_VALUE) {
+      base = base.filter(v => v.category_id === selectedCategory);
+    }
+    const subSet = new Map<string, string>();
+    base.forEach(v => {
+      if (v.subcategory_id && v.subcategory_name && !subSet.has(v.subcategory_id)) {
+        subSet.set(v.subcategory_id, v.subcategory_name);
+      }
+    });
+    return [...subSet.entries()]
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [cityFilteredVideos, selectedCategory]);
+
+  // Services filtered by selected category + subcategory
+  const videoServices = useMemo(() => {
+    let base = cityFilteredVideos;
+    if (selectedCategory !== ALL_VALUE) {
+      base = base.filter(v => v.category_id === selectedCategory);
+    }
+    if (selectedSubcategory !== ALL_VALUE) {
+      base = base.filter(v => v.subcategory_id === selectedSubcategory);
     }
     const svcSet = new Map<string, string>();
-    cityVideos.forEach(v => {
+    base.forEach(v => {
       if (!svcSet.has(v.service_id)) svcSet.set(v.service_id, v.service_name);
     });
     return [...svcSet.entries()]
       .map(([id, name]) => ({ id, name }))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [videos, selectedCity]);
+  }, [cityFilteredVideos, selectedCategory, selectedSubcategory]);
 
+  // Reset cascading filters
   useEffect(() => {
+    setSelectedCategory(ALL_VALUE);
+    setSelectedSubcategory(ALL_VALUE);
     setSelectedService(ALL_VALUE);
   }, [selectedCity]);
 
+  useEffect(() => {
+    setSelectedSubcategory(ALL_VALUE);
+    setSelectedService(ALL_VALUE);
+  }, [selectedCategory]);
+
+  useEffect(() => {
+    setSelectedService(ALL_VALUE);
+  }, [selectedSubcategory]);
+
   const filteredVideos = useMemo(() => {
-    if (!selectedCity) return [];
-    let result = videos;
-    if (selectedCity === "__none__") {
-      result = result.filter(v => !v.city);
-    } else {
-      result = result.filter(v => v.city === selectedCity);
+    let result = cityFilteredVideos;
+    if (selectedCategory !== ALL_VALUE) {
+      result = result.filter(v => v.category_id === selectedCategory);
+    }
+    if (selectedSubcategory !== ALL_VALUE) {
+      result = result.filter(v => v.subcategory_id === selectedSubcategory);
     }
     if (selectedService !== ALL_VALUE) {
       result = result.filter(v => v.service_id === selectedService);
     }
     return result;
-  }, [videos, selectedCity, selectedService]);
+  }, [cityFilteredVideos, selectedCategory, selectedSubcategory, selectedService]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -265,6 +341,7 @@ const ServiceVideosPanel = () => {
       </div>
 
       <div className="flex items-center gap-4 flex-wrap">
+        {/* Ville */}
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">Ville :</span>
           <Select value={selectedCity || ""} onValueChange={v => setSelectedCity(v)}>
@@ -280,6 +357,39 @@ const ServiceVideosPanel = () => {
           </Select>
         </div>
 
+        {/* Catégorie */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">Catégorie :</span>
+          <Select value={selectedCategory} onValueChange={setSelectedCategory} disabled={!selectedCity}>
+            <SelectTrigger className="w-[220px]">
+              <SelectValue placeholder={!selectedCity ? "Choisir une ville" : "Toutes"} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL_VALUE}>Toutes</SelectItem>
+              {videoCategories.map(c => (
+                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Sous-catégorie */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">Sous-catégorie :</span>
+          <Select value={selectedSubcategory} onValueChange={setSelectedSubcategory} disabled={!selectedCity}>
+            <SelectTrigger className="w-[260px]">
+              <SelectValue placeholder={!selectedCity ? "Choisir une ville" : "Toutes"} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL_VALUE}>Toutes</SelectItem>
+              {videoSubcategories.map(s => (
+                <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Service */}
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">Service :</span>
           <Select value={selectedService} onValueChange={setSelectedService} disabled={!selectedCity}>
