@@ -449,6 +449,21 @@ const RightDetailPanel = ({
   const allItems = useMemo(() => [...poiItems, ...businessItems].sort((a, b) => a.sort_order - b.sort_order), [poiItems, businessItems]);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 3 } }));
   const isStorageVideo = video.url.includes("supabase.co/storage");
+  const [currentTime, setCurrentTime] = useState(0);
+
+  const formatTime = (value: number | null | undefined) => (value == null ? "∞" : `${value.toFixed(1)}s`);
+
+  const activeItem = useMemo(() => {
+    return allItems.find(item => {
+      const start = item.start_time ?? 0;
+      const end = item.end_time ?? Infinity;
+      return currentTime >= start && currentTime < end;
+    }) || null;
+  }, [allItems, currentTime]);
+
+  useEffect(() => {
+    setCurrentTime(0);
+  }, [video.id]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -461,7 +476,6 @@ const RightDetailPanel = ({
 
   return (
     <div className="h-full flex flex-col border-l bg-card">
-      {/* Header */}
       <div className="flex items-center justify-between p-3 border-b bg-muted/30">
         <div className="flex items-center gap-2 min-w-0">
           <Play className="h-4 w-4 text-primary shrink-0" />
@@ -470,17 +484,51 @@ const RightDetailPanel = ({
         <Button variant="ghost" size="sm" onClick={onClose}>✕</Button>
       </div>
 
-      {/* Video preview */}
-      <div className="p-3 border-b">
+      <div className="p-3 border-b space-y-2">
         <div className="relative bg-black rounded-lg overflow-hidden" style={{ aspectRatio: "16/9" }}>
-          {video.thumbnail_url ? <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" /> :
-            isStorageVideo ? <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" controls /> :
-            <div className="w-full h-full bg-muted flex items-center justify-center"><Play className="h-8 w-8 text-muted-foreground" /></div>}
+          {isStorageVideo ? (
+            <video
+              src={video.url}
+              className="w-full h-full object-contain"
+              muted
+              preload="metadata"
+              controls
+              onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+              onLoadedMetadata={(e) => setCurrentTime(e.currentTarget.currentTime)}
+            />
+          ) : video.thumbnail_url ? (
+            <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-muted flex items-center justify-center"><Play className="h-8 w-8 text-muted-foreground" /></div>
+          )}
+
+          {isStorageVideo && (
+            <div className="absolute top-2 right-2 rounded-md border border-border/80 bg-background/85 px-2.5 py-1 text-xs font-semibold text-foreground shadow-sm backdrop-blur-sm">
+              {formatTime(currentTime)}
+            </div>
+          )}
         </div>
-        <p className="text-[10px] text-muted-foreground font-mono mt-1">{video.id}</p>
+
+        {isStorageVideo && allItems.length > 0 && (
+          <div className="rounded-md border bg-muted/30 px-3 py-2">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="text-xs font-semibold text-foreground">Lecture : {formatTime(currentTime)}</span>
+              {activeItem ? (
+                <span className="text-xs text-muted-foreground">
+                  <span className="font-medium text-foreground">{activeItem.name}</span>
+                  {" · "}
+                  {formatTime(activeItem.start_time)} → {formatTime(activeItem.end_time)}
+                </span>
+              ) : (
+                <span className="text-xs text-muted-foreground">Aucune entité active sur ce segment</span>
+              )}
+            </div>
+          </div>
+        )}
+
+        <p className="text-[10px] text-muted-foreground font-mono">{video.id}</p>
       </div>
 
-      {/* Sortable list */}
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
         <div className="flex items-center justify-between mb-2">
           <p className="text-xs font-semibold text-muted-foreground">
@@ -507,7 +555,6 @@ const RightDetailPanel = ({
         )}
       </div>
 
-      {/* Legend */}
       <div className="p-3 border-t text-[10px] text-muted-foreground flex items-center gap-4">
         <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> POI</span>
         <span className="flex items-center gap-1"><Building2 className="h-3 w-3" /> Établissement</span>
