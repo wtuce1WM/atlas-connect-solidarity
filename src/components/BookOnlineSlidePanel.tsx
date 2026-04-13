@@ -1975,6 +1975,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     hook_fr: business.hook_fr,
                     computed_rating: business.computed_rating,
                     total_review_count: business.total_review_count,
+                    wtuce_status: "verified" as const,
                   });
                 }
                 if (poiMapMode === "destinations") {
@@ -2007,6 +2008,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       hook_fr: p.hook_fr,
                       computed_rating: p.computed_rating,
                       total_review_count: p.total_review_count,
+                      wtuce_status: p.wtuce_status,
                     });
                   });
                 }
