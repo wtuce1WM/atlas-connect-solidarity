@@ -15,6 +15,7 @@ export interface YouTubeVideo {
 
 interface YouTubeShortsCarouselProps {
   youtubeUrl: string;
+  businessId?: string;
   onVideoCount?: (count: number) => void;
   onPlayingChange?: (isPlaying: boolean) => void;
   onSelectVideo?: (video: YouTubeVideo | null) => void;
@@ -26,7 +27,7 @@ interface YouTubeShortsCarouselProps {
   size?: "default" | "large" | "match-tabs";
 }
 
-const YouTubeShortsCarousel = ({ youtubeUrl, onVideoCount, onPlayingChange, onSelectVideo, onVideosLoaded, activeVideoId, shortsOnly, hideLabel, hideHeader, size = "default" }: YouTubeShortsCarouselProps) => {
+const YouTubeShortsCarousel = ({ youtubeUrl, businessId, onVideoCount, onPlayingChange, onSelectVideo, onVideosLoaded, activeVideoId, shortsOnly, hideLabel, hideHeader, size = "default" }: YouTubeShortsCarouselProps) => {
   const { language } = useLanguage();
   const [videos, setVideos] = useState<YouTubeVideo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
