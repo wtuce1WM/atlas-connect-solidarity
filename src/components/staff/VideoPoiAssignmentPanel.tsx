@@ -1,11 +1,13 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Loader2, Play, MapPin } from "lucide-react";
+import { Search, Loader2, Play, MapPin, Upload, Video } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
 import VideoLightbox from "./VideoLightbox";
+import VideoUploader from "./VideoUploader";
 import { toast } from "sonner";
 
 interface VideoDoc {
@@ -35,6 +37,73 @@ const VideoPoiAssignmentPanel = () => {
   const [initialPoiIds, setInitialPoiIds] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+
+  // Upload section state
+  const [uploadBusinessQuery, setUploadBusinessQuery] = useState("");
+  const [uploadBusinessResults, setUploadBusinessResults] = useState<{ id: string; name: string; city: string | null }[]>([]);
+  const [selectedUploadBusiness, setSelectedUploadBusiness] = useState<{ id: string; name: string; city: string | null } | null>(null);
+  const [uploadedVideoUrl, setUploadedVideoUrl] = useState("");
+  const [searchingBusiness, setSearchingBusiness] = useState(false);
+  const [creatingDoc, setCreatingDoc] = useState(false);
+
+  const searchBusinessForUpload = useCallback(async () => {
+    const q = uploadBusinessQuery.trim();
+    if (!q) return;
+    setSearchingBusiness(true);
+    const { data } = await supabase
+      .from("businesses")
+      .select("id, name, city")
+      .ilike("name", `%${q}%`)
+      .eq("is_active", true)
+      .order("name")
+      .limit(20);
+    setUploadBusinessResults(data || []);
+    setSearchingBusiness(false);
+  }, [uploadBusinessQuery]);
+
+  const handleCreateVideoDoc = useCallback(async () => {
+    if (!selectedUploadBusiness || !uploadedVideoUrl) return;
+    setCreatingDoc(true);
+    try {
+      const { data: newDoc, error: insertErr } = await supabase
+        .from("business_documents")
+        .insert({
+          business_id: selectedUploadBusiness.id,
+          url: uploadedVideoUrl,
+          type: "video",
+          city: selectedUploadBusiness.city,
+        })
+        .select("id")
+        .single();
+
+      if (insertErr) throw insertErr;
+
+      toast.success("Vidéo ajoutée ! Recherchez-la par son ID pour affecter des POIs.");
+      // Auto-search the newly created doc
+      if (newDoc) {
+        setSearchId(newDoc.id);
+        setUploadedVideoUrl("");
+        setSelectedUploadBusiness(null);
+        setUploadBusinessQuery("");
+        setUploadBusinessResults([]);
+        // Trigger search after state update
+        setTimeout(() => {
+          setSearchId(newDoc.id);
+        }, 100);
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Erreur lors de la création");
+    } finally {
+      setCreatingDoc(false);
+    }
+  }, [selectedUploadBusiness, uploadedVideoUrl]);
+
+  // Auto-search when searchId is set programmatically
+  useEffect(() => {
+    if (searchId && searchId.length === 36 && !video) {
+      searchVideo();
+    }
+  }, [searchId]);
 
   const searchVideo = useCallback(async () => {
     const id = searchId.trim();
@@ -265,6 +334,81 @@ const VideoPoiAssignmentPanel = () => {
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Rechercher"}
         </Button>
       </div>
+
+      {/* Upload section */}
+      {!video && (
+        <>
+          <Separator />
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold flex items-center gap-2">
+              <Upload className="h-4 w-4" />
+              Ou uploader une nouvelle vidéo
+            </h3>
+
+            {/* Business search */}
+            <div className="space-y-2 max-w-lg">
+              <label className="text-xs font-medium text-muted-foreground">Établissement</label>
+              {selectedUploadBusiness ? (
+                <div className="flex items-center gap-2">
+                  <Badge variant="default" className="text-sm py-1 px-3">
+                    {selectedUploadBusiness.name}
+                    {selectedUploadBusiness.city && ` — ${selectedUploadBusiness.city}`}
+                  </Badge>
+                  <Button variant="ghost" size="sm" onClick={() => { setSelectedUploadBusiness(null); setUploadedVideoUrl(""); }}>
+                    Changer
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Input
+                      placeholder="Rechercher un établissement…"
+                      value={uploadBusinessQuery}
+                      onChange={e => setUploadBusinessQuery(e.target.value)}
+                      onKeyDown={e => e.key === "Enter" && searchBusinessForUpload()}
+                      className="text-sm"
+                    />
+                    <Button size="sm" onClick={searchBusinessForUpload} disabled={searchingBusiness || !uploadBusinessQuery.trim()}>
+                      {searchingBusiness ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                  {uploadBusinessResults.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto">
+                      {uploadBusinessResults.map(biz => (
+                        <Badge
+                          key={biz.id}
+                          variant="outline"
+                          className="cursor-pointer hover:bg-accent transition-colors"
+                          onClick={() => { setSelectedUploadBusiness(biz); setUploadBusinessResults([]); }}
+                        >
+                          {biz.name} {biz.city && `(${biz.city})`}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Video upload */}
+            {selectedUploadBusiness && (
+              <div className="space-y-3 max-w-2xl">
+                <VideoUploader
+                  videoUrl={uploadedVideoUrl}
+                  onChange={setUploadedVideoUrl}
+                  businessId={selectedUploadBusiness.id}
+                />
+                {uploadedVideoUrl && (
+                  <Button onClick={handleCreateVideoDoc} disabled={creatingDoc}>
+                    {creatingDoc ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Video className="h-4 w-4 mr-2" />}
+                    Créer le document vidéo
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+        </>
+      )}
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
