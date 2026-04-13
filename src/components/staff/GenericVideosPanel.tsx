@@ -67,8 +67,9 @@ const SocialLinksDialog = ({
   onOpenChange: (o: boolean) => void;
   onSaved: () => void;
 }) => {
-  const [ig, setIg] = useState({ account: video.instagram_account || "", url: video.instagram_url || "" });
-  const [tt, setTt] = useState({ account: video.tiktok_account || "", url: video.tiktok_url || "" });
+  const [ig, setIg] = useState({ account: video.instagram_account || "", url: video.instagram_url || "", videoUrl: video.instagram_video_url || "" });
+  const [tt, setTt] = useState({ account: video.tiktok_account || "", url: video.tiktok_url || "", videoUrl: video.tiktok_video_url || "" });
+  const [yt, setYt] = useState({ account: video.youtube_account || "", url: video.youtube_url || "", videoUrl: video.youtube_video_url || "" });
   const [yt, setYt] = useState({ account: video.youtube_account || "", url: video.youtube_url || "" });
   const [saving, setSaving] = useState(false);
 
