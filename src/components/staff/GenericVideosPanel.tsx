@@ -632,8 +632,8 @@ const GenericVideosPanel = () => {
   const loadPanelItems = useCallback(async (videoId: string) => {
     setPanelLoading(true);
     const [{ data: poiLinks }, { data: bizLinks }] = await Promise.all([
-      supabase.from("generic_video_pois" as any).select("poi_id, sort_order, start_time, end_time").eq("generic_video_id", videoId) as { data: any[] | null },
-      supabase.from("generic_video_businesses" as any).select("business_id, sort_order, start_time, end_time").eq("generic_video_id", videoId) as { data: any[] | null },
+      supabase.from("generic_video_pois" as any).select("poi_id, sort_order, start_time, end_time").eq("generic_video_id", videoId) as unknown as { data: any[] | null },
+      supabase.from("generic_video_businesses" as any).select("business_id, sort_order, start_time, end_time").eq("generic_video_id", videoId) as unknown as { data: any[] | null },
     ]);
 
     const items: LinkedItemWithTime[] = [];
