@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Play, Upload, Copy, Check, FileText, Instagram, X, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -186,7 +186,7 @@ const DescriptionDialog = ({
 };
 
 /* ─── POI assignment dialog ─── */
-interface PoiOption { id: string; name_fr: string; }
+interface PoiBiz { id: string; name: string; neighborhood: string | null; city: string | null; }
 
 const PoiAssignDialog = ({
   video,
@@ -199,7 +199,7 @@ const PoiAssignDialog = ({
   onOpenChange: (o: boolean) => void;
   onSaved: () => void;
 }) => {
-  const [allPois, setAllPois] = useState<PoiOption[]>([]);
+  const [poiBusinesses, setPoiBusinesses] = useState<PoiBiz[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [initialIds, setInitialIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -210,10 +210,10 @@ const PoiAssignDialog = ({
     const load = async () => {
       setLoading(true);
       const [{ data: pois }, { data: links }] = await Promise.all([
-        supabase.from("points_of_interest").select("id, name_fr").order("name_fr"),
+        supabase.from("businesses").select("id, name, neighborhood, city").eq("is_poi", true).eq("is_active", true).order("city").order("neighborhood").order("name"),
         supabase.from("generic_video_pois" as any).select("poi_id").eq("generic_video_id", video.id),
       ]);
-      setAllPois((pois as PoiOption[]) || []);
+      setPoiBusinesses((pois as PoiBiz[]) || []);
       const ids = ((links as any[]) || []).map((l: any) => l.poi_id);
       setSelectedIds(ids);
       setInitialIds(ids);
@@ -222,10 +222,20 @@ const PoiAssignDialog = ({
     load();
   }, [video.id]);
 
-  const toggle = (poiId: string) => {
+  const togglePoi = (poiId: string) => {
     setSelectedIds(prev =>
       prev.includes(poiId) ? prev.filter(id => id !== poiId) : [...prev, poiId]
     );
+  };
+
+  const toggleGroup = (pois: PoiBiz[]) => {
+    const ids = pois.map(p => p.id);
+    const allSelected = ids.every(id => selectedIds.includes(id));
+    if (allSelected) {
+      setSelectedIds(prev => prev.filter(id => !ids.includes(id)));
+    } else {
+      setSelectedIds(prev => [...new Set([...prev, ...ids])]);
+    }
   };
 
   const isDirty = JSON.stringify([...selectedIds].sort()) !== JSON.stringify([...initialIds].sort());
@@ -245,40 +255,104 @@ const PoiAssignDialog = ({
     }
     
     toast.success("POI enregistrés");
+    setInitialIds([...selectedIds]);
     onSaved();
     onOpenChange(false);
     setSaving(false);
   };
 
-  const filtered = allPois.filter(p =>
-    p.name_fr.toLowerCase().includes(search.toLowerCase())
+  // Filter by search
+  const filtered = poiBusinesses.filter(p =>
+    p.name.toLowerCase().includes(search.toLowerCase()) ||
+    (p.city || "").toLowerCase().includes(search.toLowerCase()) ||
+    (p.neighborhood || "").toLowerCase().includes(search.toLowerCase())
   );
+
+  // Group by city then neighborhood
+  const grouped = useMemo(() => {
+    const cityMap: Record<string, Record<string, PoiBiz[]>> = {};
+    filtered.forEach(p => {
+      const city = p.city || "Sans ville";
+      const nb = p.neighborhood || "Sans quartier";
+      if (!cityMap[city]) cityMap[city] = {};
+      if (!cityMap[city][nb]) cityMap[city][nb] = [];
+      cityMap[city][nb].push(p);
+    });
+    return Object.entries(cityMap).map(([city, neighborhoods]) => ({
+      city,
+      neighborhoods: Object.entries(neighborhoods),
+    }));
+  }, [filtered]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[80vh] flex flex-col">
+      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Points d'intérêt</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <MapPin className="h-4 w-4" />
+            Points d'intérêt
+            <span className="text-xs font-normal text-muted-foreground">
+              ({selectedIds.length} sélectionné{selectedIds.length > 1 ? "s" : ""})
+            </span>
+          </DialogTitle>
         </DialogHeader>
         <Input
-          placeholder="Rechercher un POI…"
+          placeholder="Rechercher un POI, ville ou quartier…"
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
         {loading ? (
           <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div>
         ) : (
-          <div className="flex-1 overflow-y-auto space-y-1 max-h-[50vh]">
-            {filtered.map(poi => (
-              <label key={poi.id} className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted cursor-pointer text-sm">
-                <Checkbox
-                  checked={selectedIds.includes(poi.id)}
-                  onCheckedChange={() => toggle(poi.id)}
-                />
-                {poi.name_fr}
-              </label>
+          <div className="flex-1 overflow-y-auto space-y-4 max-h-[55vh] pr-1">
+            {grouped.map(({ city, neighborhoods }) => (
+              <div key={city}>
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">{city}</p>
+                <div className="space-y-3 pl-1">
+                  {neighborhoods.map(([neighborhood, pois]) => {
+                    const ids = pois.map(p => p.id);
+                    const allSelected = ids.every(id => selectedIds.includes(id));
+                    const someSelected = !allSelected && ids.some(id => selectedIds.includes(id));
+
+                    return (
+                      <div key={neighborhood}>
+                        <div className="mb-1 flex items-center gap-2">
+                          <Checkbox
+                            checked={allSelected ? true : someSelected ? "indeterminate" : false}
+                            onCheckedChange={() => toggleGroup(pois)}
+                            className="h-3.5 w-3.5 shrink-0"
+                          />
+                          <button
+                            type="button"
+                            className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                            onClick={() => toggleGroup(pois)}
+                          >
+                            {neighborhood}
+                            <span className="text-[10px] opacity-60">({ids.length})</span>
+                          </button>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {pois.map(poi => {
+                            const isSelected = selectedIds.includes(poi.id);
+                            return (
+                              <Badge
+                                key={poi.id}
+                                variant={isSelected ? "default" : "outline"}
+                                className="cursor-pointer transition-colors"
+                                onClick={() => togglePoi(poi.id)}
+                              >
+                                {poi.name}
+                              </Badge>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             ))}
-            {filtered.length === 0 && (
+            {grouped.length === 0 && (
               <p className="text-sm text-muted-foreground text-center py-4">Aucun POI trouvé</p>
             )}
           </div>
