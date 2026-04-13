@@ -148,6 +148,7 @@ export interface PoiBusiness {
   hook_fr?: string | null;
   computed_rating?: number | null;
   total_review_count?: number | null;
+  wtuce_status?: string | null;
 }
 
 export interface VideoDoc {
@@ -399,7 +400,7 @@ export function useBookOnlineData(businessId: string) {
 
         const { data: poiData } = await supabase
           .from("businesses")
-          .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, address, phone, whatsapp, main_category, categories, hook_fr, computed_rating, total_review_count")
+          .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, address, phone, whatsapp, main_category, categories, hook_fr, computed_rating, total_review_count, wtuce_status")
           .in("id", poiIds)
           .eq("is_active", true);
 
