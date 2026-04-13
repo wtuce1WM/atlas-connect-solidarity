@@ -2018,6 +2018,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               zoom={13}
               height="100%"
               hideStats
+              domInfoWindowLift={56}
               onBusinessClick={(biz) => {
                 if (biz.id === business?.id) return;
                 if (poiMapMode === "destinations") {
