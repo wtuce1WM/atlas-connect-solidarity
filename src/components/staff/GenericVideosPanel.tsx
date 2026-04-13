@@ -80,10 +80,13 @@ const SocialLinksDialog = ({
       .update({
         instagram_account: ig.account || null,
         instagram_url: ig.url || null,
+        instagram_video_url: ig.videoUrl || null,
         tiktok_account: tt.account || null,
         tiktok_url: tt.url || null,
+        tiktok_video_url: tt.videoUrl || null,
         youtube_account: yt.account || null,
         youtube_url: yt.url || null,
+        youtube_video_url: yt.videoUrl || null,
       } as any)
       .eq("id", video.id);
     if (error) toast.error(error.message);
