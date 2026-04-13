@@ -2243,18 +2243,21 @@ export type Database = {
           created_at: string
           generic_video_id: string
           id: string
+          sort_order: number
         }
         Insert: {
           business_id: string
           created_at?: string
           generic_video_id: string
           id?: string
+          sort_order?: number
         }
         Update: {
           business_id?: string
           created_at?: string
           generic_video_id?: string
           id?: string
+          sort_order?: number
         }
         Relationships: [
           {
@@ -2286,18 +2289,21 @@ export type Database = {
           generic_video_id: string
           id: string
           poi_id: string
+          sort_order: number
         }
         Insert: {
           created_at?: string
           generic_video_id: string
           id?: string
           poi_id: string
+          sort_order?: number
         }
         Update: {
           created_at?: string
           generic_video_id?: string
           id?: string
           poi_id?: string
+          sort_order?: number
         }
         Relationships: [
           {

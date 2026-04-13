@@ -575,25 +575,79 @@ const InlineBusinessAssignment = ({
   );
 };
 
+interface LinkedItem { id: string; name: string; }
 
+const SortableLinkedItem = ({ item }: { item: LinkedItem }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: item.id });
+  const style = { transform: CSS.Transform.toString(transform), transition };
+  return (
+    <div ref={setNodeRef} style={style} className={cn("flex items-center gap-0.5", isDragging && "opacity-50")}>
+      <span {...attributes} {...listeners} className="cursor-grab text-muted-foreground text-[9px]">⠿</span>
+      <Badge variant="secondary" className="text-[9px] px-1 py-0 truncate max-w-[200px]">{item.name}</Badge>
+    </div>
+  );
+};
+
+const SortableLinkedList = ({
+  items,
+  icon: Icon,
+  label,
+  onReorder,
+}: {
+  items: LinkedItem[];
+  icon: React.ElementType;
+  label: string;
+  onReorder: (reordered: LinkedItem[]) => void;
+}) => {
+  const innerSensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 3 } }));
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = items.findIndex(i => i.id === active.id);
+    const newIndex = items.findIndex(i => i.id === over.id);
+    onReorder(arrayMove(items, oldIndex, newIndex));
+  };
+  if (items.length === 0) return null;
+  return (
+    <div className="space-y-0.5 pt-0.5">
+      <p className="text-[9px] text-muted-foreground flex items-center gap-1">
+        <Icon className="h-2.5 w-2.5" /> {items.length} {label}
+      </p>
+      <DndContext sensors={innerSensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={items.map(i => i.id)} strategy={rectSortingStrategy}>
+          <div className="flex flex-wrap gap-1">
+            {items.map(item => <SortableLinkedItem key={item.id} item={item} />)}
+          </div>
+        </SortableContext>
+      </DndContext>
+    </div>
+  );
+};
+
+/* ─── Sortable video card ─── */
 const SortableVideoCard = ({
   video,
-  poiNames,
-  businessNames,
+  poiItems,
+  businessItems,
   onPreview,
   onEditSocial,
   onEditDescription,
   onEditPois,
   onEditBusinesses,
+  onReorderPois,
+  onReorderBusinesses,
 }: {
   video: GenericVideo;
-  poiNames: string[];
-  businessNames: string[];
+  poiItems: LinkedItem[];
+  businessItems: LinkedItem[];
   onPreview: (url: string) => void;
   onEditSocial: (v: GenericVideo) => void;
   onEditDescription: (v: GenericVideo) => void;
   onEditPois: (v: GenericVideo) => void;
   onEditBusinesses: (v: GenericVideo) => void;
+  onReorderPois: (videoId: string, items: LinkedItem[]) => void;
+  onReorderBusinesses: (videoId: string, items: LinkedItem[]) => void;
 })  => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: video.id });
@@ -703,19 +757,13 @@ const SortableVideoCard = ({
           {hasSocial ? "Modifier les liens sociaux" : "+ Ajouter des liens sociaux"}
         </button>
 
-        {/* POI badges */}
-        {poiNames.length > 0 && (
-          <div className="flex flex-wrap gap-1 pt-0.5">
-            {poiNames.slice(0, 3).map((name, i) => (
-              <Badge key={i} variant="secondary" className="text-[9px] px-1 py-0">
-                <MapPin className="h-2.5 w-2.5 mr-0.5" />{name}
-              </Badge>
-            ))}
-            {poiNames.length > 3 && (
-              <Badge variant="outline" className="text-[9px] px-1 py-0">+{poiNames.length - 3}</Badge>
-            )}
-          </div>
-        )}
+        {/* POI sortable list */}
+        <SortableLinkedList
+          items={poiItems}
+          icon={MapPin}
+          label="POI"
+          onReorder={(items) => onReorderPois(video.id, items)}
+        />
 
         {/* Edit POIs button */}
         <button
@@ -723,22 +771,16 @@ const SortableVideoCard = ({
           onClick={() => onEditPois(video)}
           className="text-[10px] text-primary hover:underline"
         >
-          {poiNames.length > 0 ? `${poiNames.length} POI • Modifier` : "+ Ajouter des POI"}
+          {poiItems.length > 0 ? `${poiItems.length} POI • Modifier` : "+ Ajouter des POI"}
         </button>
 
-        {/* Business badges */}
-        {businessNames.length > 0 && (
-          <div className="flex flex-wrap gap-1 pt-0.5">
-            {businessNames.slice(0, 3).map((name, i) => (
-              <Badge key={i} variant="secondary" className="text-[9px] px-1 py-0">
-                <Building2 className="h-2.5 w-2.5 mr-0.5" />{name}
-              </Badge>
-            ))}
-            {businessNames.length > 3 && (
-              <Badge variant="outline" className="text-[9px] px-1 py-0">+{businessNames.length - 3}</Badge>
-            )}
-          </div>
-        )}
+        {/* Business sortable list */}
+        <SortableLinkedList
+          items={businessItems}
+          icon={Building2}
+          label="établissement(s)"
+          onReorder={(items) => onReorderBusinesses(video.id, items)}
+        />
 
         {/* Edit businesses button */}
         <button
@@ -746,7 +788,7 @@ const SortableVideoCard = ({
           onClick={() => onEditBusinesses(video)}
           className="text-[10px] text-primary hover:underline"
         >
-          {businessNames.length > 0 ? `${businessNames.length} établissement(s) • Modifier` : "+ Ajouter des établissements"}
+          {businessItems.length > 0 ? `${businessItems.length} établissement(s) • Modifier` : "+ Ajouter des établissements"}
         </button>
       </div>
 
@@ -772,9 +814,9 @@ const GenericVideosPanel = () => {
   const [socialVideo, setSocialVideo] = useState<GenericVideo | null>(null);
   const [descVideo, setDescVideo] = useState<GenericVideo | null>(null);
   const [poiVideo, setPoiVideo] = useState<GenericVideo | null>(null);
-  const [videoPoiMap, setVideoPoiMap] = useState<Record<string, string[]>>({});
+  const [videoPoiMap, setVideoPoiMap] = useState<Record<string, LinkedItem[]>>({});
   const [businessVideo, setBusinessVideo] = useState<GenericVideo | null>(null);
-  const [videoBusinessMap, setVideoBusinessMap] = useState<Record<string, string[]>>({});
+  const [videoBusinessMap, setVideoBusinessMap] = useState<Record<string, LinkedItem[]>>({});
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -794,7 +836,7 @@ const GenericVideosPanel = () => {
   const loadPoiMap = useCallback(async () => {
     const { data: links } = await supabase
       .from("generic_video_pois" as any)
-      .select("generic_video_id, poi_id") as { data: any[] | null };
+      .select("generic_video_id, poi_id, sort_order") as { data: any[] | null };
     if (!links || links.length === 0) { setVideoPoiMap({}); return; }
     const poiIds = [...new Set(links.map((l: any) => l.poi_id))];
     const { data: pois } = await supabase
@@ -803,10 +845,11 @@ const GenericVideosPanel = () => {
       .in("id", poiIds);
     const nameMap: Record<string, string> = {};
     (pois || []).forEach((p: any) => { nameMap[p.id] = p.name_fr; });
-    const map: Record<string, string[]> = {};
+    const map: Record<string, LinkedItem[]> = {};
+    links.sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0));
     links.forEach((l: any) => {
       if (!map[l.generic_video_id]) map[l.generic_video_id] = [];
-      if (nameMap[l.poi_id]) map[l.generic_video_id].push(nameMap[l.poi_id]);
+      if (nameMap[l.poi_id]) map[l.generic_video_id].push({ id: l.poi_id, name: nameMap[l.poi_id] });
     });
     setVideoPoiMap(map);
   }, []);
@@ -814,7 +857,7 @@ const GenericVideosPanel = () => {
   const loadBusinessMap = useCallback(async () => {
     const { data: links } = await supabase
       .from("generic_video_businesses" as any)
-      .select("generic_video_id, business_id") as { data: any[] | null };
+      .select("generic_video_id, business_id, sort_order") as { data: any[] | null };
     if (!links || links.length === 0) { setVideoBusinessMap({}); return; }
     const bizIds = [...new Set(links.map((l: any) => l.business_id))];
     const { data: biz } = await supabase
@@ -823,10 +866,11 @@ const GenericVideosPanel = () => {
       .in("id", bizIds);
     const nameMap: Record<string, string> = {};
     (biz || []).forEach((b: any) => { nameMap[b.id] = b.name; });
-    const map: Record<string, string[]> = {};
+    const map: Record<string, LinkedItem[]> = {};
+    links.sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0));
     links.forEach((l: any) => {
       if (!map[l.generic_video_id]) map[l.generic_video_id] = [];
-      if (nameMap[l.business_id]) map[l.generic_video_id].push(nameMap[l.business_id]);
+      if (nameMap[l.business_id]) map[l.generic_video_id].push({ id: l.business_id, name: nameMap[l.business_id] });
     });
     setVideoBusinessMap(map);
   }, []);
@@ -870,6 +914,24 @@ const GenericVideosPanel = () => {
     );
   }, [videos]);
 
+  const handleReorderPois = useCallback(async (videoId: string, items: LinkedItem[]) => {
+    setVideoPoiMap(prev => ({ ...prev, [videoId]: items }));
+    await Promise.all(
+      items.map((item, i) =>
+        supabase.from("generic_video_pois" as any).update({ sort_order: i } as any).eq("generic_video_id", videoId).eq("poi_id", item.id)
+      )
+    );
+  }, []);
+
+  const handleReorderBusinesses = useCallback(async (videoId: string, items: LinkedItem[]) => {
+    setVideoBusinessMap(prev => ({ ...prev, [videoId]: items }));
+    await Promise.all(
+      items.map((item, i) =>
+        supabase.from("generic_video_businesses" as any).update({ sort_order: i } as any).eq("generic_video_id", videoId).eq("business_id", item.id)
+      )
+    );
+  }, []);
+
   return (
     <div className="space-y-6 pt-4">
       {/* Upload zone */}
@@ -911,13 +973,15 @@ const GenericVideosPanel = () => {
                   <div key={video.id} style={{ width: 280 }}>
                     <SortableVideoCard
                       video={video}
-                      poiNames={videoPoiMap[video.id] || []}
-                      businessNames={videoBusinessMap[video.id] || []}
+                      poiItems={videoPoiMap[video.id] || []}
+                      businessItems={videoBusinessMap[video.id] || []}
                       onPreview={setLightboxUrl}
                       onEditSocial={setSocialVideo}
                       onEditDescription={setDescVideo}
                       onEditPois={setPoiVideo}
                       onEditBusinesses={setBusinessVideo}
+                      onReorderPois={handleReorderPois}
+                      onReorderBusinesses={handleReorderBusinesses}
                     />
                   </div>
                 ))}
