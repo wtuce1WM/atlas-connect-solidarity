@@ -167,6 +167,7 @@ interface EventRow {
   kp_regroupement: string[];
   logo_url: string | null;
   type: string | null;
+  recurrence: string | null;
   google_maps_url: string | null;
   latitude: number | null;
   longitude: number | null;
@@ -200,8 +201,8 @@ const EventManagement = () => {
   const [bizSearchResults, setBizSearchResults] = useState<{ id: string; name: string; city: string | null }[]>([]);
   const [bizSearching, setBizSearching] = useState(false);
 
-  // List view: event businesses count map
-  const [eventBizCounts, setEventBizCounts] = useState<Record<string, number>>({});
+  // List view: event businesses names map
+  const [eventBizNames, setEventBizNames] = useState<Record<string, string[]>>({});
 
   const fetchEventTypes = async () => {
     const { data } = await supabase.from("event_types").select("name").order("name");
@@ -216,16 +217,28 @@ const EventManagement = () => {
       .order("start_date", { ascending: false });
     if (!error && data) {
       setEvents(data as unknown as EventRow[]);
-      // fetch biz counts
+      // fetch biz names for list
       const ids = (data as any[]).map(e => e.id);
       if (ids.length > 0) {
         const { data: ebData } = await supabase
           .from("event_businesses" as any)
-          .select("event_id")
+          .select("event_id, business_id")
           .in("event_id", ids);
-        const counts: Record<string, number> = {};
-        (ebData || []).forEach((r: any) => { counts[r.event_id] = (counts[r.event_id] || 0) + 1; });
-        setEventBizCounts(counts);
+        if (ebData && ebData.length > 0) {
+          const bizIds = [...new Set((ebData as any[]).map(r => r.business_id))];
+          const { data: bizData } = await supabase
+            .from("businesses")
+            .select("id, name")
+            .in("id", bizIds);
+          const bizMap: Record<string, string> = {};
+          (bizData || []).forEach((b: any) => { bizMap[b.id] = b.name; });
+          const names: Record<string, string[]> = {};
+          (ebData as any[]).forEach((r: any) => {
+            if (!names[r.event_id]) names[r.event_id] = [];
+            if (bizMap[r.business_id]) names[r.event_id].push(bizMap[r.business_id]);
+          });
+          setEventBizNames(names);
+        }
       }
     }
     setLoading(false);
@@ -878,6 +891,7 @@ const EventManagement = () => {
               <TableHead>Type</TableHead>
               <TableHead>Ville</TableHead>
               <TableHead>Établissements</TableHead>
+              <TableHead>Récurrence</TableHead>
               <TableHead>Début</TableHead>
               <TableHead>Fin</TableHead>
               <TableHead className="w-12"></TableHead>
@@ -894,7 +908,8 @@ const EventManagement = () => {
                 <TableCell className="font-medium">{ev.name}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">{ev.type || "—"}</TableCell>
                 <TableCell className="text-sm">{ev.city_id ? (cities.find(c => c.id === ev.city_id)?.name_fr || "—") : "—"}</TableCell>
-                <TableCell className="text-sm">{eventBizCounts[ev.id] || 0}</TableCell>
+                <TableCell className="text-sm max-w-[200px] truncate">{eventBizNames[ev.id]?.join(", ") || "—"}</TableCell>
+                <TableCell className="text-sm">{ev.recurrence || "—"}</TableCell>
                 <TableCell className="text-sm">{ev.start_date || "—"}</TableCell>
                 <TableCell className="text-sm">{ev.end_date || "—"}</TableCell>
                 <TableCell>
