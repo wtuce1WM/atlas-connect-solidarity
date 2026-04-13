@@ -228,9 +228,14 @@ const VideoPoiAssignmentPanel = () => {
   }, [poiBusinesses]);
 
   const togglePoi = (poiId: string) => {
-    setSelectedPoiIds(prev =>
-      prev.includes(poiId) ? prev.filter(id => id !== poiId) : [...prev, poiId]
-    );
+    setSelectedPoiIds(prev => {
+      const removing = prev.includes(poiId);
+      if (removing) {
+        if (defaultPoiId === poiId) setDefaultPoiId(null);
+        return prev.filter(id => id !== poiId);
+      }
+      return [...prev, poiId];
+    });
   };
 
   const toggleNeighborhood = (pois: PoiBusiness[]) => {
