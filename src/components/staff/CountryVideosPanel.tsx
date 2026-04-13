@@ -105,7 +105,7 @@ const SortableVideoCard = ({
   );
 };
 
-const CountryVideosPanel = () => {
+const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: boolean }) => {
   const [videos, setVideos] = useState<CountryVideo[]>([]);
   const [cities, setCities] = useState<CityOption[]>([]);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
@@ -129,12 +129,18 @@ const CountryVideosPanel = () => {
       setCities(citiesData.map(c => ({ name: c.name_fr, sort_order: c.sort_order ?? 0 })));
     }
 
-    const { data: docs } = await supabase
+    let query = supabase
       .from("business_documents")
       .select("id, url, name, thumbnail_url, sort_order, business_id, subcategory_id, service_id, poi_id, linked_business_id, city, neighborhood")
-      .eq("type", "video")
-      .not("subcategory_id", "is", null)
-      .order("sort_order", { ascending: true });
+      .eq("type", "video");
+
+    if (withSubcategory) {
+      query = query.not("subcategory_id", "is", null);
+    } else {
+      query = query.is("subcategory_id", null);
+    }
+
+    const { data: docs } = await query.order("sort_order", { ascending: true });
 
     if (!docs || docs.length === 0) {
       setVideos([]);
@@ -195,7 +201,7 @@ const CountryVideosPanel = () => {
       };
     }));
     setLoading(false);
-  }, []);
+  }, [withSubcategory]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -248,7 +254,7 @@ const CountryVideosPanel = () => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold">Vidéos liées à une sous-catégorie ({videos.length})</h3>
+        <h3 className="text-base font-semibold">{withSubcategory ? "Vidéos avec sous-catégorie" : "Vidéos sans sous-catégorie"} ({videos.length})</h3>
         <Button size="sm" onClick={saveOrder} disabled={saving}>
           {saving ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null}
           Sauvegarder l'ordre
