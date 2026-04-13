@@ -536,6 +536,39 @@ const EventManagement = () => {
                   </SelectContent>
                 </Select>
               </div>
+              <div>
+                <Label>Jours de la semaine</Label>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {DAYS_OF_WEEK.map(d => {
+                    const selected = form.days_of_week.includes(d.value);
+                    return (
+                      <button
+                        key={d.value}
+                        type="button"
+                        className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${selected ? "bg-primary text-primary-foreground border-primary" : "bg-background text-muted-foreground border-input hover:bg-muted"}`}
+                        onClick={() => setForm(p => ({
+                          ...p,
+                          days_of_week: selected
+                            ? p.days_of_week.filter(v => v !== d.value)
+                            : [...p.days_of_week, d.value],
+                        }))}
+                      >
+                        {d.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Heure de début</Label>
+                  <Input type="time" value={form.start_time} onChange={e => setForm(p => ({ ...p, start_time: e.target.value }))} />
+                </div>
+                <div>
+                  <Label>Heure de fin</Label>
+                  <Input type="time" value={form.end_time} onChange={e => setForm(p => ({ ...p, end_time: e.target.value }))} />
+                </div>
+              </div>
             </div>
             <div>
               <Label>Hook</Label>
