@@ -820,19 +820,21 @@ const GenericVideosPanel = () => {
 
   const loadCounts = useCallback(async () => {
     const [{ data: poiLinks }, { data: bizLinks }, { data: destLinks }] = await Promise.all([
-      supabase.from("generic_video_pois" as any).select("generic_video_id") as any,
-      supabase.from("generic_video_businesses" as any).select("generic_video_id") as any,
-      supabase.from("generic_video_destinations" as any).select("generic_video_id") as any,
+      supabase.from("generic_video_pois" as any).select("generic_video_id, start_time, end_time") as any,
+      supabase.from("generic_video_businesses" as any).select("generic_video_id, start_time, end_time") as any,
+      supabase.from("generic_video_destinations" as any).select("generic_video_id, start_time, end_time") as any,
     ]);
     const pc: Record<string, number> = {};
-    ((poiLinks as any[]) || []).forEach((l: any) => { pc[l.generic_video_id] = (pc[l.generic_video_id] || 0) + 1; });
+    const tf: Record<string, boolean> = {};
+    ((poiLinks as any[]) || []).forEach((l: any) => { pc[l.generic_video_id] = (pc[l.generic_video_id] || 0) + 1; if (l.start_time != null || l.end_time != null) tf[l.generic_video_id] = true; });
     setVideoPoiCounts(pc);
     const bc: Record<string, number> = {};
-    ((bizLinks as any[]) || []).forEach((l: any) => { bc[l.generic_video_id] = (bc[l.generic_video_id] || 0) + 1; });
+    ((bizLinks as any[]) || []).forEach((l: any) => { bc[l.generic_video_id] = (bc[l.generic_video_id] || 0) + 1; if (l.start_time != null || l.end_time != null) tf[l.generic_video_id] = true; });
     setVideoBizCounts(bc);
     const dc: Record<string, number> = {};
-    ((destLinks as any[]) || []).forEach((l: any) => { dc[l.generic_video_id] = (dc[l.generic_video_id] || 0) + 1; });
+    ((destLinks as any[]) || []).forEach((l: any) => { dc[l.generic_video_id] = (dc[l.generic_video_id] || 0) + 1; if (l.start_time != null || l.end_time != null) tf[l.generic_video_id] = true; });
     setVideoDestCounts(dc);
+    setVideoHasTimeframes(tf);
   }, []);
 
   const loadPanelItems = useCallback(async (videoId: string) => {
