@@ -876,10 +876,10 @@ const EventManagement = () => {
               <TableHead className="w-10"></TableHead>
               <TableHead>Nom</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead>Hook</TableHead>
+              <TableHead>Ville</TableHead>
+              <TableHead>Établissements</TableHead>
               <TableHead>Début</TableHead>
               <TableHead>Fin</TableHead>
-              <TableHead>KP</TableHead>
               <TableHead className="w-12"></TableHead>
             </TableRow>
           </TableHeader>
@@ -893,10 +893,10 @@ const EventManagement = () => {
                 </TableCell>
                 <TableCell className="font-medium">{ev.name}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">{ev.type || "—"}</TableCell>
-                <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">{ev.hook}</TableCell>
+                <TableCell className="text-sm">{ev.city_id ? (cities.find(c => c.id === ev.city_id)?.name_fr || "—") : "—"}</TableCell>
+                <TableCell className="text-sm">{eventBizCounts[ev.id] || 0}</TableCell>
                 <TableCell className="text-sm">{ev.start_date || "—"}</TableCell>
                 <TableCell className="text-sm">{ev.end_date || "—"}</TableCell>
-                <TableCell className="text-sm">{ev.kp_regroupement?.length || 0}</TableCell>
                 <TableCell>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
