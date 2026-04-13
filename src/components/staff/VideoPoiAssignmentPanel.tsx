@@ -41,6 +41,20 @@ const VideoPoiAssignmentPanel = () => {
   const [saving, setSaving] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
+  // Multi-POI videos list
+  interface MultiPoiVideo {
+    id: string;
+    url: string;
+    name: string | null;
+    thumbnail_url: string | null;
+    business_name: string;
+    city: string | null;
+    poi_count: number;
+    poi_names: string[];
+  }
+  const [multiPoiVideos, setMultiPoiVideos] = useState<MultiPoiVideo[]>([]);
+  const [loadingMulti, setLoadingMulti] = useState(true);
+
   // Upload section state
   const [uploadBusinessQuery, setUploadBusinessQuery] = useState("");
   const [uploadBusinessResults, setUploadBusinessResults] = useState<{ id: string; name: string; city: string | null }[]>([]);
@@ -100,6 +114,71 @@ const VideoPoiAssignmentPanel = () => {
       setCreatingDoc(false);
     }
   }, [selectedUploadBusiness, uploadedVideoUrl]);
+
+  // Load multi-POI videos list
+  const loadMultiPoiVideos = useCallback(async () => {
+    setLoadingMulti(true);
+    // Get all video docs with a poi_id
+    const { data: docs } = await supabase
+      .from("business_documents")
+      .select("id, url, name, thumbnail_url, business_id, city, poi_id")
+      .eq("type", "video")
+      .not("poi_id", "is", null);
+
+    if (!docs || docs.length === 0) {
+      setMultiPoiVideos([]);
+      setLoadingMulti(false);
+      return;
+    }
+
+    // Group by url+business_id to find multi-POI
+    const groups: Record<string, typeof docs> = {};
+    docs.forEach(d => {
+      const key = `${d.url}::${d.business_id}`;
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(d);
+    });
+
+    const multiGroups = Object.values(groups).filter(g => g.length > 1);
+    if (multiGroups.length === 0) {
+      setMultiPoiVideos([]);
+      setLoadingMulti(false);
+      return;
+    }
+
+    // Fetch business names and POI names
+    const bizIds = [...new Set(multiGroups.map(g => g[0].business_id))];
+    const poiIds = [...new Set(multiGroups.flatMap(g => g.map(d => d.poi_id!)).filter(Boolean))];
+
+    const [bizRes, poiRes] = await Promise.all([
+      supabase.from("businesses").select("id, name").in("id", bizIds),
+      supabase.from("businesses").select("id, name").in("id", poiIds),
+    ]);
+
+    const bizMap = Object.fromEntries((bizRes.data || []).map(b => [b.id, b.name]));
+    const poiMap = Object.fromEntries((poiRes.data || []).map(p => [p.id, p.name]));
+
+    const result: MultiPoiVideo[] = multiGroups.map(g => {
+      const first = g[0];
+      return {
+        id: first.id,
+        url: first.url,
+        name: first.name,
+        thumbnail_url: first.thumbnail_url,
+        business_name: bizMap[first.business_id] || "Inconnu",
+        city: first.city,
+        poi_count: g.length,
+        poi_names: g.map(d => poiMap[d.poi_id!] || d.poi_id!).filter(Boolean),
+      };
+    }).sort((a, b) => b.poi_count - a.poi_count);
+
+    setMultiPoiVideos(result);
+    setLoadingMulti(false);
+  }, []);
+
+  useEffect(() => {
+    loadMultiPoiVideos();
+  }, [loadMultiPoiVideos]);
 
   // Auto-search when searchId is set programmatically
   useEffect(() => {
@@ -327,6 +406,7 @@ const VideoPoiAssignmentPanel = () => {
       setInitialPoiIds([...selectedPoiIds]);
       setInitialDefaultPoiId(defaultPoiId);
       toast.success(`${selectedPoiIds.length} POI(s) affecté(s) à la vidéo`);
+      loadMultiPoiVideos();
     } catch (err) {
       toast.error("Erreur lors de la sauvegarde");
     } finally {
@@ -546,6 +626,77 @@ const VideoPoiAssignmentPanel = () => {
             </div>
           )}
         </div>
+      )}
+
+      {/* Multi-POI videos list */}
+      {!video && (
+        <>
+          <Separator />
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              Vidéos avec plusieurs POI ({multiPoiVideos.length})
+            </h3>
+            {loadingMulti ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : multiPoiVideos.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4">Aucune vidéo avec plusieurs POI</p>
+            ) : (
+              <div className="flex flex-wrap gap-4">
+                {multiPoiVideos.map(mv => (
+                  <div
+                    key={mv.id}
+                    className="group rounded-lg border bg-card overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                    style={{ width: 260 }}
+                    onClick={() => { setSearchId(mv.id); }}
+                  >
+                    <button
+                      className="relative w-full bg-black"
+                      style={{ aspectRatio: "16/9" }}
+                      onClick={(e) => { e.stopPropagation(); setLightboxUrl(mv.url); }}
+                    >
+                      {mv.thumbnail_url ? (
+                        <img src={mv.thumbnail_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-muted">
+                          <Play className="h-6 w-6 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="w-10 h-10 rounded-full bg-primary/80 flex items-center justify-center">
+                          <Play className="h-5 w-5 text-primary-foreground fill-primary-foreground ml-0.5" />
+                        </div>
+                      </div>
+                      {/* POI count badge */}
+                      <span className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold">
+                        {mv.poi_count} POI
+                      </span>
+                    </button>
+                    <div className="p-2 space-y-1">
+                      <p className="text-xs font-medium truncate">{mv.business_name}</p>
+                      {mv.name && <p className="text-[10px] text-muted-foreground truncate">{mv.name}</p>}
+                      {mv.city && (
+                        <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                          <MapPin className="h-2.5 w-2.5" /> {mv.city}
+                        </p>
+                      )}
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {mv.poi_names.slice(0, 4).map((name, i) => (
+                          <Badge key={i} variant="secondary" className="text-[9px] px-1 py-0">{name}</Badge>
+                        ))}
+                        {mv.poi_names.length > 4 && (
+                          <Badge variant="outline" className="text-[9px] px-1 py-0">+{mv.poi_names.length - 4}</Badge>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
       )}
 
       {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
