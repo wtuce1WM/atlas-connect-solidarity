@@ -49,7 +49,7 @@ const VideoPoiAssignmentPanel = () => {
     // Fetch the video document
     const { data: doc, error: docErr } = await supabase
       .from("business_documents")
-      .select("id, url, name, thumbnail_url, business_id, city")
+      .select("id, url, name, thumbnail_url, business_id, city, poi_id")
       .eq("id", id)
       .eq("type", "video")
       .maybeSingle();
