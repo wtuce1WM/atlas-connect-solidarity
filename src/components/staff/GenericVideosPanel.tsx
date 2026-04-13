@@ -757,19 +757,13 @@ const SortableVideoCard = ({
           {hasSocial ? "Modifier les liens sociaux" : "+ Ajouter des liens sociaux"}
         </button>
 
-        {/* POI badges */}
-        {poiNames.length > 0 && (
-          <div className="flex flex-wrap gap-1 pt-0.5">
-            {poiNames.slice(0, 3).map((name, i) => (
-              <Badge key={i} variant="secondary" className="text-[9px] px-1 py-0">
-                <MapPin className="h-2.5 w-2.5 mr-0.5" />{name}
-              </Badge>
-            ))}
-            {poiNames.length > 3 && (
-              <Badge variant="outline" className="text-[9px] px-1 py-0">+{poiNames.length - 3}</Badge>
-            )}
-          </div>
-        )}
+        {/* POI sortable list */}
+        <SortableLinkedList
+          items={poiItems}
+          icon={MapPin}
+          label="POI"
+          onReorder={(items) => onReorderPois(video.id, items)}
+        />
 
         {/* Edit POIs button */}
         <button
@@ -777,22 +771,16 @@ const SortableVideoCard = ({
           onClick={() => onEditPois(video)}
           className="text-[10px] text-primary hover:underline"
         >
-          {poiNames.length > 0 ? `${poiNames.length} POI • Modifier` : "+ Ajouter des POI"}
+          {poiItems.length > 0 ? `${poiItems.length} POI • Modifier` : "+ Ajouter des POI"}
         </button>
 
-        {/* Business badges */}
-        {businessNames.length > 0 && (
-          <div className="flex flex-wrap gap-1 pt-0.5">
-            {businessNames.slice(0, 3).map((name, i) => (
-              <Badge key={i} variant="secondary" className="text-[9px] px-1 py-0">
-                <Building2 className="h-2.5 w-2.5 mr-0.5" />{name}
-              </Badge>
-            ))}
-            {businessNames.length > 3 && (
-              <Badge variant="outline" className="text-[9px] px-1 py-0">+{businessNames.length - 3}</Badge>
-            )}
-          </div>
-        )}
+        {/* Business sortable list */}
+        <SortableLinkedList
+          items={businessItems}
+          icon={Building2}
+          label="établissement(s)"
+          onReorder={(items) => onReorderBusinesses(video.id, items)}
+        />
 
         {/* Edit businesses button */}
         <button
@@ -800,7 +788,7 @@ const SortableVideoCard = ({
           onClick={() => onEditBusinesses(video)}
           className="text-[10px] text-primary hover:underline"
         >
-          {businessNames.length > 0 ? `${businessNames.length} établissement(s) • Modifier` : "+ Ajouter des établissements"}
+          {businessItems.length > 0 ? `${businessItems.length} établissement(s) • Modifier` : "+ Ajouter des établissements"}
         </button>
       </div>
 
