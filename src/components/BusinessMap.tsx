@@ -388,7 +388,14 @@ const BusinessMap = ({
 
       marker.addListener("click", () => {
         infoWindow.setContent(infoHtml(b, !!onBusinessClick));
-        infoWindow.open(map, marker);
+        const markerPosition = marker.getPosition();
+        if (markerPosition) {
+          infoWindow.setOptions({ pixelOffset: new google.maps.Size(0, -32) });
+          infoWindow.setPosition(markerPosition);
+          infoWindow.open({ map, shouldFocus: false });
+        } else {
+          infoWindow.open({ map, anchor: marker, shouldFocus: false });
+        }
 
         // Attach click handlers inside InfoWindow
         google.maps.event.addListenerOnce(infoWindow, "domready", () => {
