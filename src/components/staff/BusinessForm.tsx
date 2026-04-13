@@ -3292,8 +3292,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Switch checked={formData.show_youtube_tab ?? false} onCheckedChange={(checked) => handleChange("show_youtube_tab", checked)} />
               <span>▶️ Onglet YouTube</span>
             </label>
-            {(formData.show_youtube_tab && formData.id) && (
-              <YouTubeVideosManager businessId={formData.id} youtubeUrl={(formData as any).youtube_url || null} />
+            {(formData.show_youtube_tab && business?.id) && (
+              <YouTubeVideosManager businessId={business.id} youtubeUrl={(formData as any).youtube_url || null} />
             )}
             <div className="flex items-center gap-2">
               <Label className="text-sm whitespace-nowrap">🏷️ Badge Carrousel</Label>
