@@ -2730,6 +2730,33 @@ export type Database = {
           },
         ]
       }
+      kp_group_titles: {
+        Row: {
+          created_at: string
+          id: string
+          kp_code: string
+          kp_type: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kp_code: string
+          kp_type: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kp_code?: string
+          kp_type?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       label_categories: {
         Row: {
           category_id: string
