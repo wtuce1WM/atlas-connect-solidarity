@@ -406,6 +406,7 @@ const VideoPoiAssignmentPanel = () => {
       setInitialPoiIds([...selectedPoiIds]);
       setInitialDefaultPoiId(defaultPoiId);
       toast.success(`${selectedPoiIds.length} POI(s) affecté(s) à la vidéo`);
+      loadMultiPoiVideos();
     } catch (err) {
       toast.error("Erreur lors de la sauvegarde");
     } finally {
