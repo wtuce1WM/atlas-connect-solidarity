@@ -716,6 +716,49 @@ const EventManagement = () => {
             <Label className="text-base font-semibold">Vidéos ({form.videos.length}/10)</Label>
             <VideosDndList form={form} setForm={setForm} toast={toast} />
           </div>
+
+          {/* Linked businesses */}
+          <div className="space-y-3">
+            <Label className="text-base font-semibold">🏢 Établissements associés ({linkedBusinesses.length})</Label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Rechercher un établissement par nom…"
+                value={bizSearchQuery}
+                onChange={e => { setBizSearchQuery(e.target.value); searchBusinesses(e.target.value); }}
+                className="pl-9"
+              />
+            </div>
+            {bizSearchResults.length > 0 && (
+              <div className="border rounded-lg divide-y max-h-[200px] overflow-y-auto">
+                {bizSearchResults.map(biz => (
+                  <button
+                    key={biz.id}
+                    type="button"
+                    className="w-full text-left px-3 py-2 hover:bg-muted/50 flex items-center justify-between text-sm"
+                    onClick={() => addLinkedBusiness(biz)}
+                  >
+                    <span className="font-medium">{biz.name}</span>
+                    <span className="text-muted-foreground text-xs">{biz.city || "—"}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {linkedBusinesses.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {linkedBusinesses.map(biz => (
+                  <span key={biz.id} className="inline-flex items-center gap-1.5 bg-muted px-2.5 py-1 rounded-md text-sm">
+                    {biz.name}
+                    {biz.city && <span className="text-muted-foreground text-xs">({biz.city})</span>}
+                    <button type="button" onClick={() => removeLinkedBusiness(biz.id)} className="text-muted-foreground hover:text-destructive">
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            {linkedBusinesses.length === 0 && <p className="text-xs text-muted-foreground">Aucun établissement associé.</p>}
+          </div>
         </div>
 
         {/* Save bar */}
