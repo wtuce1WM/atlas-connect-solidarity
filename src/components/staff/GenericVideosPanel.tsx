@@ -255,6 +255,7 @@ const InlinePoiAssignment = ({
     toast.success(`${selectedIds.length} POI(s) affecté(s) à la vidéo`);
     setInitialIds([...selectedIds]);
     onSaved();
+    onClose();
     setSaving(false);
   };
 
