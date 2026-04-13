@@ -380,8 +380,104 @@ const InlineBusinessAssignment = ({ video, onClose, onSaved }: { video: GenericV
   );
 };
 
+/* ─── Inline Destination assignment section ─── */
+interface DestResult { id: string; name_fr: string; }
+
+const InlineDestinationAssignment = ({ video, onClose, onSaved }: { video: GenericVideo; onClose: () => void; onSaved: () => void; }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [results, setResults] = useState<DestResult[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [initialIds, setInitialIds] = useState<string[]>([]);
+  const [selectedDests, setSelectedDests] = useState<DestResult[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const { data: links } = await supabase.from("generic_video_destinations" as any).select("destination_id").eq("generic_video_id", video.id) as { data: any[] | null };
+      const ids = (links || []).map((l: any) => l.destination_id);
+      setSelectedIds(ids); setInitialIds(ids);
+      if (ids.length > 0) {
+        const { data: dests } = await supabase.from("destinations").select("id, name_fr").in("id", ids).order("name_fr");
+        setSelectedDests((dests as DestResult[]) || []);
+      }
+      setLoading(false);
+    };
+    load();
+  }, [video.id]);
+
+  useEffect(() => {
+    if (searchTerm.trim().length < 2) { setResults([]); return; }
+    const timer = setTimeout(async () => {
+      const { data } = await supabase.from("destinations").select("id, name_fr").ilike("name_fr", `%${searchTerm.trim()}%`).order("name_fr").limit(30);
+      setResults((data as DestResult[]) || []); setShowDropdown(true);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const toggleDest = (dest: DestResult) => {
+    if (selectedIds.includes(dest.id)) { setSelectedIds(prev => prev.filter(id => id !== dest.id)); setSelectedDests(prev => prev.filter(d => d.id !== dest.id)); }
+    else { setSelectedIds(prev => [...prev, dest.id]); setSelectedDests(prev => [...prev, dest]); }
+  };
+  const removeDest = (id: string) => { setSelectedIds(prev => prev.filter(i => i !== id)); setSelectedDests(prev => prev.filter(d => d.id !== id)); };
+  const isDirty = JSON.stringify([...selectedIds].sort()) !== JSON.stringify([...initialIds].sort());
+
+  const save = async () => {
+    setSaving(true);
+    const toAdd = selectedIds.filter(id => !initialIds.includes(id));
+    const toRemove = initialIds.filter(id => !selectedIds.includes(id));
+    if (toRemove.length > 0) await supabase.from("generic_video_destinations" as any).delete().eq("generic_video_id", video.id).in("destination_id", toRemove);
+    if (toAdd.length > 0) await supabase.from("generic_video_destinations" as any).insert(toAdd.map(destination_id => ({ generic_video_id: video.id, destination_id })) as any);
+    toast.success(`${selectedIds.length} destination(s) affectée(s)`);
+    setInitialIds([...selectedIds]); onSaved(); onClose(); setSaving(false);
+  };
+
+  return (
+    <div className="border-2 border-primary/30 rounded-lg p-4 space-y-4 bg-muted/30">
+      <div className="flex items-start justify-between">
+        <h3 className="text-sm font-semibold flex items-center gap-2"><Globe className="h-4 w-4" />Affectation Destinations — <span className="font-mono text-xs text-muted-foreground">{video.id}</span></h3>
+        <Button variant="ghost" size="sm" onClick={onClose}>✕</Button>
+      </div>
+      {loading ? <div className="flex items-center justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div> : (
+        <div className="space-y-4">
+          {selectedDests.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground">{selectedDests.length} destination(s) sélectionnée(s)</p>
+              <div className="flex flex-wrap gap-1">
+                {selectedDests.map(d => (
+                  <Badge key={d.id} variant="default" className="text-xs gap-1">{d.name_fr}<button onClick={() => removeDest(d.id)} className="ml-0.5 hover:text-destructive"><X className="h-3 w-3" /></button></Badge>
+                ))}
+              </div>
+            </div>
+          )}
+          <div className="relative max-w-xl">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input value={searchTerm} onChange={e => { setSearchTerm(e.target.value); setShowDropdown(true); }} onFocus={() => results.length > 0 && setShowDropdown(true)} onBlur={() => setTimeout(() => setShowDropdown(false), 200)} placeholder="Rechercher une destination par nom…" className="pl-9" />
+            {showDropdown && results.length > 0 && (
+              <div className="absolute z-20 top-full left-0 right-0 mt-1 border rounded-lg bg-popover shadow-lg max-h-60 overflow-y-auto divide-y">
+                {results.map(dest => {
+                  const isSelected = selectedIds.includes(dest.id);
+                  return (
+                    <button key={dest.id} onMouseDown={e => e.preventDefault()} onClick={() => toggleDest(dest)} className={cn("w-full text-left px-3 py-2 text-sm flex items-center gap-2 hover:bg-muted/50 transition-colors", isSelected && "bg-primary/10")}>
+                      <Checkbox checked={isSelected} className="pointer-events-none" />
+                      <span className="font-medium">{dest.name_fr}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+          {isDirty && <Button onClick={save} disabled={saving} size="sm">{saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Enregistrer ({selectedIds.length} destination{selectedIds.length > 1 ? "s" : ""})</Button>}
+        </div>
+      )}
+    </div>
+  );
+};
+
 /* ─── Right panel: linked items with DnD + timeframes ─── */
-interface LinkedItemWithTime { id: string; name: string; type: "poi" | "business"; start_time: number | null; end_time: number | null; sort_order: number; }
+interface LinkedItemWithTime { id: string; name: string; type: "poi" | "business" | "destination"; start_time: number | null; end_time: number | null; sort_order: number; }
 
 const SortableTimeItem = ({ item, onChange }: { item: LinkedItemWithTime; onChange: (id: string, field: "start_time" | "end_time", val: number | null) => void }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
