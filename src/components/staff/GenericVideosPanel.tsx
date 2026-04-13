@@ -804,7 +804,8 @@ const GenericVideosPanel = () => {
   const [socialVideo, setSocialVideo] = useState<GenericVideo | null>(null);
   const [descVideo, setDescVideo] = useState<GenericVideo | null>(null);
   const [poiVideo, setPoiVideo] = useState<GenericVideo | null>(null);
-  const [videoPoiMap, setVideoPoiMap] = useState<Record<string, string[]>>({});
+  const [businessVideo, setBusinessVideo] = useState<GenericVideo | null>(null);
+  const [videoBusinessMap, setVideoBusinessMap] = useState<Record<string, string[]>>({});
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
