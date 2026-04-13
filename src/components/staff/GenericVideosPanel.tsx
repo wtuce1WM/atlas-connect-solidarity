@@ -29,6 +29,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@/lib/utils";
+import GenericVideoPreviewOverlay from "./GenericVideoPreviewOverlay";
 import {
   Dialog,
   DialogContent,
@@ -528,6 +529,7 @@ const SortableVideoCard = ({
   onEditDescription,
   onEditPois,
   onEditBusinesses,
+  onPreviewOverlay,
 }: {
   video: GenericVideo;
   poiCount: number;
@@ -539,6 +541,7 @@ const SortableVideoCard = ({
   onEditDescription: (v: GenericVideo) => void;
   onEditPois: (v: GenericVideo) => void;
   onEditBusinesses: (v: GenericVideo) => void;
+  onPreviewOverlay: (v: GenericVideo) => void;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: video.id });
   const [copiedId, setCopiedId] = useState(false);
@@ -568,6 +571,14 @@ const SortableVideoCard = ({
           <div className="w-10 h-10 rounded-full bg-primary/80 flex items-center justify-center"><Play className="h-5 w-5 text-primary-foreground fill-primary-foreground ml-0.5" /></div>
         </div>
         {hasDesc && <span className="absolute bottom-2 right-2 z-10 px-2 py-1 rounded text-[10px] font-bold bg-primary text-primary-foreground">TXT</span>}
+        {(poiCount > 0 || bizCount > 0) && (
+          <button
+            className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-white hover:bg-emerald-600 transition-colors"
+            onClick={(e) => { e.stopPropagation(); onPreviewOverlay(video); }}
+          >
+            VU
+          </button>
+        )}
       </button>
 
       <div className="p-2 space-y-1">
@@ -611,6 +622,7 @@ const GenericVideosPanel = () => {
   const [descVideo, setDescVideo] = useState<GenericVideo | null>(null);
   const [poiVideo, setPoiVideo] = useState<GenericVideo | null>(null);
   const [businessVideo, setBusinessVideo] = useState<GenericVideo | null>(null);
+  const [previewOverlayVideo, setPreviewOverlayVideo] = useState<GenericVideo | null>(null);
 
   // Selected video for right panel
   const [selectedVideo, setSelectedVideo] = useState<GenericVideo | null>(null);
@@ -786,6 +798,7 @@ const GenericVideosPanel = () => {
                         onEditDescription={setDescVideo}
                         onEditPois={setPoiVideo}
                         onEditBusinesses={setBusinessVideo}
+                        onPreviewOverlay={setPreviewOverlayVideo}
                       />
                     </div>
                   ))}
@@ -822,6 +835,7 @@ const GenericVideosPanel = () => {
       {descVideo && <DescriptionDialog video={descVideo} open={!!descVideo} onOpenChange={(o) => !o && setDescVideo(null)} onSaved={loadVideos} />}
       {poiVideo && <InlinePoiAssignment video={poiVideo} onClose={() => setPoiVideo(null)} onSaved={() => { loadCounts(); if (selectedVideo?.id === poiVideo.id) loadPanelItems(poiVideo.id); }} />}
       {businessVideo && <InlineBusinessAssignment video={businessVideo} onClose={() => setBusinessVideo(null)} onSaved={() => { loadCounts(); if (selectedVideo?.id === businessVideo.id) loadPanelItems(businessVideo.id); }} />}
+      {previewOverlayVideo && <GenericVideoPreviewOverlay video={previewOverlayVideo} onClose={() => setPreviewOverlayVideo(null)} />}
     </div>
   );
 };
