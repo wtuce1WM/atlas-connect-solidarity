@@ -891,6 +891,7 @@ const EventManagement = () => {
               <TableHead>Type</TableHead>
               <TableHead>Ville</TableHead>
               <TableHead>Établissements</TableHead>
+              <TableHead>Récurrence</TableHead>
               <TableHead>Début</TableHead>
               <TableHead>Fin</TableHead>
               <TableHead className="w-12"></TableHead>
@@ -907,7 +908,8 @@ const EventManagement = () => {
                 <TableCell className="font-medium">{ev.name}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">{ev.type || "—"}</TableCell>
                 <TableCell className="text-sm">{ev.city_id ? (cities.find(c => c.id === ev.city_id)?.name_fr || "—") : "—"}</TableCell>
-                <TableCell className="text-sm">{eventBizCounts[ev.id] || 0}</TableCell>
+                <TableCell className="text-sm max-w-[200px] truncate">{eventBizNames[ev.id]?.join(", ") || "—"}</TableCell>
+                <TableCell className="text-sm">{ev.recurrence || "—"}</TableCell>
                 <TableCell className="text-sm">{ev.start_date || "—"}</TableCell>
                 <TableCell className="text-sm">{ev.end_date || "—"}</TableCell>
                 <TableCell>
