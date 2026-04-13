@@ -616,6 +616,15 @@ const GenericVideosPanel = () => {
           onSaved={loadVideos}
         />
       )}
+
+      {poiVideo && (
+        <PoiAssignDialog
+          video={poiVideo}
+          open={!!poiVideo}
+          onOpenChange={(o) => !o && setPoiVideo(null)}
+          onSaved={loadPoiMap}
+        />
+      )}
     </div>
   );
 };
