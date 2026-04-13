@@ -38,6 +38,73 @@ const VideoPoiAssignmentPanel = () => {
   const [saving, setSaving] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
+  // Upload section state
+  const [uploadBusinessQuery, setUploadBusinessQuery] = useState("");
+  const [uploadBusinessResults, setUploadBusinessResults] = useState<{ id: string; name: string; city: string | null }[]>([]);
+  const [selectedUploadBusiness, setSelectedUploadBusiness] = useState<{ id: string; name: string; city: string | null } | null>(null);
+  const [uploadedVideoUrl, setUploadedVideoUrl] = useState("");
+  const [searchingBusiness, setSearchingBusiness] = useState(false);
+  const [creatingDoc, setCreatingDoc] = useState(false);
+
+  const searchBusinessForUpload = useCallback(async () => {
+    const q = uploadBusinessQuery.trim();
+    if (!q) return;
+    setSearchingBusiness(true);
+    const { data } = await supabase
+      .from("businesses")
+      .select("id, name, city")
+      .ilike("name", `%${q}%`)
+      .eq("is_active", true)
+      .order("name")
+      .limit(20);
+    setUploadBusinessResults(data || []);
+    setSearchingBusiness(false);
+  }, [uploadBusinessQuery]);
+
+  const handleCreateVideoDoc = useCallback(async () => {
+    if (!selectedUploadBusiness || !uploadedVideoUrl) return;
+    setCreatingDoc(true);
+    try {
+      const { data: newDoc, error: insertErr } = await supabase
+        .from("business_documents")
+        .insert({
+          business_id: selectedUploadBusiness.id,
+          url: uploadedVideoUrl,
+          type: "video",
+          city: selectedUploadBusiness.city,
+        })
+        .select("id")
+        .single();
+
+      if (insertErr) throw insertErr;
+
+      toast.success("Vidéo ajoutée ! Recherchez-la par son ID pour affecter des POIs.");
+      // Auto-search the newly created doc
+      if (newDoc) {
+        setSearchId(newDoc.id);
+        setUploadedVideoUrl("");
+        setSelectedUploadBusiness(null);
+        setUploadBusinessQuery("");
+        setUploadBusinessResults([]);
+        // Trigger search after state update
+        setTimeout(() => {
+          setSearchId(newDoc.id);
+        }, 100);
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Erreur lors de la création");
+    } finally {
+      setCreatingDoc(false);
+    }
+  }, [selectedUploadBusiness, uploadedVideoUrl]);
+
+  // Auto-search when searchId is set programmatically
+  useEffect(() => {
+    if (searchId && searchId.length === 36 && !video) {
+      searchVideo();
+    }
+  }, [searchId]);
+
   const searchVideo = useCallback(async () => {
     const id = searchId.trim();
     if (!id) return;
