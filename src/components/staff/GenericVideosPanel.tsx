@@ -185,18 +185,16 @@ const DescriptionDialog = ({
   );
 };
 
-/* ─── POI assignment dialog ─── */
+/* ─── Inline POI assignment section (same pattern as POIS tab) ─── */
 interface PoiBiz { id: string; name: string; neighborhood: string | null; city: string | null; }
 
-const PoiAssignDialog = ({
+const InlinePoiAssignment = ({
   video,
-  open,
-  onOpenChange,
+  onClose,
   onSaved,
 }: {
   video: GenericVideo;
-  open: boolean;
-  onOpenChange: (o: boolean) => void;
+  onClose: () => void;
   onSaved: () => void;
 }) => {
   const [poiBusinesses, setPoiBusinesses] = useState<PoiBiz[]>([]);
@@ -204,7 +202,7 @@ const PoiAssignDialog = ({
   const [initialIds, setInitialIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [search, setSearch] = useState("");
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -253,25 +251,16 @@ const PoiAssignDialog = ({
         toAdd.map(poi_id => ({ generic_video_id: video.id, poi_id })) as any
       );
     }
-    
-    toast.success("POI enregistrés");
+
+    toast.success(`${selectedIds.length} POI(s) affecté(s) à la vidéo`);
     setInitialIds([...selectedIds]);
     onSaved();
-    onOpenChange(false);
     setSaving(false);
   };
 
-  // Filter by search
-  const filtered = poiBusinesses.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    (p.city || "").toLowerCase().includes(search.toLowerCase()) ||
-    (p.neighborhood || "").toLowerCase().includes(search.toLowerCase())
-  );
-
-  // Group by city then neighborhood
   const grouped = useMemo(() => {
     const cityMap: Record<string, Record<string, PoiBiz[]>> = {};
-    filtered.forEach(p => {
+    poiBusinesses.forEach(p => {
       const city = p.city || "Sans ville";
       const nb = p.neighborhood || "Sans quartier";
       if (!cityMap[city]) cityMap[city] = {};
@@ -282,29 +271,71 @@ const PoiAssignDialog = ({
       city,
       neighborhoods: Object.entries(neighborhoods),
     }));
-  }, [filtered]);
+  }, [poiBusinesses]);
+
+  const isStorageVideo = video.url.includes("supabase.co/storage");
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <MapPin className="h-4 w-4" />
-            Points d'intérêt
-            <span className="text-xs font-normal text-muted-foreground">
-              ({selectedIds.length} sélectionné{selectedIds.length > 1 ? "s" : ""})
+    <div className="border-2 border-primary/30 rounded-lg p-4 space-y-4 bg-muted/30">
+      <div className="flex items-start justify-between">
+        <h3 className="text-sm font-semibold flex items-center gap-2">
+          <MapPin className="h-4 w-4" />
+          Affectation POI
+        </h3>
+        <Button variant="ghost" size="sm" onClick={onClose}>✕</Button>
+      </div>
+
+      {/* Video preview */}
+      <div className="flex items-start gap-4">
+        <button
+          className="relative bg-black rounded-lg overflow-hidden group shrink-0"
+          style={{ width: 320, aspectRatio: "16/9" }}
+          onClick={() => setLightboxUrl(video.url)}
+        >
+          {video.thumbnail_url ? (
+            <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" />
+          ) : isStorageVideo ? (
+            <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" />
+          ) : (
+            <div className="w-full h-full bg-muted flex items-center justify-center">
+              <Play className="h-8 w-8 text-muted-foreground" />
+            </div>
+          )}
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="w-12 h-12 rounded-full bg-primary/80 flex items-center justify-center">
+              <Play className="h-6 w-6 text-primary-foreground fill-primary-foreground ml-0.5" />
+            </div>
+          </div>
+        </button>
+        <div className="space-y-1">
+          {video.name && <p className="text-sm font-semibold">{video.name}</p>}
+          <p className="text-xs text-muted-foreground font-mono">{video.id}</p>
+          {video.city && (
+            <p className="text-xs text-muted-foreground flex items-center gap-1">
+              <MapPin className="h-3 w-3" /> {video.city}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* POI assignment */}
+      {loading ? (
+        <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin" /></div>
+      ) : (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground">
+              Points d'intérêt ({selectedIds.length} sélectionné{selectedIds.length > 1 ? "s" : ""})
             </span>
-          </DialogTitle>
-        </DialogHeader>
-        <Input
-          placeholder="Rechercher un POI, ville ou quartier…"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
-        {loading ? (
-          <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div>
-        ) : (
-          <div className="flex-1 overflow-y-auto space-y-4 max-h-[55vh] pr-1">
+            {isDirty && (
+              <Button size="sm" onClick={save} disabled={saving}>
+                {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                Enregistrer
+              </Button>
+            )}
+          </div>
+
+          <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
             {grouped.map(({ city, neighborhoods }) => (
               <div key={city}>
                 <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">{city}</p>
@@ -352,20 +383,12 @@ const PoiAssignDialog = ({
                 </div>
               </div>
             ))}
-            {grouped.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-4">Aucun POI trouvé</p>
-            )}
           </div>
-        )}
-        <div className="flex items-center justify-between pt-2 border-t">
-          <span className="text-xs text-muted-foreground">{selectedIds.length} sélectionné{selectedIds.length > 1 ? "s" : ""}</span>
-          <Button onClick={save} disabled={saving || !isDirty}>
-            {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-            Enregistrer
-          </Button>
         </div>
-      </DialogContent>
-    </Dialog>
+      )}
+
+      {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
+    </div>
   );
 };
 
@@ -692,10 +715,9 @@ const GenericVideosPanel = () => {
       )}
 
       {poiVideo && (
-        <PoiAssignDialog
+        <InlinePoiAssignment
           video={poiVideo}
-          open={!!poiVideo}
-          onOpenChange={(o) => !o && setPoiVideo(null)}
+          onClose={() => setPoiVideo(null)}
           onSaved={loadPoiMap}
         />
       )}
