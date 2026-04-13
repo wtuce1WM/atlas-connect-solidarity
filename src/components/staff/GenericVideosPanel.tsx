@@ -575,25 +575,79 @@ const InlineBusinessAssignment = ({
   );
 };
 
+interface LinkedItem { id: string; name: string; }
 
+const SortableLinkedItem = ({ item }: { item: LinkedItem }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: item.id });
+  const style = { transform: CSS.Transform.toString(transform), transition };
+  return (
+    <div ref={setNodeRef} style={style} className={cn("flex items-center gap-0.5", isDragging && "opacity-50")}>
+      <span {...attributes} {...listeners} className="cursor-grab text-muted-foreground text-[9px]">⠿</span>
+      <Badge variant="secondary" className="text-[9px] px-1 py-0 truncate max-w-[200px]">{item.name}</Badge>
+    </div>
+  );
+};
+
+const SortableLinkedList = ({
+  items,
+  icon: Icon,
+  label,
+  onReorder,
+}: {
+  items: LinkedItem[];
+  icon: React.ElementType;
+  label: string;
+  onReorder: (reordered: LinkedItem[]) => void;
+}) => {
+  const innerSensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 3 } }));
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = items.findIndex(i => i.id === active.id);
+    const newIndex = items.findIndex(i => i.id === over.id);
+    onReorder(arrayMove(items, oldIndex, newIndex));
+  };
+  if (items.length === 0) return null;
+  return (
+    <div className="space-y-0.5 pt-0.5">
+      <p className="text-[9px] text-muted-foreground flex items-center gap-1">
+        <Icon className="h-2.5 w-2.5" /> {items.length} {label}
+      </p>
+      <DndContext sensors={innerSensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={items.map(i => i.id)} strategy={rectSortingStrategy}>
+          <div className="flex flex-wrap gap-1">
+            {items.map(item => <SortableLinkedItem key={item.id} item={item} />)}
+          </div>
+        </SortableContext>
+      </DndContext>
+    </div>
+  );
+};
+
+/* ─── Sortable video card ─── */
 const SortableVideoCard = ({
   video,
-  poiNames,
-  businessNames,
+  poiItems,
+  businessItems,
   onPreview,
   onEditSocial,
   onEditDescription,
   onEditPois,
   onEditBusinesses,
+  onReorderPois,
+  onReorderBusinesses,
 }: {
   video: GenericVideo;
-  poiNames: string[];
-  businessNames: string[];
+  poiItems: LinkedItem[];
+  businessItems: LinkedItem[];
   onPreview: (url: string) => void;
   onEditSocial: (v: GenericVideo) => void;
   onEditDescription: (v: GenericVideo) => void;
   onEditPois: (v: GenericVideo) => void;
   onEditBusinesses: (v: GenericVideo) => void;
+  onReorderPois: (videoId: string, items: LinkedItem[]) => void;
+  onReorderBusinesses: (videoId: string, items: LinkedItem[]) => void;
 })  => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: video.id });
