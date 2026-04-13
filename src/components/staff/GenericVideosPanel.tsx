@@ -985,6 +985,7 @@ const GenericVideosPanel = () => {
                         poiCount={videoPoiCounts[video.id] || 0}
                         bizCount={videoBizCounts[video.id] || 0}
                         destCount={videoDestCounts[video.id] || 0}
+                        hasTimeframes={!!videoHasTimeframes[video.id]}
                         isSelected={selectedVideo?.id === video.id}
                         onSelect={handleSelectVideo}
                         onPreview={setLightboxUrl}
