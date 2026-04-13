@@ -40,6 +40,16 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+const DAYS_OF_WEEK = [
+  { value: "monday", label: "Lundi" },
+  { value: "tuesday", label: "Mardi" },
+  { value: "wednesday", label: "Mercredi" },
+  { value: "thursday", label: "Jeudi" },
+  { value: "friday", label: "Vendredi" },
+  { value: "saturday", label: "Samedi" },
+  { value: "sunday", label: "Dimanche" },
+];
+
 const EMPTY_FORM = {
   name: "",
   hook: "",
@@ -54,6 +64,9 @@ const EMPTY_FORM = {
   city_id: "",
   neighborhood_id: "",
   recurrence: "",
+  days_of_week: [] as string[],
+  start_time: "",
+  end_time: "",
   google_maps_url: "",
   latitude: "" as string | number,
   longitude: "" as string | number,
