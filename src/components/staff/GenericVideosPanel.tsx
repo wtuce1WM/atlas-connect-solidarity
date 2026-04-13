@@ -976,6 +976,7 @@ const GenericVideosPanel = () => {
                         video={video}
                         poiCount={videoPoiCounts[video.id] || 0}
                         bizCount={videoBizCounts[video.id] || 0}
+                        destCount={videoDestCounts[video.id] || 0}
                         isSelected={selectedVideo?.id === video.id}
                         onSelect={handleSelectVideo}
                         onPreview={setLightboxUrl}
@@ -983,6 +984,7 @@ const GenericVideosPanel = () => {
                         onEditDescription={setDescVideo}
                         onEditPois={setPoiVideo}
                         onEditBusinesses={setBusinessVideo}
+                        onEditDestinations={setDestinationVideo}
                         onPreviewOverlay={setPreviewOverlayVideo}
                       />
                     </div>
