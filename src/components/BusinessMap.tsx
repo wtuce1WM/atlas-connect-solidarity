@@ -1,5 +1,5 @@
 /// <reference types="@types/google.maps" />
-import { useEffect, useRef, useState, useMemo, useCallback, type CSSProperties } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { Loader2, Maximize2, Minimize2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
@@ -37,10 +37,6 @@ interface BusinessMapProps {
   neighborhoodCenter?: { lat: number; lng: number } | null;
   /** Callback when user clicks "Voir la fiche" in the InfoWindow */
   onBusinessClick?: (business: MapBusiness) => void;
-  /** Hide the top-left stats badge (useful when embedding in an overlay with its own header) */
-  hideStats?: boolean;
-  /** Extra DOM lift for the InfoWindow container when Google Maps ignores pixelOffset */
-  domInfoWindowLift?: number;
 }
 
 declare global {
@@ -103,36 +99,41 @@ function markerSvgUrl(isVerified: boolean): string {
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
-/* ── InfoWindow HTML (dark immersive style matching PoiGoogleMap) ── */
-function infoHtml(b: MapBusiness): string {
+/* ── InfoWindow HTML ── */
+function infoHtml(b: MapBusiness, hasClickHandler: boolean): string {
   const isVerified = b.wtuce_status === "verified";
   const subcategory = b.categories?.[0] || b.main_category || "";
   const thumbnail = b.images?.[0] || "";
-  const loc = `${b.city || ""}${b.neighborhood ? ` · ${b.neighborhood}` : ""}`;
 
+  // Build review info from computed fields
   const ratingOn20 = b.computed_rating;
   const reviewCount = b.total_review_count;
-  const ratingHtml = ratingOn20
-    ? `<div style="display:flex;align-items:center;gap:4px;font-size:12px;margin-top:3px;">
-        <span style="color:#D4AF37;">★</span>
-        <span style="font-weight:600;color:white;">${Number(ratingOn20).toFixed(1)}/20</span>
-        ${reviewCount ? `<span style="color:rgba(255,255,255,0.7);font-size:11px;">(${reviewCount} avis)</span>` : ""}
-      </div>`
-    : "";
+  let starsHtml = "";
+  if (ratingOn20) {
+    starsHtml = `<div style="font-size:11px;color:#D4AF37;margin-bottom:4px;">
+      <span style="font-weight:600;">★ ${Number(ratingOn20).toFixed(1)}/20</span>
+      ${reviewCount ? `<span style="color:#888;font-size:10px;margin-left:4px;">(${reviewCount} avis)</span>` : ""}
+    </div>`;
+  }
 
+  const actionBtn = hasClickHandler
+    ? `<button data-business-id="${b.id}" style="flex:1;padding:6px 0;border-radius:6px;background:#D4AF37;color:white;font-size:11px;font-weight:600;border:none;cursor:pointer;">Voir la fiche →</button>`
+    : `<a href="/business/${b.id}" style="flex:1;padding:6px 0;border-radius:6px;background:#D4AF37;color:white;font-size:11px;font-weight:600;text-decoration:none;text-align:center;display:block;">Voir la fiche →</a>`;
 
-  return `<div style="width:260px;font-family:system-ui,sans-serif;overflow:hidden;border-radius:10px;position:relative;">
-    ${thumbnail
-      ? `<img src="${thumbnail}" style="width:100%;height:180px;display:block;object-fit:cover;" onerror="this.style.display='none'" />`
-      : `<div style="width:100%;height:80px;background:#1d1d1d;"></div>`}
-    <div style="background:linear-gradient(to top,rgba(0,0,0,0.85),rgba(0,0,0,0.2));position:absolute;bottom:0;left:0;right:0;padding:10px;">
-      <div style="display:flex;align-items:center;gap:6px;">
-        <span style="font-weight:700;font-size:14px;color:white;line-height:1.3;flex:1;">${b.name}</span>
-        ${isVerified ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#D4AF37;color:white;font-size:11px;font-weight:700;flex-shrink:0;">✓</span>` : ""}
-      </div>
-      ${subcategory ? `<div style="font-size:11px;color:#D4AF37;font-weight:500;margin-top:2px;">${subcategory}</div>` : ""}
-      ${ratingHtml}
-      ${loc ? `<div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:3px;">📍 ${loc}</div>` : ""}
+  return `<div style="min-width:220px;max-width:280px;font-family:system-ui,sans-serif;overflow:hidden;">
+    ${thumbnail ? `<div style="width:100%;height:120px;overflow:hidden;border-radius:8px;margin-bottom:8px;">
+      <img src="${thumbnail}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.style.display='none'" />
+    </div>` : ""}
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+      <span style="font-weight:700;font-size:13px;color:#1a1a1a;flex:1;">${b.name}</span>
+      ${isVerified ? `<span style="display:inline-flex;align-items:center;gap:2px;padding:1px 6px;border-radius:9999px;background:#D4AF37;color:white;font-size:9px;font-weight:600;flex-shrink:0;">✓</span>` : ""}
+    </div>
+    ${subcategory ? `<div style="font-size:11px;color:#D4AF37;font-weight:500;margin-bottom:2px;">${subcategory}</div>` : ""}
+    ${starsHtml}
+    <div style="font-size:10px;color:#888;margin-bottom:6px;">📍 ${b.city}${b.neighborhood ? ` · ${b.neighborhood}` : ""}</div>
+    <div style="display:flex;gap:6px;">
+      ${actionBtn}
+      <button data-directions-id="${b.id}" style="flex:1;padding:6px 0;border-radius:6px;background:#f3f4f6;color:#333;font-size:11px;font-weight:500;border:none;cursor:pointer;">Itinéraire →</button>
     </div>
   </div>`;
 }
@@ -157,8 +158,6 @@ const BusinessMap = ({
   cityCenter = null,
   neighborhoodCenter = null,
   onBusinessClick,
-  hideStats = false,
-  domInfoWindowLift = 0,
 }: BusinessMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapShellRef = useRef<HTMLDivElement>(null);
@@ -166,6 +165,8 @@ const BusinessMap = ({
   const clustererRef = useRef<MarkerClusterer | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
+  const rippleOverlayRef = useRef<google.maps.OverlayView | null>(null);
+  const rippleDivRef = useRef<HTMLDivElement | null>(null);
   const lastFingerprintRef = useRef<string>("");
 
   const [internalBusinesses, setInternalBusinesses] = useState<MapBusiness[]>([]);
@@ -264,27 +265,64 @@ const BusinessMap = ({
       zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
       gestureHandling: "greedy",
       styles: [
-        { elementType: "geometry", stylers: [{ color: "#1d1d1d" }] },
-        { elementType: "labels.text.stroke", stylers: [{ color: "#1d1d1d" }] },
-        { elementType: "labels.text.fill", stylers: [{ color: "#6b6b6b" }] },
-        { featureType: "administrative", elementType: "geometry.stroke", stylers: [{ color: "#333333" }] },
-        { featureType: "road", elementType: "geometry", stylers: [{ color: "#2c2c2c" }] },
-        { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#555555" }] },
-        { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#3a3a3a" }] },
-        { featureType: "water", elementType: "geometry", stylers: [{ color: "#0e0e0e" }] },
-        { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#3d3d3d" }] },
-        { featureType: "poi", elementType: "geometry", stylers: [{ color: "#252525" }] },
-        { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#555555" }] },
-        { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#1a2e1a" }] },
-        { featureType: "transit", elementType: "geometry", stylers: [{ color: "#252525" }] },
-        { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#1d1d1d" }] },
+        { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
       ],
     });
 
     mapRef.current = map;
-    infoWindowRef.current = new google.maps.InfoWindow({ pixelOffset: new google.maps.Size(0, -32) });
+    infoWindowRef.current = new google.maps.InfoWindow();
+
+    // Create ripple overlay for selected marker
+    const rippleDiv = document.createElement("div");
+    rippleDiv.style.cssText = "position:absolute;pointer-events:none;display:none;";
+    rippleDiv.innerHTML = `
+      <style>
+        @keyframes gmapRipple {
+          0% { transform: scale(0.5); opacity: 1; }
+          100% { transform: scale(3); opacity: 0; }
+        }
+        .gmap-ripple-ring {
+          position: absolute; top: 50%; left: 50%; width: 28px; height: 28px;
+          margin-left: -14px; margin-top: -14px; border-radius: 50%;
+          border: 2px solid; animation: gmapRipple 2.4s ease-out infinite;
+        }
+      </style>
+      <div class="gmap-ripple-ring" style="border-color:#EA4335;animation-delay:0s"></div>
+      <div class="gmap-ripple-ring" style="border-color:#34A853;animation-delay:0.6s"></div>
+      <div class="gmap-ripple-ring" style="border-color:#FBBC05;animation-delay:1.2s"></div>
+    `;
+    rippleDivRef.current = rippleDiv;
+
+    class RippleOverlay extends google.maps.OverlayView {
+      private pos: google.maps.LatLng | null = null;
+      private div: HTMLDivElement;
+      constructor(div: HTMLDivElement) { super(); this.div = div; }
+      setPosition(p: google.maps.LatLng) { this.pos = p; this.div.style.display = "block"; this.draw(); }
+      hide() { this.div.style.display = "none"; this.pos = null; }
+      onAdd() { this.getPanes()?.overlayLayer.appendChild(this.div); }
+      draw() {
+        if (!this.pos) return;
+        const proj = this.getProjection();
+        if (!proj) return;
+        const pt = proj.fromLatLngToDivPixel(this.pos);
+        if (!pt) return;
+        this.div.style.left = pt.x + "px";
+        this.div.style.top = (pt.y - 20) + "px"; // offset to marker center
+      }
+      onRemove() { this.div.parentNode?.removeChild(this.div); }
+    }
+
+    const overlay = new RippleOverlay(rippleDiv);
+    overlay.setMap(map);
+    rippleOverlayRef.current = overlay;
+
+    // Hide ripple when infoWindow is closed
+    infoWindowRef.current.addListener("closeclick", () => {
+      (overlay as any).hide();
+    });
 
     return () => {
+      overlay.setMap(null);
       mapRef.current = null;
     };
   }, [gmapsReady]);
@@ -331,14 +369,35 @@ const BusinessMap = ({
       (marker as any)._isVerified = isVerified;
 
       marker.addListener("click", () => {
-        infoWindow.setContent(infoHtml(b));
-        const markerPosition = marker.getPosition();
-        if (markerPosition) {
-          infoWindow.setOptions({ pixelOffset: new google.maps.Size(0, -32) });
-          infoWindow.setPosition(markerPosition);
-          infoWindow.open({ map, shouldFocus: false });
-        } else {
-          infoWindow.open({ map, anchor: marker, shouldFocus: false });
+        infoWindow.setContent(infoHtml(b, !!onBusinessClick));
+        infoWindow.open(map, marker);
+
+        // Attach click handlers inside InfoWindow
+        google.maps.event.addListenerOnce(infoWindow, "domready", () => {
+          // "Voir la fiche" button
+          if (onBusinessClick) {
+            const btn = document.querySelector(`button[data-business-id="${b.id}"]`);
+            if (btn) {
+              btn.addEventListener("click", (e) => {
+                e.preventDefault();
+                onBusinessClick(b);
+              });
+            }
+          }
+          // "Itinéraire" button — use window.open to avoid ERR_BLOCKED_BY_RESPONSE
+          const dirBtn = document.querySelector(`button[data-directions-id="${b.id}"]`);
+          if (dirBtn) {
+            dirBtn.addEventListener("click", (e) => {
+              e.preventDefault();
+              window.open(`https://www.google.com/maps/dir/?api=1&destination=${b.latitude},${b.longitude}`, "_blank");
+            });
+          }
+        });
+
+        // Show ripple on selected marker
+        const overlay = rippleOverlayRef.current as any;
+        if (overlay && marker.getPosition()) {
+          overlay.setPosition(marker.getPosition()!);
         }
       });
 
@@ -418,7 +477,7 @@ const BusinessMap = ({
 
   if (isLoading || !gmapsReady) {
     return (
-      <div className={`flex items-center justify-center bg-muted/30 ${height === "100%" ? "h-full" : "rounded-xl"}`} style={height !== "100%" ? { height } : undefined}>
+      <div className="flex items-center justify-center bg-muted/30 rounded-xl" style={{ height }}>
         <Loader2 className="h-8 w-8 animate-spin text-gold" />
       </div>
     );
@@ -427,12 +486,8 @@ const BusinessMap = ({
   const verifiedCount = geoBusinesses.filter((b) => b.wtuce_status === "verified").length;
 
   return (
-    <div
-      ref={mapShellRef}
-      className={`relative overflow-hidden border border-border shadow-sm ${height === "100%" ? "h-full" : "rounded-xl"}`}
-      style={{ "--business-map-dom-lift": `${domInfoWindowLift}px` } as CSSProperties}
-    >
-      <style>{`.gm-style .gm-fullscreen-control { display: none !important; } .gm-style .gm-style-iw-chr { display: none !important; } .gm-style .gm-style-iw { padding: 0 !important; background: transparent !important; box-shadow: none !important; border-radius: 10px !important; } .gm-style .gm-style-iw-d { overflow: hidden !important; background: transparent !important; } .gm-style .gm-style-iw-tc { display: none !important; } .gm-style .gm-style-iw-t::after { display: none !important; } .gm-style .gm-style-iw-a { margin-top: calc(-1 * var(--business-map-dom-lift, 0px)) !important; }`}</style>
+    <div ref={mapShellRef} className="relative rounded-xl overflow-hidden border border-border shadow-sm">
+      <style>{`.gm-style .gm-fullscreen-control { display: none !important; }`}</style>
       <button
         type="button"
         onClick={toggleFullscreen}
@@ -444,16 +499,14 @@ const BusinessMap = ({
       </button>
 
       {/* Stats bar */}
-      {!hideStats && (
-        <div className="absolute top-3 left-3 z-10 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-md border border-border">
-          <span className="font-semibold text-foreground">{geoBusinesses.length}</span> établissements sur la carte
-          {verifiedCount > 0 && (
-            <span className="ml-2">
-              dont <span className="font-semibold" style={{ color: "#D4AF37" }}>{verifiedCount}</span> vérifiés
-            </span>
-          )}
-        </div>
-      )}
+      <div className="absolute top-3 left-3 z-10 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-md border border-border">
+        <span className="font-semibold text-foreground">{geoBusinesses.length}</span> établissements sur la carte
+        {verifiedCount > 0 && (
+          <span className="ml-2">
+            dont <span className="font-semibold" style={{ color: "#D4AF37" }}>{verifiedCount}</span> vérifiés
+          </span>
+        )}
+      </div>
 
       {/* Legend */}
       <div className="absolute bottom-3 left-3 z-10 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-2 text-[10px] text-muted-foreground shadow-md border border-border flex items-center gap-4">
