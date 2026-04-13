@@ -926,6 +926,7 @@ const GenericVideosPanel = () => {
 
     const poiItems = panelItems.filter(i => i.type === "poi");
     const bizItems = panelItems.filter(i => i.type === "business");
+    const destItems = panelItems.filter(i => i.type === "destination");
 
     await Promise.all([
       ...poiItems.map((item, i) =>
@@ -933,6 +934,9 @@ const GenericVideosPanel = () => {
       ),
       ...bizItems.map((item, i) =>
         supabase.from("generic_video_businesses" as any).update({ sort_order: panelItems.indexOf(item), start_time: item.start_time, end_time: item.end_time } as any).eq("generic_video_id", selectedVideo.id).eq("business_id", item.id)
+      ),
+      ...destItems.map((item, i) =>
+        supabase.from("generic_video_destinations" as any).update({ sort_order: panelItems.indexOf(item), start_time: item.start_time, end_time: item.end_time } as any).eq("generic_video_id", selectedVideo.id).eq("destination_id", item.id)
       ),
     ]);
 
