@@ -197,10 +197,12 @@ const FrontStructureVideosPanel = () => {
   const groupedVideos = useMemo(() => {
     const result = new Map<string, VideoItem[]>();
     for (const fs of fsEntries) {
-      const matching = filteredVideos.filter(v => {
-        const subId = videoSubcategoryMap.get(v.id);
-        return subId && fs.subcategoryIds.has(subId);
-      });
+      const matching = filteredVideos
+        .filter(v => {
+          const subId = videoSubcategoryMap.get(v.id);
+          return subId && fs.subcategoryIds.has(subId);
+        })
+        .sort((a, b) => a.sort_order - b.sort_order);
       if (matching.length > 0) {
         result.set(fs.id, matching);
       }
