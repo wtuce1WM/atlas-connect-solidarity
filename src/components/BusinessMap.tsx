@@ -333,7 +333,7 @@ const BusinessMap = ({
       (marker as any)._isVerified = isVerified;
 
       marker.addListener("click", () => {
-        infoWindow.setContent(infoHtml(b, !!onBusinessClick));
+        infoWindow.setContent(infoHtml(b));
         const markerPosition = marker.getPosition();
         if (markerPosition) {
           infoWindow.setOptions({ pixelOffset: new google.maps.Size(0, -32) });
