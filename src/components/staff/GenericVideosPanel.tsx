@@ -685,6 +685,7 @@ const SortableVideoCard = ({
   poiCount,
   bizCount,
   destCount,
+  hasTimeframes,
   isSelected,
   onSelect,
   onPreview,
