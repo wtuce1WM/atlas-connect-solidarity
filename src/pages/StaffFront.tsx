@@ -379,10 +379,6 @@ const StaffFront = () => {
               <Image className="h-4 w-4" />
               Popup
             </TabsTrigger>
-            <TabsTrigger value="preview-tablet" className="gap-2">
-              <Tablet className="h-4 w-4" />
-              Tablette
-            </TabsTrigger>
             <TabsTrigger value="preview-mobile" className="gap-2">
               <Smartphone className="h-4 w-4" />
               Mobile
