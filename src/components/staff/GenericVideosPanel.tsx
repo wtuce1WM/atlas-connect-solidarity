@@ -660,9 +660,9 @@ const GenericVideosPanel = () => {
 
     if (poiLinks && poiLinks.length > 0) {
       const poiIds = poiLinks.map((l: any) => l.poi_id);
-      const { data: pois } = await supabase.from("points_of_interest").select("id, name_fr").in("id", poiIds);
+      const { data: pois } = await supabase.from("businesses").select("id, name").in("id", poiIds);
       const nameMap: Record<string, string> = {};
-      (pois || []).forEach((p: any) => { nameMap[p.id] = p.name_fr; });
+      (pois || []).forEach((p: any) => { nameMap[p.id] = p.name; });
       poiLinks.forEach((l: any) => {
         if (nameMap[l.poi_id]) items.push({ id: l.poi_id, name: nameMap[l.poi_id], type: "poi", start_time: l.start_time, end_time: l.end_time, sort_order: l.sort_order ?? 0 });
       });
