@@ -911,6 +911,66 @@ export type Database = {
           },
         ]
       }
+      business_youtube_videos: {
+        Row: {
+          business_id: string
+          created_at: string
+          duration_seconds: number
+          id: string
+          is_short: boolean
+          is_visible: boolean
+          published_at: string | null
+          sort_order: number
+          thumbnail: string
+          title: string
+          updated_at: string
+          video_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          duration_seconds?: number
+          id?: string
+          is_short?: boolean
+          is_visible?: boolean
+          published_at?: string | null
+          sort_order?: number
+          thumbnail?: string
+          title?: string
+          updated_at?: string
+          video_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          duration_seconds?: number
+          id?: string
+          is_short?: boolean
+          is_visible?: boolean
+          published_at?: string | null
+          sort_order?: number
+          thumbnail?: string
+          title?: string
+          updated_at?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_youtube_videos_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_youtube_videos_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       businesses: {
         Row: {
           account_type: string | null

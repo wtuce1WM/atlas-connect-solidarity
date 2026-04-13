@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
+import YouTubeVideosManager from "./YouTubeVideosManager";
 import { format } from "date-fns";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { SortableContext, rectSortingStrategy, verticalListSortingStrategy, arrayMove, useSortable } from "@dnd-kit/sortable";
@@ -3291,6 +3292,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Switch checked={formData.show_youtube_tab ?? false} onCheckedChange={(checked) => handleChange("show_youtube_tab", checked)} />
               <span>▶️ Onglet YouTube</span>
             </label>
+            {(formData.show_youtube_tab && business?.id) && (
+              <YouTubeVideosManager businessId={business.id} youtubeUrl={(formData as any).youtube_url || null} />
+            )}
             <div className="flex items-center gap-2">
               <Label className="text-sm whitespace-nowrap">🏷️ Badge Carrousel</Label>
               <Select

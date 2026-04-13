@@ -1265,6 +1265,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           <div className={`pointer-events-auto -mr-4 md:-mr-6 mt-2 ${activeBottomTab !== "youtube" ? "hidden" : ""}`}>
             <YouTubeShortsCarousel
               youtubeUrl={business.youtube_url}
+              businessId={business.id}
               onVideoCount={setYoutubeVideoCount}
               onVideosLoaded={setAllYoutubeVideos}
               onPlayingChange={setYoutubeIsPlaying}
