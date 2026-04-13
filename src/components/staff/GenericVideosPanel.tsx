@@ -328,7 +328,7 @@ const GenericVideosPanel = () => {
       .from("generic_videos" as any)
       .select("*")
       .order("sort_order", { ascending: true });
-    setVideos((data as GenericVideo[]) || []);
+    setVideos((data as unknown as GenericVideo[]) || []);
     setLoading(false);
   }, []);
 
