@@ -249,11 +249,12 @@ const VideoPoiAssignmentPanel = () => {
   };
 
   const isDirty = useMemo(() => {
+    if (defaultPoiId !== initialDefaultPoiId) return true;
     if (selectedPoiIds.length !== initialPoiIds.length) return true;
     const sorted1 = [...selectedPoiIds].sort();
     const sorted2 = [...initialPoiIds].sort();
     return sorted1.some((v, i) => v !== sorted2[i]);
-  }, [selectedPoiIds, initialPoiIds]);
+  }, [selectedPoiIds, initialPoiIds, defaultPoiId, initialDefaultPoiId]);
 
   const save = useCallback(async () => {
     if (!video) return;
