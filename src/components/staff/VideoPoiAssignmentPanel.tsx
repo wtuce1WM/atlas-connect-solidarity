@@ -674,6 +674,7 @@ const VideoPoiAssignmentPanel = () => {
                         {mv.poi_count} POI
                       </span>
                     </button>
+                    <CopyableId id={mv.id} />
                     <div className="p-2 space-y-1">
                       <p className="text-xs font-medium truncate">{mv.business_name}</p>
                       {mv.name && <p className="text-[10px] text-muted-foreground truncate">{mv.name}</p>}
