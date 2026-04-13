@@ -273,21 +273,30 @@ const VideoPoiAssignmentPanel = () => {
       const mainDoc = existing.find(d => d.id === video.id);
       const poiDocs = existing.filter(d => d.poi_id && d.id !== video.id);
 
-      const toAdd = selectedPoiIds.filter(id => !poiDocs.some(d => d.poi_id === id) && (mainDoc?.poi_id !== id));
-      const toRemoveIds = poiDocs.filter(d => d.poi_id && !selectedPoiIds.includes(d.poi_id)).map(d => d.id);
+      // Determine which POI goes on the main doc (the default)
+      const mainPoiId = defaultPoiId && selectedPoiIds.includes(defaultPoiId) 
+        ? defaultPoiId 
+        : (selectedPoiIds.length > 0 ? selectedPoiIds[0] : null);
 
-      // Update main doc: set poi_id to first selected or null
-      if (selectedPoiIds.length > 0) {
-        // If main doc's poi_id is not in selected, update it
-        if (!mainDoc?.poi_id || !selectedPoiIds.includes(mainDoc.poi_id)) {
-          const firstPoi = selectedPoiIds[0];
-          await supabase.from("business_documents").update({ poi_id: firstPoi }).eq("id", video.id);
-          // Remove firstPoi from toAdd since it's now on main doc
-          const idx = toAdd.indexOf(firstPoi);
-          if (idx >= 0) toAdd.splice(idx, 1);
+      const toAdd = selectedPoiIds.filter(id => id !== mainPoiId && !poiDocs.some(d => d.poi_id === id) && (mainDoc?.poi_id !== id));
+      const toRemoveIds = poiDocs.filter(d => d.poi_id && !selectedPoiIds.includes(d.poi_id)).map(d => d.id);
+      // Also remove duplicates that had the old main poi_id if it changed
+      if (mainDoc?.poi_id && mainDoc.poi_id !== mainPoiId) {
+        // The old main poi_id might now need a duplicate, or might need removal
+        const oldMainInSelected = selectedPoiIds.includes(mainDoc.poi_id);
+        if (oldMainInSelected && !poiDocs.some(d => d.poi_id === mainDoc.poi_id)) {
+          // Old main poi needs a duplicate row now
+          toAdd.push(mainDoc.poi_id);
         }
-      } else {
-        await supabase.from("business_documents").update({ poi_id: null }).eq("id", video.id);
+      }
+
+      // Update main doc poi_id
+      await supabase.from("business_documents").update({ poi_id: mainPoiId }).eq("id", video.id);
+
+      // Remove the duplicate that had the new mainPoiId (if any), since it's now on main doc
+      const dupWithMainPoi = poiDocs.find(d => d.poi_id === mainPoiId);
+      if (dupWithMainPoi && !toRemoveIds.includes(dupWithMainPoi.id)) {
+        await supabase.from("business_documents").delete().eq("id", dupWithMainPoi.id);
       }
 
       // Delete removed POI duplicate docs
