@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Play, Upload, Copy, Check, FileText, Instagram, X, MapPin, Building2, Search, GripVertical, Clock } from "lucide-react";
+import { Loader2, Play, Upload, Copy, Check, FileText, Instagram, X, MapPin, Building2, Search, GripVertical, Clock, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -380,8 +380,104 @@ const InlineBusinessAssignment = ({ video, onClose, onSaved }: { video: GenericV
   );
 };
 
+/* ─── Inline Destination assignment section ─── */
+interface DestResult { id: string; name_fr: string; }
+
+const InlineDestinationAssignment = ({ video, onClose, onSaved }: { video: GenericVideo; onClose: () => void; onSaved: () => void; }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [results, setResults] = useState<DestResult[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [initialIds, setInitialIds] = useState<string[]>([]);
+  const [selectedDests, setSelectedDests] = useState<DestResult[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const { data: links } = await supabase.from("generic_video_destinations" as any).select("destination_id").eq("generic_video_id", video.id) as { data: any[] | null };
+      const ids = (links || []).map((l: any) => l.destination_id);
+      setSelectedIds(ids); setInitialIds(ids);
+      if (ids.length > 0) {
+        const { data: dests } = await supabase.from("destinations").select("id, name_fr").in("id", ids).order("name_fr");
+        setSelectedDests((dests as DestResult[]) || []);
+      }
+      setLoading(false);
+    };
+    load();
+  }, [video.id]);
+
+  useEffect(() => {
+    if (searchTerm.trim().length < 2) { setResults([]); return; }
+    const timer = setTimeout(async () => {
+      const { data } = await supabase.from("destinations").select("id, name_fr").ilike("name_fr", `%${searchTerm.trim()}%`).order("name_fr").limit(30);
+      setResults((data as DestResult[]) || []); setShowDropdown(true);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const toggleDest = (dest: DestResult) => {
+    if (selectedIds.includes(dest.id)) { setSelectedIds(prev => prev.filter(id => id !== dest.id)); setSelectedDests(prev => prev.filter(d => d.id !== dest.id)); }
+    else { setSelectedIds(prev => [...prev, dest.id]); setSelectedDests(prev => [...prev, dest]); }
+  };
+  const removeDest = (id: string) => { setSelectedIds(prev => prev.filter(i => i !== id)); setSelectedDests(prev => prev.filter(d => d.id !== id)); };
+  const isDirty = JSON.stringify([...selectedIds].sort()) !== JSON.stringify([...initialIds].sort());
+
+  const save = async () => {
+    setSaving(true);
+    const toAdd = selectedIds.filter(id => !initialIds.includes(id));
+    const toRemove = initialIds.filter(id => !selectedIds.includes(id));
+    if (toRemove.length > 0) await supabase.from("generic_video_destinations" as any).delete().eq("generic_video_id", video.id).in("destination_id", toRemove);
+    if (toAdd.length > 0) await supabase.from("generic_video_destinations" as any).insert(toAdd.map(destination_id => ({ generic_video_id: video.id, destination_id })) as any);
+    toast.success(`${selectedIds.length} destination(s) affectée(s)`);
+    setInitialIds([...selectedIds]); onSaved(); onClose(); setSaving(false);
+  };
+
+  return (
+    <div className="border-2 border-primary/30 rounded-lg p-4 space-y-4 bg-muted/30">
+      <div className="flex items-start justify-between">
+        <h3 className="text-sm font-semibold flex items-center gap-2"><Globe className="h-4 w-4" />Affectation Destinations — <span className="font-mono text-xs text-muted-foreground">{video.id}</span></h3>
+        <Button variant="ghost" size="sm" onClick={onClose}>✕</Button>
+      </div>
+      {loading ? <div className="flex items-center justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div> : (
+        <div className="space-y-4">
+          {selectedDests.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground">{selectedDests.length} destination(s) sélectionnée(s)</p>
+              <div className="flex flex-wrap gap-1">
+                {selectedDests.map(d => (
+                  <Badge key={d.id} variant="default" className="text-xs gap-1">{d.name_fr}<button onClick={() => removeDest(d.id)} className="ml-0.5 hover:text-destructive"><X className="h-3 w-3" /></button></Badge>
+                ))}
+              </div>
+            </div>
+          )}
+          <div className="relative max-w-xl">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input value={searchTerm} onChange={e => { setSearchTerm(e.target.value); setShowDropdown(true); }} onFocus={() => results.length > 0 && setShowDropdown(true)} onBlur={() => setTimeout(() => setShowDropdown(false), 200)} placeholder="Rechercher une destination par nom…" className="pl-9" />
+            {showDropdown && results.length > 0 && (
+              <div className="absolute z-20 top-full left-0 right-0 mt-1 border rounded-lg bg-popover shadow-lg max-h-60 overflow-y-auto divide-y">
+                {results.map(dest => {
+                  const isSelected = selectedIds.includes(dest.id);
+                  return (
+                    <button key={dest.id} onMouseDown={e => e.preventDefault()} onClick={() => toggleDest(dest)} className={cn("w-full text-left px-3 py-2 text-sm flex items-center gap-2 hover:bg-muted/50 transition-colors", isSelected && "bg-primary/10")}>
+                      <Checkbox checked={isSelected} className="pointer-events-none" />
+                      <span className="font-medium">{dest.name_fr}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+          {isDirty && <Button onClick={save} disabled={saving} size="sm">{saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Enregistrer ({selectedIds.length} destination{selectedIds.length > 1 ? "s" : ""})</Button>}
+        </div>
+      )}
+    </div>
+  );
+};
+
 /* ─── Right panel: linked items with DnD + timeframes ─── */
-interface LinkedItemWithTime { id: string; name: string; type: "poi" | "business"; start_time: number | null; end_time: number | null; sort_order: number; }
+interface LinkedItemWithTime { id: string; name: string; type: "poi" | "business" | "destination"; start_time: number | null; end_time: number | null; sort_order: number; }
 
 const SortableTimeItem = ({ item, onChange }: { item: LinkedItemWithTime; onChange: (id: string, field: "start_time" | "end_time", val: number | null) => void }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
@@ -394,8 +490,9 @@ const SortableTimeItem = ({ item, onChange }: { item: LinkedItemWithTime; onChan
       <span {...attributes} {...listeners} className="cursor-grab text-muted-foreground hover:text-foreground shrink-0">
         <GripVertical className="h-4 w-4" />
       </span>
-      <div className={cn("shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold", item.type === "poi" ? "bg-primary/10 text-primary" : "bg-accent text-accent-foreground")}>
-        {item.type === "poi" ? <MapPin className="h-3 w-3" /> : <Building2 className="h-3 w-3" />}
+      <div className={cn("shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold",
+        item.type === "poi" ? "bg-primary/10 text-primary" : item.type === "destination" ? "bg-rose-500/10 text-rose-600" : "bg-accent text-accent-foreground")}>
+        {item.type === "poi" ? <MapPin className="h-3 w-3" /> : item.type === "destination" ? <Globe className="h-3 w-3" /> : <Building2 className="h-3 w-3" />}
       </div>
       <span className="text-xs font-medium truncate flex-1 min-w-0">{item.name}</span>
       <div className="flex items-center gap-1 shrink-0">
@@ -557,7 +654,7 @@ const RightDetailPanel = ({
         </div>
 
         {allItems.length === 0 ? (
-          <p className="text-xs text-muted-foreground text-center py-8">Aucun POI ou établissement lié à cette vidéo</p>
+          <p className="text-xs text-muted-foreground text-center py-8">Aucun POI, établissement ou destination lié à cette vidéo</p>
         ) : (
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={allItems.map(i => i.id)} strategy={verticalListSortingStrategy}>
@@ -572,6 +669,7 @@ const RightDetailPanel = ({
       <div className="p-3 border-t text-[10px] text-muted-foreground flex items-center gap-4">
         <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> POI</span>
         <span className="flex items-center gap-1"><Building2 className="h-3 w-3" /> Établissement</span>
+        <span className="flex items-center gap-1"><Globe className="h-3 w-3" /> Destination</span>
         <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Début → Fin (secondes)</span>
       </div>
     </div>
@@ -583,6 +681,7 @@ const SortableVideoCard = ({
   video,
   poiCount,
   bizCount,
+  destCount,
   isSelected,
   onSelect,
   onPreview,
@@ -590,11 +689,13 @@ const SortableVideoCard = ({
   onEditDescription,
   onEditPois,
   onEditBusinesses,
+  onEditDestinations,
   onPreviewOverlay,
 }: {
   video: GenericVideo;
   poiCount: number;
   bizCount: number;
+  destCount: number;
   isSelected: boolean;
   onSelect: (v: GenericVideo) => void;
   onPreview: (url: string) => void;
@@ -602,6 +703,7 @@ const SortableVideoCard = ({
   onEditDescription: (v: GenericVideo) => void;
   onEditPois: (v: GenericVideo) => void;
   onEditBusinesses: (v: GenericVideo) => void;
+  onEditDestinations: (v: GenericVideo) => void;
   onPreviewOverlay: (v: GenericVideo) => void;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: video.id });
@@ -632,7 +734,7 @@ const SortableVideoCard = ({
           <div className="w-10 h-10 rounded-full bg-primary/80 flex items-center justify-center"><Play className="h-5 w-5 text-primary-foreground fill-primary-foreground ml-0.5" /></div>
         </div>
         {hasDesc && <span className="absolute bottom-2 right-2 z-10 px-2 py-1 rounded text-[10px] font-bold bg-primary text-primary-foreground">TXT</span>}
-        {(poiCount > 0 || bizCount > 0) && (
+        {(poiCount > 0 || bizCount > 0 || destCount > 0) && (
           <button
             className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-white hover:bg-emerald-600 transition-colors"
             onClick={(e) => { e.stopPropagation(); onPreviewOverlay(video); }}
@@ -664,6 +766,7 @@ const SortableVideoCard = ({
           <button type="button" onClick={(e) => { e.stopPropagation(); onEditDescription(video); }} className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-medium transition-colors", hasDesc ? "bg-purple-500/15 text-purple-700 dark:text-purple-400 hover:bg-purple-500/25" : "text-muted-foreground hover:text-foreground hover:underline")}>{hasDesc ? "✓ Description" : "+ Description"}</button>
           <button type="button" onClick={(e) => { e.stopPropagation(); onEditPois(video); }} className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-medium transition-colors", poiCount > 0 ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/25" : "text-muted-foreground hover:text-foreground hover:underline")}>{poiCount > 0 ? `✓ ${poiCount} POI` : "+ POI"}</button>
           <button type="button" onClick={(e) => { e.stopPropagation(); onEditBusinesses(video); }} className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-medium transition-colors", bizCount > 0 ? "bg-amber-500/15 text-amber-700 dark:text-amber-400 hover:bg-amber-500/25" : "text-muted-foreground hover:text-foreground hover:underline")}>{bizCount > 0 ? `✓ ${bizCount} Étab.` : "+ Étab."}</button>
+          <button type="button" onClick={(e) => { e.stopPropagation(); onEditDestinations(video); }} className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-medium transition-colors", destCount > 0 ? "bg-rose-500/15 text-rose-700 dark:text-rose-400 hover:bg-rose-500/25" : "text-muted-foreground hover:text-foreground hover:underline")}>{destCount > 0 ? `✓ ${destCount} Dest.` : "+ Dest."}</button>
         </div>
       </div>
 
@@ -683,6 +786,7 @@ const GenericVideosPanel = () => {
   const [descVideo, setDescVideo] = useState<GenericVideo | null>(null);
   const [poiVideo, setPoiVideo] = useState<GenericVideo | null>(null);
   const [businessVideo, setBusinessVideo] = useState<GenericVideo | null>(null);
+  const [destinationVideo, setDestinationVideo] = useState<GenericVideo | null>(null);
   const [previewOverlayVideo, setPreviewOverlayVideo] = useState<GenericVideo | null>(null);
 
   // Selected video for right panel
@@ -693,9 +797,10 @@ const GenericVideosPanel = () => {
   const [panelLoading, setPanelLoading] = useState(false);
   const [panelSaving, setPanelSaving] = useState(false);
 
-  // POI/business counts for badges
+  // POI/business/destination counts for badges
   const [videoPoiCounts, setVideoPoiCounts] = useState<Record<string, number>>({});
   const [videoBizCounts, setVideoBizCounts] = useState<Record<string, number>>({});
+  const [videoDestCounts, setVideoDestCounts] = useState<Record<string, number>>({});
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -710,9 +815,10 @@ const GenericVideosPanel = () => {
   }, []);
 
   const loadCounts = useCallback(async () => {
-    const [{ data: poiLinks }, { data: bizLinks }] = await Promise.all([
+    const [{ data: poiLinks }, { data: bizLinks }, { data: destLinks }] = await Promise.all([
       supabase.from("generic_video_pois" as any).select("generic_video_id") as any,
       supabase.from("generic_video_businesses" as any).select("generic_video_id") as any,
+      supabase.from("generic_video_destinations" as any).select("generic_video_id") as any,
     ]);
     const pc: Record<string, number> = {};
     ((poiLinks as any[]) || []).forEach((l: any) => { pc[l.generic_video_id] = (pc[l.generic_video_id] || 0) + 1; });
@@ -720,13 +826,17 @@ const GenericVideosPanel = () => {
     const bc: Record<string, number> = {};
     ((bizLinks as any[]) || []).forEach((l: any) => { bc[l.generic_video_id] = (bc[l.generic_video_id] || 0) + 1; });
     setVideoBizCounts(bc);
+    const dc: Record<string, number> = {};
+    ((destLinks as any[]) || []).forEach((l: any) => { dc[l.generic_video_id] = (dc[l.generic_video_id] || 0) + 1; });
+    setVideoDestCounts(dc);
   }, []);
 
   const loadPanelItems = useCallback(async (videoId: string) => {
     setPanelLoading(true);
-    const [{ data: poiLinks }, { data: bizLinks }] = await Promise.all([
+    const [{ data: poiLinks }, { data: bizLinks }, { data: destLinks }] = await Promise.all([
       supabase.from("generic_video_pois" as any).select("poi_id, sort_order, start_time, end_time").eq("generic_video_id", videoId) as unknown as { data: any[] | null },
       supabase.from("generic_video_businesses" as any).select("business_id, sort_order, start_time, end_time").eq("generic_video_id", videoId) as unknown as { data: any[] | null },
+      supabase.from("generic_video_destinations" as any).select("destination_id, sort_order, start_time, end_time").eq("generic_video_id", videoId) as unknown as { data: any[] | null },
     ]);
 
     const items: LinkedItemWithTime[] = [];
@@ -748,6 +858,16 @@ const GenericVideosPanel = () => {
       (biz || []).forEach((b: any) => { nameMap[b.id] = b.name; });
       bizLinks.forEach((l: any) => {
         if (nameMap[l.business_id]) items.push({ id: l.business_id, name: nameMap[l.business_id], type: "business", start_time: l.start_time, end_time: l.end_time, sort_order: l.sort_order ?? 0 });
+      });
+    }
+
+    if (destLinks && destLinks.length > 0) {
+      const destIds = destLinks.map((l: any) => l.destination_id);
+      const { data: dests } = await supabase.from("destinations").select("id, name_fr").in("id", destIds);
+      const nameMap: Record<string, string> = {};
+      (dests || []).forEach((d: any) => { nameMap[d.id] = d.name_fr; });
+      destLinks.forEach((l: any) => {
+        if (nameMap[l.destination_id]) items.push({ id: l.destination_id, name: nameMap[l.destination_id], type: "destination", start_time: l.start_time, end_time: l.end_time, sort_order: l.sort_order ?? 0 });
       });
     }
 
@@ -806,6 +926,7 @@ const GenericVideosPanel = () => {
 
     const poiItems = panelItems.filter(i => i.type === "poi");
     const bizItems = panelItems.filter(i => i.type === "business");
+    const destItems = panelItems.filter(i => i.type === "destination");
 
     await Promise.all([
       ...poiItems.map((item, i) =>
@@ -813,6 +934,9 @@ const GenericVideosPanel = () => {
       ),
       ...bizItems.map((item, i) =>
         supabase.from("generic_video_businesses" as any).update({ sort_order: panelItems.indexOf(item), start_time: item.start_time, end_time: item.end_time } as any).eq("generic_video_id", selectedVideo.id).eq("business_id", item.id)
+      ),
+      ...destItems.map((item, i) =>
+        supabase.from("generic_video_destinations" as any).update({ sort_order: panelItems.indexOf(item), start_time: item.start_time, end_time: item.end_time } as any).eq("generic_video_id", selectedVideo.id).eq("destination_id", item.id)
       ),
     ]);
 
@@ -852,6 +976,7 @@ const GenericVideosPanel = () => {
                         video={video}
                         poiCount={videoPoiCounts[video.id] || 0}
                         bizCount={videoBizCounts[video.id] || 0}
+                        destCount={videoDestCounts[video.id] || 0}
                         isSelected={selectedVideo?.id === video.id}
                         onSelect={handleSelectVideo}
                         onPreview={setLightboxUrl}
@@ -859,6 +984,7 @@ const GenericVideosPanel = () => {
                         onEditDescription={setDescVideo}
                         onEditPois={setPoiVideo}
                         onEditBusinesses={setBusinessVideo}
+                        onEditDestinations={setDestinationVideo}
                         onPreviewOverlay={setPreviewOverlayVideo}
                       />
                     </div>
@@ -898,6 +1024,7 @@ const GenericVideosPanel = () => {
       {descVideo && <DescriptionDialog video={descVideo} open={!!descVideo} onOpenChange={(o) => !o && setDescVideo(null)} onSaved={loadVideos} />}
       {poiVideo && <InlinePoiAssignment video={poiVideo} onClose={() => setPoiVideo(null)} onSaved={() => { loadCounts(); if (selectedVideo?.id === poiVideo.id) loadPanelItems(poiVideo.id); }} />}
       {businessVideo && <InlineBusinessAssignment video={businessVideo} onClose={() => setBusinessVideo(null)} onSaved={() => { loadCounts(); if (selectedVideo?.id === businessVideo.id) loadPanelItems(businessVideo.id); }} />}
+      {destinationVideo && <InlineDestinationAssignment video={destinationVideo} onClose={() => setDestinationVideo(null)} onSaved={() => { loadCounts(); if (selectedVideo?.id === destinationVideo.id) loadPanelItems(destinationVideo.id); }} />}
       {previewOverlayVideo && <GenericVideoPreviewOverlay video={previewOverlayVideo} onClose={() => setPreviewOverlayVideo(null)} />}
     </div>
   );
