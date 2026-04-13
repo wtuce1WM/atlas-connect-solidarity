@@ -212,10 +212,61 @@ const EventManagement = () => {
 
   useEffect(() => { fetchEvents(); fetchEventTypes(); fetchCities(); fetchNeighborhoods(); }, []);
 
+  const fetchLinkedBusinesses = async (eventId: string) => {
+    const { data } = await supabase
+      .from("event_businesses" as any)
+      .select("business_id")
+      .eq("event_id", eventId);
+    if (!data || data.length === 0) {
+      setLinkedBusinessIds([]);
+      setLinkedBusinesses([]);
+      return;
+    }
+    const ids = (data as any[]).map(d => d.business_id);
+    setLinkedBusinessIds(ids);
+    const { data: bizData } = await supabase
+      .from("businesses")
+      .select("id, name, city")
+      .in("id", ids)
+      .order("name");
+    setLinkedBusinesses(bizData || []);
+  };
+
+  const searchBusinesses = async (query: string) => {
+    if (query.trim().length < 2) { setBizSearchResults([]); return; }
+    setBizSearching(true);
+    const { data } = await supabase
+      .from("businesses")
+      .select("id, name, city")
+      .ilike("name", `%${query.trim()}%`)
+      .eq("is_active", true)
+      .order("name")
+      .limit(15);
+    setBizSearchResults((data || []).filter(b => !linkedBusinessIds.includes(b.id)));
+    setBizSearching(false);
+  };
+
+  const addLinkedBusiness = async (biz: { id: string; name: string; city: string | null }) => {
+    if (linkedBusinessIds.includes(biz.id)) return;
+    setLinkedBusinessIds(prev => [...prev, biz.id]);
+    setLinkedBusinesses(prev => [...prev, biz].sort((a, b) => a.name.localeCompare(b.name, "fr")));
+    setBizSearchQuery("");
+    setBizSearchResults([]);
+  };
+
+  const removeLinkedBusiness = (bizId: string) => {
+    setLinkedBusinessIds(prev => prev.filter(id => id !== bizId));
+    setLinkedBusinesses(prev => prev.filter(b => b.id !== bizId));
+  };
+
   const openNew = () => {
     setEditingId(null);
     setForm({ ...EMPTY_FORM });
     setKpInput("");
+    setLinkedBusinessIds([]);
+    setLinkedBusinesses([]);
+    setBizSearchQuery("");
+    setBizSearchResults([]);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: "instant" });
   };
