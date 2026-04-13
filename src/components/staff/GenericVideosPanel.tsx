@@ -435,6 +435,8 @@ const RightDetailPanel = ({
   onSave,
   saving,
   isDirty,
+  onEditSocial,
+  onEditDescription,
 }: {
   video: GenericVideo;
   onClose: () => void;
@@ -445,6 +447,8 @@ const RightDetailPanel = ({
   onSave: () => void;
   saving: boolean;
   isDirty: boolean;
+  onEditSocial: (v: GenericVideo) => void;
+  onEditDescription: (v: GenericVideo) => void;
 }) => {
   const allItems = useMemo(() => [...poiItems, ...businessItems].sort((a, b) => a.sort_order - b.sort_order), [poiItems, businessItems]);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 3 } }));
@@ -527,6 +531,16 @@ const RightDetailPanel = ({
         )}
 
         <p className="text-[10px] text-muted-foreground font-mono">{video.id}</p>
+        <div className="flex flex-wrap gap-2 pt-1">
+          <button type="button" onClick={() => onEditSocial(video)} className="text-[10px] text-primary hover:underline flex items-center gap-1">
+            <Instagram className="h-3 w-3" />
+            {(video.instagram_account || video.tiktok_account || video.youtube_account) ? "Liens sociaux" : "+ Sociaux"}
+          </button>
+          <button type="button" onClick={() => onEditDescription(video)} className="text-[10px] text-primary hover:underline flex items-center gap-1">
+            <FileText className="h-3 w-3" />
+            {(video.description && video.description.replace(/<[^>]*>/g, "").trim().length > 0) ? "Description" : "+ Description"}
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
@@ -872,6 +886,8 @@ const GenericVideosPanel = () => {
               onSave={handlePanelSave}
               saving={panelSaving}
               isDirty={panelIsDirty}
+              onEditSocial={setSocialVideo}
+              onEditDescription={setDescVideo}
             />
           )}
         </div>
