@@ -669,6 +669,7 @@ const RightDetailPanel = ({
       <div className="p-3 border-t text-[10px] text-muted-foreground flex items-center gap-4">
         <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> POI</span>
         <span className="flex items-center gap-1"><Building2 className="h-3 w-3" /> Établissement</span>
+        <span className="flex items-center gap-1"><Globe className="h-3 w-3" /> Destination</span>
         <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Début → Fin (secondes)</span>
       </div>
     </div>
