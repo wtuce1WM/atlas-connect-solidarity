@@ -129,18 +129,27 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
       setCities(citiesData.map(c => ({ name: c.name_fr, sort_order: c.sort_order ?? 0 })));
     }
 
-    let query = supabase
-      .from("business_documents")
-      .select("id, url, name, thumbnail_url, sort_order, business_id, subcategory_id, service_id, poi_id, linked_business_id, city, neighborhood")
-      .eq("type", "video");
-
-    if (withSubcategory) {
-      query = query.not("subcategory_id", "is", null);
-    } else {
-      query = query.is("subcategory_id", null);
+    // Paginate to fetch all videos (Supabase limits to 1000 per request)
+    const allDocs: any[] = [];
+    let offset = 0;
+    const PAGE = 1000;
+    while (true) {
+      let q = supabase
+        .from("business_documents")
+        .select("id, url, name, thumbnail_url, sort_order, business_id, subcategory_id, service_id, poi_id, linked_business_id, city, neighborhood")
+        .eq("type", "video");
+      if (withSubcategory) {
+        q = q.not("subcategory_id", "is", null);
+      } else {
+        q = q.is("subcategory_id", null);
+      }
+      const { data } = await q.order("sort_order", { ascending: true }).range(offset, offset + PAGE - 1);
+      if (!data || data.length === 0) break;
+      allDocs.push(...data);
+      if (data.length < PAGE) break;
+      offset += PAGE;
     }
-
-    const { data: docs } = await query.order("sort_order", { ascending: true });
+    const docs = allDocs;
 
     if (!docs || docs.length === 0) {
       setVideos([]);
