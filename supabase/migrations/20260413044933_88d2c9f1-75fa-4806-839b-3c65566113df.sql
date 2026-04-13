@@ -1,0 +1,1 @@
+ALTER TABLE public.events ADD COLUMN default_business_id uuid REFERENCES public.businesses(id) ON DELETE SET NULL;

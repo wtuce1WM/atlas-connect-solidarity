@@ -1957,6 +1957,7 @@ export type Database = {
         Row: {
           city_id: string | null
           created_at: string
+          default_business_id: string | null
           description: string | null
           end_date: string | null
           google_maps_url: string | null
@@ -1981,6 +1982,7 @@ export type Database = {
         Insert: {
           city_id?: string | null
           created_at?: string
+          default_business_id?: string | null
           description?: string | null
           end_date?: string | null
           google_maps_url?: string | null
@@ -2005,6 +2007,7 @@ export type Database = {
         Update: {
           city_id?: string | null
           created_at?: string
+          default_business_id?: string | null
           description?: string | null
           end_date?: string | null
           google_maps_url?: string | null
@@ -2032,6 +2035,20 @@ export type Database = {
             columns: ["city_id"]
             isOneToOne: false
             referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_default_business_id_fkey"
+            columns: ["default_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_default_business_id_fkey"
+            columns: ["default_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
           {

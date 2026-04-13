@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Save, ArrowLeft, X, Link, GripVertical, MapPinned, Search } from "lucide-react";
+import { Plus, Edit, Trash2, Save, ArrowLeft, X, Link, GripVertical, MapPinned, Search, Star } from "lucide-react";
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -60,6 +60,7 @@ const EMPTY_FORM = {
   url: "",
   url_cta: "",
   url_force_external: false,
+  default_business_id: "",
 };
 
 /* ── Sortable video item ── */
@@ -257,6 +258,9 @@ const EventManagement = () => {
   const removeLinkedBusiness = (bizId: string) => {
     setLinkedBusinessIds(prev => prev.filter(id => id !== bizId));
     setLinkedBusinesses(prev => prev.filter(b => b.id !== bizId));
+    if (form.default_business_id === bizId) {
+      setForm(p => ({ ...p, default_business_id: "" }));
+    }
   };
 
   const openNew = () => {
@@ -293,6 +297,7 @@ const EventManagement = () => {
       url: (ev as any).url || "",
       url_cta: (ev as any).url_cta || "",
       url_force_external: (ev as any).url_force_external ?? false,
+      default_business_id: (ev as any).default_business_id || "",
     });
     setKpInput("");
     setShowNewType(false);
@@ -335,6 +340,7 @@ const EventManagement = () => {
       url: form.url || null,
       url_cta: form.url_cta || null,
       url_force_external: form.url_force_external,
+      default_business_id: form.default_business_id || null,
     };
 
     let error;
@@ -748,6 +754,14 @@ const EventManagement = () => {
               <div className="flex flex-wrap gap-2">
                 {linkedBusinesses.map(biz => (
                   <span key={biz.id} className="inline-flex items-center gap-1.5 bg-muted px-2.5 py-1 rounded-md text-sm">
+                    <button
+                      type="button"
+                      title={form.default_business_id === biz.id ? "Établissement par défaut" : "Définir par défaut"}
+                      onClick={() => setForm(p => ({ ...p, default_business_id: p.default_business_id === biz.id ? "" : biz.id }))}
+                      className={form.default_business_id === biz.id ? "text-yellow-500" : "text-muted-foreground hover:text-yellow-500"}
+                    >
+                      <Star className={`h-3.5 w-3.5 ${form.default_business_id === biz.id ? "fill-current" : ""}`} />
+                    </button>
                     {biz.name}
                     {biz.city && <span className="text-muted-foreground text-xs">({biz.city})</span>}
                     <button type="button" onClick={() => removeLinkedBusiness(biz.id)} className="text-muted-foreground hover:text-destructive">
