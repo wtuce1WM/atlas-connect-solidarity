@@ -2237,6 +2237,49 @@ export type Database = {
         }
         Relationships: []
       }
+      generic_video_businesses: {
+        Row: {
+          business_id: string
+          created_at: string
+          generic_video_id: string
+          id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          generic_video_id: string
+          id?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          generic_video_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generic_video_businesses_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generic_video_businesses_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generic_video_businesses_generic_video_id_fkey"
+            columns: ["generic_video_id"]
+            isOneToOne: false
+            referencedRelation: "generic_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       generic_video_pois: {
         Row: {
           created_at: string
