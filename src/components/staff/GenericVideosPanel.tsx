@@ -914,6 +914,24 @@ const GenericVideosPanel = () => {
     );
   }, [videos]);
 
+  const handleReorderPois = useCallback(async (videoId: string, items: LinkedItem[]) => {
+    setVideoPoiMap(prev => ({ ...prev, [videoId]: items }));
+    await Promise.all(
+      items.map((item, i) =>
+        supabase.from("generic_video_pois" as any).update({ sort_order: i } as any).eq("generic_video_id", videoId).eq("poi_id", item.id)
+      )
+    );
+  }, []);
+
+  const handleReorderBusinesses = useCallback(async (videoId: string, items: LinkedItem[]) => {
+    setVideoBusinessMap(prev => ({ ...prev, [videoId]: items }));
+    await Promise.all(
+      items.map((item, i) =>
+        supabase.from("generic_video_businesses" as any).update({ sort_order: i } as any).eq("generic_video_id", videoId).eq("business_id", item.id)
+      )
+    );
+  }, []);
+
   return (
     <div className="space-y-6 pt-4">
       {/* Upload zone */}
