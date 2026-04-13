@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Loader2, Play, MapPin, Upload, Video, Star } from "lucide-react";
+import { Search, Loader2, Play, MapPin, Upload, Video, Star, Copy, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +26,25 @@ interface PoiBusiness {
   name: string;
   neighborhood: string | null;
 }
+
+const CopyableId = ({ id }: { id: string }) => {
+  const [copied, setCopied] = useState(false);
+  const copy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(id);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+  return (
+    <button
+      onClick={copy}
+      className="flex items-center gap-1 px-2 pt-1 text-[10px] text-muted-foreground font-mono hover:text-foreground transition-colors"
+    >
+      {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+      <span className="truncate max-w-[200px]">{id}</span>
+    </button>
+  );
+};
 
 const VideoPoiAssignmentPanel = () => {
   const [searchId, setSearchId] = useState("");
@@ -674,6 +693,7 @@ const VideoPoiAssignmentPanel = () => {
                         {mv.poi_count} POI
                       </span>
                     </button>
+                    <CopyableId id={mv.id} />
                     <div className="p-2 space-y-1">
                       <p className="text-xs font-medium truncate">{mv.business_name}</p>
                       {mv.name && <p className="text-[10px] text-muted-foreground truncate">{mv.name}</p>}
