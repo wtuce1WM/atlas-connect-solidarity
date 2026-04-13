@@ -313,6 +313,7 @@ import PopularSearchesManagement from "@/components/staff/PopularSearchesManagem
 import DisplayPanel from "@/components/staff/DisplayPanel";
 import CountryVideosPanel from "@/components/staff/CountryVideosPanel";
 import ServiceVideosPanel from "@/components/staff/ServiceVideosPanel";
+import PoiVideosPanel from "@/components/staff/PoiVideosPanel";
 import BlogManagement from "@/components/staff/BlogManagement";
 import SocialLinksManagement from "@/components/staff/SocialLinksManagement";
 
@@ -444,6 +445,7 @@ const StaffFront = () => {
                 <TabsTrigger value="sub-videos">Avec sous-catégorie</TabsTrigger>
                 <TabsTrigger value="no-sub-videos">Sans sous-catégorie</TabsTrigger>
                 <TabsTrigger value="service-videos">Services</TabsTrigger>
+                <TabsTrigger value="poi-videos">POI</TabsTrigger>
               </TabsList>
               <TabsContent value="sub-videos">
                 <CountryVideosPanel withSubcategory={true} />
@@ -453,6 +455,9 @@ const StaffFront = () => {
               </TabsContent>
               <TabsContent value="service-videos">
                 <ServiceVideosPanel />
+              </TabsContent>
+              <TabsContent value="poi-videos">
+                <PoiVideosPanel />
               </TabsContent>
             </Tabs>
           </TabsContent>
