@@ -659,11 +659,11 @@ const SortableVideoCard = ({
             {video.youtube_account && <Badge variant="outline" className="text-[10px] px-1.5 py-0">YT: {video.youtube_account}</Badge>}
           </div>
         )}
-        <div className="flex flex-wrap gap-2 pt-1">
-          <button type="button" onClick={(e) => { e.stopPropagation(); onEditSocial(video); }} className="text-[10px] text-primary hover:underline">{hasSocial ? "Liens sociaux" : "+ Sociaux"}</button>
-          <button type="button" onClick={(e) => { e.stopPropagation(); onEditDescription(video); }} className="text-[10px] text-primary hover:underline">{hasDesc ? "Description" : "+ Description"}</button>
-          <button type="button" onClick={(e) => { e.stopPropagation(); onEditPois(video); }} className="text-[10px] text-primary hover:underline">{poiCount > 0 ? `${poiCount} POI` : "+ POI"}</button>
-          <button type="button" onClick={(e) => { e.stopPropagation(); onEditBusinesses(video); }} className="text-[10px] text-primary hover:underline">{bizCount > 0 ? `${bizCount} Étab.` : "+ Étab."}</button>
+        <div className="flex flex-wrap gap-1 pt-1">
+          <button type="button" onClick={(e) => { e.stopPropagation(); onEditSocial(video); }} className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-medium transition-colors", hasSocial ? "bg-blue-500/15 text-blue-700 dark:text-blue-400 hover:bg-blue-500/25" : "text-muted-foreground hover:text-foreground hover:underline")}>{hasSocial ? "✓ Sociaux" : "+ Sociaux"}</button>
+          <button type="button" onClick={(e) => { e.stopPropagation(); onEditDescription(video); }} className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-medium transition-colors", hasDesc ? "bg-purple-500/15 text-purple-700 dark:text-purple-400 hover:bg-purple-500/25" : "text-muted-foreground hover:text-foreground hover:underline")}>{hasDesc ? "✓ Description" : "+ Description"}</button>
+          <button type="button" onClick={(e) => { e.stopPropagation(); onEditPois(video); }} className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-medium transition-colors", poiCount > 0 ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/25" : "text-muted-foreground hover:text-foreground hover:underline")}>{poiCount > 0 ? `✓ ${poiCount} POI` : "+ POI"}</button>
+          <button type="button" onClick={(e) => { e.stopPropagation(); onEditBusinesses(video); }} className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-medium transition-colors", bizCount > 0 ? "bg-amber-500/15 text-amber-700 dark:text-amber-400 hover:bg-amber-500/25" : "text-muted-foreground hover:text-foreground hover:underline")}>{bizCount > 0 ? `✓ ${bizCount} Étab.` : "+ Étab."}</button>
         </div>
       </div>
 
