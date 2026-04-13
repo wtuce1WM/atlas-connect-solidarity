@@ -654,7 +654,7 @@ const RightDetailPanel = ({
         </div>
 
         {allItems.length === 0 ? (
-          <p className="text-xs text-muted-foreground text-center py-8">Aucun POI ou établissement lié à cette vidéo</p>
+          <p className="text-xs text-muted-foreground text-center py-8">Aucun POI, établissement ou destination lié à cette vidéo</p>
         ) : (
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={allItems.map(i => i.id)} strategy={verticalListSortingStrategy}>
