@@ -77,6 +77,7 @@ const PoiVideosPanel = () => {
   const [videos, setVideos] = useState<PoiVideo[]>([]);
   const [cities, setCities] = useState<CityOption[]>([]);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  const [selectedPoi, setSelectedPoi] = useState<string>("__all__");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
@@ -163,11 +164,31 @@ const PoiVideosPanel = () => {
     return [...citySet].sort((a, b) => (cityOrder.get(a) ?? 9999) - (cityOrder.get(b) ?? 9999));
   }, [videos, cities]);
 
-  const filteredVideos = useMemo(() => {
+  const cityFilteredVideos = useMemo(() => {
     if (!selectedCity) return [];
     if (selectedCity === NONE_CITY) return videos.filter(v => !v.city);
     return videos.filter(v => v.city === selectedCity);
   }, [videos, selectedCity]);
+
+  const videoPois = useMemo(() => {
+    const poiSet = new Map<string, string>();
+    cityFilteredVideos.forEach(v => {
+      if (v.poi_id && !poiSet.has(v.poi_id)) poiSet.set(v.poi_id, v.poi_name);
+    });
+    return [...poiSet.entries()]
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [cityFilteredVideos]);
+
+  useEffect(() => { setSelectedPoi("__all__"); }, [selectedCity]);
+
+  const filteredVideos = useMemo(() => {
+    let result = cityFilteredVideos;
+    if (selectedPoi !== "__all__") {
+      result = result.filter(v => v.poi_id === selectedPoi);
+    }
+    return result;
+  }, [cityFilteredVideos, selectedPoi]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -220,6 +241,21 @@ const PoiVideosPanel = () => {
               <SelectItem value={NONE_CITY}>Aucune</SelectItem>
               {videoCities.map(c => (
                 <SelectItem key={c} value={c}>{c}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">POI :</span>
+          <Select value={selectedPoi} onValueChange={setSelectedPoi} disabled={!selectedCity}>
+            <SelectTrigger className="w-[260px]">
+              <SelectValue placeholder={!selectedCity ? "Choisir une ville" : "Tous"} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all__">Tous</SelectItem>
+              {videoPois.map(p => (
+                <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
