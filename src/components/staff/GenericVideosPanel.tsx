@@ -1,11 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Play, Trash2, Upload, Copy, Check } from "lucide-react";
+import { Loader2, Play, Upload, Copy, Check, FileText, Instagram, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import VideoUploader from "./VideoUploader";
 import VideoLightbox from "./VideoLightbox";
+import RichTextEditor from "./RichTextEditor";
 import {
   DndContext,
   closestCenter,
@@ -24,6 +27,12 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface GenericVideo {
   id: string;
@@ -34,16 +43,148 @@ interface GenericVideo {
   neighborhood: string | null;
   sort_order: number;
   created_at: string;
+  instagram_account: string | null;
+  instagram_url: string | null;
+  tiktok_account: string | null;
+  tiktok_url: string | null;
+  youtube_account: string | null;
+  youtube_url: string | null;
+  description: string | null;
 }
 
-const SortableVideoCard = ({
+/* ─── Social links editor dialog ─── */
+const SocialLinksDialog = ({
   video,
-  onDelete,
-  onPreview,
+  open,
+  onOpenChange,
+  onSaved,
 }: {
   video: GenericVideo;
-  onDelete: (id: string) => void;
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  onSaved: () => void;
+}) => {
+  const [ig, setIg] = useState({ account: video.instagram_account || "", url: video.instagram_url || "" });
+  const [tt, setTt] = useState({ account: video.tiktok_account || "", url: video.tiktok_url || "" });
+  const [yt, setYt] = useState({ account: video.youtube_account || "", url: video.youtube_url || "" });
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    setSaving(true);
+    const { error } = await supabase
+      .from("generic_videos" as any)
+      .update({
+        instagram_account: ig.account || null,
+        instagram_url: ig.url || null,
+        tiktok_account: tt.account || null,
+        tiktok_url: tt.url || null,
+        youtube_account: yt.account || null,
+        youtube_url: yt.url || null,
+      } as any)
+      .eq("id", video.id);
+    if (error) toast.error(error.message);
+    else { toast.success("Liens sociaux enregistrés"); onSaved(); onOpenChange(false); }
+    setSaving(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Liens sociaux</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          {/* Instagram */}
+          <div className="space-y-2 p-3 rounded-lg border">
+            <Label className="font-semibold flex items-center gap-1.5"><Instagram className="h-4 w-4" /> Instagram</Label>
+            <Input placeholder="Compte (@…)" value={ig.account} onChange={e => setIg(p => ({ ...p, account: e.target.value }))} />
+            <Input placeholder="URL du profil" value={ig.url} onChange={e => setIg(p => ({ ...p, url: e.target.value }))} />
+          </div>
+          {/* TikTok */}
+          <div className="space-y-2 p-3 rounded-lg border">
+            <Label className="font-semibold flex items-center gap-1.5">
+              <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1 0-5.78c.29 0 .58.04.86.11V9a6.27 6.27 0 0 0-.86-.06A6.33 6.33 0 0 0 3.16 15.3a6.33 6.33 0 0 0 6.33 6.33c3.5 0 6.33-2.84 6.33-6.33V9.14a8.16 8.16 0 0 0 4.77 1.52V7.21a4.85 4.85 0 0 1-1-.52Z"/></svg>
+              TikTok
+            </Label>
+            <Input placeholder="Compte (@…)" value={tt.account} onChange={e => setTt(p => ({ ...p, account: e.target.value }))} />
+            <Input placeholder="URL du profil" value={tt.url} onChange={e => setTt(p => ({ ...p, url: e.target.value }))} />
+          </div>
+          {/* YouTube */}
+          <div className="space-y-2 p-3 rounded-lg border">
+            <Label className="font-semibold flex items-center gap-1.5">
+              <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current"><path d="M23.5 6.2a3.02 3.02 0 0 0-2.12-2.14C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.38.56A3.02 3.02 0 0 0 .5 6.2 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.8 3.02 3.02 0 0 0 2.12 2.14c1.88.56 9.38.56 9.38.56s7.5 0 9.38-.56a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.8ZM9.75 15.02V8.98L15.5 12l-5.75 3.02Z"/></svg>
+              YouTube
+            </Label>
+            <Input placeholder="Nom de la chaîne" value={yt.account} onChange={e => setYt(p => ({ ...p, account: e.target.value }))} />
+            <Input placeholder="URL de la chaîne" value={yt.url} onChange={e => setYt(p => ({ ...p, url: e.target.value }))} />
+          </div>
+        </div>
+        <div className="flex justify-end pt-2">
+          <Button onClick={save} disabled={saving}>
+            {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+            Enregistrer
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+/* ─── Description (RichText) dialog ─── */
+const DescriptionDialog = ({
+  video,
+  open,
+  onOpenChange,
+  onSaved,
+}: {
+  video: GenericVideo;
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  onSaved: () => void;
+}) => {
+  const [desc, setDesc] = useState(video.description || "");
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    setSaving(true);
+    const { error } = await supabase
+      .from("generic_videos" as any)
+      .update({ description: desc || null } as any)
+      .eq("id", video.id);
+    if (error) toast.error(error.message);
+    else { toast.success("Description enregistrée"); onSaved(); onOpenChange(false); }
+    setSaving(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Description de la vidéo</DialogTitle>
+        </DialogHeader>
+        <RichTextEditor content={desc} onChange={setDesc} maxHeight="400px" />
+        <div className="flex justify-end pt-2">
+          <Button onClick={save} disabled={saving}>
+            {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+            Enregistrer
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+/* ─── Sortable video card ─── */
+const SortableVideoCard = ({
+  video,
+  onPreview,
+  onEditSocial,
+  onEditDescription,
+}: {
+  video: GenericVideo;
   onPreview: (url: string) => void;
+  onEditSocial: (v: GenericVideo) => void;
+  onEditDescription: (v: GenericVideo) => void;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: video.id });
@@ -62,6 +203,8 @@ const SortableVideoCard = ({
   };
 
   const isStorageVideo = video.url.includes("supabase.co/storage");
+  const hasSocial = video.instagram_account || video.tiktok_account || video.youtube_account;
+  const hasDesc = video.description && video.description.replace(/<[^>]*>/g, "").trim().length > 0;
 
   return (
     <div
@@ -97,6 +240,20 @@ const SortableVideoCard = ({
             <Play className="h-5 w-5 text-primary-foreground fill-primary-foreground ml-0.5" />
           </div>
         </div>
+
+        {/* TXT button */}
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onEditDescription(video); }}
+          className={cn(
+            "absolute bottom-2 right-2 z-10 px-2 py-1 rounded text-[10px] font-bold transition-opacity",
+            hasDesc
+              ? "bg-primary text-primary-foreground"
+              : "bg-background/80 text-muted-foreground border border-border/50 opacity-0 group-hover:opacity-100"
+          )}
+        >
+          TXT
+        </button>
       </button>
 
       {/* Info */}
@@ -118,9 +275,27 @@ const SortableVideoCard = ({
           {video.city && <Badge variant="outline" className="text-[10px] px-1.5 py-0">{video.city}</Badge>}
           {video.neighborhood && <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{video.neighborhood}</Badge>}
         </div>
+
+        {/* Social badges */}
+        {hasSocial && (
+          <div className="flex flex-wrap gap-1 pt-0.5">
+            {video.instagram_account && <Badge variant="outline" className="text-[10px] px-1.5 py-0">IG: {video.instagram_account}</Badge>}
+            {video.tiktok_account && <Badge variant="outline" className="text-[10px] px-1.5 py-0">TT: {video.tiktok_account}</Badge>}
+            {video.youtube_account && <Badge variant="outline" className="text-[10px] px-1.5 py-0">YT: {video.youtube_account}</Badge>}
+          </div>
+        )}
+
+        {/* Edit social links button */}
+        <button
+          type="button"
+          onClick={() => onEditSocial(video)}
+          className="text-[10px] text-primary hover:underline"
+        >
+          {hasSocial ? "Modifier les liens sociaux" : "+ Ajouter des liens sociaux"}
+        </button>
       </div>
 
-      {/* Drag handle (whole card) */}
+      {/* Drag handle */}
       <div
         {...attributes}
         {...listeners}
@@ -128,28 +303,19 @@ const SortableVideoCard = ({
       >
         ⠿
       </div>
-
-      {/* Delete button */}
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          onDelete(video.id);
-        }}
-        className="absolute top-2 right-2 z-10 p-1.5 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/90"
-      >
-        <Trash2 className="h-3.5 w-3.5" />
-      </button>
     </div>
   );
 };
 
+/* ─── Main panel ─── */
 const GenericVideosPanel = () => {
   const [videos, setVideos] = useState<GenericVideo[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploadedUrl, setUploadedUrl] = useState("");
   const [creating, setCreating] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [socialVideo, setSocialVideo] = useState<GenericVideo | null>(null);
+  const [descVideo, setDescVideo] = useState<GenericVideo | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -159,7 +325,7 @@ const GenericVideosPanel = () => {
   const loadVideos = useCallback(async () => {
     setLoading(true);
     const { data } = await supabase
-      .from("generic_videos")
+      .from("generic_videos" as any)
       .select("*")
       .order("sort_order", { ascending: true });
     setVideos((data as GenericVideo[]) || []);
@@ -175,8 +341,8 @@ const GenericVideosPanel = () => {
     setCreating(true);
     const nextOrder = videos.length > 0 ? Math.max(...videos.map(v => v.sort_order)) + 1 : 0;
     const { error } = await supabase
-      .from("generic_videos")
-      .insert({ url: uploadedUrl, sort_order: nextOrder });
+      .from("generic_videos" as any)
+      .insert({ url: uploadedUrl, sort_order: nextOrder } as any);
     if (error) {
       toast.error(error.message);
     } else {
@@ -187,16 +353,6 @@ const GenericVideosPanel = () => {
     setCreating(false);
   }, [uploadedUrl, videos, loadVideos]);
 
-  const handleDelete = useCallback(async (id: string) => {
-    const { error } = await supabase.from("generic_videos").delete().eq("id", id);
-    if (error) {
-      toast.error(error.message);
-    } else {
-      setVideos(prev => prev.filter(v => v.id !== id));
-      toast.success("Vidéo supprimée");
-    }
-  }, []);
-
   const handleDragEnd = useCallback(async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -206,10 +362,9 @@ const GenericVideosPanel = () => {
     const reordered = arrayMove(videos, oldIndex, newIndex);
     setVideos(reordered);
 
-    // Persist new order
     await Promise.all(
       reordered.map((v, i) =>
-        supabase.from("generic_videos").update({ sort_order: i }).eq("id", v.id)
+        supabase.from("generic_videos" as any).update({ sort_order: i } as any).eq("id", v.id)
       )
     );
   }, [videos]);
@@ -255,8 +410,9 @@ const GenericVideosPanel = () => {
                   <div key={video.id} style={{ width: 280 }}>
                     <SortableVideoCard
                       video={video}
-                      onDelete={handleDelete}
                       onPreview={setLightboxUrl}
+                      onEditSocial={setSocialVideo}
+                      onEditDescription={setDescVideo}
                     />
                   </div>
                 ))}
@@ -268,6 +424,24 @@ const GenericVideosPanel = () => {
 
       {lightboxUrl && (
         <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />
+      )}
+
+      {socialVideo && (
+        <SocialLinksDialog
+          video={socialVideo}
+          open={!!socialVideo}
+          onOpenChange={(o) => !o && setSocialVideo(null)}
+          onSaved={loadVideos}
+        />
+      )}
+
+      {descVideo && (
+        <DescriptionDialog
+          video={descVideo}
+          open={!!descVideo}
+          onOpenChange={(o) => !o && setDescVideo(null)}
+          onSaved={loadVideos}
+        />
       )}
     </div>
   );
