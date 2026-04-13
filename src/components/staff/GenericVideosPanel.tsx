@@ -482,9 +482,30 @@ const GenericVideosPanel = () => {
     setLoading(false);
   }, []);
 
+  const loadPoiMap = useCallback(async () => {
+    const { data: links } = await supabase
+      .from("generic_video_pois" as any)
+      .select("generic_video_id, poi_id") as { data: any[] | null };
+    if (!links || links.length === 0) { setVideoPoiMap({}); return; }
+    const poiIds = [...new Set(links.map((l: any) => l.poi_id))];
+    const { data: pois } = await supabase
+      .from("points_of_interest")
+      .select("id, name_fr")
+      .in("id", poiIds);
+    const nameMap: Record<string, string> = {};
+    (pois || []).forEach((p: any) => { nameMap[p.id] = p.name_fr; });
+    const map: Record<string, string[]> = {};
+    links.forEach((l: any) => {
+      if (!map[l.generic_video_id]) map[l.generic_video_id] = [];
+      if (nameMap[l.poi_id]) map[l.generic_video_id].push(nameMap[l.poi_id]);
+    });
+    setVideoPoiMap(map);
+  }, []);
+
   useEffect(() => {
     loadVideos();
-  }, [loadVideos]);
+    loadPoiMap();
+  }, [loadVideos, loadPoiMap]);
 
   const handleCreate = useCallback(async () => {
     if (!uploadedUrl) return;
