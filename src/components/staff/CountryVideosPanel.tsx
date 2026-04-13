@@ -55,14 +55,16 @@ const SortableVideoCard = ({
   ].filter(Boolean);
 
   return (
-    <div ref={setNodeRef} style={style} className="flex items-center gap-2 rounded-lg border bg-background p-1.5 w-fit">
-      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground">
-        <GripVertical className="h-4 w-4" />
+    <div ref={setNodeRef} style={{ ...style, width: 220 }} className="flex flex-col rounded-lg border bg-background p-1.5">
+      <div className="flex items-center gap-1 mb-1">
+        <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground">
+          <GripVertical className="h-4 w-4" />
+        </div>
+        <span className="text-xs text-muted-foreground font-mono">{index + 1}</span>
       </div>
-      <span className="text-xs text-muted-foreground font-mono w-5 text-right">{index + 1}</span>
       <button
-        className="relative bg-black rounded overflow-hidden group flex-shrink-0"
-        style={{ width: 160, height: 90 }}
+        className="relative bg-black rounded overflow-hidden group flex-shrink-0 w-full"
+        style={{ height: 110 }}
         onClick={() => onPlay(video.url)}
       >
         {video.thumbnail_url ? (
@@ -76,8 +78,8 @@ const SortableVideoCard = ({
           </div>
         </div>
       </button>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium truncate">{video.business_name}</p>
+      <div className="mt-1.5">
+        <p className="text-sm font-medium leading-tight">{video.business_name}</p>
         <p className="text-xs text-muted-foreground truncate">{video.subcategory_name}</p>
         {(video.city || video.neighborhood) && (
           <p className="text-[11px] text-muted-foreground/70 truncate">
