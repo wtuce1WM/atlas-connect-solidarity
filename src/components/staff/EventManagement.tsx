@@ -592,11 +592,21 @@ const EventManagement = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Heure de début</Label>
-                  <Input type="time" value={form.start_time} onChange={e => setForm(p => ({ ...p, start_time: e.target.value }))} />
+                  <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={form.start_time} onChange={e => setForm(p => ({ ...p, start_time: e.target.value }))}>
+                    <option value="">—</option>
+                    {Array.from({ length: 24 }, (_, h) => ["00", "15", "30", "45"].map(m => `${String(h).padStart(2, "0")}:${m}`)).flat().map(t => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <Label>Heure de fin</Label>
-                  <Input type="time" value={form.end_time} onChange={e => setForm(p => ({ ...p, end_time: e.target.value }))} />
+                  <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={form.end_time} onChange={e => setForm(p => ({ ...p, end_time: e.target.value }))}>
+                    <option value="">—</option>
+                    {Array.from({ length: 24 }, (_, h) => ["00", "15", "30", "45"].map(m => `${String(h).padStart(2, "0")}:${m}`)).flat().map(t => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>
