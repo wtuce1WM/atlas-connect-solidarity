@@ -514,15 +514,29 @@ const VideoPoiAssignmentPanel = () => {
                       <div className="flex flex-wrap gap-2">
                         {pois.map(poi => {
                           const isSelected = selectedPoiIds.includes(poi.id);
+                          const isDefault = defaultPoiId === poi.id;
                           return (
-                            <Badge
-                              key={poi.id}
-                              variant={isSelected ? "default" : "outline"}
-                              className="cursor-pointer transition-colors"
-                              onClick={() => togglePoi(poi.id)}
-                            >
-                              {poi.name}
-                            </Badge>
+                            <div key={poi.id} className="flex items-center gap-0.5">
+                              <Badge
+                                variant={isSelected ? "default" : "outline"}
+                                className="cursor-pointer transition-colors"
+                                onClick={() => togglePoi(poi.id)}
+                              >
+                                {poi.name}
+                              </Badge>
+                              {isSelected && (
+                                <button
+                                  type="button"
+                                  title={isDefault ? "POI par défaut" : "Définir comme POI par défaut"}
+                                  onClick={() => setDefaultPoiId(poi.id)}
+                                  className="p-0.5 transition-colors"
+                                >
+                                  <Star className={cn("h-3.5 w-3.5", isDefault ? "fill-yellow-500 text-yellow-500" : "text-muted-foreground hover:text-yellow-500")} />
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })}
                           );
                         })}
                       </div>
