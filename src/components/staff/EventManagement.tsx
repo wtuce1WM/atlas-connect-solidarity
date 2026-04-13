@@ -173,6 +173,7 @@ interface EventRow {
   url: string | null;
   url_cta: string | null;
   url_force_external: boolean;
+  city_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -199,6 +200,9 @@ const EventManagement = () => {
   const [bizSearchResults, setBizSearchResults] = useState<{ id: string; name: string; city: string | null }[]>([]);
   const [bizSearching, setBizSearching] = useState(false);
 
+  // List view: event businesses count map
+  const [eventBizCounts, setEventBizCounts] = useState<Record<string, number>>({});
+
   const fetchEventTypes = async () => {
     const { data } = await supabase.from("event_types").select("name").order("name");
     if (data) setEventTypes(data.map(d => (d as any).name));
@@ -210,7 +214,20 @@ const EventManagement = () => {
       .from("events")
       .select("*")
       .order("start_date", { ascending: false });
-    if (!error && data) setEvents(data as unknown as EventRow[]);
+    if (!error && data) {
+      setEvents(data as unknown as EventRow[]);
+      // fetch biz counts
+      const ids = (data as any[]).map(e => e.id);
+      if (ids.length > 0) {
+        const { data: ebData } = await supabase
+          .from("event_businesses" as any)
+          .select("event_id")
+          .in("event_id", ids);
+        const counts: Record<string, number> = {};
+        (ebData || []).forEach((r: any) => { counts[r.event_id] = (counts[r.event_id] || 0) + 1; });
+        setEventBizCounts(counts);
+      }
+    }
     setLoading(false);
   };
 
@@ -859,10 +876,10 @@ const EventManagement = () => {
               <TableHead className="w-10"></TableHead>
               <TableHead>Nom</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead>Hook</TableHead>
+              <TableHead>Ville</TableHead>
+              <TableHead>Établissements</TableHead>
               <TableHead>Début</TableHead>
               <TableHead>Fin</TableHead>
-              <TableHead>KP</TableHead>
               <TableHead className="w-12"></TableHead>
             </TableRow>
           </TableHeader>
@@ -876,10 +893,10 @@ const EventManagement = () => {
                 </TableCell>
                 <TableCell className="font-medium">{ev.name}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">{ev.type || "—"}</TableCell>
-                <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">{ev.hook}</TableCell>
+                <TableCell className="text-sm">{ev.city_id ? (cities.find(c => c.id === ev.city_id)?.name_fr || "—") : "—"}</TableCell>
+                <TableCell className="text-sm">{eventBizCounts[ev.id] || 0}</TableCell>
                 <TableCell className="text-sm">{ev.start_date || "—"}</TableCell>
                 <TableCell className="text-sm">{ev.end_date || "—"}</TableCell>
-                <TableCell className="text-sm">{ev.kp_regroupement?.length || 0}</TableCell>
                 <TableCell>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
