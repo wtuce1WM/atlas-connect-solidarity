@@ -141,7 +141,6 @@ function infoHtml(b: MapBusiness, hasClickHandler: boolean): string {
     </div>
   </div>`;
 }
-}
 
 /* ── Component ── */
 /* Haversine approx distance in km */
