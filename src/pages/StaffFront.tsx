@@ -15,13 +15,6 @@ interface FrontVideo {
   business_name: string;
 }
 
-const TABLET_RESOLUTIONS = [
-  { res: "768×1024 (iPad classique)", ratio: "~30%" },
-  { res: "810×1080 (iPad 10e gen)", ratio: "~15%" },
-  { res: "820×1180 (iPad Air)", ratio: "~12%" },
-  { res: "1024×1366 (iPad Pro 12.9)", ratio: "~10%" },
-  { res: "800×1280 (Android tablet)", ratio: "~8%" },
-];
 const MOBILE_RESOLUTIONS = [
   { res: "390×844 (iPhone 14/15)", ratio: "~25%" },
   { res: "393×873 (iPhone 15 Pro)", ratio: "~15%" },
