@@ -29,6 +29,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@/lib/utils";
+import GenericVideoPreviewOverlay from "./GenericVideoPreviewOverlay";
 import {
   Dialog,
   DialogContent,
