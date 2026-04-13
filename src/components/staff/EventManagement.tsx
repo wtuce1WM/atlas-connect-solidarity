@@ -337,6 +337,7 @@ const EventManagement = () => {
       url: form.url || null,
       url_cta: form.url_cta || null,
       url_force_external: form.url_force_external,
+      default_business_id: form.default_business_id || null,
     };
 
     let error;
