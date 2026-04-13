@@ -129,7 +129,7 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
       setCities(citiesData.map(c => ({ name: c.name_fr, sort_order: c.sort_order ?? 0 })));
     }
 
-    const { data: docs } = await supabase
+    let query = supabase
       .from("business_documents")
       .select("id, url, name, thumbnail_url, sort_order, business_id, subcategory_id, service_id, poi_id, linked_business_id, city, neighborhood")
       .eq("type", "video");
@@ -141,7 +141,6 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
     }
 
     const { data: docs } = await query.order("sort_order", { ascending: true });
-      .order("sort_order", { ascending: true });
 
     if (!docs || docs.length === 0) {
       setVideos([]);
