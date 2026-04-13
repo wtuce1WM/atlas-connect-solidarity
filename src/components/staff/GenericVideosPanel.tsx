@@ -490,8 +490,9 @@ const SortableTimeItem = ({ item, onChange }: { item: LinkedItemWithTime; onChan
       <span {...attributes} {...listeners} className="cursor-grab text-muted-foreground hover:text-foreground shrink-0">
         <GripVertical className="h-4 w-4" />
       </span>
-      <div className={cn("shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold", item.type === "poi" ? "bg-primary/10 text-primary" : "bg-accent text-accent-foreground")}>
-        {item.type === "poi" ? <MapPin className="h-3 w-3" /> : <Building2 className="h-3 w-3" />}
+      <div className={cn("shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold",
+        item.type === "poi" ? "bg-primary/10 text-primary" : item.type === "destination" ? "bg-rose-500/10 text-rose-600" : "bg-accent text-accent-foreground")}>
+        {item.type === "poi" ? <MapPin className="h-3 w-3" /> : item.type === "destination" ? <Globe className="h-3 w-3" /> : <Building2 className="h-3 w-3" />}
       </div>
       <span className="text-xs font-medium truncate flex-1 min-w-0">{item.name}</span>
       <div className="flex items-center gap-1 shrink-0">
