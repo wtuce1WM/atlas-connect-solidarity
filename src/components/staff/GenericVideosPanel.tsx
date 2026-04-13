@@ -685,6 +685,7 @@ const SortableVideoCard = ({
   poiCount,
   bizCount,
   destCount,
+  hasTimeframes,
   isSelected,
   onSelect,
   onPreview,
@@ -699,6 +700,7 @@ const SortableVideoCard = ({
   poiCount: number;
   bizCount: number;
   destCount: number;
+  hasTimeframes: boolean;
   isSelected: boolean;
   onSelect: (v: GenericVideo) => void;
   onPreview: (url: string) => void;
@@ -737,6 +739,7 @@ const SortableVideoCard = ({
           <div className="w-10 h-10 rounded-full bg-primary/80 flex items-center justify-center"><Play className="h-5 w-5 text-primary-foreground fill-primary-foreground ml-0.5" /></div>
         </div>
         {hasDesc && <span className="absolute bottom-2 right-2 z-10 px-2 py-1 rounded text-[10px] font-bold bg-primary text-primary-foreground">TXT</span>}
+        {hasTimeframes && <span className="absolute bottom-2 left-2 z-10 px-2 py-1 rounded text-[10px] font-bold bg-amber-500 text-white flex items-center gap-0.5"><Clock className="h-3 w-3" />TIME</span>}
         {(poiCount > 0 || bizCount > 0 || destCount > 0) && (
           <button
             className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-white hover:bg-emerald-600 transition-colors"
@@ -804,6 +807,7 @@ const GenericVideosPanel = () => {
   const [videoPoiCounts, setVideoPoiCounts] = useState<Record<string, number>>({});
   const [videoBizCounts, setVideoBizCounts] = useState<Record<string, number>>({});
   const [videoDestCounts, setVideoDestCounts] = useState<Record<string, number>>({});
+  const [videoHasTimeframes, setVideoHasTimeframes] = useState<Record<string, boolean>>({});
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -819,19 +823,21 @@ const GenericVideosPanel = () => {
 
   const loadCounts = useCallback(async () => {
     const [{ data: poiLinks }, { data: bizLinks }, { data: destLinks }] = await Promise.all([
-      supabase.from("generic_video_pois" as any).select("generic_video_id") as any,
-      supabase.from("generic_video_businesses" as any).select("generic_video_id") as any,
-      supabase.from("generic_video_destinations" as any).select("generic_video_id") as any,
+      supabase.from("generic_video_pois" as any).select("generic_video_id, start_time, end_time") as any,
+      supabase.from("generic_video_businesses" as any).select("generic_video_id, start_time, end_time") as any,
+      supabase.from("generic_video_destinations" as any).select("generic_video_id, start_time, end_time") as any,
     ]);
     const pc: Record<string, number> = {};
-    ((poiLinks as any[]) || []).forEach((l: any) => { pc[l.generic_video_id] = (pc[l.generic_video_id] || 0) + 1; });
+    const tf: Record<string, boolean> = {};
+    ((poiLinks as any[]) || []).forEach((l: any) => { pc[l.generic_video_id] = (pc[l.generic_video_id] || 0) + 1; if (l.start_time != null || l.end_time != null) tf[l.generic_video_id] = true; });
     setVideoPoiCounts(pc);
     const bc: Record<string, number> = {};
-    ((bizLinks as any[]) || []).forEach((l: any) => { bc[l.generic_video_id] = (bc[l.generic_video_id] || 0) + 1; });
+    ((bizLinks as any[]) || []).forEach((l: any) => { bc[l.generic_video_id] = (bc[l.generic_video_id] || 0) + 1; if (l.start_time != null || l.end_time != null) tf[l.generic_video_id] = true; });
     setVideoBizCounts(bc);
     const dc: Record<string, number> = {};
-    ((destLinks as any[]) || []).forEach((l: any) => { dc[l.generic_video_id] = (dc[l.generic_video_id] || 0) + 1; });
+    ((destLinks as any[]) || []).forEach((l: any) => { dc[l.generic_video_id] = (dc[l.generic_video_id] || 0) + 1; if (l.start_time != null || l.end_time != null) tf[l.generic_video_id] = true; });
     setVideoDestCounts(dc);
+    setVideoHasTimeframes(tf);
   }, []);
 
   const loadPanelItems = useCallback(async (videoId: string) => {
@@ -980,6 +986,7 @@ const GenericVideosPanel = () => {
                         poiCount={videoPoiCounts[video.id] || 0}
                         bizCount={videoBizCounts[video.id] || 0}
                         destCount={videoDestCounts[video.id] || 0}
+                        hasTimeframes={!!videoHasTimeframes[video.id]}
                         isSelected={selectedVideo?.id === video.id}
                         onSelect={handleSelectVideo}
                         onPreview={setLightboxUrl}
