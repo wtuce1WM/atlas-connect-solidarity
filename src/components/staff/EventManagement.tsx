@@ -52,6 +52,7 @@ const EMPTY_FORM = {
   logo_url: "",
   type: "",
   city_id: "",
+  neighborhood_id: "",
   recurrence: "",
   google_maps_url: "",
   latitude: "" as string | number,
@@ -173,6 +174,7 @@ const EventManagement = () => {
   const [kpInput, setKpInput] = useState("");
   const [eventTypes, setEventTypes] = useState<string[]>([]);
   const [cities, setCities] = useState<{ id: string; name_fr: string }[]>([]);
+  const [neighborhoods, setNeighborhoods] = useState<{ id: string; name: string; city_id: string }[]>([]);
   const [newTypeInput, setNewTypeInput] = useState("");
   const [showNewType, setShowNewType] = useState(false);
 
@@ -196,7 +198,12 @@ const EventManagement = () => {
     if (data) setCities(data);
   };
 
-  useEffect(() => { fetchEvents(); fetchEventTypes(); fetchCities(); }, []);
+  const fetchNeighborhoods = async () => {
+    const { data } = await supabase.from("neighborhoods").select("id, name, city_id").order("name");
+    if (data) setNeighborhoods(data as any[]);
+  };
+
+  useEffect(() => { fetchEvents(); fetchEventTypes(); fetchCities(); fetchNeighborhoods(); }, []);
 
   const openNew = () => {
     setEditingId(null);
@@ -220,6 +227,7 @@ const EventManagement = () => {
       logo_url: ev.logo_url || "",
       type: ev.type || "",
       city_id: (ev as any).city_id || "",
+      neighborhood_id: (ev as any).neighborhood_id || "",
       recurrence: (ev as any).recurrence || "",
       google_maps_url: ev.google_maps_url || "",
       latitude: ev.latitude ?? "",
@@ -258,6 +266,7 @@ const EventManagement = () => {
       logo_url: form.logo_url || null,
       type: form.type || null,
       city_id: form.city_id || null,
+      neighborhood_id: form.neighborhood_id || null,
       recurrence: form.recurrence || null,
       google_maps_url: form.google_maps_url || null,
       latitude: form.latitude ? Number(form.latitude) : null,
@@ -381,7 +390,7 @@ const EventManagement = () => {
               </div>
               <div>
                 <Label>Ville</Label>
-                <Select value={form.city_id || "__none__"} onValueChange={v => setForm(p => ({ ...p, city_id: v === "__none__" ? "" : v }))}>
+                <Select value={form.city_id || "__none__"} onValueChange={v => setForm(p => ({ ...p, city_id: v === "__none__" ? "" : v, neighborhood_id: "" }))}>
                   <SelectTrigger>
                     <SelectValue placeholder="Aucune" />
                   </SelectTrigger>
@@ -390,6 +399,26 @@ const EventManagement = () => {
                     {cities.map(c => (
                       <SelectItem key={c.id} value={c.id}>{c.name_fr}</SelectItem>
                     ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Quartier</Label>
+                <Select
+                  value={form.neighborhood_id || "__none__"}
+                  onValueChange={v => setForm(p => ({ ...p, neighborhood_id: v === "__none__" ? "" : v }))}
+                  disabled={!form.city_id}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Aucun" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">Aucun</SelectItem>
+                    {neighborhoods
+                      .filter(n => n.city_id === form.city_id)
+                      .map(n => (
+                        <SelectItem key={n.id} value={n.id}>{n.name}</SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>
