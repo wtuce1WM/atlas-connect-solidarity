@@ -537,8 +537,6 @@ const VideoPoiAssignmentPanel = () => {
                             </div>
                           );
                         })}
-                          );
-                        })}
                       </div>
                     </div>
                   );
