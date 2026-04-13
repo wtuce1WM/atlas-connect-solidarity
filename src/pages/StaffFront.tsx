@@ -318,6 +318,7 @@ import DestinationVideosPanelTab from "@/components/staff/DestinationVideosPanel
 import BlogManagement from "@/components/staff/BlogManagement";
 import SocialLinksManagement from "@/components/staff/SocialLinksManagement";
 import VideoPoiAssignmentPanel from "@/components/staff/VideoPoiAssignmentPanel";
+import GenericVideosPanel from "@/components/staff/GenericVideosPanel";
 
 const StaffFront = () => {
   const [user, setUser] = useState<any>(null);
