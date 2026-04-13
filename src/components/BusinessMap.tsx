@@ -37,6 +37,8 @@ interface BusinessMapProps {
   neighborhoodCenter?: { lat: number; lng: number } | null;
   /** Callback when user clicks "Voir la fiche" in the InfoWindow */
   onBusinessClick?: (business: MapBusiness) => void;
+  /** Hide the top-left stats badge (useful when embedding in an overlay with its own header) */
+  hideStats?: boolean;
 }
 
 declare global {
@@ -158,6 +160,7 @@ const BusinessMap = ({
   cityCenter = null,
   neighborhoodCenter = null,
   onBusinessClick,
+  hideStats = false,
 }: BusinessMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapShellRef = useRef<HTMLDivElement>(null);
@@ -512,14 +515,16 @@ const BusinessMap = ({
       </button>
 
       {/* Stats bar */}
-      <div className="absolute top-3 left-3 z-10 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-md border border-border">
-        <span className="font-semibold text-foreground">{geoBusinesses.length}</span> établissements sur la carte
-        {verifiedCount > 0 && (
-          <span className="ml-2">
-            dont <span className="font-semibold" style={{ color: "#D4AF37" }}>{verifiedCount}</span> vérifiés
-          </span>
-        )}
-      </div>
+      {!hideStats && (
+        <div className="absolute top-3 left-3 z-10 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-md border border-border">
+          <span className="font-semibold text-foreground">{geoBusinesses.length}</span> établissements sur la carte
+          {verifiedCount > 0 && (
+            <span className="ml-2">
+              dont <span className="font-semibold" style={{ color: "#D4AF37" }}>{verifiedCount}</span> vérifiés
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Legend */}
       <div className="absolute bottom-3 left-3 z-10 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-2 text-[10px] text-muted-foreground shadow-md border border-border flex items-center gap-4">

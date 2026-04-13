@@ -1931,13 +1931,26 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             >
               <X className="h-4 w-4" />
             </button>
-            <span className="text-sm font-bold text-white truncate drop-shadow-md">
-              {poiMapMode === "destinations"
-                ? (language === "en" ? "Where are you going?" : "Où allez-vous ?")
-                : poiBusinesses.length > 0
-                  ? (language === "en" ? `Nearby points of interest of ${business?.name}` : `Points d'intérêt à proximité de ${business?.name}`)
-                  : (language === "en" ? `Nearby establishments of ${business?.name}` : `Établissements à proximité de ${business?.name}`)}
-            </span>
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <span className="bg-white/20 backdrop-blur-sm rounded-full px-2.5 py-0.5 text-[11px] font-semibold text-white shrink-0">
+                {(() => {
+                  let count = 1;
+                  if (poiMapMode === "destinations") {
+                    count += destinations.filter(d => d.latitude && d.longitude).length;
+                  } else {
+                    count += (poiBusinesses.length > 0 ? poiBusinesses : []).filter(p => p.latitude && p.longitude).length;
+                  }
+                  return count;
+                })()}
+              </span>
+              <span className="text-sm font-bold text-white truncate drop-shadow-md">
+                {poiMapMode === "destinations"
+                  ? (language === "en" ? "Where are you going?" : "Où allez-vous ?")
+                  : poiBusinesses.length > 0
+                    ? (language === "en" ? `Nearby points of interest of ${business?.name}` : `Points d'intérêt à proximité de ${business?.name}`)
+                    : (language === "en" ? `Nearby establishments of ${business?.name}` : `Établissements à proximité de ${business?.name}`)}
+              </span>
+            </div>
           </div>
           <div className="flex-1 min-h-0 -mt-[3.25rem]">
             <BusinessMap
@@ -2002,6 +2015,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               center={business?.latitude && business?.longitude ? { lat: business.latitude, lng: business.longitude } : undefined}
               zoom={13}
               height="100%"
+              hideStats
               onBusinessClick={(biz) => {
                 if (biz.id === business?.id) return;
                 if (poiMapMode === "destinations") {
