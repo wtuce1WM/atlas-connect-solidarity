@@ -212,7 +212,37 @@ const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
         <Youtube className="h-4 w-4" />
       </ToolbarButton>
 
+      {/* Emoji picker */}
       <Popover>
+        <PopoverTrigger asChild>
+          <Button type="button" variant="ghost" size="sm" className="h-8 w-8 p-0" title="Insérer un émoji">
+            <Smile className="h-4 w-4" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-80 p-2" align="start">
+          <div className="max-h-64 overflow-y-auto space-y-2">
+            {EMOJI_CATEGORIES.map((cat) => (
+              <div key={cat.label}>
+                <p className="text-xs font-medium text-muted-foreground mb-1">{cat.label}</p>
+                <div className="flex flex-wrap gap-0.5">
+                  {cat.emojis.map((emoji) => (
+                    <button
+                      key={emoji}
+                      type="button"
+                      className="w-7 h-7 flex items-center justify-center rounded hover:bg-muted text-base cursor-pointer transition-colors"
+                      onClick={() => editor.chain().focus().insertContent(emoji).run()}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </PopoverContent>
+      </Popover>
+
+
         <PopoverTrigger asChild>
           <Button type="button" variant={editor.isActive("table") ? "secondary" : "ghost"} size="sm" className="h-8 w-8 p-0" title="Tableau">
             <TableIcon className="h-4 w-4" />
