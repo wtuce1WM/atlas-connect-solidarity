@@ -835,6 +835,7 @@ const GenericVideosPanel = () => {
       {descVideo && <DescriptionDialog video={descVideo} open={!!descVideo} onOpenChange={(o) => !o && setDescVideo(null)} onSaved={loadVideos} />}
       {poiVideo && <InlinePoiAssignment video={poiVideo} onClose={() => setPoiVideo(null)} onSaved={() => { loadCounts(); if (selectedVideo?.id === poiVideo.id) loadPanelItems(poiVideo.id); }} />}
       {businessVideo && <InlineBusinessAssignment video={businessVideo} onClose={() => setBusinessVideo(null)} onSaved={() => { loadCounts(); if (selectedVideo?.id === businessVideo.id) loadPanelItems(businessVideo.id); }} />}
+      {previewOverlayVideo && <GenericVideoPreviewOverlay video={previewOverlayVideo} onClose={() => setPreviewOverlayVideo(null)} />}
     </div>
   );
 };
