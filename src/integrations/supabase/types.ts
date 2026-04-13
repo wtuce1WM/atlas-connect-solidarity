@@ -2289,6 +2289,51 @@ export type Database = {
           },
         ]
       }
+      generic_video_destinations: {
+        Row: {
+          created_at: string
+          destination_id: string
+          end_time: number | null
+          generic_video_id: string
+          id: string
+          sort_order: number
+          start_time: number | null
+        }
+        Insert: {
+          created_at?: string
+          destination_id: string
+          end_time?: number | null
+          generic_video_id: string
+          id?: string
+          sort_order?: number
+          start_time?: number | null
+        }
+        Update: {
+          created_at?: string
+          destination_id?: string
+          end_time?: number | null
+          generic_video_id?: string
+          id?: string
+          sort_order?: number
+          start_time?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generic_video_destinations_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generic_video_destinations_generic_video_id_fkey"
+            columns: ["generic_video_id"]
+            isOneToOne: false
+            referencedRelation: "generic_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       generic_video_pois: {
         Row: {
           created_at: string
