@@ -101,41 +101,43 @@ function markerSvgUrl(isVerified: boolean): string {
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
-/* ── InfoWindow HTML ── */
+/* ── InfoWindow HTML (dark immersive style matching PoiGoogleMap) ── */
 function infoHtml(b: MapBusiness, hasClickHandler: boolean): string {
   const isVerified = b.wtuce_status === "verified";
   const subcategory = b.categories?.[0] || b.main_category || "";
   const thumbnail = b.images?.[0] || "";
+  const loc = `${b.city || ""}${b.neighborhood ? ` · ${b.neighborhood}` : ""}`;
 
-  // Build review info from computed fields
   const ratingOn20 = b.computed_rating;
   const reviewCount = b.total_review_count;
-  let starsHtml = "";
-  if (ratingOn20) {
-    starsHtml = `<div style="font-size:11px;color:#D4AF37;margin-bottom:4px;">
-      <span style="font-weight:600;">★ ${Number(ratingOn20).toFixed(1)}/20</span>
-      ${reviewCount ? `<span style="color:#888;font-size:10px;margin-left:4px;">(${reviewCount} avis)</span>` : ""}
-    </div>`;
-  }
+  const ratingHtml = ratingOn20
+    ? `<div style="display:flex;align-items:center;gap:4px;font-size:12px;margin-top:3px;">
+        <span style="color:#D4AF37;">★</span>
+        <span style="font-weight:600;color:white;">${Number(ratingOn20).toFixed(1)}/20</span>
+        ${reviewCount ? `<span style="color:rgba(255,255,255,0.7);font-size:11px;">(${reviewCount} avis)</span>` : ""}
+      </div>`
+    : "";
 
   const actionBtn = hasClickHandler
     ? `<button data-business-id="${b.id}" style="flex:1;padding:6px 0;border-radius:6px;background:#D4AF37;color:white;font-size:11px;font-weight:600;border:none;cursor:pointer;">Voir la fiche →</button>`
     : `<a href="/business/${b.id}" style="flex:1;padding:6px 0;border-radius:6px;background:#D4AF37;color:white;font-size:11px;font-weight:600;text-decoration:none;text-align:center;display:block;">Voir la fiche →</a>`;
 
-  return `<div style="min-width:220px;max-width:280px;font-family:system-ui,sans-serif;overflow:hidden;">
-    ${thumbnail ? `<div style="width:100%;height:120px;overflow:hidden;border-radius:8px;margin-bottom:8px;">
-      <img src="${thumbnail}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.style.display='none'" />
-    </div>` : ""}
-    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-      <span style="font-weight:700;font-size:13px;color:#1a1a1a;flex:1;">${b.name}</span>
-      ${isVerified ? `<span style="display:inline-flex;align-items:center;gap:2px;padding:1px 6px;border-radius:9999px;background:#D4AF37;color:white;font-size:9px;font-weight:600;flex-shrink:0;">✓</span>` : ""}
-    </div>
-    ${subcategory ? `<div style="font-size:11px;color:#D4AF37;font-weight:500;margin-bottom:2px;">${subcategory}</div>` : ""}
-    ${starsHtml}
-    <div style="font-size:10px;color:#888;margin-bottom:6px;">📍 ${b.city}${b.neighborhood ? ` · ${b.neighborhood}` : ""}</div>
-    <div style="display:flex;gap:6px;">
-      ${actionBtn}
-      <button data-directions-id="${b.id}" style="flex:1;padding:6px 0;border-radius:6px;background:#f3f4f6;color:#333;font-size:11px;font-weight:500;border:none;cursor:pointer;">Itinéraire →</button>
+  return `<div style="width:260px;font-family:system-ui,sans-serif;overflow:hidden;border-radius:10px;position:relative;">
+    ${thumbnail
+      ? `<img src="${thumbnail}" style="width:100%;height:180px;display:block;object-fit:cover;" onerror="this.style.display='none'" />`
+      : `<div style="width:100%;height:80px;background:#1d1d1d;"></div>`}
+    <div style="background:linear-gradient(to top,rgba(0,0,0,0.85),rgba(0,0,0,0.2));position:absolute;bottom:0;left:0;right:0;padding:10px;">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-weight:700;font-size:14px;color:white;line-height:1.3;flex:1;">${b.name}</span>
+        ${isVerified ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#D4AF37;color:white;font-size:11px;font-weight:700;flex-shrink:0;">✓</span>` : ""}
+      </div>
+      ${subcategory ? `<div style="font-size:11px;color:#D4AF37;font-weight:500;margin-top:2px;">${subcategory}</div>` : ""}
+      ${ratingHtml}
+      ${loc ? `<div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:3px;">📍 ${loc}</div>` : ""}
+      <div style="display:flex;gap:6px;margin-top:8px;">
+        ${actionBtn}
+        <button data-directions-id="${b.id}" style="flex:1;padding:6px 0;border-radius:6px;background:rgba(255,255,255,0.15);color:white;font-size:11px;font-weight:500;border:none;cursor:pointer;backdrop-filter:blur(4px);">Itinéraire →</button>
+      </div>
     </div>
   </div>`;
 }
