@@ -115,6 +115,71 @@ const VideoPoiAssignmentPanel = () => {
     }
   }, [selectedUploadBusiness, uploadedVideoUrl]);
 
+  // Load multi-POI videos list
+  const loadMultiPoiVideos = useCallback(async () => {
+    setLoadingMulti(true);
+    // Get all video docs with a poi_id
+    const { data: docs } = await supabase
+      .from("business_documents")
+      .select("id, url, name, thumbnail_url, business_id, city, poi_id")
+      .eq("type", "video")
+      .not("poi_id", "is", null);
+
+    if (!docs || docs.length === 0) {
+      setMultiPoiVideos([]);
+      setLoadingMulti(false);
+      return;
+    }
+
+    // Group by url+business_id to find multi-POI
+    const groups: Record<string, typeof docs> = {};
+    docs.forEach(d => {
+      const key = `${d.url}::${d.business_id}`;
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(d);
+    });
+
+    const multiGroups = Object.values(groups).filter(g => g.length > 1);
+    if (multiGroups.length === 0) {
+      setMultiPoiVideos([]);
+      setLoadingMulti(false);
+      return;
+    }
+
+    // Fetch business names and POI names
+    const bizIds = [...new Set(multiGroups.map(g => g[0].business_id))];
+    const poiIds = [...new Set(multiGroups.flatMap(g => g.map(d => d.poi_id!)).filter(Boolean))];
+
+    const [bizRes, poiRes] = await Promise.all([
+      supabase.from("businesses").select("id, name").in("id", bizIds),
+      supabase.from("businesses").select("id, name").in("id", poiIds),
+    ]);
+
+    const bizMap = Object.fromEntries((bizRes.data || []).map(b => [b.id, b.name]));
+    const poiMap = Object.fromEntries((poiRes.data || []).map(p => [p.id, p.name]));
+
+    const result: MultiPoiVideo[] = multiGroups.map(g => {
+      const first = g[0];
+      return {
+        id: first.id,
+        url: first.url,
+        name: first.name,
+        thumbnail_url: first.thumbnail_url,
+        business_name: bizMap[first.business_id] || "Inconnu",
+        city: first.city,
+        poi_count: g.length,
+        poi_names: g.map(d => poiMap[d.poi_id!] || d.poi_id!).filter(Boolean),
+      };
+    }).sort((a, b) => b.poi_count - a.poi_count);
+
+    setMultiPoiVideos(result);
+    setLoadingMulti(false);
+  }, []);
+
+  useEffect(() => {
+    loadMultiPoiVideos();
+  }, [loadMultiPoiVideos]);
+
   // Auto-search when searchId is set programmatically
   useEffect(() => {
     if (searchId && searchId.length === 36 && !video) {
