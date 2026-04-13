@@ -1,5 +1,5 @@
 /// <reference types="@types/google.maps" />
-import { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback, type CSSProperties } from "react";
 import { Loader2, Maximize2, Minimize2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
@@ -39,6 +39,8 @@ interface BusinessMapProps {
   onBusinessClick?: (business: MapBusiness) => void;
   /** Hide the top-left stats badge (useful when embedding in an overlay with its own header) */
   hideStats?: boolean;
+  /** Extra DOM lift for the InfoWindow container when Google Maps ignores pixelOffset */
+  domInfoWindowLift?: number;
 }
 
 declare global {
@@ -163,6 +165,7 @@ const BusinessMap = ({
   neighborhoodCenter = null,
   onBusinessClick,
   hideStats = false,
+  domInfoWindowLift = 0,
 }: BusinessMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapShellRef = useRef<HTMLDivElement>(null);
@@ -511,8 +514,12 @@ const BusinessMap = ({
   const verifiedCount = geoBusinesses.filter((b) => b.wtuce_status === "verified").length;
 
   return (
-    <div ref={mapShellRef} className={`relative overflow-hidden border border-border shadow-sm ${height === "100%" ? "h-full" : "rounded-xl"}`}>
-      <style>{`.gm-style .gm-fullscreen-control { display: none !important; } .gm-style .gm-style-iw-chr { display: none !important; } .gm-style .gm-style-iw { padding: 0 !important; background: transparent !important; box-shadow: none !important; border-radius: 10px !important; } .gm-style .gm-style-iw-d { overflow: hidden !important; background: transparent !important; } .gm-style .gm-style-iw-tc { display: none !important; } .gm-style .gm-style-iw-t::after { display: none !important; }`}</style>
+    <div
+      ref={mapShellRef}
+      className={`relative overflow-hidden border border-border shadow-sm ${height === "100%" ? "h-full" : "rounded-xl"}`}
+      style={{ "--business-map-dom-lift": `${domInfoWindowLift}px` } as CSSProperties}
+    >
+      <style>{`.gm-style .gm-fullscreen-control { display: none !important; } .gm-style .gm-style-iw-chr { display: none !important; } .gm-style .gm-style-iw { padding: 0 !important; background: transparent !important; box-shadow: none !important; border-radius: 10px !important; } .gm-style .gm-style-iw-d { overflow: hidden !important; background: transparent !important; } .gm-style .gm-style-iw-tc { display: none !important; } .gm-style .gm-style-iw-t::after { display: none !important; } .gm-style .gm-style-iw-a { margin-top: calc(-1 * var(--business-map-dom-lift, 0px)) !important; }`}</style>
       <button
         type="button"
         onClick={toggleFullscreen}
