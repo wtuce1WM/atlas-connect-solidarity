@@ -312,6 +312,7 @@ import HomepageBusinessesPanel from "@/components/staff/HomepageBusinessesPanel"
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import DisplayPanel from "@/components/staff/DisplayPanel";
 import CountryVideosPanel from "@/components/staff/CountryVideosPanel";
+import ServiceVideosPanel from "@/components/staff/ServiceVideosPanel";
 import BlogManagement from "@/components/staff/BlogManagement";
 import SocialLinksManagement from "@/components/staff/SocialLinksManagement";
 
