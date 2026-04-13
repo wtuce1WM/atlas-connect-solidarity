@@ -699,6 +699,7 @@ const SortableVideoCard = ({
   poiCount: number;
   bizCount: number;
   destCount: number;
+  hasTimeframes: boolean;
   isSelected: boolean;
   onSelect: (v: GenericVideo) => void;
   onPreview: (url: string) => void;
