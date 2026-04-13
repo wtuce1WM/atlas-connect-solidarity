@@ -297,6 +297,9 @@ const EventManagement = () => {
     setKpInput("");
     setShowNewType(false);
     setNewTypeInput("");
+    setBizSearchQuery("");
+    setBizSearchResults([]);
+    fetchLinkedBusinesses(ev.id);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: "instant" });
   };
