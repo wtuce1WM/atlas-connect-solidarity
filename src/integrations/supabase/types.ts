@@ -1892,6 +1892,49 @@ export type Database = {
         }
         Relationships: []
       }
+      event_businesses: {
+        Row: {
+          business_id: string
+          created_at: string
+          event_id: string
+          id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          event_id: string
+          id?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_businesses_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_businesses_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_businesses_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_types: {
         Row: {
           created_at: string

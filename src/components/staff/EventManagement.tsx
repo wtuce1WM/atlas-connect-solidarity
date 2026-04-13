@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Save, ArrowLeft, X, Link, GripVertical, MapPinned } from "lucide-react";
+import { Plus, Edit, Trash2, Save, ArrowLeft, X, Link, GripVertical, MapPinned, Search } from "lucide-react";
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -178,6 +178,13 @@ const EventManagement = () => {
   const [newTypeInput, setNewTypeInput] = useState("");
   const [showNewType, setShowNewType] = useState(false);
 
+  // Linked businesses
+  const [linkedBusinessIds, setLinkedBusinessIds] = useState<string[]>([]);
+  const [linkedBusinesses, setLinkedBusinesses] = useState<{ id: string; name: string; city: string | null }[]>([]);
+  const [bizSearchQuery, setBizSearchQuery] = useState("");
+  const [bizSearchResults, setBizSearchResults] = useState<{ id: string; name: string; city: string | null }[]>([]);
+  const [bizSearching, setBizSearching] = useState(false);
+
   const fetchEventTypes = async () => {
     const { data } = await supabase.from("event_types").select("name").order("name");
     if (data) setEventTypes(data.map(d => (d as any).name));
@@ -205,10 +212,61 @@ const EventManagement = () => {
 
   useEffect(() => { fetchEvents(); fetchEventTypes(); fetchCities(); fetchNeighborhoods(); }, []);
 
+  const fetchLinkedBusinesses = async (eventId: string) => {
+    const { data } = await supabase
+      .from("event_businesses" as any)
+      .select("business_id")
+      .eq("event_id", eventId);
+    if (!data || data.length === 0) {
+      setLinkedBusinessIds([]);
+      setLinkedBusinesses([]);
+      return;
+    }
+    const ids = (data as any[]).map(d => d.business_id);
+    setLinkedBusinessIds(ids);
+    const { data: bizData } = await supabase
+      .from("businesses")
+      .select("id, name, city")
+      .in("id", ids)
+      .order("name");
+    setLinkedBusinesses(bizData || []);
+  };
+
+  const searchBusinesses = async (query: string) => {
+    if (query.trim().length < 2) { setBizSearchResults([]); return; }
+    setBizSearching(true);
+    const { data } = await supabase
+      .from("businesses")
+      .select("id, name, city")
+      .ilike("name", `%${query.trim()}%`)
+      .eq("is_active", true)
+      .order("name")
+      .limit(15);
+    setBizSearchResults((data || []).filter(b => !linkedBusinessIds.includes(b.id)));
+    setBizSearching(false);
+  };
+
+  const addLinkedBusiness = async (biz: { id: string; name: string; city: string | null }) => {
+    if (linkedBusinessIds.includes(biz.id)) return;
+    setLinkedBusinessIds(prev => [...prev, biz.id]);
+    setLinkedBusinesses(prev => [...prev, biz].sort((a, b) => a.name.localeCompare(b.name, "fr")));
+    setBizSearchQuery("");
+    setBizSearchResults([]);
+  };
+
+  const removeLinkedBusiness = (bizId: string) => {
+    setLinkedBusinessIds(prev => prev.filter(id => id !== bizId));
+    setLinkedBusinesses(prev => prev.filter(b => b.id !== bizId));
+  };
+
   const openNew = () => {
     setEditingId(null);
     setForm({ ...EMPTY_FORM });
     setKpInput("");
+    setLinkedBusinessIds([]);
+    setLinkedBusinesses([]);
+    setBizSearchQuery("");
+    setBizSearchResults([]);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: "instant" });
   };
@@ -239,6 +297,9 @@ const EventManagement = () => {
     setKpInput("");
     setShowNewType(false);
     setNewTypeInput("");
+    setBizSearchQuery("");
+    setBizSearchResults([]);
+    fetchLinkedBusinesses(ev.id);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: "instant" });
   };
@@ -277,20 +338,34 @@ const EventManagement = () => {
     };
 
     let error;
+    let savedId = editingId;
     if (editingId) {
       ({ error } = await supabase.from("events").update(payload).eq("id", editingId));
     } else {
-      ({ error } = await supabase.from("events").insert(payload));
+      const res = await supabase.from("events").insert(payload).select("id").single();
+      error = res.error;
+      if (res.data) savedId = (res.data as any).id;
     }
 
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: editingId ? "Événement mis à jour" : "Événement créé" });
-      setShowForm(false);
-      setEditingId(null);
-      fetchEvents();
+      setSaving(false);
+      return;
     }
+
+    // Save linked businesses
+    if (savedId) {
+      await supabase.from("event_businesses" as any).delete().eq("event_id", savedId);
+      if (linkedBusinessIds.length > 0) {
+        const rows = linkedBusinessIds.map(bizId => ({ event_id: savedId, business_id: bizId }));
+        await supabase.from("event_businesses" as any).insert(rows);
+      }
+    }
+
+    toast({ title: editingId ? "Événement mis à jour" : "Événement créé" });
+    setShowForm(false);
+    setEditingId(null);
+    fetchEvents();
     setSaving(false);
   };
 
@@ -640,6 +715,49 @@ const EventManagement = () => {
           <div>
             <Label className="text-base font-semibold">Vidéos ({form.videos.length}/10)</Label>
             <VideosDndList form={form} setForm={setForm} toast={toast} />
+          </div>
+
+          {/* Linked businesses */}
+          <div className="space-y-3">
+            <Label className="text-base font-semibold">🏢 Établissements associés ({linkedBusinesses.length})</Label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Rechercher un établissement par nom…"
+                value={bizSearchQuery}
+                onChange={e => { setBizSearchQuery(e.target.value); searchBusinesses(e.target.value); }}
+                className="pl-9"
+              />
+            </div>
+            {bizSearchResults.length > 0 && (
+              <div className="border rounded-lg divide-y max-h-[200px] overflow-y-auto">
+                {bizSearchResults.map(biz => (
+                  <button
+                    key={biz.id}
+                    type="button"
+                    className="w-full text-left px-3 py-2 hover:bg-muted/50 flex items-center justify-between text-sm"
+                    onClick={() => addLinkedBusiness(biz)}
+                  >
+                    <span className="font-medium">{biz.name}</span>
+                    <span className="text-muted-foreground text-xs">{biz.city || "—"}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {linkedBusinesses.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {linkedBusinesses.map(biz => (
+                  <span key={biz.id} className="inline-flex items-center gap-1.5 bg-muted px-2.5 py-1 rounded-md text-sm">
+                    {biz.name}
+                    {biz.city && <span className="text-muted-foreground text-xs">({biz.city})</span>}
+                    <button type="button" onClick={() => removeLinkedBusiness(biz.id)} className="text-muted-foreground hover:text-destructive">
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            {linkedBusinesses.length === 0 && <p className="text-xs text-muted-foreground">Aucun établissement associé.</p>}
           </div>
         </div>
 
