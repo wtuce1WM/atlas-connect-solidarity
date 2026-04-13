@@ -29,7 +29,9 @@ interface CountryVideo {
   sort_order: number;
   business_id: string;
   business_name: string;
+  subcategory_id: string | null;
   subcategory_name: string;
+  category_id: string | null;
   city: string | null;
   neighborhood: string | null;
   service_name: string | null;
@@ -42,7 +44,20 @@ interface CityOption {
   sort_order: number;
 }
 
+interface CategoryOption {
+  id: string;
+  name: string;
+  sort_order: number;
+}
+
+interface SubcategoryOption {
+  id: string;
+  name: string;
+  category_id: string;
+}
+
 const NONE_CITY = "__none__";
+const ALL_VALUE = "__all__";
 
 const SortableVideoCard = ({
   video,
@@ -108,7 +123,11 @@ const SortableVideoCard = ({
 const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: boolean }) => {
   const [videos, setVideos] = useState<CountryVideo[]>([]);
   const [cities, setCities] = useState<CityOption[]>([]);
+  const [categories, setCategories] = useState<CategoryOption[]>([]);
+  const [subcategoriesMap, setSubcategoriesMap] = useState<Map<string, SubcategoryOption>>(new Map());
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>(ALL_VALUE);
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>(ALL_VALUE);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
@@ -171,15 +190,39 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
       if (data) data.forEach(b => bizMap.set(b.id, { name: b.name, city: b.city, neighborhood: b.neighborhood }));
     }
 
+    // Fetch subcategories with their category_id
     const scIds = [...new Set(docs.map(d => d.subcategory_id).filter(Boolean))] as string[];
-    const scMap = new Map<string, string>();
+    const scMap = new Map<string, { name: string; category_id: string | null }>();
     if (scIds.length > 0) {
       for (let i = 0; i < scIds.length; i += 200) {
         const batch = scIds.slice(i, i + 200);
-        const { data } = await supabase.from("subcategories").select("id, name_fr").in("id", batch);
-        if (data) data.forEach(sc => scMap.set(sc.id, sc.name_fr));
+        const { data } = await supabase.from("subcategories").select("id, name_fr, category_id").in("id", batch);
+        if (data) data.forEach(sc => scMap.set(sc.id, { name: sc.name_fr, category_id: sc.category_id }));
       }
     }
+
+    // Fetch categories
+    const catIds = [...new Set([...scMap.values()].map(sc => sc.category_id).filter(Boolean))] as string[];
+    const catMap = new Map<string, { name: string; sort_order: number }>();
+    if (catIds.length > 0) {
+      for (let i = 0; i < catIds.length; i += 200) {
+        const batch = catIds.slice(i, i + 200);
+        const { data } = await supabase.from("categories").select("id, name_fr, sort_order").in("id", batch);
+        if (data) data.forEach(c => catMap.set(c.id, { name: c.name_fr, sort_order: c.sort_order ?? 0 }));
+      }
+    }
+    setCategories(
+      [...catMap.entries()]
+        .map(([id, c]) => ({ id, name: c.name, sort_order: c.sort_order }))
+        .sort((a, b) => a.sort_order - b.sort_order)
+    );
+
+    // Build subcategories lookup
+    const scLookup = new Map<string, SubcategoryOption>();
+    scMap.forEach((val, id) => {
+      scLookup.set(id, { id, name: val.name, category_id: val.category_id || "" });
+    });
+    setSubcategoriesMap(scLookup);
 
     const svcIds = [...new Set(docs.map(d => d.service_id).filter(Boolean))] as string[];
     const svcMap = new Map<string, string>();
@@ -193,6 +236,7 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
 
     setVideos(docs.map(d => {
       const biz = bizMap.get(d.business_id);
+      const sc = d.subcategory_id ? scMap.get(d.subcategory_id) : null;
       return {
         id: d.id,
         url: d.url,
@@ -201,7 +245,9 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
         sort_order: d.sort_order,
         business_id: d.business_id,
         business_name: biz?.name || "—",
-        subcategory_name: scMap.get(d.subcategory_id!) || "—",
+        subcategory_id: d.subcategory_id || null,
+        subcategory_name: sc?.name || "—",
+        category_id: sc?.category_id || null,
         city: d.city || null,
         neighborhood: d.neighborhood || null,
         service_name: d.service_id ? (svcMap.get(d.service_id) || "—") : null,
@@ -222,13 +268,57 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
     return [...citySet].sort((a, b) => (cityOrder.get(a) ?? 9999) - (cityOrder.get(b) ?? 9999));
   }, [videos, cities]);
 
+  // Categories present in current videos
+  const videoCategories = useMemo(() => {
+    if (!withSubcategory) return [];
+    const catIds = new Set<string>();
+    videos.forEach(v => { if (v.category_id) catIds.add(v.category_id); });
+    return categories.filter(c => catIds.has(c.id));
+  }, [videos, categories, withSubcategory]);
+
+  // Subcategories for selected category, present in videos
+  const videoSubcategories = useMemo(() => {
+    if (!withSubcategory || selectedCategory === ALL_VALUE) return [];
+    const scSet = new Map<string, string>();
+    videos.forEach(v => {
+      if (v.subcategory_id && v.category_id === selectedCategory) {
+        const sc = subcategoriesMap.get(v.subcategory_id);
+        if (sc) scSet.set(sc.id, sc.name);
+      }
+    });
+    return [...scSet.entries()]
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [videos, selectedCategory, subcategoriesMap, withSubcategory]);
+
+  // Reset subcategory when category changes
+  useEffect(() => {
+    setSelectedSubcategory(ALL_VALUE);
+  }, [selectedCategory]);
+
   const filteredVideos = useMemo(() => {
     if (!selectedCity) return [];
+    let result = videos;
+
+    // City filter
     if (selectedCity === NONE_CITY) {
-      return videos.filter(v => !v.city);
+      result = result.filter(v => !v.city);
+    } else {
+      result = result.filter(v => v.city === selectedCity);
     }
-    return videos.filter(v => v.city === selectedCity);
-  }, [videos, selectedCity]);
+
+    // Category filter
+    if (withSubcategory && selectedCategory !== ALL_VALUE) {
+      result = result.filter(v => v.category_id === selectedCategory);
+    }
+
+    // Subcategory filter
+    if (withSubcategory && selectedSubcategory !== ALL_VALUE) {
+      result = result.filter(v => v.subcategory_id === selectedSubcategory);
+    }
+
+    return result;
+  }, [videos, selectedCity, selectedCategory, selectedSubcategory, withSubcategory]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -270,19 +360,59 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
         </Button>
       </div>
 
-      <div className="flex items-center gap-2">
-        <span className="text-sm font-medium">Ville :</span>
-        <Select value={selectedCity || ""} onValueChange={v => setSelectedCity(v)}>
-          <SelectTrigger className="w-[220px]">
-            <SelectValue placeholder="Sélectionner une ville" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={NONE_CITY}>Aucune</SelectItem>
-            {videoCities.map(c => (
-              <SelectItem key={c} value={c}>{c}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="flex items-center gap-4 flex-wrap">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">Ville :</span>
+          <Select value={selectedCity || ""} onValueChange={v => setSelectedCity(v)}>
+            <SelectTrigger className="w-[220px]">
+              <SelectValue placeholder="Sélectionner une ville" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={NONE_CITY}>Aucune</SelectItem>
+              {videoCities.map(c => (
+                <SelectItem key={c} value={c}>{c}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {withSubcategory && (
+          <>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Catégorie :</span>
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="w-[220px]">
+                  <SelectValue placeholder="Toutes" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL_VALUE}>Toutes</SelectItem>
+                  {videoCategories.map(c => (
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Sous-catégorie :</span>
+              <Select
+                value={selectedSubcategory}
+                onValueChange={setSelectedSubcategory}
+                disabled={selectedCategory === ALL_VALUE}
+              >
+                <SelectTrigger className="w-[220px]">
+                  <SelectValue placeholder={selectedCategory === ALL_VALUE ? "Choisir une catégorie" : "Toutes"} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL_VALUE}>Toutes</SelectItem>
+                  {videoSubcategories.map(sc => (
+                    <SelectItem key={sc.id} value={sc.id}>{sc.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </>
+        )}
       </div>
 
       {selectedCity && (
