@@ -528,6 +528,7 @@ const SortableVideoCard = ({
   onEditDescription,
   onEditPois,
   onEditBusinesses,
+  onPreviewOverlay,
 }: {
   video: GenericVideo;
   poiCount: number;
