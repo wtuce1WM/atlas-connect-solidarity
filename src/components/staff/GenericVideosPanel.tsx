@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Play, Upload, Copy, Check, FileText, Instagram, X } from "lucide-react";
+import { Loader2, Play, Upload, Copy, Check, FileText, Instagram, X, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
 import VideoUploader from "./VideoUploader";
 import VideoLightbox from "./VideoLightbox";
 import RichTextEditor from "./RichTextEditor";
@@ -184,18 +185,132 @@ const DescriptionDialog = ({
   );
 };
 
+/* ─── POI assignment dialog ─── */
+interface PoiOption { id: string; name_fr: string; }
+
+const PoiAssignDialog = ({
+  video,
+  open,
+  onOpenChange,
+  onSaved,
+}: {
+  video: GenericVideo;
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  onSaved: () => void;
+}) => {
+  const [allPois, setAllPois] = useState<PoiOption[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [initialIds, setInitialIds] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const [{ data: pois }, { data: links }] = await Promise.all([
+        supabase.from("points_of_interest").select("id, name_fr").order("name_fr"),
+        supabase.from("generic_video_pois" as any).select("poi_id").eq("generic_video_id", video.id),
+      ]);
+      setAllPois((pois as PoiOption[]) || []);
+      const ids = ((links as any[]) || []).map((l: any) => l.poi_id);
+      setSelectedIds(ids);
+      setInitialIds(ids);
+      setLoading(false);
+    };
+    load();
+  }, [video.id]);
+
+  const toggle = (poiId: string) => {
+    setSelectedIds(prev =>
+      prev.includes(poiId) ? prev.filter(id => id !== poiId) : [...prev, poiId]
+    );
+  };
+
+  const isDirty = JSON.stringify([...selectedIds].sort()) !== JSON.stringify([...initialIds].sort());
+
+  const save = async () => {
+    setSaving(true);
+    const toAdd = selectedIds.filter(id => !initialIds.includes(id));
+    const toRemove = initialIds.filter(id => !selectedIds.includes(id));
+
+    if (toRemove.length > 0) {
+      await supabase.from("generic_video_pois" as any).delete().eq("generic_video_id", video.id).in("poi_id", toRemove);
+    }
+    if (toAdd.length > 0) {
+      await supabase.from("generic_video_pois" as any).insert(
+        toAdd.map(poi_id => ({ generic_video_id: video.id, poi_id })) as any
+      );
+    }
+    
+    toast.success("POI enregistrés");
+    onSaved();
+    onOpenChange(false);
+    setSaving(false);
+  };
+
+  const filtered = allPois.filter(p =>
+    p.name_fr.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg max-h-[80vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle>Points d'intérêt</DialogTitle>
+        </DialogHeader>
+        <Input
+          placeholder="Rechercher un POI…"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+        {loading ? (
+          <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div>
+        ) : (
+          <div className="flex-1 overflow-y-auto space-y-1 max-h-[50vh]">
+            {filtered.map(poi => (
+              <label key={poi.id} className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted cursor-pointer text-sm">
+                <Checkbox
+                  checked={selectedIds.includes(poi.id)}
+                  onCheckedChange={() => toggle(poi.id)}
+                />
+                {poi.name_fr}
+              </label>
+            ))}
+            {filtered.length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-4">Aucun POI trouvé</p>
+            )}
+          </div>
+        )}
+        <div className="flex items-center justify-between pt-2 border-t">
+          <span className="text-xs text-muted-foreground">{selectedIds.length} sélectionné{selectedIds.length > 1 ? "s" : ""}</span>
+          <Button onClick={save} disabled={saving || !isDirty}>
+            {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+            Enregistrer
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 /* ─── Sortable video card ─── */
 const SortableVideoCard = ({
   video,
+  poiNames,
   onPreview,
   onEditSocial,
   onEditDescription,
+  onEditPois,
 }: {
   video: GenericVideo;
+  poiNames: string[];
   onPreview: (url: string) => void;
   onEditSocial: (v: GenericVideo) => void;
   onEditDescription: (v: GenericVideo) => void;
-}) => {
+  onEditPois: (v: GenericVideo) => void;
+})  => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: video.id });
   const [copiedId, setCopiedId] = useState(false);
@@ -303,6 +418,29 @@ const SortableVideoCard = ({
         >
           {hasSocial ? "Modifier les liens sociaux" : "+ Ajouter des liens sociaux"}
         </button>
+
+        {/* POI badges */}
+        {poiNames.length > 0 && (
+          <div className="flex flex-wrap gap-1 pt-0.5">
+            {poiNames.slice(0, 3).map((name, i) => (
+              <Badge key={i} variant="secondary" className="text-[9px] px-1 py-0">
+                <MapPin className="h-2.5 w-2.5 mr-0.5" />{name}
+              </Badge>
+            ))}
+            {poiNames.length > 3 && (
+              <Badge variant="outline" className="text-[9px] px-1 py-0">+{poiNames.length - 3}</Badge>
+            )}
+          </div>
+        )}
+
+        {/* Edit POIs button */}
+        <button
+          type="button"
+          onClick={() => onEditPois(video)}
+          className="text-[10px] text-primary hover:underline"
+        >
+          {poiNames.length > 0 ? `${poiNames.length} POI • Modifier` : "+ Ajouter des POI"}
+        </button>
       </div>
 
       {/* Drag handle */}
@@ -326,6 +464,8 @@ const GenericVideosPanel = () => {
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [socialVideo, setSocialVideo] = useState<GenericVideo | null>(null);
   const [descVideo, setDescVideo] = useState<GenericVideo | null>(null);
+  const [poiVideo, setPoiVideo] = useState<GenericVideo | null>(null);
+  const [videoPoiMap, setVideoPoiMap] = useState<Record<string, string[]>>({});
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -342,9 +482,30 @@ const GenericVideosPanel = () => {
     setLoading(false);
   }, []);
 
+  const loadPoiMap = useCallback(async () => {
+    const { data: links } = await supabase
+      .from("generic_video_pois" as any)
+      .select("generic_video_id, poi_id") as { data: any[] | null };
+    if (!links || links.length === 0) { setVideoPoiMap({}); return; }
+    const poiIds = [...new Set(links.map((l: any) => l.poi_id))];
+    const { data: pois } = await supabase
+      .from("points_of_interest")
+      .select("id, name_fr")
+      .in("id", poiIds);
+    const nameMap: Record<string, string> = {};
+    (pois || []).forEach((p: any) => { nameMap[p.id] = p.name_fr; });
+    const map: Record<string, string[]> = {};
+    links.forEach((l: any) => {
+      if (!map[l.generic_video_id]) map[l.generic_video_id] = [];
+      if (nameMap[l.poi_id]) map[l.generic_video_id].push(nameMap[l.poi_id]);
+    });
+    setVideoPoiMap(map);
+  }, []);
+
   useEffect(() => {
     loadVideos();
-  }, [loadVideos]);
+    loadPoiMap();
+  }, [loadVideos, loadPoiMap]);
 
   const handleCreate = useCallback(async () => {
     if (!uploadedUrl) return;
@@ -420,9 +581,11 @@ const GenericVideosPanel = () => {
                   <div key={video.id} style={{ width: 280 }}>
                     <SortableVideoCard
                       video={video}
+                      poiNames={videoPoiMap[video.id] || []}
                       onPreview={setLightboxUrl}
                       onEditSocial={setSocialVideo}
                       onEditDescription={setDescVideo}
+                      onEditPois={setPoiVideo}
                     />
                   </div>
                 ))}
@@ -451,6 +614,15 @@ const GenericVideosPanel = () => {
           open={!!descVideo}
           onOpenChange={(o) => !o && setDescVideo(null)}
           onSaved={loadVideos}
+        />
+      )}
+
+      {poiVideo && (
+        <PoiAssignDialog
+          video={poiVideo}
+          open={!!poiVideo}
+          onOpenChange={(o) => !o && setPoiVideo(null)}
+          onSaved={loadPoiMap}
         />
       )}
     </div>

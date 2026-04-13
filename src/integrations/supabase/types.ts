@@ -2237,6 +2237,42 @@ export type Database = {
         }
         Relationships: []
       }
+      generic_video_pois: {
+        Row: {
+          created_at: string
+          generic_video_id: string
+          id: string
+          poi_id: string
+        }
+        Insert: {
+          created_at?: string
+          generic_video_id: string
+          id?: string
+          poi_id: string
+        }
+        Update: {
+          created_at?: string
+          generic_video_id?: string
+          id?: string
+          poi_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generic_video_pois_generic_video_id_fkey"
+            columns: ["generic_video_id"]
+            isOneToOne: false
+            referencedRelation: "generic_videos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generic_video_pois_poi_id_fkey"
+            columns: ["poi_id"]
+            isOneToOne: false
+            referencedRelation: "points_of_interest"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       generic_videos: {
         Row: {
           city: string | null
