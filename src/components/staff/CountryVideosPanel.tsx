@@ -199,6 +199,14 @@ const CountryVideosPanel = () => {
 
   useEffect(() => { load(); }, [load]);
 
+  // Build city options from videos themselves, sorted by cities table order
+  const videoCities = useMemo(() => {
+    const citySet = new Set<string>();
+    videos.forEach(v => { if (v.city) citySet.add(v.city); });
+    const cityOrder = new Map(cities.map(c => [c.name, c.sort_order]));
+    return [...citySet].sort((a, b) => (cityOrder.get(a) ?? 9999) - (cityOrder.get(b) ?? 9999));
+  }, [videos, cities]);
+
   const filteredVideos = useMemo(() => {
     if (!selectedCity) return [];
     if (selectedCity === NONE_CITY) {
@@ -255,8 +263,8 @@ const CountryVideosPanel = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={NONE_CITY}>Aucune</SelectItem>
-            {cities.map(c => (
-              <SelectItem key={c.name} value={c.name}>{c.name}</SelectItem>
+            {videoCities.map(c => (
+              <SelectItem key={c} value={c}>{c}</SelectItem>
             ))}
           </SelectContent>
         </Select>
