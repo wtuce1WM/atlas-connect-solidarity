@@ -611,17 +611,21 @@ const InlineBusinessAssignment = ({
 const SortableVideoCard = ({
   video,
   poiNames,
+  businessNames,
   onPreview,
   onEditSocial,
   onEditDescription,
   onEditPois,
+  onEditBusinesses,
 }: {
   video: GenericVideo;
   poiNames: string[];
+  businessNames: string[];
   onPreview: (url: string) => void;
   onEditSocial: (v: GenericVideo) => void;
   onEditDescription: (v: GenericVideo) => void;
   onEditPois: (v: GenericVideo) => void;
+  onEditBusinesses: (v: GenericVideo) => void;
 })  => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: video.id });
