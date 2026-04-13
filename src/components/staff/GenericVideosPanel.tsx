@@ -757,6 +757,29 @@ const SortableVideoCard = ({
         >
           {poiNames.length > 0 ? `${poiNames.length} POI • Modifier` : "+ Ajouter des POI"}
         </button>
+
+        {/* Business badges */}
+        {businessNames.length > 0 && (
+          <div className="flex flex-wrap gap-1 pt-0.5">
+            {businessNames.slice(0, 3).map((name, i) => (
+              <Badge key={i} variant="secondary" className="text-[9px] px-1 py-0">
+                <Building2 className="h-2.5 w-2.5 mr-0.5" />{name}
+              </Badge>
+            ))}
+            {businessNames.length > 3 && (
+              <Badge variant="outline" className="text-[9px] px-1 py-0">+{businessNames.length - 3}</Badge>
+            )}
+          </div>
+        )}
+
+        {/* Edit businesses button */}
+        <button
+          type="button"
+          onClick={() => onEditBusinesses(video)}
+          className="text-[10px] text-primary hover:underline"
+        >
+          {businessNames.length > 0 ? `${businessNames.length} établissement(s) • Modifier` : "+ Ajouter des établissements"}
+        </button>
       </div>
 
       {/* Drag handle */}
