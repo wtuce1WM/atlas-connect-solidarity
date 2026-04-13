@@ -185,18 +185,137 @@ const DescriptionDialog = ({
   );
 };
 
+/* ─── POI assignment dialog ─── */
+interface PoiOption { id: string; name_fr: string; }
+
+const PoiAssignDialog = ({
+  video,
+  open,
+  onOpenChange,
+  onSaved,
+}: {
+  video: GenericVideo;
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  onSaved: () => void;
+}) => {
+  const [allPois, setAllPois] = useState<PoiOption[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [initialIds, setInitialIds] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const [{ data: pois }, { data: links }] = await Promise.all([
+        supabase.from("points_of_interest").select("id, name_fr").order("name_fr"),
+        supabase.from("generic_video_pois" as any).select("poi_id").eq("generic_video_id", video.id),
+      ]);
+      setAllPois((pois as PoiOption[]) || []);
+      const ids = ((links as any[]) || []).map((l: any) => l.poi_id);
+      setSelectedIds(ids);
+      setInitialIds(ids);
+      setLoading(false);
+    };
+    load();
+  }, [video.id]);
+
+  const toggle = (poiId: string) => {
+    setSelectedIds(prev =>
+      prev.includes(poiId) ? prev.filter(id => id !== poiId) : [...prev, poiId]
+    );
+  };
+
+  const isDirty = JSON.stringify([...selectedIds].sort()) !== JSON.stringify([...initialIds].sort());
+
+  const save = async () => {
+    setSaving(true);
+    const toAdd = selectedIds.filter(id => !initialIds.includes(id));
+    const toRemove = initialIds.filter(id => !selectedIds.includes(id));
+
+    const promises: Promise<any>[] = [];
+    if (toRemove.length > 0) {
+      promises.push(
+        supabase.from("generic_video_pois" as any).delete().eq("generic_video_id", video.id).in("poi_id", toRemove)
+      );
+    }
+    if (toAdd.length > 0) {
+      promises.push(
+        supabase.from("generic_video_pois" as any).insert(
+          toAdd.map(poi_id => ({ generic_video_id: video.id, poi_id })) as any
+        )
+      );
+    }
+    await Promise.all(promises);
+    toast.success("POI enregistrés");
+    onSaved();
+    onOpenChange(false);
+    setSaving(false);
+  };
+
+  const filtered = allPois.filter(p =>
+    p.name_fr.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg max-h-[80vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle>Points d'intérêt</DialogTitle>
+        </DialogHeader>
+        <Input
+          placeholder="Rechercher un POI…"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+        {loading ? (
+          <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div>
+        ) : (
+          <div className="flex-1 overflow-y-auto space-y-1 max-h-[50vh]">
+            {filtered.map(poi => (
+              <label key={poi.id} className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted cursor-pointer text-sm">
+                <Checkbox
+                  checked={selectedIds.includes(poi.id)}
+                  onCheckedChange={() => toggle(poi.id)}
+                />
+                {poi.name_fr}
+              </label>
+            ))}
+            {filtered.length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-4">Aucun POI trouvé</p>
+            )}
+          </div>
+        )}
+        <div className="flex items-center justify-between pt-2 border-t">
+          <span className="text-xs text-muted-foreground">{selectedIds.length} sélectionné{selectedIds.length > 1 ? "s" : ""}</span>
+          <Button onClick={save} disabled={saving || !isDirty}>
+            {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+            Enregistrer
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 /* ─── Sortable video card ─── */
 const SortableVideoCard = ({
   video,
+  poiNames,
   onPreview,
   onEditSocial,
   onEditDescription,
+  onEditPois,
 }: {
   video: GenericVideo;
+  poiNames: string[];
   onPreview: (url: string) => void;
   onEditSocial: (v: GenericVideo) => void;
   onEditDescription: (v: GenericVideo) => void;
-}) => {
+  onEditPois: (v: GenericVideo) => void;
+})  => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: video.id });
   const [copiedId, setCopiedId] = useState(false);
