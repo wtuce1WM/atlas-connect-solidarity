@@ -340,29 +340,6 @@ const BusinessMap = ({
         } else {
           infoWindow.open({ map, anchor: marker, shouldFocus: false });
         }
-
-        // Attach click handlers inside InfoWindow
-        google.maps.event.addListenerOnce(infoWindow, "domready", () => {
-          // "Voir la fiche" button
-          if (onBusinessClick) {
-            const btn = document.querySelector(`button[data-business-id="${b.id}"]`);
-            if (btn) {
-              btn.addEventListener("click", (e) => {
-                e.preventDefault();
-                onBusinessClick(b);
-              });
-            }
-          }
-          // "Itinéraire" button — use window.open to avoid ERR_BLOCKED_BY_RESPONSE
-          const dirBtn = document.querySelector(`button[data-directions-id="${b.id}"]`);
-          if (dirBtn) {
-            dirBtn.addEventListener("click", (e) => {
-              e.preventDefault();
-              window.open(`https://www.google.com/maps/dir/?api=1&destination=${b.latitude},${b.longitude}`, "_blank");
-            });
-          }
-        });
-
       });
 
       markers.push(marker);
