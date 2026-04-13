@@ -836,7 +836,7 @@ const GenericVideosPanel = () => {
   const loadPoiMap = useCallback(async () => {
     const { data: links } = await supabase
       .from("generic_video_pois" as any)
-      .select("generic_video_id, poi_id") as { data: any[] | null };
+      .select("generic_video_id, poi_id, sort_order") as { data: any[] | null };
     if (!links || links.length === 0) { setVideoPoiMap({}); return; }
     const poiIds = [...new Set(links.map((l: any) => l.poi_id))];
     const { data: pois } = await supabase
@@ -845,10 +845,11 @@ const GenericVideosPanel = () => {
       .in("id", poiIds);
     const nameMap: Record<string, string> = {};
     (pois || []).forEach((p: any) => { nameMap[p.id] = p.name_fr; });
-    const map: Record<string, string[]> = {};
+    const map: Record<string, LinkedItem[]> = {};
+    links.sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0));
     links.forEach((l: any) => {
       if (!map[l.generic_video_id]) map[l.generic_video_id] = [];
-      if (nameMap[l.poi_id]) map[l.generic_video_id].push(nameMap[l.poi_id]);
+      if (nameMap[l.poi_id]) map[l.generic_video_id].push({ id: l.poi_id, name: nameMap[l.poi_id] });
     });
     setVideoPoiMap(map);
   }, []);
@@ -856,7 +857,7 @@ const GenericVideosPanel = () => {
   const loadBusinessMap = useCallback(async () => {
     const { data: links } = await supabase
       .from("generic_video_businesses" as any)
-      .select("generic_video_id, business_id") as { data: any[] | null };
+      .select("generic_video_id, business_id, sort_order") as { data: any[] | null };
     if (!links || links.length === 0) { setVideoBusinessMap({}); return; }
     const bizIds = [...new Set(links.map((l: any) => l.business_id))];
     const { data: biz } = await supabase
@@ -865,10 +866,11 @@ const GenericVideosPanel = () => {
       .in("id", bizIds);
     const nameMap: Record<string, string> = {};
     (biz || []).forEach((b: any) => { nameMap[b.id] = b.name; });
-    const map: Record<string, string[]> = {};
+    const map: Record<string, LinkedItem[]> = {};
+    links.sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0));
     links.forEach((l: any) => {
       if (!map[l.generic_video_id]) map[l.generic_video_id] = [];
-      if (nameMap[l.business_id]) map[l.generic_video_id].push(nameMap[l.business_id]);
+      if (nameMap[l.business_id]) map[l.generic_video_id].push({ id: l.business_id, name: nameMap[l.business_id] });
     });
     setVideoBusinessMap(map);
   }, []);
