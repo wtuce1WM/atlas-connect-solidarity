@@ -41,6 +41,20 @@ const VideoPoiAssignmentPanel = () => {
   const [saving, setSaving] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
+  // Multi-POI videos list
+  interface MultiPoiVideo {
+    id: string;
+    url: string;
+    name: string | null;
+    thumbnail_url: string | null;
+    business_name: string;
+    city: string | null;
+    poi_count: number;
+    poi_names: string[];
+  }
+  const [multiPoiVideos, setMultiPoiVideos] = useState<MultiPoiVideo[]>([]);
+  const [loadingMulti, setLoadingMulti] = useState(true);
+
   // Upload section state
   const [uploadBusinessQuery, setUploadBusinessQuery] = useState("");
   const [uploadBusinessResults, setUploadBusinessResults] = useState<{ id: string; name: string; city: string | null }[]>([]);
