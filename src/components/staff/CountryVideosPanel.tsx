@@ -265,6 +265,7 @@ const CountryVideosPanel = () => {
 
       {selectedCity && (
         <>
+          <p className="text-sm text-muted-foreground">{filteredVideos.length} vidéo{filteredVideos.length !== 1 ? "s" : ""}</p>
           {filteredVideos.length === 0 ? (
             <p className="text-sm text-muted-foreground py-8 text-center">Aucune vidéo pour cette sélection.</p>
           ) : (
