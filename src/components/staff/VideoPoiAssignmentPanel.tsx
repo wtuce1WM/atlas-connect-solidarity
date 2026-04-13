@@ -35,6 +35,8 @@ const VideoPoiAssignmentPanel = () => {
   const [poiBusinesses, setPoiBusinesses] = useState<PoiBusiness[]>([]);
   const [selectedPoiIds, setSelectedPoiIds] = useState<string[]>([]);
   const [initialPoiIds, setInitialPoiIds] = useState<string[]>([]);
+  const [defaultPoiId, setDefaultPoiId] = useState<string | null>(null);
+  const [initialDefaultPoiId, setInitialDefaultPoiId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
