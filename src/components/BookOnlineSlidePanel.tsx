@@ -1266,6 +1266,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             <YouTubeShortsCarousel
               youtubeUrl={business.youtube_url}
               businessId={business.id}
+              onVideoCount={setYoutubeVideoCount}
               onVideosLoaded={setAllYoutubeVideos}
               onPlayingChange={setYoutubeIsPlaying}
               onSelectVideo={(v) => { setActiveYoutubeVideo(v); if (v) setShowYoutubeOverlay(true); }}
