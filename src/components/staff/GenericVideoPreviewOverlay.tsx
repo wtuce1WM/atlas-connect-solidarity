@@ -108,8 +108,8 @@ const GenericVideoPreviewOverlay = ({ video, onClose }: GenericVideoPreviewOverl
         <X className="h-5 w-5" />
       </button>
 
-      {/* Left: Video */}
-      <div className="flex-1 flex items-center justify-center bg-black relative">
+      {/* Left: Video — 50% */}
+      <div className="w-1/2 h-full flex items-center justify-center bg-black relative">
         {isFile ? (
           <video
             ref={videoRef}
@@ -131,8 +131,8 @@ const GenericVideoPreviewOverlay = ({ video, onClose }: GenericVideoPreviewOverl
         )}
       </div>
 
-      {/* Right: Slide panel synced to current time */}
-      <div className="w-[420px] h-full bg-background overflow-hidden flex flex-col">
+      {/* Right: Slide panel — 50% */}
+      <div className="w-1/2 h-full bg-background overflow-hidden flex flex-col relative">
         {loading ? (
           <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">Chargement…</div>
         ) : items.length === 0 ? (
@@ -142,7 +142,7 @@ const GenericVideoPreviewOverlay = ({ video, onClose }: GenericVideoPreviewOverl
         ) : (
           <>
             {/* Timeline bar */}
-            <div className="border-b bg-muted/30 p-2 space-y-1">
+            <div className="shrink-0 border-b bg-muted/30 p-2 space-y-1 z-10">
               <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
                 Timeline — {Math.floor(currentTime)}s
               </p>
@@ -177,7 +177,7 @@ const GenericVideoPreviewOverlay = ({ video, onClose }: GenericVideoPreviewOverl
               </div>
             </div>
 
-            {/* Slide panel */}
+            {/* Slide panel — fills remaining height */}
             <div className="flex-1 overflow-hidden relative">
               {activeItem && SlidePanel ? (
                 <SlidePanel
