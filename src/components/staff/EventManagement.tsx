@@ -294,6 +294,7 @@ const EventManagement = () => {
       url: (ev as any).url || "",
       url_cta: (ev as any).url_cta || "",
       url_force_external: (ev as any).url_force_external ?? false,
+      default_business_id: (ev as any).default_business_id || "",
     });
     setKpInput("");
     setShowNewType(false);
