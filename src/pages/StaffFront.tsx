@@ -438,7 +438,14 @@ const StaffFront = () => {
           </TabsContent>
 
           <TabsContent value="country-videos">
-            <CountryVideosPanel />
+            <Tabs defaultValue="">
+              <TabsList>
+                <TabsTrigger value="sub-videos">Vidéos liées à une sous-catégorie</TabsTrigger>
+              </TabsList>
+              <TabsContent value="sub-videos">
+                <CountryVideosPanel />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
           <TabsContent value="preview-mobile">
