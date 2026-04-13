@@ -130,6 +130,7 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
           <YouTubeShortsCarousel
             youtubeUrl={business.youtube_url}
             businessId={business.id}
+            onVideoCount={() => {}}
             onPlayingChange={onPlayingChange}
             onSelectVideo={handleSelectVideo}
             activeVideoId={activeVideo?.videoId ?? null}
