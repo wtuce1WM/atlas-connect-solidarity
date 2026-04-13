@@ -135,7 +135,7 @@ const GenericVideoPreviewOverlay = ({ video, onClose }: GenericVideoPreviewOverl
             {/* Timeline bar */}
             <div className="shrink-0 border-b bg-muted/30 p-2 space-y-1 z-10">
               <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
-                Timeline — {Math.floor(currentTime)}s
+                Timeline — {currentTime.toFixed(1)}s
               </p>
               <div className="flex gap-1 overflow-x-auto pb-1">
                 {items.map(item => {
@@ -160,7 +160,7 @@ const GenericVideoPreviewOverlay = ({ video, onClose }: GenericVideoPreviewOverl
                         {item.name}
                       </span>
                       <span className="text-[8px] opacity-60">
-                        {item.start_time ?? 0}s → {item.end_time ?? "∞"}
+                        {(item.start_time ?? 0).toFixed(1)}s → {item.end_time != null ? item.end_time.toFixed(1) + "s" : "∞"}
                       </span>
                     </button>
                   );
