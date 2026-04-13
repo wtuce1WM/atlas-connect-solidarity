@@ -60,6 +60,7 @@ const EMPTY_FORM = {
   url: "",
   url_cta: "",
   url_force_external: false,
+  default_business_id: "",
 };
 
 /* ── Sortable video item ── */
