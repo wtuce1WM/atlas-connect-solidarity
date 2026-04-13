@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Loader2, Play, MapPin, Upload, Video } from "lucide-react";
+import { Search, Loader2, Play, MapPin, Upload, Video, Star } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import VideoLightbox from "./VideoLightbox";
 import VideoUploader from "./VideoUploader";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface VideoDoc {
   id: string;
@@ -35,6 +36,8 @@ const VideoPoiAssignmentPanel = () => {
   const [poiBusinesses, setPoiBusinesses] = useState<PoiBusiness[]>([]);
   const [selectedPoiIds, setSelectedPoiIds] = useState<string[]>([]);
   const [initialPoiIds, setInitialPoiIds] = useState<string[]>([]);
+  const [defaultPoiId, setDefaultPoiId] = useState<string | null>(null);
+  const [initialDefaultPoiId, setInitialDefaultPoiId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
@@ -208,6 +211,9 @@ const VideoPoiAssignmentPanel = () => {
     }
     setSelectedPoiIds(existingPoiIds);
     setInitialPoiIds(existingPoiIds);
+    // The main doc's poi_id is the default
+    setDefaultPoiId(doc.poi_id || (existingPoiIds.length > 0 ? existingPoiIds[0] : null));
+    setInitialDefaultPoiId(doc.poi_id || (existingPoiIds.length > 0 ? existingPoiIds[0] : null));
 
     setLoading(false);
   }, [searchId]);
@@ -223,9 +229,14 @@ const VideoPoiAssignmentPanel = () => {
   }, [poiBusinesses]);
 
   const togglePoi = (poiId: string) => {
-    setSelectedPoiIds(prev =>
-      prev.includes(poiId) ? prev.filter(id => id !== poiId) : [...prev, poiId]
-    );
+    setSelectedPoiIds(prev => {
+      const removing = prev.includes(poiId);
+      if (removing) {
+        if (defaultPoiId === poiId) setDefaultPoiId(null);
+        return prev.filter(id => id !== poiId);
+      }
+      return [...prev, poiId];
+    });
   };
 
   const toggleNeighborhood = (pois: PoiBusiness[]) => {
@@ -239,11 +250,12 @@ const VideoPoiAssignmentPanel = () => {
   };
 
   const isDirty = useMemo(() => {
+    if (defaultPoiId !== initialDefaultPoiId) return true;
     if (selectedPoiIds.length !== initialPoiIds.length) return true;
     const sorted1 = [...selectedPoiIds].sort();
     const sorted2 = [...initialPoiIds].sort();
     return sorted1.some((v, i) => v !== sorted2[i]);
-  }, [selectedPoiIds, initialPoiIds]);
+  }, [selectedPoiIds, initialPoiIds, defaultPoiId, initialDefaultPoiId]);
 
   const save = useCallback(async () => {
     if (!video) return;
@@ -262,21 +274,30 @@ const VideoPoiAssignmentPanel = () => {
       const mainDoc = existing.find(d => d.id === video.id);
       const poiDocs = existing.filter(d => d.poi_id && d.id !== video.id);
 
-      const toAdd = selectedPoiIds.filter(id => !poiDocs.some(d => d.poi_id === id) && (mainDoc?.poi_id !== id));
-      const toRemoveIds = poiDocs.filter(d => d.poi_id && !selectedPoiIds.includes(d.poi_id)).map(d => d.id);
+      // Determine which POI goes on the main doc (the default)
+      const mainPoiId = defaultPoiId && selectedPoiIds.includes(defaultPoiId) 
+        ? defaultPoiId 
+        : (selectedPoiIds.length > 0 ? selectedPoiIds[0] : null);
 
-      // Update main doc: set poi_id to first selected or null
-      if (selectedPoiIds.length > 0) {
-        // If main doc's poi_id is not in selected, update it
-        if (!mainDoc?.poi_id || !selectedPoiIds.includes(mainDoc.poi_id)) {
-          const firstPoi = selectedPoiIds[0];
-          await supabase.from("business_documents").update({ poi_id: firstPoi }).eq("id", video.id);
-          // Remove firstPoi from toAdd since it's now on main doc
-          const idx = toAdd.indexOf(firstPoi);
-          if (idx >= 0) toAdd.splice(idx, 1);
+      const toAdd = selectedPoiIds.filter(id => id !== mainPoiId && !poiDocs.some(d => d.poi_id === id) && (mainDoc?.poi_id !== id));
+      const toRemoveIds = poiDocs.filter(d => d.poi_id && !selectedPoiIds.includes(d.poi_id)).map(d => d.id);
+      // Also remove duplicates that had the old main poi_id if it changed
+      if (mainDoc?.poi_id && mainDoc.poi_id !== mainPoiId) {
+        // The old main poi_id might now need a duplicate, or might need removal
+        const oldMainInSelected = selectedPoiIds.includes(mainDoc.poi_id);
+        if (oldMainInSelected && !poiDocs.some(d => d.poi_id === mainDoc.poi_id)) {
+          // Old main poi needs a duplicate row now
+          toAdd.push(mainDoc.poi_id);
         }
-      } else {
-        await supabase.from("business_documents").update({ poi_id: null }).eq("id", video.id);
+      }
+
+      // Update main doc poi_id
+      await supabase.from("business_documents").update({ poi_id: mainPoiId }).eq("id", video.id);
+
+      // Remove the duplicate that had the new mainPoiId (if any), since it's now on main doc
+      const dupWithMainPoi = poiDocs.find(d => d.poi_id === mainPoiId);
+      if (dupWithMainPoi && !toRemoveIds.includes(dupWithMainPoi.id)) {
+        await supabase.from("business_documents").delete().eq("id", dupWithMainPoi.id);
       }
 
       // Delete removed POI duplicate docs
@@ -304,6 +325,7 @@ const VideoPoiAssignmentPanel = () => {
       }
 
       setInitialPoiIds([...selectedPoiIds]);
+      setInitialDefaultPoiId(defaultPoiId);
       toast.success(`${selectedPoiIds.length} POI(s) affecté(s) à la vidéo`);
     } catch (err) {
       toast.error("Erreur lors de la sauvegarde");
@@ -493,15 +515,27 @@ const VideoPoiAssignmentPanel = () => {
                       <div className="flex flex-wrap gap-2">
                         {pois.map(poi => {
                           const isSelected = selectedPoiIds.includes(poi.id);
+                          const isDefault = defaultPoiId === poi.id;
                           return (
-                            <Badge
-                              key={poi.id}
-                              variant={isSelected ? "default" : "outline"}
-                              className="cursor-pointer transition-colors"
-                              onClick={() => togglePoi(poi.id)}
-                            >
-                              {poi.name}
-                            </Badge>
+                            <div key={poi.id} className="flex items-center gap-0.5">
+                              <Badge
+                                variant={isSelected ? "default" : "outline"}
+                                className="cursor-pointer transition-colors"
+                                onClick={() => togglePoi(poi.id)}
+                              >
+                                {poi.name}
+                              </Badge>
+                              {isSelected && (
+                                <button
+                                  type="button"
+                                  title={isDefault ? "POI par défaut" : "Définir comme POI par défaut"}
+                                  onClick={() => setDefaultPoiId(poi.id)}
+                                  className="p-0.5 transition-colors"
+                                >
+                                  <Star className={cn("h-3.5 w-3.5", isDefault ? "fill-yellow-500 text-yellow-500" : "text-muted-foreground hover:text-yellow-500")} />
+                                </button>
+                              )}
+                            </div>
                           );
                         })}
                       </div>
