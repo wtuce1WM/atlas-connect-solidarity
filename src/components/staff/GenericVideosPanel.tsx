@@ -116,6 +116,7 @@ const SocialLinksDialog = ({
             </Label>
             <Input placeholder="Compte (@…)" value={tt.account} onChange={e => setTt(p => ({ ...p, account: e.target.value }))} />
             <Input placeholder="URL du profil" value={tt.url} onChange={e => setTt(p => ({ ...p, url: e.target.value }))} />
+            <Input placeholder="URL de la vidéo TikTok" value={tt.videoUrl} onChange={e => setTt(p => ({ ...p, videoUrl: e.target.value }))} />
           </div>
           {/* YouTube */}
           <div className="space-y-2 p-3 rounded-lg border">
