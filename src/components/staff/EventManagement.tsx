@@ -173,6 +173,7 @@ interface EventRow {
   url: string | null;
   url_cta: string | null;
   url_force_external: boolean;
+  city_id: string | null;
   created_at: string;
   updated_at: string;
 }
