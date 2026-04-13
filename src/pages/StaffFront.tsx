@@ -401,10 +401,6 @@ const StaffFront = () => {
               <Settings2 className="h-4 w-4" />
               Réseaux sociaux
             </TabsTrigger>
-            <TabsTrigger value="pois" className="gap-2">
-              <MapPinned className="h-4 w-4" />
-              POIS
-            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="front-structure">
@@ -453,6 +449,7 @@ const StaffFront = () => {
                 <TabsTrigger value="service-videos">Services</TabsTrigger>
                 <TabsTrigger value="poi-videos">POI</TabsTrigger>
                 <TabsTrigger value="dest-videos">Destinations</TabsTrigger>
+                <TabsTrigger value="pois-videos">POIS</TabsTrigger>
               </TabsList>
               <TabsContent value="sub-videos">
                 <CountryVideosPanel withSubcategory={true} />
@@ -468,6 +465,9 @@ const StaffFront = () => {
               </TabsContent>
               <TabsContent value="dest-videos">
                 <DestinationVideosPanelTab />
+              </TabsContent>
+              <TabsContent value="pois-videos">
+                <VideoPoiAssignmentPanel />
               </TabsContent>
             </Tabs>
           </TabsContent>
@@ -490,10 +490,6 @@ const StaffFront = () => {
 
           <TabsContent value="social-links">
             <SocialLinksManagement />
-          </TabsContent>
-
-          <TabsContent value="pois">
-            <VideoPoiAssignmentPanel />
           </TabsContent>
         </Tabs>
       </main>
