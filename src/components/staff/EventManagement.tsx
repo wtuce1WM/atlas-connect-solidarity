@@ -338,20 +338,34 @@ const EventManagement = () => {
     };
 
     let error;
+    let savedId = editingId;
     if (editingId) {
       ({ error } = await supabase.from("events").update(payload).eq("id", editingId));
     } else {
-      ({ error } = await supabase.from("events").insert(payload));
+      const res = await supabase.from("events").insert(payload).select("id").single();
+      error = res.error;
+      if (res.data) savedId = (res.data as any).id;
     }
 
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: editingId ? "Événement mis à jour" : "Événement créé" });
-      setShowForm(false);
-      setEditingId(null);
-      fetchEvents();
+      setSaving(false);
+      return;
     }
+
+    // Save linked businesses
+    if (savedId) {
+      await supabase.from("event_businesses" as any).delete().eq("event_id", savedId);
+      if (linkedBusinessIds.length > 0) {
+        const rows = linkedBusinessIds.map(bizId => ({ event_id: savedId, business_id: bizId }));
+        await supabase.from("event_businesses" as any).insert(rows);
+      }
+    }
+
+    toast({ title: editingId ? "Événement mis à jour" : "Événement créé" });
+    setShowForm(false);
+    setEditingId(null);
+    fetchEvents();
     setSaving(false);
   };
 
