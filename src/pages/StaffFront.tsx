@@ -453,6 +453,7 @@ const StaffFront = () => {
                 <TabsTrigger value="service-videos">Services</TabsTrigger>
                 <TabsTrigger value="poi-videos">POI</TabsTrigger>
                 <TabsTrigger value="dest-videos">Destinations</TabsTrigger>
+                <TabsTrigger value="pois-videos">POIS</TabsTrigger>
               </TabsList>
               <TabsContent value="sub-videos">
                 <CountryVideosPanel withSubcategory={true} />
@@ -468,6 +469,9 @@ const StaffFront = () => {
               </TabsContent>
               <TabsContent value="dest-videos">
                 <DestinationVideosPanelTab />
+              </TabsContent>
+              <TabsContent value="pois-videos">
+                <VideoPoiAssignmentPanel />
               </TabsContent>
             </Tabs>
           </TabsContent>
