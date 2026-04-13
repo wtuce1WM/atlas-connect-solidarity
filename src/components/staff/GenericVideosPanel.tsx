@@ -786,6 +786,7 @@ const GenericVideosPanel = () => {
   const [descVideo, setDescVideo] = useState<GenericVideo | null>(null);
   const [poiVideo, setPoiVideo] = useState<GenericVideo | null>(null);
   const [businessVideo, setBusinessVideo] = useState<GenericVideo | null>(null);
+  const [destinationVideo, setDestinationVideo] = useState<GenericVideo | null>(null);
   const [previewOverlayVideo, setPreviewOverlayVideo] = useState<GenericVideo | null>(null);
 
   // Selected video for right panel
@@ -796,9 +797,10 @@ const GenericVideosPanel = () => {
   const [panelLoading, setPanelLoading] = useState(false);
   const [panelSaving, setPanelSaving] = useState(false);
 
-  // POI/business counts for badges
+  // POI/business/destination counts for badges
   const [videoPoiCounts, setVideoPoiCounts] = useState<Record<string, number>>({});
   const [videoBizCounts, setVideoBizCounts] = useState<Record<string, number>>({});
+  const [videoDestCounts, setVideoDestCounts] = useState<Record<string, number>>({});
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
