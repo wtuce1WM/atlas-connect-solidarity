@@ -2241,35 +2241,56 @@ export type Database = {
         Row: {
           city: string | null
           created_at: string
+          description: string | null
           id: string
+          instagram_account: string | null
+          instagram_url: string | null
           name: string | null
           neighborhood: string | null
           sort_order: number
           thumbnail_url: string | null
+          tiktok_account: string | null
+          tiktok_url: string | null
           updated_at: string
           url: string
+          youtube_account: string | null
+          youtube_url: string | null
         }
         Insert: {
           city?: string | null
           created_at?: string
+          description?: string | null
           id?: string
+          instagram_account?: string | null
+          instagram_url?: string | null
           name?: string | null
           neighborhood?: string | null
           sort_order?: number
           thumbnail_url?: string | null
+          tiktok_account?: string | null
+          tiktok_url?: string | null
           updated_at?: string
           url: string
+          youtube_account?: string | null
+          youtube_url?: string | null
         }
         Update: {
           city?: string | null
           created_at?: string
+          description?: string | null
           id?: string
+          instagram_account?: string | null
+          instagram_url?: string | null
           name?: string | null
           neighborhood?: string | null
           sort_order?: number
           thumbnail_url?: string | null
+          tiktok_account?: string | null
+          tiktok_url?: string | null
           updated_at?: string
           url?: string
+          youtube_account?: string | null
+          youtube_url?: string | null
         }
         Relationships: []
       }
