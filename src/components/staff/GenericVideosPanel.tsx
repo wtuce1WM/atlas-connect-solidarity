@@ -464,6 +464,8 @@ const GenericVideosPanel = () => {
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [socialVideo, setSocialVideo] = useState<GenericVideo | null>(null);
   const [descVideo, setDescVideo] = useState<GenericVideo | null>(null);
+  const [poiVideo, setPoiVideo] = useState<GenericVideo | null>(null);
+  const [videoPoiMap, setVideoPoiMap] = useState<Record<string, string[]>>({});
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
