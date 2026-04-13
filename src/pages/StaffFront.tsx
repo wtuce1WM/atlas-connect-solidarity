@@ -317,6 +317,7 @@ import PoiVideosPanel from "@/components/staff/PoiVideosPanel";
 import DestinationVideosPanelTab from "@/components/staff/DestinationVideosPanelTab";
 import BlogManagement from "@/components/staff/BlogManagement";
 import SocialLinksManagement from "@/components/staff/SocialLinksManagement";
+import VideoPoiAssignmentPanel from "@/components/staff/VideoPoiAssignmentPanel";
 
 const StaffFront = () => {
   const [user, setUser] = useState<any>(null);
@@ -399,6 +400,10 @@ const StaffFront = () => {
             <TabsTrigger value="social-links" className="gap-2">
               <Settings2 className="h-4 w-4" />
               Réseaux sociaux
+            </TabsTrigger>
+            <TabsTrigger value="pois" className="gap-2">
+              <MapPinned className="h-4 w-4" />
+              POIS
             </TabsTrigger>
           </TabsList>
 
@@ -485,6 +490,10 @@ const StaffFront = () => {
 
           <TabsContent value="social-links">
             <SocialLinksManagement />
+          </TabsContent>
+
+          <TabsContent value="pois">
+            <VideoPoiAssignmentPanel />
           </TabsContent>
         </Tabs>
       </main>
