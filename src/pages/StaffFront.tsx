@@ -311,6 +311,7 @@ import DestinationVideosPanel from "@/components/staff/DestinationVideosPanel";
 import HomepageBusinessesPanel from "@/components/staff/HomepageBusinessesPanel";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import DisplayPanel from "@/components/staff/DisplayPanel";
+import CountryVideosPanel from "@/components/staff/CountryVideosPanel";
 import BlogManagement from "@/components/staff/BlogManagement";
 import SocialLinksManagement from "@/components/staff/SocialLinksManagement";
 
@@ -372,6 +373,10 @@ const StaffFront = () => {
               <Image className="h-4 w-4" />
               Popup
             </TabsTrigger>
+            <TabsTrigger value="country-videos" className="gap-2">
+              <Play className="h-4 w-4" />
+              Vidéos
+            </TabsTrigger>
             <TabsTrigger value="preview-mobile" className="gap-2">
               <Smartphone className="h-4 w-4" />
               Mobile
@@ -432,6 +437,9 @@ const StaffFront = () => {
             <PopupPanel />
           </TabsContent>
 
+          <TabsContent value="country-videos">
+            <CountryVideosPanel />
+          </TabsContent>
 
           <TabsContent value="preview-mobile">
             <PreviewTab width={390} title="Mobile" resolutions={MOBILE_RESOLUTIONS} breakpoints="sm : 640px" cellSize={110} />
