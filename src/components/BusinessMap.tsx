@@ -505,7 +505,7 @@ const BusinessMap = ({
 
   return (
     <div ref={mapShellRef} className={`relative overflow-hidden border border-border shadow-sm ${height === "100%" ? "h-full" : "rounded-xl"}`}>
-      <style>{`.gm-style .gm-fullscreen-control { display: none !important; }`}</style>
+      <style>{`.gm-style .gm-fullscreen-control { display: none !important; } .gm-style .gm-style-iw-chr { display: none !important; } .gm-style .gm-style-iw { padding: 0 !important; background: transparent !important; box-shadow: none !important; border-radius: 10px !important; } .gm-style .gm-style-iw-d { overflow: hidden !important; background: transparent !important; } .gm-style .gm-style-iw-tc { display: none !important; } .gm-style .gm-style-iw-t::after { display: none !important; }`}</style>
       <button
         type="button"
         onClick={toggleFullscreen}
