@@ -715,10 +715,9 @@ const GenericVideosPanel = () => {
       )}
 
       {poiVideo && (
-        <PoiAssignDialog
+        <InlinePoiAssignment
           video={poiVideo}
-          open={!!poiVideo}
-          onOpenChange={(o) => !o && setPoiVideo(null)}
+          onClose={() => setPoiVideo(null)}
           onSaved={loadPoiMap}
         />
       )}
