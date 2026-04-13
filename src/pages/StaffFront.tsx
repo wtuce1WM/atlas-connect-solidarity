@@ -400,11 +400,6 @@ const StaffFront = () => {
             <TabsTrigger value="social-links" className="gap-2">
               <Settings2 className="h-4 w-4" />
               Réseaux sociaux
-            </TabsTrigger>
-            <TabsTrigger value="pois" className="gap-2">
-              <MapPinned className="h-4 w-4" />
-              POIS
-            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="front-structure">
@@ -494,10 +489,6 @@ const StaffFront = () => {
 
           <TabsContent value="social-links">
             <SocialLinksManagement />
-          </TabsContent>
-
-          <TabsContent value="pois">
-            <VideoPoiAssignmentPanel />
           </TabsContent>
         </Tabs>
       </main>
