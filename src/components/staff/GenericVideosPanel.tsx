@@ -815,9 +815,10 @@ const GenericVideosPanel = () => {
   }, []);
 
   const loadCounts = useCallback(async () => {
-    const [{ data: poiLinks }, { data: bizLinks }] = await Promise.all([
+    const [{ data: poiLinks }, { data: bizLinks }, { data: destLinks }] = await Promise.all([
       supabase.from("generic_video_pois" as any).select("generic_video_id") as any,
       supabase.from("generic_video_businesses" as any).select("generic_video_id") as any,
+      supabase.from("generic_video_destinations" as any).select("generic_video_id") as any,
     ]);
     const pc: Record<string, number> = {};
     ((poiLinks as any[]) || []).forEach((l: any) => { pc[l.generic_video_id] = (pc[l.generic_video_id] || 0) + 1; });
@@ -825,6 +826,9 @@ const GenericVideosPanel = () => {
     const bc: Record<string, number> = {};
     ((bizLinks as any[]) || []).forEach((l: any) => { bc[l.generic_video_id] = (bc[l.generic_video_id] || 0) + 1; });
     setVideoBizCounts(bc);
+    const dc: Record<string, number> = {};
+    ((destLinks as any[]) || []).forEach((l: any) => { dc[l.generic_video_id] = (dc[l.generic_video_id] || 0) + 1; });
+    setVideoDestCounts(dc);
   }, []);
 
   const loadPanelItems = useCallback(async (videoId: string) => {
