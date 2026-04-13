@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, Tablet, Smartphone, Play, Image } from "lucide-react";
+import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, Smartphone, Play, Image } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import VideoLightbox from "@/components/staff/VideoLightbox";
 
@@ -15,13 +15,6 @@ interface FrontVideo {
   business_name: string;
 }
 
-const TABLET_RESOLUTIONS = [
-  { res: "768×1024 (iPad classique)", ratio: "~30%" },
-  { res: "810×1080 (iPad 10e gen)", ratio: "~15%" },
-  { res: "820×1180 (iPad Air)", ratio: "~12%" },
-  { res: "1024×1366 (iPad Pro 12.9)", ratio: "~10%" },
-  { res: "800×1280 (Android tablet)", ratio: "~8%" },
-];
 const MOBILE_RESOLUTIONS = [
   { res: "390×844 (iPhone 14/15)", ratio: "~25%" },
   { res: "393×873 (iPhone 15 Pro)", ratio: "~15%" },
@@ -379,10 +372,6 @@ const StaffFront = () => {
               <Image className="h-4 w-4" />
               Popup
             </TabsTrigger>
-            <TabsTrigger value="preview-tablet" className="gap-2">
-              <Tablet className="h-4 w-4" />
-              Tablette
-            </TabsTrigger>
             <TabsTrigger value="preview-mobile" className="gap-2">
               <Smartphone className="h-4 w-4" />
               Mobile
@@ -443,9 +432,6 @@ const StaffFront = () => {
             <PopupPanel />
           </TabsContent>
 
-          <TabsContent value="preview-tablet">
-            <PreviewTab width={768} title="Tablette" resolutions={TABLET_RESOLUTIONS} breakpoints="md : 768px" cellSize={200} />
-          </TabsContent>
 
           <TabsContent value="preview-mobile">
             <PreviewTab width={390} title="Mobile" resolutions={MOBILE_RESOLUTIONS} breakpoints="sm : 640px" cellSize={110} />
