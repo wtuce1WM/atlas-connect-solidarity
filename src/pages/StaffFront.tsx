@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, Tablet, Smartphone, Play } from "lucide-react";
+import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, Tablet, Smartphone, Play, Image } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import VideoLightbox from "@/components/staff/VideoLightbox";
 
@@ -15,13 +15,6 @@ interface FrontVideo {
   business_name: string;
 }
 
-const DESKTOP_RESOLUTIONS = [
-  { res: "1920×1080 (Full HD)", ratio: "~22%" },
-  { res: "1536×864 (HD+)", ratio: "~10%" },
-  { res: "1440×900 (WXGA+)", ratio: "~7%" },
-  { res: "1366×768 (HD)", ratio: "~6%" },
-  { res: "2560×1440 (QHD)", ratio: "~5%" },
-];
 const TABLET_RESOLUTIONS = [
   { res: "768×1024 (iPad classique)", ratio: "~30%" },
   { res: "810×1080 (iPad 10e gen)", ratio: "~15%" },
@@ -164,6 +157,161 @@ const PreviewTab = ({ width, maxWidth, title, resolutions, breakpoints, cellSize
   );
 };
 
+/* ── Popup Panel ── */
+interface PopupDoc {
+  id: string;
+  url: string;
+  name: string | null;
+  business_name: string;
+  type: string;
+}
+
+const PopupPanel = () => {
+  const [popupImages, setPopupImages] = useState<PopupDoc[]>([]);
+  const [popupVideos, setPopupVideos] = useState<PopupDoc[]>([]);
+  const [bizPopupImages, setBizPopupImages] = useState<{ id: string; name: string; popup_image_url: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      // Fetch popup documents
+      const { data: docs } = await supabase
+        .from("business_documents")
+        .select("id, url, name, type, business_id")
+        .eq("popup", true)
+        .order("created_at", { ascending: false });
+
+      // Fetch businesses with popup_image_url
+      const { data: bizData } = await supabase
+        .from("businesses")
+        .select("id, name, popup_image_url")
+        .not("popup_image_url", "is", null)
+        .neq("popup_image_url", "")
+        .order("name");
+
+      setBizPopupImages((bizData || []).filter(b => b.popup_image_url) as any);
+
+      if (!docs || docs.length === 0) {
+        setLoading(false);
+        return;
+      }
+
+      // Fetch business names for documents
+      const uniqueBizIds = [...new Set(docs.map(d => d.business_id))];
+      const nameMap = new Map<string, string>();
+      const batchSize = 200;
+      for (let i = 0; i < uniqueBizIds.length; i += batchSize) {
+        const batch = uniqueBizIds.slice(i, i + batchSize);
+        const { data: businesses } = await supabase
+          .from("businesses")
+          .select("id, name")
+          .in("id", batch);
+        if (businesses) businesses.forEach(b => nameMap.set(b.id, b.name));
+      }
+
+      const enriched: PopupDoc[] = docs.map(d => ({
+        id: d.id,
+        url: d.url,
+        name: d.name,
+        type: d.type,
+        business_name: nameMap.get(d.business_id) || "—",
+      }));
+
+      setPopupImages(enriched.filter(d => d.type === "image"));
+      setPopupVideos(enriched.filter(d => d.type === "video"));
+      setLoading(false);
+    };
+    load();
+  }, []);
+
+  if (loading) {
+    return <div className="flex items-center justify-center py-12 text-muted-foreground text-sm">Chargement…</div>;
+  }
+
+  return (
+    <div className="space-y-8">
+      {/* Popup Images */}
+      <div className="space-y-3">
+        <h3 className="text-base font-semibold flex items-center gap-2">
+          <Image className="h-5 w-5" />
+          Images Popup ({bizPopupImages.length + popupImages.length})
+        </h3>
+        {bizPopupImages.length === 0 && popupImages.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Aucune image popup trouvée.</p>
+        ) : (
+          <div className="border rounded-lg overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/50">
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Établissement</th>
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Aperçu</th>
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Source</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {bizPopupImages.map(b => (
+                  <tr key={`biz-${b.id}`}>
+                    <td className="py-2 px-3 font-medium">{b.name}</td>
+                    <td className="py-2 px-3">
+                      <img src={b.popup_image_url} alt="" className="h-12 w-20 object-cover rounded border" />
+                    </td>
+                    <td className="py-2 px-3 text-xs text-muted-foreground">Champ popup_image_url</td>
+                  </tr>
+                ))}
+                {popupImages.map(d => (
+                  <tr key={`doc-${d.id}`}>
+                    <td className="py-2 px-3 font-medium">{d.business_name}</td>
+                    <td className="py-2 px-3">
+                      <img src={d.url} alt="" className="h-12 w-20 object-cover rounded border" />
+                    </td>
+                    <td className="py-2 px-3 text-xs text-muted-foreground">Document image</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Popup Videos */}
+      <div className="space-y-3">
+        <h3 className="text-base font-semibold flex items-center gap-2">
+          <Video className="h-5 w-5" />
+          Vidéos Popup ({popupVideos.length})
+        </h3>
+        {popupVideos.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Aucune vidéo popup trouvée.</p>
+        ) : (
+          <div className="border rounded-lg overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/50">
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Établissement</th>
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Nom</th>
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">URL</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {popupVideos.map(d => (
+                  <tr key={d.id}>
+                    <td className="py-2 px-3 font-medium">{d.business_name}</td>
+                    <td className="py-2 px-3 text-muted-foreground">{d.name || "—"}</td>
+                    <td className="py-2 px-3">
+                      <a href={d.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline truncate block max-w-[300px]">
+                        {d.url}
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import FrontStructureManagement from "@/components/staff/FrontStructureManagement";
 import DestinationVideosPanel from "@/components/staff/DestinationVideosPanel";
@@ -227,9 +375,9 @@ const StaffFront = () => {
               <Home className="h-4 w-4" />
               Homepage
             </TabsTrigger>
-            <TabsTrigger value="preview-desktop" className="gap-2">
-              <Monitor className="h-4 w-4" />
-              Desktop
+            <TabsTrigger value="popup" className="gap-2">
+              <Image className="h-4 w-4" />
+              Popup
             </TabsTrigger>
             <TabsTrigger value="preview-tablet" className="gap-2">
               <Tablet className="h-4 w-4" />
@@ -291,8 +439,8 @@ const StaffFront = () => {
             </Tabs>
           </TabsContent>
 
-          <TabsContent value="preview-desktop">
-            <PreviewTab width={1920} maxWidth="calc(100% - 380px)" title="Desktop" resolutions={DESKTOP_RESOLUTIONS} breakpoints="lg : 1024px · xl : 1280px · 2xl : 1536px" cellSize={320} />
+          <TabsContent value="popup">
+            <PopupPanel />
           </TabsContent>
 
           <TabsContent value="preview-tablet">
