@@ -833,9 +833,10 @@ const GenericVideosPanel = () => {
 
   const loadPanelItems = useCallback(async (videoId: string) => {
     setPanelLoading(true);
-    const [{ data: poiLinks }, { data: bizLinks }] = await Promise.all([
+    const [{ data: poiLinks }, { data: bizLinks }, { data: destLinks }] = await Promise.all([
       supabase.from("generic_video_pois" as any).select("poi_id, sort_order, start_time, end_time").eq("generic_video_id", videoId) as unknown as { data: any[] | null },
       supabase.from("generic_video_businesses" as any).select("business_id, sort_order, start_time, end_time").eq("generic_video_id", videoId) as unknown as { data: any[] | null },
+      supabase.from("generic_video_destinations" as any).select("destination_id, sort_order, start_time, end_time").eq("generic_video_id", videoId) as unknown as { data: any[] | null },
     ]);
 
     const items: LinkedItemWithTime[] = [];
@@ -857,6 +858,16 @@ const GenericVideosPanel = () => {
       (biz || []).forEach((b: any) => { nameMap[b.id] = b.name; });
       bizLinks.forEach((l: any) => {
         if (nameMap[l.business_id]) items.push({ id: l.business_id, name: nameMap[l.business_id], type: "business", start_time: l.start_time, end_time: l.end_time, sort_order: l.sort_order ?? 0 });
+      });
+    }
+
+    if (destLinks && destLinks.length > 0) {
+      const destIds = destLinks.map((l: any) => l.destination_id);
+      const { data: dests } = await supabase.from("destinations").select("id, name_fr").in("id", destIds);
+      const nameMap: Record<string, string> = {};
+      (dests || []).forEach((d: any) => { nameMap[d.id] = d.name_fr; });
+      destLinks.forEach((l: any) => {
+        if (nameMap[l.destination_id]) items.push({ id: l.destination_id, name: nameMap[l.destination_id], type: "destination", start_time: l.start_time, end_time: l.end_time, sort_order: l.sort_order ?? 0 });
       });
     }
 
