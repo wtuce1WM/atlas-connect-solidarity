@@ -2000,8 +2000,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 return items;
               })()}
               center={business?.latitude && business?.longitude ? { lat: business.latitude, lng: business.longitude } : undefined}
+              zoom={13}
               height="100%"
-              forceOverview
               onBusinessClick={(biz) => {
                 if (biz.id === business?.id) return;
                 if (poiMapMode === "destinations") {
