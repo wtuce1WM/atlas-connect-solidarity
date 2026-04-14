@@ -69,7 +69,7 @@ const SortableFrontCard = ({
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
 
   return (
-    <div ref={setNodeRef} style={style} className="flex flex-col rounded-md border bg-background overflow-hidden text-xs">
+    <div ref={setNodeRef} style={style} className="flex flex-col rounded-lg border bg-background overflow-hidden text-xs">
       <button className="relative aspect-video bg-black group" onClick={() => onPlay(video.url)}>
         <div {...attributes} {...listeners} onClick={(e) => e.stopPropagation()} className="absolute top-1 left-1 z-10 cursor-grab active:cursor-grabbing text-white/80 hover:text-white bg-black/40 rounded p-0.5">
           <GripVertical className="h-3 w-3" />
