@@ -180,17 +180,33 @@ const DestinationVideosPanelTab = () => {
       if (data) data.forEach(b => bizMap.set(b.id, b.name));
     }
 
-    // Fetch destination names
+    // Fetch destination names + city_ids
     const destIds = [...new Set(combined.map(d => d.destination_id).filter(Boolean))] as string[];
-    const destMap = new Map<string, { name: string; city_ids: string[] | null }>();
+    const destMap = new Map<string, { name: string; city_ids: string[] }>();
     for (let i = 0; i < destIds.length; i += 200) {
       const batch = destIds.slice(i, i + 200);
-      const { data } = await supabase.from("destinations").select("id, name_fr").in("id", batch);
-      if (data) data.forEach(d => destMap.set(d.id, { name: d.name_fr, city_ids: null }));
+      const { data } = await supabase.from("destinations").select("id, name_fr, city_ids").in("id", batch);
+      if (data) data.forEach(d => destMap.set(d.id, { name: d.name_fr, city_ids: (d.city_ids as string[]) || [] }));
+    }
+
+    // Resolve city UUIDs to names for generic videos (which have no city)
+    const allCityUuids = new Set<string>();
+    destMap.forEach(d => d.city_ids.forEach(cid => allCityUuids.add(cid)));
+    const cityIdToName = new Map<string, string>();
+    const cityUuidArr = [...allCityUuids];
+    for (let i = 0; i < cityUuidArr.length; i += 200) {
+      const batch = cityUuidArr.slice(i, i + 200);
+      const { data } = await supabase.from("cities").select("id, name_fr").in("id", batch);
+      if (data) data.forEach(c => cityIdToName.set(c.id, c.name_fr));
     }
 
     setVideos(combined.map(d => {
       const dest = destMap.get(d.destination_id);
+      // For generic videos without city, use the first city from destination's city_ids
+      let city = d.city || null;
+      if (!city && d._source === "generic" && dest?.city_ids?.length) {
+        city = cityIdToName.get(dest.city_ids[0]) || null;
+      }
       return {
         id: d.id,
         url: d.url,
@@ -201,7 +217,7 @@ const DestinationVideosPanelTab = () => {
         business_name: d._source === "generic" ? "Générique" : (bizMap.get(d.business_id) || "—"),
         destination_id: d.destination_id,
         destination_name: dest?.name || "—",
-        city: d.city || null,
+        city,
         neighborhood: d.neighborhood || null,
         source: d._source,
       };
