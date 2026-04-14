@@ -67,7 +67,7 @@ const SocialLinksCard = ({
       onMouseLeave={() => setExpanded(false)}
     >
       <div className="flex items-center justify-center p-2">
-        <div className={`gap-2 ${useTwoColumns ? 'grid grid-cols-2' : 'flex flex-col items-center'}`}>
+        <div className="flex flex-row items-center gap-2 flex-wrap">
           {links.map((link, i) => (
             <a
               key={link.name}
