@@ -1175,13 +1175,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             {avgOn20 != null && totalReviewCount > 0 && (
               <div
                 key={`rating-${business?.id}`}
-                className="flex items-center justify-center gap-3 opacity-0 animate-fade-in py-1"
+                className="flex flex-col items-center justify-center gap-0.5 opacity-0 animate-fade-in py-1"
                 style={{ animationDelay: '0.5s', animationFillMode: 'forwards' }}
               >
-                <Star className="h-7 w-7 md:h-9 md:w-9 text-gold fill-gold drop-shadow-lg" />
-                <span className="text-4xl md:text-5xl font-black text-gold drop-shadow-lg" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                  {avgOn20.toFixed(1)}<span className="text-xl md:text-2xl font-semibold text-gold/70">/20</span>
-                </span>
+                <div className="flex items-center gap-3">
+                  <Star className="h-7 w-7 md:h-9 md:w-9 text-gold fill-gold drop-shadow-lg" />
+                  <span className="text-4xl md:text-5xl font-black text-gold drop-shadow-lg" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                    {avgOn20.toFixed(1)}<span className="text-xl md:text-2xl font-semibold text-gold/70">/20</span>
+                  </span>
+                </div>
                 <span className="text-sm md:text-base text-white/70 font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                   {totalReviewCount.toLocaleString("fr-FR")} {language === "en" ? "reviews" : "avis"}
                 </span>
