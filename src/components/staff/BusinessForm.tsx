@@ -785,6 +785,7 @@ const CTA_SELECT_OPTIONS = [
   "Séances",
   "Site web",
   "Spa",
+  "WhatsApp",
 ] as const;
 
 const CTA_VALUE_LABELS: Record<string, string> = {
@@ -825,6 +826,7 @@ const CTA_VALUE_LABELS: Record<string, string> = {
   programme: "Programme",
   "en savoir +": "En savoir +",
   "en savoir plus": "En savoir +",
+  whatsapp: "WhatsApp",
 };
 
 const normalizeCtaKey = (value: string) =>
@@ -2990,6 +2992,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <SelectItem value="contactez_nous">Contactez nous</SelectItem>
                   <SelectItem value="la_carte">La carte</SelectItem>
                   <SelectItem value="les_boissons">Les boissons</SelectItem>
+                  <SelectItem value="whatsapp">WhatsApp</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -3065,6 +3068,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <SelectItem value="contactez_nous">Contactez nous</SelectItem>
                   <SelectItem value="la_carte">La carte</SelectItem>
                   <SelectItem value="les_boissons">Les boissons</SelectItem>
+                  <SelectItem value="whatsapp">WhatsApp</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -3140,6 +3144,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <SelectItem value="contactez_nous">Contactez nous</SelectItem>
                   <SelectItem value="la_carte">La carte</SelectItem>
                   <SelectItem value="les_boissons">Les boissons</SelectItem>
+                  <SelectItem value="whatsapp">WhatsApp</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -3200,6 +3205,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <SelectItem value="contactez_nous">Contactez nous</SelectItem>
                   <SelectItem value="la_carte">La carte</SelectItem>
                   <SelectItem value="les_boissons">Les boissons</SelectItem>
+                  <SelectItem value="whatsapp">WhatsApp</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -3260,6 +3266,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <SelectItem value="contactez_nous">Contactez nous</SelectItem>
                   <SelectItem value="la_carte">La carte</SelectItem>
                   <SelectItem value="les_boissons">Les boissons</SelectItem>
+                  <SelectItem value="whatsapp">WhatsApp</SelectItem>
                 </SelectContent>
               </Select>
             </div>
