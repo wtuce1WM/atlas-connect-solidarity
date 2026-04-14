@@ -992,7 +992,7 @@ async function fetchAvisVerifiesReviews(url: string): Promise<{ rating: number |
 
     const { data: business, error: fetchError } = await supabase
       .from('businesses')
-      .select('name, city, latitude, longitude, google_maps_url, google_reviews_url, tripadvisor_review_url, tripadvisor_url, tripadvisor_location_id, restaurant_guru_url, getyourguide_url, viator_url')
+      .select('name, city, latitude, longitude, google_maps_url, google_reviews_url, tripadvisor_review_url, tripadvisor_url, tripadvisor_location_id, restaurant_guru_url, getyourguide_url, viator_url, trustpilot_url, tourradar_url, kayak_url, avis_verifies_url')
       .eq('id', business_id)
       .single();
 
