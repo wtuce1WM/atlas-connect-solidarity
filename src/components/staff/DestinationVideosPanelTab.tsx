@@ -60,6 +60,8 @@ const SortableVideoCard = ({ video, index, onPlay }: { video: DestVideo; index: 
       >
         {video.thumbnail_url ? (
           <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" />
+        ) : video.url.includes("supabase.co/storage") ? (
+          <video src={video.url} className="w-full h-full object-cover" muted preload="metadata" />
         ) : (
           <div className="w-full h-full bg-muted" />
         )}
@@ -70,8 +72,12 @@ const SortableVideoCard = ({ video, index, onPlay }: { video: DestVideo; index: 
         </div>
       </button>
       <div className="mt-1.5">
-        <p className="text-sm font-medium leading-tight">{video.business_name}</p>
-        <p className="text-xs text-muted-foreground truncate">Destination : {video.destination_name}</p>
+        <p className="text-sm font-medium leading-tight flex items-center gap-1">
+          {video.business_name}
+          {video.source === "generic" && (
+            <span className="shrink-0 text-[9px] font-bold uppercase px-1 py-0.5 rounded bg-muted text-muted-foreground">GEN</span>
+          )}
+        </p>
         {(video.city || video.neighborhood) && (
           <p className="text-[11px] text-muted-foreground/70 truncate">
             {[video.city, video.neighborhood].filter(Boolean).join(" · ")}
