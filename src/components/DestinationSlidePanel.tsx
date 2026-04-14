@@ -615,14 +615,14 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
           {/* CTA + owner logo + badge + video controls */}
           <div className={`${cardsHidden && showSearchBar ? 'absolute bottom-[56px] left-0 right-0 z-[74] pb-[14px] md:pb-[10px]' : 'shrink-0 py-2 lg:pb-2'} flex flex-col items-center gap-2 pointer-events-auto`}>
             {!cardsHidden && destination.latitude && destination.longitude && (
-              <div className="w-full md:w-3/4 flex justify-center gap-2">
+              <div className="w-4/5 md:w-3/4 flex justify-center gap-2">
                 <div className="flex-1 md:flex-none md:w-1/3">
                   <button
                     onClick={() => setShowDirections(true)}
                     className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-gold text-gold-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-gold/90 transition-colors normal-case tracking-normal animate-slide-up-from-bottom"
                     style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}
                   >
-                    <Navigation className="h-4 w-4" />
+                    <Navigation className="h-4 w-4 hidden md:block" />
                     <span className="truncate">{language === "en" ? "Directions" : "Itinéraire"}</span>
                   </button>
                 </div>
