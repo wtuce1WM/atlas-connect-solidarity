@@ -25,6 +25,7 @@ interface PoiVideo {
   poi_name: string;
   city: string | null;
   neighborhood: string | null;
+  poi_count: number;
 }
 
 interface CityOption { name: string; sort_order: number; }
@@ -69,7 +70,14 @@ const SortableVideoCard = ({ video, index, onPlay }: { video: PoiVideo; index: n
       </button>
       <div className="mt-1.5">
         <p className="text-sm font-medium leading-tight">{video.business_name}</p>
-        <p className="text-xs text-muted-foreground truncate">POI : {video.poi_name}</p>
+        <div className="flex items-center gap-1">
+          <p className="text-xs text-muted-foreground truncate">POI : {video.poi_name}</p>
+          {video.poi_count > 1 && (
+            <span className="shrink-0 inline-flex items-center justify-center rounded-full bg-primary/15 text-primary text-[10px] font-bold px-1.5 leading-4" title={`${video.poi_count} POIs liés à cette vidéo`}>
+              ×{video.poi_count}
+            </span>
+          )}
+        </div>
         {(video.city || video.neighborhood) && (
           <p className="text-[11px] text-muted-foreground/70 truncate">
             {[video.city, video.neighborhood].filter(Boolean).join(" · ")}
@@ -147,6 +155,12 @@ const PoiVideosPanel = () => {
       if (data) data.forEach(b => poiMap.set(b.id, b.name));
     }
 
+    // Count how many POIs each URL has (for multi-POI indicator)
+    const urlPoiCount = new Map<string, number>();
+    allDocs.forEach(d => {
+      urlPoiCount.set(d.url, (urlPoiCount.get(d.url) || 0) + 1);
+    });
+
     setVideos(allDocs.map(d => ({
       id: d.id,
       url: d.url,
@@ -159,6 +173,7 @@ const PoiVideosPanel = () => {
       poi_name: poiMap.get(d.poi_id) || "—",
       city: d.city || null,
       neighborhood: d.neighborhood || null,
+      poi_count: urlPoiCount.get(d.url) || 1,
     })));
     setLoading(false);
   }, []);
