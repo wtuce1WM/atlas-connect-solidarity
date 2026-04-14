@@ -1094,26 +1094,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         <div ref={infoCarouselRef} className="shrink-0 w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto animate-slide-in-left">
           <div className="flex w-max min-h-[15em] md:min-h-[20em] gap-2 items-start">
             <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
-              {/* Card 1: bouton + */}
-              {woDescription && (
-                <div
-                  className="snap-start shrink-0 w-[6.5em] h-[6.5em] relative opacity-0 animate-zoom-out-center cursor-pointer group overflow-visible"
-                  style={{ animationDelay: '1.8s', animationFillMode: 'forwards' }}
-                  onClick={() => setShowDescriptionOverlay(true)}
-                  onMouseEnter={(e) => {
-                    centerCardInCarousel(e.currentTarget);
-                  }}
-                >
-                  <div className="h-full text-white relative flex items-center justify-center overflow-visible">
-                    <div
-                      className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
-                      style={{ backgroundColor: '#25D366' }}
-                    >
-                      <span className="text-2xl text-white font-light leading-none">+</span>
-                    </div>
-                  </div>
-                </div>
-              )}
               {hasContactCard && (
                 <div onMouseEnter={(e) => centerCardInCarousel(e.currentTarget)}>
                   <ContactFlipCard
@@ -1122,7 +1102,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     language={language}
                     hasOpeningHours={!!hasOpeningHours}
                     tallHeight={false}
-                    animationDelay={woDescription ? "120ms" : "0ms"}
+                    animationDelay={"0ms"}
                     hasHotelMapping={isHotelWithPrice}
                     isSearchingAvailability={hotelSearchLoading}
                     onCheckAvailability={handleCheckAvailability}
@@ -1144,7 +1124,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     googleMapsUrl={business.google_maps_url}
                     businessName={business.name}
                     tallHeight={false}
-                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
+                    animationDelay={`${Number(hasContactCard) * 120}ms`}
                     onClick={() => {
                       if (business?.city && destinations.length >= 2) setPoiMapMode("destinations");
                       setShowPoiMapOverlay(true);
@@ -1156,7 +1136,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 <div onMouseEnter={(e) => centerCardInCarousel(e.currentTarget)}>
                   <ExternalLinksFlipCard
                     links={externalLinks}
-                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard)) * 120}ms`}
+                    animationDelay={`${(Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard)) * 120}ms`}
                     onClick={() => { setExtLinksOrigin('carousel'); setShowExtLinksOverlay(true); }}
                   />
                 </div>
@@ -1164,7 +1144,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               {appStoreLinks.length > 0 && (
                 <AppStoreCard
                   links={appStoreLinks}
-                  animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0)) * 120}ms`}
+                  animationDelay={`${(Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0)) * 120}ms`}
                 />
               )}
               {business && (
@@ -1182,12 +1162,30 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   menuItems={menuDocs}
                   language={language}
                   onOpenUrl={(url, title) => openDocOrBooking(url, title)}
-                  animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0) + Number(appStoreLinks.length > 0)) * 120}ms`}
+                  animationDelay={`${(Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0) + Number(appStoreLinks.length > 0)) * 120}ms`}
                 />
               )}
               <div className="shrink-0 w-4" aria-hidden="true" />
           </div>
         </div>
+
+        {/* Bouton + centré sous le carrousel */}
+        {woDescription && (
+          <div className="flex justify-center pointer-events-auto mt-2">
+            <div
+              className="opacity-0 animate-zoom-out-center cursor-pointer group"
+              style={{ animationDelay: '1.8s', animationFillMode: 'forwards' }}
+              onClick={() => setShowDescriptionOverlay(true)}
+            >
+              <div
+                className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
+                style={{ backgroundColor: '#25D366' }}
+              >
+                <span className="text-2xl text-white font-light leading-none">+</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Tabs bar */}
         <div className={`shrink-0 overflow-x-auto scrollbar-hide pointer-events-auto relative z-20 w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 pt-2 md:pt-3 pb-1 ${isLoading ? "invisible" : ""}`}>
