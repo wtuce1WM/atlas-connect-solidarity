@@ -64,7 +64,7 @@ const ReviewsFlipCard = ({
         >
           <div className="flex items-center gap-2">
             <Star className="h-5 w-5 text-gold fill-gold" />
-            <span className="text-2xl font-bold text-white">{avgOn20}</span>
+            <span className="text-2xl font-bold text-gold">{avgOn20}</span>
             <span className="text-sm text-white/60">/20</span>
             {totalReviewCount > 0 && (
               <span className="text-xs text-white/50 ml-1">
