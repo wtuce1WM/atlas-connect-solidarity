@@ -107,6 +107,10 @@ const EMOJI_KEYWORDS: Record<string, string[]> = {
   "🇲🇦":["morocco","maroc"],"🇫🇷":["france"],"🇬🇧":["uk","royaume-uni","angleterre"],"🇺🇸":["usa","états-unis","amérique"],"🇪🇸":["spain","espagne"],"🇮🇹":["italy","italie"],"🇩🇪":["germany","allemagne"],"🇵🇹":["portugal"],"🇧🇪":["belgium","belgique"],"🇨🇭":["switzerland","suisse"],"🇳🇱":["netherlands","pays-bas"],"🇸🇦":["saudi","arabie saoudite"],"🇦🇪":["uae","émirats"],"🇶🇦":["qatar"],"🇪🇬":["egypt","égypte"],"🇹🇳":["tunisia","tunisie"],"🇩🇿":["algeria","algérie"],"🇹🇷":["turkey","turquie"],"🇬🇷":["greece","grèce"],"🇯🇵":["japan","japon"],"🇨🇳":["china","chine"],"🇰🇷":["korea","corée"],"🇮🇳":["india","inde"],"🇧🇷":["brazil","brésil"],"🇨🇦":["canada"],"🇦🇺":["australia","australie"],"🇷🇺":["russia","russie"],"🇺🇦":["ukraine"],
 };
 
+function insertImageEmoji(editor: Editor, item: ImageEmojiItem) {
+  editor.chain().focus().insertContent(`<img src="${item.src}" alt="${item.alt}" style="display:inline;width:1.5em;height:1.5em;vertical-align:middle;" />`).run();
+}
+
 function EmojiPickerContent({ editor }: { editor: Editor }) {
   const [search, setSearch] = useState("");
   const q = search.toLowerCase().trim();
@@ -116,6 +120,15 @@ function EmojiPickerContent({ editor }: { editor: Editor }) {
         .filter(([, kws]) => kws.some((kw) => kw.includes(q)))
         .map(([emoji]) => emoji)
     : null;
+
+  const matchingImageEmojis = q
+    ? CUSTOM_IMAGE_EMOJIS.filter((item) => {
+        const kws = IMAGE_EMOJI_KEYWORDS[item.src];
+        return kws?.some((kw) => kw.includes(q));
+      })
+    : null;
+
+  const hasResults = (matchingEmojis && matchingEmojis.length > 0) || (matchingImageEmojis && matchingImageEmojis.length > 0);
 
   return (
     <>
@@ -130,10 +143,15 @@ function EmojiPickerContent({ editor }: { editor: Editor }) {
         />
       </div>
       <div className="max-h-64 overflow-y-auto space-y-2">
-        {matchingEmojis ? (
-          matchingEmojis.length > 0 ? (
+        {q ? (
+          hasResults ? (
             <div className="flex flex-wrap gap-0.5">
-              {matchingEmojis.map((emoji) => (
+              {matchingImageEmojis?.map((item) => (
+                <button key={item.src} type="button" className="w-10 h-10 flex items-center justify-center rounded hover:bg-muted cursor-pointer transition-colors" onClick={() => insertImageEmoji(editor, item)} title={item.alt}>
+                  <img src={item.src} alt={item.alt} className="w-7 h-7 object-contain" />
+                </button>
+              ))}
+              {matchingEmojis?.map((emoji) => (
                 <button key={emoji} type="button" className="w-10 h-10 flex items-center justify-center rounded hover:bg-muted text-2xl cursor-pointer transition-colors" onClick={() => editor.chain().focus().insertContent(emoji).run()}>
                   {emoji}
                 </button>
@@ -143,18 +161,31 @@ function EmojiPickerContent({ editor }: { editor: Editor }) {
             <p className="text-xs text-muted-foreground text-center py-4">Aucun résultat</p>
           )
         ) : (
-          EMOJI_CATEGORIES.map((cat) => (
-            <div key={cat.label}>
-              <p className="text-xs font-medium text-muted-foreground mb-1">{cat.label}</p>
+          <>
+            {/* Maroc custom image emojis first */}
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-1">🇲🇦 Maroc</p>
               <div className="flex flex-wrap gap-0.5">
-                {cat.emojis.map((emoji) => (
-                  <button key={emoji} type="button" className="w-10 h-10 flex items-center justify-center rounded hover:bg-muted text-2xl cursor-pointer transition-colors" onClick={() => editor.chain().focus().insertContent(emoji).run()}>
-                    {emoji}
+                {CUSTOM_IMAGE_EMOJIS.map((item) => (
+                  <button key={item.src} type="button" className="w-10 h-10 flex items-center justify-center rounded hover:bg-muted cursor-pointer transition-colors" onClick={() => insertImageEmoji(editor, item)} title={item.alt}>
+                    <img src={item.src} alt={item.alt} className="w-7 h-7 object-contain" />
                   </button>
                 ))}
               </div>
             </div>
-          ))
+            {EMOJI_CATEGORIES.map((cat) => (
+              <div key={cat.label}>
+                <p className="text-xs font-medium text-muted-foreground mb-1">{cat.label}</p>
+                <div className="flex flex-wrap gap-0.5">
+                  {cat.emojis.map((emoji) => (
+                    <button key={emoji} type="button" className="w-10 h-10 flex items-center justify-center rounded hover:bg-muted text-2xl cursor-pointer transition-colors" onClick={() => editor.chain().focus().insertContent(emoji).run()}>
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </>
         )}
       </div>
     </>
