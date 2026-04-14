@@ -1080,9 +1080,8 @@ const GenericVideosPanel = () => {
         </div>
       )}
       {destinationVideo && (
-        <div className="w-1/2 sticky top-0 h-screen overflow-y-auto border-l bg-card p-4 space-y-6">
-          <InlineDestinationAssignment video={destinationVideo} onClose={() => setDestinationVideo(null)} onSaved={() => { loadCounts(); }} />
-          <InlineCityAssignment video={destinationVideo} onClose={() => {}} onSaved={() => {}} />
+        <div className="w-1/2 sticky top-0 h-screen overflow-y-auto border-l bg-card p-4">
+          <InlineDestinationCityAssignment video={destinationVideo} onClose={() => setDestinationVideo(null)} onSaved={() => { loadCounts(); }} />
         </div>
       )}
 
