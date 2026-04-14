@@ -19,6 +19,7 @@ export const CTA_MODE_LABELS: Record<string, { fr: string; en: string }> = {
   programme: { fr: 'Programme', en: 'Program' },
   en_savoir_plus: { fr: 'En savoir +', en: 'Learn More' },
   accreditations: { fr: 'Accréditations', en: 'Accreditations' },
+  whatsapp: { fr: 'WhatsApp', en: 'WhatsApp' },
 };
 
 interface CtaBarProps {
