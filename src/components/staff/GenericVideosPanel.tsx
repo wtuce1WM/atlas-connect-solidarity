@@ -1028,10 +1028,25 @@ const GenericVideosPanel = () => {
     setPanelSaving(false);
   }, [selectedVideo, panelItems]);
 
+  const hasRightPanel = !!(selectedVideo || poiVideo || businessVideo || destinationVideo);
+
+  const closeAllPanels = () => {
+    setSelectedVideo(null);
+    setPoiVideo(null);
+    setBusinessVideo(null);
+    setDestinationVideo(null);
+  };
+
   return (
-    <div className="flex" style={{ minHeight: "calc(100vh - 200px)" }}>
+    <div className="flex" style={{ height: "calc(100vh - 200px)" }}>
       {/* Left: video grid */}
-      <div className={cn("flex-1 space-y-6 pt-4 pr-4 overflow-y-auto", (selectedVideo || poiVideo || businessVideo || destinationVideo) && "w-1/2")}>
+      <div
+        className={cn("flex-1 space-y-6 pt-4 pr-4 overflow-y-auto", hasRightPanel && "w-1/2")}
+        onClick={(e) => {
+          // Close right panel when clicking empty area of left panel (not on a card)
+          if (hasRightPanel && e.target === e.currentTarget) closeAllPanels();
+        }}
+      >
         {/* Upload zone */}
         <div className="max-w-2xl space-y-3">
           <VideoUploader videoUrl={uploadedUrl} onChange={setUploadedUrl} businessId="generic" />
@@ -1082,9 +1097,9 @@ const GenericVideosPanel = () => {
 
       {/* Right: detail panel (only one at a time) */}
       {selectedVideo && (
-        <div className="w-1/2 sticky top-0 h-screen overflow-hidden">
+        <div className="w-1/2 sticky top-0 h-full overflow-hidden border-l bg-card">
           {panelLoading ? (
-            <div className="h-full flex items-center justify-center border-l bg-card"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+            <div className="h-full flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
           ) : (
             <RightDetailPanel
               video={selectedVideo}
@@ -1103,17 +1118,17 @@ const GenericVideosPanel = () => {
         </div>
       )}
       {poiVideo && (
-        <div className="w-1/2 sticky top-0 h-screen overflow-y-auto border-l bg-card p-4">
+        <div className="w-1/2 sticky top-0 h-full overflow-hidden border-l bg-card">
           <InlinePoiAssignment video={poiVideo} onClose={() => setPoiVideo(null)} onSaved={() => { loadCounts(); }} />
         </div>
       )}
       {businessVideo && (
-        <div className="w-1/2 sticky top-0 h-screen overflow-y-auto border-l bg-card p-4">
+        <div className="w-1/2 sticky top-0 h-full overflow-hidden border-l bg-card">
           <InlineBusinessAssignment video={businessVideo} onClose={() => setBusinessVideo(null)} onSaved={() => { loadCounts(); }} />
         </div>
       )}
       {destinationVideo && (
-        <div className="w-1/2 sticky top-0 h-screen overflow-y-auto border-l bg-card p-4">
+        <div className="w-1/2 sticky top-0 h-full overflow-hidden border-l bg-card">
           <InlineDestinationCityAssignment video={destinationVideo} onClose={() => setDestinationVideo(null)} onSaved={() => { loadCounts(); }} />
         </div>
       )}
