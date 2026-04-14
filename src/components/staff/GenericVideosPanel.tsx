@@ -380,48 +380,69 @@ const InlineBusinessAssignment = ({ video, onClose, onSaved }: { video: GenericV
   );
 };
 
-/* ─── Inline Destination assignment section ─── */
+/* ─── Combined Destination + City Assignment ─── */
 interface DestItem { id: string; name_fr: string; city_ids: string[] | null; }
 
-const InlineDestinationAssignment = ({ video, onClose, onSaved }: { video: GenericVideo; onClose: () => void; onSaved: () => void; }) => {
+const InlineDestinationCityAssignment = ({ video, onClose, onSaved }: { video: GenericVideo; onClose: () => void; onSaved: () => void; }) => {
   const [allDests, setAllDests] = useState<DestItem[]>([]);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [initialIds, setInitialIds] = useState<string[]>([]);
+  const [selectedDestIds, setSelectedDestIds] = useState<string[]>([]);
+  const [initialDestIds, setInitialDestIds] = useState<string[]>([]);
+  const [cityFilter, setCityFilter] = useState("");
+  const [cityNames, setCityNames] = useState<Record<string, string>>({});
+  const [allCities, setAllCities] = useState<{ id: string; name_fr: string }[]>([]);
+  const [selectedCityIds, setSelectedCityIds] = useState<string[]>([]);
+  const [initialCityIds, setInitialCityIds] = useState<string[]>([]);
+  const [citySearch, setCitySearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [cityFilter, setCityFilter] = useState<string>("");
-  const [cityNames, setCityNames] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const [{ data: dests }, { data: links }, { data: cities }] = await Promise.all([
+      const [{ data: dests }, { data: destLinks }, { data: cities }, { data: cityLinks }] = await Promise.all([
         supabase.from("destinations").select("id, name_fr, city_ids").order("name_fr"),
         supabase.from("generic_video_destinations" as any).select("destination_id").eq("generic_video_id", video.id) as unknown as { data: any[] | null },
         supabase.from("cities").select("id, name_fr").order("name_fr"),
+        supabase.from("generic_video_cities" as any).select("city_id").eq("generic_video_id", video.id) as unknown as { data: any[] | null },
       ]);
       setAllDests((dests as DestItem[]) || []);
-      const ids = ((links as any[]) || []).map((l: any) => l.destination_id);
-      setSelectedIds(ids); setInitialIds(ids);
+      const dIds = ((destLinks as any[]) || []).map((l: any) => l.destination_id);
+      setSelectedDestIds(dIds); setInitialDestIds(dIds);
       const cMap: Record<string, string> = {};
       ((cities as any[]) || []).forEach((c: any) => { cMap[c.id] = c.name_fr; });
       setCityNames(cMap);
+      setAllCities((cities as any[]) || []);
+      const cIds = ((cityLinks as any[]) || []).map((l: any) => l.city_id);
+      setSelectedCityIds(cIds); setInitialCityIds(cIds);
       setLoading(false);
     };
     load();
   }, [video.id]);
 
-  const toggleDest = (destId: string) => setSelectedIds(prev => prev.includes(destId) ? prev.filter(id => id !== destId) : [...prev, destId]);
-  const isDirty = JSON.stringify([...selectedIds].sort()) !== JSON.stringify([...initialIds].sort());
+  const toggleDest = (destId: string) => setSelectedDestIds(prev => prev.includes(destId) ? prev.filter(id => id !== destId) : [...prev, destId]);
+  const toggleCity = (cityId: string) => setSelectedCityIds(prev => prev.includes(cityId) ? prev.filter(id => id !== cityId) : [...prev, cityId]);
+  const isDestDirty = JSON.stringify([...selectedDestIds].sort()) !== JSON.stringify([...initialDestIds].sort());
+  const isCityDirty = JSON.stringify([...selectedCityIds].sort()) !== JSON.stringify([...initialCityIds].sort());
+  const isDirty = isDestDirty || isCityDirty;
 
   const save = async () => {
     setSaving(true);
-    const toAdd = selectedIds.filter(id => !initialIds.includes(id));
-    const toRemove = initialIds.filter(id => !selectedIds.includes(id));
-    if (toRemove.length > 0) await supabase.from("generic_video_destinations" as any).delete().eq("generic_video_id", video.id).in("destination_id", toRemove);
-    if (toAdd.length > 0) await supabase.from("generic_video_destinations" as any).insert(toAdd.map(destination_id => ({ generic_video_id: video.id, destination_id })) as any);
-    toast.success(`${selectedIds.length} destination(s) affectée(s)`);
-    setInitialIds([...selectedIds]); onSaved(); onClose(); setSaving(false);
+    if (isDestDirty) {
+      const toAdd = selectedDestIds.filter(id => !initialDestIds.includes(id));
+      const toRemove = initialDestIds.filter(id => !selectedDestIds.includes(id));
+      if (toRemove.length > 0) await supabase.from("generic_video_destinations" as any).delete().eq("generic_video_id", video.id).in("destination_id", toRemove);
+      if (toAdd.length > 0) await supabase.from("generic_video_destinations" as any).insert(toAdd.map(destination_id => ({ generic_video_id: video.id, destination_id })) as any);
+    }
+    if (isCityDirty) {
+      const toAdd = selectedCityIds.filter(id => !initialCityIds.includes(id));
+      const toRemove = initialCityIds.filter(id => !selectedCityIds.includes(id));
+      if (toRemove.length > 0) await supabase.from("generic_video_cities" as any).delete().eq("generic_video_id", video.id).in("city_id", toRemove);
+      if (toAdd.length > 0) await supabase.from("generic_video_cities" as any).insert(toAdd.map(city_id => ({ generic_video_id: video.id, city_id })) as any);
+    }
+    toast.success("Affectations sauvegardées");
+    setInitialDestIds([...selectedDestIds]);
+    setInitialCityIds([...selectedCityIds]);
+    onSaved(); onClose(); setSaving(false);
   };
 
   const availableCities = useMemo(() => {
@@ -435,128 +456,63 @@ const InlineDestinationAssignment = ({ video, onClose, onSaved }: { video: Gener
     return allDests.filter(d => (d.city_ids || []).includes(cityFilter));
   }, [allDests, cityFilter]);
 
+  const filteredCities = useMemo(() => {
+    if (!citySearch) return allCities;
+    const q = citySearch.toLowerCase();
+    return allCities.filter(c => c.name_fr.toLowerCase().includes(q));
+  }, [allCities, citySearch]);
+
   return (
-    <div className="border-2 border-primary/30 rounded-lg p-4 space-y-4 bg-muted/30">
+    <div className="border-2 border-primary/30 rounded-lg p-4 space-y-5 bg-muted/30">
       <div className="flex items-start justify-between">
-        <h3 className="text-sm font-semibold flex items-center gap-2"><Globe className="h-4 w-4" />Affectation Destinations</h3>
+        <h3 className="text-sm font-semibold flex items-center gap-2"><Globe className="h-4 w-4" />Affectation Destinations & Villes</h3>
         <Button variant="ghost" size="sm" onClick={onClose}>✕</Button>
       </div>
       {loading ? <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin" /></div> : (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-xs font-medium text-muted-foreground shrink-0">Destinations ({selectedIds.length} sélectionnée{selectedIds.length > 1 ? "s" : ""})</span>
-            <select
-              className="text-xs border border-input rounded-md px-2 py-1.5 bg-background text-foreground min-w-[140px]"
-              value={cityFilter}
-              onChange={e => setCityFilter(e.target.value)}
-            >
-              <option value="">Toutes les villes</option>
-              {availableCities.map(cid => <option key={cid} value={cid}>{cityNames[cid]}</option>)}
-            </select>
-            {isDirty && <Button size="sm" onClick={save} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}Enregistrer</Button>}
+        <div className="space-y-5">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-xs font-medium text-muted-foreground shrink-0">Destinations ({selectedDestIds.length})</span>
+              <select className="text-xs border border-input rounded-md px-2 py-1.5 bg-background text-foreground min-w-[140px]" value={cityFilter} onChange={e => setCityFilter(e.target.value)}>
+                <option value="">Toutes les villes</option>
+                {availableCities.map(cid => <option key={cid} value={cid}>{cityNames[cid]}</option>)}
+              </select>
+            </div>
+            <div className="max-h-[300px] overflow-y-auto pr-1">
+              {filteredDests.length === 0 ? (
+                <p className="text-xs text-muted-foreground text-center py-4">Aucune destination trouvée</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {filteredDests.map(dest => (
+                    <Badge key={dest.id} variant={selectedDestIds.includes(dest.id) ? "default" : "outline"} className="cursor-pointer transition-colors" onClick={() => toggleDest(dest.id)}>{dest.name_fr}</Badge>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-          <div className="space-y-1 max-h-[400px] overflow-y-auto pr-1">
-            {filteredDests.length === 0 ? (
-              <p className="text-xs text-muted-foreground text-center py-4">Aucune destination trouvée</p>
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                {filteredDests.map(dest => (
-                  <Badge
-                    key={dest.id}
-                    variant={selectedIds.includes(dest.id) ? "default" : "outline"}
-                    className="cursor-pointer transition-colors"
-                    onClick={() => toggleDest(dest.id)}
-                  >
-                    {dest.name_fr}
-                  </Badge>
-                ))}
-              </div>
-            )}
+          <Separator />
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-xs font-medium text-muted-foreground shrink-0 flex items-center gap-1.5"><MapPinned className="h-3.5 w-3.5" />Villes ({selectedCityIds.length})</span>
+              <Input placeholder="Rechercher…" value={citySearch} onChange={e => setCitySearch(e.target.value)} className="h-7 text-xs max-w-[180px]" />
+            </div>
+            <div className="max-h-[300px] overflow-y-auto pr-1">
+              {filteredCities.length === 0 ? (
+                <p className="text-xs text-muted-foreground text-center py-4">Aucune ville trouvée</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {filteredCities.map(city => (
+                    <Badge key={city.id} variant={selectedCityIds.includes(city.id) ? "default" : "outline"} className="cursor-pointer transition-colors" onClick={() => toggleCity(city.id)}>{city.name_fr}</Badge>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-/* ─── Inline City Assignment ─── */
-const InlineCityAssignment = ({ video, onClose, onSaved }: { video: GenericVideo; onClose: () => void; onSaved: () => void; }) => {
-  const [allCities, setAllCities] = useState<{ id: string; name_fr: string }[]>([]);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [initialIds, setInitialIds] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      const [{ data: cities }, { data: links }] = await Promise.all([
-        supabase.from("cities").select("id, name_fr").order("name_fr"),
-        supabase.from("generic_video_cities" as any).select("city_id").eq("generic_video_id", video.id) as unknown as { data: any[] | null },
-      ]);
-      setAllCities((cities as any[]) || []);
-      const ids = ((links as any[]) || []).map((l: any) => l.city_id);
-      setSelectedIds(ids); setInitialIds(ids);
-      setLoading(false);
-    };
-    load();
-  }, [video.id]);
-
-  const toggleCity = (cityId: string) => setSelectedIds(prev => prev.includes(cityId) ? prev.filter(id => id !== cityId) : [...prev, cityId]);
-  const isDirty = JSON.stringify([...selectedIds].sort()) !== JSON.stringify([...initialIds].sort());
-
-  const save = async () => {
-    setSaving(true);
-    const toAdd = selectedIds.filter(id => !initialIds.includes(id));
-    const toRemove = initialIds.filter(id => !selectedIds.includes(id));
-    if (toRemove.length > 0) await supabase.from("generic_video_cities" as any).delete().eq("generic_video_id", video.id).in("city_id", toRemove);
-    if (toAdd.length > 0) await supabase.from("generic_video_cities" as any).insert(toAdd.map(city_id => ({ generic_video_id: video.id, city_id })) as any);
-    toast.success(`${selectedIds.length} ville(s) affectée(s)`);
-    setInitialIds([...selectedIds]); onSaved(); setSaving(false);
-  };
-
-  const filteredCities = useMemo(() => {
-    if (!search) return allCities;
-    const q = search.toLowerCase();
-    return allCities.filter(c => c.name_fr.toLowerCase().includes(q));
-  }, [allCities, search]);
-
-  return (
-    <div className="border-2 border-primary/30 rounded-lg p-4 space-y-4 bg-muted/30">
-      <div className="flex items-start justify-between">
-        <h3 className="text-sm font-semibold flex items-center gap-2"><MapPinned className="h-4 w-4" />Affectation Villes</h3>
-      </div>
-      {loading ? <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin" /></div> : (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-xs font-medium text-muted-foreground shrink-0">Villes ({selectedIds.length} sélectionnée{selectedIds.length > 1 ? "s" : ""})</span>
-            <Input
-              placeholder="Rechercher…"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="h-7 text-xs max-w-[180px]"
-            />
-            {isDirty && <Button size="sm" onClick={save} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}Enregistrer</Button>}
-          </div>
-          <div className="space-y-1 max-h-[300px] overflow-y-auto pr-1">
-            {filteredCities.length === 0 ? (
-              <p className="text-xs text-muted-foreground text-center py-4">Aucune ville trouvée</p>
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                {filteredCities.map(city => (
-                  <Badge
-                    key={city.id}
-                    variant={selectedIds.includes(city.id) ? "default" : "outline"}
-                    className="cursor-pointer transition-colors"
-                    onClick={() => toggleCity(city.id)}
-                  >
-                    {city.name_fr}
-                  </Badge>
-                ))}
-              </div>
-            )}
-          </div>
+          {isDirty && (
+            <div className="flex justify-end pt-2">
+              <Button size="sm" onClick={save} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}Enregistrer</Button>
+            </div>
+          )}
         </div>
       )}
     </div>
