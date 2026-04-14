@@ -1773,19 +1773,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               });
             }
             return (
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-end">
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-end">
                 {groups.map(g => {
                   if (g.directClick) {
                     return (
                       <div key={g.key} className="group relative flex flex-col items-end">
                         <button
                           onClick={g.directClick}
-                          className="flex items-center justify-center h-10 w-10 rounded-full border border-white/10 text-white transition-colors shadow-lg bg-black/80 hover:bg-black/90"
+                          className="flex items-center justify-center h-10 w-10 pl-2 pr-3 rounded-l-full border border-r-0 border-white/10 text-white transition-colors shadow-lg bg-black/80 hover:bg-black/90"
                         >
                           {g.icon}
                         </button>
                         {g.tooltip && (
-                          <span className="pointer-events-none absolute right-12 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-md bg-black/90 px-2.5 py-1 text-xs text-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <span className="pointer-events-none absolute right-full mr-2 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-md bg-black/90 px-2.5 py-1 text-xs text-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                             {g.tooltip}
                           </span>
                         )}
@@ -1799,7 +1799,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       onMouseLeave={() => setSidebarOpenGroup(null)}
                     >
                       <button
-                        className={`flex items-center justify-center h-10 w-10 rounded-full border border-white/10 text-white transition-colors shadow-lg ${isOpen ? 'bg-black/90' : 'bg-black/80 hover:bg-black/90'}`}
+                        className={`flex items-center justify-center h-10 w-10 pl-2 pr-3 rounded-l-full border border-r-0 border-white/10 text-white transition-colors shadow-lg ${isOpen ? 'bg-black/90' : 'bg-black/80 hover:bg-black/90'}`}
                       >
                         {g.icon}
                       </button>
