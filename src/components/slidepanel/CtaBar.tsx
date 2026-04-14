@@ -121,32 +121,36 @@ export function CtaBar({
   const ctaItems: React.ReactNode[] = [];
 
   if (bookingCta && !cardsHidden) {
-    ctaItems.push(
-      bookingCta.forceExternal ? (
-        <a
-          key="booking"
-          href={bookingCta.fullUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left"
-          style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}
-        >
-          <CalendarCheck className="h-4 w-4 hidden md:block" />
-          <span className="truncate">{bookingCtaLabel}</span>
-          <ExternalLink className="h-3.5 w-3.5 ml-0.5 shrink-0 hidden md:block" />
-        </a>
-      ) : (
-        <button
-          key="booking"
-          onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setShowBookingOverlay(true); }}
+    if (isWhatsAppCta(bookingCtaLabel) && business?.whatsapp) {
+      ctaItems.push(
+        <a key="booking" href={whatsappUrl(business.whatsapp)} target="_blank" rel="noopener noreferrer"
           className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left"
-          style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}
-        >
-          <CalendarCheck className="h-4 w-4 hidden md:block" />
-          <span className="truncate">{bookingCtaLabel}</span>
-        </button>
-      )
-    );
+          style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
+          <WhatsAppIcon className="h-4 w-4" />
+          <span className="truncate">WhatsApp</span>
+        </a>
+      );
+    } else {
+      ctaItems.push(
+        bookingCta.forceExternal ? (
+          <a key="booking" href={bookingCta.fullUrl} target="_blank" rel="noopener noreferrer"
+            className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal animate-slide-in-left"
+            style={{ fontFamily: "'Josefin Sans', sans-serif", height: '40px' }}>
+            <CalendarCheck className="h-4 w-4 hidden md:block" />
+            <span className="truncate">{bookingCtaLabel}</span>
+            <ExternalLink className="h-3.5 w-3.5 ml-0.5 shrink-0 hidden md:block" />
+          </a>
+        ) : (
+          <button key="booking"
+            onClick={() => { setBookingOverlayLoaded(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setShowBookingOverlay(true); }}
+            className="flex items-center justify-center gap-1.5 w-full rounded-lg font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity text-white normal-case tracking-normal animate-slide-in-left"
+            style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: '#25D366', height: '40px' }}>
+            <CalendarCheck className="h-4 w-4 hidden md:block" />
+            <span className="truncate">{bookingCtaLabel}</span>
+          </button>
+        )
+      );
+    }
   }
 
   if (shopCta && !cardsHidden) {
