@@ -428,7 +428,7 @@ const StaffFront = () => {
           <TabsContent value="country-videos">
             <Tabs defaultValue="">
               <TabsList className="flex flex-wrap h-auto gap-1">
-                <TabsTrigger value="front-videos">Vidéos du front</TabsTrigger>
+                <TabsTrigger value="front-videos">Homepage</TabsTrigger>
                 <TabsTrigger value="sub-videos">Avec sous-catégorie</TabsTrigger>
                 <TabsTrigger value="no-sub-videos">Sans sous-catégorie</TabsTrigger>
                 <TabsTrigger value="service-videos">Services</TabsTrigger>
