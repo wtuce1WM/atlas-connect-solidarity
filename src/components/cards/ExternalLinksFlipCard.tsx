@@ -93,7 +93,7 @@ const ExternalLinksFlipCard = ({
                 {cardTitle}
               </h3>
             </div>
-            <div className="grid grid-cols-3 gap-1.5" style={{ gridAutoRows: "3.5rem" }}>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1.5" style={{ gridAutoRows: "3.5rem" }}>
               {displayLinks.map(renderLinkButton)}
             </div>
           </div>
