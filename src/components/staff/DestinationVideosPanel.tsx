@@ -393,7 +393,7 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
   return (
     <div className="flex gap-4">
       {/* ── Left: all videos grid ── */}
-      <div className="w-[40%] flex-shrink-0 min-w-0 space-y-2">
+      <div className="w-[70%] flex-shrink-0 min-w-0 space-y-2">
         <div className="flex items-center gap-3 mb-3">
           <div className="flex items-center gap-1.5">
             <Filter className="h-3.5 w-3.5 text-muted-foreground" />
