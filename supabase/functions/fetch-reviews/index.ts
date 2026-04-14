@@ -854,7 +854,124 @@ async function fetchViatorReviews(url: string): Promise<{ rating: number | null;
   return { rating: null, count: null };
 }
 
-Deno.serve(async (req) => {
+// Firecrawl scraping for Trustpilot
+async function fetchTrustpilotReviews(url: string): Promise<{ rating: number | null; count: number | null }> {
+  const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
+  if (!apiKey) return { rating: null, count: null };
+  try {
+    console.log(`Scraping Trustpilot: ${url}`);
+    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        url, formats: ['extract'],
+        extract: {
+          prompt: 'Extract the overall rating (out of 5, as a decimal like 4.5) and total number of reviews from this Trustpilot page.',
+          schema: { type: 'object', properties: { rating: { type: 'number', description: 'Overall rating out of 5' }, review_count: { type: 'number', description: 'Total number of reviews' } } },
+        },
+        waitFor: 5000,
+      }),
+    });
+    const data = await response.json();
+    console.log('Trustpilot Firecrawl response:', JSON.stringify(data).substring(0, 500));
+    const extracted = data?.data?.extract;
+    if (extracted) {
+      return { rating: extracted.rating ? parseFloat(String(extracted.rating)) : null, count: extracted.review_count ? parseInt(String(extracted.review_count)) : null };
+    }
+  } catch (e) { console.error('Firecrawl Trustpilot error:', e); }
+  return { rating: null, count: null };
+}
+
+// Firecrawl scraping for TourRadar
+async function fetchTourRadarReviews(url: string): Promise<{ rating: number | null; count: number | null }> {
+  const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
+  if (!apiKey) return { rating: null, count: null };
+  try {
+    console.log(`Scraping TourRadar: ${url}`);
+    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        url, formats: ['extract'],
+        extract: {
+          prompt: 'Extract the overall rating (out of 5, as a decimal like 4.5) and total number of reviews from this TourRadar operator page.',
+          schema: { type: 'object', properties: { rating: { type: 'number', description: 'Overall rating out of 5' }, review_count: { type: 'number', description: 'Total number of reviews' } } },
+        },
+        waitFor: 5000,
+      }),
+    });
+    const data = await response.json();
+    console.log('TourRadar Firecrawl response:', JSON.stringify(data).substring(0, 500));
+    const extracted = data?.data?.extract;
+    if (extracted) {
+      return { rating: extracted.rating ? parseFloat(String(extracted.rating)) : null, count: extracted.review_count ? parseInt(String(extracted.review_count)) : null };
+    }
+  } catch (e) { console.error('Firecrawl TourRadar error:', e); }
+  return { rating: null, count: null };
+}
+
+// Firecrawl scraping for Kayak
+async function fetchKayakReviews(url: string): Promise<{ rating: number | null; count: number | null }> {
+  const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
+  if (!apiKey) return { rating: null, count: null };
+  try {
+    console.log(`Scraping Kayak: ${url}`);
+    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        url, formats: ['extract'],
+        extract: {
+          prompt: 'Extract the overall rating (out of 5 or out of 10 — normalize to out of 5) and total number of reviews from this Kayak hotel page.',
+          schema: { type: 'object', properties: { rating: { type: 'number', description: 'Overall rating out of 5' }, review_count: { type: 'number', description: 'Total number of reviews' } } },
+        },
+        waitFor: 5000,
+      }),
+    });
+    const data = await response.json();
+    console.log('Kayak Firecrawl response:', JSON.stringify(data).substring(0, 500));
+    const extracted = data?.data?.extract;
+    if (extracted) {
+      let rating = extracted.rating ? parseFloat(String(extracted.rating)) : null;
+      // Kayak sometimes shows ratings out of 10 — normalize
+      if (rating != null && rating > 5) rating = Math.round((rating / 10) * 5 * 100) / 100;
+      return { rating, count: extracted.review_count ? parseInt(String(extracted.review_count)) : null };
+    }
+  } catch (e) { console.error('Firecrawl Kayak error:', e); }
+  return { rating: null, count: null };
+}
+
+// Firecrawl scraping for Avis Vérifiés
+async function fetchAvisVerifiesReviews(url: string): Promise<{ rating: number | null; count: number | null }> {
+  const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
+  if (!apiKey) return { rating: null, count: null };
+  try {
+    console.log(`Scraping Avis Vérifiés: ${url}`);
+    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        url, formats: ['extract'],
+        extract: {
+          prompt: 'Extract the overall rating (out of 5 or out of 10 — normalize to out of 5) and total number of reviews from this Avis Vérifiés / Verified Reviews page.',
+          schema: { type: 'object', properties: { rating: { type: 'number', description: 'Overall rating out of 5' }, review_count: { type: 'number', description: 'Total number of reviews' } } },
+        },
+        waitFor: 5000,
+      }),
+    });
+    const data = await response.json();
+    console.log('Avis Vérifiés Firecrawl response:', JSON.stringify(data).substring(0, 500));
+    const extracted = data?.data?.extract;
+    if (extracted) {
+      let rating = extracted.rating ? parseFloat(String(extracted.rating)) : null;
+      if (rating != null && rating > 5) rating = Math.round((rating / 10) * 5 * 100) / 100;
+      return { rating, count: extracted.review_count ? parseInt(String(extracted.review_count)) : null };
+    }
+  } catch (e) { console.error('Firecrawl Avis Vérifiés error:', e); }
+  return { rating: null, count: null };
+}
+
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
