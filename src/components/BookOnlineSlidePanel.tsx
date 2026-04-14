@@ -675,12 +675,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   [mediaItems, business?.name]);
 
   const bookingCta = useMemo(() => {
-    if (!bookUrl) return null;
-    const fullUrl = bookUrl.startsWith("http") ? bookUrl : `https://${bookUrl}`;
+    // Allow WhatsApp CTA even without a URL if business has a whatsapp number
+    const ctaLabel = (business as any)?.reserve_now_cta || business?.presentation_mode || '';
+    const isWaCta = ctaLabel.toLowerCase().replace(/[\s_-]/g, '') === 'whatsapp';
+    if (!bookUrl && !(isWaCta && business?.whatsapp)) return null;
+    const fullUrl = bookUrl ? (bookUrl.startsWith("http") ? bookUrl : `https://${bookUrl}`) : '';
     const isReserveUrl = !!business?.reserve_now_url;
     const forceExternal = isReserveUrl ? business?.reserve_now_force_external : business?.website_force_external;
     return { fullUrl, forceExternal };
-  }, [bookUrl, business?.reserve_now_url, business?.reserve_now_force_external, business?.website_force_external]);
+  }, [bookUrl, business?.reserve_now_url, business?.reserve_now_force_external, business?.website_force_external, (business as any)?.reserve_now_cta, business?.presentation_mode, business?.whatsapp]);
 
   const shopCta = useMemo(() => {
     if (!shopUrl) return null;
