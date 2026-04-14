@@ -70,6 +70,60 @@ const EMOJI_KEYWORDS: Record<string, string[]> = {
   "🇲🇦":["morocco","maroc"],"🇫🇷":["france"],"🇬🇧":["uk","royaume-uni","angleterre"],"🇺🇸":["usa","états-unis","amérique"],"🇪🇸":["spain","espagne"],"🇮🇹":["italy","italie"],"🇩🇪":["germany","allemagne"],"🇵🇹":["portugal"],"🇧🇪":["belgium","belgique"],"🇨🇭":["switzerland","suisse"],"🇳🇱":["netherlands","pays-bas"],"🇸🇦":["saudi","arabie saoudite"],"🇦🇪":["uae","émirats"],"🇶🇦":["qatar"],"🇪🇬":["egypt","égypte"],"🇹🇳":["tunisia","tunisie"],"🇩🇿":["algeria","algérie"],"🇹🇷":["turkey","turquie"],"🇬🇷":["greece","grèce"],"🇯🇵":["japan","japon"],"🇨🇳":["china","chine"],"🇰🇷":["korea","corée"],"🇮🇳":["india","inde"],"🇧🇷":["brazil","brésil"],"🇨🇦":["canada"],"🇦🇺":["australia","australie"],"🇷🇺":["russia","russie"],"🇺🇦":["ukraine"],
 };
 
+function EmojiPickerContent({ editor }: { editor: Editor }) {
+  const [search, setSearch] = useState("");
+  const q = search.toLowerCase().trim();
+
+  const matchingEmojis = q
+    ? Object.entries(EMOJI_KEYWORDS)
+        .filter(([, kws]) => kws.some((kw) => kw.includes(q)))
+        .map(([emoji]) => emoji)
+    : null;
+
+  return (
+    <>
+      <div className="relative mb-2">
+        <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Rechercher un émoji…"
+          className="w-full pl-7 pr-2 py-1.5 text-sm border rounded-md bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+        />
+      </div>
+      <div className="max-h-64 overflow-y-auto space-y-2">
+        {matchingEmojis ? (
+          matchingEmojis.length > 0 ? (
+            <div className="flex flex-wrap gap-0.5">
+              {matchingEmojis.map((emoji) => (
+                <button key={emoji} type="button" className="w-10 h-10 flex items-center justify-center rounded hover:bg-muted text-2xl cursor-pointer transition-colors" onClick={() => editor.chain().focus().insertContent(emoji).run()}>
+                  {emoji}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground text-center py-4">Aucun résultat</p>
+          )
+        ) : (
+          EMOJI_CATEGORIES.map((cat) => (
+            <div key={cat.label}>
+              <p className="text-xs font-medium text-muted-foreground mb-1">{cat.label}</p>
+              <div className="flex flex-wrap gap-0.5">
+                {cat.emojis.map((emoji) => (
+                  <button key={emoji} type="button" className="w-10 h-10 flex items-center justify-center rounded hover:bg-muted text-2xl cursor-pointer transition-colors" onClick={() => editor.chain().focus().insertContent(emoji).run()}>
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </>
+  );
+}
+
 const MAX_GRID = 8;
 
 const TableGridPicker = ({ onSelect }: { onSelect: (rows: number, cols: number) => void }) => {
