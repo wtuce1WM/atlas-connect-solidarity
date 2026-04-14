@@ -1781,11 +1781,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               });
             }
             return (
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-end">
+              <div
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-end"
+                onMouseLeave={() => setSidebarOpenGroup(null)}
+              >
                 {groups.map(g => {
                   if (g.directClick) {
                     return (
-                      <div key={g.key} className="group relative flex flex-col items-end">
+                      <div key={g.key} className="group relative flex flex-col items-end"
+                        onMouseEnter={() => setSidebarOpenGroup(null)}
+                      >
                         <button
                           onClick={g.directClick}
                           className="flex items-center justify-center h-10 rounded-l-full border border-r-0 border-white/10 text-white transition-colors shadow-lg bg-black/80 hover:bg-black/90 pl-3 pr-4"
@@ -1804,7 +1809,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   return (
                     <div key={g.key} className="flex flex-col items-end"
                       onMouseEnter={() => setSidebarOpenGroup(g.key)}
-                      onMouseLeave={() => setSidebarOpenGroup(null)}
                     >
                       <button
                         className={`flex items-center justify-center h-10 rounded-l-full border border-r-0 border-white/10 text-white transition-colors shadow-lg pl-3 pr-4 ${isOpen ? 'bg-black/90' : 'bg-black/80 hover:bg-black/90'}`}
