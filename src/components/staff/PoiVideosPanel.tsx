@@ -201,21 +201,24 @@ const PoiVideosPanel = () => {
       urlPoiCount.set(d.url, (urlPoiCount.get(d.url) || 0) + 1);
     });
 
-    setVideos(combined.map(d => ({
-      id: d.id,
-      url: d.url,
-      name: d.name,
-      thumbnail_url: d.thumbnail_url,
-      sort_order: d.sort_order,
-      business_id: d.business_id,
-      business_name: d._source === "generic" ? "Générique" : (bizMap.get(d.business_id) || "—"),
-      poi_id: d.poi_id,
-      poi_name: poiMap.get(d.poi_id) || "—",
-      city: d.city || null,
-      neighborhood: d.neighborhood || null,
-      poi_count: urlPoiCount.get(d.url) || 1,
-      source: d._source,
-    })));
+    setVideos(combined.map(d => {
+      const poi = poiMap.get(d.poi_id);
+      return {
+        id: d.id,
+        url: d.url,
+        name: d.name,
+        thumbnail_url: d.thumbnail_url,
+        sort_order: d.sort_order,
+        business_id: d.business_id,
+        business_name: d._source === "generic" ? "Générique" : (bizMap.get(d.business_id) || "—"),
+        poi_id: d.poi_id,
+        poi_name: poi?.name || "—",
+        city: d.city || (d._source === "generic" ? poi?.city ?? null : null),
+        neighborhood: d.neighborhood || (d._source === "generic" ? poi?.neighborhood ?? null : null),
+        poi_count: urlPoiCount.get(d.url) || 1,
+        source: d._source,
+      };
+    }));
     setLoading(false);
   }, []);
 
