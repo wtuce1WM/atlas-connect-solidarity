@@ -367,10 +367,6 @@ const StaffFront = () => {
               <LayoutGrid className="h-4 w-4" />
               Structure du front
             </TabsTrigger>
-            <TabsTrigger value="videos" className="gap-2">
-              <Video className="h-4 w-4" />
-              Vidéos
-            </TabsTrigger>
             <TabsTrigger value="homepage" className="gap-2">
               <Home className="h-4 w-4" />
               Homepage
@@ -409,20 +405,6 @@ const StaffFront = () => {
             <FrontStructureManagement open={true} onOpenChange={() => {}} inline />
           </TabsContent>
 
-          <TabsContent value="videos">
-            <Tabs defaultValue="marrakech">
-              <TabsList className="mb-4">
-                <TabsTrigger value="marrakech">Marrakech</TabsTrigger>
-                <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
-              </TabsList>
-              <TabsContent value="marrakech">
-                <DestinationVideosPanel cityName="Marrakech" />
-              </TabsContent>
-              <TabsContent value="essaouira">
-                <DestinationVideosPanel cityName="Essaouira" />
-              </TabsContent>
-            </Tabs>
-          </TabsContent>
 
           <TabsContent value="homepage">
             <Tabs defaultValue="marrakech">
@@ -445,7 +427,8 @@ const StaffFront = () => {
 
           <TabsContent value="country-videos">
             <Tabs defaultValue="">
-              <TabsList>
+              <TabsList className="flex flex-wrap h-auto gap-1">
+                <TabsTrigger value="front-videos">Vidéos du front</TabsTrigger>
                 <TabsTrigger value="sub-videos">Avec sous-catégorie</TabsTrigger>
                 <TabsTrigger value="no-sub-videos">Sans sous-catégorie</TabsTrigger>
                 <TabsTrigger value="service-videos">Services</TabsTrigger>
@@ -455,6 +438,20 @@ const StaffFront = () => {
                 <TabsTrigger value="generic-videos">Génériques</TabsTrigger>
                 <TabsTrigger value="fs-videos">Structure du front</TabsTrigger>
               </TabsList>
+              <TabsContent value="front-videos">
+                <Tabs defaultValue="marrakech">
+                  <TabsList className="mb-4">
+                    <TabsTrigger value="marrakech">Marrakech</TabsTrigger>
+                    <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="marrakech">
+                    <DestinationVideosPanel cityName="Marrakech" />
+                  </TabsContent>
+                  <TabsContent value="essaouira">
+                    <DestinationVideosPanel cityName="Essaouira" />
+                  </TabsContent>
+                </Tabs>
+              </TabsContent>
               <TabsContent value="sub-videos">
                 <CountryVideosPanel withSubcategory={true} />
               </TabsContent>
