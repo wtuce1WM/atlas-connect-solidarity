@@ -686,11 +686,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   }, [bookUrl, business?.reserve_now_url, business?.reserve_now_force_external, business?.website_force_external, (business as any)?.reserve_now_cta, business?.presentation_mode, business?.whatsapp]);
 
   const shopCta = useMemo(() => {
-    if (!shopUrl) return null;
-    const fullUrl = shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`;
+    const ctaLabel = (business as any)?.online_shop_cta || (business as any)?.online_shop_presentation_mode || '';
+    const isWaCta = ctaLabel.toLowerCase().replace(/[\s_-]/g, '') === 'whatsapp';
+    if (!shopUrl && !(isWaCta && business?.whatsapp)) return null;
+    const fullUrl = shopUrl ? (shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`) : '';
     const forceExternal = business?.online_shop_force_external;
     return { fullUrl, forceExternal };
-  }, [shopUrl, business?.online_shop_force_external]);
+  }, [shopUrl, business?.online_shop_force_external, (business as any)?.online_shop_cta, (business as any)?.online_shop_presentation_mode, business?.whatsapp]);
 
   const normalizeCtaMode = (value: string | null | undefined) => {
     if (!value) return null;
@@ -746,10 +748,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   const url4Cta = useMemo(() => {
     const url = (business as any)?.url_4;
-    if (!url) return null;
-    const fullUrl = url.startsWith("http") ? url : `https://${url}`;
+    const ctaLabel = (business as any)?.url_4_cta || (business as any)?.url_4_presentation_mode || '';
+    const isWaCta = ctaLabel.toLowerCase().replace(/[\s_-]/g, '') === 'whatsapp';
+    if (!url && !(isWaCta && business?.whatsapp)) return null;
+    const fullUrl = url ? (url.startsWith("http") ? url : `https://${url}`) : '';
     return { fullUrl, forceExternal: (business as any)?.url_4_force_external };
-  }, [(business as any)?.url_4, (business as any)?.url_4_force_external]);
+  }, [(business as any)?.url_4, (business as any)?.url_4_force_external, (business as any)?.url_4_cta, (business as any)?.url_4_presentation_mode, business?.whatsapp]);
 
   const url4CtaLabel = resolveCtaLabel(
     (business as any)?.url_4_cta,
@@ -759,10 +763,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   const url5Cta = useMemo(() => {
     const url = (business as any)?.url_5;
-    if (!url) return null;
-    const fullUrl = url.startsWith("http") ? url : `https://${url}`;
+    const ctaLabel = (business as any)?.url_5_cta || (business as any)?.url_5_presentation_mode || '';
+    const isWaCta = ctaLabel.toLowerCase().replace(/[\s_-]/g, '') === 'whatsapp';
+    if (!url && !(isWaCta && business?.whatsapp)) return null;
+    const fullUrl = url ? (url.startsWith("http") ? url : `https://${url}`) : '';
     return { fullUrl, forceExternal: (business as any)?.url_5_force_external };
-  }, [(business as any)?.url_5, (business as any)?.url_5_force_external]);
+  }, [(business as any)?.url_5, (business as any)?.url_5_force_external, (business as any)?.url_5_cta, (business as any)?.url_5_presentation_mode, business?.whatsapp]);
 
   const url5CtaLabel = resolveCtaLabel(
     (business as any)?.url_5_cta,
