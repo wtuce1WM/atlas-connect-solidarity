@@ -1757,6 +1757,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             if (hasReviewsCard) {
               const openReviewsOverlay = async () => {
                 const buildReviewHtml = (texts: { text: string | null; author_name: string | null; source: string }[], translated?: string[]) => {
+                  const isMobileViewport = typeof window !== "undefined" && window.innerWidth < 768;
                   const activePlats = reviewPlatforms.filter(p => p.rating && p.count);
                   const reviewLabel = language === "en" ? "reviews" : "avis";
                   const logoMap: Record<string, string> = {
@@ -1779,7 +1780,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     .join("");
                    const scoreHtml = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:2px"><div style="flex:1">${platformListHtml}</div><div style="text-align:center;padding-left:12px;border-left:1px solid rgba(255,255,255,0.1)"><div style="font-size:2.6rem;font-weight:bold;color:hsl(43,75%,55%)">${avgOn20}</div><div class="review-score-zoom-delayed" style="font-size:0.85rem;color:hsl(43,75%,55%)">/20</div><div class="review-score-zoom-delayed" style="font-size:0.75rem;opacity:0.7;margin-top:1px">${totalReviewCount.toLocaleString("fr-FR")} ${reviewLabel}</div></div></div>`;
                   const textsHtml = texts.length > 0
-                    ? "<hr/>" + texts.slice(0, 10).map((r, i) => {
+                    ? `${isMobileViewport ? "" : "<hr/>"}` + texts.slice(0, 10).map((r, i) => {
                       const displayText = translated?.[i] || r.text || "";
                       return `<blockquote><p>${displayText}</p><footer>— ${r.author_name || (language === "en" ? "Anonymous" : "Anonyme")}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`;
                     }).join("")
