@@ -489,11 +489,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           return `<div style="display:flex;align-items:center;gap:6px;padding:1px 0"><span style="display:flex;align-items:center;gap:6px">${logoImg}<span><strong style="font-size:1rem">${p.name}</strong><br/><span style="opacity:0.7;font-size:0.82rem">${p.rating}/5 — ${p.count?.toLocaleString("fr-FR")} ${reviewLabel}</span></span></span></div>`;
         })
         .join("");
-      const scoreHtml = `<div style="display:flex;align-items:center;gap:6px;margin-bottom:0"><div style="flex:1">${platformListHtml}</div><div style="text-align:center;padding-left:10px;border-left:1px solid rgba(255,255,255,0.1)"><div style="font-size:2.6rem;font-weight:bold;color:hsl(43,75%,55%)">${avgOn20}</div><div class="review-score-zoom-delayed" style="font-size:0.85rem;color:hsl(43,75%,55%)">/20</div><div class="review-score-zoom-delayed" style="font-size:0.75rem;opacity:0.7;margin-top:0">${totalReviewCount.toLocaleString("fr-FR")} ${reviewLabel}</div></div></div>`;
+      const scoreHtml = `<div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:0"><div style="flex:1">${platformListHtml}</div><div style="text-align:center;padding-left:10px;border-left:1px solid rgba(255,255,255,0.1)"><div style="font-size:2.6rem;font-weight:bold;color:hsl(43,75%,55%)">${avgOn20}</div><div class="review-score-zoom-delayed" style="font-size:0.85rem;color:hsl(43,75%,55%)">/20</div><div class="review-score-zoom-delayed" style="font-size:0.75rem;opacity:0.7;margin-top:0">${totalReviewCount.toLocaleString("fr-FR")} ${reviewLabel}</div></div></div>`;
       const textsHtml = texts.length > 0
-        ? "<hr/>" + texts.slice(0, 10).map((r, i) => {
+        ? texts.slice(0, 10).map((r, i) => {
           const displayText = translated?.[i] || r.text || "";
-          return `<blockquote><p>${displayText}</p><footer>— ${r.author_name || (language === "en" ? "Anonymous" : "Anonyme")}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`;
+          return `<blockquote style="margin-top:4px"><p>${displayText}</p><footer>— ${r.author_name || (language === "en" ? "Anonymous" : "Anonyme")}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`;
         }).join("")
         : "";
       return scoreHtml + textsHtml;
