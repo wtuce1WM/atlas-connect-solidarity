@@ -769,11 +769,13 @@ const EventManagement = () => {
                 <SelectContent>
                   <SelectItem value="__none__">Aucun</SelectItem>
                   {[
-                    "Acheter en ligne", "Achetez", "Boissons", "Carte des soins", "Carte des vins",
+                    "Acheter en ligne", "Achetez", "Accréditations", "App Store", "Application",
+                    "Billetterie", "Boissons", "Carte des soins", "Carte des vins",
                     "Cocktails", "Consulter notre offre", "Contactez-moi", "Contactez nous",
-                    "Day Pass", "Forfaits", "Hammam", "Hotel", "La carte", "Les boissons",
-                    "Menu", "Nos services", "Notre offre", "Plus d'informations",
-                    "Réserver en ligne", "Réservez", "Restaurant", "Riad", "Site web", "Spa",
+                    "Day Pass", "En savoir +", "Forfaits", "Google Play", "Hammam", "Hotel",
+                    "La carte", "Les boissons", "Menu", "Nos services", "Notre offre",
+                    "Plus d'informations", "Programme", "Réserver en ligne", "Réservez",
+                    "Restaurant", "Riad", "Séances", "Site web", "Spa", "WhatsApp",
                   ].map(opt => (
                     <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                   ))}
