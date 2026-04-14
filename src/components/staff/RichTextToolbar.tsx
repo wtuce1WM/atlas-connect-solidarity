@@ -54,16 +54,16 @@ interface ImageEmojiItem {
 type AnyEmoji = EmojiItem | ImageEmojiItem;
 
 const CUSTOM_IMAGE_EMOJIS: ImageEmojiItem[] = [
-  { type: "image", src: "/emojis/tajine-khlia.png", alt: "Tajine khlia" },
-  { type: "image", src: "/emojis/tajine-marocain.png", alt: "Tajine marocain" },
-  { type: "image", src: "/emojis/tajine-blanc.png", alt: "Tajine blanc" },
-  { type: "image", src: "/emojis/tajine-decoratif.png", alt: "Tajine décoratif" },
-  { type: "image", src: "/emojis/couscous-legumes.png", alt: "Couscous légumes" },
-  { type: "image", src: "/emojis/couscous-poulet.png", alt: "Couscous poulet" },
-  { type: "image", src: "/emojis/theiere-or.png", alt: "Théière marocaine" },
-  { type: "image", src: "/emojis/the-maroc.png", alt: "Thé marocain" },
-  { type: "image", src: "/emojis/monument-maroc.png", alt: "Monument marocain" },
-  { type: "image", src: "/emojis/hassan-ii.png", alt: "Mosquée Hassan II" },
+  { type: "image", src: "/emojis/tajine-khlia.webp", alt: "Tajine khlia" },
+  { type: "image", src: "/emojis/tajine-marocain.webp", alt: "Tajine marocain" },
+  { type: "image", src: "/emojis/tajine-blanc.webp", alt: "Tajine blanc" },
+  { type: "image", src: "/emojis/tajine-decoratif.webp", alt: "Tajine décoratif" },
+  { type: "image", src: "/emojis/couscous-legumes.webp", alt: "Couscous légumes" },
+  { type: "image", src: "/emojis/couscous-poulet.webp", alt: "Couscous poulet" },
+  { type: "image", src: "/emojis/theiere-or.webp", alt: "Théière marocaine" },
+  { type: "image", src: "/emojis/the-maroc.webp", alt: "Thé marocain" },
+  { type: "image", src: "/emojis/monument-maroc.webp", alt: "Monument marocain" },
+  { type: "image", src: "/emojis/hassan-ii.webp", alt: "Mosquée Hassan II" },
 ];
 
 const EMOJI_CATEGORIES: { label: string; emojis: string[] }[] = [
@@ -81,16 +81,16 @@ const EMOJI_CATEGORIES: { label: string; emojis: string[] }[] = [
 ];
 
 const IMAGE_EMOJI_KEYWORDS: Record<string, string[]> = {
-  "/emojis/tajine-khlia.png": ["tajine","khlia","maroc","marocain","plat"],
-  "/emojis/tajine-marocain.png": ["tajine","marocain","maroc","plat"],
-  "/emojis/tajine-blanc.png": ["tajine","blanc","maroc","céramique"],
-  "/emojis/tajine-decoratif.png": ["tajine","décoratif","maroc","artisanat"],
-  "/emojis/couscous-legumes.png": ["couscous","légumes","maroc","plat"],
-  "/emojis/couscous-poulet.png": ["couscous","poulet","maroc","plat"],
-  "/emojis/theiere-or.png": ["thé","théière","maroc","or","menthe"],
-  "/emojis/the-maroc.png": ["thé","maroc","menthe","plateau"],
-  "/emojis/monument-maroc.png": ["monument","maroc","mosquée","architecture"],
-  "/emojis/hassan-ii.png": ["hassan","mosquée","casablanca","maroc","monument"],
+  "/emojis/tajine-khlia.webp": ["tajine","khlia","maroc","marocain","plat"],
+  "/emojis/tajine-marocain.webp": ["tajine","marocain","maroc","plat"],
+  "/emojis/tajine-blanc.webp": ["tajine","blanc","maroc","céramique"],
+  "/emojis/tajine-decoratif.webp": ["tajine","décoratif","maroc","artisanat"],
+  "/emojis/couscous-legumes.webp": ["couscous","légumes","maroc","plat"],
+  "/emojis/couscous-poulet.webp": ["couscous","poulet","maroc","plat"],
+  "/emojis/theiere-or.webp": ["thé","théière","maroc","or","menthe"],
+  "/emojis/the-maroc.webp": ["thé","maroc","menthe","plateau"],
+  "/emojis/monument-maroc.webp": ["monument","maroc","mosquée","architecture"],
+  "/emojis/hassan-ii.webp": ["hassan","mosquée","casablanca","maroc","monument"],
 };
 
 const EMOJI_KEYWORDS: Record<string, string[]> = {
