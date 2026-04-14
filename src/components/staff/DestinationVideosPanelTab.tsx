@@ -25,6 +25,7 @@ interface DestVideo {
   destination_name: string;
   city: string | null;
   neighborhood: string | null;
+  source: "document" | "generic";
 }
 
 interface CityOption { name: string; sort_order: number; }
