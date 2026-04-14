@@ -1166,13 +1166,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0)) * 120}ms`}
                 />
               )}
-              {business && !(
-                !showGoogleMap &&
-                !business.facebook_url && !business.instagram_url && !business.tiktok_url &&
-                !business.youtube_url && !business.twitter_url && !business.linkedin_url &&
-                !business.pinterest_url && !business.vimeo_url && !business.snapchat_url &&
-                !!business.whatsapp && menuDocs.length === 0
-              ) && (
+              {business && (
                 <SocialLinksCard
                   facebook={business.facebook_url}
                   instagram={business.instagram_url}
@@ -1190,7 +1184,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0) + Number(appStoreLinks.length > 0)) * 120}ms`}
                 />
               )}
-              {showGoogleMap && <div className="shrink-0 w-4" aria-hidden="true" />}
+              <div className="shrink-0 w-4" aria-hidden="true" />
           </div>
         </div>
 
