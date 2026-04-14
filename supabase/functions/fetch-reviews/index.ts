@@ -1055,6 +1055,42 @@ async function fetchAvisVerifiesReviews(url: string): Promise<{ rating: number |
       );
     }
 
+    if (!google_only && business.trustpilot_url) {
+      promises.push(
+        fetchTrustpilotReviews(business.trustpilot_url).then(r => {
+          results.trustpilot_rating = r.rating;
+          results.trustpilot_review_count = r.count;
+        })
+      );
+    }
+
+    if (!google_only && business.tourradar_url) {
+      promises.push(
+        fetchTourRadarReviews(business.tourradar_url).then(r => {
+          results.tourradar_rating = r.rating;
+          results.tourradar_review_count = r.count;
+        })
+      );
+    }
+
+    if (!google_only && business.kayak_url) {
+      promises.push(
+        fetchKayakReviews(business.kayak_url).then(r => {
+          results.kayak_rating = r.rating;
+          results.kayak_review_count = r.count;
+        })
+      );
+    }
+
+    if (!google_only && business.avis_verifies_url) {
+      promises.push(
+        fetchAvisVerifiesReviews(business.avis_verifies_url).then(r => {
+          results.avis_verifies_rating = r.rating;
+          results.avis_verifies_review_count = r.count;
+        })
+      );
+    }
+
     await Promise.all(promises);
 
     console.log('Results:', JSON.stringify(results));
@@ -1071,6 +1107,14 @@ async function fetchAvisVerifiesReviews(url: string): Promise<{ rating: number |
     if (results.getyourguide_review_count != null) updateData.getyourguide_review_count = results.getyourguide_review_count;
     if (results.viator_rating != null) updateData.viator_rating = results.viator_rating;
     if (results.viator_review_count != null) updateData.viator_review_count = results.viator_review_count;
+    if (results.trustpilot_rating != null) updateData.trustpilot_rating = results.trustpilot_rating;
+    if (results.trustpilot_review_count != null) updateData.trustpilot_review_count = results.trustpilot_review_count;
+    if (results.tourradar_rating != null) updateData.tourradar_rating = results.tourradar_rating;
+    if (results.tourradar_review_count != null) updateData.tourradar_review_count = results.tourradar_review_count;
+    if (results.kayak_rating != null) updateData.kayak_rating = results.kayak_rating;
+    if (results.kayak_review_count != null) updateData.kayak_review_count = results.kayak_review_count;
+    if (results.avis_verifies_rating != null) updateData.avis_verifies_rating = results.avis_verifies_rating;
+    if (results.avis_verifies_review_count != null) updateData.avis_verifies_review_count = results.avis_verifies_review_count;
 
     if (Object.keys(updateData).length > 0) {
       const { error: updateError } = await supabase
