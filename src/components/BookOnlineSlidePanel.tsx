@@ -1112,8 +1112,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               )}
               {woDescription && showGoogleMap && (
                 <div
-                  className="snap-start shrink-0 w-[6.5em] h-[6.5em] mb-4 relative animate-slide-in-left opacity-0 cursor-pointer group overflow-visible"
-                  style={{ animationFillMode: 'forwards' }}
+                  className="snap-start shrink-0 w-[6.5em] h-[6.5em] mb-4 relative opacity-0 animate-zoom-out-center cursor-pointer group overflow-visible"
+                  style={{ animationDelay: '1.8s', animationFillMode: 'forwards' }}
                   onClick={() => setShowDescriptionOverlay(true)}
                   onMouseEnter={(e) => {
                     centerCardInCarousel(e.currentTarget);
@@ -1121,15 +1121,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 >
                   <div className="h-full text-white relative flex items-center justify-center overflow-visible">
                     <div
-                      className="animate-fade-in"
-                      style={{ opacity: 0, animationDelay: '2s', animationFillMode: 'forwards' }}
+                      className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
+                      style={{ backgroundColor: '#25D366' }}
                     >
-                      <div
-                        className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
-                        style={{ backgroundColor: '#25D366' }}
-                      >
-                        <span className="text-2xl text-white font-light leading-none">+</span>
-                      </div>
+                      <span className="text-2xl text-white font-light leading-none">+</span>
                     </div>
                   </div>
                 </div>
