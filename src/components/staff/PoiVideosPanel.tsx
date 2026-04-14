@@ -114,7 +114,7 @@ const PoiVideosPanel = () => {
       setCities(citiesData.map(c => ({ name: c.name_fr, sort_order: c.sort_order ?? 0 })));
     }
 
-    // Fetch all videos with a poi_id
+    // Fetch all business_documents videos with a poi_id
     const allDocs: any[] = [];
     let offset = 0;
     const PAGE = 1000;
@@ -132,13 +132,47 @@ const PoiVideosPanel = () => {
       offset += PAGE;
     }
 
-    if (allDocs.length === 0) {
+    // Fetch generic videos linked to POIs
+    const { data: gvpLinks } = await supabase
+      .from("generic_video_pois" as any)
+      .select("generic_video_id, poi_id, sort_order") as any;
+
+    const genericVideoIds = [...new Set((gvpLinks || []).map((l: any) => l.generic_video_id))] as string[];
+    const genericVideosMap = new Map<string, any>();
+    for (let i = 0; i < genericVideoIds.length; i += 200) {
+      const batch = genericVideoIds.slice(i, i + 200);
+      const { data } = await supabase.from("generic_videos" as any).select("id, url, name, thumbnail_url, city, neighborhood").in("id", batch) as any;
+      if (data) data.forEach((g: any) => genericVideosMap.set(g.id, g));
+    }
+
+    // Build generic video rows (one per POI link)
+    const genericDocs: any[] = [];
+    (gvpLinks || []).forEach((link: any) => {
+      const gv = genericVideosMap.get(link.generic_video_id);
+      if (!gv) return;
+      genericDocs.push({
+        id: `gv-${link.generic_video_id}-${link.poi_id}`,
+        url: gv.url,
+        name: gv.name,
+        thumbnail_url: gv.thumbnail_url,
+        sort_order: link.sort_order ?? 0,
+        business_id: link.generic_video_id,
+        poi_id: link.poi_id,
+        city: gv.city || null,
+        neighborhood: gv.neighborhood || null,
+        _source: "generic" as const,
+      });
+    });
+
+    const combined = [...allDocs.map(d => ({ ...d, _source: "document" as const })), ...genericDocs];
+
+    if (combined.length === 0) {
       setVideos([]);
       setLoading(false);
       return;
     }
 
-    // Fetch business names
+    // Fetch business names (for business_documents)
     const bizIds = [...new Set(allDocs.map(d => d.business_id))];
     const bizMap = new Map<string, string>();
     for (let i = 0; i < bizIds.length; i += 200) {
@@ -147,8 +181,8 @@ const PoiVideosPanel = () => {
       if (data) data.forEach(b => bizMap.set(b.id, b.name));
     }
 
-    // Fetch POI names (they are businesses with is_poi)
-    const poiIds = [...new Set(allDocs.map(d => d.poi_id).filter(Boolean))] as string[];
+    // Fetch POI names
+    const poiIds = [...new Set(combined.map(d => d.poi_id).filter(Boolean))] as string[];
     const poiMap = new Map<string, string>();
     for (let i = 0; i < poiIds.length; i += 200) {
       const batch = poiIds.slice(i, i + 200);
@@ -158,23 +192,24 @@ const PoiVideosPanel = () => {
 
     // Count how many POIs each URL has (for multi-POI indicator)
     const urlPoiCount = new Map<string, number>();
-    allDocs.forEach(d => {
+    combined.forEach(d => {
       urlPoiCount.set(d.url, (urlPoiCount.get(d.url) || 0) + 1);
     });
 
-    setVideos(allDocs.map(d => ({
+    setVideos(combined.map(d => ({
       id: d.id,
       url: d.url,
       name: d.name,
       thumbnail_url: d.thumbnail_url,
       sort_order: d.sort_order,
       business_id: d.business_id,
-      business_name: bizMap.get(d.business_id) || "—",
+      business_name: d._source === "generic" ? "Générique" : (bizMap.get(d.business_id) || "—"),
       poi_id: d.poi_id,
       poi_name: poiMap.get(d.poi_id) || "—",
       city: d.city || null,
       neighborhood: d.neighborhood || null,
       poi_count: urlPoiCount.get(d.url) || 1,
+      source: d._source,
     })));
     setLoading(false);
   }, []);
