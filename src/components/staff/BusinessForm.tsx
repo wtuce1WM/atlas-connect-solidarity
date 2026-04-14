@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
+import ReviewsEditor from "./ReviewsEditor";
 import YouTubeVideosManager from "./YouTubeVideosManager";
 import { format } from "date-fns";
 import { DndContext, closestCenter } from "@dnd-kit/core";
@@ -5423,6 +5424,17 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             value={formData.vacation_dates}
             onChange={(dates) => setFormData(prev => ({ ...prev, vacation_dates: dates }))}
           />
+
+          {/* Avis Clients */}
+          {business?.id && (
+            <div className="mt-4 pt-4 border-t border-blue-200">
+              <Label className="text-lg font-semibold flex items-center gap-2 mb-3">
+                <MessageSquare className="h-5 w-5" />
+                Avis clients
+              </Label>
+              <ReviewsEditor businessId={business.id} />
+            </div>
+          )}
         </div>
 
         {/* Internal Notes - Staff Only */}
