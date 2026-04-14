@@ -116,6 +116,8 @@ export function CtaBar({
     return !!ch;
   })()) ? { display: 'none' as const } : undefined;
 
+  const isWhatsAppCta = (label: string) => label.toLowerCase().replace(/[\s_-]/g, '') === 'whatsapp';
+
   const ctaItems: React.ReactNode[] = [];
 
   if (bookingCta && !cardsHidden) {
