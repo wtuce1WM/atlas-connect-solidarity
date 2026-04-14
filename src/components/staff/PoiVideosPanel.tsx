@@ -60,6 +60,8 @@ const SortableVideoCard = ({ video, index, onPlay }: { video: PoiVideo; index: n
       >
         {video.thumbnail_url ? (
           <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" />
+        ) : video.url.includes("supabase.co/storage") ? (
+          <video src={video.url} className="w-full h-full object-cover" muted preload="metadata" />
         ) : (
           <div className="w-full h-full bg-muted" />
         )}
