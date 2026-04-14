@@ -2,6 +2,8 @@ import React from "react";
 import { ExternalLink, MapPin, CalendarCheck, ShoppingBag } from "lucide-react";
 import VideoControls from "@/components/VideoControls";
 import { OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
+import { whatsappUrl } from "@/lib/phoneUtils";
 
 export const CTA_MODE_LABELS: Record<string, { fr: string; en: string }> = {
   acheter_en_ligne: { fr: 'Acheter en ligne', en: 'Shop Online' },
