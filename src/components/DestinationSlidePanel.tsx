@@ -384,7 +384,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   if (!destination) return null;
 
   return (
-    <div className={`absolute inset-0 -top-[3.3rem] z-[80] bg-black overflow-hidden ${slideAnim}`}>
+    <div className={`absolute inset-0 lg:-top-[3.3rem] z-[80] bg-black overflow-hidden ${slideAnim}`}>
       {/* Close button */}
       {!fullscreenVideo && !showDirections && (
         <div className="absolute top-3 left-3 z-[80] flex items-center gap-2">
@@ -457,7 +457,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
       {/* Mosaic overlay */}
       {showMosaic && (
-        <div className="absolute inset-0 -top-[3.3rem] z-[76] overflow-hidden">
+        <div className="absolute inset-0 lg:-top-[3.3rem] z-[76] overflow-hidden">
           <div className="absolute inset-0 bg-black overflow-y-auto animate-slide-in-left">
             <div className="sticky top-0 z-10 flex items-center bg-black px-2 py-2">
               <button
@@ -653,7 +653,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
       {/* Recursive business overlay */}
       {activeBusinessId && (
-        <div className="absolute inset-0 -top-[3.3rem] z-[60]">
+        <div className="absolute inset-0 lg:-top-[3.3rem] z-[60]">
           <BookOnlineSlidePanel
             businessId={activeBusinessId}
             onClose={() => setActiveBusinessId(null)}
