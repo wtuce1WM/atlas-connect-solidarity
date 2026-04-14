@@ -1845,7 +1845,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               {images.slice(0, 5).map((img, i) => (
                   <div
                     key={i}
-                    className={`relative w-[calc((100%-6*4px)/5)] shrink-0 aspect-[3/2] md:aspect-[4/3] lg:aspect-[3/2] rounded-md overflow-hidden cursor-pointer ${i >= 2 ? 'hidden md:block' : ''}`}
+                    className={`relative w-[calc((100%-2*6px)/3)] md:w-[calc((100%-6*4px)/5)] shrink-0 aspect-[4/3] md:aspect-[4/3] lg:aspect-[3/2] rounded-md overflow-hidden cursor-pointer ${i >= 3 ? 'hidden md:block' : ''}`}
                     style={{ maxHeight: 'none' }}
                     onClick={() => { setDescGridMode(true); setDescGridPage(0); }}
                   >
