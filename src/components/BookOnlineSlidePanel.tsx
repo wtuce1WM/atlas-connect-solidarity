@@ -1171,7 +1171,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
         {/* Note /20 + bouton + : centrés entre carrousel info et tabs */}
         {(avgOn20 != null && totalReviewCount > 0) || woDescription ? (
-          <div className="flex flex-col items-center pointer-events-auto mt-0 mb-0 gap-9">
+          <div className="flex flex-col items-center pointer-events-auto -mt-4 mb-0 gap-9">
             {avgOn20 != null && totalReviewCount > 0 && (
               <div
                 key={`rating-${business?.id}`}
