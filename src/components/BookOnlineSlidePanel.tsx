@@ -1119,7 +1119,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     centerCardInCarousel(e.currentTarget);
                   }}
                 >
-                  <div className="h-full rounded-2xl bg-black/40 backdrop-blur-sm text-white overflow-hidden border border-white/10 pointer-events-none relative flex items-center justify-center">
+                  <div className="h-full rounded-2xl text-white overflow-hidden border border-white/10 pointer-events-none relative flex items-center justify-center">
                     <div
                       className="w-12 h-12 rounded-full bg-black/20 backdrop-blur-xl border-2 border-white/80 flex items-center justify-center group-hover:bg-black/35 transition-colors animate-fade-in"
                       style={{ opacity: 0, animationDelay: '2s', animationFillMode: 'forwards' }}
