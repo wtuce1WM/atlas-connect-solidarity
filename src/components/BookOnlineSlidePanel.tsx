@@ -1719,17 +1719,22 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               const extIcon = (extDesc === "presse" || extDesc === "media")
                 ? <Newspaper className="h-[22px] w-[22px]" />
                 : <ExternalLink className="h-[22px] w-[22px]" />;
-              const extLabel = extDesc === "partenaires" ? "Ils nous font confiance"
-                : extDesc === "recompenses" ? "Nous sommes reconnus par…"
-                : extDesc === "certifications" ? "Nous sommes certifiés par…"
-                : (extDesc === "presse" || extDesc === "media") ? "Ils parlent de nous"
-                : "+ d'infos";
               groups.push({
                 key: 'ext',
                 icon: extIcon,
-                directClick: () => { setExtLinksOrigin('description'); setShowExtLinksOverlay(true); },
-                items: [],
-                tooltip: extLabel,
+                items: externalLinks.map(link => ({
+                  label: link.name || 'Lien',
+                  logo: link.icon,
+                  onClick: () => {
+                    if (link.url && link.url !== '#' && link.url !== '*') {
+                      openDocOrBooking(link.url, link.name || 'Lien', true);
+                    } else {
+                      setExtLinksOrigin('description');
+                      setShowExtLinksOverlay(true);
+                    }
+                    setSidebarOpenGroup(null);
+                  },
+                })),
               });
             }
             if (hasReviewsCard) {
