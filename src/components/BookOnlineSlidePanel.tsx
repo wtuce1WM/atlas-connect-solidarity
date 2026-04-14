@@ -1184,7 +1184,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     {avgOn20}<span className="text-xl md:text-2xl font-semibold text-white/60">/20</span>
                   </span>
                 </div>
-                <span className="text-sm md:text-base text-white/70 font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                <span className="text-sm md:text-base text-white/60 font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                   {totalReviewCount.toLocaleString("fr-FR")} {language === "en" ? "reviews" : "avis"}
                 </span>
               </div>
