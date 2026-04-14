@@ -1087,8 +1087,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             {showGoogleMap && <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />}
               {woDescription && !showGoogleMap && (
                 <div
-                  className="snap-start shrink-0 flex-1 min-w-0 mb-2 relative animate-slide-in-left opacity-0 rounded-2xl max-h-[calc(100dvh-21rem)] md:max-h-none overflow-y-auto scrollbar-hide"
-                  style={{ animationFillMode: 'forwards' }}
+                  className="snap-start shrink-0 flex-1 min-w-0 mb-2 relative animate-slide-in-left opacity-0 rounded-2xl overflow-y-auto scrollbar-hide"
+                  style={{ animationFillMode: 'forwards', maxHeight: 'min(35vh, 280px)' }}
                   onMouseEnter={(e) => {
                     centerCardInCarousel(e.currentTarget);
                   }}
