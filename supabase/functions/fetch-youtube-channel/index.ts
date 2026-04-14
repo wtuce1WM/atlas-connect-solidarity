@@ -114,7 +114,8 @@ serve(async (req) => {
       const seconds = match
         ? (parseInt(match[1] || "0") * 3600) + (parseInt(match[2] || "0") * 60) + parseInt(match[3] || "0")
         : 0;
-      const isShort = seconds > 0 && seconds <= 60;
+      const title = item.snippet?.title || "";
+      const isShort = (seconds > 0 && seconds <= 60) || /\bshorts?\b/i.test(title);
 
       return {
         videoId: item.id,
