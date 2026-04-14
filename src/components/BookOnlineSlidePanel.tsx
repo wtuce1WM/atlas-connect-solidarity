@@ -1181,7 +1181,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 <div className="flex items-center gap-3">
                   <Star className="h-7 w-7 md:h-9 md:w-9 text-gold fill-gold drop-shadow-lg" />
                   <span className="text-4xl md:text-5xl font-black text-gold drop-shadow-lg" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                    {avgOn20}<span className="text-xl md:text-2xl font-semibold text-gold/70">/20</span>
+                    {avgOn20}<span className="text-xl md:text-2xl font-semibold text-white/60">/20</span>
                   </span>
                 </div>
                 <span className="text-sm md:text-base text-white/70 font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
