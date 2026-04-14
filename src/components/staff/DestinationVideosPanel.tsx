@@ -526,7 +526,7 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
             ) : (
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                 <SortableContext items={frontVideos.map((v) => v.id)} strategy={verticalListSortingStrategy}>
-                  <div className="grid grid-cols-2 gap-1.5">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                     {frontVideos.map((v, i) => (
                       <SortableFrontCard
                         key={v.id}
