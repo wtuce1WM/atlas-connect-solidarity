@@ -1906,31 +1906,20 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       {/* External Links Overlay */}
       {showExtLinksOverlay && externalLinks.length > 0 && (
         <div className="absolute inset-0 -top-[3.3rem] z-[85] overflow-hidden">
-          <div className="absolute inset-0 bg-black overflow-y-auto animate-slide-in-left">
-            <div className="sticky top-0 z-10 p-2 pt-14 lg:pt-2">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setShowExtLinksOverlay(false)} />
+          <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+            <div className="pointer-events-auto relative">
               <button
                 onClick={() => setShowExtLinksOverlay(false)}
-                className="h-9 w-9 rounded-full bg-white flex items-center justify-center text-black hover:bg-white/80 transition-colors shadow-lg"
+                className="absolute -top-3 -right-3 z-20 h-8 w-8 rounded-full bg-white flex items-center justify-center text-black hover:bg-white/80 transition-colors shadow-lg"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4" />
               </button>
-            </div>
-            <div className="grid grid-cols-2 gap-2 p-2 -mt-2">
-              {externalLinks.map((link) => (
-                <div
-                  key={link.id}
-                  className="relative aspect-square cursor-pointer overflow-hidden rounded-lg bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center"
-                  onClick={() => { setShowExtLinksOverlay(false); openDocOrBooking(link.url, link.name || undefined, true); }}
-                >
-                  {link.icon ? (
-                    <img src={link.icon} alt={link.name || ""} className="w-3/4 h-3/4 object-contain" loading="lazy" />
-                  ) : (
-                    <span className="text-sm text-white/90 text-center px-3 leading-tight">
-                      {link.name || new URL(link.url).hostname.replace('www.', '')}
-                    </span>
-                  )}
-                </div>
-              ))}
+              <ExternalLinksFlipCard
+                links={externalLinks}
+                variant="overlay"
+                onOpenUrl={(url, title) => { setShowExtLinksOverlay(false); openDocOrBooking(url, title, true); }}
+              />
             </div>
           </div>
         </div>
