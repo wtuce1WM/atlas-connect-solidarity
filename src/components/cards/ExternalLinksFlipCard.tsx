@@ -84,7 +84,7 @@ const ExternalLinksFlipCard = ({
     return (
       <TooltipProvider delayDuration={300}>
         <div
-          className={`w-full max-w-[28rem] rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 ${className}`}
+          className={`w-full max-w-[42rem] rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 ${className}`}
         >
           <div className="rounded-2xl p-4 text-white flex flex-col">
             <div className="flex items-center justify-between mb-2">
