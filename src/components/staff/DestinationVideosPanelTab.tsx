@@ -258,6 +258,7 @@ const DestinationVideosPanelTab = () => {
     setSaving(true);
     try {
       for (let i = 0; i < videos.length; i++) {
+        if (videos[i].source === "generic") continue;
         await supabase
           .from("business_documents")
           .update({ sort_order: i } as any)
