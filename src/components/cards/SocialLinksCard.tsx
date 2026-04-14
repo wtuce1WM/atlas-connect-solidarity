@@ -49,7 +49,7 @@ const SocialLinksCard = ({
     pinterest && { name: "Pinterest", url: pinterest, icon: <PinterestIcon className="h-4 w-4" />, color: "#BD081C" },
     vimeo && { name: "Vimeo", url: vimeo, icon: <VimeoIcon className="h-4 w-4" />, color: "#1AB7EA" },
     snapchat && { name: "Snapchat", url: snapchat, icon: <SnapchatIcon className="h-4 w-4" />, color: "#FFFC00" },
-    whatsapp && { name: "WhatsApp", url: `https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}`, icon: <WhatsAppIcon className="h-4 w-4" />, color: "#25D366" },
+    
   ].filter(Boolean) as SocialLink[];
 
   if (links.length === 0 && menuItems.length === 0) return null;
