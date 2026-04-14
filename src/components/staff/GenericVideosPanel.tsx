@@ -897,6 +897,7 @@ const GenericVideosPanel = () => {
 
   const handleSelectVideo = useCallback((v: GenericVideo) => {
     setSelectedVideo(prev => prev?.id === v.id ? null : v);
+    setPoiVideo(null); setBusinessVideo(null); setDestinationVideo(null);
   }, []);
 
   const handleCreate = useCallback(async () => {
@@ -957,7 +958,7 @@ const GenericVideosPanel = () => {
   return (
     <div className="flex" style={{ minHeight: "calc(100vh - 200px)" }}>
       {/* Left: video grid */}
-      <div className={cn("flex-1 space-y-6 pt-4 pr-4 overflow-y-auto", selectedVideo && "w-1/2")}>
+      <div className={cn("flex-1 space-y-6 pt-4 pr-4 overflow-y-auto", (selectedVideo || poiVideo || businessVideo || destinationVideo) && "w-1/2")}>
         {/* Upload zone */}
         <div className="max-w-2xl space-y-3">
           <VideoUploader videoUrl={uploadedUrl} onChange={setUploadedUrl} businessId="generic" />
@@ -992,9 +993,9 @@ const GenericVideosPanel = () => {
                         onPreview={setLightboxUrl}
                         onEditSocial={setSocialVideo}
                         onEditDescription={setDescVideo}
-                        onEditPois={(v) => { setBusinessVideo(null); setDestinationVideo(null); setPoiVideo(v); }}
-                        onEditBusinesses={(v) => { setPoiVideo(null); setDestinationVideo(null); setBusinessVideo(v); }}
-                        onEditDestinations={(v) => { setPoiVideo(null); setBusinessVideo(null); setDestinationVideo(v); }}
+                        onEditPois={(v) => { setSelectedVideo(null); setBusinessVideo(null); setDestinationVideo(null); setPoiVideo(v); }}
+                        onEditBusinesses={(v) => { setSelectedVideo(null); setPoiVideo(null); setDestinationVideo(null); setBusinessVideo(v); }}
+                        onEditDestinations={(v) => { setSelectedVideo(null); setPoiVideo(null); setBusinessVideo(null); setDestinationVideo(v); }}
                         onPreviewOverlay={setPreviewOverlayVideo}
                       />
                     </div>
@@ -1006,7 +1007,7 @@ const GenericVideosPanel = () => {
         )}
       </div>
 
-      {/* Right: detail panel */}
+      {/* Right: detail panel (only one at a time) */}
       {selectedVideo && (
         <div className="w-1/2 sticky top-0 h-screen overflow-hidden">
           {panelLoading ? (
@@ -1028,13 +1029,25 @@ const GenericVideosPanel = () => {
           )}
         </div>
       )}
+      {poiVideo && (
+        <div className="w-1/2 sticky top-0 h-screen overflow-y-auto border-l bg-card p-4">
+          <InlinePoiAssignment video={poiVideo} onClose={() => setPoiVideo(null)} onSaved={() => { loadCounts(); }} />
+        </div>
+      )}
+      {businessVideo && (
+        <div className="w-1/2 sticky top-0 h-screen overflow-y-auto border-l bg-card p-4">
+          <InlineBusinessAssignment video={businessVideo} onClose={() => setBusinessVideo(null)} onSaved={() => { loadCounts(); }} />
+        </div>
+      )}
+      {destinationVideo && (
+        <div className="w-1/2 sticky top-0 h-screen overflow-y-auto border-l bg-card p-4">
+          <InlineDestinationAssignment video={destinationVideo} onClose={() => setDestinationVideo(null)} onSaved={() => { loadCounts(); }} />
+        </div>
+      )}
 
       {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
       {socialVideo && <SocialLinksDialog video={socialVideo} open={!!socialVideo} onOpenChange={(o) => !o && setSocialVideo(null)} onSaved={loadVideos} />}
       {descVideo && <DescriptionDialog video={descVideo} open={!!descVideo} onOpenChange={(o) => !o && setDescVideo(null)} onSaved={loadVideos} />}
-      {poiVideo && <InlinePoiAssignment video={poiVideo} onClose={() => setPoiVideo(null)} onSaved={() => { loadCounts(); if (selectedVideo?.id === poiVideo.id) loadPanelItems(poiVideo.id); }} />}
-      {businessVideo && <InlineBusinessAssignment video={businessVideo} onClose={() => setBusinessVideo(null)} onSaved={() => { loadCounts(); if (selectedVideo?.id === businessVideo.id) loadPanelItems(businessVideo.id); }} />}
-      {destinationVideo && <InlineDestinationAssignment video={destinationVideo} onClose={() => setDestinationVideo(null)} onSaved={() => { loadCounts(); if (selectedVideo?.id === destinationVideo.id) loadPanelItems(destinationVideo.id); }} />}
       {previewOverlayVideo && <GenericVideoPreviewOverlay video={previewOverlayVideo} onClose={() => setPreviewOverlayVideo(null)} />}
     </div>
   );
