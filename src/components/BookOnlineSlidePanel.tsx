@@ -946,7 +946,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* Overlaid content */}
       <div
-        className={`relative z-10 flex flex-col ${!showGoogleMap ? 'overflow-hidden' : 'overflow-y-auto'} overflow-x-hidden overscroll-contain h-full p-4 pt-14 md:p-6 md:pt-16 lg:pt-6 ${cardsHidden ? 'pb-0' : 'pb-8'} ${(effectiveMedia?.kind === "matterport" && cardsHidden) ? "pointer-events-none" : externalVideoInteractiveMode ? "pointer-events-none" : ""}`}
+        className={`relative z-10 flex flex-col overflow-y-auto overflow-x-hidden overscroll-contain h-full p-4 pt-14 md:p-6 md:pt-16 lg:pt-6 ${cardsHidden ? 'pb-0' : 'pb-8'} ${(effectiveMedia?.kind === "matterport" && cardsHidden) ? "pointer-events-none" : externalVideoInteractiveMode ? "pointer-events-none" : ""}`}
         style={isDragging ? { transform: `translateY(${dragOffsetY}px)`, transition: 'none' } : undefined}
         onTouchStart={externalVideoInteractiveMode ? undefined : onTouchStart}
         onTouchMove={externalVideoInteractiveMode ? undefined : onTouchMove}
@@ -1091,26 +1091,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           className={`transition-all duration-300 ease-in-out ${cardsHidden ? 'translate-x-full opacity-0 pointer-events-none max-h-0 overflow-hidden' : 'translate-x-0 opacity-100'}`}
         >
         {/* Info Carousel */}
-        <div ref={infoCarouselRef} className={`shrink-0 ${!showGoogleMap ? 'w-full' : 'w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6'} overflow-x-auto pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto animate-slide-in-left`}>
-          <div className={`flex ${!showGoogleMap ? 'w-full' : 'w-max min-h-[15em] md:min-h-[20em]'} gap-2 items-start`}>
-            {showGoogleMap && <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />}
-              {woDescription && !showGoogleMap && (
-                <div
-                  className="snap-start shrink-0 flex-1 min-w-0 mb-2 relative animate-slide-in-left opacity-0 rounded-2xl overflow-y-auto scrollbar-hide"
-                  style={{ animationFillMode: 'forwards', maxHeight: 'min(35vh, 280px)' }}
-                  onMouseEnter={(e) => {
-                    centerCardInCarousel(e.currentTarget);
-                  }}
-                >
-                  <div className="rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white border border-white/10 relative">
-                    <div
-                      className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings prose-h2:text-base prose-h3:text-lg card1-headings !text-white [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:!text-white [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold opacity-90"
-                      dangerouslySetInnerHTML={{ __html: woDescription }}
-                    />
-                  </div>
-                </div>
-              )}
-              {woDescription && showGoogleMap && (
+        <div ref={infoCarouselRef} className="shrink-0 w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto animate-slide-in-left">
+          <div className="flex w-max min-h-[15em] md:min-h-[20em] gap-2 items-start">
+            <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
+              {woDescription && (
                 <div
                   className="snap-start shrink-0 w-[6.5em] h-[6.5em] mb-4 relative opacity-0 animate-zoom-out-center cursor-pointer group overflow-visible"
                   style={{ animationDelay: '1.8s', animationFillMode: 'forwards' }}
@@ -1182,13 +1166,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0)) * 120}ms`}
                 />
               )}
-              {business && !(
-                !showGoogleMap &&
-                !business.facebook_url && !business.instagram_url && !business.tiktok_url &&
-                !business.youtube_url && !business.twitter_url && !business.linkedin_url &&
-                !business.pinterest_url && !business.vimeo_url && !business.snapchat_url &&
-                !!business.whatsapp && menuDocs.length === 0
-              ) && (
+              {business && (
                 <SocialLinksCard
                   facebook={business.facebook_url}
                   instagram={business.instagram_url}
@@ -1206,7 +1184,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0) + Number(appStoreLinks.length > 0)) * 120}ms`}
                 />
               )}
-              {showGoogleMap && <div className="shrink-0 w-4" aria-hidden="true" />}
+              <div className="shrink-0 w-4" aria-hidden="true" />
           </div>
         </div>
 
