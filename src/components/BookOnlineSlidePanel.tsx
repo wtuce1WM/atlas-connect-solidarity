@@ -1780,7 +1780,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       <div key={g.key} className="group relative flex flex-col items-end">
                         <button
                           onClick={g.directClick}
-                          className="flex items-center justify-center h-10 w-10 pl-2 pr-3 rounded-l-full border border-r-0 border-white/10 text-white transition-colors shadow-lg bg-black/80 hover:bg-black/90"
+                          className="flex items-center justify-center h-10 rounded-l-full border border-r-0 border-white/10 text-white transition-colors shadow-lg bg-black/80 hover:bg-black/90 pl-3 pr-4"
                         >
                           {g.icon}
                         </button>
@@ -1799,7 +1799,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       onMouseLeave={() => setSidebarOpenGroup(null)}
                     >
                       <button
-                        className={`flex items-center justify-center h-10 w-10 pl-2 pr-3 rounded-l-full border border-r-0 border-white/10 text-white transition-colors shadow-lg ${isOpen ? 'bg-black/90' : 'bg-black/80 hover:bg-black/90'}`}
+                        className={`flex items-center justify-center h-10 rounded-l-full border border-r-0 border-white/10 text-white transition-colors shadow-lg pl-3 pr-4 ${isOpen ? 'bg-black/90' : 'bg-black/80 hover:bg-black/90'}`}
                       >
                         {g.icon}
                       </button>
