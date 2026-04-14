@@ -84,7 +84,7 @@ const ExternalLinksFlipCard = ({
     return (
       <TooltipProvider delayDuration={300}>
         <div
-          className={`w-full max-w-[28rem] rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 ${className}`}
+          className={`w-full max-w-[42rem] rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 ${className}`}
         >
           <div className="rounded-2xl p-4 text-white flex flex-col">
             <div className="flex items-center justify-between mb-2">
@@ -93,7 +93,7 @@ const ExternalLinksFlipCard = ({
                 {cardTitle}
               </h3>
             </div>
-            <div className="grid grid-cols-3 gap-1.5" style={{ gridAutoRows: "3.5rem" }}>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1.5" style={{ gridAutoRows: "3.5rem" }}>
               {displayLinks.map(renderLinkButton)}
             </div>
           </div>
