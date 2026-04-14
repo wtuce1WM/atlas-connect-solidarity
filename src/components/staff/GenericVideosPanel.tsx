@@ -226,16 +226,14 @@ const InlinePoiAssignment = ({ video, onClose, onSaved }: { video: GenericVideo;
         <h3 className="text-sm font-semibold flex items-center gap-2"><MapPin className="h-4 w-4" />Affectation POI</h3>
         <Button variant="ghost" size="sm" onClick={onClose}>✕</Button>
       </div>
-      <div className="flex items-start gap-4">
-        <button className="relative bg-black rounded-lg overflow-hidden group shrink-0" style={{ width: 320, aspectRatio: "16/9" }} onClick={() => setLightboxUrl(video.url)}>
-          {video.thumbnail_url ? <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" /> : isStorageVideo ? <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" /> : <div className="w-full h-full bg-muted flex items-center justify-center"><Play className="h-8 w-8 text-muted-foreground" /></div>}
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><div className="w-12 h-12 rounded-full bg-primary/80 flex items-center justify-center"><Play className="h-6 w-6 text-primary-foreground fill-primary-foreground ml-0.5" /></div></div>
-        </button>
-        <div className="space-y-1">
-          {video.name && <p className="text-sm font-semibold">{video.name}</p>}
-          <p className="text-xs text-muted-foreground font-mono">{video.id}</p>
-          {video.city && <p className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" /> {video.city}</p>}
-        </div>
+      <button className="relative w-full bg-black rounded-lg overflow-hidden group" style={{ aspectRatio: "16/9" }} onClick={() => setLightboxUrl(video.url)}>
+        {video.thumbnail_url ? <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" /> : isStorageVideo ? <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" /> : <div className="w-full h-full bg-muted flex items-center justify-center"><Play className="h-8 w-8 text-muted-foreground" /></div>}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><div className="w-12 h-12 rounded-full bg-primary/80 flex items-center justify-center"><Play className="h-6 w-6 text-primary-foreground fill-primary-foreground ml-0.5" /></div></div>
+      </button>
+      <div className="space-y-1">
+        {video.name && <p className="text-sm font-semibold">{video.name}</p>}
+        <p className="text-xs text-muted-foreground font-mono">{video.id}</p>
+        {video.city && <p className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" /> {video.city}</p>}
       </div>
       {loading ? <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin" /></div> : (
         <div className="space-y-4">
@@ -340,8 +338,16 @@ const InlineBusinessAssignment = ({ video, onClose, onSaved }: { video: GenericV
   return (
     <div className="border-2 border-primary/30 rounded-lg p-4 space-y-4 bg-muted/30">
       <div className="flex items-start justify-between">
-        <h3 className="text-sm font-semibold flex items-center gap-2"><Building2 className="h-4 w-4" />Affectation Établissements — <span className="font-mono text-xs text-muted-foreground">{video.id}</span></h3>
+        <h3 className="text-sm font-semibold flex items-center gap-2"><Building2 className="h-4 w-4" />Affectation Établissements</h3>
         <Button variant="ghost" size="sm" onClick={onClose}>✕</Button>
+      </div>
+      <button className="relative w-full bg-black rounded-lg overflow-hidden group" style={{ aspectRatio: "16/9" }} onClick={() => {}}>
+        {video.thumbnail_url ? <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" /> : video.url.includes("supabase.co/storage") ? <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" /> : <div className="w-full h-full bg-muted flex items-center justify-center"><Play className="h-8 w-8 text-muted-foreground" /></div>}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><div className="w-12 h-12 rounded-full bg-primary/80 flex items-center justify-center"><Play className="h-6 w-6 text-primary-foreground fill-primary-foreground ml-0.5" /></div></div>
+      </button>
+      <div className="space-y-1">
+        {video.name && <p className="text-sm font-semibold">{video.name}</p>}
+        <p className="text-xs text-muted-foreground font-mono">{video.id}</p>
       </div>
       {loading ? <div className="flex items-center justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div> : (
         <div className="space-y-4">
@@ -468,6 +474,14 @@ const InlineDestinationCityAssignment = ({ video, onClose, onSaved }: { video: G
       <div className="flex items-start justify-between">
         <h3 className="text-sm font-semibold flex items-center gap-2"><Globe className="h-4 w-4" />Affectation Destinations & Villes</h3>
         <Button variant="ghost" size="sm" onClick={onClose}>✕</Button>
+      </div>
+      <button className="relative w-full bg-black rounded-lg overflow-hidden group" style={{ aspectRatio: "16/9" }} onClick={() => {}}>
+        {video.thumbnail_url ? <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" /> : video.url.includes("supabase.co/storage") ? <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" /> : <div className="w-full h-full bg-muted flex items-center justify-center"><Play className="h-8 w-8 text-muted-foreground" /></div>}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><div className="w-12 h-12 rounded-full bg-primary/80 flex items-center justify-center"><Play className="h-6 w-6 text-primary-foreground fill-primary-foreground ml-0.5" /></div></div>
+      </button>
+      <div className="space-y-1">
+        {video.name && <p className="text-sm font-semibold">{video.name}</p>}
+        <p className="text-xs text-muted-foreground font-mono">{video.id}</p>
       </div>
       {loading ? <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin" /></div> : (
         <div className="space-y-5">
