@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
+import ReviewsEditor from "./ReviewsEditor";
 import YouTubeVideosManager from "./YouTubeVideosManager";
 import { format } from "date-fns";
 import { DndContext, closestCenter } from "@dnd-kit/core";
@@ -28,7 +29,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { toast as sonnerToast } from "sonner";
-import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle, Copy, ExternalLink, Globe, Star, Plus, Merge, ArrowRight, Loader2, FileText, X, Upload, Image as ImageIcon, ChevronUp, ChevronDown, GripVertical, Monitor } from "lucide-react";
+import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle, Copy, ExternalLink, Globe, Star, Plus, Merge, ArrowRight, Loader2, FileText, X, Upload, Image as ImageIcon, ChevronUp, ChevronDown, GripVertical, Monitor, MessageSquare } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -5423,6 +5424,17 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             value={formData.vacation_dates}
             onChange={(dates) => setFormData(prev => ({ ...prev, vacation_dates: dates }))}
           />
+
+          {/* Avis Clients */}
+          {business?.id && (
+            <div className="mt-4 pt-4 border-t border-blue-200">
+              <Label className="text-lg font-semibold flex items-center gap-2 mb-3">
+                <MessageSquare className="h-5 w-5" />
+                Avis clients
+              </Label>
+              <ReviewsEditor businessId={business.id} />
+            </div>
+          )}
         </div>
 
         {/* Internal Notes - Staff Only */}
