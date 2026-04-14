@@ -992,9 +992,9 @@ const GenericVideosPanel = () => {
                         onPreview={setLightboxUrl}
                         onEditSocial={setSocialVideo}
                         onEditDescription={setDescVideo}
-                        onEditPois={setPoiVideo}
-                        onEditBusinesses={setBusinessVideo}
-                        onEditDestinations={setDestinationVideo}
+                        onEditPois={(v) => { setBusinessVideo(null); setDestinationVideo(null); setPoiVideo(v); }}
+                        onEditBusinesses={(v) => { setPoiVideo(null); setDestinationVideo(null); setBusinessVideo(v); }}
+                        onEditDestinations={(v) => { setPoiVideo(null); setBusinessVideo(null); setDestinationVideo(v); }}
                         onPreviewOverlay={setPreviewOverlayVideo}
                       />
                     </div>
