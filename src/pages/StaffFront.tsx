@@ -429,6 +429,7 @@ const StaffFront = () => {
             <Tabs defaultValue="">
               <TabsList className="flex flex-wrap h-auto gap-1">
                 <TabsTrigger value="front-videos">Homepage</TabsTrigger>
+                <TabsTrigger value="fs-videos">Structure du front</TabsTrigger>
                 <TabsTrigger value="sub-videos">Avec sous-catégorie</TabsTrigger>
                 <TabsTrigger value="no-sub-videos">Sans sous-catégorie</TabsTrigger>
                 <TabsTrigger value="service-videos">Services</TabsTrigger>
@@ -436,7 +437,6 @@ const StaffFront = () => {
                 <TabsTrigger value="dest-videos">Destinations</TabsTrigger>
                 <TabsTrigger value="pois-videos">POIS</TabsTrigger>
                 <TabsTrigger value="generic-videos">Génériques</TabsTrigger>
-                <TabsTrigger value="fs-videos">Structure du front</TabsTrigger>
               </TabsList>
               <TabsContent value="front-videos">
                 <Tabs defaultValue="marrakech">
