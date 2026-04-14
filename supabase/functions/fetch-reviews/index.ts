@@ -971,7 +971,7 @@ async function fetchAvisVerifiesReviews(url: string): Promise<{ rating: number |
   return { rating: null, count: null };
 }
 
-
+Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
