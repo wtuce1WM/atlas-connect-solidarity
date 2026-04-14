@@ -293,6 +293,7 @@ const InlineBusinessAssignment = ({ video, onClose, onSaved }: { video: GenericV
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -341,7 +342,7 @@ const InlineBusinessAssignment = ({ video, onClose, onSaved }: { video: GenericV
         <h3 className="text-sm font-semibold flex items-center gap-2"><Building2 className="h-4 w-4" />Affectation Établissements</h3>
         <Button variant="ghost" size="sm" onClick={onClose}>✕</Button>
       </div>
-      <button className="relative w-full bg-black rounded-lg overflow-hidden group" style={{ aspectRatio: "16/9" }} onClick={() => {}}>
+      <button className="relative w-full bg-black rounded-lg overflow-hidden group" style={{ aspectRatio: "16/9" }} onClick={() => setLightboxUrl(video.url)}>
         {video.thumbnail_url ? <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" /> : video.url.includes("supabase.co/storage") ? <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" /> : <div className="w-full h-full bg-muted flex items-center justify-center"><Play className="h-8 w-8 text-muted-foreground" /></div>}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><div className="w-12 h-12 rounded-full bg-primary/80 flex items-center justify-center"><Play className="h-6 w-6 text-primary-foreground fill-primary-foreground ml-0.5" /></div></div>
       </button>
@@ -383,6 +384,7 @@ const InlineBusinessAssignment = ({ video, onClose, onSaved }: { video: GenericV
           {isDirty && <Button onClick={save} disabled={saving} size="sm">{saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Enregistrer ({selectedIds.length} établissement{selectedIds.length > 1 ? "s" : ""})</Button>}
         </div>
       )}
+      {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
     </div>
   );
 };
@@ -402,6 +404,7 @@ const InlineDestinationCityAssignment = ({ video, onClose, onSaved }: { video: G
   const [citySearch, setCitySearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
