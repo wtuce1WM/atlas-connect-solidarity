@@ -1121,8 +1121,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 >
                   <div className="h-full rounded-2xl text-white overflow-hidden border border-white/10 pointer-events-none relative flex items-center justify-center">
                     <div
-                      className="w-12 h-12 rounded-full bg-black/20 backdrop-blur-xl border-2 border-white/80 flex items-center justify-center group-hover:bg-black/35 transition-colors animate-fade-in"
-                      style={{ opacity: 0, animationDelay: '2s', animationFillMode: 'forwards' }}
+                      className="w-12 h-12 rounded-full flex items-center justify-center group-hover:opacity-90 transition-colors animate-fade-in"
+                      style={{ opacity: 0, animationDelay: '2s', animationFillMode: 'forwards', backgroundColor: '#25D366' }}
                     >
                       <span className="text-2xl text-white font-light leading-none">+</span>
                     </div>
