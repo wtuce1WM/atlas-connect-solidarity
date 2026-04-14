@@ -3315,9 +3315,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   <SelectItem value="__none__">Aucun</SelectItem>
                   <SelectItem value="nos_offres">Nos offres</SelectItem>
                   <SelectItem value="immergez_vous">Immergez-vous</SelectItem>
-                  <SelectItem value="bienvenue_a">Bienvenue à "{formData.name}"</SelectItem>
-                  <SelectItem value="bienvenue_au">Bienvenue au "{formData.name}"</SelectItem>
-                  <SelectItem value="bienvenue_chez">Bienvenue chez "{formData.name}"</SelectItem>
+                  <SelectItem value="bienvenue_a">Bienvenue à {formData.name}</SelectItem>
+                  <SelectItem value="bienvenue_au">Bienvenue au {formData.name}</SelectItem>
+                  <SelectItem value="bienvenue_chez">Bienvenue chez {formData.name}</SelectItem>
                   <SelectItem value="bienvenue">Bienvenue</SelectItem>
                   <SelectItem value="bienvenue_a_l">Bienvenue à l'{formData.name}</SelectItem>
                   <SelectItem value="bienvenue_a_la">Bienvenue à la {formData.name}</SelectItem>
