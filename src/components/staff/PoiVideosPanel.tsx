@@ -186,13 +186,13 @@ const PoiVideosPanel = () => {
       if (data) data.forEach(b => bizMap.set(b.id, b.name));
     }
 
-    // Fetch POI names
+    // Fetch POI names + city/neighborhood (for fallback on generic videos)
     const poiIds = [...new Set(combined.map(d => d.poi_id).filter(Boolean))] as string[];
-    const poiMap = new Map<string, string>();
+    const poiMap = new Map<string, { name: string; city: string | null; neighborhood: string | null }>();
     for (let i = 0; i < poiIds.length; i += 200) {
       const batch = poiIds.slice(i, i + 200);
-      const { data } = await supabase.from("businesses").select("id, name").in("id", batch);
-      if (data) data.forEach(b => poiMap.set(b.id, b.name));
+      const { data } = await supabase.from("businesses").select("id, name, city, neighborhood").in("id", batch);
+      if (data) data.forEach(b => poiMap.set(b.id, { name: b.name, city: b.city, neighborhood: b.neighborhood }));
     }
 
     // Count how many POIs each URL has (for multi-POI indicator)
