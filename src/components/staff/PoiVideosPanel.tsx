@@ -70,7 +70,12 @@ const SortableVideoCard = ({ video, index, onPlay }: { video: PoiVideo; index: n
         </div>
       </button>
       <div className="mt-1.5">
-        <p className="text-sm font-medium leading-tight">{video.business_name}</p>
+        <p className="text-sm font-medium leading-tight flex items-center gap-1">
+          {video.business_name}
+          {video.source === "generic" && (
+            <span className="shrink-0 text-[9px] font-bold uppercase px-1 py-0.5 rounded bg-muted text-muted-foreground">GEN</span>
+          )}
+        </p>
         <div className="flex items-center gap-1">
           <p className="text-xs text-muted-foreground truncate">POI : {video.poi_name}</p>
           {video.poi_count > 1 && (
