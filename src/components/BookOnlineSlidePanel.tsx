@@ -1112,16 +1112,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               )}
               {woDescription && showGoogleMap && (
                 <div
-                  className="snap-start shrink-0 w-[6.5em] h-[6.5em] mb-4 relative animate-slide-in-left opacity-0 overflow-hidden rounded-2xl cursor-pointer group"
+                  className="snap-start shrink-0 w-[6.5em] h-[6.5em] mb-4 relative animate-slide-in-left opacity-0 rounded-2xl cursor-pointer group"
                   style={{ animationFillMode: 'forwards' }}
                   onClick={() => setShowDescriptionOverlay(true)}
                   onMouseEnter={(e) => {
                     centerCardInCarousel(e.currentTarget);
                   }}
                 >
-                  <div className="h-full rounded-2xl text-white overflow-hidden pointer-events-none relative flex items-center justify-center">
+                  <div className="h-full rounded-2xl text-white relative flex items-center justify-center">
                     <div
-                      className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center group-hover:scale-125 transition-transform duration-200 animate-fade-in"
+                      className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center group-hover:scale-150 transition-transform duration-200 animate-fade-in"
                       style={{ opacity: 0, animationDelay: '2s', animationFillMode: 'forwards', backgroundColor: '#25D366' }}
                     >
                       <span className="text-2xl text-white font-light leading-none">+</span>
