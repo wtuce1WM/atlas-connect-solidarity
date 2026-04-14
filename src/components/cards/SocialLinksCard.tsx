@@ -93,7 +93,7 @@ const SocialLinksCard = ({
             <button
               key={m.id}
               onClick={() => onOpenUrl?.(m.url, m.name || (language === "en" ? "Menu" : "La Carte"))}
-              className="min-w-[5rem] h-10 rounded-xl flex items-center justify-center bg-white/10 hover:bg-white/20 transition-colors px-3"
+              className="min-w-[5rem] h-10 rounded-xl flex items-center justify-center bg-black/40 backdrop-blur-sm hover:bg-black/50 transition-colors px-3"
               style={{
                 opacity: expanded ? 1 : undefined,
                 transform: expanded ? 'translateY(0)' : undefined,
