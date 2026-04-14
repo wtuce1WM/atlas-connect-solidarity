@@ -113,7 +113,7 @@ const DestinationVideosPanelTab = () => {
       setCities(citiesData.map(c => ({ name: c.name_fr, sort_order: c.sort_order ?? 0 })));
     }
 
-    // Fetch all videos with a destination_id
+    // Fetch all business_documents videos with a destination_id
     const allDocs: any[] = [];
     let offset = 0;
     const PAGE = 1000;
@@ -131,13 +131,47 @@ const DestinationVideosPanelTab = () => {
       offset += PAGE;
     }
 
-    if (allDocs.length === 0) {
+    // Fetch generic videos linked to destinations
+    const { data: gvdLinks } = await supabase
+      .from("generic_video_destinations" as any)
+      .select("generic_video_id, destination_id, sort_order") as any;
+
+    const genericVideoIds = [...new Set((gvdLinks || []).map((l: any) => l.generic_video_id))] as string[];
+    const genericVideosMap = new Map<string, any>();
+    for (let i = 0; i < genericVideoIds.length; i += 200) {
+      const batch = genericVideoIds.slice(i, i + 200);
+      const { data } = await supabase.from("generic_videos" as any).select("id, url, name, thumbnail_url, city, neighborhood").in("id", batch) as any;
+      if (data) data.forEach((g: any) => genericVideosMap.set(g.id, g));
+    }
+
+    // Build generic video rows (one per destination link)
+    const genericDocs: any[] = [];
+    (gvdLinks || []).forEach((link: any) => {
+      const gv = genericVideosMap.get(link.generic_video_id);
+      if (!gv) return;
+      genericDocs.push({
+        id: `gv-${link.generic_video_id}-${link.destination_id}`,
+        url: gv.url,
+        name: gv.name,
+        thumbnail_url: gv.thumbnail_url,
+        sort_order: link.sort_order ?? 0,
+        business_id: link.generic_video_id,
+        destination_id: link.destination_id,
+        city: gv.city || null,
+        neighborhood: gv.neighborhood || null,
+        _source: "generic" as const,
+      });
+    });
+
+    const combined = [...allDocs.map(d => ({ ...d, _source: "document" as const })), ...genericDocs];
+
+    if (combined.length === 0) {
       setVideos([]);
       setLoading(false);
       return;
     }
 
-    // Fetch business names
+    // Fetch business names (for business_documents only)
     const bizIds = [...new Set(allDocs.map(d => d.business_id))];
     const bizMap = new Map<string, string>();
     for (let i = 0; i < bizIds.length; i += 200) {
@@ -147,27 +181,31 @@ const DestinationVideosPanelTab = () => {
     }
 
     // Fetch destination names
-    const destIds = [...new Set(allDocs.map(d => d.destination_id).filter(Boolean))] as string[];
-    const destMap = new Map<string, string>();
+    const destIds = [...new Set(combined.map(d => d.destination_id).filter(Boolean))] as string[];
+    const destMap = new Map<string, { name: string; city_ids: string[] | null }>();
     for (let i = 0; i < destIds.length; i += 200) {
       const batch = destIds.slice(i, i + 200);
       const { data } = await supabase.from("destinations").select("id, name_fr").in("id", batch);
-      if (data) data.forEach(d => destMap.set(d.id, d.name_fr));
+      if (data) data.forEach(d => destMap.set(d.id, { name: d.name_fr, city_ids: null }));
     }
 
-    setVideos(allDocs.map(d => ({
-      id: d.id,
-      url: d.url,
-      name: d.name,
-      thumbnail_url: d.thumbnail_url,
-      sort_order: d.sort_order,
-      business_id: d.business_id,
-      business_name: bizMap.get(d.business_id) || "—",
-      destination_id: d.destination_id,
-      destination_name: destMap.get(d.destination_id) || "—",
-      city: d.city || null,
-      neighborhood: d.neighborhood || null,
-    })));
+    setVideos(combined.map(d => {
+      const dest = destMap.get(d.destination_id);
+      return {
+        id: d.id,
+        url: d.url,
+        name: d.name,
+        thumbnail_url: d.thumbnail_url,
+        sort_order: d.sort_order,
+        business_id: d.business_id,
+        business_name: d._source === "generic" ? "Générique" : (bizMap.get(d.business_id) || "—"),
+        destination_id: d.destination_id,
+        destination_name: dest?.name || "—",
+        city: d.city || null,
+        neighborhood: d.neighborhood || null,
+        source: d._source,
+      };
+    }));
     setLoading(false);
   }, []);
 
