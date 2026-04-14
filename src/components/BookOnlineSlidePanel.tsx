@@ -470,25 +470,33 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     if (!hasReviewsCard) return;
     const buildReviewHtml = (texts: typeof reviewTexts, translated?: string[]) => {
       const activePlats = reviewPlatforms.filter(p => p.rating && p.count);
-      const platformRows = activePlats
-        .map(p => `<tr><td style="padding:6px 12px 6px 0;border-bottom:1px solid rgba(255,255,255,0.1)"><strong>${p.name}</strong> — ${p.rating}/5 (${p.count?.toLocaleString("fr-FR")} ${language === "en" ? "reviews" : "avis"})</td></tr>`)
-        .join("");
       const reviewLabel = language === "en" ? "reviews" : "avis";
-      const summaryCell = `<td style="padding:12px 0;vertical-align:top;text-align:center;border-left:1px solid rgba(255,255,255,0.15);padding-left:16px" rowspan="${activePlats.length || 1}"><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><span style="font-size:2rem;font-weight:bold;color:#FFD700">${avgOn20}</span><span style="font-size:0.8rem;opacity:0.6">/20</span><span style="font-size:0.75rem;opacity:0.5;margin-top:4px">${totalReviewCount.toLocaleString("fr-FR")} ${reviewLabel}</span></div></td>`;
-      const firstRow = activePlats.length > 0
-        ? `<tr><td style="padding:6px 12px 6px 0;border-bottom:1px solid rgba(255,255,255,0.1)"><strong>${activePlats[0].name}</strong> — ${activePlats[0].rating}/5 (${activePlats[0].count?.toLocaleString("fr-FR")} ${reviewLabel})</td>${summaryCell}</tr>`
-        : `<tr><td></td>${summaryCell}</tr>`;
-      const otherRows = activePlats.slice(1)
-        .map(p => `<tr><td style="padding:6px 12px 6px 0;border-bottom:1px solid rgba(255,255,255,0.1)"><strong>${p.name}</strong> — ${p.rating}/5 (${p.count?.toLocaleString("fr-FR")} ${reviewLabel})</td></tr>`)
+      const logoMap: Record<string, string> = {
+        "Google": "https://www.google.com/favicon.ico",
+        "TripAdvisor": "https://static.tacdn.com/img2/brand_refresh/Tripadvisor_logoset_solid_green.svg",
+        "Restaurant Guru": "https://www.restaurantguru.com/favicon.ico",
+        "Trustpilot": "https://cdn.trustpilot.net/brand-assets/4.1.0/logo-black.svg",
+        "GetYourGuide": "https://cdn.getyourguide.com/tf/assets/static/favicon.ico",
+        "Viator": "https://www.viator.com/favicon.ico",
+        "Avis Vérifiés": "https://www.avis-verifies.com/favicon.ico",
+        "TourRadar": "https://www.tourradar.com/favicon.ico",
+        "Kayak": "https://www.kayak.com/favicon.ico",
+      };
+      const platformListHtml = activePlats
+        .map(p => {
+          const logo = logoMap[p.name] || "";
+          const logoImg = logo ? `<img src="${logo}" alt="${p.name}" style="width:18px;height:18px;object-fit:contain;border-radius:3px;flex-shrink:0" onerror="this.style.display='none'"/>` : "";
+          return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0">${logoImg}<strong>${p.name}</strong> <span style="opacity:0.7">— ${p.rating}/5 (${p.count?.toLocaleString("fr-FR")} ${reviewLabel})</span></div>`;
+        })
         .join("");
-      const tableHtml = `<table style="width:100%;border-collapse:collapse"><tbody>${firstRow}${otherRows}</tbody></table>`;
+      const scoreHtml = `<div style="display:flex;align-items:center;gap:16px;margin-bottom:12px"><div style="flex:1">${platformListHtml}</div><div style="text-align:center;padding-left:16px;border-left:1px solid rgba(255,255,255,0.1)"><div class="review-score-zoom" style="font-size:2.2rem;font-weight:bold;color:hsl(43,75%,55%)">${avgOn20}</div><div style="font-size:0.8rem;opacity:0.6">/20</div><div style="font-size:0.75rem;opacity:0.5;margin-top:4px">${totalReviewCount.toLocaleString("fr-FR")} ${reviewLabel}</div></div></div>`;
       const textsHtml = texts.length > 0
         ? "<hr/>" + texts.slice(0, 10).map((r, i) => {
           const displayText = translated?.[i] || r.text || "";
           return `<blockquote><p>${displayText}</p><footer>— ${r.author_name || (language === "en" ? "Anonymous" : "Anonyme")}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`;
         }).join("")
         : "";
-      return tableHtml + textsHtml;
+      return scoreHtml + textsHtml;
     };
     const title = language === "en" ? `Customer reviews (${totalReviewCount})` : `Avis clients (${totalReviewCount})`;
     setDescOverlayContent({ html: buildReviewHtml(reviewTexts), title });
@@ -1751,21 +1759,32 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 const buildReviewHtml = (texts: { text: string | null; author_name: string | null; source: string }[], translated?: string[]) => {
                   const activePlats = reviewPlatforms.filter(p => p.rating && p.count);
                   const reviewLabel = language === "en" ? "reviews" : "avis";
-                  const summaryCell = `<td style="padding:12px 0;vertical-align:top;text-align:center;border-left:1px solid rgba(255,255,255,0.15);padding-left:16px" rowspan="${activePlats.length || 1}"><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><span style="font-size:2rem;font-weight:bold;color:#FFD700">${avgOn20}</span><span style="font-size:0.8rem;opacity:0.6">/20</span><span style="font-size:0.75rem;opacity:0.5;margin-top:4px">${totalReviewCount.toLocaleString("fr-FR")} ${reviewLabel}</span></div></td>`;
-                  const firstRow = activePlats.length > 0
-                    ? `<tr><td style="padding:6px 12px 6px 0;border-bottom:1px solid rgba(255,255,255,0.1)"><strong>${activePlats[0].name}</strong> — ${activePlats[0].rating}/5 (${activePlats[0].count?.toLocaleString("fr-FR")} ${reviewLabel})</td>${summaryCell}</tr>`
-                    : `<tr><td></td>${summaryCell}</tr>`;
-                  const otherRows = activePlats.slice(1)
-                    .map(p => `<tr><td style="padding:6px 12px 6px 0;border-bottom:1px solid rgba(255,255,255,0.1)"><strong>${p.name}</strong> — ${p.rating}/5 (${p.count?.toLocaleString("fr-FR")} ${reviewLabel})</td></tr>`)
+                  const logoMap: Record<string, string> = {
+                    "Google": "https://www.google.com/favicon.ico",
+                    "TripAdvisor": "https://static.tacdn.com/img2/brand_refresh/Tripadvisor_logoset_solid_green.svg",
+                    "Restaurant Guru": "https://www.restaurantguru.com/favicon.ico",
+                    "Trustpilot": "https://cdn.trustpilot.net/brand-assets/4.1.0/logo-black.svg",
+                    "GetYourGuide": "https://cdn.getyourguide.com/tf/assets/static/favicon.ico",
+                    "Viator": "https://www.viator.com/favicon.ico",
+                    "Avis Vérifiés": "https://www.avis-verifies.com/favicon.ico",
+                    "TourRadar": "https://www.tourradar.com/favicon.ico",
+                    "Kayak": "https://www.kayak.com/favicon.ico",
+                  };
+                  const platformListHtml = activePlats
+                    .map(p => {
+                      const logo = logoMap[p.name] || "";
+                      const logoImg = logo ? `<img src="${logo}" alt="${p.name}" style="width:18px;height:18px;object-fit:contain;border-radius:3px;flex-shrink:0" onerror="this.style.display='none'"/>` : "";
+                      return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0">${logoImg}<strong>${p.name}</strong> <span style="opacity:0.7">— ${p.rating}/5 (${p.count?.toLocaleString("fr-FR")} ${reviewLabel})</span></div>`;
+                    })
                     .join("");
-                  const tableHtml = `<table style="width:100%;border-collapse:collapse"><tbody>${firstRow}${otherRows}</tbody></table>`;
+                  const scoreHtml = `<div style="display:flex;align-items:center;gap:16px;margin-bottom:12px"><div style="flex:1">${platformListHtml}</div><div style="text-align:center;padding-left:16px;border-left:1px solid rgba(255,255,255,0.1)"><div class="review-score-zoom" style="font-size:2.2rem;font-weight:bold;color:hsl(43,75%,55%)">${avgOn20}</div><div style="font-size:0.8rem;opacity:0.6">/20</div><div style="font-size:0.75rem;opacity:0.5;margin-top:4px">${totalReviewCount.toLocaleString("fr-FR")} ${reviewLabel}</div></div></div>`;
                   const textsHtml = texts.length > 0
                     ? "<hr/>" + texts.slice(0, 10).map((r, i) => {
                       const displayText = translated?.[i] || r.text || "";
                       return `<blockquote><p>${displayText}</p><footer>— ${r.author_name || (language === "en" ? "Anonymous" : "Anonyme")}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`;
                     }).join("")
                     : "";
-                  return tableHtml + textsHtml;
+                  return scoreHtml + textsHtml;
                 };
                 const title = language === "en" ? `Customer reviews (${totalReviewCount})` : `Avis clients (${totalReviewCount})`;
                 setDescOverlayContent({ html: buildReviewHtml(reviewTexts), title });
