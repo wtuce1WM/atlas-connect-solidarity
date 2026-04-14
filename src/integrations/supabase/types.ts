@@ -2358,6 +2358,42 @@ export type Database = {
           },
         ]
       }
+      generic_video_cities: {
+        Row: {
+          city_id: string
+          created_at: string
+          generic_video_id: string
+          id: string
+        }
+        Insert: {
+          city_id: string
+          created_at?: string
+          generic_video_id: string
+          id?: string
+        }
+        Update: {
+          city_id?: string
+          created_at?: string
+          generic_video_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generic_video_cities_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generic_video_cities_generic_video_id_fkey"
+            columns: ["generic_video_id"]
+            isOneToOne: false
+            referencedRelation: "generic_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       generic_video_destinations: {
         Row: {
           created_at: string
