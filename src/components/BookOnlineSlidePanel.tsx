@@ -469,17 +469,26 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const handleOpenReviews = useCallback(async () => {
     if (!hasReviewsCard) return;
     const buildReviewHtml = (texts: typeof reviewTexts, translated?: string[]) => {
-      const platformsHtml = reviewPlatforms
-        .filter(p => p.rating && p.count)
-        .map(p => `<p><strong>${p.name}</strong> — ${p.rating}/5 (${p.count} ${language === "en" ? "reviews" : "avis"})</p>`)
+      const activePlats = reviewPlatforms.filter(p => p.rating && p.count);
+      const platformRows = activePlats
+        .map(p => `<tr><td style="padding:6px 12px 6px 0;border-bottom:1px solid rgba(255,255,255,0.1)"><strong>${p.name}</strong> — ${p.rating}/5 (${p.count?.toLocaleString("fr-FR")} ${language === "en" ? "reviews" : "avis"})</td></tr>`)
         .join("");
+      const reviewLabel = language === "en" ? "reviews" : "avis";
+      const summaryCell = `<td style="padding:12px 0;vertical-align:top;text-align:center;border-left:1px solid rgba(255,255,255,0.15);padding-left:16px" rowspan="${activePlats.length || 1}"><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><span style="font-size:2rem;font-weight:bold;color:#FFD700">${avgOn20}</span><span style="font-size:0.8rem;opacity:0.6">/20</span><span style="font-size:0.75rem;opacity:0.5;margin-top:4px">${totalReviewCount.toLocaleString("fr-FR")} ${reviewLabel}</span></div></td>`;
+      const firstRow = activePlats.length > 0
+        ? `<tr><td style="padding:6px 12px 6px 0;border-bottom:1px solid rgba(255,255,255,0.1)"><strong>${activePlats[0].name}</strong> — ${activePlats[0].rating}/5 (${activePlats[0].count?.toLocaleString("fr-FR")} ${reviewLabel})</td>${summaryCell}</tr>`
+        : `<tr><td></td>${summaryCell}</tr>`;
+      const otherRows = activePlats.slice(1)
+        .map(p => `<tr><td style="padding:6px 12px 6px 0;border-bottom:1px solid rgba(255,255,255,0.1)"><strong>${p.name}</strong> — ${p.rating}/5 (${p.count?.toLocaleString("fr-FR")} ${reviewLabel})</td></tr>`)
+        .join("");
+      const tableHtml = `<table style="width:100%;border-collapse:collapse"><tbody>${firstRow}${otherRows}</tbody></table>`;
       const textsHtml = texts.length > 0
         ? "<hr/>" + texts.slice(0, 10).map((r, i) => {
           const displayText = translated?.[i] || r.text || "";
           return `<blockquote><p>${displayText}</p><footer>— ${r.author_name || (language === "en" ? "Anonymous" : "Anonyme")}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`;
         }).join("")
         : "";
-      return platformsHtml + textsHtml;
+      return tableHtml + textsHtml;
     };
     const title = language === "en" ? `Customer reviews (${totalReviewCount})` : `Avis clients (${totalReviewCount})`;
     setDescOverlayContent({ html: buildReviewHtml(reviewTexts), title });
@@ -1740,17 +1749,23 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             if (hasReviewsCard) {
               const openReviewsOverlay = async () => {
                 const buildReviewHtml = (texts: { text: string | null; author_name: string | null; source: string }[], translated?: string[]) => {
-                  const platformsHtml = reviewPlatforms
-                    .filter(p => p.rating && p.count)
-                    .map(p => `<p><strong>${p.name}</strong> — ${p.rating}/5 (${p.count} ${language === "en" ? "reviews" : "avis"})</p>`)
+                  const activePlats = reviewPlatforms.filter(p => p.rating && p.count);
+                  const reviewLabel = language === "en" ? "reviews" : "avis";
+                  const summaryCell = `<td style="padding:12px 0;vertical-align:top;text-align:center;border-left:1px solid rgba(255,255,255,0.15);padding-left:16px" rowspan="${activePlats.length || 1}"><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><span style="font-size:2rem;font-weight:bold;color:#FFD700">${avgOn20}</span><span style="font-size:0.8rem;opacity:0.6">/20</span><span style="font-size:0.75rem;opacity:0.5;margin-top:4px">${totalReviewCount.toLocaleString("fr-FR")} ${reviewLabel}</span></div></td>`;
+                  const firstRow = activePlats.length > 0
+                    ? `<tr><td style="padding:6px 12px 6px 0;border-bottom:1px solid rgba(255,255,255,0.1)"><strong>${activePlats[0].name}</strong> — ${activePlats[0].rating}/5 (${activePlats[0].count?.toLocaleString("fr-FR")} ${reviewLabel})</td>${summaryCell}</tr>`
+                    : `<tr><td></td>${summaryCell}</tr>`;
+                  const otherRows = activePlats.slice(1)
+                    .map(p => `<tr><td style="padding:6px 12px 6px 0;border-bottom:1px solid rgba(255,255,255,0.1)"><strong>${p.name}</strong> — ${p.rating}/5 (${p.count?.toLocaleString("fr-FR")} ${reviewLabel})</td></tr>`)
                     .join("");
+                  const tableHtml = `<table style="width:100%;border-collapse:collapse"><tbody>${firstRow}${otherRows}</tbody></table>`;
                   const textsHtml = texts.length > 0
                     ? "<hr/>" + texts.slice(0, 10).map((r, i) => {
                       const displayText = translated?.[i] || r.text || "";
                       return `<blockquote><p>${displayText}</p><footer>— ${r.author_name || (language === "en" ? "Anonymous" : "Anonyme")}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`;
                     }).join("")
                     : "";
-                  return platformsHtml + textsHtml;
+                  return tableHtml + textsHtml;
                 };
                 const title = language === "en" ? `Customer reviews (${totalReviewCount})` : `Avis clients (${totalReviewCount})`;
                 setDescOverlayContent({ html: buildReviewHtml(reviewTexts), title });
