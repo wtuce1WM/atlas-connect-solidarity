@@ -486,10 +486,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         .map(p => {
           const logo = logoMap[p.name] || "";
           const logoImg = logo ? `<img src="${logo}" alt="${p.name}" style="width:28px;height:28px;object-fit:contain;border-radius:4px;flex-shrink:0" onerror="this.style.display='none'"/>` : "";
-          return `<div style="display:flex;align-items:center;gap:10px;padding:4px 0"><span style="display:flex;align-items:center;gap:8px">${logoImg}<strong style="font-size:1.05rem">${p.name}</strong></span> <span style="opacity:0.7;font-size:0.95rem">— ${p.rating}/5 (${p.count?.toLocaleString("fr-FR")} ${reviewLabel})</span></div>`;
+          return `<div style="display:flex;align-items:center;gap:6px;padding:2px 0"><span style="display:flex;align-items:center;gap:6px">${logoImg}<strong style="font-size:1.05rem">${p.name}</strong></span> <span style="opacity:0.7;font-size:0.95rem">— ${p.rating}/5 (${p.count?.toLocaleString("fr-FR")} ${reviewLabel})</span></div>`;
         })
         .join("");
-      const scoreHtml = `<div style="display:flex;align-items:center;gap:12px;margin-bottom:4px"><div style="flex:1">${platformListHtml}</div><div style="text-align:center;padding-left:16px;border-left:1px solid rgba(255,255,255,0.1)"><div style="font-size:2.6rem;font-weight:bold;color:hsl(43,75%,55%)">${avgOn20}</div><div class="review-score-zoom-delayed" style="font-size:0.85rem;color:hsl(43,75%,55%)">/20</div><div class="review-score-zoom-delayed" style="font-size:0.75rem;opacity:0.7;margin-top:2px">${totalReviewCount.toLocaleString("fr-FR")} ${reviewLabel}</div></div></div>`;
+      const scoreHtml = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:2px"><div style="flex:1">${platformListHtml}</div><div style="text-align:center;padding-left:12px;border-left:1px solid rgba(255,255,255,0.1)"><div style="font-size:2.6rem;font-weight:bold;color:hsl(43,75%,55%)">${avgOn20}</div><div class="review-score-zoom-delayed" style="font-size:0.85rem;color:hsl(43,75%,55%)">/20</div><div class="review-score-zoom-delayed" style="font-size:0.75rem;opacity:0.7;margin-top:1px">${totalReviewCount.toLocaleString("fr-FR")} ${reviewLabel}</div></div></div>`;
       const textsHtml = texts.length > 0
         ? "<hr/>" + texts.slice(0, 10).map((r, i) => {
           const displayText = translated?.[i] || r.text || "";
@@ -1774,10 +1774,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     .map(p => {
                       const logo = logoMap[p.name] || "";
                       const logoImg = logo ? `<img src="${logo}" alt="${p.name}" style="width:28px;height:28px;object-fit:contain;border-radius:4px;flex-shrink:0" onerror="this.style.display='none'"/>` : "";
-                      return `<div style="display:flex;align-items:center;gap:10px;padding:4px 0"><span style="display:flex;align-items:center;gap:8px">${logoImg}<strong style="font-size:1.05rem">${p.name}</strong></span> <span style="opacity:0.7;font-size:0.95rem">— ${p.rating}/5 (${p.count?.toLocaleString("fr-FR")} ${reviewLabel})</span></div>`;
+                      return `<div style="display:flex;align-items:center;gap:6px;padding:2px 0"><span style="display:flex;align-items:center;gap:6px">${logoImg}<strong style="font-size:1.05rem">${p.name}</strong></span> <span style="opacity:0.7;font-size:0.95rem">— ${p.rating}/5 (${p.count?.toLocaleString("fr-FR")} ${reviewLabel})</span></div>`;
                     })
                     .join("");
-                  const scoreHtml = `<div style="display:flex;align-items:center;gap:12px;margin-bottom:4px"><div style="flex:1">${platformListHtml}</div><div style="text-align:center;padding-left:16px;border-left:1px solid rgba(255,255,255,0.1)"><div style="font-size:2.6rem;font-weight:bold;color:hsl(43,75%,55%)">${avgOn20}</div><div class="review-score-zoom-delayed" style="font-size:0.85rem;color:hsl(43,75%,55%)">/20</div><div class="review-score-zoom-delayed" style="font-size:0.75rem;opacity:0.7;margin-top:2px">${totalReviewCount.toLocaleString("fr-FR")} ${reviewLabel}</div></div></div>`;
+                   const scoreHtml = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:2px"><div style="flex:1">${platformListHtml}</div><div style="text-align:center;padding-left:12px;border-left:1px solid rgba(255,255,255,0.1)"><div style="font-size:2.6rem;font-weight:bold;color:hsl(43,75%,55%)">${avgOn20}</div><div class="review-score-zoom-delayed" style="font-size:0.85rem;color:hsl(43,75%,55%)">/20</div><div class="review-score-zoom-delayed" style="font-size:0.75rem;opacity:0.7;margin-top:1px">${totalReviewCount.toLocaleString("fr-FR")} ${reviewLabel}</div></div></div>`;
                   const textsHtml = texts.length > 0
                     ? "<hr/>" + texts.slice(0, 10).map((r, i) => {
                       const displayText = translated?.[i] || r.text || "";
