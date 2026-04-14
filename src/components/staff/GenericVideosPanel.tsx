@@ -686,6 +686,13 @@ const RightDetailPanel = ({
           )}
         </div>
 
+        {isDirty && (
+          <Button size="sm" onClick={onSave} disabled={saving} className="w-full">
+            {saving && <Loader2 className="h-3 w-3 animate-spin mr-1" />}
+            Enregistrer
+          </Button>
+        )}
+
         {isStorageVideo && allItems.length > 0 && (
           <div className="rounded-md border bg-muted/30 px-3 py-2">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -717,17 +724,9 @@ const RightDetailPanel = ({
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs font-semibold text-muted-foreground">
-            {allItems.length} entité{allItems.length > 1 ? "s" : ""} liée{allItems.length > 1 ? "s" : ""}
-          </p>
-          {isDirty && (
-            <Button size="sm" onClick={onSave} disabled={saving} className="h-7 text-xs">
-              {saving && <Loader2 className="h-3 w-3 animate-spin mr-1" />}
-              Enregistrer
-            </Button>
-          )}
-        </div>
+        <p className="text-xs font-semibold text-muted-foreground mb-2">
+          {allItems.length} entité{allItems.length > 1 ? "s" : ""} liée{allItems.length > 1 ? "s" : ""}
+        </p>
 
         {allItems.length === 0 ? (
           <p className="text-xs text-muted-foreground text-center py-8">Aucun POI, établissement ou destination lié à cette vidéo</p>
