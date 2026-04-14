@@ -982,7 +982,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   {avgOn20 !== null && avgOn20 > 0 && (
                     <div className="md:hidden flex items-center gap-0.5 bg-black/40 backdrop-blur-sm rounded-full py-0.5 px-1.5 cursor-pointer" onClick={handleOpenReviews}>
                       <Star className="h-3 w-3 text-gold fill-gold" />
-                      <span className="text-xs font-bold text-white">{avgOn20}</span>
+                      <span className="text-xs font-bold text-gold">{avgOn20}</span>
                       <span className="text-[9px] text-white/60">/20</span>
                     </div>
                   )}
@@ -1013,7 +1013,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               rightSlot={avgOn20 !== null && avgOn20 > 0 ? (
                 <div className="md:hidden flex items-center gap-0.5 bg-black/40 backdrop-blur-sm rounded-full py-0.5 px-1.5 cursor-pointer" onClick={handleOpenReviews}>
                   <Star className="h-3 w-3 text-gold fill-gold" />
-                  <span className="text-xs font-bold text-white">{avgOn20}</span>
+                  <span className="text-xs font-bold text-gold">{avgOn20}</span>
                   <span className="text-[9px] text-white/60">/20</span>
                 </div>
               ) : undefined}
@@ -1068,7 +1068,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             <div className="absolute right-4 top-1/2 -translate-y-1/2 shrink-0 hidden md:flex flex-col items-center ml-4 pl-4 border-l border-white/20 cursor-pointer hover:opacity-80 transition-opacity" onClick={handleOpenReviews}>
               <div className="flex items-center gap-1">
                 <Star className="h-4 w-4 text-gold fill-gold" />
-                <span className="text-lg font-bold text-white">{avgOn20}</span>
+                <span className="text-lg font-bold text-gold">{avgOn20}</span>
                 <span className="text-xs text-white/60">/20</span>
               </div>
               {totalReviewCount > 0 && (
