@@ -1178,13 +1178,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 className="flex flex-col items-center justify-center gap-0.5 opacity-0 animate-fade-in py-1"
                 style={{ animationDelay: '0.5s', animationFillMode: 'forwards' }}
               >
-                <div className="flex items-center gap-3">
-                  <Star className="h-7 w-7 md:h-9 md:w-9 text-gold fill-gold drop-shadow-lg" />
-                  <span className="text-4xl md:text-5xl font-black text-gold drop-shadow-lg" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                <div className="flex items-center gap-3" style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}>
+                  <Star className="h-7 w-7 md:h-9 md:w-9 text-gold fill-gold" />
+                  <span className="text-4xl md:text-5xl font-black text-gold" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                     {avgOn20}<span className="text-xl md:text-2xl font-semibold text-white/60">/20</span>
                   </span>
                 </div>
-                <span className="text-sm md:text-base text-white/60 font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                <span className="text-sm md:text-base text-white/60 font-medium" style={{ fontFamily: "'Josefin Sans', sans-serif", filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}>
                   {totalReviewCount.toLocaleString("fr-FR")} {language === "en" ? "reviews" : "avis"}
                 </span>
               </div>
