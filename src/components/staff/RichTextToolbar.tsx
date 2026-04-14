@@ -6,7 +6,7 @@ import {
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
   Strikethrough, Highlighter, Superscript, Subscript,
   Quote, Minus, ImagePlus, TableIcon, Youtube, Palette,
-  Plus, Trash2, ArrowDown, ArrowRight, Smile,
+  Plus, Trash2, ArrowDown, ArrowRight, Smile, Search,
 } from "lucide-react";
 import { useCallback, useState } from "react";
 import {
@@ -55,6 +55,74 @@ const EMOJI_CATEGORIES: { label: string; emojis: string[] }[] = [
   { label: "Météo", emojis: ["☀️","🌤️","⛅","🌥️","🌦️","🌧️","⛈️","🌩️","🌨️","❄️","☃️","⛄","🌬️","💨","🌪️","🌫️","🌈","☁️","🌡️","🔥","💧","🌊","☔","⚡","🌙","🌑","🌒","🌓","🌔","🌕","🌖","🌗","🌘","🌚","🌝","🌞","⭐","🌟","💫","✨","☄️","🌠","🌌"] },
   { label: "Drapeaux", emojis: ["🇲🇦","🇫🇷","🇬🇧","🇺🇸","🇪🇸","🇮🇹","🇩🇪","🇵🇹","🇧🇪","🇨🇭","🇳🇱","🇸🇦","🇦🇪","🇶🇦","🇰🇼","🇧🇭","🇴🇲","🇯🇴","🇪🇬","🇹🇳","🇩🇿","🇱🇾","🇹🇷","🇬🇷","🇯🇵","🇨🇳","🇰🇷","🇮🇳","🇧🇷","🇲🇽","🇦🇷","🇨🇦","🇦🇺","🇷🇺","🇵🇱","🇸🇪","🇳🇴","🇩🇰","🇫🇮","🇦🇹","🇮🇪","🇨🇿","🇭🇺","🇷🇴","🇭🇷","🇺🇦","🏳️","🏴","🏁","🚩"] },
 ];
+
+const EMOJI_KEYWORDS: Record<string, string[]> = {
+  "😀":["smile","sourire","happy","heureux"],"😃":["grin","sourire"],"😄":["laugh","rire"],"😁":["beam","sourire"],"😆":["squint","rire"],"😅":["sweat","sueur"],"🤣":["rofl","mdr"],"😂":["joy","joie","rire"],"🙂":["slight smile","sourire"],"😊":["blush","rougir"],"😇":["angel","ange"],"🥰":["love","amour","coeur"],"😍":["heart eyes","yeux coeur"],"🤩":["star","étoile"],"😘":["kiss","bisou"],"😋":["yum","miam"],"😛":["tongue","langue"],"🤗":["hug","câlin"],"🤔":["think","penser","réfléchir"],"😐":["neutral","neutre"],"😑":["expressionless"],"😶":["mute","muet"],"🙄":["eye roll","yeux"],"😏":["smirk"],"😌":["relieved","soulagé"],"😴":["sleep","dormir","sommeil"],"🤤":["drool","baver"],"😷":["mask","masque"],"🤒":["sick","malade"],"🤕":["hurt","blessé"],"🤢":["nausea","nausée"],"🤮":["vomit","vomir"],"🥵":["hot","chaud"],"🥶":["cold","froid"],"😵":["dizzy","étourdi"],"🤯":["mind blown","explosé"],"🤠":["cowboy"],"🥳":["party","fête"],"😎":["cool","lunettes"],"🤓":["nerd","geek"],"🧐":["monocle"],
+  "👍":["thumbs up","pouce","ok","bien"],"👎":["thumbs down","pouce bas"],"👌":["ok","parfait"],"✌️":["peace","paix","victoire"],"🤞":["crossed","croisé","chance"],"🤟":["love you","rock"],"🤘":["rock","metal"],"🤙":["call","appel"],"👈":["left","gauche"],"👉":["right","droite"],"👆":["up","haut"],"👇":["down","bas"],"☝️":["point","index"],"✋":["hand","main","stop"],"🤚":["raised hand","main"],"🖐️":["fingers","doigts"],"🖖":["vulcan","spock"],"👋":["wave","salut","coucou"],"🤝":["handshake","poignée"],"🙏":["pray","prier","merci"],"✍️":["write","écrire"],"💪":["muscle","force","biceps"],"🦾":["prosthetic","robot"],"👏":["clap","applaudir","bravo"],"🫶":["heart hands","coeur mains"],"❤️‍🔥":["fire heart","coeur feu"],
+  "⭐":["star","étoile"],"🌟":["glow","brillant"],"✨":["sparkle","étincelle","paillette"],"💫":["dizzy","étoile"],"🔥":["fire","feu","hot"],"💯":["100","perfect","parfait"],"❤️":["heart","coeur","amour"],"🧡":["orange heart","coeur"],"💛":["yellow heart","coeur"],"💚":["green heart","coeur"],"💙":["blue heart","coeur"],"💜":["purple heart","coeur"],"🖤":["black heart","coeur noir"],"🤍":["white heart","coeur blanc"],"💔":["broken heart","coeur brisé"],"🏆":["trophy","trophée","victoire"],"🎯":["target","cible"],"🎨":["art","peinture","palette"],"🎬":["cinema","film","clap"],"🎭":["theater","théâtre","masque"],"🎶":["music","musique","note"],"🎵":["note","musique"],"📌":["pin","épingle"],"📍":["location","localisation","lieu"],"🔗":["link","lien"],"💡":["idea","idée","ampoule"],"🔔":["bell","cloche","notification"],"📢":["speaker","haut-parleur"],"💰":["money","argent","sac"],"💵":["dollar","billet"],"💎":["gem","diamant","bijou"],"🎁":["gift","cadeau"],"🎉":["party","fête","tada"],"🎊":["confetti","fête"],
+  "🍽️":["plate","assiette","restaurant"],"☕":["coffee","café"],"🍵":["tea","thé"],"🍷":["wine","vin"],"🍸":["cocktail","martini"],"🍹":["tropical drink","cocktail"],"🍺":["beer","bière"],"🥂":["champagne","toast","cheers","santé"],"🍕":["pizza"],"🍔":["burger","hamburger"],"🍟":["fries","frites"],"🥪":["sandwich"],"🌮":["taco"],"🥗":["salad","salade"],"🍝":["pasta","pâtes","spaghetti"],"🍣":["sushi"],"🍱":["bento"],"🥘":["tagine","tajine","plat"],"🍰":["cake","gâteau"],"🎂":["birthday","anniversaire","gâteau"],"🍫":["chocolate","chocolat"],"🍩":["donut"],"🍪":["cookie","biscuit"],"🍦":["ice cream","glace"],"🍓":["strawberry","fraise"],"🧀":["cheese","fromage"],
+  "✈️":["plane","avion","vol"],"🚀":["rocket","fusée"],"🚁":["helicopter","hélicoptère"],"⛵":["boat","bateau","voilier"],"🚢":["ship","navire","bateau"],"🚗":["car","voiture"],"🚕":["taxi"],"🏨":["hotel","hôtel"],"🏠":["house","maison"],"🏢":["building","immeuble","bureau"],"🏛️":["museum","musée","monument"],"⛪":["church","église"],"🕌":["mosque","mosquée"],"🗼":["tower","tour"],"🏰":["castle","château"],"🌍":["world","monde","terre","globe"],"🗺️":["map","carte"],"🧭":["compass","boussole"],"⛰️":["mountain","montagne"],"🏔️":["snow mountain","montagne neige"],"🌋":["volcano","volcan"],"🏖️":["beach","plage"],"🏝️":["island","île"],"🌅":["sunrise","lever soleil"],"🌇":["sunset","coucher soleil"],
+  "🌸":["cherry blossom","cerisier","fleur"],"🌺":["hibiscus","fleur"],"🌻":["sunflower","tournesol"],"🌹":["rose"],"🌷":["tulip","tulipe"],"🌼":["blossom","fleur"],"🌿":["herb","herbe","plante"],"🍀":["clover","trèfle","chance"],"🌳":["tree","arbre"],"🌴":["palm","palmier"],"🌵":["cactus"],"🌾":["rice","blé","céréale"],"🌈":["rainbow","arc-en-ciel"],"🌊":["wave","vague","mer","ocean"],"💧":["water","eau","goutte"],"❄️":["snow","neige","flocon"],"🌙":["moon","lune","nuit"],
+  "✅":["check","validé","oui"],"❌":["cross","non","faux"],"⚠️":["warning","attention","danger"],"🚫":["prohibited","interdit"],"♻️":["recycle","recyclage"],"➡️":["right arrow","flèche droite"],"⬅️":["left arrow","flèche gauche"],"⬆️":["up arrow","flèche haut"],"⬇️":["down arrow","flèche bas"],
+  "🐶":["dog","chien"],"🐱":["cat","chat"],"🐰":["rabbit","lapin"],"🦊":["fox","renard"],"🐻":["bear","ours"],"🐼":["panda"],"🐨":["koala"],"🐯":["tiger","tigre"],"🦁":["lion"],"🐮":["cow","vache"],"🐷":["pig","cochon"],"🐸":["frog","grenouille"],"🐵":["monkey","singe"],"🐔":["chicken","poulet","poule"],"🐧":["penguin","pingouin"],"🦅":["eagle","aigle"],"🦉":["owl","hibou","chouette"],"🐴":["horse","cheval"],"🦄":["unicorn","licorne"],"🐬":["dolphin","dauphin"],"🐳":["whale","baleine"],"🦈":["shark","requin"],"🐘":["elephant","éléphant"],"🦒":["giraffe","girafe"],"🐪":["camel","chameau","dromadaire"],"🐫":["camel","chameau"],"🕊️":["dove","colombe","paix"],"🐺":["wolf","loup"],
+  "⚽":["soccer","football","foot"],"🏀":["basketball","basket"],"🎾":["tennis"],"🏐":["volleyball","volley"],"⛳":["golf"],"🏹":["archery","tir à l'arc"],"🎣":["fishing","pêche"],"🥊":["boxing","boxe"],"🥋":["martial arts","arts martiaux","karate","judo"],"🎿":["ski"],"🏂":["snowboard"],"🏊":["swimming","natation","nager"],"🚴":["cycling","vélo","cyclisme"],"🧗":["climbing","escalade"],"🏄":["surfing","surf"],"🧘":["yoga","méditation"],"🥇":["gold medal","médaille or"],"🥈":["silver medal","médaille argent"],"🥉":["bronze medal","médaille bronze"],
+  "☀️":["sun","soleil"],"🌧️":["rain","pluie"],"⛈️":["storm","orage","tempête"],"🌩️":["thunder","tonnerre","éclair"],"🌨️":["snow","neige"],"🌬️":["wind","vent"],"💨":["wind","vent","souffle"],"🌪️":["tornado","tornade"],"🌫️":["fog","brouillard"],"☁️":["cloud","nuage"],"🌡️":["thermometer","thermomètre","température"],"☔":["umbrella","parapluie","pluie"],"⚡":["lightning","éclair","électricité"],
+  "🇲🇦":["morocco","maroc"],"🇫🇷":["france"],"🇬🇧":["uk","royaume-uni","angleterre"],"🇺🇸":["usa","états-unis","amérique"],"🇪🇸":["spain","espagne"],"🇮🇹":["italy","italie"],"🇩🇪":["germany","allemagne"],"🇵🇹":["portugal"],"🇧🇪":["belgium","belgique"],"🇨🇭":["switzerland","suisse"],"🇳🇱":["netherlands","pays-bas"],"🇸🇦":["saudi","arabie saoudite"],"🇦🇪":["uae","émirats"],"🇶🇦":["qatar"],"🇪🇬":["egypt","égypte"],"🇹🇳":["tunisia","tunisie"],"🇩🇿":["algeria","algérie"],"🇹🇷":["turkey","turquie"],"🇬🇷":["greece","grèce"],"🇯🇵":["japan","japon"],"🇨🇳":["china","chine"],"🇰🇷":["korea","corée"],"🇮🇳":["india","inde"],"🇧🇷":["brazil","brésil"],"🇨🇦":["canada"],"🇦🇺":["australia","australie"],"🇷🇺":["russia","russie"],"🇺🇦":["ukraine"],
+};
+
+function EmojiPickerContent({ editor }: { editor: Editor }) {
+  const [search, setSearch] = useState("");
+  const q = search.toLowerCase().trim();
+
+  const matchingEmojis = q
+    ? Object.entries(EMOJI_KEYWORDS)
+        .filter(([, kws]) => kws.some((kw) => kw.includes(q)))
+        .map(([emoji]) => emoji)
+    : null;
+
+  return (
+    <>
+      <div className="relative mb-2">
+        <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Rechercher un émoji…"
+          className="w-full pl-7 pr-2 py-1.5 text-sm border rounded-md bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+        />
+      </div>
+      <div className="max-h-64 overflow-y-auto space-y-2">
+        {matchingEmojis ? (
+          matchingEmojis.length > 0 ? (
+            <div className="flex flex-wrap gap-0.5">
+              {matchingEmojis.map((emoji) => (
+                <button key={emoji} type="button" className="w-10 h-10 flex items-center justify-center rounded hover:bg-muted text-2xl cursor-pointer transition-colors" onClick={() => editor.chain().focus().insertContent(emoji).run()}>
+                  {emoji}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground text-center py-4">Aucun résultat</p>
+          )
+        ) : (
+          EMOJI_CATEGORIES.map((cat) => (
+            <div key={cat.label}>
+              <p className="text-xs font-medium text-muted-foreground mb-1">{cat.label}</p>
+              <div className="flex flex-wrap gap-0.5">
+                {cat.emojis.map((emoji) => (
+                  <button key={emoji} type="button" className="w-10 h-10 flex items-center justify-center rounded hover:bg-muted text-2xl cursor-pointer transition-colors" onClick={() => editor.chain().focus().insertContent(emoji).run()}>
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </>
+  );
+}
 
 const MAX_GRID = 8;
 
@@ -223,26 +291,8 @@ const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
             <Smile className="h-4 w-4" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-80 p-2" align="start">
-          <div className="max-h-64 overflow-y-auto space-y-2">
-            {EMOJI_CATEGORIES.map((cat) => (
-              <div key={cat.label}>
-                <p className="text-xs font-medium text-muted-foreground mb-1">{cat.label}</p>
-                <div className="flex flex-wrap gap-0.5">
-                  {cat.emojis.map((emoji) => (
-                    <button
-                      key={emoji}
-                      type="button"
-                      className="w-10 h-10 flex items-center justify-center rounded hover:bg-muted text-2xl cursor-pointer transition-colors"
-                      onClick={() => editor.chain().focus().insertContent(emoji).run()}
-                    >
-                      {emoji}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+        <PopoverContent className="w-96 p-2" align="start">
+          <EmojiPickerContent editor={editor} />
         </PopoverContent>
       </Popover>
 
