@@ -16,6 +16,14 @@ interface ReviewResult {
   getyourguide_review_count?: number | null;
   viator_rating?: number | null;
   viator_review_count?: number | null;
+  trustpilot_rating?: number | null;
+  trustpilot_review_count?: number | null;
+  tourradar_rating?: number | null;
+  tourradar_review_count?: number | null;
+  kayak_rating?: number | null;
+  kayak_review_count?: number | null;
+  avis_verifies_rating?: number | null;
+  avis_verifies_review_count?: number | null;
 }
 
 interface ReviewText {
@@ -846,6 +854,123 @@ async function fetchViatorReviews(url: string): Promise<{ rating: number | null;
   return { rating: null, count: null };
 }
 
+// Firecrawl scraping for Trustpilot
+async function fetchTrustpilotReviews(url: string): Promise<{ rating: number | null; count: number | null }> {
+  const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
+  if (!apiKey) return { rating: null, count: null };
+  try {
+    console.log(`Scraping Trustpilot: ${url}`);
+    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        url, formats: ['extract'],
+        extract: {
+          prompt: 'Extract the overall rating (out of 5, as a decimal like 4.5) and total number of reviews from this Trustpilot page.',
+          schema: { type: 'object', properties: { rating: { type: 'number', description: 'Overall rating out of 5' }, review_count: { type: 'number', description: 'Total number of reviews' } } },
+        },
+        waitFor: 5000,
+      }),
+    });
+    const data = await response.json();
+    console.log('Trustpilot Firecrawl response:', JSON.stringify(data).substring(0, 500));
+    const extracted = data?.data?.extract;
+    if (extracted) {
+      return { rating: extracted.rating ? parseFloat(String(extracted.rating)) : null, count: extracted.review_count ? parseInt(String(extracted.review_count)) : null };
+    }
+  } catch (e) { console.error('Firecrawl Trustpilot error:', e); }
+  return { rating: null, count: null };
+}
+
+// Firecrawl scraping for TourRadar
+async function fetchTourRadarReviews(url: string): Promise<{ rating: number | null; count: number | null }> {
+  const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
+  if (!apiKey) return { rating: null, count: null };
+  try {
+    console.log(`Scraping TourRadar: ${url}`);
+    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        url, formats: ['extract'],
+        extract: {
+          prompt: 'Extract the overall rating (out of 5, as a decimal like 4.5) and total number of reviews from this TourRadar operator page.',
+          schema: { type: 'object', properties: { rating: { type: 'number', description: 'Overall rating out of 5' }, review_count: { type: 'number', description: 'Total number of reviews' } } },
+        },
+        waitFor: 5000,
+      }),
+    });
+    const data = await response.json();
+    console.log('TourRadar Firecrawl response:', JSON.stringify(data).substring(0, 500));
+    const extracted = data?.data?.extract;
+    if (extracted) {
+      return { rating: extracted.rating ? parseFloat(String(extracted.rating)) : null, count: extracted.review_count ? parseInt(String(extracted.review_count)) : null };
+    }
+  } catch (e) { console.error('Firecrawl TourRadar error:', e); }
+  return { rating: null, count: null };
+}
+
+// Firecrawl scraping for Kayak
+async function fetchKayakReviews(url: string): Promise<{ rating: number | null; count: number | null }> {
+  const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
+  if (!apiKey) return { rating: null, count: null };
+  try {
+    console.log(`Scraping Kayak: ${url}`);
+    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        url, formats: ['extract'],
+        extract: {
+          prompt: 'Extract the overall rating (out of 5 or out of 10 — normalize to out of 5) and total number of reviews from this Kayak hotel page.',
+          schema: { type: 'object', properties: { rating: { type: 'number', description: 'Overall rating out of 5' }, review_count: { type: 'number', description: 'Total number of reviews' } } },
+        },
+        waitFor: 5000,
+      }),
+    });
+    const data = await response.json();
+    console.log('Kayak Firecrawl response:', JSON.stringify(data).substring(0, 500));
+    const extracted = data?.data?.extract;
+    if (extracted) {
+      let rating = extracted.rating ? parseFloat(String(extracted.rating)) : null;
+      // Kayak sometimes shows ratings out of 10 — normalize
+      if (rating != null && rating > 5) rating = Math.round((rating / 10) * 5 * 100) / 100;
+      return { rating, count: extracted.review_count ? parseInt(String(extracted.review_count)) : null };
+    }
+  } catch (e) { console.error('Firecrawl Kayak error:', e); }
+  return { rating: null, count: null };
+}
+
+// Firecrawl scraping for Avis Vérifiés
+async function fetchAvisVerifiesReviews(url: string): Promise<{ rating: number | null; count: number | null }> {
+  const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
+  if (!apiKey) return { rating: null, count: null };
+  try {
+    console.log(`Scraping Avis Vérifiés: ${url}`);
+    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        url, formats: ['extract'],
+        extract: {
+          prompt: 'Extract the overall rating (out of 5 or out of 10 — normalize to out of 5) and total number of reviews from this Avis Vérifiés / Verified Reviews page.',
+          schema: { type: 'object', properties: { rating: { type: 'number', description: 'Overall rating out of 5' }, review_count: { type: 'number', description: 'Total number of reviews' } } },
+        },
+        waitFor: 5000,
+      }),
+    });
+    const data = await response.json();
+    console.log('Avis Vérifiés Firecrawl response:', JSON.stringify(data).substring(0, 500));
+    const extracted = data?.data?.extract;
+    if (extracted) {
+      let rating = extracted.rating ? parseFloat(String(extracted.rating)) : null;
+      if (rating != null && rating > 5) rating = Math.round((rating / 10) * 5 * 100) / 100;
+      return { rating, count: extracted.review_count ? parseInt(String(extracted.review_count)) : null };
+    }
+  } catch (e) { console.error('Firecrawl Avis Vérifiés error:', e); }
+  return { rating: null, count: null };
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -867,7 +992,7 @@ Deno.serve(async (req) => {
 
     const { data: business, error: fetchError } = await supabase
       .from('businesses')
-      .select('name, city, latitude, longitude, google_maps_url, google_reviews_url, tripadvisor_review_url, tripadvisor_url, tripadvisor_location_id, restaurant_guru_url, getyourguide_url, viator_url')
+      .select('name, city, latitude, longitude, google_maps_url, google_reviews_url, tripadvisor_review_url, tripadvisor_url, tripadvisor_location_id, restaurant_guru_url, getyourguide_url, viator_url, trustpilot_url, tourradar_url, kayak_url, avis_verifies_url')
       .eq('id', business_id)
       .single();
 
@@ -930,6 +1055,42 @@ Deno.serve(async (req) => {
       );
     }
 
+    if (!google_only && business.trustpilot_url) {
+      promises.push(
+        fetchTrustpilotReviews(business.trustpilot_url).then(r => {
+          results.trustpilot_rating = r.rating;
+          results.trustpilot_review_count = r.count;
+        })
+      );
+    }
+
+    if (!google_only && business.tourradar_url) {
+      promises.push(
+        fetchTourRadarReviews(business.tourradar_url).then(r => {
+          results.tourradar_rating = r.rating;
+          results.tourradar_review_count = r.count;
+        })
+      );
+    }
+
+    if (!google_only && business.kayak_url) {
+      promises.push(
+        fetchKayakReviews(business.kayak_url).then(r => {
+          results.kayak_rating = r.rating;
+          results.kayak_review_count = r.count;
+        })
+      );
+    }
+
+    if (!google_only && business.avis_verifies_url) {
+      promises.push(
+        fetchAvisVerifiesReviews(business.avis_verifies_url).then(r => {
+          results.avis_verifies_rating = r.rating;
+          results.avis_verifies_review_count = r.count;
+        })
+      );
+    }
+
     await Promise.all(promises);
 
     console.log('Results:', JSON.stringify(results));
@@ -946,6 +1107,14 @@ Deno.serve(async (req) => {
     if (results.getyourguide_review_count != null) updateData.getyourguide_review_count = results.getyourguide_review_count;
     if (results.viator_rating != null) updateData.viator_rating = results.viator_rating;
     if (results.viator_review_count != null) updateData.viator_review_count = results.viator_review_count;
+    if (results.trustpilot_rating != null) updateData.trustpilot_rating = results.trustpilot_rating;
+    if (results.trustpilot_review_count != null) updateData.trustpilot_review_count = results.trustpilot_review_count;
+    if (results.tourradar_rating != null) updateData.tourradar_rating = results.tourradar_rating;
+    if (results.tourradar_review_count != null) updateData.tourradar_review_count = results.tourradar_review_count;
+    if (results.kayak_rating != null) updateData.kayak_rating = results.kayak_rating;
+    if (results.kayak_review_count != null) updateData.kayak_review_count = results.kayak_review_count;
+    if (results.avis_verifies_rating != null) updateData.avis_verifies_rating = results.avis_verifies_rating;
+    if (results.avis_verifies_review_count != null) updateData.avis_verifies_review_count = results.avis_verifies_review_count;
 
     if (Object.keys(updateData).length > 0) {
       const { error: updateError } = await supabase
