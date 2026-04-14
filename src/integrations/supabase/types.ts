@@ -3311,6 +3311,7 @@ export type Database = {
           created_at: string
           fetched_at: string
           id: string
+          is_default: boolean
           language: string | null
           published_at: string | null
           rating: number | null
@@ -3324,6 +3325,7 @@ export type Database = {
           created_at?: string
           fetched_at?: string
           id?: string
+          is_default?: boolean
           language?: string | null
           published_at?: string | null
           rating?: number | null
@@ -3337,6 +3339,7 @@ export type Database = {
           created_at?: string
           fetched_at?: string
           id?: string
+          is_default?: boolean
           language?: string | null
           published_at?: string | null
           rating?: number | null
