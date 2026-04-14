@@ -163,7 +163,14 @@ const DestinationVideosPanelTab = () => {
       });
     });
 
-    const combined = [...allDocs.map(d => ({ ...d, _source: "document" as const })), ...genericDocs];
+    // Deduplicate by id (generic videos can appear multiple times via different link rows)
+    const combinedRaw = [...allDocs.map(d => ({ ...d, _source: "document" as const })), ...genericDocs];
+    const seenIds = new Set<string>();
+    const combined = combinedRaw.filter(d => {
+      if (seenIds.has(d.id)) return false;
+      seenIds.add(d.id);
+      return true;
+    });
 
     if (combined.length === 0) {
       setVideos([]);
