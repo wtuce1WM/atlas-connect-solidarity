@@ -236,7 +236,10 @@ const InlinePoiAssignment = ({ video, onClose, onSaved }: { video: GenericVideo;
             <div className="w-full h-full bg-muted flex items-center justify-center"><Play className="h-8 w-8 text-muted-foreground" /></div>
           )}
         </div>
-        {isDirty && <Button size="sm" onClick={save} disabled={saving} className="w-full">{saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}Enregistrer</Button>}
+        <Button size="sm" onClick={save} disabled={!isDirty || saving} className="w-full">
+          {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+          Enregistrer
+        </Button>
         <div className="space-y-1">
           {video.name && <p className="text-sm font-semibold">{video.name}</p>}
           <p className="text-xs text-muted-foreground font-mono">{video.id}</p>
@@ -358,7 +361,10 @@ const InlineBusinessAssignment = ({ video, onClose, onSaved }: { video: GenericV
             <div className="w-full h-full bg-muted flex items-center justify-center"><Play className="h-8 w-8 text-muted-foreground" /></div>
           )}
         </div>
-        {isDirty && <Button onClick={save} disabled={saving} size="sm" className="w-full">{saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Enregistrer ({selectedIds.length} établissement{selectedIds.length > 1 ? "s" : ""})</Button>}
+        <Button onClick={save} disabled={!isDirty || saving} size="sm" className="w-full">
+          {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+          Enregistrer ({selectedIds.length} établissement{selectedIds.length > 1 ? "s" : ""})
+        </Button>
         <div className="space-y-1">
           {video.name && <p className="text-sm font-semibold">{video.name}</p>}
           <p className="text-xs text-muted-foreground font-mono">{video.id}</p>
@@ -500,7 +506,10 @@ const InlineDestinationCityAssignment = ({ video, onClose, onSaved }: { video: G
             <div className="w-full h-full bg-muted flex items-center justify-center"><Play className="h-8 w-8 text-muted-foreground" /></div>
           )}
         </div>
-        {isDirty && <Button size="sm" onClick={save} disabled={saving} className="w-full">{saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}Enregistrer</Button>}
+        <Button size="sm" onClick={save} disabled={!isDirty || saving} className="w-full">
+          {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+          Enregistrer
+        </Button>
         <div className="space-y-1">
           {video.name && <p className="text-sm font-semibold">{video.name}</p>}
           <p className="text-xs text-muted-foreground font-mono">{video.id}</p>
@@ -686,12 +695,10 @@ const RightDetailPanel = ({
           )}
         </div>
 
-        {isDirty && (
-          <Button size="sm" onClick={onSave} disabled={saving} className="w-full">
-            {saving && <Loader2 className="h-3 w-3 animate-spin mr-1" />}
-            Enregistrer
-          </Button>
-        )}
+        <Button size="sm" onClick={onSave} disabled={!isDirty || saving} className="w-full">
+          {saving && <Loader2 className="h-3 w-3 animate-spin mr-1" />}
+          Enregistrer
+        </Button>
 
         {isStorageVideo && allItems.length > 0 && (
           <div className="rounded-md border bg-muted/30 px-3 py-2">
@@ -1029,21 +1036,23 @@ const GenericVideosPanel = () => {
 
   const hasRightPanel = !!(selectedVideo || poiVideo || businessVideo || destinationVideo);
 
-  const closeAllPanels = () => {
+  const closeAllPanels = useCallback(() => {
     setSelectedVideo(null);
     setPoiVideo(null);
     setBusinessVideo(null);
     setDestinationVideo(null);
-  };
+  }, []);
 
   return (
     <div className="flex" style={{ height: "calc(100vh - 200px)" }}>
       {/* Left: video grid */}
       <div
         className={cn("flex-1 space-y-6 pt-4 pr-4 overflow-y-auto", hasRightPanel && "w-1/2")}
-        onClick={(e) => {
-          // Close right panel when clicking empty area of left panel (not on a card)
-          if (hasRightPanel && e.target === e.currentTarget) closeAllPanels();
+        onClickCapture={(e) => {
+          if (!hasRightPanel) return;
+          closeAllPanels();
+          e.preventDefault();
+          e.stopPropagation();
         }}
       >
         {/* Upload zone */}
