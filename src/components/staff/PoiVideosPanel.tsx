@@ -26,6 +26,7 @@ interface PoiVideo {
   city: string | null;
   neighborhood: string | null;
   poi_count: number;
+  source: "document" | "generic";
 }
 
 interface CityOption { name: string; sort_order: number; }
