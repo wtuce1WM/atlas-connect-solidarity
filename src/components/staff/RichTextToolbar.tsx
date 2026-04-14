@@ -229,7 +229,7 @@ const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
                     <button
                       key={emoji}
                       type="button"
-                      className="w-7 h-7 flex items-center justify-center rounded hover:bg-muted text-base cursor-pointer transition-colors"
+                      className="w-10 h-10 flex items-center justify-center rounded hover:bg-muted text-2xl cursor-pointer transition-colors"
                       onClick={() => editor.chain().focus().insertContent(emoji).run()}
                     >
                       {emoji}
