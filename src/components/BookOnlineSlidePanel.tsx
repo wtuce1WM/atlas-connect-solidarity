@@ -1112,25 +1112,19 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               )}
               {woDescription && showGoogleMap && (
                 <div
-                  className="snap-start shrink-0 w-[20rem] h-[6.5em] mb-4 relative animate-slide-in-left opacity-0 overflow-hidden rounded-2xl cursor-pointer group"
+                  className="snap-start shrink-0 w-[6.5em] h-[6.5em] mb-4 relative animate-slide-in-left opacity-0 overflow-hidden rounded-2xl cursor-pointer group"
                   style={{ animationFillMode: 'forwards' }}
                   onClick={() => setShowDescriptionOverlay(true)}
                   onMouseEnter={(e) => {
                     centerCardInCarousel(e.currentTarget);
                   }}
                 >
-                  <div className="h-full rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-hidden border border-white/10 pointer-events-none relative">
+                  <div className="h-full rounded-2xl bg-black/40 backdrop-blur-sm text-white overflow-hidden border border-white/10 pointer-events-none relative flex items-center justify-center">
                     <div
-                      className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings prose-h2:text-base prose-h3:text-lg card1-headings !text-white [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:!text-white [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold opacity-90"
-                      dangerouslySetInnerHTML={{ __html: woDescription }}
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div
-                        className="w-12 h-12 rounded-full bg-black/20 backdrop-blur-xl border-2 border-white/80 flex items-center justify-center group-hover:bg-black/35 transition-colors animate-fade-in"
-                        style={{ opacity: 0, animationDelay: '2s', animationFillMode: 'forwards' }}
-                      >
-                        <span className="text-2xl text-white font-light leading-none">+</span>
-                      </div>
+                      className="w-12 h-12 rounded-full bg-black/20 backdrop-blur-xl border-2 border-white/80 flex items-center justify-center group-hover:bg-black/35 transition-colors animate-fade-in"
+                      style={{ opacity: 0, animationDelay: '2s', animationFillMode: 'forwards' }}
+                    >
+                      <span className="text-2xl text-white font-light leading-none">+</span>
                     </div>
                   </div>
                 </div>
