@@ -237,26 +237,8 @@ const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
             <Smile className="h-4 w-4" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-80 p-2" align="start">
-          <div className="max-h-64 overflow-y-auto space-y-2">
-            {EMOJI_CATEGORIES.map((cat) => (
-              <div key={cat.label}>
-                <p className="text-xs font-medium text-muted-foreground mb-1">{cat.label}</p>
-                <div className="flex flex-wrap gap-0.5">
-                  {cat.emojis.map((emoji) => (
-                    <button
-                      key={emoji}
-                      type="button"
-                      className="w-10 h-10 flex items-center justify-center rounded hover:bg-muted text-2xl cursor-pointer transition-colors"
-                      onClick={() => editor.chain().focus().insertContent(emoji).run()}
-                    >
-                      {emoji}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+        <PopoverContent className="w-96 p-2" align="start">
+          <EmojiPickerContent editor={editor} />
         </PopoverContent>
       </Popover>
 
