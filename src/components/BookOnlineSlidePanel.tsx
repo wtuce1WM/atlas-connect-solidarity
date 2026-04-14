@@ -1094,23 +1094,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         <div ref={infoCarouselRef} className="shrink-0 w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto animate-slide-in-left">
           <div className="flex w-max min-h-[15em] md:min-h-[20em] gap-2 items-start">
             <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
-              {woDescription && !showGoogleMap && (
-                <div
-                  className="snap-start shrink-0 flex-1 min-w-0 mb-2 relative animate-slide-in-left opacity-0 rounded-2xl overflow-y-auto scrollbar-hide"
-                  style={{ animationFillMode: 'forwards', maxHeight: 'min(35vh, 280px)' }}
-                  onMouseEnter={(e) => {
-                    centerCardInCarousel(e.currentTarget);
-                  }}
-                >
-                  <div className="rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white border border-white/10 relative">
-                    <div
-                      className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings prose-h2:text-base prose-h3:text-lg card1-headings !text-white [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:!text-white [&_h2]:!font-bold [&_h2]:!uppercase [&_h3]:!font-bold opacity-90"
-                      dangerouslySetInnerHTML={{ __html: woDescription }}
-                    />
-                  </div>
-                </div>
-              )}
-              {woDescription && showGoogleMap && (
+              {woDescription && (
                 <div
                   className="snap-start shrink-0 w-[6.5em] h-[6.5em] mb-4 relative opacity-0 animate-zoom-out-center cursor-pointer group overflow-visible"
                   style={{ animationDelay: '1.8s', animationFillMode: 'forwards' }}
