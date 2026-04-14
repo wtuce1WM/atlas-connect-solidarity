@@ -1134,6 +1134,59 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   />
                 )}
               </div>
+              {hasContactCard && (
+                <div onMouseEnter={(e) => centerCardInCarousel(e.currentTarget)}>
+                  <ContactFlipCard
+                    key={business.id}
+                    business={business}
+                    language={language}
+                    hasOpeningHours={!!hasOpeningHours}
+                    tallHeight={false}
+                    animationDelay={woDescription ? "120ms" : "0ms"}
+                    hasHotelMapping={isHotelWithPrice}
+                    isSearchingAvailability={hotelSearchLoading}
+                    onCheckAvailability={handleCheckAvailability}
+                    openBadgeInfo={openBadgeInfo}
+                    onOpenWebsite={(url) => {
+                      setBookingOverlayLoaded(false);
+                      setBookingOverlayUrl(url);
+                      setBookingOverlayTitle(language === "en" ? "Website" : "Site web");
+                      setShowBookingOverlay(true);
+                    }}
+                  />
+                </div>
+              )}
+              {showGoogleMap && business && (business.latitude || business.google_maps_url) && (
+                <div onMouseEnter={(e) => centerCardInCarousel(e.currentTarget)}>
+                  <MapCard
+                    latitude={business.latitude}
+                    longitude={business.longitude}
+                    googleMapsUrl={business.google_maps_url}
+                    businessName={business.name}
+                    tallHeight={false}
+                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard)) * 120}ms`}
+                    onClick={() => {
+                      if (business?.city && destinations.length >= 2) setPoiMapMode("destinations");
+                      setShowPoiMapOverlay(true);
+                    }}
+                  />
+                </div>
+              )}
+              {externalLinks.length > 0 && (
+                <div onMouseEnter={(e) => centerCardInCarousel(e.currentTarget)}>
+                  <ExternalLinksFlipCard
+                    links={externalLinks}
+                    animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard)) * 120}ms`}
+                    onClick={() => { setExtLinksOrigin('carousel'); setShowExtLinksOverlay(true); }}
+                  />
+                </div>
+              )}
+              {appStoreLinks.length > 0 && (
+                <AppStoreCard
+                  links={appStoreLinks}
+                  animationDelay={`${(Number(!!woDescription) + Number(hasContactCard) + Number(menuSummaries.length > 0) + Number(hasReviewsCard) + Number(externalLinks.length > 0)) * 120}ms`}
+                />
+              )}
               <div className="shrink-0 w-4" aria-hidden="true" />
           </div>
         </div>
