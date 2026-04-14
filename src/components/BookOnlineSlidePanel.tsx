@@ -1173,6 +1173,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         {woDescription && (
           <div className="flex justify-center pointer-events-auto mt-2">
             <div
+              key={business?.id}
               className="opacity-0 animate-zoom-out-center"
               style={{ animationDelay: '1.8s', animationFillMode: 'forwards', animationDuration: '1s' }}
             >
