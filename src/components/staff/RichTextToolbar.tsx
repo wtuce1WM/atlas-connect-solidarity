@@ -42,6 +42,30 @@ const ToolbarButton = ({
 
 const Sep = () => <div className="w-px h-8 bg-border mx-1" />;
 
+interface EmojiItem {
+  type: "unicode";
+  value: string;
+}
+interface ImageEmojiItem {
+  type: "image";
+  src: string;
+  alt: string;
+}
+type AnyEmoji = EmojiItem | ImageEmojiItem;
+
+const CUSTOM_IMAGE_EMOJIS: ImageEmojiItem[] = [
+  { type: "image", src: "/emojis/tajine-khlia.png", alt: "Tajine khlia" },
+  { type: "image", src: "/emojis/tajine-marocain.png", alt: "Tajine marocain" },
+  { type: "image", src: "/emojis/tajine-blanc.png", alt: "Tajine blanc" },
+  { type: "image", src: "/emojis/tajine-decoratif.png", alt: "Tajine décoratif" },
+  { type: "image", src: "/emojis/couscous-legumes.png", alt: "Couscous légumes" },
+  { type: "image", src: "/emojis/couscous-poulet.png", alt: "Couscous poulet" },
+  { type: "image", src: "/emojis/theiere-or.png", alt: "Théière marocaine" },
+  { type: "image", src: "/emojis/the-maroc.png", alt: "Thé marocain" },
+  { type: "image", src: "/emojis/monument-maroc.png", alt: "Monument marocain" },
+  { type: "image", src: "/emojis/hassan-ii.png", alt: "Mosquée Hassan II" },
+];
+
 const EMOJI_CATEGORIES: { label: string; emojis: string[] }[] = [
   { label: "Smileys", emojis: ["😀","😃","😄","😁","😆","😅","🤣","😂","🙂","😊","😇","🥰","😍","🤩","😘","😋","😛","🤗","🤔","😐","😑","😶","🙄","😏","😌","😴","🤤","😷","🤒","🤕","🤢","🤮","🥵","🥶","😵","🤯","🤠","🥳","😎","🤓","🧐"] },
   { label: "Gestes", emojis: ["👍","👎","👌","✌️","🤞","🤟","🤘","🤙","👈","👉","👆","👇","☝️","✋","🤚","🖐️","🖖","👋","🤝","🙏","✍️","💪","🦾","🖕","👏","🫶","❤️‍🔥"] },
@@ -55,6 +79,19 @@ const EMOJI_CATEGORIES: { label: string; emojis: string[] }[] = [
   { label: "Météo", emojis: ["☀️","🌤️","⛅","🌥️","🌦️","🌧️","⛈️","🌩️","🌨️","❄️","☃️","⛄","🌬️","💨","🌪️","🌫️","🌈","☁️","🌡️","🔥","💧","🌊","☔","⚡","🌙","🌑","🌒","🌓","🌔","🌕","🌖","🌗","🌘","🌚","🌝","🌞","⭐","🌟","💫","✨","☄️","🌠","🌌"] },
   { label: "Drapeaux", emojis: ["🇲🇦","🇫🇷","🇬🇧","🇺🇸","🇪🇸","🇮🇹","🇩🇪","🇵🇹","🇧🇪","🇨🇭","🇳🇱","🇸🇦","🇦🇪","🇶🇦","🇰🇼","🇧🇭","🇴🇲","🇯🇴","🇪🇬","🇹🇳","🇩🇿","🇱🇾","🇹🇷","🇬🇷","🇯🇵","🇨🇳","🇰🇷","🇮🇳","🇧🇷","🇲🇽","🇦🇷","🇨🇦","🇦🇺","🇷🇺","🇵🇱","🇸🇪","🇳🇴","🇩🇰","🇫🇮","🇦🇹","🇮🇪","🇨🇿","🇭🇺","🇷🇴","🇭🇷","🇺🇦","🏳️","🏴","🏁","🚩"] },
 ];
+
+const IMAGE_EMOJI_KEYWORDS: Record<string, string[]> = {
+  "/emojis/tajine-khlia.png": ["tajine","khlia","maroc","marocain","plat"],
+  "/emojis/tajine-marocain.png": ["tajine","marocain","maroc","plat"],
+  "/emojis/tajine-blanc.png": ["tajine","blanc","maroc","céramique"],
+  "/emojis/tajine-decoratif.png": ["tajine","décoratif","maroc","artisanat"],
+  "/emojis/couscous-legumes.png": ["couscous","légumes","maroc","plat"],
+  "/emojis/couscous-poulet.png": ["couscous","poulet","maroc","plat"],
+  "/emojis/theiere-or.png": ["thé","théière","maroc","or","menthe"],
+  "/emojis/the-maroc.png": ["thé","maroc","menthe","plateau"],
+  "/emojis/monument-maroc.png": ["monument","maroc","mosquée","architecture"],
+  "/emojis/hassan-ii.png": ["hassan","mosquée","casablanca","maroc","monument"],
+};
 
 const EMOJI_KEYWORDS: Record<string, string[]> = {
   "😀":["smile","sourire","happy","heureux"],"😃":["grin","sourire"],"😄":["laugh","rire"],"😁":["beam","sourire"],"😆":["squint","rire"],"😅":["sweat","sueur"],"🤣":["rofl","mdr"],"😂":["joy","joie","rire"],"🙂":["slight smile","sourire"],"😊":["blush","rougir"],"😇":["angel","ange"],"🥰":["love","amour","coeur"],"😍":["heart eyes","yeux coeur"],"🤩":["star","étoile"],"😘":["kiss","bisou"],"😋":["yum","miam"],"😛":["tongue","langue"],"🤗":["hug","câlin"],"🤔":["think","penser","réfléchir"],"😐":["neutral","neutre"],"😑":["expressionless"],"😶":["mute","muet"],"🙄":["eye roll","yeux"],"😏":["smirk"],"😌":["relieved","soulagé"],"😴":["sleep","dormir","sommeil"],"🤤":["drool","baver"],"😷":["mask","masque"],"🤒":["sick","malade"],"🤕":["hurt","blessé"],"🤢":["nausea","nausée"],"🤮":["vomit","vomir"],"🥵":["hot","chaud"],"🥶":["cold","froid"],"😵":["dizzy","étourdi"],"🤯":["mind blown","explosé"],"🤠":["cowboy"],"🥳":["party","fête"],"😎":["cool","lunettes"],"🤓":["nerd","geek"],"🧐":["monocle"],
@@ -70,6 +107,10 @@ const EMOJI_KEYWORDS: Record<string, string[]> = {
   "🇲🇦":["morocco","maroc"],"🇫🇷":["france"],"🇬🇧":["uk","royaume-uni","angleterre"],"🇺🇸":["usa","états-unis","amérique"],"🇪🇸":["spain","espagne"],"🇮🇹":["italy","italie"],"🇩🇪":["germany","allemagne"],"🇵🇹":["portugal"],"🇧🇪":["belgium","belgique"],"🇨🇭":["switzerland","suisse"],"🇳🇱":["netherlands","pays-bas"],"🇸🇦":["saudi","arabie saoudite"],"🇦🇪":["uae","émirats"],"🇶🇦":["qatar"],"🇪🇬":["egypt","égypte"],"🇹🇳":["tunisia","tunisie"],"🇩🇿":["algeria","algérie"],"🇹🇷":["turkey","turquie"],"🇬🇷":["greece","grèce"],"🇯🇵":["japan","japon"],"🇨🇳":["china","chine"],"🇰🇷":["korea","corée"],"🇮🇳":["india","inde"],"🇧🇷":["brazil","brésil"],"🇨🇦":["canada"],"🇦🇺":["australia","australie"],"🇷🇺":["russia","russie"],"🇺🇦":["ukraine"],
 };
 
+function insertImageEmoji(editor: Editor, item: ImageEmojiItem) {
+  editor.chain().focus().insertContent(`<img src="${item.src}" alt="${item.alt}" style="display:inline;width:1.5em;height:1.5em;vertical-align:middle;" />`).run();
+}
+
 function EmojiPickerContent({ editor }: { editor: Editor }) {
   const [search, setSearch] = useState("");
   const q = search.toLowerCase().trim();
@@ -79,6 +120,15 @@ function EmojiPickerContent({ editor }: { editor: Editor }) {
         .filter(([, kws]) => kws.some((kw) => kw.includes(q)))
         .map(([emoji]) => emoji)
     : null;
+
+  const matchingImageEmojis = q
+    ? CUSTOM_IMAGE_EMOJIS.filter((item) => {
+        const kws = IMAGE_EMOJI_KEYWORDS[item.src];
+        return kws?.some((kw) => kw.includes(q));
+      })
+    : null;
+
+  const hasResults = (matchingEmojis && matchingEmojis.length > 0) || (matchingImageEmojis && matchingImageEmojis.length > 0);
 
   return (
     <>
@@ -93,10 +143,15 @@ function EmojiPickerContent({ editor }: { editor: Editor }) {
         />
       </div>
       <div className="max-h-64 overflow-y-auto space-y-2">
-        {matchingEmojis ? (
-          matchingEmojis.length > 0 ? (
+        {q ? (
+          hasResults ? (
             <div className="flex flex-wrap gap-0.5">
-              {matchingEmojis.map((emoji) => (
+              {matchingImageEmojis?.map((item) => (
+                <button key={item.src} type="button" className="w-10 h-10 flex items-center justify-center rounded hover:bg-muted cursor-pointer transition-colors" onClick={() => insertImageEmoji(editor, item)} title={item.alt}>
+                  <img src={item.src} alt={item.alt} className="w-7 h-7 object-contain" />
+                </button>
+              ))}
+              {matchingEmojis?.map((emoji) => (
                 <button key={emoji} type="button" className="w-10 h-10 flex items-center justify-center rounded hover:bg-muted text-2xl cursor-pointer transition-colors" onClick={() => editor.chain().focus().insertContent(emoji).run()}>
                   {emoji}
                 </button>
@@ -106,18 +161,31 @@ function EmojiPickerContent({ editor }: { editor: Editor }) {
             <p className="text-xs text-muted-foreground text-center py-4">Aucun résultat</p>
           )
         ) : (
-          EMOJI_CATEGORIES.map((cat) => (
-            <div key={cat.label}>
-              <p className="text-xs font-medium text-muted-foreground mb-1">{cat.label}</p>
+          <>
+            {/* Maroc custom image emojis first */}
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-1">🇲🇦 Maroc</p>
               <div className="flex flex-wrap gap-0.5">
-                {cat.emojis.map((emoji) => (
-                  <button key={emoji} type="button" className="w-10 h-10 flex items-center justify-center rounded hover:bg-muted text-2xl cursor-pointer transition-colors" onClick={() => editor.chain().focus().insertContent(emoji).run()}>
-                    {emoji}
+                {CUSTOM_IMAGE_EMOJIS.map((item) => (
+                  <button key={item.src} type="button" className="w-10 h-10 flex items-center justify-center rounded hover:bg-muted cursor-pointer transition-colors" onClick={() => insertImageEmoji(editor, item)} title={item.alt}>
+                    <img src={item.src} alt={item.alt} className="w-7 h-7 object-contain" />
                   </button>
                 ))}
               </div>
             </div>
-          ))
+            {EMOJI_CATEGORIES.map((cat) => (
+              <div key={cat.label}>
+                <p className="text-xs font-medium text-muted-foreground mb-1">{cat.label}</p>
+                <div className="flex flex-wrap gap-0.5">
+                  {cat.emojis.map((emoji) => (
+                    <button key={emoji} type="button" className="w-10 h-10 flex items-center justify-center rounded hover:bg-muted text-2xl cursor-pointer transition-colors" onClick={() => editor.chain().focus().insertContent(emoji).run()}>
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </>
         )}
       </div>
     </>
