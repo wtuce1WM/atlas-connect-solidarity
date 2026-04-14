@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Play, Upload, Copy, Check, FileText, Instagram, X, MapPin, Building2, Search, GripVertical, Clock, Globe } from "lucide-react";
+import { Loader2, Play, Upload, Copy, Check, FileText, Instagram, X, MapPin, MapPinned, Building2, Search, GripVertical, Clock, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -468,6 +468,90 @@ const InlineDestinationAssignment = ({ video, onClose, onSaved }: { video: Gener
                     onClick={() => toggleDest(dest.id)}
                   >
                     {dest.name_fr}
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ─── Inline City Assignment ─── */
+const InlineCityAssignment = ({ video, onClose, onSaved }: { video: GenericVideo; onClose: () => void; onSaved: () => void; }) => {
+  const [allCities, setAllCities] = useState<{ id: string; name_fr: string }[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [initialIds, setInitialIds] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const [{ data: cities }, { data: links }] = await Promise.all([
+        supabase.from("cities").select("id, name_fr").order("name_fr"),
+        supabase.from("generic_video_cities" as any).select("city_id").eq("generic_video_id", video.id) as unknown as { data: any[] | null },
+      ]);
+      setAllCities((cities as any[]) || []);
+      const ids = ((links as any[]) || []).map((l: any) => l.city_id);
+      setSelectedIds(ids); setInitialIds(ids);
+      setLoading(false);
+    };
+    load();
+  }, [video.id]);
+
+  const toggleCity = (cityId: string) => setSelectedIds(prev => prev.includes(cityId) ? prev.filter(id => id !== cityId) : [...prev, cityId]);
+  const isDirty = JSON.stringify([...selectedIds].sort()) !== JSON.stringify([...initialIds].sort());
+
+  const save = async () => {
+    setSaving(true);
+    const toAdd = selectedIds.filter(id => !initialIds.includes(id));
+    const toRemove = initialIds.filter(id => !selectedIds.includes(id));
+    if (toRemove.length > 0) await supabase.from("generic_video_cities" as any).delete().eq("generic_video_id", video.id).in("city_id", toRemove);
+    if (toAdd.length > 0) await supabase.from("generic_video_cities" as any).insert(toAdd.map(city_id => ({ generic_video_id: video.id, city_id })) as any);
+    toast.success(`${selectedIds.length} ville(s) affectée(s)`);
+    setInitialIds([...selectedIds]); onSaved(); setSaving(false);
+  };
+
+  const filteredCities = useMemo(() => {
+    if (!search) return allCities;
+    const q = search.toLowerCase();
+    return allCities.filter(c => c.name_fr.toLowerCase().includes(q));
+  }, [allCities, search]);
+
+  return (
+    <div className="border-2 border-primary/30 rounded-lg p-4 space-y-4 bg-muted/30">
+      <div className="flex items-start justify-between">
+        <h3 className="text-sm font-semibold flex items-center gap-2"><MapPinned className="h-4 w-4" />Affectation Villes</h3>
+      </div>
+      {loading ? <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin" /></div> : (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs font-medium text-muted-foreground shrink-0">Villes ({selectedIds.length} sélectionnée{selectedIds.length > 1 ? "s" : ""})</span>
+            <Input
+              placeholder="Rechercher…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="h-7 text-xs max-w-[180px]"
+            />
+            {isDirty && <Button size="sm" onClick={save} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}Enregistrer</Button>}
+          </div>
+          <div className="space-y-1 max-h-[300px] overflow-y-auto pr-1">
+            {filteredCities.length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-4">Aucune ville trouvée</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {filteredCities.map(city => (
+                  <Badge
+                    key={city.id}
+                    variant={selectedIds.includes(city.id) ? "default" : "outline"}
+                    className="cursor-pointer transition-colors"
+                    onClick={() => toggleCity(city.id)}
+                  >
+                    {city.name_fr}
                   </Badge>
                 ))}
               </div>
