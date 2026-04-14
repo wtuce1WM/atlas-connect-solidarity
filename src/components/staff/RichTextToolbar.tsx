@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Editor } from "@tiptap/react";
 import { Button } from "@/components/ui/button";
 import {
@@ -6,7 +7,7 @@ import {
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
   Strikethrough, Highlighter, Superscript, Subscript,
   Quote, Minus, ImagePlus, TableIcon, Youtube, Palette,
-  Plus, Trash2, ArrowDown, ArrowRight, Smile,
+  Plus, Trash2, ArrowDown, ArrowRight, Smile, Search,
 } from "lucide-react";
 import { useCallback, useState } from "react";
 import {
