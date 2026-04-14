@@ -1174,7 +1174,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           <div className="flex justify-center pointer-events-auto mt-2">
             <div
               className="opacity-0 animate-zoom-out-center"
-              style={{ animationDelay: '1.8s', animationFillMode: 'forwards' }}
+              style={{ animationDelay: '1.8s', animationFillMode: 'forwards', animationDuration: '1s' }}
             >
               <div
                 className="cursor-pointer group"
