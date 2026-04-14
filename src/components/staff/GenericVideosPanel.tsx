@@ -226,10 +226,15 @@ const InlinePoiAssignment = ({ video, onClose, onSaved }: { video: GenericVideo;
         <h3 className="text-sm font-semibold flex items-center gap-2"><MapPin className="h-4 w-4" />Affectation POI</h3>
         <Button variant="ghost" size="sm" onClick={onClose}>✕</Button>
       </div>
-      <button className="relative w-full bg-black rounded-lg overflow-hidden group" style={{ aspectRatio: "16/9" }} onClick={() => setLightboxUrl(video.url)}>
-        {video.thumbnail_url ? <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" /> : isStorageVideo ? <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" /> : <div className="w-full h-full bg-muted flex items-center justify-center"><Play className="h-8 w-8 text-muted-foreground" /></div>}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><div className="w-12 h-12 rounded-full bg-primary/80 flex items-center justify-center"><Play className="h-6 w-6 text-primary-foreground fill-primary-foreground ml-0.5" /></div></div>
-      </button>
+      <div className="relative bg-black rounded-lg overflow-hidden" style={{ aspectRatio: "16/9" }}>
+        {isStorageVideo ? (
+          <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" controls />
+        ) : video.thumbnail_url ? (
+          <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-muted flex items-center justify-center"><Play className="h-8 w-8 text-muted-foreground" /></div>
+        )}
+      </div>
       <div className="space-y-1">
         {video.name && <p className="text-sm font-semibold">{video.name}</p>}
         <p className="text-xs text-muted-foreground font-mono">{video.id}</p>
@@ -342,10 +347,15 @@ const InlineBusinessAssignment = ({ video, onClose, onSaved }: { video: GenericV
         <h3 className="text-sm font-semibold flex items-center gap-2"><Building2 className="h-4 w-4" />Affectation Établissements</h3>
         <Button variant="ghost" size="sm" onClick={onClose}>✕</Button>
       </div>
-      <button className="relative w-full bg-black rounded-lg overflow-hidden group" style={{ aspectRatio: "16/9" }} onClick={() => setLightboxUrl(video.url)}>
-        {video.thumbnail_url ? <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" /> : video.url.includes("supabase.co/storage") ? <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" /> : <div className="w-full h-full bg-muted flex items-center justify-center"><Play className="h-8 w-8 text-muted-foreground" /></div>}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><div className="w-12 h-12 rounded-full bg-primary/80 flex items-center justify-center"><Play className="h-6 w-6 text-primary-foreground fill-primary-foreground ml-0.5" /></div></div>
-      </button>
+      <div className="relative bg-black rounded-lg overflow-hidden" style={{ aspectRatio: "16/9" }}>
+        {video.url.includes("supabase.co/storage") ? (
+          <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" controls />
+        ) : video.thumbnail_url ? (
+          <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-muted flex items-center justify-center"><Play className="h-8 w-8 text-muted-foreground" /></div>
+        )}
+      </div>
       <div className="space-y-1">
         {video.name && <p className="text-sm font-semibold">{video.name}</p>}
         <p className="text-xs text-muted-foreground font-mono">{video.id}</p>
@@ -478,10 +488,15 @@ const InlineDestinationCityAssignment = ({ video, onClose, onSaved }: { video: G
         <h3 className="text-sm font-semibold flex items-center gap-2"><Globe className="h-4 w-4" />Affectation Destinations & Villes</h3>
         <Button variant="ghost" size="sm" onClick={onClose}>✕</Button>
       </div>
-      <button className="relative w-full bg-black rounded-lg overflow-hidden group" style={{ aspectRatio: "16/9" }} onClick={() => setLightboxUrl(video.url)}>
-        {video.thumbnail_url ? <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" /> : video.url.includes("supabase.co/storage") ? <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" /> : <div className="w-full h-full bg-muted flex items-center justify-center"><Play className="h-8 w-8 text-muted-foreground" /></div>}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><div className="w-12 h-12 rounded-full bg-primary/80 flex items-center justify-center"><Play className="h-6 w-6 text-primary-foreground fill-primary-foreground ml-0.5" /></div></div>
-      </button>
+      <div className="relative bg-black rounded-lg overflow-hidden" style={{ aspectRatio: "16/9" }}>
+        {video.url.includes("supabase.co/storage") ? (
+          <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" controls />
+        ) : video.thumbnail_url ? (
+          <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-muted flex items-center justify-center"><Play className="h-8 w-8 text-muted-foreground" /></div>
+        )}
+      </div>
       <div className="space-y-1">
         {video.name && <p className="text-sm font-semibold">{video.name}</p>}
         <p className="text-xs text-muted-foreground font-mono">{video.id}</p>
