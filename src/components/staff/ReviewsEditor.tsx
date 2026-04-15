@@ -36,7 +36,7 @@ const ReviewsEditor = ({ businessId }: ReviewsEditorProps) => {
     setLoading(true);
     const { data } = await supabase
       .from("reviews")
-      .select("id, source, author_name, rating, text, text_fr, language, relative_time, published_at, is_default")
+      .select("id, source, author_name, rating, text, text_fr, language, relative_time, published_at, is_default, is_hidden")
       .eq("business_id", businessId)
       .order("is_default", { ascending: false })
       .order("rating", { ascending: false, nullsFirst: false });
