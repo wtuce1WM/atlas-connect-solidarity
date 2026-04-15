@@ -135,6 +135,8 @@ interface Destination {
   google_reviews_url: string | null;
   google_rating: number | null;
   google_review_count: number | null;
+  computed_rating: number | null;
+  total_review_count: number | null;
 }
 
 interface PointOfInterest {
