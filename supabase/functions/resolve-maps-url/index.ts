@@ -70,9 +70,10 @@ async function resolveViaTextSearch(placeName: string, apiKey: string): Promise<
  */
 async function fetchPlaceDetails(placeId: string, apiKey: string): Promise<{ rating?: number; reviewCount?: number; reviews?: any[] } | null> {
   // Use legacy Place Details API which reliably returns reviews
-  const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=rating,user_ratings_total,reviews&key=${apiKey}`;
+  const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=rating,user_ratings_total,reviews&language=fr&key=${apiKey}`;
   const resp = await fetch(url);
   const data = await resp.json();
+  console.log("fetchPlaceDetails placeId:", placeId, "status:", data.status, "hasReviews:", !!(data.result?.reviews), "reviewsCount:", data.result?.reviews?.length);
   if (data.result) {
     const rawReviews = data.result.reviews || [];
     const reviews = rawReviews.slice(0, 5).map((r: any) => ({
