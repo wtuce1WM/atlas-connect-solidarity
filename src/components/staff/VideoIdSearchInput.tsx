@@ -69,7 +69,7 @@ const VideoIdSearchInput = ({ videoIds, className }: VideoIdSearchInputProps) =>
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Coller un ID vidéo…"
         className={cn(
-          "h-7 pl-7 pr-7 text-xs font-mono w-[220px]",
+          "h-7 pl-7 pr-7 text-xs font-mono w-[320px]",
           query && !matchId && "border-destructive focus-visible:ring-destructive"
         )}
       />
