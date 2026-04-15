@@ -1261,7 +1261,19 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         setMenuDocs((data as any[]).filter((d: any) => d.type === "menu").map((d: any) => ({ id: d.id, _uid: d.id || crypto.randomUUID(), url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "", force_external: !!(d as any).force_external })));
         setFlipbookDocs((data as any[]).filter((d: any) => d.type === "flipbook").map((d: any) => ({ id: d.id, _uid: d.id || crypto.randomUUID(), url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "", force_external: !!(d as any).force_external })));
         setExternalLinkDocs((data as any[]).filter((d: any) => d.type === "external_link").map((d: any) => ({ id: d.id, _uid: d.id || crypto.randomUUID(), url: d.url, name: d.name || "", language: d.language || "", image_url: d.icon || "", description: d.description || "presse", force_external: !!(d as any).force_external })));
-        setVideoDocs((data as any[]).filter((d: any) => d.type === "video").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: !!(d as any).popup, start_date: d.start_date || null, end_date: d.end_date || null, _original_sort_order: d.sort_order ?? 0 })));
+        const videoDocIds = (data as any[]).filter((d: any) => d.type === "video").map((d: any) => d.id);
+        const badgeAssocMap = new Map<string, string[]>();
+        if (videoDocIds.length > 0) {
+          for (let i = 0; i < videoDocIds.length; i += 200) {
+            const batch = videoDocIds.slice(i, i + 200);
+            const { data: badgeData } = await supabase.from("business_document_badges" as any).select("document_id, badge_id").in("document_id", batch);
+            if (badgeData) (badgeData as any[]).forEach((b: any) => {
+              if (!badgeAssocMap.has(b.document_id)) badgeAssocMap.set(b.document_id, []);
+              badgeAssocMap.get(b.document_id)!.push(b.badge_id);
+            });
+          }
+        }
+        setVideoDocs((data as any[]).filter((d: any) => d.type === "video").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: !!(d as any).popup, event_id: d.event_id || null, badge_ids: badgeAssocMap.get(d.id) || [], _original_sort_order: d.sort_order ?? 0 })));
       }
     };
     const fetchSummaries = async () => {
@@ -2167,11 +2179,26 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           ...externalLinkDocs
             .filter((d) => d.name.trim())
             .map((d, i) => ({ business_id: businessId, type: "external_link" as const, url: d.url.trim() || "", name: d.name.trim(), language: d.language || null, icon: d.image_url || null, sort_order: i, description: d.description || "presse", popup: false, force_external: d.force_external || false })),
-          ...videoDocsWithThumbs.map((d, i) => ({ business_id: businessId, type: "video" as const, url: d.url, name: d.name || null, language: null, icon: null, sort_order: d._original_sort_order ?? i, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: d.popup || false, force_external: false, start_date: d.start_date || null, end_date: d.end_date || null })),
+          ...videoDocsWithThumbs.map((d, i) => ({ business_id: businessId, type: "video" as const, url: d.url, name: d.name || null, language: null, icon: null, sort_order: d._original_sort_order ?? i, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: d.popup || false, force_external: false, event_id: d.event_id || null })),
         ];
         if (allDocs.length > 0) {
-          const { error: docsError } = await supabase.from("business_documents" as any).insert(allDocs);
+          const { data: insertedDocs, error: docsError } = await supabase.from("business_documents" as any).insert(allDocs).select("id, type");
           if (docsError) throw docsError;
+
+          // Save badge associations for video docs
+          if (insertedDocs) {
+            const videoInserted = (insertedDocs as any[]).filter((d: any) => d.type === "video");
+            const badgeRows: Array<{ document_id: string; badge_id: string }> = [];
+            videoInserted.forEach((inserted: any, i: number) => {
+              const original = videoDocsWithThumbs[i];
+              if (original?.badge_ids?.length) {
+                original.badge_ids.forEach(bid => badgeRows.push({ document_id: inserted.id, badge_id: bid }));
+              }
+            });
+            if (badgeRows.length > 0) {
+              await supabase.from("business_document_badges" as any).insert(badgeRows);
+            }
+          }
         }
 
         // Keep UI in sync immediately after save (no manual refresh needed)
@@ -4512,7 +4539,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 <span className="text-xs text-muted-foreground">🔊 Son {formData.default_sound_on ? "activé" : "désactivé"} par défaut</span>
               </div>
             </div>
-            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => [...prev, { url: "", name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, service_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null, popup: false, start_date: null, end_date: null }])}>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => [...prev, { url: "", name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, service_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null, popup: false, event_id: null, badge_ids: [] }])}>
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
@@ -4534,7 +4561,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 if (error) { toast({ variant: "destructive", title: "Erreur", description: `${file.name}: ${error.message}` }); continue; }
                 const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
                 if (urlData?.publicUrl) {
-                   setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, service_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null, popup: false, start_date: null, end_date: null }]);
+                   setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, service_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null, popup: false, event_id: null, badge_ids: [] }]);
                 }
               }
               toast({ title: `${files.length} vidéo(s) uploadée(s) ✓` });
@@ -4554,7 +4581,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   if (error) { toast({ variant: "destructive", title: "Erreur", description: `${file.name}: ${error.message}` }); continue; }
                   const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
                   if (urlData?.publicUrl) {
-                    setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, service_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null, popup: false, start_date: null, end_date: null }]);
+                    setVideoDocs(prev => [...prev, { url: urlData.publicUrl, name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, service_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null, popup: false, event_id: null, badge_ids: [] }]);
                   }
                 }
                 toast({ title: `${files.length} vidéo(s) uploadée(s) ✓` });
@@ -4616,6 +4643,10 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     dbServices={dbServices}
                     dbCities={dbCities}
                     dbNeighborhoods={dbNeighborhoods}
+                    dbEvents={dbEvents}
+                    dbBadges={dbBadges}
+                    videoEventSearch={videoEventSearch}
+                    setVideoEventSearch={setVideoEventSearch}
                     business={business}
                     toast={toast}
                     onOpenDesc={() => setVideoDescDialogIdx(idx)}
