@@ -3685,9 +3685,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </div>
         </div>
 
-        {/* ── Blocs Highlights ── */}
-        {business?.id && <FrontHighlightsEditor businessId={business.id} />}
-
         {/* ── Fin section Présentation ── */}
       </div>
 
@@ -3720,9 +3717,12 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             content={formData.description}
             onChange={(html) => handleChange("description", html)}
             maxHeight="600px"
-             />
+              />
             <BrokenUrlBadge url={formData.menu_url} />
            </div>
+
+        {/* ── Blocs Highlights ── */}
+        {business?.id && <FrontHighlightsEditor businessId={business.id} />}
 
         {/* POI / Destinations */}
         <div id="section-poi" style={{ scrollMarginTop: "140px" }} />
