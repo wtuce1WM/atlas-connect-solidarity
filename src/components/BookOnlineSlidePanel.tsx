@@ -1469,6 +1469,29 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         </div>
         </div>
 
+        {/* Bouton + centré sous le slidepanel */}
+        {woDescription && (
+          <div className="flex justify-center pointer-events-auto mt-3 mb-1">
+            <div
+              key={business?.id}
+              className="opacity-0 animate-zoom-out-center"
+              style={{ animationDelay: '1.8s', animationFillMode: 'forwards', animationDuration: '1s' }}
+            >
+              <div
+                className="cursor-pointer group"
+                onClick={() => setShowDescriptionOverlay(true)}
+              >
+                <div
+                  className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
+                  style={{ backgroundColor: '#25D366' }}
+                >
+                  <span className="text-2xl text-white font-light leading-none">+</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Availability result (cards hidden mode) */}
         <HotelAvailabilityResult
           business={business}
