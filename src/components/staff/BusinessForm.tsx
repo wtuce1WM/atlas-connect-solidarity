@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
-import ReviewsEditor from "./ReviewsEditor";
+import ReviewsEditor, { type ReviewsEditorRef } from "./ReviewsEditor";
 import YouTubeVideosManager from "./YouTubeVideosManager";
 import { format } from "date-fns";
 import { DndContext, closestCenter } from "@dnd-kit/core";
