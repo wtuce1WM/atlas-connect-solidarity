@@ -53,6 +53,7 @@ import { useOpenStatus } from "@/hooks/useOpenStatus";
 import { ToolbarPortals } from "@/components/slidepanel/ToolbarPortals";
 import { CtaBar, CTA_MODE_LABELS } from "@/components/slidepanel/CtaBar";
 import { HotelAvailabilityResult } from "@/components/slidepanel/HotelAvailabilityResult";
+import AvailabilitySearchOverlay from "@/components/overlays/AvailabilitySearchOverlay";
 
 
 interface BookOnlineSlidePanelProps {
@@ -166,6 +167,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [fallbackHiddenOnMobile, setFallbackHiddenOnMobile] = useState(false);
   const [showFallbackOverlay, setShowFallbackOverlay] = useState(false);
   const [searchOverlayActive, setSearchOverlayActive] = useState(false);
+  const [showAvailabilitySearch, setShowAvailabilitySearch] = useState(false);
   const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
   
@@ -204,9 +206,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   // Close interceptor
   useEffect(() => {
     if (!interceptCloseRef) return;
-    if (showDescriptionOverlay || showDirections || showBookingOverlay || !!docOverlay || showMosaic || showYoutubeOverlay || selectedDestinationId || selectedPoiBusinessId || selectedKpBusinessId) {
+    if (showAvailabilitySearch || showDescriptionOverlay || showDirections || showBookingOverlay || !!docOverlay || showMosaic || showYoutubeOverlay || selectedDestinationId || selectedPoiBusinessId || selectedKpBusinessId) {
       interceptCloseRef.current = () => {
         // First: close any internal overlay in the current panel
+        if (showAvailabilitySearch) { setShowAvailabilitySearch(false); return true; }
         if (showDescriptionOverlay) { setShowDescriptionOverlay(false); setDescOverlayContent(null); setDescOverlayDirect(false); return true; }
         if (showMosaic) { setShowMosaic(false); return true; }
         if (showYoutubeOverlay) { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); setYoutubeIsPlaying(false); return true; }
@@ -243,7 +246,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     } else {
       interceptCloseRef.current = null;
     }
-  }, [previousBusinessId, cameFromFallback, fallbackPanelData, interceptCloseRef, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId, showDescriptionOverlay, showDirections, showBookingOverlay, docOverlay, showMosaic, showYoutubeOverlay]);
+  }, [previousBusinessId, cameFromFallback, fallbackPanelData, interceptCloseRef, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId, showAvailabilitySearch, showDescriptionOverlay, showDirections, showBookingOverlay, docOverlay, showMosaic, showYoutubeOverlay]);
 
   const hideCardsRef = useRef<() => void>(() => {});
   const hasSerpMapping = !!serpApiMapping || !!liteApiHotelId;
@@ -321,6 +324,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     setVideoOverlayClosing(false);
     setShowPoiMapOverlay(false);
     setShowDescriptionOverlay(false);
+    setShowAvailabilitySearch(false);
     setDescGridMode(false);
     setDescOverlayContent(null);
     setShowExtLinksOverlay(false);
@@ -1080,7 +1084,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         >
         {/* Info Carousel */}
         <div ref={infoCarouselRef} className="shrink-0 w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto animate-slide-in-left">
-          <div className="flex w-max min-h-[15em] md:min-h-[20em] gap-2 items-start">
+          <div className="flex w-max gap-2 items-start">
             <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
                 {hasContactCard && (
                   <div onMouseEnter={(e) => centerCardInCarousel(e.currentTarget)}>
@@ -1094,6 +1098,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       hasHotelMapping={isHotelWithPrice}
                       isSearchingAvailability={hotelSearchLoading}
                       onCheckAvailability={handleCheckAvailability}
+                      onOpenAvailabilitySearch={() => setShowAvailabilitySearch(true)}
                       openBadgeInfo={openBadgeInfo}
                       onOpenWebsite={(url) => {
                         setBookingOverlayLoaded(false);
@@ -1159,7 +1164,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
         {/* Note /20 + bouton + : centrés entre carrousel info et tabs */}
         {(avgOn20 != null && totalReviewCount > 0) || woDescription ? (
-          <div className="flex flex-col items-center pointer-events-auto -mt-16 mb-0 gap-3">
+          <div className="flex flex-col items-center pointer-events-auto -mt-6 mb-0 gap-3">
             {/* Bouton + tout en haut de cette section */}
             {woDescription && (
               <div
@@ -1607,6 +1612,20 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         />
       )}
 
+      {/* Availability Search Overlay */}
+      {showAvailabilitySearch && (
+        <AvailabilitySearchOverlay
+          language={language}
+          isSearching={hotelSearchLoading}
+          onSearch={(checkIn, checkOut, adults) => {
+            setShowAvailabilitySearch(false);
+            handleCheckAvailability(checkIn, checkOut, adults);
+          }}
+          onClose={() => setShowAvailabilitySearch(false)}
+        />
+      )}
+
+      {/* Full Description Overlay (continued) */}
       {/* Full Description Overlay */}
       {showDescriptionOverlay && woDescription && (
         <div className="absolute inset-0 lg:-top-[3.3rem] z-[80] animate-zoom-out-center overflow-hidden flex flex-col lg:pt-0">
