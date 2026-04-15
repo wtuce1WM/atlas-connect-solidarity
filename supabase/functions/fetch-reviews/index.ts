@@ -601,7 +601,21 @@ function extractTripAdvisorLocationId(url: string | null): string | null {
   return null;
 }
 
-async function fetchTripAdvisorReviews(businessName: string, city: string, tripadvisorLocationId: string | null, latitude: number | null, longitude: number | null, tripadvisorReviewUrl: string | null, tripadvisorUrl: string | null): Promise<{ rating: number | null | undefined; count: number | null | undefined; locationId: string | null | undefined }> {
+async function fetchTripAdvisorReviews(
+  businessName: string,
+  city: string,
+  tripadvisorLocationId: string | null,
+  latitude: number | null,
+  longitude: number | null,
+  tripadvisorReviewUrl: string | null,
+  tripadvisorUrl: string | null,
+): Promise<{
+  rating: number | null | undefined;
+  count: number | null | undefined;
+  locationId: string | null | undefined;
+  webUrl?: string;
+  reviewUrl?: string;
+}> {
   const apiKey = Deno.env.get('TRIPADVISOR_API_KEY');
   if (!apiKey) {
     console.error('TRIPADVISOR_API_KEY not configured');
@@ -638,6 +652,8 @@ async function fetchTripAdvisorReviews(businessName: string, city: string, tripa
           rating: detailData.rating ? parseFloat(detailData.rating) : null,
           count: detailData.num_reviews ? parseInt(detailData.num_reviews) : null,
           locationId,
+          webUrl: detailData.web_url || undefined,
+          reviewUrl: detailData.write_review || undefined,
         };
       }
 
@@ -698,6 +714,8 @@ async function fetchTripAdvisorReviews(businessName: string, city: string, tripa
       rating: detailData.rating ? parseFloat(detailData.rating) : null,
       count: detailData.num_reviews ? parseInt(detailData.num_reviews) : null,
       locationId,
+      webUrl: detailData.web_url || undefined,
+      reviewUrl: detailData.write_review || undefined,
     };
   } catch (e) {
     console.error('TripAdvisor API error:', e);
@@ -1005,7 +1023,7 @@ Deno.serve(async (req) => {
 
     console.log(`Fetching reviews for: "${business.name}" in ${business.city}`);
 
-    const results: ReviewResult = {};
+    const results: ReviewResult & { tripadvisor_url?: string | null; tripadvisor_review_url?: string | null } = {};
     let googleReviewTexts: ReviewText[] = [];
     const promises: Promise<void>[] = [];
 
@@ -1023,6 +1041,8 @@ Deno.serve(async (req) => {
         fetchTripAdvisorReviews(business.name, business.city || '', business.tripadvisor_location_id, business.latitude, business.longitude, business.tripadvisor_review_url, business.tripadvisor_url).then(r => {
           if (r.rating !== undefined) results.tripadvisor_rating = r.rating;
           if (r.count !== undefined) results.tripadvisor_review_count = r.count;
+          if (r.webUrl !== undefined) results.tripadvisor_url = r.webUrl;
+          if (r.reviewUrl !== undefined) results.tripadvisor_review_url = r.reviewUrl;
           tripadvisorLocationId = r.locationId;
         })
       );
@@ -1100,6 +1120,8 @@ Deno.serve(async (req) => {
     if (results.google_review_count !== undefined) updateData.google_review_count = results.google_review_count;
     if (results.tripadvisor_rating !== undefined) updateData.tripadvisor_rating = results.tripadvisor_rating;
     if (results.tripadvisor_review_count !== undefined) updateData.tripadvisor_review_count = results.tripadvisor_review_count;
+    if (results.tripadvisor_url !== undefined) updateData.tripadvisor_url = results.tripadvisor_url;
+    if (results.tripadvisor_review_url !== undefined) updateData.tripadvisor_review_url = results.tripadvisor_review_url;
     if (tripadvisorLocationId !== undefined) updateData.tripadvisor_location_id = tripadvisorLocationId;
     if (results.restaurant_guru_rating != null) updateData.restaurant_guru_rating = results.restaurant_guru_rating;
     if (results.restaurant_guru_review_count != null) updateData.restaurant_guru_review_count = results.restaurant_guru_review_count;

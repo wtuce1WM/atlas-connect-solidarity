@@ -1585,7 +1585,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     return { avg, total };
   };
 
-  const reviewFetchFieldKeys = [
+  const reviewFetchNumericFieldKeys = [
     "google_rating",
     "google_review_count",
     "tripadvisor_rating",
@@ -1606,9 +1606,12 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     "tourradar_review_count",
   ] as const;
 
+  const reviewFetchUrlFieldKeys = ["tripadvisor_url", "tripadvisor_review_url"] as const;
+
   const applyFetchedReviewsToForm = (fd: any, fetched: Record<string, unknown>) => {
     const next = { ...fd };
-    for (const key of reviewFetchFieldKeys) {
+
+    for (const key of reviewFetchNumericFieldKeys) {
       const raw = fetched[key];
       if (raw === undefined) continue;
       if (raw === null) {
@@ -1620,6 +1623,13 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         next[key] = String(parsed);
       }
     }
+
+    for (const key of reviewFetchUrlFieldKeys) {
+      const raw = fetched[key];
+      if (raw === undefined) continue;
+      next[key] = typeof raw === "string" ? raw : raw == null ? "" : String(raw);
+    }
+
     return next;
   };
 
