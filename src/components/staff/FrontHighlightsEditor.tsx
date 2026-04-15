@@ -16,6 +16,7 @@ interface Highlight {
   description: string;
   sort_order: number;
   business_id: string | null;
+  section_title: string | null;
 }
 
 interface FrontHighlightsEditorProps {
