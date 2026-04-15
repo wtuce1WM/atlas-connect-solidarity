@@ -49,72 +49,6 @@ const ContactFlipCard = ({
   const isEn = language === "en";
   const [flipped, setFlipped] = useState(false);
 
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const defaultCheckout = new Date(tomorrow);
-  defaultCheckout.setDate(defaultCheckout.getDate() + 3);
-  const fmt = (d: Date) => d.toISOString().split("T")[0];
-
-  const [checkIn, setCheckIn] = useState(fmt(tomorrow));
-  const [checkOut, setCheckOut] = useState(fmt(defaultCheckout));
-  const [adults, setAdults] = useState(2);
-  const [selectingField, setSelectingField] = useState<"checkin" | "checkout">("checkin");
-
-  const [calendarMonth, setCalendarMonth] = useState(() => {
-    const d = new Date(fmt(tomorrow) + "T12:00:00");
-    return { year: d.getFullYear(), month: d.getMonth() };
-  });
-
-  const daysInMonth = new Date(calendarMonth.year, calendarMonth.month + 1, 0).getDate();
-  const firstDayOfWeek = new Date(calendarMonth.year, calendarMonth.month, 1).getDay();
-  const startOffset = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
-
-  const monthNames = isEn
-    ? ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-    : ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
-
-  const dayLabels = isEn ? ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"] : ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"];
-
-  const todayStr = fmt(new Date());
-
-  const prevMonth = () => {
-    setCalendarMonth(prev => {
-      const m = prev.month - 1;
-      return m < 0 ? { year: prev.year - 1, month: 11 } : { year: prev.year, month: m };
-    });
-  };
-  const nextMonth = () => {
-    setCalendarMonth(prev => {
-      const m = prev.month + 1;
-      return m > 11 ? { year: prev.year + 1, month: 0 } : { year: prev.year, month: m };
-    });
-  };
-
-  const handleDayClick = (day: number) => {
-    const dateStr = `${calendarMonth.year}-${String(calendarMonth.month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    if (dateStr <= todayStr) return;
-
-    if (selectingField === "checkin") {
-      setCheckIn(dateStr);
-      if (dateStr >= checkOut) {
-        const next = new Date(dateStr);
-        next.setDate(next.getDate() + 1);
-        setCheckOut(fmt(next));
-      }
-      setSelectingField("checkout");
-    } else {
-      if (dateStr <= checkIn) {
-        setCheckIn(dateStr);
-        setSelectingField("checkout");
-      } else {
-        setCheckOut(dateStr);
-        setSelectingField("checkin");
-      }
-    }
-  };
-
-  const isInRange = (dateStr: string) => dateStr > checkIn && dateStr < checkOut;
-
   const showHours = hasOpeningHours && !business.is_open_24h && !hasHotelMapping;
   const showHotel = hasHotelMapping;
 
@@ -131,7 +65,7 @@ const ContactFlipCard = ({
 
   return (
     <div
-      className={`snap-start shrink-0 ${showHotel ? (flipped ? 'w-[20rem]' : 'w-fit min-w-[16rem]') : 'w-fit min-w-[16rem]'} mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 transition-[height,width] duration-500 ease-in-out ${className}`}
+      className={`snap-start shrink-0 w-fit min-w-[16rem] mb-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 transition-[height,width] duration-500 ease-in-out ${className}`}
       style={{
         perspective: "1000px",
         animationDelay,
