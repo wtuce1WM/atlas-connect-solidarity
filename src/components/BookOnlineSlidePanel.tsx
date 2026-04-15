@@ -1163,9 +1163,34 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             {avgOn20 != null && totalReviewCount > 0 && (
               <div
                 key={`rating-${business?.id}`}
-                className="flex flex-col items-center justify-center gap-0.5 opacity-0 animate-fade-in py-1"
+                className="flex flex-col items-center justify-center gap-0.5 opacity-0 animate-fade-in py-1 cursor-pointer"
                 style={{ animationDelay: '0.5s', animationFillMode: 'forwards' }}
+                onClick={handleOpenReviews}
               >
+                {/* Default review quote above rating */}
+                {(() => {
+                  const defaultReview = reviewTexts.find(r => {
+                    const txt = (language === "en" ? r.text_en : r.text_fr) || r.text;
+                    return txt && txt.trim().length > 0;
+                  });
+                  if (!defaultReview) return null;
+                  const displayText = ((language === "en" ? defaultReview.text_en : defaultReview.text_fr) || defaultReview.text || "").trim();
+                  const truncated = displayText.length > 120 ? displayText.slice(0, 120).trimEnd() + "…" : displayText;
+                  return (
+                    <p
+                      className="text-xs md:text-sm text-white/80 italic text-center max-w-[80%] md:max-w-md leading-relaxed mb-2 line-clamp-2"
+                      style={{
+                        fontFamily: "'Josefin Sans', sans-serif",
+                        filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))",
+                      }}
+                    >
+                      "{truncated}"
+                      {defaultReview.author_name && (
+                        <span className="not-italic text-white/50 ml-1">— {defaultReview.author_name}</span>
+                      )}
+                    </p>
+                  );
+                })()}
                 <div className="flex items-center gap-3" style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}>
                   <Star className="h-7 w-7 md:h-9 md:w-9 text-gold fill-gold" />
                   <span className="text-4xl md:text-5xl font-black text-gold" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
