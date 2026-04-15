@@ -1,13 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { ChevronDown, Loader2, Save, Sparkles } from "lucide-react";
+import { ChevronDown, Loader2, Sparkles } from "lucide-react";
 import IconPicker from "./IconPicker";
 import DynamicIcon from "@/components/DynamicIcon";
-import { toast } from "sonner";
 
 interface Highlight {
   id: string;
@@ -23,11 +21,15 @@ interface FrontHighlightsEditorProps {
   businessId: string;
 }
 
-const FrontHighlightsEditor = ({ businessId }: FrontHighlightsEditorProps) => {
+export interface FrontHighlightsEditorHandle {
+  save: () => Promise<void>;
+}
+
+const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighlightsEditorProps>(
+  ({ businessId }, ref) => {
   const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [sectionTitle, setSectionTitle] = useState("Nos Points Forts");
 
@@ -41,12 +43,10 @@ const FrontHighlightsEditor = ({ businessId }: FrontHighlightsEditorProps) => {
     
     let result = (data as Highlight[]) || [];
     
-    // Extract section title from first item if exists
     if (result.length > 0 && result[0].section_title) {
       setSectionTitle(result[0].section_title);
     }
     
-    // Auto-initialize 4 slots if none exist
     if (result.length === 0) {
       const defaults = [
         { business_id: businessId, icon: "Sparkles", title: "", description: "", sort_order: 0, section_title: "Nos Points Forts" },
@@ -81,7 +81,6 @@ const FrontHighlightsEditor = ({ businessId }: FrontHighlightsEditorProps) => {
   };
 
   const handleSave = async () => {
-    setSaving(true);
     for (const h of highlights) {
       await supabase
         .from("front_highlights")
@@ -93,9 +92,9 @@ const FrontHighlightsEditor = ({ businessId }: FrontHighlightsEditorProps) => {
         })
         .eq("id", h.id);
     }
-    setSaving(false);
-    toast.success("Blocs sauvegardés");
   };
+
+  useImperativeHandle(ref, () => ({ save: handleSave }), [highlights, sectionTitle]);
 
   return (
     <Card>
@@ -172,19 +171,14 @@ const FrontHighlightsEditor = ({ businessId }: FrontHighlightsEditorProps) => {
                   </div>
                 ))}
               </div>
-
-              <div className="flex justify-end">
-                <Button onClick={handleSave} disabled={saving} className="gap-2">
-                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                  Sauvegarder
-                </Button>
-              </div>
             </div>
           )}
         </CardContent>
       )}
     </Card>
   );
-};
+});
+
+FrontHighlightsEditor.displayName = "FrontHighlightsEditor";
 
 export default FrontHighlightsEditor;

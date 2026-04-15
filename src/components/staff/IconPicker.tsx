@@ -7,7 +7,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 import type { IconType } from "react-icons";
 
@@ -65,7 +64,6 @@ async function loadPack(packId: string): Promise<IconPack> {
     case "gi":  mod = await import("react-icons/gi"); break;
     default: return {};
   }
-  // Filter only icon components (functions starting with uppercase)
   const icons: IconPack = {};
   for (const [k, v] of Object.entries(mod)) {
     if (typeof v === "function" && /^[A-Z]/.test(k)) icons[k] = v as IconType;
@@ -90,7 +88,6 @@ interface IconPickerProps {
   onChange: (iconName: string) => void;
 }
 
-/** Parse stored value: "fa6:FaHotel" → { pack: "fa6", name: "FaHotel" }, "Star" → { pack: "lucide", name: "Star" } */
 function parseIconValue(val: string) {
   if (!val) return { pack: "lucide", name: "" };
   const idx = val.indexOf(":");
@@ -123,7 +120,7 @@ const IconPicker = ({ value, onChange }: IconPickerProps) => {
 
   const filteredReactIcons = useMemo(() => {
     const names = Object.keys(reactIcons);
-    if (!search) return names.slice(0, 500); // limit initial display
+    if (!search) return names.slice(0, 500);
     return names.filter(n => n.toLowerCase().includes(search.toLowerCase())).slice(0, 500);
   }, [search, reactIcons]);
 
@@ -156,6 +153,50 @@ const IconPicker = ({ value, onChange }: IconPickerProps) => {
     setOpen(false);
   };
 
+  const renderIconGrid = (isLucide: boolean) => {
+    const icons = isLucide ? filteredLucide : filteredReactIcons;
+    const packId = isLucide ? "lucide" : activeTab;
+
+    if (loadingPack && !isLucide) {
+      return <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>;
+    }
+
+    return (
+      <ScrollArea className="h-80">
+        <div className="grid grid-cols-8 gap-1.5 p-3">
+          {icons.map((iconName) => {
+            const IconComp = isLucide ? LUCIDE_ICONS[iconName] : reactIcons[iconName];
+            if (!IconComp) return null;
+            const isSelected = currentPack === packId && currentName === iconName;
+            return (
+              <Button
+                key={iconName}
+                variant={isSelected ? "default" : "ghost"}
+                size="sm"
+                className="h-11 w-11 p-0"
+                onClick={() => handleSelect(iconName)}
+                title={iconName}
+                type="button"
+              >
+                {isLucide ? (
+                  <IconComp className="h-5 w-5" />
+                ) : (
+                  <IconComp size={20} />
+                )}
+              </Button>
+            );
+          })}
+          {icons.length === 0 && (
+            <p className="col-span-8 text-center text-sm text-muted-foreground py-4">Aucune icône trouvée</p>
+          )}
+          {!isLucide && icons.length >= 500 && !search && (
+            <p className="col-span-8 text-center text-xs text-muted-foreground py-2">Utilisez la recherche pour trouver plus d'icônes…</p>
+          )}
+        </div>
+      </ScrollArea>
+    );
+  };
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -170,7 +211,7 @@ const IconPicker = ({ value, onChange }: IconPickerProps) => {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-96 p-0" align="start">
+      <PopoverContent className="w-[480px] p-0" align="start">
         <div className="p-2 border-b">
           <Input
             placeholder="Rechercher une icône..."
@@ -180,67 +221,25 @@ const IconPicker = ({ value, onChange }: IconPickerProps) => {
           />
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="border-b px-2">
-            <TabsList className="h-8 bg-transparent gap-0 flex-wrap justify-start">
-              {PACKS.map(p => (
-                <TabsTrigger key={p.id} value={p.id} className="text-[10px] px-2 py-1 h-6 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                  {p.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </div>
-
-          {/* Lucide tab */}
-          <TabsContent value="lucide" className="mt-0">
-            <ScrollArea className="h-64">
-              <div className="grid grid-cols-8 gap-1 p-2">
-                {filteredLucide.map((iconName) => {
-                  const IconComp = LUCIDE_ICONS[iconName];
-                  const isSelected = currentPack === "lucide" && currentName === iconName;
-                  return (
-                    <Button key={iconName} variant={isSelected ? "default" : "ghost"} size="sm" className="h-9 w-9 p-0" onClick={() => handleSelect(iconName)} title={iconName} type="button">
-                      <IconComp className="h-4 w-4" />
-                    </Button>
-                  );
-                })}
-                {filteredLucide.length === 0 && (
-                  <p className="col-span-8 text-center text-sm text-muted-foreground py-4">Aucune icône trouvée</p>
-                )}
-              </div>
-            </ScrollArea>
-          </TabsContent>
-
-          {/* React Icons tabs */}
-          {PACKS.filter(p => p.id !== "lucide").map(pack => (
-            <TabsContent key={pack.id} value={pack.id} className="mt-0">
-              <ScrollArea className="h-64">
-                {loadingPack ? (
-                  <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
-                ) : (
-                  <div className="grid grid-cols-8 gap-1 p-2">
-                    {filteredReactIcons.map((iconName) => {
-                      const IconComp = reactIcons[iconName];
-                      if (!IconComp) return null;
-                      const isSelected = currentPack === pack.id && currentName === iconName;
-                      return (
-                        <Button key={iconName} variant={isSelected ? "default" : "ghost"} size="sm" className="h-9 w-9 p-0" onClick={() => handleSelect(iconName)} title={iconName} type="button">
-                          <IconComp size={16} />
-                        </Button>
-                      );
-                    })}
-                    {filteredReactIcons.length === 0 && (
-                      <p className="col-span-8 text-center text-sm text-muted-foreground py-4">Aucune icône trouvée</p>
-                    )}
-                    {filteredReactIcons.length >= 500 && !search && (
-                      <p className="col-span-8 text-center text-xs text-muted-foreground py-2">Utilisez la recherche pour trouver plus d'icônes…</p>
-                    )}
-                  </div>
-                )}
-              </ScrollArea>
-            </TabsContent>
+        {/* Simple button-based tabs instead of Radix Tabs */}
+        <div className="border-b px-2 py-1.5 flex flex-wrap gap-1">
+          {PACKS.map(p => (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => setActiveTab(p.id)}
+              className={`text-[11px] px-2.5 py-1 rounded-md font-medium transition-colors ${
+                activeTab === p.id
+                  ? "bg-primary text-primary-foreground"
+                  : "hover:bg-muted text-muted-foreground"
+              }`}
+            >
+              {p.label}
+            </button>
           ))}
-        </Tabs>
+        </div>
+
+        {renderIconGrid(activeTab === "lucide")}
 
         {value && (
           <div className="p-2 border-t">
