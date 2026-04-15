@@ -287,6 +287,7 @@ serve(async (req) => {
         ...(rating !== undefined ? { rating } : {}),
         ...(reviewCount !== undefined ? { reviewCount } : {}),
         ...(reviews && reviews.length > 0 ? { reviews } : {}),
+        _debug: _debugInfo,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
