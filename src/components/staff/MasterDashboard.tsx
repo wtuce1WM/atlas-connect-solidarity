@@ -227,4 +227,79 @@ const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
   );
 };
 
+const BatchTranslateReviews = () => {
+  const [translating, setTranslating] = useState(false);
+  const [progress, setProgress] = useState("");
+  const [result, setResult] = useState("");
+  const abortRef = useRef(false);
+
+  const handleTranslate = async () => {
+    setTranslating(true);
+    setResult("");
+    abortRef.current = false;
+    let totalTranslated = 0;
+
+    try {
+      while (!abortRef.current) {
+        const { data, error } = await supabase.functions.invoke("batch-translate-reviews", {
+          body: { limit: 50, targetLang: "fr" },
+        });
+
+        if (error) {
+          toast.error("Erreur de traduction");
+          break;
+        }
+
+        totalTranslated += data.translated || 0;
+        setProgress(`${totalTranslated} traduits, ${data.remaining} restants`);
+
+        if (data.done || data.remaining === 0) {
+          const msg = totalTranslated > 0
+            ? `Terminé ! ${totalTranslated} avis traduits au total.`
+            : "Tous les avis sont déjà traduits en français.";
+          setResult(msg);
+          toast.success(msg);
+          break;
+        }
+
+        await new Promise(r => setTimeout(r, 500));
+      }
+    } catch {
+      toast.error("Erreur lors de la traduction");
+    }
+
+    setTranslating(false);
+    setProgress("");
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base flex items-center gap-2">
+          <Languages className="h-5 w-5" />
+          Traduction des avis clients
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <p className="text-sm text-muted-foreground">
+          Traduit en français tous les avis qui n'ont pas encore de traduction (text_fr IS NULL).
+        </p>
+        <div className="flex items-center gap-3">
+          <Button
+            onClick={translating ? () => { abortRef.current = true; } : handleTranslate}
+            variant={translating ? "destructive" : "outline"}
+            size="sm"
+            className="gap-2"
+          >
+            {translating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Languages className="h-4 w-4" />}
+            {translating ? "Arrêter" : "Traduire les avis manquants"}
+          </Button>
+        </div>
+        {progress && <p className="text-sm text-muted-foreground animate-pulse">{progress}</p>}
+        {result && <p className="text-sm font-medium text-green-600">{result}</p>}
+      </CardContent>
+    </Card>
+  );
+};
+
 export default MasterDashboard;
