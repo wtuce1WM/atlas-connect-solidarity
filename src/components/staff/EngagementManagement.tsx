@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ChevronDown, ChevronRight, Plus, Loader2, Eye, ExternalLink, ShieldCheck, Settings2 } from "lucide-react";
+import { ChevronDown, ChevronRight, Plus, Loader2, Eye, ExternalLink, ShieldCheck, Settings2, Star } from "lucide-react";
 import CertificationMetadataDialog from "./CertificationMetadataDialog";
 import { toast } from "sonner";
 
@@ -21,6 +21,9 @@ interface GlobalOptions {
   certifications: string[];
   engagements: string[];
   commodites: string[];
+  defaultCertification?: string;
+  defaultEngagement?: string;
+  defaultCommodite?: string;
 }
 
 interface BusinessMini {
@@ -32,10 +35,10 @@ interface BusinessMini {
 
 type SectionType = "engagements" | "certifications" | "commodites";
 
-const SECTION_CONFIG: Record<SectionType, { label: string; emoji: string; badgeClass: string; prefix: string }> = {
-  certifications: { label: "Certifications", emoji: "🏅", badgeClass: "border-blue-400 text-blue-700 dark:text-blue-300", prefix: "Certification:" },
-  engagements: { label: "Engagements", emoji: "", badgeClass: "", prefix: "" },
-  commodites: { label: "Commodités", emoji: "📦", badgeClass: "border-orange-400 text-orange-700 dark:text-orange-300", prefix: "Logistique:" },
+const SECTION_CONFIG: Record<SectionType, { label: string; emoji: string; badgeClass: string; prefix: string; defaultKey: keyof GlobalOptions }> = {
+  certifications: { label: "Certifications", emoji: "🏅", badgeClass: "border-blue-400 text-blue-700 dark:text-blue-300", prefix: "Certification:", defaultKey: "defaultCertification" },
+  engagements: { label: "Engagements", emoji: "", badgeClass: "", prefix: "", defaultKey: "defaultEngagement" },
+  commodites: { label: "Commodités", emoji: "📦", badgeClass: "border-orange-400 text-orange-700 dark:text-orange-300", prefix: "Logistique:", defaultKey: "defaultCommodite" },
 };
 
 const EngagementManagement = ({ onEditBusiness }: Props) => {
@@ -71,6 +74,9 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
           certifications: Array.isArray(parsed?.certifications) ? parsed.certifications.filter((v: unknown) => typeof v === "string" && v.trim()) : [],
           engagements: Array.isArray(parsed?.engagements) ? parsed.engagements.filter((v: unknown) => typeof v === "string" && v.trim()) : [],
           commodites: Array.isArray(parsed?.commodites) ? parsed.commodites.filter((v: unknown) => typeof v === "string" && v.trim()) : [],
+          defaultCertification: typeof parsed?.defaultCertification === "string" ? parsed.defaultCertification : undefined,
+          defaultEngagement: typeof parsed?.defaultEngagement === "string" ? parsed.defaultEngagement : undefined,
+          defaultCommodite: typeof parsed?.defaultCommodite === "string" ? parsed.defaultCommodite : undefined,
         };
       } catch { /* ignore */ }
     }
@@ -159,15 +165,24 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
 
   const totalCount = globalOptions.certifications.length + globalOptions.engagements.length + globalOptions.commodites.length;
 
+  const handleToggleDefault = async (type: SectionType, item: string) => {
+    const defaultKey = SECTION_CONFIG[type].defaultKey;
+    const currentDefault = globalOptions[defaultKey] as string | undefined;
+    const next = { ...globalOptions, [defaultKey]: currentDefault === item ? undefined : item };
+    await persistOptions(next);
+    toast.success(next[defaultKey] ? `« ${item} » défini par défaut` : "Par défaut retiré");
+  };
+
   const renderSection = (type: SectionType) => {
     const config = SECTION_CONFIG[type];
-    const items = globalOptions[type];
+    const items = globalOptions[type] as string[];
     const isOpen = openSections.has(type);
+    const currentDefault = globalOptions[config.defaultKey] as string | undefined;
 
     return (
       <div key={type} className="space-y-3">
         <Button variant="outline" className="w-full justify-between" onClick={() => toggleSection(type)}>
-          <span className="font-medium">{config.emoji} {config.label} ({items.length})</span>
+          <span className="font-medium">{config.emoji} {config.label} ({items.length}){currentDefault ? ` — ★ ${currentDefault}` : ""}</span>
           {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </Button>
 
@@ -196,6 +211,7 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-[50px]"></TableHead>
                     <TableHead>Nom</TableHead>
                     <TableHead className="text-center w-[100px]">Utilisations</TableHead>
                     {type === "certifications" && <TableHead className="w-[60px]"></TableHead>}
@@ -204,7 +220,7 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
                 <TableBody>
                   {items.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={type === "certifications" ? 3 : 2} className="text-center text-muted-foreground py-6 text-sm">
+                      <TableCell colSpan={type === "certifications" ? 4 : 3} className="text-center text-muted-foreground py-6 text-sm">
                         Aucun élément
                       </TableCell>
                     </TableRow>
@@ -212,8 +228,21 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
                     items.map((item) => {
                       const rawKey = config.prefix + item;
                       const count = usageCounts[rawKey] || 0;
+                      const isDefault = currentDefault === item;
                       return (
                         <TableRow key={item}>
+                          <TableCell className="px-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              title={isDefault ? "Retirer par défaut" : "Définir par défaut"}
+                              disabled={saving}
+                              onClick={() => handleToggleDefault(type, item)}
+                            >
+                              <Star className={`h-4 w-4 ${isDefault ? "fill-yellow-400 text-yellow-500" : "text-muted-foreground"}`} />
+                            </Button>
+                          </TableCell>
                           <TableCell>
                             <Badge variant="outline" className={`text-xs ${config.badgeClass}`}>
                               {config.emoji && `${config.emoji} `}{item}
