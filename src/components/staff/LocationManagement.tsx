@@ -1717,6 +1717,7 @@ const LocationManagement = () => {
                     <TableHead>Villes</TableHead>
                     <TableHead>Search</TableHead>
                     <TableHead>Coordonnées</TableHead>
+                    <TableHead>Note /20</TableHead>
                     <TableHead>Établissements</TableHead>
                     <TableHead>Mots clés</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
