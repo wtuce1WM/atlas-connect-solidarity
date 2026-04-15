@@ -178,6 +178,10 @@ const DestinationVideosPanelTab = () => {
         city: gv.city || null,
         neighborhood: gv.neighborhood || null,
         _source: "generic" as const,
+        instagram_account: gv.instagram_account || null,
+        tiktok_account: gv.tiktok_account || null,
+        youtube_account: gv.youtube_account || null,
+        has_description: !!(gv.description && gv.description.replace(/<[^>]*>/g, "").trim()),
       });
     });
 
@@ -225,13 +229,28 @@ const DestinationVideosPanelTab = () => {
       if (data) data.forEach(c => cityIdToName.set(c.id, c.name_fr));
     }
 
+    // Fetch timeframe + linked counts for generic videos
+    const gvRealIds = [...new Set(genericVideoIds)] as string[];
+    const gvTimeSet = new Set<string>();
+    const gvLinkedSet = new Set<string>();
+    if (gvRealIds.length > 0) {
+      const [tfRes, poiRes, bizRes, destRes2] = await Promise.all([
+        supabase.from("generic_video_timeframes" as any).select("generic_video_id").in("generic_video_id", gvRealIds) as any,
+        supabase.from("generic_video_pois" as any).select("generic_video_id").in("generic_video_id", gvRealIds) as any,
+        supabase.from("generic_video_businesses" as any).select("generic_video_id").in("generic_video_id", gvRealIds) as any,
+        supabase.from("generic_video_destinations" as any).select("generic_video_id").in("generic_video_id", gvRealIds) as any,
+      ]);
+      ((tfRes.data || []) as any[]).forEach((r: any) => gvTimeSet.add(r.generic_video_id));
+      [...((poiRes.data || []) as any[]), ...((bizRes.data || []) as any[]), ...((destRes2.data || []) as any[])].forEach((r: any) => gvLinkedSet.add(r.generic_video_id));
+    }
+
     setVideos(combined.map(d => {
       const dest = destMap.get(d.destination_id);
-      // For generic videos without city, use the first city from destination's city_ids
       let city = d.city || null;
       if (!city && d._source === "generic" && dest?.city_ids?.length) {
         city = cityIdToName.get(dest.city_ids[0]) || null;
       }
+      const rawGvId = d._source === "generic" ? d.business_id : null;
       return {
         id: d.id,
         url: d.url,
@@ -245,6 +264,12 @@ const DestinationVideosPanelTab = () => {
         city,
         neighborhood: d.neighborhood || null,
         source: d._source,
+        instagram_account: d.instagram_account || null,
+        tiktok_account: d.tiktok_account || null,
+        youtube_account: d.youtube_account || null,
+        has_description: !!d.has_description,
+        has_timeframes: rawGvId ? gvTimeSet.has(rawGvId) : false,
+        has_linked: rawGvId ? gvLinkedSet.has(rawGvId) : false,
       };
     }));
     setLoading(false);
