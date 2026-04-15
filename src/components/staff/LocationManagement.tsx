@@ -131,6 +131,10 @@ interface Destination {
   internal_notes: string | null;
   videos: string[] | null;
   city_ids: string[] | null;
+  google_maps_url: string | null;
+  google_reviews_url: string | null;
+  google_rating: number | null;
+  google_review_count: number | null;
 }
 
 interface PointOfInterest {
