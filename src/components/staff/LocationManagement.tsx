@@ -1717,6 +1717,7 @@ const LocationManagement = () => {
                     <TableHead>Villes</TableHead>
                     <TableHead>Search</TableHead>
                     <TableHead>Coordonnées</TableHead>
+                    <TableHead>Note /20</TableHead>
                     <TableHead>Établissements</TableHead>
                     <TableHead>Mots clés</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -1746,6 +1747,14 @@ const LocationManagement = () => {
                       </TableCell>
                       <TableCell className="text-muted-foreground text-sm">
                         {d.latitude && d.longitude ? `${d.latitude.toFixed(4)}, ${d.longitude.toFixed(4)}` : "—"}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {d.google_rating ? (
+                          <div className="flex flex-col">
+                            <span className="font-medium">{((d.google_rating / 5) * 20).toFixed(1)}/20</span>
+                            {d.google_review_count ? <span className="text-xs text-muted-foreground">{d.google_review_count.toLocaleString('fr-FR')} avis</span> : null}
+                          </div>
+                        ) : "—"}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1.5">
