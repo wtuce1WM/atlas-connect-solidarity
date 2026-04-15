@@ -1078,11 +1078,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         <div
           className={`transition-all duration-300 ease-in-out ${cardsHidden ? 'translate-x-full opacity-0 pointer-events-none max-h-0 overflow-hidden' : 'translate-x-0 opacity-100'}`}
         >
-        {/* Info Carousel + bouton + */}
-        <div className="shrink-0">
-          <div ref={infoCarouselRef} className="shrink-0 w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto animate-slide-in-left">
-            <div className="flex w-max min-h-[15em] md:min-h-[20em] gap-2 items-start">
-              <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
+        {/* Info Carousel */}
+        <div ref={infoCarouselRef} className="shrink-0 w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto animate-slide-in-left">
+          <div className="flex w-max min-h-[15em] md:min-h-[20em] gap-2 items-start">
+            <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
                 {hasContactCard && (
                   <div onMouseEnter={(e) => centerCardInCarousel(e.currentTarget)}>
                     <ContactFlipCard
@@ -1157,9 +1156,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               <div className="shrink-0 w-4" aria-hidden="true" />
           </div>
         </div>
-          {/* Bouton + centré sous le carrousel info */}
-          {woDescription && (
-            <div className="flex justify-center pointer-events-auto -mt-4 relative z-30">
+
+        {/* Note /20 + bouton + : centrés entre carrousel info et tabs */}
+        {(avgOn20 != null && totalReviewCount > 0) || woDescription ? (
+          <div className="flex flex-col items-center pointer-events-auto -mt-16 mb-0 gap-3">
+            {/* Bouton + tout en haut de cette section */}
+            {woDescription && (
               <div
                 className="opacity-0 animate-zoom-out-center"
                 style={{ animationDelay: '1.8s', animationFillMode: 'forwards', animationDuration: '1s' }}
@@ -1176,13 +1178,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   </div>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
-
-        {/* Note /20 : centrés entre carrousel info et tabs */}
-        {(avgOn20 != null && totalReviewCount > 0) ? (
-          <div className="flex flex-col items-center pointer-events-auto -mt-16 mb-0 gap-9">
+            )}
             {avgOn20 != null && totalReviewCount > 0 && (
               <div
                 key={`rating-${business?.id}`}
