@@ -73,6 +73,9 @@ const ReviewsEditor = ({ businessId }: ReviewsEditorProps) => {
     setReviews(prev => prev.filter(r => r.id !== reviewId));
   };
 
+  const defaultReview = reviews.find(r => r.is_default);
+  const otherReviews = reviews.filter(r => !r.is_default);
+
   if (loading) {
     return (
       <div className="text-sm text-muted-foreground py-2">Chargement des avis…</div>
@@ -89,17 +92,43 @@ const ReviewsEditor = ({ businessId }: ReviewsEditorProps) => {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <p className="text-xs text-muted-foreground">{reviews.length} avis enregistré{reviews.length > 1 ? "s" : ""}</p>
+      
+      {/* AVIS PAR DÉFAUT - Mis en avant */}
+      {defaultReview && (
+        <div className="p-4 rounded-lg border-2 border-primary bg-primary/10 ring-1 ring-primary/30">
+          <div className="flex items-center gap-2 mb-2">
+            <Star className="h-4 w-4 text-primary fill-primary" />
+            <span className="text-xs font-semibold text-primary uppercase tracking-wider">Avis mis en avant</span>
+            <span className="text-xs px-1.5 py-0.5 rounded bg-primary/20 text-primary">
+              {SOURCE_LABELS[defaultReview.source] || defaultReview.source}
+            </span>
+          </div>
+          <p className="text-sm font-medium mb-2 leading-relaxed">
+            {defaultReview.text_fr || defaultReview.text || "Aucun texte"}
+          </p>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <span className="font-medium">{defaultReview.author_name || "Anonyme"}</span>
+            {defaultReview.rating != null && (
+              <span className="flex items-center gap-0.5">
+                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                {defaultReview.rating}/5
+              </span>
+            )}
+            {defaultReview.published_at && (
+              <span>{new Date(defaultReview.published_at).toLocaleDateString("fr-FR")}</span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Liste des autres avis */}
       <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
-        {reviews.map(review => (
+        {otherReviews.map(review => (
           <div
             key={review.id}
-            className={`flex gap-3 p-3 rounded-lg border text-sm ${
-              review.is_default
-                ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                : "border-border bg-card"
-            }`}
+            className="flex gap-3 p-3 rounded-lg border border-border bg-card text-sm"
           >
             <div className="flex-1 min-w-0 space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
