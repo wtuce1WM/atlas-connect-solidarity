@@ -936,6 +936,10 @@ const LocationManagement = () => {
       internal_notes: d.internal_notes || "",
       videos: d.videos || [],
       city_ids: (d as any).city_ids || [],
+      google_maps_url: d.google_maps_url || "",
+      google_reviews_url: d.google_reviews_url || "",
+      google_rating: d.google_rating?.toString() ?? "",
+      google_review_count: d.google_review_count?.toString() ?? "",
     });
     setShowDestinationForm(true);
     setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
