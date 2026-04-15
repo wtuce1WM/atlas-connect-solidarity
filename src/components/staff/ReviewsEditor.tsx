@@ -32,6 +32,9 @@ const SOURCE_LABELS: Record<string, string> = {
 const ReviewsEditor = ({ businessId }: ReviewsEditorProps) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
+  const [translating, setTranslating] = useState(false);
+  const [translateProgress, setTranslateProgress] = useState("");
+  const abortRef = useRef(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -49,7 +52,6 @@ const ReviewsEditor = ({ businessId }: ReviewsEditorProps) => {
 
   const handleSetDefault = async (reviewId: string, value: boolean) => {
     if (value) {
-      // Unset any existing default for this business
       const currentDefault = reviews.find(r => r.is_default);
       if (currentDefault) {
         await supabase.from("reviews").update({ is_default: false } as any).eq("id", currentDefault.id);
@@ -91,10 +93,6 @@ const ReviewsEditor = ({ businessId }: ReviewsEditorProps) => {
       </div>
     );
   }
-
-  const [translating, setTranslating] = useState(false);
-  const [translateProgress, setTranslateProgress] = useState("");
-  const abortRef = useRef(false);
 
   const handleBatchTranslate = async () => {
     setTranslating(true);
