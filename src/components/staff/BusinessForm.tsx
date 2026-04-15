@@ -685,51 +685,61 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <label className="text-[9px] text-muted-foreground">Date début</label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="h-5 w-full text-[9px] justify-start font-normal px-1.5">
-                    {doc.start_date ? format(new Date(doc.start_date), "dd/MM/yyyy") : "—"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={doc.start_date ? new Date(doc.start_date) : undefined}
-                    onSelect={(d) => setVideoDocs(prev => prev.map((dd, i) => i === idx ? { ...dd, start_date: d ? format(d, "yyyy-MM-dd") : null } : dd))}
-                    className="p-3 pointer-events-auto"
+            {/* Event search field */}
+            <div className="relative">
+              <label className="text-[9px] text-muted-foreground">Événement</label>
+              {doc.event_id ? (
+                <div className="flex items-center gap-0.5 h-5 px-1 border rounded-md bg-background">
+                  <span className="text-[9px] truncate flex-1">{dbEvents.find(ev => ev.id === doc.event_id)?.name || "…"}</span>
+                  <button type="button" className="shrink-0" onClick={() => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, event_id: null } : d))}>
+                    <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <Input
+                    value={videoEventSearch[idx] || ""}
+                    onChange={(e) => setVideoEventSearch(prev => ({ ...prev, [idx]: e.target.value }))}
+                    placeholder="Rechercher…"
+                    className="h-5 text-[9px]"
                   />
-                  {doc.start_date && (
-                    <div className="px-3 pb-2">
-                      <Button variant="ghost" size="sm" className="h-6 text-[10px] w-full" onClick={() => setVideoDocs(prev => prev.map((dd, i) => i === idx ? { ...dd, start_date: null } : dd))}>Effacer</Button>
+                  {(videoEventSearch[idx] || "").length >= 2 && (
+                    <div className="absolute z-50 mt-0.5 w-full max-h-28 overflow-y-auto bg-popover border rounded-md shadow-md">
+                      {dbEvents
+                        .filter(ev => ev.name.toLowerCase().includes((videoEventSearch[idx] || "").toLowerCase()))
+                        .slice(0, 8)
+                        .map(ev => (
+                          <button key={ev.id} type="button" className="w-full text-left px-1.5 py-0.5 text-[9px] hover:bg-accent truncate"
+                            onClick={() => { setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, event_id: ev.id } : d)); setVideoEventSearch(prev => ({ ...prev, [idx]: "" })); }}>
+                            {ev.name}
+                          </button>
+                        ))}
+                      {dbEvents.filter(ev => ev.name.toLowerCase().includes((videoEventSearch[idx] || "").toLowerCase())).length === 0 && (
+                        <p className="px-1.5 py-0.5 text-[9px] text-muted-foreground">Aucun résultat</p>
+                      )}
                     </div>
                   )}
-                </PopoverContent>
-              </Popover>
+                </div>
+              )}
             </div>
+            {/* Badges multi-select */}
             <div>
-              <label className="text-[9px] text-muted-foreground">Date fin</label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="h-5 w-full text-[9px] justify-start font-normal px-1.5">
-                    {doc.end_date ? format(new Date(doc.end_date), "dd/MM/yyyy") : "—"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={doc.end_date ? new Date(doc.end_date) : undefined}
-                    onSelect={(d) => setVideoDocs(prev => prev.map((dd, i) => i === idx ? { ...dd, end_date: d ? format(d, "yyyy-MM-dd") : null } : dd))}
-                    className="p-3 pointer-events-auto"
-                  />
-                  {doc.end_date && (
-                    <div className="px-3 pb-2">
-                      <Button variant="ghost" size="sm" className="h-6 text-[10px] w-full" onClick={() => setVideoDocs(prev => prev.map((dd, i) => i === idx ? { ...dd, end_date: null } : dd))}>Effacer</Button>
-                    </div>
-                  )}
-                </PopoverContent>
-              </Popover>
+              <label className="text-[9px] text-muted-foreground">Badges</label>
+              <div className="flex flex-wrap gap-0.5 mt-0.5">
+                {dbBadges.map(badge => {
+                  const isSelected = doc.badge_ids.includes(badge.id);
+                  return (
+                    <button
+                      key={badge.id}
+                      type="button"
+                      className={`text-[8px] px-1.5 py-0.5 rounded-full border transition-colors ${isSelected ? "bg-primary text-primary-foreground border-primary" : "bg-background text-muted-foreground border-border hover:border-primary/50"}`}
+                      onClick={() => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, badge_ids: isSelected ? d.badge_ids.filter(bid => bid !== badge.id) : [...d.badge_ids, badge.id] } : d))}
+                    >
+                      {badge.name_fr}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </CollapsibleContent>
