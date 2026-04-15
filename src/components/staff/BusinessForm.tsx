@@ -1674,11 +1674,50 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
       if (saveError) throw saveError;
 
+      // Auto-translate untranslated reviews for this business
+      let translatedCount = 0;
+      try {
+        const { data: untranslated } = await supabase
+          .from("reviews")
+          .select("id, text, language")
+          .eq("business_id", business.id)
+          .not("text", "is", null)
+          .is("text_fr" as any, null);
+
+        const reviewsToTranslate = (untranslated || []) as any[];
+        if (reviewsToTranslate.length > 0) {
+          // Separate already-French reviews (just copy text)
+          const alreadyFr = reviewsToTranslate.filter(r => (r.language || "").toLowerCase().startsWith("fr"));
+          const needsAI = reviewsToTranslate.filter(r => !(r.language || "").toLowerCase().startsWith("fr"));
+
+          for (const r of alreadyFr) {
+            await supabase.from("reviews").update({ text_fr: r.text } as any).eq("id", r.id);
+            translatedCount++;
+          }
+
+          if (needsAI.length > 0) {
+            const { data: trData } = await supabase.functions.invoke("translate-reviews", {
+              body: { reviews: needsAI.map((r: any) => ({ id: r.id, text: r.text })), targetLanguage: "fr" },
+            });
+            const translations = trData?.translations || [];
+            for (let i = 0; i < needsAI.length; i++) {
+              if (i < translations.length && translations[i]) {
+                await supabase.from("reviews").update({ text_fr: translations[i] } as any).eq("id", needsAI[i].id);
+                translatedCount++;
+              }
+            }
+          }
+        }
+      } catch (trErr) {
+        console.error("Auto-translate error:", trErr);
+      }
+
+      const trSuffix = translatedCount > 0 ? ` · ${translatedCount} avis traduits en FR` : "";
       toast({
         title: "Avis récupérés",
         description: avg !== null
-          ? `Calcul sauvegardé : ${avg}/20 (${total} avis)`
-          : `Aucune note récupérée (${total} avis)`,
+          ? `Calcul sauvegardé : ${avg}/20 (${total} avis)${trSuffix}`
+          : `Aucune note récupérée (${total} avis)${trSuffix}`,
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Erreur inconnue";
