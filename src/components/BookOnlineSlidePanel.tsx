@@ -53,6 +53,7 @@ import { useOpenStatus } from "@/hooks/useOpenStatus";
 import { ToolbarPortals } from "@/components/slidepanel/ToolbarPortals";
 import { CtaBar, CTA_MODE_LABELS } from "@/components/slidepanel/CtaBar";
 import { HotelAvailabilityResult } from "@/components/slidepanel/HotelAvailabilityResult";
+import AvailabilitySearchOverlay from "@/components/overlays/AvailabilitySearchOverlay";
 
 
 interface BookOnlineSlidePanelProps {
@@ -166,6 +167,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [fallbackHiddenOnMobile, setFallbackHiddenOnMobile] = useState(false);
   const [showFallbackOverlay, setShowFallbackOverlay] = useState(false);
   const [searchOverlayActive, setSearchOverlayActive] = useState(false);
+  const [showAvailabilitySearch, setShowAvailabilitySearch] = useState(false);
   const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
   
@@ -1080,7 +1082,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         >
         {/* Info Carousel */}
         <div ref={infoCarouselRef} className="shrink-0 w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto animate-slide-in-left">
-          <div className="flex w-max min-h-[15em] md:min-h-[20em] gap-2 items-start">
+          <div className="flex w-max gap-2 items-start">
             <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
                 {hasContactCard && (
                   <div onMouseEnter={(e) => centerCardInCarousel(e.currentTarget)}>
@@ -1094,6 +1096,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       hasHotelMapping={isHotelWithPrice}
                       isSearchingAvailability={hotelSearchLoading}
                       onCheckAvailability={handleCheckAvailability}
+                      onOpenAvailabilitySearch={() => setShowAvailabilitySearch(true)}
                       openBadgeInfo={openBadgeInfo}
                       onOpenWebsite={(url) => {
                         setBookingOverlayLoaded(false);
@@ -1159,7 +1162,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
         {/* Note /20 + bouton + : centrés entre carrousel info et tabs */}
         {(avgOn20 != null && totalReviewCount > 0) || woDescription ? (
-          <div className="flex flex-col items-center pointer-events-auto -mt-16 mb-0 gap-3">
+          <div className="flex flex-col items-center pointer-events-auto -mt-6 mb-0 gap-3">
             {/* Bouton + tout en haut de cette section */}
             {woDescription && (
               <div
