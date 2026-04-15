@@ -41,6 +41,7 @@ import PDFUploader from "./PDFUploader";
 import VideoUploader from "./VideoUploader";
 import LogoUploader from "./LogoUploader";
 import BusinessLabelsEditor from "./BusinessLabelsEditor";
+import FrontHighlightsEditor from "./FrontHighlightsEditor";
 import OpeningHoursEditor, { OpeningHours, DEFAULT_OPENING_HOURS } from "./OpeningHoursEditor";
 import VacationDatesEditor, { VacationPeriod } from "./VacationDatesEditor";
 import SocialPostsEditor from "./SocialPostsEditor";
@@ -3681,9 +3682,14 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 onChange={(e) => handleChange("email", e.target.value)}
                 placeholder=""
               />
-            </div>
           </div>
         </div>
+
+        {/* ── Blocs Highlights ── */}
+        {business?.id && <FrontHighlightsEditor businessId={business.id} />}
+
+        {/* ── Fin section Présentation ── */}
+      </div>
 
         {/* Hook multilingue - affiché en gros comme Nom */}
         <div id="section-description" className="space-y-3" style={{ scrollMarginTop: '160px' }}>
