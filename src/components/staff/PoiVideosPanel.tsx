@@ -71,7 +71,7 @@ const SortableVideoCard = ({ video, index, onPlay }: { video: PoiVideo; index: n
             <Play className="h-4 w-4 text-primary-foreground fill-primary-foreground ml-0.5" />
           </div>
         </div>
-        <span className="absolute top-1.5 left-1.5 z-10 px-1.5 py-0.5 rounded text-[9px] font-bold bg-foreground/80 text-background truncate max-w-[85%]">{video.business_name}</span>
+        
       </button>
       <div className="mt-1.5">
         <p className="text-sm font-medium leading-tight flex items-center gap-1">
