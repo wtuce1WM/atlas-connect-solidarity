@@ -74,6 +74,9 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
           certifications: Array.isArray(parsed?.certifications) ? parsed.certifications.filter((v: unknown) => typeof v === "string" && v.trim()) : [],
           engagements: Array.isArray(parsed?.engagements) ? parsed.engagements.filter((v: unknown) => typeof v === "string" && v.trim()) : [],
           commodites: Array.isArray(parsed?.commodites) ? parsed.commodites.filter((v: unknown) => typeof v === "string" && v.trim()) : [],
+          defaultCertification: typeof parsed?.defaultCertification === "string" ? parsed.defaultCertification : undefined,
+          defaultEngagement: typeof parsed?.defaultEngagement === "string" ? parsed.defaultEngagement : undefined,
+          defaultCommodite: typeof parsed?.defaultCommodite === "string" ? parsed.defaultCommodite : undefined,
         };
       } catch { /* ignore */ }
     }
