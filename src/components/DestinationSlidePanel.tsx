@@ -141,6 +141,27 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     return () => { cancelled = true; };
   }, [destinationId]);
 
+  // Fetch default review
+  useEffect(() => {
+    let cancelled = false;
+    const fetchDefaultReview = async () => {
+      const { data } = await supabase
+        .from("destination_reviews" as any)
+        .select("author_name, text, rating, source")
+        .eq("destination_id", destinationId)
+        .eq("is_default", true)
+        .eq("is_hidden", false)
+        .maybeSingle();
+      if (!cancelled && data) {
+        setDefaultReview(data as any);
+      } else if (!cancelled) {
+        setDefaultReview(null);
+      }
+    };
+    fetchDefaultReview();
+    return () => { cancelled = true; };
+  }, [destinationId]);
+
   // Fetch destinations sharing cities
   useEffect(() => {
     if (!destination?.city_ids || destination.city_ids.length === 0) return;
