@@ -1,0 +1,2 @@
+ALTER TABLE public.businesses ADD COLUMN default_destination_id uuid REFERENCES public.destinations(id) ON DELETE SET NULL DEFAULT NULL;
+ALTER TABLE public.businesses ADD COLUMN default_destination_style text NOT NULL DEFAULT 'aucun';
