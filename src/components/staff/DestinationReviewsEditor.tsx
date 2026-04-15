@@ -39,16 +39,6 @@ const DestinationReviewsEditor = ({ destinationId }: DestinationReviewsEditorPro
 
   useEffect(() => { load(); }, [load]);
 
-  const handleDelete = async (reviewId: string) => {
-    const { error } = await supabase.from("destination_reviews" as any).delete().eq("id", reviewId);
-    if (error) {
-      toast.error("Erreur lors de la suppression");
-      return;
-    }
-    toast.success("Avis supprimé");
-    load();
-  };
-
   const handleSetDefault = async (reviewId: string, value: boolean) => {
     if (value) {
       const currentDefault = reviews.find(r => r.is_default);
