@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Play, ChevronDown, ChevronRight, GripVertical } from "lucide-react";
+import VideoIdSearchInput from "./VideoIdSearchInput";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import VideoLightbox from "./VideoLightbox";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -57,7 +58,7 @@ const SortableVideoCard = ({
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
 
   return (
-    <div ref={setNodeRef} style={{ ...style, width: 200 }} className="flex flex-col rounded-lg border bg-background overflow-hidden">
+    <div ref={setNodeRef} style={{ ...style, width: 200 }} data-video-id={video.id} className="flex flex-col rounded-lg border bg-background overflow-hidden transition-[outline]">
       <div className="flex items-center gap-1 px-1.5 pt-1">
         <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground">
           <GripVertical className="h-3.5 w-3.5" />
@@ -287,6 +288,7 @@ const FrontStructureVideosPanel = () => {
     <div className="space-y-4">
       {/* Filters */}
       <div className="flex items-center gap-4 flex-wrap">
+        <VideoIdSearchInput videoIds={filteredVideos.map(v => v.id)} />
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">Ville :</span>
           <Select value={selectedCity} onValueChange={setSelectedCity}>
