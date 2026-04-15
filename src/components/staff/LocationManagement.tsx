@@ -2451,12 +2451,9 @@ const LocationManagement = () => {
                         <div className="flex items-end pb-1">
                           <span className="text-sm text-amber-700 font-medium">
                             ⭐ {destinationForm.google_rating}/5 ({destinationForm.google_review_count} avis)
+                            {" → "}
+                            <strong>{((parseFloat(destinationForm.google_rating) / 5) * 20).toFixed(2)}/20</strong>
                           </span>
-                          {editingDestination?.computed_rating && (
-                            <span className="text-sm text-amber-700 font-medium ml-3">
-                              → <strong>{editingDestination.computed_rating}/20</strong>
-                            </span>
-                          )}
                         </div>
                       )}
                     </div>
