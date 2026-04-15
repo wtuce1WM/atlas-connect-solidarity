@@ -1156,10 +1156,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               <div className="shrink-0 w-4" aria-hidden="true" />
           </div>
         </div>
-          {/* Bouton + centré en bas du carrousel info */}
-          {woDescription && (
+        {/* Bouton + centré sous le carrousel info */}
+        {woDescription && (
+          <div className="flex justify-center pointer-events-auto -mt-10 mb-1 relative z-30">
             <div
-              className="absolute bottom-2 left-1/2 -translate-x-1/2 z-30 pointer-events-auto opacity-0 animate-zoom-out-center"
+              className="opacity-0 animate-zoom-out-center"
               style={{ animationDelay: '1.8s', animationFillMode: 'forwards', animationDuration: '1s' }}
             >
               <div
@@ -1174,8 +1175,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 </div>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Note /20 : centrés entre carrousel info et tabs */}
         {(avgOn20 != null && totalReviewCount > 0) ? (
