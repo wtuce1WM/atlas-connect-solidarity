@@ -66,30 +66,26 @@ async function resolveViaTextSearch(placeName: string, apiKey: string): Promise<
 }
 
 /**
- * Fetch rating/reviews + review texts via Place Details (new API).
+ * Fetch rating/reviews + review texts via Place Details (legacy API — more reliable for reviews).
  */
 async function fetchPlaceDetails(placeId: string, apiKey: string): Promise<{ rating?: number; reviewCount?: number; reviews?: any[] } | null> {
-  // Use new Places API for reviews
-  const url = `https://places.googleapis.com/v1/places/${placeId}`;
-  const resp = await fetch(url, {
-    headers: {
-      'X-Goog-Api-Key': apiKey,
-      'X-Goog-FieldMask': 'rating,userRatingCount,reviews',
-    },
-  });
+  // Use legacy Place Details API which reliably returns reviews
+  const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=rating,user_ratings_total,reviews&key=${apiKey}`;
+  const resp = await fetch(url);
   const data = await resp.json();
-  if (data) {
-    const reviews = (data.reviews || []).slice(0, 5).map((r: any) => ({
-      author_name: r.authorAttribution?.displayName || null,
+  if (data.result) {
+    const rawReviews = data.result.reviews || [];
+    const reviews = rawReviews.slice(0, 5).map((r: any) => ({
+      author_name: r.author_name || null,
       rating: r.rating ?? null,
-      text: r.text?.text || null,
-      relative_time: r.relativePublishTimeDescription || null,
-      language: r.text?.languageCode || null,
-      published_at: r.publishTime || null,
+      text: r.text || null,
+      relative_time: r.relative_time_description || null,
+      language: r.language || null,
+      published_at: r.time ? new Date(r.time * 1000).toISOString() : null,
     }));
     return {
-      rating: data.rating ?? undefined,
-      reviewCount: data.userRatingCount ?? undefined,
+      rating: data.result.rating ?? undefined,
+      reviewCount: data.result.user_ratings_total ?? undefined,
       reviews: reviews.length > 0 ? reviews : undefined,
     };
   }
