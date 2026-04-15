@@ -116,7 +116,19 @@ const FrontHighlightsEditor = ({ businessId }: FrontHighlightsEditorProps) => {
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : (
-            <div className="space-y-4">
+          <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-muted-foreground">Titre de la section</label>
+                <Input
+                  value={sectionTitle}
+                  onChange={(e) => setSectionTitle(e.target.value.slice(0, 60))}
+                  placeholder="Ex: Nos Points Forts"
+                  className="h-9 text-sm max-w-md"
+                  maxLength={60}
+                />
+                <p className="text-xs text-muted-foreground">{sectionTitle.length}/60 caractères</p>
+              </div>
+
               <p className="text-sm text-muted-foreground">
                 Configurez jusqu'à 4 blocs mettant en avant les points forts de cette fiche.
               </p>
