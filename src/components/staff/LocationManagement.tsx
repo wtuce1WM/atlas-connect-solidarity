@@ -2452,6 +2452,11 @@ const LocationManagement = () => {
                           <span className="text-sm text-amber-700 font-medium">
                             ⭐ {destinationForm.google_rating}/5 ({destinationForm.google_review_count} avis)
                           </span>
+                          {editingDestination?.computed_rating && (
+                            <span className="text-sm text-amber-700 font-medium ml-3">
+                              → <strong>{editingDestination.computed_rating}/20</strong>
+                            </span>
+                          )}
                         </div>
                       )}
                     </div>
