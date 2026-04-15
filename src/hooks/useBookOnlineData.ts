@@ -664,6 +664,7 @@ export function useBookOnlineData(businessId: string) {
         fetchKpRelated(),
         fetchLinkedVideos(),
         fetchPoiLinkedVideos(),
+        fetchGenericVideosForPoi(),
         fetchLiteApiMapping(),
         fetchSerpApiMapping(),
       ]);
