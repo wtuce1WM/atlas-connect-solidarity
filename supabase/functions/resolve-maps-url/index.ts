@@ -7,100 +7,101 @@ const corsHeaders = {
 
 /**
  * Extract a Google Maps Place ID from a URL string.
- * Patterns: !1s0x...:0x... or place_id=... or ftid=0x...:0x...
  */
 function extractPlaceId(url: string): string | null {
-  // Pattern: !1s0x<hex>:0x<hex>
   const ftidMatch = url.match(/!1s(0x[0-9a-fA-F]+:0x[0-9a-fA-F]+)/);
   if (ftidMatch) return ftidMatch[1];
-  // Pattern: place_id=ChI...
   const pidMatch = url.match(/place_id=([A-Za-z0-9_-]+)/);
   if (pidMatch) return pidMatch[1];
   return null;
 }
 
 /**
- * Use Google Places API to get coordinates from a place ID (ftid or ChI...).
+ * Use Google Places API to get coordinates from a place ID (ChI...).
  */
-async function resolveViaPlacesAPI(placeId: string, apiKey: string): Promise<{ lat: number; lng: number } | null> {
-  // For ftid-style IDs, use the Place Details with ftid query
+async function resolveViaPlacesAPI(placeId: string, apiKey: string): Promise<{ lat: number; lng: number; rating?: number; reviewCount?: number } | null> {
   const isFtid = placeId.startsWith("0x");
-  
-  if (isFtid) {
-    // Use findplacefromtext with ftid doesn't work directly.
-    // Instead, use the legacy place details endpoint with ftid as a query parameter via textsearch.
-    // Best approach: use the geocode endpoint or the place search with CID.
-    // Actually, we can use: https://maps.googleapis.com/maps/api/place/details/json?ftid=0x...&key=...
-    // This is an undocumented but working endpoint.
-    const detailsUrl = `https://maps.googleapis.com/maps/api/geocode/json?place_id=${encodeURIComponent(placeId)}&key=${apiKey}`;
-    // ftid won't work with geocode. Let's try the Place Details API with a CID conversion.
-    // Actually, the simplest reliable approach: extract the place name from the URL and use Places API text search.
-    return null; // Fall through to URL-based extraction
-  }
-  
-  // Standard ChI... place_id
-  const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=geometry&key=${apiKey}`;
+  if (isFtid) return null;
+
+  const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=geometry,rating,user_ratings_total&key=${apiKey}`;
   const resp = await fetch(detailsUrl);
   const data = await resp.json();
   if (data.result?.geometry?.location) {
     return {
       lat: data.result.geometry.location.lat,
       lng: data.result.geometry.location.lng,
+      rating: data.result.rating ?? undefined,
+      reviewCount: data.result.user_ratings_total ?? undefined,
     };
   }
   return null;
 }
 
 /**
- * Extract place name from Google Maps URL for Places API text search.
- * Pattern: /maps/place/Place+Name/ or /maps/place/Place%20Name/
+ * Extract place name from Google Maps URL.
  */
 function extractPlaceName(url: string): string | null {
   const match = url.match(/\/place\/([^/@?]+)/);
-  if (match) {
-    return decodeURIComponent(match[1].replace(/\+/g, " "));
-  }
+  if (match) return decodeURIComponent(match[1].replace(/\+/g, " "));
   return null;
 }
 
 /**
- * Use Google Places Text Search to get coordinates from a place name.
+ * Use Google Places Text Search to get coordinates + rating from a place name.
  */
-async function resolveViaTextSearch(placeName: string, apiKey: string): Promise<{ lat: number; lng: number } | null> {
-  const searchUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(placeName)}&inputtype=textquery&fields=geometry&key=${apiKey}`;
+async function resolveViaTextSearch(placeName: string, apiKey: string): Promise<{ lat: number; lng: number; rating?: number; reviewCount?: number } | null> {
+  const searchUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(placeName)}&inputtype=textquery&fields=geometry,place_id,rating,user_ratings_total&key=${apiKey}`;
   const resp = await fetch(searchUrl);
   const data = await resp.json();
-  if (data.candidates?.[0]?.geometry?.location) {
+  const candidate = data.candidates?.[0];
+  if (candidate?.geometry?.location) {
     return {
-      lat: data.candidates[0].geometry.location.lat,
-      lng: data.candidates[0].geometry.location.lng,
+      lat: candidate.geometry.location.lat,
+      lng: candidate.geometry.location.lng,
+      rating: candidate.rating ?? undefined,
+      reviewCount: candidate.user_ratings_total ?? undefined,
     };
   }
   return null;
 }
 
 /**
- * Regex-based fallback extraction from URL string.
- * Priority: !8m2!3d/!4d > !3d/!4d > @lat,lng > ?q= > place/
+ * Fetch rating/reviews via Place Details for an already-found place_id.
  */
+async function fetchPlaceDetails(placeId: string, apiKey: string): Promise<{ rating?: number; reviewCount?: number } | null> {
+  const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=rating,user_ratings_total&key=${apiKey}`;
+  const resp = await fetch(url);
+  const data = await resp.json();
+  if (data.result) {
+    return {
+      rating: data.result.rating ?? undefined,
+      reviewCount: data.result.user_ratings_total ?? undefined,
+    };
+  }
+  return null;
+}
+
 /**
- * Extract precise marker coordinates from URL (NOT camera position).
- * Only returns !3d/!4d and q= coords which are marker-based.
+ * Find place_id from a place name (for fetching details separately).
+ */
+async function findPlaceId(placeName: string, apiKey: string): Promise<string | null> {
+  const searchUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(placeName)}&inputtype=textquery&fields=place_id&key=${apiKey}`;
+  const resp = await fetch(searchUrl);
+  const data = await resp.json();
+  return data.candidates?.[0]?.place_id ?? null;
+}
+
+/**
+ * Extract precise marker coordinates from URL.
  */
 function extractMarkerCoords(url: string): { lat: string; lng: string } | null {
-  // 1. Specific place marker: !8m2!3d...!4d...
   const m8 = url.match(/!8m2!3d(-?\d+\.?\d*)!4d(-?\d+\.?\d*)/);
   if (m8) return { lat: m8[1], lng: m8[2] };
-
-  // 2. General !3d/!4d
   const embedMatch = url.match(/!3d(-?\d+\.?\d*).*!4d(-?\d+\.?\d*)/);
   if (embedMatch) return { lat: embedMatch[1], lng: embedMatch[2] };
-
-  // 3. Query parameter (explicit coords)
   const qMatch = url.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/) ||
                  url.match(/place\/(-?\d+\.?\d*),(-?\d+\.?\d*)/);
   if (qMatch) return { lat: qMatch[1], lng: qMatch[2] };
-
   return null;
 }
 
@@ -129,18 +130,15 @@ serve(async (req) => {
 
     const apiKey = Deno.env.get("GOOGLE_MAPS_API_KEY");
 
-    // Step 1: Follow redirects manually to get the true final URL
-    // (Deno's redirect: "follow" doesn't always expose the final URL correctly for Google short URLs)
+    // Step 1: Follow redirects to get the true final URL
     let finalUrl = url;
     try {
       let currentUrl = url;
       for (let i = 0; i < 10; i++) {
         const response = await fetch(currentUrl, { redirect: "manual" });
         const location = response.headers.get("location");
-        // Consume body to avoid resource leaks
         try { await response.body?.cancel(); } catch { /* ignore */ }
         if (location && (response.status >= 300 && response.status < 400)) {
-          // Handle relative redirects
           currentUrl = location.startsWith("http") ? location : new URL(location, currentUrl).href;
         } else {
           break;
@@ -148,14 +146,16 @@ serve(async (req) => {
       }
       finalUrl = currentUrl;
     } catch {
-      // If fetch fails (e.g. network), try to parse the original URL
+      // If fetch fails, try to parse the original URL
     }
 
     let lat: number | null = null;
     let lng: number | null = null;
     let method = "unknown";
+    let rating: number | undefined;
+    let reviewCount: number | undefined;
 
-    // Step 2: Precise marker coords from final URL (!3d/!4d)
+    // Step 2: Precise marker coords from final URL
     {
       const marker = extractMarkerCoords(finalUrl);
       if (marker) {
@@ -183,12 +183,14 @@ serve(async (req) => {
         if (result) {
           lat = result.lat;
           lng = result.lng;
+          rating = result.rating;
+          reviewCount = result.reviewCount;
           method = "place-details-api";
         }
       }
     }
 
-    // Step 5: Try Google Places API text search (more precise than camera coords)
+    // Step 5: Try Google Places API text search
     if (lat === null && apiKey) {
       const placeName = extractPlaceName(finalUrl) || extractPlaceName(url);
       if (placeName) {
@@ -196,6 +198,8 @@ serve(async (req) => {
         if (result) {
           lat = result.lat;
           lng = result.lng;
+          rating = result.rating;
+          reviewCount = result.reviewCount;
           method = "places-api";
         }
       }
@@ -229,8 +233,42 @@ serve(async (req) => {
       }
     }
 
+    // Step 8: If we got coords but no rating yet, try to fetch rating via Places API
+    if (lat !== null && rating === undefined && apiKey) {
+      // Try extracting ChI... place_id first
+      const placeId = extractPlaceId(finalUrl) || extractPlaceId(url);
+      if (placeId && !placeId.startsWith("0x")) {
+        const details = await fetchPlaceDetails(placeId, apiKey);
+        if (details) {
+          rating = details.rating;
+          reviewCount = details.reviewCount;
+        }
+      }
+      // If still no rating, try text search to find place_id then fetch details
+      if (rating === undefined) {
+        const placeName = extractPlaceName(finalUrl) || extractPlaceName(url);
+        if (placeName) {
+          const foundPlaceId = await findPlaceId(placeName, apiKey);
+          if (foundPlaceId) {
+            const details = await fetchPlaceDetails(foundPlaceId, apiKey);
+            if (details) {
+              rating = details.rating;
+              reviewCount = details.reviewCount;
+            }
+          }
+        }
+      }
+    }
+
     if (lat !== null && lng !== null) {
-      return new Response(JSON.stringify({ lat: String(lat), lng: String(lng), resolvedUrl: finalUrl, method }), {
+      return new Response(JSON.stringify({
+        lat: String(lat),
+        lng: String(lng),
+        resolvedUrl: finalUrl,
+        method,
+        ...(rating !== undefined ? { rating } : {}),
+        ...(reviewCount !== undefined ? { reviewCount } : {}),
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
