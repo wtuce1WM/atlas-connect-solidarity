@@ -78,7 +78,9 @@ const SortableVideoCard = ({ video, index, onPlay }: { video: DestVideo; index: 
             <Play className="h-4 w-4 text-primary-foreground fill-primary-foreground ml-0.5" />
           </div>
         </div>
-        
+        {video.source === "generic" && video.has_description && <span className="absolute bottom-2 right-2 z-10 px-2 py-1 rounded text-[10px] font-bold bg-primary text-primary-foreground">TXT</span>}
+        {video.source === "generic" && video.has_timeframes && <span className="absolute bottom-2 left-2 z-10 px-2 py-1 rounded text-[10px] font-bold bg-amber-500 text-white flex items-center gap-0.5"><Clock className="h-3 w-3" />TIME</span>}
+        {video.source === "generic" && video.has_linked && <span className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-white">VU</span>}
       </button>
       <div className="mt-1.5">
         <p className="text-sm font-medium leading-tight flex items-center gap-1">
