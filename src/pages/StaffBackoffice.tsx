@@ -115,32 +115,15 @@ const StaffBackoffice = () => {
   useEffect(() => {
     const editId = searchParams.get("edit");
     const section = searchParams.get("section");
-    if (editId && businesses.length > 0) {
-      const found = businesses.find(b => b.id === editId);
-      const openBusiness = (biz: any) => {
-        setActiveTab("businesses");
-        setEditingBusiness(biz);
-        setShowForm(true);
-        searchParams.delete("edit");
-        searchParams.delete("section");
-        setSearchParams(searchParams, { replace: true });
-        if (section) {
-          setTimeout(() => {
-            document.getElementById(section)?.scrollIntoView({ behavior: "smooth" });
-          }, 400);
-        } else {
-          window.scrollTo({ top: 0, behavior: "instant" });
-        }
-      };
-      if (found) {
-        openBusiness(found);
-      } else {
-        supabase.from("businesses").select("*").eq("id", editId).single().then(({ data }) => {
-          if (data) openBusiness(data as Business);
-        });
-      }
-    }
-  }, [searchParams, businesses]);
+    if (!editId) return;
+
+    void openBusinessEditor(editId, section);
+
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("edit");
+    nextParams.delete("section");
+    setSearchParams(nextParams, { replace: true });
+  }, [searchParams, setSearchParams, businesses]);
 
   const fetchBusinesses = async () => {
     setLoading(true);
@@ -168,6 +151,33 @@ const StaffBackoffice = () => {
       .from("hotel_price_cache")
       .select("business_id, source, price_per_night, currency");
     if (data) setPriceCache(data as PriceCacheEntry[]);
+  };
+
+  const openBusinessEditor = async (businessId: string, section?: string | null) => {
+    const cachedBusiness = businesses.find((item) => item.id === businessId) || null;
+    const { data, error } = await supabase.from("businesses").select("*").eq("id", businessId).single();
+    const freshBusiness = (data as Business | null) || cachedBusiness;
+
+    if (!freshBusiness) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: error?.message || "Impossible de charger l'entreprise.",
+      });
+      return;
+    }
+
+    setActiveTab("businesses");
+    setEditingBusiness(freshBusiness);
+    setShowForm(true);
+
+    if (section) {
+      setTimeout(() => {
+        document.getElementById(section)?.scrollIntoView({ behavior: "smooth" });
+      }, 400);
+    } else {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
   };
 
   // Fetch subcategories when category filter changes
@@ -217,9 +227,7 @@ const StaffBackoffice = () => {
   };
 
   const handleEdit = (business: Business) => {
-    setEditingBusiness(business);
-    setShowForm(true);
-    window.scrollTo({ top: 0, behavior: "instant" });
+    void openBusinessEditor(business.id);
   };
 
   const handleDuplicate = async (business: Business) => {
