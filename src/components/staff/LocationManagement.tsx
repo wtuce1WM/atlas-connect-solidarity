@@ -1650,7 +1650,6 @@ const LocationManagement = () => {
       </Card>
 
       {/* ===== DESTINATIONS ===== */}
-      <FrontHighlightsEditor />
 
       <Card ref={destinationsSectionRef} style={{ scrollMarginTop: '80px' }}>
         <CardHeader className="cursor-pointer select-none" onClick={() => {
