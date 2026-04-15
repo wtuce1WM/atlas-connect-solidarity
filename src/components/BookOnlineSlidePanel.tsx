@@ -1201,7 +1201,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   const displayText = ((language === "en" ? defaultReview.text_en : defaultReview.text_fr) || defaultReview.text || "").trim();
                   return (
                     <p
-                      className="text-sm md:text-base text-white/90 italic text-center max-w-[90%] md:max-w-lg leading-relaxed mb-3"
+                      className="text-sm md:text-base text-white/90 italic text-center max-w-[90%] md:max-w-lg leading-relaxed mb-3 line-clamp-3"
                       style={{
                         fontFamily: "'Josefin Sans', sans-serif",
                         filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7)) drop-shadow(0 4px 24px hsla(0,0%,0%,0.4))",
