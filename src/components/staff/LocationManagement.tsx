@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import FrontHighlightsEditor from "./FrontHighlightsEditor";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Switch } from "@/components/ui/switch";
