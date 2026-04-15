@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Play, GripVertical } from "lucide-react";
+import { Loader2, Play, GripVertical, Clock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import VideoIdSearchInput from "./VideoIdSearchInput";
 import VideoLightbox from "./VideoLightbox";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,12 @@ interface PoiVideo {
   neighborhood: string | null;
   poi_count: number;
   source: "document" | "generic";
+  instagram_account?: string | null;
+  tiktok_account?: string | null;
+  youtube_account?: string | null;
+  has_description?: boolean;
+  has_timeframes?: boolean;
+  has_linked?: boolean;
 }
 
 interface CityOption { name: string; sort_order: number; }
