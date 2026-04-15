@@ -69,6 +69,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   const [activeBusinessId, setActiveBusinessId] = useState<string | null>(null);
   const bottomTabInitialRef = React.useRef(true);
   const [ytTitles, setYtTitles] = useState<Record<string, string>>({});
+  const [defaultReview, setDefaultReview] = useState<{ author_name: string; text: string; rating: number; source: string } | null>(null);
 
   // Expose close interceptor
   React.useEffect(() => {
