@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN poi_business_style text NOT NULL DEFAULT 'aucun';

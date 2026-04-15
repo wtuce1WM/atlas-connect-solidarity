@@ -1073,6 +1073,7 @@ export type Database = {
           pdf_url: string | null
           phone: string | null
           pinterest_url: string | null
+          poi_business_style: string
           poi_description: string | null
           poi_hook: string | null
           popup_image_url: string | null
@@ -1238,6 +1239,7 @@ export type Database = {
           pdf_url?: string | null
           phone?: string | null
           pinterest_url?: string | null
+          poi_business_style?: string
           poi_description?: string | null
           poi_hook?: string | null
           popup_image_url?: string | null
@@ -1403,6 +1405,7 @@ export type Database = {
           pdf_url?: string | null
           phone?: string | null
           pinterest_url?: string | null
+          poi_business_style?: string
           poi_description?: string | null
           poi_hook?: string | null
           popup_image_url?: string | null
@@ -4690,6 +4693,7 @@ export type Database = {
               pdf_url: string | null
               phone: string | null
               pinterest_url: string | null
+              poi_business_style: string
               poi_description: string | null
               poi_hook: string | null
               popup_image_url: string | null
@@ -4871,6 +4875,7 @@ export type Database = {
               pdf_url: string | null
               phone: string | null
               pinterest_url: string | null
+              poi_business_style: string
               poi_description: string | null
               poi_hook: string | null
               popup_image_url: string | null

@@ -1190,6 +1190,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     destination_description: (business as any)?.destination_description || "",
     default_destination_id: (business as any)?.default_destination_id || "",
     default_destination_style: (business as any)?.default_destination_style || "aucun",
+    poi_business_style: (business as any)?.poi_business_style || "aucun",
     poi_hook: (business as any)?.poi_hook || "",
     poi_description: (business as any)?.poi_description || "",
     is_poi: (business as any)?.is_poi ?? false,
@@ -1992,6 +1993,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       destination_description: (formData as any).destination_description?.trim() || null,
       default_destination_id: (formData as any).default_destination_id || null,
       default_destination_style: (formData as any).default_destination_style || "aucun",
+      poi_business_style: (formData as any).poi_business_style || "aucun",
       poi_hook: (formData as any).poi_hook?.trim().slice(0, 120) || null,
       poi_description: (formData as any).poi_description?.trim() || null,
       is_poi: (formData as any).is_poi ?? false,
@@ -3982,6 +3984,19 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 });
               })()}
             </div>
+            {selectedPoiBusinessIds.length > 0 && (
+              <div className="mt-3 p-3 bg-background rounded-md border space-y-2">
+                <Label className="text-sm font-medium">Style d'affichage</Label>
+                <Select value={(formData as any).poi_business_style || "aucun"} onValueChange={(v) => { handleChange("poi_business_style" as any, v); }}>
+                  <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="aucun">Aucun</SelectItem>
+                    <SelectItem value="emmene_a">{formData.name || "…"} vous emmène à</SelectItem>
+                    <SelectItem value="propose">{formData.name || "…"} vous propose</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
         )}
 
