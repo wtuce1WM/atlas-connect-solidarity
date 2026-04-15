@@ -63,6 +63,16 @@ const ReviewsEditor = ({ businessId }: ReviewsEditorProps) => {
     load();
   };
 
+  const handleToggleHidden = async (reviewId: string, value: boolean) => {
+    const { error } = await supabase.from("reviews").update({ is_hidden: value } as any).eq("id", reviewId);
+    if (error) {
+      toast.error("Erreur lors de la mise à jour");
+      return;
+    }
+    toast.success(value ? "Avis masqué" : "Avis visible");
+    load();
+  };
+
   const defaultReview = reviews.find(r => r.is_default);
   const otherReviews = reviews.filter(r => !r.is_default);
 
