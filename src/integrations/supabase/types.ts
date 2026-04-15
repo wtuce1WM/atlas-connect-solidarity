@@ -2147,6 +2147,7 @@ export type Database = {
       }
       front_highlights: {
         Row: {
+          business_id: string | null
           created_at: string
           description: string
           icon: string
@@ -2156,6 +2157,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          business_id?: string | null
           created_at?: string
           description?: string
           icon?: string
@@ -2165,6 +2167,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          business_id?: string | null
           created_at?: string
           description?: string
           icon?: string
@@ -2173,7 +2176,22 @@ export type Database = {
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "front_highlights_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "front_highlights_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       front_structure: {
         Row: {
