@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Star, MessageSquare } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
@@ -22,13 +22,17 @@ interface ReviewsEditorProps {
   businessId: string;
 }
 
+export interface ReviewsEditorRef {
+  refresh: () => Promise<void>;
+}
+
 const SOURCE_LABELS: Record<string, string> = {
   google: "Google",
   tripadvisor: "TripAdvisor",
   restaurant_guru: "Restaurant Guru",
 };
 
-const ReviewsEditor = ({ businessId }: ReviewsEditorProps) => {
+const ReviewsEditor = forwardRef<ReviewsEditorRef, ReviewsEditorProps>(({ businessId }, ref) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -43,6 +47,8 @@ const ReviewsEditor = ({ businessId }: ReviewsEditorProps) => {
     setReviews((data as unknown as Review[]) || []);
     setLoading(false);
   }, [businessId]);
+
+  useImperativeHandle(ref, () => ({ refresh: load }), [load]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -182,6 +188,8 @@ const ReviewsEditor = ({ businessId }: ReviewsEditorProps) => {
       </div>
     </div>
   );
-};
+});
+
+ReviewsEditor.displayName = "ReviewsEditor";
 
 export default ReviewsEditor;

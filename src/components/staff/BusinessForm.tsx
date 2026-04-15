@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
-import ReviewsEditor from "./ReviewsEditor";
+import ReviewsEditor, { type ReviewsEditorRef } from "./ReviewsEditor";
 import YouTubeVideosManager from "./YouTubeVideosManager";
 import { format } from "date-fns";
 import { DndContext, closestCenter } from "@dnd-kit/core";
@@ -896,6 +896,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   };
   const [loading, setLoading] = useState(false);
   const highlightsRef = useRef<FrontHighlightsEditorHandle>(null);
+  const reviewsEditorRef = useRef<ReviewsEditorRef>(null);
   const [isDirty, setIsDirty] = useState(false);
   const [showLeaveDialog, setShowLeaveDialog] = useState(false);
   const [showClearSocial, setShowClearSocial] = useState(false);
@@ -1723,6 +1724,10 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       }
 
       const trSuffix = translatedCount > 0 ? ` · ${translatedCount} avis traduits en FR` : "";
+
+      // Refresh the reviews list in the UI
+      reviewsEditorRef.current?.refresh();
+
       toast({
         title: "Avis récupérés",
         description: avg !== null
@@ -5061,7 +5066,18 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </div>
         </div>
 
-        {/* ═══════ Engagements ═══════ */}
+        {/* ═══════ Détail des avis clients traduits ═══════ */}
+        {business?.id && (
+          <div id="section-reviews-detail" className="p-4 bg-orange-50 border border-orange-200 rounded-lg space-y-3" style={{ scrollMarginTop: '160px' }}>
+            <Label className="text-xl font-semibold flex items-center gap-2">
+              <MessageSquare className="h-5 w-5" />
+              Détail des avis clients
+            </Label>
+            <ReviewsEditor ref={reviewsEditorRef} businessId={business.id} />
+          </div>
+        )}
+
+
         <div id="section-services" className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg space-y-4" style={{ scrollMarginTop: '160px' }}>
           <Label className="text-xl font-semibold">Engagements, Certifications & Commodités</Label>
           <div className="space-y-2">
@@ -5586,16 +5602,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             onChange={(dates) => setFormData(prev => ({ ...prev, vacation_dates: dates }))}
           />
 
-          {/* Avis Clients */}
-          {business?.id && (
-            <div className="mt-4 pt-4 border-t border-blue-200">
-              <Label className="text-lg font-semibold flex items-center gap-2 mb-3">
-                <MessageSquare className="h-5 w-5" />
-                Avis clients
-              </Label>
-              <ReviewsEditor businessId={business.id} />
-            </div>
-          )}
+
         </div>
 
         {/* Internal Notes - Staff Only */}
