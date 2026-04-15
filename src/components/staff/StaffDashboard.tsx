@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
-import { Upload, Volume2, RefreshCw } from "lucide-react";
+import { Upload, Volume2, RefreshCw, Languages } from "lucide-react";
 import {
   Building2,
   Eye,
@@ -188,6 +188,7 @@ const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusine
           Export CSV Google My Maps
         </Button>
         <InternalizeImagesButton />
+        <BatchTranslateReviewsButton />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
