@@ -266,6 +266,7 @@ const LocationManagement = () => {
     hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
     is_searchable: false, images: [] as string[], internal_notes: "", videos: [] as string[],
     city_ids: [] as string[],
+    google_maps_url: "", google_reviews_url: "", google_rating: "", google_review_count: "",
   });
   const [destVideoUrlInput, setDestVideoUrlInput] = useState("");
   const [poiSectionOpen, setPoiSectionOpen] = useState(false);
@@ -916,6 +917,7 @@ const LocationManagement = () => {
       hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
       is_searchable: false, images: [] as string[], internal_notes: "", videos: [] as string[],
       city_ids: [] as string[],
+      google_maps_url: "", google_reviews_url: "", google_rating: "", google_review_count: "",
     });
     setDestVideoUrlInput("");
   };
