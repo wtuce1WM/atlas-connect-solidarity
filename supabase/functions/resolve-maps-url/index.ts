@@ -66,16 +66,31 @@ async function resolveViaTextSearch(placeName: string, apiKey: string): Promise<
 }
 
 /**
- * Fetch rating/reviews via Place Details for an already-found place_id.
+ * Fetch rating/reviews + review texts via Place Details (new API).
  */
-async function fetchPlaceDetails(placeId: string, apiKey: string): Promise<{ rating?: number; reviewCount?: number } | null> {
-  const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=rating,user_ratings_total&key=${apiKey}`;
-  const resp = await fetch(url);
+async function fetchPlaceDetails(placeId: string, apiKey: string): Promise<{ rating?: number; reviewCount?: number; reviews?: any[] } | null> {
+  // Use new Places API for reviews
+  const url = `https://places.googleapis.com/v1/places/${placeId}`;
+  const resp = await fetch(url, {
+    headers: {
+      'X-Goog-Api-Key': apiKey,
+      'X-Goog-FieldMask': 'rating,userRatingCount,reviews',
+    },
+  });
   const data = await resp.json();
-  if (data.result) {
+  if (data) {
+    const reviews = (data.reviews || []).slice(0, 5).map((r: any) => ({
+      author_name: r.authorAttribution?.displayName || null,
+      rating: r.rating ?? null,
+      text: r.text?.text || null,
+      relative_time: r.relativePublishTimeDescription || null,
+      language: r.text?.languageCode || null,
+      published_at: r.publishTime || null,
+    }));
     return {
-      rating: data.result.rating ?? undefined,
-      reviewCount: data.result.user_ratings_total ?? undefined,
+      rating: data.rating ?? undefined,
+      reviewCount: data.userRatingCount ?? undefined,
+      reviews: reviews.length > 0 ? reviews : undefined,
     };
   }
   return null;
