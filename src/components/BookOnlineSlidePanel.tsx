@@ -1793,18 +1793,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 setDescOverlayContent({ html: buildReviewHtml(reviewTexts), title });
                 setDescGridMode(false);
                 setSidebarOpenGroup(null);
-                const targetLang = language === "en" ? "en" : language === "ar" ? "ar" : "fr";
-                const needsTranslation = reviewTexts.some(r => r.language && r.language !== targetLang);
-                if (needsTranslation && reviewTexts.some(r => r.text)) {
-                  try {
-                    const { data, error } = await supabase.functions.invoke("translate-reviews", {
-                      body: { reviews: reviewTexts.filter(r => r.text).map(r => ({ text: r.text })), targetLanguage: targetLang },
-                    });
-                    if (!error && data?.translations?.length) {
-                      setDescOverlayContent({ html: buildReviewHtml(reviewTexts, data.translations), title });
-                    }
-                  } catch (e) { console.error("Translation error:", e); }
-                }
               };
               const activePlatforms = reviewPlatforms.filter(p => p.rating && p.count);
               groups.push({
