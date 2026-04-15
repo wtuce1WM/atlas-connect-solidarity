@@ -457,6 +457,10 @@ interface SortableVideoCardProps {
   dbServices: Array<{ id: string; name_fr: string; subcategory_id: string }>;
   dbCities: Array<{ id: string; name_fr: string; region: string | null }>;
   dbNeighborhoods: Array<{ id: string; name: string; city_id: string }>;
+  dbEvents: Array<{ id: string; name: string }>;
+  dbBadges: Array<{ id: string; name_fr: string }>;
+  videoEventSearch: Record<number, string>;
+  setVideoEventSearch: Dispatch<SetStateAction<Record<number, string>>>;
   business: any;
   toast: any;
   onOpenDesc: () => void;
