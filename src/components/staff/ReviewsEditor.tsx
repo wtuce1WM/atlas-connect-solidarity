@@ -15,6 +15,7 @@ interface Review {
   relative_time: string | null;
   published_at: string | null;
   is_default: boolean;
+  is_hidden: boolean;
 }
 
 interface ReviewsEditorProps {
