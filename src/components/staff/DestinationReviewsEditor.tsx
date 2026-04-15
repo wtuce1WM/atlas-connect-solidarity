@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Star, MessageSquare, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Star, MessageSquare } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
@@ -39,16 +38,6 @@ const DestinationReviewsEditor = ({ destinationId }: DestinationReviewsEditorPro
   }, [destinationId]);
 
   useEffect(() => { load(); }, [load]);
-
-  const handleDelete = async (reviewId: string) => {
-    const { error } = await supabase.from("destination_reviews" as any).delete().eq("id", reviewId);
-    if (error) {
-      toast.error("Erreur lors de la suppression");
-      return;
-    }
-    toast.success("Avis supprimé");
-    load();
-  };
 
   const handleSetDefault = async (reviewId: string, value: boolean) => {
     if (value) {
@@ -167,14 +156,6 @@ const DestinationReviewsEditor = ({ destinationId }: DestinationReviewsEditorPro
                   className="scale-75"
                 />
               </div>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive h-6 w-6 p-0"
-                onClick={() => handleDelete(review.id)}
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
             </div>
           </div>
         ))}
