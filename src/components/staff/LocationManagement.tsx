@@ -2446,7 +2446,7 @@ const LocationManagement = () => {
                           max="5"
                           value={destinationForm.google_rating}
                           onChange={(e) => setDestinationForm(prev => ({ ...prev, google_rating: e.target.value }))}
-                          placeholder="4.5"
+                          placeholder=""
                           className="w-24 text-sm"
                         />
                       </div>
@@ -2457,7 +2457,7 @@ const LocationManagement = () => {
                           min="0"
                           value={destinationForm.google_review_count}
                           onChange={(e) => setDestinationForm(prev => ({ ...prev, google_review_count: e.target.value }))}
-                          placeholder="1200"
+                          placeholder=""
                           className="w-24 text-sm"
                         />
                       </div>
