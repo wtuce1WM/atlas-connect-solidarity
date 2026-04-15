@@ -396,11 +396,18 @@ async function searchGooglePlace(
   return null;
 }
 
-async function fetchGoogleReviews(businessName: string, city: string | null, googleMapsUrl: string | null, dbLatitude?: number | null, dbLongitude?: number | null): Promise<{ rating: number | null | undefined; count: number | null | undefined; reviews: ReviewText[] }> {
+async function fetchGoogleReviews(businessName: string, city: string | null, googleMapsUrl: string | null, dbLatitude?: number | null, dbLongitude?: number | null): Promise<{ rating: number | null | undefined; count: number | null | undefined; reviews: ReviewText[]; skippedReason?: string }> {
   const apiKey = Deno.env.get('GOOGLE_MAPS_API_KEY');
   if (!apiKey) {
     console.error('GOOGLE_MAPS_API_KEY not configured');
     return { rating: undefined, count: undefined, reviews: [] };
+  }
+
+  // Require a Google Maps URL to fetch Google reviews — text-only search
+  // without a URL produces unreliable results for generic business names.
+  if (!googleMapsUrl || googleMapsUrl.trim() === '') {
+    console.log(`Skipping Google reviews for "${businessName}": no Google Maps URL provided`);
+    return { rating: null, count: null, reviews: [], skippedReason: 'no_google_maps_url' };
   }
 
   try {
