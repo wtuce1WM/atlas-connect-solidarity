@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Star, MessageSquare } from "lucide-react";
+import { Star, MessageSquare, Languages } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 interface Review {
@@ -31,6 +32,9 @@ const SOURCE_LABELS: Record<string, string> = {
 const ReviewsEditor = ({ businessId }: ReviewsEditorProps) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
+  const [translating, setTranslating] = useState(false);
+  const [translateProgress, setTranslateProgress] = useState("");
+  const abortRef = useRef(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -48,7 +52,6 @@ const ReviewsEditor = ({ businessId }: ReviewsEditorProps) => {
 
   const handleSetDefault = async (reviewId: string, value: boolean) => {
     if (value) {
-      // Unset any existing default for this business
       const currentDefault = reviews.find(r => r.is_default);
       if (currentDefault) {
         await supabase.from("reviews").update({ is_default: false } as any).eq("id", currentDefault.id);
@@ -91,9 +94,59 @@ const ReviewsEditor = ({ businessId }: ReviewsEditorProps) => {
     );
   }
 
+  const handleBatchTranslate = async () => {
+    setTranslating(true);
+    abortRef.current = false;
+    let totalTranslated = 0;
+
+    try {
+      while (!abortRef.current) {
+        const { data, error } = await supabase.functions.invoke("batch-translate-reviews", {
+          body: { limit: 50, targetLang: "fr" },
+        });
+
+        if (error) {
+          toast.error("Erreur de traduction");
+          break;
+        }
+
+        totalTranslated += data.translated || 0;
+        setTranslateProgress(`${totalTranslated} traduits, ${data.remaining} restants`);
+
+        if (data.done || data.remaining === 0) {
+          toast.success(`Terminé ! ${totalTranslated} avis traduits au total`);
+          break;
+        }
+
+        // Small delay between batches
+        await new Promise(r => setTimeout(r, 500));
+      }
+    } catch (e) {
+      toast.error("Erreur lors de la traduction");
+    }
+
+    setTranslating(false);
+    setTranslateProgress("");
+    load();
+  };
+
   return (
     <div className="space-y-3">
-      <p className="text-xs text-muted-foreground">{reviews.length} avis enregistré{reviews.length > 1 ? "s" : ""}</p>
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-muted-foreground">{reviews.length} avis enregistré{reviews.length > 1 ? "s" : ""}</p>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={translating ? () => { abortRef.current = true; } : handleBatchTranslate}
+          className="text-xs gap-1.5"
+        >
+          <Languages className="h-3.5 w-3.5" />
+          {translating ? "Arrêter" : "Traduire tout en FR"}
+        </Button>
+      </div>
+      {translateProgress && (
+        <p className="text-xs text-muted-foreground animate-pulse">{translateProgress}</p>
+      )}
       
       {/* AVIS PAR DÉFAUT - Mis en avant */}
       {defaultReview && (
