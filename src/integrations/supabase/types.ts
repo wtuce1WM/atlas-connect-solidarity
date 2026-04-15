@@ -1818,6 +1818,10 @@ export type Database = {
           city_ids: string[] | null
           created_at: string | null
           description: string | null
+          google_maps_url: string | null
+          google_rating: number | null
+          google_review_count: number | null
+          google_reviews_url: string | null
           hook: string | null
           id: string
           image_url: string | null
@@ -1843,6 +1847,10 @@ export type Database = {
           city_ids?: string[] | null
           created_at?: string | null
           description?: string | null
+          google_maps_url?: string | null
+          google_rating?: number | null
+          google_review_count?: number | null
+          google_reviews_url?: string | null
           hook?: string | null
           id?: string
           image_url?: string | null
@@ -1868,6 +1876,10 @@ export type Database = {
           city_ids?: string[] | null
           created_at?: string | null
           description?: string | null
+          google_maps_url?: string | null
+          google_rating?: number | null
+          google_review_count?: number | null
+          google_reviews_url?: string | null
           hook?: string | null
           id?: string
           image_url?: string | null
