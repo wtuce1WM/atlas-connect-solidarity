@@ -981,6 +981,10 @@ const LocationManagement = () => {
       internal_notes: destinationForm.internal_notes.trim().slice(0, 5000) || null,
       videos: destinationForm.videos.length > 0 ? destinationForm.videos : [],
       city_ids: destinationForm.city_ids.length > 0 ? destinationForm.city_ids : [],
+      google_maps_url: destinationForm.google_maps_url.trim() || null,
+      google_reviews_url: destinationForm.google_reviews_url.trim() || null,
+      google_rating: destinationForm.google_rating ? parseFloat(destinationForm.google_rating) : null,
+      google_review_count: destinationForm.google_review_count ? parseInt(destinationForm.google_review_count) : null,
     };
     let error;
     if (editingDestination) {
