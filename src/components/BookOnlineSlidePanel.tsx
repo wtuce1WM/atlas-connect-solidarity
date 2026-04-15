@@ -1156,31 +1156,29 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               <div className="shrink-0 w-4" aria-hidden="true" />
           </div>
         </div>
-        {/* Bouton + centré sous le carrousel info */}
-        {woDescription && (
-          <div className="flex justify-center pointer-events-auto -mt-20 mb-4 relative z-30">
-            <div
-              className="opacity-0 animate-zoom-out-center"
-              style={{ animationDelay: '1.8s', animationFillMode: 'forwards', animationDuration: '1s' }}
-            >
+
+        {/* Note /20 + bouton + : centrés entre carrousel info et tabs */}
+        {(avgOn20 != null && totalReviewCount > 0) || woDescription ? (
+          <div className="flex flex-col items-center pointer-events-auto -mt-16 mb-0 gap-3">
+            {/* Bouton + tout en haut de cette section */}
+            {woDescription && (
               <div
-                className="cursor-pointer group"
-                onClick={() => setShowDescriptionOverlay(true)}
+                className="opacity-0 animate-zoom-out-center"
+                style={{ animationDelay: '1.8s', animationFillMode: 'forwards', animationDuration: '1s' }}
               >
                 <div
-                  className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
-                  style={{ backgroundColor: '#25D366' }}
+                  className="cursor-pointer group"
+                  onClick={() => setShowDescriptionOverlay(true)}
                 >
-                  <span className="text-2xl text-white font-light leading-none">+</span>
+                  <div
+                    className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
+                    style={{ backgroundColor: '#25D366' }}
+                  >
+                    <span className="text-2xl text-white font-light leading-none">+</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* Note /20 : centrés entre carrousel info et tabs */}
-        {(avgOn20 != null && totalReviewCount > 0) ? (
-          <div className="flex flex-col items-center pointer-events-auto -mt-16 mb-0 gap-9">
+            )}
             {avgOn20 != null && totalReviewCount > 0 && (
               <div
                 key={`rating-${business?.id}`}
