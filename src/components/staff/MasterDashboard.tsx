@@ -1,14 +1,15 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Search, BookOpen, Egg, Star, UserCheck, BarChart3, FlaskConical, Sparkles, Brain,
-  AlertTriangle, CheckCircle2, XCircle, Loader2, ArrowRight, FileText,
+  AlertTriangle, CheckCircle2, XCircle, Loader2, ArrowRight, FileText, Languages,
 } from "lucide-react";
 import BatchThumbnailGenerator from "./BatchThumbnailGenerator";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface MasterDashboardProps {
   onNavigateTab: (tab: string) => void;
@@ -220,6 +221,8 @@ const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
       </Card>
 
       <BatchThumbnailGenerator />
+
+      <BatchTranslateReviews />
     </div>
   );
 };
