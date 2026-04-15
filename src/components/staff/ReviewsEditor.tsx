@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Star, Trash2, MessageSquare } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Star, MessageSquare } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
