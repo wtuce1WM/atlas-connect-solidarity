@@ -2389,9 +2389,26 @@ const LocationManagement = () => {
                                   ...(data.rating !== undefined ? { google_rating: String(data.rating) } : {}),
                                   ...(data.reviewCount !== undefined ? { google_review_count: String(data.reviewCount) } : {}),
                                 }));
+                                // Save reviews to destination_reviews table if we have them and a destination ID
+                                if (data.reviews && data.reviews.length > 0 && editingDestination?.id) {
+                                  // Delete existing reviews first
+                                  await supabase.from("destination_reviews" as any).delete().eq("destination_id", editingDestination.id);
+                                  const reviewRows = data.reviews.map((r: any) => ({
+                                    destination_id: editingDestination.id,
+                                    source: "google",
+                                    author_name: r.author_name,
+                                    rating: r.rating,
+                                    text: r.text,
+                                    relative_time: r.relative_time,
+                                    language: r.language,
+                                    published_at: r.published_at,
+                                  }));
+                                  await supabase.from("destination_reviews" as any).insert(reviewRows);
+                                }
                                 const parts = [`Lat: ${data.lat}, Lng: ${data.lng}`];
                                 if (data.rating !== undefined) parts.push(`Note: ${data.rating}/5`);
                                 if (data.reviewCount !== undefined) parts.push(`${data.reviewCount} avis`);
+                                if (data.reviews?.length) parts.push(`${data.reviews.length} avis détaillés`);
                                 toast({ title: "GPS & avis récupérés", description: parts.join(" · ") });
                               } else {
                                 toast({ variant: "destructive", title: "Impossible d'extraire les coordonnées", description: "Le format de l'URL Google Maps n'est pas reconnu." });
