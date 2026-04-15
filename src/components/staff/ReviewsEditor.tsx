@@ -11,8 +11,10 @@ interface Review {
   author_name: string | null;
   rating: number | null;
   text: string | null;
+  text_fr: string | null;
   language: string | null;
   relative_time: string | null;
+  published_at: string | null;
   is_default: boolean;
 }
 
@@ -34,7 +36,7 @@ const ReviewsEditor = ({ businessId }: ReviewsEditorProps) => {
     setLoading(true);
     const { data } = await supabase
       .from("reviews")
-      .select("id, source, author_name, rating, text, language, relative_time, is_default")
+      .select("id, source, author_name, rating, text, text_fr, language, relative_time, published_at, is_default")
       .eq("business_id", businessId)
       .order("is_default", { ascending: false })
       .order("rating", { ascending: false, nullsFirst: false });
@@ -111,16 +113,21 @@ const ReviewsEditor = ({ businessId }: ReviewsEditorProps) => {
                     {review.rating}/5
                   </span>
                 )}
-                {review.relative_time && (
+                {review.published_at && (
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(review.published_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+                  </span>
+                )}
+                {!review.published_at && review.relative_time && (
                   <span className="text-xs text-muted-foreground">{review.relative_time}</span>
                 )}
                 {review.language && (
                   <span className="text-[10px] uppercase text-muted-foreground">{review.language}</span>
                 )}
               </div>
-              {review.text && (
+              {(review.text_fr || review.text) && (
                 <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
-                  {review.text}
+                  {review.text_fr || review.text}
                 </p>
               )}
             </div>
