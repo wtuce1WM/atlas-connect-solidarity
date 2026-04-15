@@ -166,14 +166,6 @@ const DestinationReviewsEditor = ({ destinationId }: DestinationReviewsEditorPro
                   className="scale-75"
                 />
               </div>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive h-6 w-6 p-0"
-                onClick={() => handleDelete(review.id)}
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
             </div>
           </div>
         ))}
