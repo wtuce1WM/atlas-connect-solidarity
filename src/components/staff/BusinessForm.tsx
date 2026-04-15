@@ -5602,16 +5602,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             onChange={(dates) => setFormData(prev => ({ ...prev, vacation_dates: dates }))}
           />
 
-          {/* Avis Clients */}
-          {business?.id && (
-            <div className="mt-4 pt-4 border-t border-blue-200">
-              <Label className="text-lg font-semibold flex items-center gap-2 mb-3">
-                <MessageSquare className="h-5 w-5" />
-                Avis clients
-              </Label>
-              <ReviewsEditor businessId={business.id} />
-            </div>
-          )}
+
         </div>
 
         {/* Internal Notes - Staff Only */}
