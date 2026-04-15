@@ -992,6 +992,8 @@ export type Database = {
           computed_rating: number | null
           country: string | null
           created_at: string
+          default_destination_id: string | null
+          default_destination_style: string
           default_service: string | null
           default_sound_on: boolean
           description: string | null
@@ -1155,6 +1157,8 @@ export type Database = {
           computed_rating?: number | null
           country?: string | null
           created_at?: string
+          default_destination_id?: string | null
+          default_destination_style?: string
           default_service?: string | null
           default_sound_on?: boolean
           description?: string | null
@@ -1318,6 +1322,8 @@ export type Database = {
           computed_rating?: number | null
           country?: string | null
           created_at?: string
+          default_destination_id?: string | null
+          default_destination_style?: string
           default_service?: string | null
           default_sound_on?: boolean
           description?: string | null
@@ -1474,6 +1480,13 @@ export type Database = {
             columns: ["badge_id"]
             isOneToOne: false
             referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "businesses_default_destination_id_fkey"
+            columns: ["default_destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
             referencedColumns: ["id"]
           },
           {
@@ -4596,6 +4609,8 @@ export type Database = {
               computed_rating: number | null
               country: string | null
               created_at: string
+              default_destination_id: string | null
+              default_destination_style: string
               default_service: string | null
               default_sound_on: boolean
               description: string | null
@@ -4775,6 +4790,8 @@ export type Database = {
               computed_rating: number | null
               country: string | null
               created_at: string
+              default_destination_id: string | null
+              default_destination_style: string
               default_service: string | null
               default_sound_on: boolean
               description: string | null
