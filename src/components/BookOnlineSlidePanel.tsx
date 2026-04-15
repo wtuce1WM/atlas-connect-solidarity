@@ -1169,9 +1169,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               >
                 {/* Default review quote above rating */}
                 {(() => {
-                  const defaultReview = reviewTexts.find(r => {
-                    const txt = (language === "en" ? r.text_en : r.text_fr) || r.text;
-                    return txt && txt.trim().length > 0;
+                  const defaultReview = reviewTexts.find((r) => {
+                    const displayText = ((language === "en" ? r.text_en : r.text_fr) || r.text || "").trim();
+                    return r.is_default && displayText.length > 0;
                   });
                   if (!defaultReview) return null;
                   const displayText = ((language === "en" ? defaultReview.text_en : defaultReview.text_fr) || defaultReview.text || "").trim();
