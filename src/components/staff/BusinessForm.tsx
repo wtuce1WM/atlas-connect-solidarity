@@ -3767,15 +3767,22 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                           <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Aucune" /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="__none__">Aucune</SelectItem>
-                            {selectedDestinationIds.map(destId => {
-                              const dest = dbDestinations.find(d => d.id === destId);
-                              return dest ? <SelectItem key={dest.id} value={dest.id}>{dest.name_fr}</SelectItem> : null;
-                            })}
+                            {[...selectedDestinationIds]
+                              .sort((a, b) => {
+                                const destA = dbDestinations.find(d => d.id === a);
+                                const destB = dbDestinations.find(d => d.id === b);
+                                const nameA = destA?.name_fr || "";
+                                const nameB = destB?.name_fr || "";
+                                return nameA.localeCompare(nameB, "fr");
+                              })
+                              .map(destId => {
+                                const dest = dbDestinations.find(d => d.id === destId);
+                                return dest ? <SelectItem key={dest.id} value={dest.id}>{dest.name_fr}</SelectItem> : null;
+                              })}
                           </SelectContent>
                         </Select>
                         {(formData as any).default_destination_id && (formData as any).default_destination_id !== "" && (() => {
-                          const selectedDest = dbDestinations.find(d => d.id === (formData as any).default_destination_id);
-                          const destName = selectedDest?.name_fr || "…";
+                          const businessName = formData.name || "…";
                           return (
                             <div>
                               <Label className="text-sm font-medium">Style d'affichage</Label>
@@ -3783,8 +3790,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                                 <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="aucun">Aucun</SelectItem>
-                                  <SelectItem value="emmene_a">{destName} vous emmène à</SelectItem>
-                                  <SelectItem value="propose">{destName} vous propose</SelectItem>
+                                  <SelectItem value="emmene_a">{businessName} vous emmène à</SelectItem>
+                                  <SelectItem value="propose">{businessName} vous propose</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
