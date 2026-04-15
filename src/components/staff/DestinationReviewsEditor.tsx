@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Star, MessageSquare, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
 interface Review {
@@ -13,6 +14,8 @@ interface Review {
   language: string | null;
   relative_time: string | null;
   published_at: string | null;
+  is_default: boolean;
+  is_hidden: boolean;
 }
 
 interface DestinationReviewsEditorProps {
@@ -27,8 +30,9 @@ const DestinationReviewsEditor = ({ destinationId }: DestinationReviewsEditorPro
     setLoading(true);
     const { data } = await supabase
       .from("destination_reviews" as any)
-      .select("id, source, author_name, rating, text, language, relative_time, published_at")
+      .select("id, source, author_name, rating, text, language, relative_time, published_at, is_default, is_hidden")
       .eq("destination_id", destinationId)
+      .order("is_default", { ascending: false })
       .order("rating", { ascending: false, nullsFirst: false }) as any;
     setReviews((data || []) as Review[]);
     setLoading(false);
@@ -46,6 +50,32 @@ const DestinationReviewsEditor = ({ destinationId }: DestinationReviewsEditorPro
     load();
   };
 
+  const handleSetDefault = async (reviewId: string, value: boolean) => {
+    if (value) {
+      const currentDefault = reviews.find(r => r.is_default);
+      if (currentDefault) {
+        await supabase.from("destination_reviews" as any).update({ is_default: false } as any).eq("id", currentDefault.id);
+      }
+    }
+    const { error } = await supabase.from("destination_reviews" as any).update({ is_default: value } as any).eq("id", reviewId);
+    if (error) {
+      toast.error("Erreur lors de la mise à jour");
+      return;
+    }
+    toast.success(value ? "Avis défini comme défaut" : "Avis retiré du défaut");
+    load();
+  };
+
+  const handleToggleHidden = async (reviewId: string, value: boolean) => {
+    const { error } = await supabase.from("destination_reviews" as any).update({ is_hidden: value } as any).eq("id", reviewId);
+    if (error) {
+      toast.error("Erreur lors de la mise à jour");
+      return;
+    }
+    toast.success(value ? "Avis masqué" : "Avis visible");
+    load();
+  };
+
   if (loading) {
     return <div className="text-sm text-muted-foreground py-2">Chargement des avis…</div>;
   }
@@ -59,11 +89,41 @@ const DestinationReviewsEditor = ({ destinationId }: DestinationReviewsEditorPro
     );
   }
 
+  const defaultReview = reviews.find(r => r.is_default);
+  const otherReviews = reviews.filter(r => !r.is_default);
+
   return (
     <div className="space-y-3">
       <p className="text-xs text-muted-foreground">{reviews.length} avis enregistré{reviews.length > 1 ? "s" : ""}</p>
+
+      {/* AVIS PAR DÉFAUT - Mis en avant */}
+      {defaultReview && (
+        <div className="p-4 rounded-lg border-2 border-primary bg-primary/10 ring-1 ring-primary/30">
+          <div className="flex items-center gap-2 mb-2">
+            <Star className="h-4 w-4 text-primary fill-primary" />
+            <span className="text-xs font-semibold text-primary uppercase tracking-wider">Avis mis en avant</span>
+          </div>
+          <p className="text-sm font-medium mb-2 leading-relaxed">
+            {defaultReview.text || "Aucun texte"}
+          </p>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <span className="font-medium">{defaultReview.author_name || "Anonyme"}</span>
+            {defaultReview.rating != null && (
+              <span className="flex items-center gap-0.5">
+                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                {defaultReview.rating}/5
+              </span>
+            )}
+            {defaultReview.published_at && (
+              <span>{new Date(defaultReview.published_at).toLocaleDateString("fr-FR")}</span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Liste des autres avis */}
       <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
-        {reviews.map(review => (
+        {otherReviews.map(review => (
           <div key={review.id} className="flex gap-3 p-3 rounded-lg border border-border bg-card text-sm group">
             <div className="flex-1 min-w-0 space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
@@ -90,14 +150,32 @@ const DestinationReviewsEditor = ({ destinationId }: DestinationReviewsEditorPro
                 <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">{review.text}</p>
               )}
             </div>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
-              onClick={() => handleDelete(review.id)}
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
+            <div className="flex flex-col items-center gap-2 shrink-0">
+              <div className="flex items-center gap-1.5" title="Ne pas afficher">
+                <span className="text-[10px] text-muted-foreground">Masquer</span>
+                <Switch
+                  checked={review.is_hidden}
+                  onCheckedChange={(v) => handleToggleHidden(review.id, v)}
+                  className="scale-75"
+                />
+              </div>
+              <div className="flex items-center gap-1.5" title="Avis par défaut">
+                <span className="text-[10px] text-muted-foreground">Défaut</span>
+                <Switch
+                  checked={review.is_default}
+                  onCheckedChange={(v) => handleSetDefault(review.id, v)}
+                  className="scale-75"
+                />
+              </div>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive h-6 w-6 p-0"
+                onClick={() => handleDelete(review.id)}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
           </div>
         ))}
       </div>
