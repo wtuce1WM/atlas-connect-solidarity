@@ -68,12 +68,11 @@ async function resolveViaTextSearch(placeName: string, apiKey: string): Promise<
 /**
  * Fetch rating/reviews + review texts via Place Details (legacy API — more reliable for reviews).
  */
-async function fetchPlaceDetails(placeId: string, apiKey: string): Promise<{ rating?: number; reviewCount?: number; reviews?: any[] } | null> {
-  // Use legacy Place Details API which reliably returns reviews
+async function fetchPlaceDetails(placeId: string, apiKey: string): Promise<{ rating?: number; reviewCount?: number; reviews?: any[]; _debug?: any } | null> {
   const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=rating,user_ratings_total,reviews&language=fr&key=${apiKey}`;
   const resp = await fetch(url);
   const data = await resp.json();
-  console.log("PlaceDetails raw keys:", JSON.stringify(Object.keys(data.result || {})), "reviews array length:", data.result?.reviews?.length ?? "N/A");
+  const _debug = { status: data.status, resultKeys: Object.keys(data.result || {}), reviewsLen: data.result?.reviews?.length, placeId };
   if (data.result) {
     const rawReviews = data.result.reviews || [];
     const reviews = rawReviews.slice(0, 5).map((r: any) => ({
@@ -88,9 +87,10 @@ async function fetchPlaceDetails(placeId: string, apiKey: string): Promise<{ rat
       rating: data.result.rating ?? undefined,
       reviewCount: data.result.user_ratings_total ?? undefined,
       reviews: reviews.length > 0 ? reviews : undefined,
+      _debug,
     };
   }
-  return null;
+  return { _debug };
 }
 
 /**
