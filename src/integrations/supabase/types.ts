@@ -1816,6 +1816,7 @@ export type Database = {
       destinations: {
         Row: {
           city_ids: string[] | null
+          computed_rating: number | null
           created_at: string | null
           description: string | null
           google_maps_url: string | null
@@ -1837,6 +1838,7 @@ export type Database = {
           name_fr: string
           region: string[] | null
           sort_order: number | null
+          total_review_count: number | null
           updated_at: string | null
           videos: string[] | null
           wikipedia_ar: string | null
@@ -1845,6 +1847,7 @@ export type Database = {
         }
         Insert: {
           city_ids?: string[] | null
+          computed_rating?: number | null
           created_at?: string | null
           description?: string | null
           google_maps_url?: string | null
@@ -1866,6 +1869,7 @@ export type Database = {
           name_fr: string
           region?: string[] | null
           sort_order?: number | null
+          total_review_count?: number | null
           updated_at?: string | null
           videos?: string[] | null
           wikipedia_ar?: string | null
@@ -1874,6 +1878,7 @@ export type Database = {
         }
         Update: {
           city_ids?: string[] | null
+          computed_rating?: number | null
           created_at?: string | null
           description?: string | null
           google_maps_url?: string | null
@@ -1895,6 +1900,7 @@ export type Database = {
           name_fr?: string
           region?: string[] | null
           sort_order?: number | null
+          total_review_count?: number | null
           updated_at?: string | null
           videos?: string[] | null
           wikipedia_ar?: string | null
