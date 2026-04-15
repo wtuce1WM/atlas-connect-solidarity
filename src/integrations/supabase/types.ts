@@ -1813,6 +1813,56 @@ export type Database = {
         }
         Relationships: []
       }
+      destination_reviews: {
+        Row: {
+          author_name: string | null
+          created_at: string
+          destination_id: string
+          fetched_at: string
+          id: string
+          language: string | null
+          published_at: string | null
+          rating: number | null
+          relative_time: string | null
+          source: string
+          text: string | null
+        }
+        Insert: {
+          author_name?: string | null
+          created_at?: string
+          destination_id: string
+          fetched_at?: string
+          id?: string
+          language?: string | null
+          published_at?: string | null
+          rating?: number | null
+          relative_time?: string | null
+          source?: string
+          text?: string | null
+        }
+        Update: {
+          author_name?: string | null
+          created_at?: string
+          destination_id?: string
+          fetched_at?: string
+          id?: string
+          language?: string | null
+          published_at?: string | null
+          rating?: number | null
+          relative_time?: string | null
+          source?: string
+          text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "destination_reviews_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       destinations: {
         Row: {
           city_ids: string[] | null
