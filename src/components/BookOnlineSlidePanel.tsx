@@ -497,7 +497,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       const textsHtml = texts.length > 0
         ? texts.slice(0, 10).map((r) => {
           const displayText = (language === "en" ? r.text_en : r.text_fr) || r.text || "";
-          return `<blockquote style="margin-top:4px"><p>${displayText}</p><footer>— ${r.author_name || (language === "en" ? "Anonymous" : "Anonyme")}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`;
+          return `<blockquote style="margin-top:4px;font-family:'Josefin Sans',sans-serif;font-size:0.875rem;line-height:1.625"><p>${displayText}</p><footer style="font-family:'Josefin Sans',sans-serif;font-size:0.875rem">— ${r.author_name || (language === "en" ? "Anonymous" : "Anonyme")}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`;
         }).join("")
         : "";
       return scoreHtml + textsHtml;
@@ -1828,7 +1828,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   const textsHtml = texts.length > 0
                     ? `${isMobileViewport ? "" : "<hr/>"}` + texts.slice(0, 10).map((r) => {
                       const displayText = (language === "en" ? r.text_en : r.text_fr) || r.text || "";
-                      return `<blockquote><p>${displayText}</p><footer>— ${r.author_name || (language === "en" ? "Anonymous" : "Anonyme")}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`;
+                      return `<blockquote style="font-family:'Josefin Sans',sans-serif;font-size:0.875rem;line-height:1.625"><p>${displayText}</p><footer style="font-family:'Josefin Sans',sans-serif;font-size:0.875rem">— ${r.author_name || (language === "en" ? "Anonymous" : "Anonyme")}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`;
                     }).join("")
                     : "";
                   return scoreHtml + textsHtml;
