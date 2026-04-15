@@ -248,10 +248,8 @@ serve(async (req) => {
     // Step 8: If we got coords but no rating yet, try to fetch rating + reviews via Places API
     if (lat !== null && rating === undefined && apiKey) {
       const placeId = extractPlaceId(finalUrl) || extractPlaceId(url);
-      console.log("[Step8] placeId from URL:", placeId);
       if (placeId && !placeId.startsWith("0x")) {
         const details = await fetchPlaceDetails(placeId, apiKey);
-        _debugInfo.step8a = { placeId, _debug: details?._debug };
         if (details) {
           rating = details.rating;
           reviewCount = details.reviewCount;
@@ -262,10 +260,8 @@ serve(async (req) => {
         const placeName = extractPlaceName(finalUrl) || extractPlaceName(url);
         if (placeName) {
           const foundPlaceId = await findPlaceId(placeName, apiKey);
-          _debugInfo.step8b = { placeName, foundPlaceId };
           if (foundPlaceId) {
             const details = await fetchPlaceDetails(foundPlaceId, apiKey);
-            _debugInfo.step8b._debug = details?._debug;
             if (details) {
               rating = details.rating;
               reviewCount = details.reviewCount;
@@ -285,7 +281,6 @@ serve(async (req) => {
         ...(rating !== undefined ? { rating } : {}),
         ...(reviewCount !== undefined ? { reviewCount } : {}),
         ...(reviews && reviews.length > 0 ? { reviews } : {}),
-        _debug: _debugInfo,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
