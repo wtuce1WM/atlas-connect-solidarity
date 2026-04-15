@@ -41,7 +41,7 @@ import PDFUploader from "./PDFUploader";
 import VideoUploader from "./VideoUploader";
 import LogoUploader from "./LogoUploader";
 import BusinessLabelsEditor from "./BusinessLabelsEditor";
-import FrontHighlightsEditor from "./FrontHighlightsEditor";
+import FrontHighlightsEditor, { type FrontHighlightsEditorHandle } from "./FrontHighlightsEditor";
 import OpeningHoursEditor, { OpeningHours, DEFAULT_OPENING_HOURS } from "./OpeningHoursEditor";
 import VacationDatesEditor, { VacationPeriod } from "./VacationDatesEditor";
 import SocialPostsEditor from "./SocialPostsEditor";
