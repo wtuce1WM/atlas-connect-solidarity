@@ -35,10 +35,10 @@ interface BusinessMini {
 
 type SectionType = "engagements" | "certifications" | "commodites";
 
-const SECTION_CONFIG: Record<SectionType, { label: string; emoji: string; badgeClass: string; prefix: string }> = {
-  certifications: { label: "Certifications", emoji: "🏅", badgeClass: "border-blue-400 text-blue-700 dark:text-blue-300", prefix: "Certification:" },
-  engagements: { label: "Engagements", emoji: "", badgeClass: "", prefix: "" },
-  commodites: { label: "Commodités", emoji: "📦", badgeClass: "border-orange-400 text-orange-700 dark:text-orange-300", prefix: "Logistique:" },
+const SECTION_CONFIG: Record<SectionType, { label: string; emoji: string; badgeClass: string; prefix: string; defaultKey: keyof GlobalOptions }> = {
+  certifications: { label: "Certifications", emoji: "🏅", badgeClass: "border-blue-400 text-blue-700 dark:text-blue-300", prefix: "Certification:", defaultKey: "defaultCertification" },
+  engagements: { label: "Engagements", emoji: "", badgeClass: "", prefix: "", defaultKey: "defaultEngagement" },
+  commodites: { label: "Commodités", emoji: "📦", badgeClass: "border-orange-400 text-orange-700 dark:text-orange-300", prefix: "Logistique:", defaultKey: "defaultCommodite" },
 };
 
 const EngagementManagement = ({ onEditBusiness }: Props) => {
