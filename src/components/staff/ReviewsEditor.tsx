@@ -62,16 +62,6 @@ const ReviewsEditor = ({ businessId }: ReviewsEditorProps) => {
     load();
   };
 
-  const handleDelete = async (reviewId: string) => {
-    const { error } = await supabase.from("reviews").delete().eq("id", reviewId);
-    if (error) {
-      toast.error("Erreur lors de la suppression");
-      return;
-    }
-    toast.success("Avis supprimé");
-    setReviews(prev => prev.filter(r => r.id !== reviewId));
-  };
-
   const defaultReview = reviews.find(r => r.is_default);
   const otherReviews = reviews.filter(r => !r.is_default);
 
