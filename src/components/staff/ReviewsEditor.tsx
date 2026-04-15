@@ -48,6 +48,8 @@ const ReviewsEditor = forwardRef<ReviewsEditorRef, ReviewsEditorProps>(({ busine
     setLoading(false);
   }, [businessId]);
 
+  useImperativeHandle(ref, () => ({ refresh: load }), [load]);
+
   useEffect(() => { load(); }, [load]);
 
   const handleSetDefault = async (reviewId: string, value: boolean) => {
@@ -186,6 +188,8 @@ const ReviewsEditor = forwardRef<ReviewsEditorRef, ReviewsEditorProps>(({ busine
       </div>
     </div>
   );
-};
+});
+
+ReviewsEditor.displayName = "ReviewsEditor";
 
 export default ReviewsEditor;
