@@ -1078,26 +1078,27 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         <div
           className={`transition-all duration-300 ease-in-out ${cardsHidden ? 'translate-x-full opacity-0 pointer-events-none max-h-0 overflow-hidden' : 'translate-x-0 opacity-100'}`}
         >
-        {/* Info Carousel */}
-        <div ref={infoCarouselRef} className="shrink-0 w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto animate-slide-in-left">
-          <div className="flex w-max min-h-[15em] md:min-h-[20em] gap-2 items-start">
-            <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
-              {hasContactCard && (
-                <div onMouseEnter={(e) => centerCardInCarousel(e.currentTarget)}>
-                  <ContactFlipCard
-                    key={business.id}
-                    business={business}
-                    language={language}
-                    hasOpeningHours={!!hasOpeningHours}
-                    tallHeight={false}
-                    animationDelay={"0ms"}
-                    hasHotelMapping={isHotelWithPrice}
-                    isSearchingAvailability={hotelSearchLoading}
-                    onCheckAvailability={handleCheckAvailability}
-                    openBadgeInfo={openBadgeInfo}
-                    onOpenWebsite={(url) => {
-                      setBookingOverlayLoaded(false);
-                      setBookingOverlayUrl(url);
+        {/* Info Carousel + bouton + */}
+        <div className="relative shrink-0">
+          <div ref={infoCarouselRef} className="shrink-0 w-[calc(100%_+_2.5rem)] -ml-4 -mr-6 md:w-[calc(100%_+_3rem)] md:-ml-6 md:-mr-6 overflow-x-auto pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto animate-slide-in-left">
+            <div className="flex w-max min-h-[15em] md:min-h-[20em] gap-2 items-start">
+              <div className="snap-start shrink-0 w-2 md:w-4" aria-hidden="true" />
+                {hasContactCard && (
+                  <div onMouseEnter={(e) => centerCardInCarousel(e.currentTarget)}>
+                    <ContactFlipCard
+                      key={business.id}
+                      business={business}
+                      language={language}
+                      hasOpeningHours={!!hasOpeningHours}
+                      tallHeight={false}
+                      animationDelay={"0ms"}
+                      hasHotelMapping={isHotelWithPrice}
+                      isSearchingAvailability={hotelSearchLoading}
+                      onCheckAvailability={handleCheckAvailability}
+                      openBadgeInfo={openBadgeInfo}
+                      onOpenWebsite={(url) => {
+                        setBookingOverlayLoaded(false);
+                        setBookingOverlayUrl(url);
                       setBookingOverlayTitle(language === "en" ? "Website" : "Site web");
                       setShowBookingOverlay(true);
                     }}
