@@ -225,8 +225,24 @@ const PoiVideosPanel = () => {
       urlPoiCount.set(d.url, (urlPoiCount.get(d.url) || 0) + 1);
     });
 
+    // Fetch timeframe + linked counts for generic videos
+    const gvRealIds = [...new Set(genericVideoIds)] as string[];
+    const gvTimeSet = new Set<string>();
+    const gvLinkedSet = new Set<string>();
+    if (gvRealIds.length > 0) {
+      const [tfRes, poiRes2, bizRes, destRes] = await Promise.all([
+        supabase.from("generic_video_timeframes" as any).select("generic_video_id").in("generic_video_id", gvRealIds) as any,
+        supabase.from("generic_video_pois" as any).select("generic_video_id").in("generic_video_id", gvRealIds) as any,
+        supabase.from("generic_video_businesses" as any).select("generic_video_id").in("generic_video_id", gvRealIds) as any,
+        supabase.from("generic_video_destinations" as any).select("generic_video_id").in("generic_video_id", gvRealIds) as any,
+      ]);
+      ((tfRes.data || []) as any[]).forEach((r: any) => gvTimeSet.add(r.generic_video_id));
+      [...((poiRes2.data || []) as any[]), ...((bizRes.data || []) as any[]), ...((destRes.data || []) as any[])].forEach((r: any) => gvLinkedSet.add(r.generic_video_id));
+    }
+
     setVideos(combined.map(d => {
       const poi = poiMap.get(d.poi_id);
+      const rawGvId = d._source === "generic" ? d.business_id : null;
       return {
         id: d.id,
         url: d.url,
@@ -241,6 +257,12 @@ const PoiVideosPanel = () => {
         neighborhood: d.neighborhood || (d._source === "generic" ? poi?.neighborhood ?? null : null),
         poi_count: urlPoiCount.get(d.url) || 1,
         source: d._source,
+        instagram_account: d.instagram_account || null,
+        tiktok_account: d.tiktok_account || null,
+        youtube_account: d.youtube_account || null,
+        has_description: !!d.has_description,
+        has_timeframes: rawGvId ? gvTimeSet.has(rawGvId) : false,
+        has_linked: rawGvId ? gvLinkedSet.has(rawGvId) : false,
       };
     }));
     setLoading(false);
