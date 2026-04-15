@@ -41,7 +41,7 @@ import PDFUploader from "./PDFUploader";
 import VideoUploader from "./VideoUploader";
 import LogoUploader from "./LogoUploader";
 import BusinessLabelsEditor from "./BusinessLabelsEditor";
-import FrontHighlightsEditor from "./FrontHighlightsEditor";
+import FrontHighlightsEditor, { type FrontHighlightsEditorHandle } from "./FrontHighlightsEditor";
 import OpeningHoursEditor, { OpeningHours, DEFAULT_OPENING_HOURS } from "./OpeningHoursEditor";
 import VacationDatesEditor, { VacationPeriod } from "./VacationDatesEditor";
 import SocialPostsEditor from "./SocialPostsEditor";
@@ -881,6 +881,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     );
   };
   const [loading, setLoading] = useState(false);
+  const highlightsRef = useRef<FrontHighlightsEditorHandle>(null);
   const [isDirty, setIsDirty] = useState(false);
   const [showLeaveDialog, setShowLeaveDialog] = useState(false);
   const [showClearSocial, setShowClearSocial] = useState(false);
@@ -2276,6 +2277,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           }
         }
       }
+
+      // Save highlights via ref
+      await highlightsRef.current?.save();
 
       toast({
         title: "Succès",
@@ -3722,7 +3726,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
            </div>
 
         {/* ── Blocs Highlights ── */}
-        {business?.id && <FrontHighlightsEditor businessId={business.id} />}
+        {business?.id && <FrontHighlightsEditor ref={highlightsRef} businessId={business.id} />}
 
         {/* POI / Destinations */}
         <div id="section-poi" style={{ scrollMarginTop: "140px" }} />
