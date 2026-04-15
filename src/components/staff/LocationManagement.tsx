@@ -2332,7 +2332,131 @@ const LocationManagement = () => {
                 </CardContent>
               </Card>
 
-              {/* Images */}
+              {/* Google Maps & Avis */}
+              <Card>
+                <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Map className="h-5 w-5" /> Google Maps & Avis</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Google Maps URL */}
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      Google Maps
+                      {destinationForm.google_maps_url && (
+                        <a href={destinationForm.google_maps_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-xs hover:text-blue-800">↗</a>
+                      )}
+                    </Label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={destinationForm.google_maps_url}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setDestinationForm(prev => ({ ...prev, google_maps_url: val, google_reviews_url: val || prev.google_reviews_url }));
+                        }}
+                        placeholder="https://maps.google.com/..."
+                        className="flex-1"
+                      />
+                      {destinationForm.google_maps_url && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="gap-1 text-xs shrink-0"
+                          onClick={async () => {
+                            const url = destinationForm.google_maps_url;
+                            try {
+                              toast({ title: "Résolution de l'URL...", description: "Extraction des coordonnées GPS." });
+                              const { data, error } = await supabase.functions.invoke("resolve-maps-url", {
+                                body: { url },
+                              });
+                              if (error) throw error;
+                              if (data?.lat && data?.lng) {
+                                setDestinationForm(prev => ({
+                                  ...prev,
+                                  latitude: String(data.lat),
+                                  longitude: String(data.lng),
+                                  ...(data.resolvedUrl && data.resolvedUrl !== url ? { google_maps_url: data.resolvedUrl, google_reviews_url: data.resolvedUrl } : {}),
+                                }));
+                                toast({ title: "GPS récupéré", description: `Lat: ${data.lat}, Lng: ${data.lng}${data.method ? ` (${data.method})` : ""}` });
+                              } else {
+                                toast({ variant: "destructive", title: "Impossible d'extraire les coordonnées", description: "Le format de l'URL Google Maps n'est pas reconnu." });
+                              }
+                            } catch (err: any) {
+                              toast({ variant: "destructive", title: "Erreur", description: err.message || "Impossible de résoudre l'URL." });
+                            }
+                          }}
+                        >
+                          <LocateFixed className="h-3.5 w-3.5" />
+                          Extraire GPS
+                        </Button>
+                      )}
+                      {destinationForm.google_maps_url && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setDestinationForm(prev => ({ ...prev, google_maps_url: "", google_reviews_url: "" }))}
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  {/* Avis Google */}
+                  <div className="p-3 border rounded-lg bg-amber-50 space-y-3">
+                    <Label className="text-sm font-semibold">Avis Google</Label>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">URL des avis</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          value={destinationForm.google_reviews_url}
+                          onChange={(e) => setDestinationForm(prev => ({ ...prev, google_reviews_url: e.target.value }))}
+                          placeholder="URL avis Google"
+                          className="text-xs flex-1"
+                        />
+                        {destinationForm.google_reviews_url && (
+                          <a href={destinationForm.google_reviews_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:text-primary shrink-0">
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex gap-4">
+                      <div className="space-y-1">
+                        <Label className="text-xs">Note /5</Label>
+                        <Input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          max="5"
+                          value={destinationForm.google_rating}
+                          onChange={(e) => setDestinationForm(prev => ({ ...prev, google_rating: e.target.value }))}
+                          placeholder="4.5"
+                          className="w-24 text-sm"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Nb avis</Label>
+                        <Input
+                          type="number"
+                          min="0"
+                          value={destinationForm.google_review_count}
+                          onChange={(e) => setDestinationForm(prev => ({ ...prev, google_review_count: e.target.value }))}
+                          placeholder="1200"
+                          className="w-24 text-sm"
+                        />
+                      </div>
+                      {destinationForm.google_rating && destinationForm.google_review_count && (
+                        <div className="flex items-end pb-1">
+                          <span className="text-sm text-amber-700 font-medium">
+                            ⭐ {destinationForm.google_rating}/5 ({destinationForm.google_review_count} avis)
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               <Card>
                 <CardHeader><CardTitle className="text-lg flex items-center gap-2"><ImageIcon className="h-5 w-5" /> Images</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
