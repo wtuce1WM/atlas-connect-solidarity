@@ -2376,8 +2376,13 @@ const LocationManagement = () => {
                                   latitude: String(data.lat),
                                   longitude: String(data.lng),
                                   ...(data.resolvedUrl && data.resolvedUrl !== url ? { google_maps_url: data.resolvedUrl, google_reviews_url: data.resolvedUrl } : {}),
+                                  ...(data.rating !== undefined ? { google_rating: String(data.rating) } : {}),
+                                  ...(data.reviewCount !== undefined ? { google_review_count: String(data.reviewCount) } : {}),
                                 }));
-                                toast({ title: "GPS récupéré", description: `Lat: ${data.lat}, Lng: ${data.lng}${data.method ? ` (${data.method})` : ""}` });
+                                const parts = [`Lat: ${data.lat}, Lng: ${data.lng}`];
+                                if (data.rating !== undefined) parts.push(`Note: ${data.rating}/5`);
+                                if (data.reviewCount !== undefined) parts.push(`${data.reviewCount} avis`);
+                                toast({ title: "GPS & avis récupérés", description: parts.join(" · ") });
                               } else {
                                 toast({ variant: "destructive", title: "Impossible d'extraire les coordonnées", description: "Le format de l'URL Google Maps n'est pas reconnu." });
                               }
