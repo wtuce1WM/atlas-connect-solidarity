@@ -169,6 +169,7 @@ serve(async (req) => {
     let method = "unknown";
     let rating: number | undefined;
     let reviewCount: number | undefined;
+    let reviews: any[] | undefined;
 
     // Step 2: Precise marker coords from final URL
     {
