@@ -161,6 +161,14 @@ const ReviewsEditor = ({ businessId }: ReviewsEditorProps) => {
               )}
             </div>
             <div className="flex flex-col items-center gap-2 shrink-0">
+              <div className="flex items-center gap-1.5" title="Ne pas afficher">
+                <span className="text-[10px] text-muted-foreground">Masquer</span>
+                <Switch
+                  checked={review.is_hidden}
+                  onCheckedChange={(v) => handleToggleHidden(review.id, v)}
+                  className="scale-75"
+                />
+              </div>
               <div className="flex items-center gap-1.5" title="Avis par défaut">
                 <span className="text-[10px] text-muted-foreground">Défaut</span>
                 <Switch
