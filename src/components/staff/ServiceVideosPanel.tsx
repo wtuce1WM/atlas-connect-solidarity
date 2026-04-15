@@ -132,7 +132,7 @@ const ServiceVideosPanel = () => {
       setCities(citiesData.map(c => ({ name: c.name_fr, sort_order: c.sort_order ?? 0 })));
     }
 
-    // Fetch all videos with a service_id
+    // Fetch all videos with a subcategory_id (same base as subcategory panel)
     const allDocs: any[] = [];
     let offset = 0;
     const PAGE = 1000;
@@ -141,7 +141,7 @@ const ServiceVideosPanel = () => {
         .from("business_documents")
         .select("id, url, name, thumbnail_url, sort_order, business_id, service_id, subcategory_id, city, neighborhood")
         .eq("type", "video")
-        .not("service_id", "is", null)
+        .not("subcategory_id", "is", null)
         .order("sort_order", { ascending: true })
         .range(offset, offset + PAGE - 1);
       if (!data || data.length === 0) break;
