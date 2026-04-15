@@ -158,7 +158,7 @@ const DestinationVideosPanelTab = () => {
     const genericVideosMap = new Map<string, any>();
     for (let i = 0; i < genericVideoIds.length; i += 200) {
       const batch = genericVideoIds.slice(i, i + 200);
-      const { data } = await supabase.from("generic_videos" as any).select("id, url, name, thumbnail_url, city, neighborhood").in("id", batch) as any;
+      const { data } = await supabase.from("generic_videos" as any).select("id, url, name, thumbnail_url, city, neighborhood, instagram_account, tiktok_account, youtube_account, description").in("id", batch) as any;
       if (data) data.forEach((g: any) => genericVideosMap.set(g.id, g));
     }
 
