@@ -165,15 +165,24 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
 
   const totalCount = globalOptions.certifications.length + globalOptions.engagements.length + globalOptions.commodites.length;
 
+  const handleToggleDefault = async (type: SectionType, item: string) => {
+    const defaultKey = SECTION_CONFIG[type].defaultKey;
+    const currentDefault = globalOptions[defaultKey] as string | undefined;
+    const next = { ...globalOptions, [defaultKey]: currentDefault === item ? undefined : item };
+    await persistOptions(next);
+    toast.success(next[defaultKey] ? `« ${item} » défini par défaut` : "Par défaut retiré");
+  };
+
   const renderSection = (type: SectionType) => {
     const config = SECTION_CONFIG[type];
-    const items = globalOptions[type];
+    const items = globalOptions[type] as string[];
     const isOpen = openSections.has(type);
+    const currentDefault = globalOptions[config.defaultKey] as string | undefined;
 
     return (
       <div key={type} className="space-y-3">
         <Button variant="outline" className="w-full justify-between" onClick={() => toggleSection(type)}>
-          <span className="font-medium">{config.emoji} {config.label} ({items.length})</span>
+          <span className="font-medium">{config.emoji} {config.label} ({items.length}){currentDefault ? ` — ★ ${currentDefault}` : ""}</span>
           {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </Button>
 
@@ -202,6 +211,7 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-[50px]"></TableHead>
                     <TableHead>Nom</TableHead>
                     <TableHead className="text-center w-[100px]">Utilisations</TableHead>
                     {type === "certifications" && <TableHead className="w-[60px]"></TableHead>}
@@ -210,7 +220,7 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
                 <TableBody>
                   {items.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={type === "certifications" ? 3 : 2} className="text-center text-muted-foreground py-6 text-sm">
+                      <TableCell colSpan={type === "certifications" ? 4 : 3} className="text-center text-muted-foreground py-6 text-sm">
                         Aucun élément
                       </TableCell>
                     </TableRow>
@@ -218,8 +228,21 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
                     items.map((item) => {
                       const rawKey = config.prefix + item;
                       const count = usageCounts[rawKey] || 0;
+                      const isDefault = currentDefault === item;
                       return (
                         <TableRow key={item}>
+                          <TableCell className="px-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              title={isDefault ? "Retirer par défaut" : "Définir par défaut"}
+                              disabled={saving}
+                              onClick={() => handleToggleDefault(type, item)}
+                            >
+                              <Star className={`h-4 w-4 ${isDefault ? "fill-yellow-400 text-yellow-500" : "text-muted-foreground"}`} />
+                            </Button>
+                          </TableCell>
                           <TableCell>
                             <Badge variant="outline" className={`text-xs ${config.badgeClass}`}>
                               {config.emoji && `${config.emoji} `}{item}
