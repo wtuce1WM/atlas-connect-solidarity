@@ -1,6 +1,6 @@
 import { useState, useRef, useLayoutEffect } from "react";
-import { Clock, Search, Loader2, ChevronLeft, ChevronRight, Users } from "lucide-react";
-import { formatDayHours as formatDayHoursDisplay, isCurrentlyOpen } from "@/lib/formatOpeningHours";
+import { Clock, Search } from "lucide-react";
+import { formatDayHours as formatDayHoursDisplay } from "@/lib/formatOpeningHours";
 
 interface ContactFlipCardProps {
   business: {
