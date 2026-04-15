@@ -3779,7 +3779,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     </div>
 
                     {/* Style d'affichage for default destination */}
-                    {(formData as any).default_destination_id && (formData as any).default_destination_id !== "" && (
+                    {selectedDestinationIds.length > 0 && (
                       <div className="mt-3 p-3 bg-background rounded-md border space-y-2">
                         <Label className="text-sm font-medium">Style d'affichage</Label>
                         <Select value={(formData as any).default_destination_style || "aucun"} onValueChange={(v) => handleChange("default_destination_style" as any, v)}>
