@@ -896,6 +896,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   };
   const [loading, setLoading] = useState(false);
   const highlightsRef = useRef<FrontHighlightsEditorHandle>(null);
+  const reviewsEditorRef = useRef<ReviewsEditorRef>(null);
   const [isDirty, setIsDirty] = useState(false);
   const [showLeaveDialog, setShowLeaveDialog] = useState(false);
   const [showClearSocial, setShowClearSocial] = useState(false);
