@@ -129,6 +129,50 @@ async function fetchGoogleForBusiness(name: string, city: string | null, googleM
   return { rating: null, count: null, reviews: [] };
 }
 
+// Translate an array of review texts to a target language using Lovable AI
+async function translateReviews(texts: string[], targetLang: 'fr' | 'en', lovableApiKey: string): Promise<string[]> {
+  if (texts.length === 0) return [];
+  const langLabel = targetLang === 'fr' ? 'français' : 'anglais';
+  const textsBlock = texts.map((t, i) => `[${i}] ${t}`).join('\n---\n');
+
+  try {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${lovableApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash-lite',
+        messages: [
+          {
+            role: 'system',
+            content: `Tu es un traducteur professionnel. Traduis chaque avis client en ${langLabel}. Conserve le ton et le style. Renvoie UNIQUEMENT un JSON array de strings dans le même ordre. Exemple: ["traduction 1", "traduction 2"]`,
+          },
+          { role: 'user', content: textsBlock },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      console.error(`Translation API error (${targetLang}):`, response.status);
+      return [];
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || '[]';
+    const jsonMatch = content.match(/\[[\s\S]*\]/);
+    if (jsonMatch) {
+      try {
+        return JSON.parse(jsonMatch[0]);
+      } catch { /* ignore */ }
+    }
+  } catch (e) {
+    console.error(`Translation error (${targetLang}):`, e);
+  }
+  return [];
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -142,6 +186,8 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ success: false, error: 'GOOGLE_MAPS_API_KEY not set' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
+
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -168,7 +214,7 @@ Deno.serve(async (req) => {
 
     console.log(`Batch: offset=${offset}, limit=${limit}, got ${businesses.length} businesses (total=${total})`);
 
-    const results: { name: string; status: string; google_rating?: number | null; reviews?: number }[] = [];
+    const results: { name: string; status: string; google_rating?: number | null; reviews?: number; translated?: number }[] = [];
 
     for (let i = 0; i < businesses.length; i += 3) {
       const chunk = businesses.slice(i, i + 3);
@@ -182,6 +228,9 @@ Deno.serve(async (req) => {
           if (Object.keys(updateData).length > 0) {
             await supabase.from('businesses').update(updateData).eq('id', biz.id);
           }
+
+          let insertedCount = 0;
+          let translatedCount = 0;
 
           if (g.reviews.length > 0) {
             const newRows = g.reviews.filter(r => r.text).map(r => ({
@@ -197,11 +246,62 @@ Deno.serve(async (req) => {
                 (existing || []).map(e => `${e.source}::${e.author_name}`)
               );
               const toInsert = newRows.filter(r => !existingKeys.has(`${r.source}::${r.author_name}`));
-              if (toInsert.length > 0) await supabase.from('reviews').insert(toInsert);
+              if (toInsert.length > 0) {
+                await supabase.from('reviews').insert(toInsert);
+                insertedCount = toInsert.length;
+              }
             }
           }
 
-          return { name: biz.name, status: 'ok', google_rating: g.rating, reviews: g.reviews.length };
+          // Translate reviews missing text_fr or text_en
+          if (lovableApiKey) {
+            const { data: untranslated } = await supabase
+              .from('reviews')
+              .select('id, text, language')
+              .eq('business_id', biz.id)
+              .not('text', 'is', null)
+              .or('text_fr.is.null,text_en.is.null');
+
+            if (untranslated && untranslated.length > 0) {
+              const texts = untranslated.map(r => r.text!);
+
+              // Determine which languages need translation
+              const needsFr = untranslated.some(r => !(r as any).text_fr);
+              const needsEn = untranslated.some(r => !(r as any).text_en);
+
+              const [frTranslations, enTranslations] = await Promise.all([
+                needsFr ? translateReviews(texts, 'fr', lovableApiKey) : [],
+                needsEn ? translateReviews(texts, 'en', lovableApiKey) : [],
+              ]);
+
+              for (let j = 0; j < untranslated.length; j++) {
+                const review = untranslated[j];
+                const lang = (review.language || '').toLowerCase();
+                const updateFields: Record<string, string> = {};
+
+                // For text_fr: if original is already French, use original text
+                if (lang === 'fr' || lang.startsWith('fr')) {
+                  updateFields.text_fr = review.text!;
+                } else if (frTranslations[j]) {
+                  updateFields.text_fr = frTranslations[j];
+                }
+
+                // For text_en: if original is already English, use original text
+                if (lang === 'en' || lang.startsWith('en')) {
+                  updateFields.text_en = review.text!;
+                } else if (enTranslations[j]) {
+                  updateFields.text_en = enTranslations[j];
+                }
+
+                if (Object.keys(updateFields).length > 0) {
+                  await supabase.from('reviews').update(updateFields).eq('id', review.id);
+                  translatedCount++;
+                }
+              }
+            }
+          }
+
+          return { name: biz.name, status: 'ok', google_rating: g.rating, reviews: g.reviews.length, translated: translatedCount };
         })
       );
 
