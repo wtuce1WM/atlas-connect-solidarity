@@ -12,6 +12,7 @@ interface ReviewText {
   text: string | null;
   relative_time: string | null;
   language: string | null;
+  published_at: string | null;
 }
 
 // Extract exact place coordinates (!3d lat !4d lng) or fallback to @lat,lng
@@ -51,7 +52,7 @@ async function fetchReviewsFromPlaceId(placeId: string, apiKey: string): Promise
   try {
     const detailRes = await fetch(`https://places.googleapis.com/v1/places/${placeId}`, {
       method: 'GET',
-      headers: { 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': 'reviews' },
+      headers: { 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': 'reviews.rating,reviews.text,reviews.authorAttribution,reviews.relativePublishTimeDescription,reviews.publishTime' },
     });
     const detailData = await detailRes.json();
     if (detailData.reviews) {
@@ -63,6 +64,7 @@ async function fetchReviewsFromPlaceId(placeId: string, apiKey: string): Promise
           text: r.text?.text || null,
           relative_time: r.relativePublishTimeDescription || null,
           language: r.text?.languageCode || null,
+          published_at: r.publishTime || null,
         });
       }
     }
@@ -236,6 +238,7 @@ Deno.serve(async (req) => {
             const newRows = g.reviews.filter(r => r.text).map(r => ({
               business_id: biz.id, source: r.source, author_name: r.author_name,
               rating: r.rating, text: r.text, relative_time: r.relative_time, language: r.language,
+              published_at: r.published_at,
             }));
             // Deduplicate: only insert reviews not already in DB (by author_name + source)
             if (newRows.length > 0) {
