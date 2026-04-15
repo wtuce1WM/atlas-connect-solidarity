@@ -95,6 +95,13 @@ const SortableVideoCard = ({ video, index, onPlay }: { video: DestVideo; index: 
           </p>
         )}
         {video.name && <p className="text-[11px] text-muted-foreground/70 truncate">{video.name}</p>}
+        {video.source === "generic" && (video.instagram_account || video.tiktok_account || video.youtube_account) && (
+          <div className="flex flex-wrap gap-1 pt-0.5">
+            {video.instagram_account && <Badge variant="outline" className="text-[10px] px-1.5 py-0">IG: {video.instagram_account}</Badge>}
+            {video.tiktok_account && <Badge variant="outline" className="text-[10px] px-1.5 py-0">TT: {video.tiktok_account}</Badge>}
+            {video.youtube_account && <Badge variant="outline" className="text-[10px] px-1.5 py-0">YT: {video.youtube_account}</Badge>}
+          </div>
+        )}
       </div>
     </div>
   );
