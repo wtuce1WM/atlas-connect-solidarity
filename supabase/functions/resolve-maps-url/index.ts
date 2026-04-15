@@ -262,13 +262,12 @@ serve(async (req) => {
       }
       if (rating === undefined) {
         const placeName = extractPlaceName(finalUrl) || extractPlaceName(url);
-        console.log("[Step8] placeName:", placeName);
         if (placeName) {
           const foundPlaceId = await findPlaceId(placeName, apiKey);
-          console.log("[Step8] foundPlaceId:", foundPlaceId);
+          _debugInfo.step8b = { placeName, foundPlaceId };
           if (foundPlaceId) {
             const details = await fetchPlaceDetails(foundPlaceId, apiKey);
-            console.log("[Step8] details from textSearch:", JSON.stringify({ rating: details?.rating, reviewCount: details?.reviewCount, reviewsLen: details?.reviews?.length }));
+            _debugInfo.step8b._debug = details?._debug;
             if (details) {
               rating = details.rating;
               reviewCount = details.reviewCount;
