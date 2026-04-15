@@ -3736,67 +3736,60 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     <div className="flex flex-wrap gap-2">
                       {allDestinations.map((dest) => {
                         const isSelected = selectedDestinationIds.includes(dest.id);
+                        const isDefault = (formData as any).default_destination_id === dest.id;
                         return (
-                          <button
-                            key={dest.id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedDestinationIds(prev =>
-                                isSelected ? prev.filter(id => id !== dest.id) : [...prev, dest.id]
-                              );
-                              setIsDirty(true);
-                            }}
-                            className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                              isSelected
-                                ? "bg-blue-600 text-white border-blue-600"
-                                : "bg-background border-border hover:bg-muted"
-                            }`}
-                          >
-                            {dest.name_fr}
-                            {dest.region && dest.region.length > 0 && <span className="ml-1 opacity-60 text-xs">({dest.region.join(", ")})</span>}
-                          </button>
+                          <div key={dest.id} className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedDestinationIds(prev => {
+                                  const next = isSelected ? prev.filter(id => id !== dest.id) : [...prev, dest.id];
+                                  if (isSelected && isDefault) {
+                                    handleChange("default_destination_id" as any, next[0] || "");
+                                  }
+                                  if (!isSelected && next.length === 1) {
+                                    handleChange("default_destination_id" as any, dest.id);
+                                  }
+                                  return next;
+                                });
+                                setIsDirty(true);
+                              }}
+                              className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                                isSelected
+                                  ? "bg-blue-600 text-white border-blue-600"
+                                  : "bg-background border-border hover:bg-muted"
+                              }`}
+                            >
+                              {dest.name_fr}
+                              {dest.region && dest.region.length > 0 && <span className="ml-1 opacity-60 text-xs">({dest.region.join(", ")})</span>}
+                            </button>
+                            {isSelected && (
+                              <button
+                                type="button"
+                                className={`text-[10px] px-1.5 py-0.5 rounded-full border transition-colors ${isDefault ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted text-muted-foreground border-border hover:border-primary/50'}`}
+                                onClick={(e) => { e.preventDefault(); handleChange("default_destination_id" as any, dest.id); setIsDirty(true); }}
+                                title="Définir comme destination par défaut"
+                              >
+                                ★
+                              </button>
+                            )}
+                          </div>
                         );
                       })}
                     </div>
 
-                    {/* Default destination selector */}
-                    {selectedDestinationIds.length > 0 && (
+                    {/* Style d'affichage for default destination */}
+                    {(formData as any).default_destination_id && (formData as any).default_destination_id !== "" && (
                       <div className="mt-3 p-3 bg-background rounded-md border space-y-2">
-                        <Label className="text-sm font-medium">Destination par défaut</Label>
-                        <Select value={(formData as any).default_destination_id || "__none__"} onValueChange={(v) => { handleChange("default_destination_id" as any, v === "__none__" ? "" : v); }}>
-                          <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Aucune" /></SelectTrigger>
+                        <Label className="text-sm font-medium">Style d'affichage</Label>
+                        <Select value={(formData as any).default_destination_style || "aucun"} onValueChange={(v) => handleChange("default_destination_style" as any, v)}>
+                          <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="__none__">Aucune</SelectItem>
-                            {[...selectedDestinationIds]
-                              .sort((a, b) => {
-                                const destA = dbDestinations.find(d => d.id === a);
-                                const destB = dbDestinations.find(d => d.id === b);
-                                const nameA = destA?.name_fr || "";
-                                const nameB = destB?.name_fr || "";
-                                return nameA.localeCompare(nameB, "fr");
-                              })
-                              .map(destId => {
-                                const dest = dbDestinations.find(d => d.id === destId);
-                                return dest ? <SelectItem key={dest.id} value={dest.id}>{dest.name_fr}</SelectItem> : null;
-                              })}
+                            <SelectItem value="aucun">Aucun</SelectItem>
+                            <SelectItem value="emmene_a">{formData.name || "…"} vous emmène à</SelectItem>
+                            <SelectItem value="propose">{formData.name || "…"} vous propose</SelectItem>
                           </SelectContent>
                         </Select>
-                        {(formData as any).default_destination_id && (formData as any).default_destination_id !== "" && (() => {
-                          const businessName = formData.name || "…";
-                          return (
-                            <div>
-                              <Label className="text-sm font-medium">Style d'affichage</Label>
-                              <Select value={(formData as any).default_destination_style || "aucun"} onValueChange={(v) => handleChange("default_destination_style" as any, v)}>
-                                <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="aucun">Aucun</SelectItem>
-                                  <SelectItem value="emmene_a">{businessName} vous emmène à</SelectItem>
-                                  <SelectItem value="propose">{businessName} vous propose</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          );
-                        })()}
                       </div>
                     )}
 
