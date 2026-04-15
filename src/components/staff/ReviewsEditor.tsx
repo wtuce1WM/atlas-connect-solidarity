@@ -1,8 +1,18 @@
 import { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Star, MessageSquare } from "lucide-react";
+import { Star, MessageSquare, Trash2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Review {
   id: string;
@@ -35,6 +45,7 @@ const SOURCE_LABELS: Record<string, string> = {
 const ReviewsEditor = forwardRef<ReviewsEditorRef, ReviewsEditorProps>(({ businessId }, ref) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState<Review | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -78,6 +89,18 @@ const ReviewsEditor = forwardRef<ReviewsEditorRef, ReviewsEditorProps>(({ busine
     load();
   };
 
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    const { error } = await supabase.from("reviews").delete().eq("id", deleteTarget.id);
+    setDeleteTarget(null);
+    if (error) {
+      toast.error("Erreur lors de la suppression");
+      return;
+    }
+    toast.success("Avis supprimé");
+    load();
+  };
+
   const defaultReview = reviews.find(r => r.is_default);
   const otherReviews = reviews.filter(r => !r.is_default);
 
@@ -96,6 +119,35 @@ const ReviewsEditor = forwardRef<ReviewsEditorRef, ReviewsEditorProps>(({ busine
     );
   }
 
+  const renderReviewActions = (review: Review) => (
+    <div className="flex flex-col items-center gap-2 shrink-0">
+      <div className="flex items-center gap-1.5" title="Ne pas afficher">
+        <span className="text-[10px] text-muted-foreground">Masquer</span>
+        <Switch
+          checked={review.is_hidden}
+          onCheckedChange={(v) => handleToggleHidden(review.id, v)}
+          className="scale-75"
+        />
+      </div>
+      <div className="flex items-center gap-1.5" title="Avis par défaut">
+        <span className="text-[10px] text-muted-foreground">Défaut</span>
+        <Switch
+          checked={review.is_default}
+          onCheckedChange={(v) => handleSetDefault(review.id, v)}
+          className="scale-75"
+        />
+      </div>
+      <button
+        type="button"
+        onClick={() => setDeleteTarget(review)}
+        className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+        title="Supprimer cet avis"
+      >
+        <Trash2 className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
+
   return (
     <div className="space-y-3">
       <p className="text-xs text-muted-foreground">{reviews.length} avis enregistré{reviews.length > 1 ? "s" : ""}</p>
@@ -103,27 +155,32 @@ const ReviewsEditor = forwardRef<ReviewsEditorRef, ReviewsEditorProps>(({ busine
       {/* AVIS PAR DÉFAUT - Mis en avant */}
       {defaultReview && (
         <div className="p-4 rounded-lg border-2 border-primary bg-primary/10 ring-1 ring-primary/30">
-          <div className="flex items-center gap-2 mb-2">
-            <Star className="h-4 w-4 text-primary fill-primary" />
-            <span className="text-xs font-semibold text-primary uppercase tracking-wider">Avis mis en avant</span>
-            <span className="text-xs px-1.5 py-0.5 rounded bg-primary/20 text-primary">
-              {SOURCE_LABELS[defaultReview.source] || defaultReview.source}
-            </span>
-          </div>
-          <p className="text-sm font-medium mb-2 leading-relaxed">
-            {defaultReview.text_fr || defaultReview.text || "Aucun texte"}
-          </p>
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="font-medium">{defaultReview.author_name || "Anonyme"}</span>
-            {defaultReview.rating != null && (
-              <span className="flex items-center gap-0.5">
-                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                {defaultReview.rating}/5
-              </span>
-            )}
-            {defaultReview.published_at && (
-              <span>{new Date(defaultReview.published_at).toLocaleDateString("fr-FR")}</span>
-            )}
+          <div className="flex gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-2">
+                <Star className="h-4 w-4 text-primary fill-primary" />
+                <span className="text-xs font-semibold text-primary uppercase tracking-wider">Avis mis en avant</span>
+                <span className="text-xs px-1.5 py-0.5 rounded bg-primary/20 text-primary">
+                  {SOURCE_LABELS[defaultReview.source] || defaultReview.source}
+                </span>
+              </div>
+              <p className="text-sm font-medium mb-2 leading-relaxed">
+                {defaultReview.text_fr || defaultReview.text || "Aucun texte"}
+              </p>
+              <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                <span className="font-medium">{defaultReview.author_name || "Anonyme"}</span>
+                {defaultReview.rating != null && (
+                  <span className="flex items-center gap-0.5">
+                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                    {defaultReview.rating}/5
+                  </span>
+                )}
+                {defaultReview.published_at && (
+                  <span>{new Date(defaultReview.published_at).toLocaleDateString("fr-FR")}</span>
+                )}
+              </div>
+            </div>
+            {renderReviewActions(defaultReview)}
           </div>
         </div>
       )}
@@ -165,27 +222,28 @@ const ReviewsEditor = forwardRef<ReviewsEditorRef, ReviewsEditorProps>(({ busine
                 </p>
               )}
             </div>
-            <div className="flex flex-col items-center gap-2 shrink-0">
-              <div className="flex items-center gap-1.5" title="Ne pas afficher">
-                <span className="text-[10px] text-muted-foreground">Masquer</span>
-                <Switch
-                  checked={review.is_hidden}
-                  onCheckedChange={(v) => handleToggleHidden(review.id, v)}
-                  className="scale-75"
-                />
-              </div>
-              <div className="flex items-center gap-1.5" title="Avis par défaut">
-                <span className="text-[10px] text-muted-foreground">Défaut</span>
-                <Switch
-                  checked={review.is_default}
-                  onCheckedChange={(v) => handleSetDefault(review.id, v)}
-                  className="scale-75"
-                />
-              </div>
-            </div>
+            {renderReviewActions(review)}
           </div>
         ))}
       </div>
+
+      {/* Confirmation de suppression */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer cet avis ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              L'avis de <strong>{deleteTarget?.author_name || "Anonyme"}</strong> ({SOURCE_LABELS[deleteTarget?.source || ""] || deleteTarget?.source}) sera définitivement supprimé.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 });
