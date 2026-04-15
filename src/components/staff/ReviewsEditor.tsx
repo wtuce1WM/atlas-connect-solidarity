@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Star, Trash2, MessageSquare } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Star, MessageSquare } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
@@ -61,16 +60,6 @@ const ReviewsEditor = ({ businessId }: ReviewsEditorProps) => {
     }
     toast.success(value ? "Avis défini comme défaut" : "Avis retiré du défaut");
     load();
-  };
-
-  const handleDelete = async (reviewId: string) => {
-    const { error } = await supabase.from("reviews").delete().eq("id", reviewId);
-    if (error) {
-      toast.error("Erreur lors de la suppression");
-      return;
-    }
-    toast.success("Avis supprimé");
-    setReviews(prev => prev.filter(r => r.id !== reviewId));
   };
 
   const defaultReview = reviews.find(r => r.is_default);
@@ -169,14 +158,6 @@ const ReviewsEditor = ({ businessId }: ReviewsEditorProps) => {
                   className="scale-75"
                 />
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 text-destructive hover:text-destructive"
-                onClick={() => handleDelete(review.id)}
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
             </div>
           </div>
         ))}
