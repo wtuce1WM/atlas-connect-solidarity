@@ -3318,6 +3318,8 @@ export type Database = {
           relative_time: string | null
           source: string
           text: string | null
+          text_en: string | null
+          text_fr: string | null
         }
         Insert: {
           author_name?: string | null
@@ -3332,6 +3334,8 @@ export type Database = {
           relative_time?: string | null
           source: string
           text?: string | null
+          text_en?: string | null
+          text_fr?: string | null
         }
         Update: {
           author_name?: string | null
@@ -3346,6 +3350,8 @@ export type Database = {
           relative_time?: string | null
           source?: string
           text?: string | null
+          text_en?: string | null
+          text_fr?: string | null
         }
         Relationships: [
           {

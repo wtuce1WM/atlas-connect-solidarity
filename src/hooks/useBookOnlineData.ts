@@ -279,7 +279,7 @@ export function useBookOnlineData(businessId: string) {
           .eq("business_id", businessId),
         supabase
           .from("reviews" as any)
-          .select("source, author_name, rating, text, language")
+          .select("source, author_name, rating, text, language, text_fr, text_en")
           .eq("business_id", businessId)
           .not("text", "is", null)
           .order("rating", { ascending: false })

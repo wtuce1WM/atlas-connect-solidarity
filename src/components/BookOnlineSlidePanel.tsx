@@ -468,7 +468,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   const handleOpenReviews = useCallback(async () => {
     if (!hasReviewsCard) return;
-    const buildReviewHtml = (texts: typeof reviewTexts, translated?: string[]) => {
+    const buildReviewHtml = (texts: typeof reviewTexts) => {
       const activePlats = reviewPlatforms.filter(p => p.rating && p.count);
       const reviewLabel = language === "en" ? "reviews" : "avis";
       const logoMap: Record<string, string> = {
@@ -491,8 +491,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         .join("");
       const scoreHtml = `<div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:0"><div style="flex:1">${platformListHtml}</div><div style="text-align:center;padding-left:10px;border-left:1px solid rgba(255,255,255,0.1)"><div style="font-size:2.6rem;font-weight:bold;color:hsl(43,75%,55%)">${avgOn20}</div><div class="review-score-zoom-delayed" style="font-size:0.85rem;color:hsl(43,75%,55%)">/20</div><div class="review-score-zoom-delayed" style="font-size:0.75rem;opacity:0.7;margin-top:0">${totalReviewCount.toLocaleString("fr-FR")} ${reviewLabel}</div></div></div>`;
       const textsHtml = texts.length > 0
-        ? texts.slice(0, 10).map((r, i) => {
-          const displayText = translated?.[i] || r.text || "";
+        ? texts.slice(0, 10).map((r) => {
+          const displayText = (language === "en" ? r.text_en : r.text_fr) || r.text || "";
           return `<blockquote style="margin-top:4px"><p>${displayText}</p><footer>— ${r.author_name || (language === "en" ? "Anonymous" : "Anonyme")}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`;
         }).join("")
         : "";
@@ -503,18 +503,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     setDescGridMode(false);
     setDescOverlayDirect(true);
     setShowDescriptionOverlay(true);
-    const targetLang = language === "en" ? "en" : language === "ar" ? "ar" : "fr";
-    const needsTranslation = reviewTexts.some(r => r.language && r.language !== targetLang);
-    if (needsTranslation && reviewTexts.some(r => r.text)) {
-      try {
-        const { data, error } = await supabase.functions.invoke("translate-reviews", {
-          body: { reviews: reviewTexts.filter(r => r.text).map(r => ({ text: r.text })), targetLanguage: targetLang },
-        });
-        if (!error && data?.translations?.length) {
-          setDescOverlayContent({ html: buildReviewHtml(reviewTexts, data.translations), title });
-        }
-      } catch (e) { console.error("Translation error:", e); }
-    }
   }, [hasReviewsCard, reviewPlatforms, reviewTexts, totalReviewCount, language]);
 
   // Extracted open status hook
@@ -1765,7 +1753,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             }
             if (hasReviewsCard) {
               const openReviewsOverlay = async () => {
-                const buildReviewHtml = (texts: { text: string | null; author_name: string | null; source: string }[], translated?: string[]) => {
+                const buildReviewHtml = (texts: { text: string | null; author_name: string | null; source: string; text_fr?: string | null; text_en?: string | null }[]) => {
                   const isMobileViewport = typeof window !== "undefined" && window.innerWidth < 768;
                   const activePlats = reviewPlatforms.filter(p => p.rating && p.count);
                   const reviewLabel = language === "en" ? "reviews" : "avis";
@@ -1794,8 +1782,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                    const scoreFontSize = isMobileViewport ? "2rem" : "2.6rem";
                    const scoreHtml = `<div style="display:flex;align-items:center;gap:${isMobileViewport ? "6" : "8"}px;margin-bottom:0"><div style="flex:1">${platformListHtml}</div><div style="text-align:center;padding-left:${isMobileViewport ? "8" : "12"}px;border-left:1px solid rgba(255,255,255,0.1)"><div style="font-size:${scoreFontSize};font-weight:bold;color:hsl(43,75%,55%)">${avgOn20}</div><div class="review-score-zoom-delayed" style="font-size:0.8rem;color:hsl(43,75%,55%)">/20</div><div class="review-score-zoom-delayed" style="font-size:0.7rem;opacity:0.7;margin-top:0">${totalReviewCount.toLocaleString("fr-FR")} ${reviewLabel}</div></div></div>`;
                   const textsHtml = texts.length > 0
-                    ? `${isMobileViewport ? "" : "<hr/>"}` + texts.slice(0, 10).map((r, i) => {
-                      const displayText = translated?.[i] || r.text || "";
+                    ? `${isMobileViewport ? "" : "<hr/>"}` + texts.slice(0, 10).map((r) => {
+                      const displayText = (language === "en" ? r.text_en : r.text_fr) || r.text || "";
                       return `<blockquote><p>${displayText}</p><footer>— ${r.author_name || (language === "en" ? "Anonymous" : "Anonyme")}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`;
                     }).join("")
                     : "";
@@ -1805,18 +1793,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 setDescOverlayContent({ html: buildReviewHtml(reviewTexts), title });
                 setDescGridMode(false);
                 setSidebarOpenGroup(null);
-                const targetLang = language === "en" ? "en" : language === "ar" ? "ar" : "fr";
-                const needsTranslation = reviewTexts.some(r => r.language && r.language !== targetLang);
-                if (needsTranslation && reviewTexts.some(r => r.text)) {
-                  try {
-                    const { data, error } = await supabase.functions.invoke("translate-reviews", {
-                      body: { reviews: reviewTexts.filter(r => r.text).map(r => ({ text: r.text })), targetLanguage: targetLang },
-                    });
-                    if (!error && data?.translations?.length) {
-                      setDescOverlayContent({ html: buildReviewHtml(reviewTexts, data.translations), title });
-                    }
-                  } catch (e) { console.error("Translation error:", e); }
-                }
               };
               const activePlatforms = reviewPlatforms.filter(p => p.rating && p.count);
               groups.push({
