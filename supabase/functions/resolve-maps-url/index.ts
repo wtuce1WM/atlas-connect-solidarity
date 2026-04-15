@@ -249,18 +249,17 @@ serve(async (req) => {
       }
     }
 
-    // Step 8: If we got coords but no rating yet, try to fetch rating via Places API
+    // Step 8: If we got coords but no rating yet, try to fetch rating + reviews via Places API
     if (lat !== null && rating === undefined && apiKey) {
-      // Try extracting ChI... place_id first
       const placeId = extractPlaceId(finalUrl) || extractPlaceId(url);
       if (placeId && !placeId.startsWith("0x")) {
         const details = await fetchPlaceDetails(placeId, apiKey);
         if (details) {
           rating = details.rating;
           reviewCount = details.reviewCount;
+          reviews = details.reviews;
         }
       }
-      // If still no rating, try text search to find place_id then fetch details
       if (rating === undefined) {
         const placeName = extractPlaceName(finalUrl) || extractPlaceName(url);
         if (placeName) {
@@ -270,6 +269,7 @@ serve(async (req) => {
             if (details) {
               rating = details.rating;
               reviewCount = details.reviewCount;
+              reviews = details.reviews;
             }
           }
         }
