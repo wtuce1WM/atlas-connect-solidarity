@@ -599,6 +599,44 @@ export function useBookOnlineData(businessId: string) {
         }
       };
 
+      const fetchGenericVideosForPoi = async () => {
+        const { data: gvLinks } = await supabase
+          .from("generic_video_pois" as any)
+          .select("generic_video_id, sort_order")
+          .eq("poi_id", businessId)
+          .order("sort_order", { ascending: true }) as any;
+        if (isCancelled || !gvLinks?.length) return;
+        const gvIds = (gvLinks as any[]).map((l: any) => l.generic_video_id);
+        const { data: gvData } = await supabase
+          .from("generic_videos")
+          .select("id, url, name, thumbnail_url")
+          .in("id", gvIds);
+        if (isCancelled || !gvData?.length) return;
+        const orderMap = new Map((gvLinks as any[]).map((l: any) => [l.generic_video_id, l.sort_order ?? 0]));
+        const sorted = (gvData as any[]).sort((a: any, b: any) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0));
+        const genericVids: VideoDoc[] = sorted.map((gv: any) => ({
+          url: gv.url,
+          name: gv.name,
+          city: null,
+          price: null,
+          price_type: null,
+          description: null,
+          thumbnail_url: gv.thumbnail_url,
+          owner_business_id: businessId,
+          owner_name: null,
+          owner_logo: null,
+          owner_instagram: null,
+        }));
+        setVideoDocs((prev) => {
+          const existingUrls = new Set(prev.map((v) => v.url));
+          const newVids = genericVids.filter((v) => !existingUrls.has(v.url));
+          if (newVids.length === 0) return prev;
+          const ownHosted = prev.filter(v => /supabase\.co\/storage\//i.test(v.url));
+          const rest = prev.filter(v => !/supabase\.co\/storage\//i.test(v.url));
+          return [...ownHosted, ...newVids, ...rest];
+        });
+      };
+
       const fetchLiteApiMapping = async () => {
         const { data: mapping } = await supabase
           .from("hotel_api_mappings")
@@ -626,6 +664,7 @@ export function useBookOnlineData(businessId: string) {
         fetchKpRelated(),
         fetchLinkedVideos(),
         fetchPoiLinkedVideos(),
+        fetchGenericVideosForPoi(),
         fetchLiteApiMapping(),
         fetchSerpApiMapping(),
       ]);
