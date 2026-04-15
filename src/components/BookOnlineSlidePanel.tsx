@@ -1606,12 +1606,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               >
                 <X className="h-4 w-4" />
               </button>
-              <ExternalLinksFlipCard
+                <ExternalLinksFlipCard
                 links={externalLinks}
                 animationDelay="0ms"
-                forceFlipped
+                variant="overlay"
                 onClick={() => {}}
-                origin={extLinksOrigin}
               />
             </div>
           </div>
@@ -1621,10 +1620,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       {/* Directions overlay */}
       {showDirections && business && (
         <DirectionsOverlay
-          businessName={business.name}
-          latitude={business.latitude || 0}
-          longitude={business.longitude || 0}
-          googleMapsUrl={business.google_maps_url}
+          business={business}
           onClose={() => setShowDirections(false)}
         />
       )}
@@ -1639,8 +1635,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             showSearchBar={showSearchBar}
             onSearch={onSearch}
             onSearchBusinessSelect={onSearchBusinessSelect}
-            onMosaicStateChange={onMosaicStateChange}
-            propagateMosaicState
           />
         </div>
       )}
