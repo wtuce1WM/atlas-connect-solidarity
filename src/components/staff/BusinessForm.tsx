@@ -946,7 +946,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [creatingService, setCreatingService] = useState(false);
   useEffect(() => {
     const fetchTaxonomy = async () => {
-      const [catRes, subRes, servRes, citiesRes, gammesRes, gammeCatRes, neighborhoodsRes, affiliatesRes, badgesRes, badgeSubcatsRes, destRes, poiRes] = await Promise.all([
+      const [catRes, subRes, servRes, citiesRes, gammesRes, gammeCatRes, neighborhoodsRes, affiliatesRes, badgesRes, badgeSubcatsRes, destRes, poiRes, eventsRes] = await Promise.all([
         supabase.from("categories").select("id, name_fr").order("sort_order"),
         supabase.from("subcategories").select("id, name_fr, category_id").order("sort_order"),
         fetchAllRows("services", "id, name_fr, subcategory_id", "sort_order"),
@@ -959,6 +959,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         supabase.from("badge_subcategories").select("badge_id, subcategory_id"),
         supabase.from("destinations").select("id, name_fr, region").order("name_fr"),
         supabase.from("points_of_interest").select("id, name_fr, city_id").order("name_fr"),
+        supabase.from("events").select("id, name").order("name"),
       ]);
       
       if (catRes.data) setDbCategories(catRes.data);
@@ -973,6 +974,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       if (badgeSubcatsRes.data) setBadgeSubcategories(badgeSubcatsRes.data);
       if (destRes.data) setDbDestinations(destRes.data);
       if (poiRes.data) setDbPOIs(poiRes.data);
+      if (eventsRes.data) setDbEvents(eventsRes.data);
     };
     
     fetchTaxonomy();
