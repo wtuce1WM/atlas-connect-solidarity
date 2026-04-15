@@ -264,11 +264,13 @@ const BusinessDetail = () => {
           if (gammeData) setGamme(gammeData as Gamme);
         }
 
-        // Fetch review texts
+        // Fetch review texts — respect is_hidden and prioritise is_default
         const { data: reviewsData } = await supabase
           .from("reviews" as any)
-          .select("source, author_name, rating, text, relative_time, text_fr, text_en")
+          .select("source, author_name, rating, text, relative_time, text_fr, text_en, is_default, is_hidden")
           .eq("business_id", data.id)
+          .eq("is_hidden", false)
+          .order("is_default", { ascending: false })
           .order("rating", { ascending: false })
           .limit(5);
         if (reviewsData) setReviewTexts(reviewsData as any[]);
@@ -1549,7 +1551,7 @@ const BusinessDetail = () => {
                         )}
                       </div>
                       <p className={`text-sm leading-relaxed ${isVerified ? 'text-white/70' : 'text-muted-foreground'}`}>
-                        {review.text}
+                        {(review as any).text_fr || review.text}
                       </p>
                       <div className="mt-2">
                         <Badge variant="outline" className={`text-[10px] ${isVerified ? 'border-white/20 text-white/50' : ''}`}>
