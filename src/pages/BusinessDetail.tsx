@@ -1551,7 +1551,7 @@ const BusinessDetail = () => {
                         )}
                       </div>
                       <p className={`text-sm leading-relaxed ${isVerified ? 'text-white/70' : 'text-muted-foreground'}`}>
-                        {review.text}
+                        {(review as any).text_fr || review.text}
                       </p>
                       <div className="mt-2">
                         <Badge variant="outline" className={`text-[10px] ${isVerified ? 'border-white/20 text-white/50' : ''}`}>
