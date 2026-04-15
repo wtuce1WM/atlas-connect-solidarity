@@ -73,7 +73,7 @@ async function fetchPlaceDetails(placeId: string, apiKey: string): Promise<{ rat
   const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=rating,user_ratings_total,reviews&language=fr&key=${apiKey}`;
   const resp = await fetch(url);
   const data = await resp.json();
-  console.log("fetchPlaceDetails placeId:", placeId, "status:", data.status, "hasReviews:", !!(data.result?.reviews), "reviewsCount:", data.result?.reviews?.length);
+  console.log("PlaceDetails raw keys:", JSON.stringify(Object.keys(data.result || {})), "reviews array length:", data.result?.reviews?.length ?? "N/A");
   if (data.result) {
     const rawReviews = data.result.reviews || [];
     const reviews = rawReviews.slice(0, 5).map((r: any) => ({
