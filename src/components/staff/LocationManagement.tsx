@@ -56,6 +56,7 @@ import { CSS } from "@dnd-kit/utilities";
 import RichTextEditor from "./RichTextEditor";
 import LogoUploader from "./LogoUploader";
 import ImageUploader from "./ImageUploader";
+import DestinationReviewsEditor from "./DestinationReviewsEditor";
 
 interface Country {
   id: string;
