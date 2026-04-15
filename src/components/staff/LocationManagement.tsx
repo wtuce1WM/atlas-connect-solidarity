@@ -2392,7 +2392,7 @@ const LocationManagement = () => {
                           }}
                         >
                           <LocateFixed className="h-3.5 w-3.5" />
-                          Extraire GPS
+                          Extraire GPS & avis
                         </Button>
                       )}
                       {destinationForm.google_maps_url && (
