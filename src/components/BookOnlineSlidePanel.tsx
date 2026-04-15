@@ -468,7 +468,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   const handleOpenReviews = useCallback(async () => {
     if (!hasReviewsCard) return;
-    const buildReviewHtml = (texts: typeof reviewTexts, translated?: string[]) => {
+    const buildReviewHtml = (texts: typeof reviewTexts) => {
       const activePlats = reviewPlatforms.filter(p => p.rating && p.count);
       const reviewLabel = language === "en" ? "reviews" : "avis";
       const logoMap: Record<string, string> = {
