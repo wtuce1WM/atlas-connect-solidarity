@@ -253,7 +253,7 @@ serve(async (req) => {
       console.log("[Step8] placeId from URL:", placeId);
       if (placeId && !placeId.startsWith("0x")) {
         const details = await fetchPlaceDetails(placeId, apiKey);
-        console.log("[Step8] details from placeId:", JSON.stringify({ rating: details?.rating, reviewCount: details?.reviewCount, reviewsLen: details?.reviews?.length }));
+        _debugInfo.step8a = { placeId, _debug: details?._debug };
         if (details) {
           rating = details.rating;
           reviewCount = details.reviewCount;
