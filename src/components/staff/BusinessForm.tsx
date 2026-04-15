@@ -1724,6 +1724,10 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       }
 
       const trSuffix = translatedCount > 0 ? ` · ${translatedCount} avis traduits en FR` : "";
+
+      // Refresh the reviews list in the UI
+      reviewsEditorRef.current?.refresh();
+
       toast({
         title: "Avis récupérés",
         description: avg !== null
@@ -5062,7 +5066,18 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </div>
         </div>
 
-        {/* ═══════ Engagements ═══════ */}
+        {/* ═══════ Détail des avis clients traduits ═══════ */}
+        {business?.id && (
+          <div id="section-reviews-detail" className="p-4 bg-orange-50 border border-orange-200 rounded-lg space-y-3" style={{ scrollMarginTop: '160px' }}>
+            <Label className="text-xl font-semibold flex items-center gap-2">
+              <MessageSquare className="h-5 w-5" />
+              Détail des avis clients
+            </Label>
+            <ReviewsEditor ref={reviewsEditorRef} businessId={business.id} />
+          </div>
+        )}
+
+
         <div id="section-services" className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg space-y-4" style={{ scrollMarginTop: '160px' }}>
           <Label className="text-xl font-semibold">Engagements, Certifications & Commodités</Label>
           <div className="space-y-2">
