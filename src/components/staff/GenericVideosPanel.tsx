@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Play, Upload, Copy, Check, FileText, Instagram, X, MapPin, MapPinned, Building2, Search, GripVertical, Clock, Globe } from "lucide-react";
+import VideoIdSearchInput from "./VideoIdSearchInput";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -803,9 +804,10 @@ const SortableVideoCard = ({
     <div
       ref={setNodeRef}
       style={style}
+      data-video-id={video.id}
       onClick={() => onSelect(video)}
       className={cn(
-        "group relative rounded-lg border bg-card overflow-hidden transition-shadow hover:shadow-md cursor-pointer",
+        "group relative rounded-lg border bg-card overflow-hidden transition-shadow hover:shadow-md cursor-pointer transition-[outline]",
         isDragging && "opacity-50 z-50",
         isSelected && "ring-2 ring-primary border-primary"
       )}
@@ -1072,7 +1074,10 @@ const GenericVideosPanel = () => {
           <p className="text-sm text-muted-foreground text-center py-8">Aucune vidéo générique</p>
         ) : (
           <>
-            <p className="text-sm text-muted-foreground">{videos.length} vidéo{videos.length > 1 ? "s" : ""} • Cliquez pour voir les entités liées</p>
+            <div className="flex items-center gap-3">
+              <p className="text-sm text-muted-foreground">{videos.length} vidéo{videos.length > 1 ? "s" : ""} • Cliquez pour voir les entités liées</p>
+              <VideoIdSearchInput videoIds={videos.map(v => v.id)} />
+            </div>
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <SortableContext items={videos.map(v => v.id)} strategy={rectSortingStrategy}>
                 <div className="flex flex-wrap gap-4">

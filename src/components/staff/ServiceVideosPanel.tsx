@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Play, GripVertical } from "lucide-react";
+import VideoIdSearchInput from "./VideoIdSearchInput";
 import VideoLightbox from "./VideoLightbox";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -59,7 +60,7 @@ const SortableVideoCard = ({
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
 
   return (
-    <div ref={setNodeRef} style={{ ...style, width: 220 }} className="flex flex-col rounded-lg border bg-background p-1.5">
+    <div ref={setNodeRef} style={{ ...style, width: 220 }} data-video-id={video.id} className="flex flex-col rounded-lg border bg-background p-1.5 transition-[outline]">
       <div className="flex items-center gap-1 mb-1">
         <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground">
           <GripVertical className="h-4 w-4" />
@@ -349,6 +350,7 @@ const ServiceVideosPanel = () => {
       </div>
 
       <div className="flex items-center gap-4 flex-wrap">
+        <VideoIdSearchInput videoIds={filteredVideos.map(v => v.id)} />
         {/* Ville */}
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">Ville :</span>
