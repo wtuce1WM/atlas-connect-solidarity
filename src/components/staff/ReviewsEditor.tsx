@@ -15,6 +15,7 @@ interface Review {
   relative_time: string | null;
   published_at: string | null;
   is_default: boolean;
+  is_hidden: boolean;
 }
 
 interface ReviewsEditorProps {
@@ -35,7 +36,7 @@ const ReviewsEditor = ({ businessId }: ReviewsEditorProps) => {
     setLoading(true);
     const { data } = await supabase
       .from("reviews")
-      .select("id, source, author_name, rating, text, text_fr, language, relative_time, published_at, is_default")
+      .select("id, source, author_name, rating, text, text_fr, language, relative_time, published_at, is_default, is_hidden")
       .eq("business_id", businessId)
       .order("is_default", { ascending: false })
       .order("rating", { ascending: false, nullsFirst: false });
@@ -59,6 +60,16 @@ const ReviewsEditor = ({ businessId }: ReviewsEditorProps) => {
       return;
     }
     toast.success(value ? "Avis défini comme défaut" : "Avis retiré du défaut");
+    load();
+  };
+
+  const handleToggleHidden = async (reviewId: string, value: boolean) => {
+    const { error } = await supabase.from("reviews").update({ is_hidden: value } as any).eq("id", reviewId);
+    if (error) {
+      toast.error("Erreur lors de la mise à jour");
+      return;
+    }
+    toast.success(value ? "Avis masqué" : "Avis visible");
     load();
   };
 
@@ -150,6 +161,14 @@ const ReviewsEditor = ({ businessId }: ReviewsEditorProps) => {
               )}
             </div>
             <div className="flex flex-col items-center gap-2 shrink-0">
+              <div className="flex items-center gap-1.5" title="Ne pas afficher">
+                <span className="text-[10px] text-muted-foreground">Masquer</span>
+                <Switch
+                  checked={review.is_hidden}
+                  onCheckedChange={(v) => handleToggleHidden(review.id, v)}
+                  className="scale-75"
+                />
+              </div>
               <div className="flex items-center gap-1.5" title="Avis par défaut">
                 <span className="text-[10px] text-muted-foreground">Défaut</span>
                 <Switch

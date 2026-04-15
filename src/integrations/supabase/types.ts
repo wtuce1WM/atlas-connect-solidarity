@@ -3312,6 +3312,7 @@ export type Database = {
           fetched_at: string
           id: string
           is_default: boolean
+          is_hidden: boolean
           language: string | null
           published_at: string | null
           rating: number | null
@@ -3328,6 +3329,7 @@ export type Database = {
           fetched_at?: string
           id?: string
           is_default?: boolean
+          is_hidden?: boolean
           language?: string | null
           published_at?: string | null
           rating?: number | null
@@ -3344,6 +3346,7 @@ export type Database = {
           fetched_at?: string
           id?: string
           is_default?: boolean
+          is_hidden?: boolean
           language?: string | null
           published_at?: string | null
           rating?: number | null
