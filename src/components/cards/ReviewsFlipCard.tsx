@@ -16,6 +16,8 @@ interface ReviewText {
   language?: string | null;
   text_fr?: string | null;
   text_en?: string | null;
+  is_default?: boolean;
+  is_hidden?: boolean;
 }
 
 interface ReviewsFlipCardProps {
