@@ -1188,6 +1188,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     
     destination_hook: (business as any)?.destination_hook || "",
     destination_description: (business as any)?.destination_description || "",
+    default_destination_id: (business as any)?.default_destination_id || "",
+    default_destination_style: (business as any)?.default_destination_style || "aucun",
     poi_hook: (business as any)?.poi_hook || "",
     poi_description: (business as any)?.poi_description || "",
     is_poi: (business as any)?.is_poi ?? false,
@@ -1988,6 +1990,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       
       destination_hook: (formData as any).destination_hook?.trim().slice(0, 120) || null,
       destination_description: (formData as any).destination_description?.trim() || null,
+      default_destination_id: (formData as any).default_destination_id || null,
+      default_destination_style: (formData as any).default_destination_style || "aucun",
       poi_hook: (formData as any).poi_hook?.trim().slice(0, 120) || null,
       poi_description: (formData as any).poi_description?.trim() || null,
       is_poi: (formData as any).is_poi ?? false,
@@ -3754,6 +3758,40 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                         );
                       })}
                     </div>
+
+                    {/* Default destination selector */}
+                    {selectedDestinationIds.length > 0 && (
+                      <div className="mt-3 p-3 bg-background rounded-md border space-y-2">
+                        <Label className="text-sm font-medium">Destination par défaut</Label>
+                        <Select value={(formData as any).default_destination_id || "__none__"} onValueChange={(v) => { handleChange("default_destination_id" as any, v === "__none__" ? "" : v); }}>
+                          <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Aucune" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="__none__">Aucune</SelectItem>
+                            {selectedDestinationIds.map(destId => {
+                              const dest = dbDestinations.find(d => d.id === destId);
+                              return dest ? <SelectItem key={dest.id} value={dest.id}>{dest.name_fr}</SelectItem> : null;
+                            })}
+                          </SelectContent>
+                        </Select>
+                        {(formData as any).default_destination_id && (formData as any).default_destination_id !== "" && (() => {
+                          const selectedDest = dbDestinations.find(d => d.id === (formData as any).default_destination_id);
+                          const destName = selectedDest?.name_fr || "…";
+                          return (
+                            <div>
+                              <Label className="text-sm font-medium">Style d'affichage</Label>
+                              <Select value={(formData as any).default_destination_style || "aucun"} onValueChange={(v) => handleChange("default_destination_style" as any, v)}>
+                                <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="aucun">Aucun</SelectItem>
+                                  <SelectItem value="emmene_a">{destName} vous emmène à</SelectItem>
+                                  <SelectItem value="propose">{destName} vous propose</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )}
 
                     {/* Global destination hook & description */}
                     <div className="mt-3 space-y-3">
