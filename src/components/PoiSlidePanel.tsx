@@ -249,12 +249,12 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
     return () => { cancelled = true; };
   }, [businessId, poi?.city]);
 
-  // Fetch videos linked to this POI
+  // Fetch videos linked to this POI (business_documents + generic_videos)
   useEffect(() => {
     if (!businessId) return;
     let cancelled = false;
     const fetchVideos = async () => {
-      const [{ data: poiLinkedDocs }, { data: ownDocs }] = await Promise.all([
+      const [{ data: poiLinkedDocs }, { data: ownDocs }, { data: gvPoiLinks }] = await Promise.all([
         supabase
           .from("business_documents")
           .select("url, name, thumbnail_url, business_id")
@@ -267,32 +267,74 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
           .eq("type", "video")
           .eq("business_id", businessId)
           .order("sort_order", { ascending: true }),
+        supabase
+          .from("generic_video_pois" as any)
+          .select("generic_video_id, sort_order")
+          .eq("poi_id", businessId)
+          .order("sort_order", { ascending: true }) as any,
       ]);
       if (cancelled) return;
+
+      // Fetch generic videos if any are linked
+      let genericVideos: { url: string; name: string | null; thumbnail_url: string | null }[] = [];
+      if (gvPoiLinks?.length) {
+        const gvIds = (gvPoiLinks as any[]).map((l: any) => l.generic_video_id);
+        const { data: gvData } = await supabase
+          .from("generic_videos")
+          .select("id, url, name, thumbnail_url")
+          .in("id", gvIds);
+        if (!cancelled && gvData) {
+          // Preserve sort_order from the link table
+          const orderMap = new Map((gvPoiLinks as any[]).map((l: any) => [l.generic_video_id, l.sort_order ?? 0]));
+          genericVideos = (gvData as any[])
+            .sort((a: any, b: any) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0))
+            .map((gv: any) => ({ url: gv.url, name: gv.name, thumbnail_url: gv.thumbnail_url }));
+        }
+      }
+      if (cancelled) return;
+
       const seen = new Set<string>();
       const allDocs: typeof poiLinkedDocs = [];
       for (const d of [...(poiLinkedDocs || []), ...(ownDocs || [])]) {
         if (!seen.has(d.url)) { seen.add(d.url); allDocs.push(d); }
       }
-      if (allDocs.length === 0) { setLinkedVideos([]); return; }
-      const ownerIds = [...new Set(allDocs.map(d => d.business_id))];
-      const { data: owners } = await supabase
-        .from("businesses")
-        .select("id, name, logo_url, slug")
-        .in("id", ownerIds);
-      if (cancelled) return;
-      const ownerMap = new Map((owners || []).map(o => [o.id, o]));
-      setLinkedVideos(allDocs.map(d => {
-        const owner = ownerMap.get(d.business_id);
-        return {
-          url: d.url, name: d.name,
-          ownerName: owner?.name || "",
-          thumbnailUrl: d.thumbnail_url,
-          businessId: d.business_id,
-          ownerLogo: owner?.logo_url || null,
-          ownerSlug: owner?.slug || null,
-        };
-      }));
+
+      // Build linked videos from business_documents
+      let result: typeof linkedVideos = [];
+      if (allDocs.length > 0) {
+        const ownerIds = [...new Set(allDocs.map(d => d.business_id))];
+        const { data: owners } = await supabase
+          .from("businesses")
+          .select("id, name, logo_url, slug")
+          .in("id", ownerIds);
+        if (cancelled) return;
+        const ownerMap = new Map((owners || []).map(o => [o.id, o]));
+        result = allDocs.map(d => {
+          const owner = ownerMap.get(d.business_id);
+          return {
+            url: d.url, name: d.name,
+            ownerName: owner?.name || "",
+            thumbnailUrl: d.thumbnail_url,
+            businessId: d.business_id,
+            ownerLogo: owner?.logo_url || null,
+            ownerSlug: owner?.slug || null,
+          };
+        });
+      }
+
+      // Append generic videos (use businessId as owner since they belong to the POI)
+      for (const gv of genericVideos) {
+        if (!seen.has(gv.url)) {
+          seen.add(gv.url);
+          result.push({
+            url: gv.url, name: gv.name,
+            ownerName: "", thumbnailUrl: gv.thumbnail_url,
+            businessId, ownerLogo: null, ownerSlug: null,
+          });
+        }
+      }
+
+      setLinkedVideos(result);
     };
     fetchVideos();
     return () => { cancelled = true; };
