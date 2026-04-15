@@ -487,6 +487,42 @@ export type Database = {
           },
         ]
       }
+      business_document_badges: {
+        Row: {
+          badge_id: string
+          created_at: string
+          document_id: string
+          id: string
+        }
+        Insert: {
+          badge_id: string
+          created_at?: string
+          document_id: string
+          id?: string
+        }
+        Update: {
+          badge_id?: string
+          created_at?: string
+          document_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_document_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_document_badges_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "business_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_documents: {
         Row: {
           business_id: string
@@ -495,6 +531,7 @@ export type Database = {
           description: string | null
           destination_id: string | null
           end_date: string | null
+          event_id: string | null
           force_external: boolean
           front_sort_order: number
           icon: string | null
@@ -523,6 +560,7 @@ export type Database = {
           description?: string | null
           destination_id?: string | null
           end_date?: string | null
+          event_id?: string | null
           force_external?: boolean
           front_sort_order?: number
           icon?: string | null
@@ -551,6 +589,7 @@ export type Database = {
           description?: string | null
           destination_id?: string | null
           end_date?: string | null
+          event_id?: string | null
           force_external?: boolean
           front_sort_order?: number
           icon?: string | null
@@ -592,6 +631,13 @@ export type Database = {
             columns: ["destination_id"]
             isOneToOne: false
             referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_documents_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
           {
