@@ -267,7 +267,7 @@ const BusinessDetail = () => {
         // Fetch review texts
         const { data: reviewsData } = await supabase
           .from("reviews" as any)
-          .select("source, author_name, rating, text, relative_time")
+          .select("source, author_name, rating, text, relative_time, text_fr, text_en")
           .eq("business_id", data.id)
           .order("rating", { ascending: false })
           .limit(5);
