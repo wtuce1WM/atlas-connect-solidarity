@@ -932,6 +932,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [selectedPoiBusinessIds, setSelectedPoiBusinessIds] = useState<string[]>([]);
   const [poiBusinessesForCity, setPoiBusinessesForCity] = useState<Array<{ id: string; name: string; neighborhood: string | null }>>([]);
   const [allBusinessesForVideo, setAllBusinessesForVideo] = useState<Array<{ id: string; name: string }>>([]);
+  const [dbEvents, setDbEvents] = useState<Array<{ id: string; name: string }>>([]);
+  const [videoEventSearch, setVideoEventSearch] = useState<Record<number, string>>({});
   const [videoBusinessSearch, setVideoBusinessSearch] = useState<Record<number, string>>({});
   const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>([]);
   const [defaultBadgeId, setDefaultBadgeId] = useState<string | null>(null);
