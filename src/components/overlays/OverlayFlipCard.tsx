@@ -1,4 +1,5 @@
 import React, { Suspense, useMemo } from "react";
+import { Star, Quote } from "lucide-react";
 import { ChevronLeft, ChevronDown, ChevronUp, Map as MapIcon } from "lucide-react";
 import { LazyPoiGoogleMap } from "./LazyOverlays";
 import type { PoiMapItem } from "@/components/PoiGoogleMap";
@@ -27,13 +28,15 @@ interface FlipCardProps {
   backLabel: string;
   /** Whether to show the map toggle button */
   showMapButton?: boolean;
+  /** Optional default review to display */
+  defaultReview?: { author_name: string; text: string; rating: number; source: string } | null;
 }
 
 const OverlayFlipCard = ({
   flipped, onFlip, onUnflip,
   name, hook, description, descExpanded, onToggleDesc,
   mapMarkers, selectedMarkerId, selectedLat, selectedLng,
-  backLabel, showMapButton = true,
+  backLabel, showMapButton = true, defaultReview,
 }: FlipCardProps) => {
   const pois = useMemo(() => {
     const selected = selectedLat && selectedLng ? [{
@@ -100,6 +103,22 @@ const OverlayFlipCard = ({
                 className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed font-['Roboto',sans-serif] prose-josefin-headings card1-headings [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-gold [&_h2]:!font-bold [&_h3]:!font-bold"
                 dangerouslySetInnerHTML={{ __html: description }}
               />
+            </div>
+          )}
+
+          {defaultReview && (
+            <div className="rounded-xl bg-white/10 backdrop-blur-sm p-3 flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <Quote className="h-4 w-4 text-gold shrink-0 rotate-180" />
+                <span className="text-xs font-semibold text-white/90 truncate">{defaultReview.author_name}</span>
+                <div className="flex items-center gap-0.5 ml-auto shrink-0">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} className={`h-3 w-3 ${i < defaultReview.rating ? "text-gold fill-gold" : "text-white/30"}`} />
+                  ))}
+                </div>
+              </div>
+              <p className="text-xs text-white/80 leading-relaxed line-clamp-3 italic">{defaultReview.text}</p>
+              <span className="text-[10px] text-white/50">{defaultReview.source}</span>
             </div>
           )}
         </div>

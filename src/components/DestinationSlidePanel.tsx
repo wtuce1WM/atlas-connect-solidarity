@@ -69,6 +69,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   const [activeBusinessId, setActiveBusinessId] = useState<string | null>(null);
   const bottomTabInitialRef = React.useRef(true);
   const [ytTitles, setYtTitles] = useState<Record<string, string>>({});
+  const [defaultReview, setDefaultReview] = useState<{ author_name: string; text: string; rating: number; source: string } | null>(null);
 
   // Expose close interceptor
   React.useEffect(() => {
@@ -137,6 +138,27 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
       }
     };
     fetchDestination();
+    return () => { cancelled = true; };
+  }, [destinationId]);
+
+  // Fetch default review
+  useEffect(() => {
+    let cancelled = false;
+    const fetchDefaultReview = async () => {
+      const { data } = await supabase
+        .from("destination_reviews" as any)
+        .select("author_name, text, rating, source")
+        .eq("destination_id", destinationId)
+        .eq("is_default", true)
+        .eq("is_hidden", false)
+        .maybeSingle();
+      if (!cancelled && data) {
+        setDefaultReview(data as any);
+      } else if (!cancelled) {
+        setDefaultReview(null);
+      }
+    };
+    fetchDefaultReview();
     return () => { cancelled = true; };
   }, [destinationId]);
 
@@ -543,6 +565,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
               selectedLat={destination.latitude}
               selectedLng={destination.longitude}
               backLabel={destination.region && destination.region.length > 0 ? destination.region.join(" · ") : (language === "en" ? "Region" : "Région")}
+              defaultReview={defaultReview}
             />
           )}
 
