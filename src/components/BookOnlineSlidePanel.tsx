@@ -1158,7 +1158,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         </div>
         {/* Bouton + centré sous le carrousel info */}
         {woDescription && (
-          <div className="flex justify-center pointer-events-auto -mt-10 mb-1 relative z-30">
+          <div className="flex justify-center pointer-events-auto -mt-20 mb-4 relative z-30">
             <div
               className="opacity-0 animate-zoom-out-center"
               style={{ animationDelay: '1.8s', animationFillMode: 'forwards', animationDuration: '1s' }}
