@@ -2489,6 +2489,12 @@ const LocationManagement = () => {
                         </div>
                       )}
                     </div>
+                    {/* Détail des avis */}
+                    {editingDestination?.id && (
+                      <div className="pt-2 border-t">
+                        <DestinationReviewsEditor key={editingDestination.id + "-reviews"} destinationId={editingDestination.id} />
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
