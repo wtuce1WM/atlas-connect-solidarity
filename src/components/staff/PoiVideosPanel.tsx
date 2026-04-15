@@ -78,7 +78,9 @@ const SortableVideoCard = ({ video, index, onPlay }: { video: PoiVideo; index: n
             <Play className="h-4 w-4 text-primary-foreground fill-primary-foreground ml-0.5" />
           </div>
         </div>
-        
+        {video.source === "generic" && video.has_description && <span className="absolute bottom-2 right-2 z-10 px-2 py-1 rounded text-[10px] font-bold bg-primary text-primary-foreground">TXT</span>}
+        {video.source === "generic" && video.has_timeframes && <span className="absolute bottom-2 left-2 z-10 px-2 py-1 rounded text-[10px] font-bold bg-amber-500 text-white flex items-center gap-0.5"><Clock className="h-3 w-3" />TIME</span>}
+        {video.source === "generic" && video.has_linked && <span className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-white">VU</span>}
       </button>
       <div className="mt-1.5">
         <p className="text-sm font-medium leading-tight flex items-center gap-1">
@@ -101,6 +103,13 @@ const SortableVideoCard = ({ video, index, onPlay }: { video: PoiVideo; index: n
           </p>
         )}
         {video.name && <p className="text-[11px] text-muted-foreground/70 truncate">{video.name}</p>}
+        {video.source === "generic" && (video.instagram_account || video.tiktok_account || video.youtube_account) && (
+          <div className="flex flex-wrap gap-1 pt-0.5">
+            {video.instagram_account && <Badge variant="outline" className="text-[10px] px-1.5 py-0">IG: {video.instagram_account}</Badge>}
+            {video.tiktok_account && <Badge variant="outline" className="text-[10px] px-1.5 py-0">TT: {video.tiktok_account}</Badge>}
+            {video.youtube_account && <Badge variant="outline" className="text-[10px] px-1.5 py-0">YT: {video.youtube_account}</Badge>}
+          </div>
+        )}
       </div>
     </div>
   );
