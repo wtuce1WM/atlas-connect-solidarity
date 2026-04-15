@@ -763,17 +763,16 @@ function BatchTranslateReviewsButton() {
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState("");
   const [result, setResult] = useState("");
-  const abortRef = useCallback(() => ({ current: false }), []);
-  const abort = useMemo(abortRef, []);
+  const abortRef = useMemo(() => ({ current: false }), []);
 
   const handleRun = useCallback(async () => {
     setIsRunning(true);
     setResult("");
-    abort.current = false;
+    abortRef.current = false;
     let totalTranslated = 0;
 
     try {
-      while (!abort.current) {
+      while (!abortRef.current) {
         const { data, error } = await supabase.functions.invoke("batch-translate-reviews", {
           body: { limit: 50, targetLang: "fr" },
         });
@@ -795,15 +794,13 @@ function BatchTranslateReviewsButton() {
     }
     setIsRunning(false);
     setProgress("");
-  }, [abort]);
+  }, [abortRef]);
 
   return (
-    <div className="flex items-center gap-2">
-      <Button size="sm" variant="outline" onClick={isRunning ? () => { abort.current = true; } : handleRun} disabled={false}>
-        {isRunning ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Languages className="h-4 w-4 mr-2" />}
-        {isRunning ? progress || "Traduction…" : result || "Traduire avis en FR"}
-      </Button>
-    </div>
+    <Button size="sm" variant="outline" onClick={isRunning ? () => { abortRef.current = true; } : handleRun}>
+      {isRunning ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Languages className="h-4 w-4 mr-2" />}
+      {isRunning ? progress || "Traduction…" : result || "Traduire avis en FR"}
+    </Button>
   );
 }
 
