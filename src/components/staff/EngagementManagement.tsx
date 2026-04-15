@@ -21,6 +21,9 @@ interface GlobalOptions {
   certifications: string[];
   engagements: string[];
   commodites: string[];
+  defaultCertification?: string;
+  defaultEngagement?: string;
+  defaultCommodite?: string;
 }
 
 interface BusinessMini {
