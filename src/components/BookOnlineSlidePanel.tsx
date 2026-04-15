@@ -1753,7 +1753,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             }
             if (hasReviewsCard) {
               const openReviewsOverlay = async () => {
-                const buildReviewHtml = (texts: { text: string | null; author_name: string | null; source: string }[], translated?: string[]) => {
+                const buildReviewHtml = (texts: { text: string | null; author_name: string | null; source: string; text_fr?: string | null; text_en?: string | null }[]) => {
                   const isMobileViewport = typeof window !== "undefined" && window.innerWidth < 768;
                   const activePlats = reviewPlatforms.filter(p => p.rating && p.count);
                   const reviewLabel = language === "en" ? "reviews" : "avis";
