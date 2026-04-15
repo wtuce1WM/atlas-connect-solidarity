@@ -14,6 +14,8 @@ interface ReviewText {
   rating: number | null;
   text: string | null;
   language?: string | null;
+  text_fr?: string | null;
+  text_en?: string | null;
 }
 
 interface ReviewsFlipCardProps {
