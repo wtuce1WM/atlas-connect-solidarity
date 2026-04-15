@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
-import { Upload, Volume2, RefreshCw } from "lucide-react";
+import { Upload, Volume2, RefreshCw, Languages } from "lucide-react";
 import {
   Building2,
   Eye,
@@ -188,6 +188,7 @@ const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusine
           Export CSV Google My Maps
         </Button>
         <InternalizeImagesButton />
+        <BatchTranslateReviewsButton />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -755,6 +756,51 @@ function InternalNotesSection() {
         />
       </CardContent>
     </Card>
+  );
+}
+
+function BatchTranslateReviewsButton() {
+  const [isRunning, setIsRunning] = useState(false);
+  const [progress, setProgress] = useState("");
+  const [result, setResult] = useState("");
+  const abortRef = useMemo(() => ({ current: false }), []);
+
+  const handleRun = useCallback(async () => {
+    setIsRunning(true);
+    setResult("");
+    abortRef.current = false;
+    let totalTranslated = 0;
+
+    try {
+      while (!abortRef.current) {
+        const { data, error } = await supabase.functions.invoke("batch-translate-reviews", {
+          body: { limit: 50, targetLang: "fr" },
+        });
+        if (error) { toast({ title: "Erreur de traduction", variant: "destructive" }); break; }
+        totalTranslated += data.translated || 0;
+        setProgress(`${totalTranslated} traduits, ${data.remaining} restants`);
+        if (data.done || data.remaining === 0) {
+          const msg = totalTranslated > 0
+            ? `${totalTranslated} avis traduits`
+            : "Tous les avis sont déjà traduits";
+          setResult(msg);
+          toast({ title: msg });
+          break;
+        }
+        await new Promise(r => setTimeout(r, 500));
+      }
+    } catch {
+      toast({ title: "Erreur", variant: "destructive" });
+    }
+    setIsRunning(false);
+    setProgress("");
+  }, [abortRef]);
+
+  return (
+    <Button size="sm" variant="outline" onClick={isRunning ? () => { abortRef.current = true; } : handleRun}>
+      {isRunning ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Languages className="h-4 w-4 mr-2" />}
+      {isRunning ? progress || "Traduction…" : result || "Traduire avis en FR"}
+    </Button>
   );
 }
 
