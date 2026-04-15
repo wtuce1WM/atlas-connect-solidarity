@@ -1175,16 +1175,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   });
                   if (!defaultReview) return null;
                   const displayText = ((language === "en" ? defaultReview.text_en : defaultReview.text_fr) || defaultReview.text || "").trim();
-                  const truncated = displayText.length > 120 ? displayText.slice(0, 120).trimEnd() + "…" : displayText;
                   return (
                     <p
-                      className="text-xs md:text-sm text-white/80 italic text-center max-w-[80%] md:max-w-md leading-relaxed mb-2 line-clamp-2"
+                      className="text-sm md:text-base text-white/90 italic text-center max-w-[90%] md:max-w-lg leading-relaxed mb-3"
                       style={{
                         fontFamily: "'Josefin Sans', sans-serif",
                         filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))",
                       }}
                     >
-                      "{truncated}"
+                      "{displayText}"
                       {defaultReview.author_name && (
                         <span className="not-italic text-white/50 ml-1">— {defaultReview.author_name}</span>
                       )}
