@@ -1610,9 +1610,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         />
       )}
 
-      {/* Full Description Overlay */}
-      {showDescriptionOverlay && woDescription && (
-
       {/* Availability Search Overlay */}
       {showAvailabilitySearch && (
         <AvailabilitySearchOverlay
@@ -1627,8 +1624,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       )}
 
       {/* Full Description Overlay (continued) */}
+      {/* Full Description Overlay */}
       {showDescriptionOverlay && woDescription && (
-        <div className="absolute inset-0 lg:-top-[3.3rem] z-[80] animate-zoom-out-center overflow-hidden flex flex-col lg:pt-0"> 
+        <div className="absolute inset-0 lg:-top-[3.3rem] z-[80] animate-zoom-out-center overflow-hidden flex flex-col lg:pt-0">
           {/* Background image */}
           {images[0] && (
             <div
