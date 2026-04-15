@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Play, GripVertical } from "lucide-react";
+import { Loader2, Play, GripVertical, Clock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import VideoIdSearchInput from "./VideoIdSearchInput";
 import VideoLightbox from "./VideoLightbox";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,12 @@ interface PoiVideo {
   neighborhood: string | null;
   poi_count: number;
   source: "document" | "generic";
+  instagram_account?: string | null;
+  tiktok_account?: string | null;
+  youtube_account?: string | null;
+  has_description?: boolean;
+  has_timeframes?: boolean;
+  has_linked?: boolean;
 }
 
 interface CityOption { name: string; sort_order: number; }
@@ -71,7 +78,9 @@ const SortableVideoCard = ({ video, index, onPlay }: { video: PoiVideo; index: n
             <Play className="h-4 w-4 text-primary-foreground fill-primary-foreground ml-0.5" />
           </div>
         </div>
-        
+        {video.source === "generic" && video.has_description && <span className="absolute bottom-2 right-2 z-10 px-2 py-1 rounded text-[10px] font-bold bg-primary text-primary-foreground">TXT</span>}
+        {video.source === "generic" && video.has_timeframes && <span className="absolute bottom-2 left-2 z-10 px-2 py-1 rounded text-[10px] font-bold bg-amber-500 text-white flex items-center gap-0.5"><Clock className="h-3 w-3" />TIME</span>}
+        {video.source === "generic" && video.has_linked && <span className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-white">VU</span>}
       </button>
       <div className="mt-1.5">
         <p className="text-sm font-medium leading-tight flex items-center gap-1">
@@ -94,6 +103,13 @@ const SortableVideoCard = ({ video, index, onPlay }: { video: PoiVideo; index: n
           </p>
         )}
         {video.name && <p className="text-[11px] text-muted-foreground/70 truncate">{video.name}</p>}
+        {video.source === "generic" && (video.instagram_account || video.tiktok_account || video.youtube_account) && (
+          <div className="flex flex-wrap gap-1 pt-0.5">
+            {video.instagram_account && <Badge variant="outline" className="text-[10px] px-1.5 py-0">IG: {video.instagram_account}</Badge>}
+            {video.tiktok_account && <Badge variant="outline" className="text-[10px] px-1.5 py-0">TT: {video.tiktok_account}</Badge>}
+            {video.youtube_account && <Badge variant="outline" className="text-[10px] px-1.5 py-0">YT: {video.youtube_account}</Badge>}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -150,7 +166,7 @@ const PoiVideosPanel = () => {
     const genericVideosMap = new Map<string, any>();
     for (let i = 0; i < genericVideoIds.length; i += 200) {
       const batch = genericVideoIds.slice(i, i + 200);
-      const { data } = await supabase.from("generic_videos" as any).select("id, url, name, thumbnail_url, city, neighborhood").in("id", batch) as any;
+      const { data } = await supabase.from("generic_videos" as any).select("id, url, name, thumbnail_url, city, neighborhood, instagram_account, tiktok_account, youtube_account, description").in("id", batch) as any;
       if (data) data.forEach((g: any) => genericVideosMap.set(g.id, g));
     }
 
@@ -170,6 +186,10 @@ const PoiVideosPanel = () => {
         city: gv.city || null,
         neighborhood: gv.neighborhood || null,
         _source: "generic" as const,
+        instagram_account: gv.instagram_account || null,
+        tiktok_account: gv.tiktok_account || null,
+        youtube_account: gv.youtube_account || null,
+        has_description: !!(gv.description && gv.description.replace(/<[^>]*>/g, "").trim()),
       });
     });
 
@@ -205,8 +225,24 @@ const PoiVideosPanel = () => {
       urlPoiCount.set(d.url, (urlPoiCount.get(d.url) || 0) + 1);
     });
 
+    // Fetch timeframe + linked counts for generic videos
+    const gvRealIds = [...new Set(genericVideoIds)] as string[];
+    const gvTimeSet = new Set<string>();
+    const gvLinkedSet = new Set<string>();
+    if (gvRealIds.length > 0) {
+      const [tfRes, poiRes2, bizRes, destRes] = await Promise.all([
+        supabase.from("generic_video_timeframes" as any).select("generic_video_id").in("generic_video_id", gvRealIds) as any,
+        supabase.from("generic_video_pois" as any).select("generic_video_id").in("generic_video_id", gvRealIds) as any,
+        supabase.from("generic_video_businesses" as any).select("generic_video_id").in("generic_video_id", gvRealIds) as any,
+        supabase.from("generic_video_destinations" as any).select("generic_video_id").in("generic_video_id", gvRealIds) as any,
+      ]);
+      ((tfRes.data || []) as any[]).forEach((r: any) => gvTimeSet.add(r.generic_video_id));
+      [...((poiRes2.data || []) as any[]), ...((bizRes.data || []) as any[]), ...((destRes.data || []) as any[])].forEach((r: any) => gvLinkedSet.add(r.generic_video_id));
+    }
+
     setVideos(combined.map(d => {
       const poi = poiMap.get(d.poi_id);
+      const rawGvId = d._source === "generic" ? d.business_id : null;
       return {
         id: d.id,
         url: d.url,
@@ -221,6 +257,12 @@ const PoiVideosPanel = () => {
         neighborhood: d.neighborhood || (d._source === "generic" ? poi?.neighborhood ?? null : null),
         poi_count: urlPoiCount.get(d.url) || 1,
         source: d._source,
+        instagram_account: d.instagram_account || null,
+        tiktok_account: d.tiktok_account || null,
+        youtube_account: d.youtube_account || null,
+        has_description: !!d.has_description,
+        has_timeframes: rawGvId ? gvTimeSet.has(rawGvId) : false,
+        has_linked: rawGvId ? gvLinkedSet.has(rawGvId) : false,
       };
     }));
     setLoading(false);
