@@ -16,6 +16,7 @@ interface Highlight {
   description: string;
   sort_order: number;
   business_id: string | null;
+  section_title: string | null;
 }
 
 interface FrontHighlightsEditorProps {
@@ -28,6 +29,7 @@ const FrontHighlightsEditor = ({ businessId }: FrontHighlightsEditorProps) => {
   const [loaded, setLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
   const [highlights, setHighlights] = useState<Highlight[]>([]);
+  const [sectionTitle, setSectionTitle] = useState("Nos Points Forts");
 
   const fetchData = async () => {
     setLoading(true);
@@ -39,13 +41,18 @@ const FrontHighlightsEditor = ({ businessId }: FrontHighlightsEditorProps) => {
     
     let result = (data as Highlight[]) || [];
     
+    // Extract section title from first item if exists
+    if (result.length > 0 && result[0].section_title) {
+      setSectionTitle(result[0].section_title);
+    }
+    
     // Auto-initialize 4 slots if none exist
     if (result.length === 0) {
       const defaults = [
-        { business_id: businessId, icon: "Sparkles", title: "", description: "", sort_order: 0 },
-        { business_id: businessId, icon: "Star", title: "", description: "", sort_order: 1 },
-        { business_id: businessId, icon: "Heart", title: "", description: "", sort_order: 2 },
-        { business_id: businessId, icon: "MapPin", title: "", description: "", sort_order: 3 },
+        { business_id: businessId, icon: "Sparkles", title: "", description: "", sort_order: 0, section_title: "Nos Points Forts" },
+        { business_id: businessId, icon: "Star", title: "", description: "", sort_order: 1, section_title: "Nos Points Forts" },
+        { business_id: businessId, icon: "Heart", title: "", description: "", sort_order: 2, section_title: "Nos Points Forts" },
+        { business_id: businessId, icon: "MapPin", title: "", description: "", sort_order: 3, section_title: "Nos Points Forts" },
       ];
       await supabase.from("front_highlights").insert(defaults);
       const { data: refetch } = await supabase
@@ -78,7 +85,12 @@ const FrontHighlightsEditor = ({ businessId }: FrontHighlightsEditorProps) => {
     for (const h of highlights) {
       await supabase
         .from("front_highlights")
-        .update({ icon: h.icon, title: h.title, description: h.description.slice(0, 500) })
+        .update({ 
+          icon: h.icon, 
+          title: h.title, 
+          description: h.description.slice(0, 500),
+          section_title: sectionTitle
+        })
         .eq("id", h.id);
     }
     setSaving(false);
@@ -104,7 +116,19 @@ const FrontHighlightsEditor = ({ businessId }: FrontHighlightsEditorProps) => {
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : (
-            <div className="space-y-4">
+          <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-muted-foreground">Titre de la section</label>
+                <Input
+                  value={sectionTitle}
+                  onChange={(e) => setSectionTitle(e.target.value.slice(0, 60))}
+                  placeholder="Ex: Nos Points Forts"
+                  className="h-9 text-sm max-w-md"
+                  maxLength={60}
+                />
+                <p className="text-xs text-muted-foreground">{sectionTitle.length}/60 caractères</p>
+              </div>
+
               <p className="text-sm text-muted-foreground">
                 Configurez jusqu'à 4 blocs mettant en avant les points forts de cette fiche.
               </p>
