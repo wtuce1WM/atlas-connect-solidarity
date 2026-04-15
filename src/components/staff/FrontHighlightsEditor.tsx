@@ -29,6 +29,7 @@ const FrontHighlightsEditor = ({ businessId }: FrontHighlightsEditorProps) => {
   const [loaded, setLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
   const [highlights, setHighlights] = useState<Highlight[]>([]);
+  const [sectionTitle, setSectionTitle] = useState("Nos Points Forts");
 
   const fetchData = async () => {
     setLoading(true);
@@ -40,13 +41,18 @@ const FrontHighlightsEditor = ({ businessId }: FrontHighlightsEditorProps) => {
     
     let result = (data as Highlight[]) || [];
     
+    // Extract section title from first item if exists
+    if (result.length > 0 && result[0].section_title) {
+      setSectionTitle(result[0].section_title);
+    }
+    
     // Auto-initialize 4 slots if none exist
     if (result.length === 0) {
       const defaults = [
-        { business_id: businessId, icon: "Sparkles", title: "", description: "", sort_order: 0 },
-        { business_id: businessId, icon: "Star", title: "", description: "", sort_order: 1 },
-        { business_id: businessId, icon: "Heart", title: "", description: "", sort_order: 2 },
-        { business_id: businessId, icon: "MapPin", title: "", description: "", sort_order: 3 },
+        { business_id: businessId, icon: "Sparkles", title: "", description: "", sort_order: 0, section_title: "Nos Points Forts" },
+        { business_id: businessId, icon: "Star", title: "", description: "", sort_order: 1, section_title: "Nos Points Forts" },
+        { business_id: businessId, icon: "Heart", title: "", description: "", sort_order: 2, section_title: "Nos Points Forts" },
+        { business_id: businessId, icon: "MapPin", title: "", description: "", sort_order: 3, section_title: "Nos Points Forts" },
       ];
       await supabase.from("front_highlights").insert(defaults);
       const { data: refetch } = await supabase
@@ -79,7 +85,12 @@ const FrontHighlightsEditor = ({ businessId }: FrontHighlightsEditorProps) => {
     for (const h of highlights) {
       await supabase
         .from("front_highlights")
-        .update({ icon: h.icon, title: h.title, description: h.description.slice(0, 500) })
+        .update({ 
+          icon: h.icon, 
+          title: h.title, 
+          description: h.description.slice(0, 500),
+          section_title: sectionTitle
+        })
         .eq("id", h.id);
     }
     setSaving(false);
