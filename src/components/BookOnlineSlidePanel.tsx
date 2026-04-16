@@ -401,8 +401,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [videoMuted, setVideoMuted] = useState(true);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const iframeSrcRef = useRef<string>("");
-  const overlayWasOpenRef = useRef(false);
 
   // Sync video state — use MutationObserver-like approach via interval to catch key-based remounts
   useEffect(() => {
@@ -440,55 +438,39 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     };
   }, [businessId, currentMediaIndex]);
 
+  // Pause/mute background media when an overlay is open — WITHOUT reloading iframes
+  // (reloading caused the YouTube background to "jump" to its default top-anchored layout).
+  // We pause/mute via postMessage for YouTube and via the <video> element for files,
+  // so the iframe DOM stays mounted and never re-layouts.
   useEffect(() => {
-    overlayWasOpenRef.current = false;
-    iframeSrcRef.current = "";
-  }, [businessId]);
+    const overlayOpen =
+      showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
+      !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic ||
+      !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
+      showFallbackOverlay || searchOverlayActive || showDescriptionOverlay || !!forceMuted;
 
-  // Force-mute
-  useEffect(() => {
-    if (forceMuted) {
-      if (videoRef.current) videoRef.current.muted = true;
-      if (iframeRef.current) {
-        iframeSrcRef.current = iframeRef.current.src;
-        iframeRef.current.src = "";
-      }
-    } else if (!forceMuted && iframeRef.current && !iframeRef.current.src && iframeSrcRef.current) {
-      const restoredMutedSrc = iframeSrcRef.current
-        .replace(/([?&])mute=\d/i, "$1mute=1")
-        .replace(/([?&])controls=\d/i, "$1controls=0");
-      iframeRef.current.src = restoredMutedSrc;
-    }
-  }, [forceMuted]);
-
-  // Pause/resume on overlays
-  useEffect(() => {
-    const overlayOpen = showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId || !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic || !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay || showFallbackOverlay || searchOverlayActive || showDescriptionOverlay;
+    const v = videoRef.current;
+    const iframe = iframeRef.current;
+    const ytPost = (func: string) => {
+      iframe?.contentWindow?.postMessage(JSON.stringify({ event: "command", func }), "*");
+    };
 
     if (overlayOpen) {
-      overlayWasOpenRef.current = true;
-      if (videoRef.current) { videoRef.current.pause(); videoRef.current.muted = true; }
-      if (iframeRef.current) { iframeSrcRef.current = iframeRef.current.src; iframeRef.current.src = ""; }
+      if (v) { v.pause(); v.muted = true; }
+      if (iframe) { ytPost("mute"); ytPost("pauseVideo"); }
       return;
     }
 
-    if (overlayWasOpenRef.current) {
-      if (videoRef.current) {
-        videoRef.current.muted = true;
-        videoRef.current.play().catch(() => {});
-      }
-      if (iframeRef.current && iframeSrcRef.current) {
-        const restoredMutedSrc = iframeSrcRef.current.replace(/([?&])mute=\d/i, "$1mute=1").replace(/([?&])controls=\d/i, "$1controls=0");
-        iframeRef.current.src = restoredMutedSrc;
-      }
-      overlayWasOpenRef.current = false;
-      return;
+    if (v && v.paused) {
+      v.muted = true;
+      v.play().catch(() => {});
     }
-
-    if (videoRef.current && videoRef.current.paused) {
-      videoRef.current.play().catch(() => {});
-    }
-  }, [showDirections, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId, docOverlay, showBookingOverlay, showYoutubeOverlay, showMosaic, externalOverlayActive, showPoiMapOverlay, activeVideoOverlay, showFallbackOverlay, searchOverlayActive, showDescriptionOverlay]);
+    if (iframe) { ytPost("mute"); ytPost("playVideo"); }
+  }, [
+    forceMuted, showDirections, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId,
+    docOverlay, showBookingOverlay, showYoutubeOverlay, showMosaic, externalOverlayActive,
+    showPoiMapOverlay, activeVideoOverlay, showFallbackOverlay, searchOverlayActive, showDescriptionOverlay,
+  ]);
 
   const hasOpeningHours = business?.show_opening_hours !== false && (business?.is_open_24h || business?.opening_hours);
 
