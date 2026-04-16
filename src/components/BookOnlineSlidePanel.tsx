@@ -877,11 +877,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               hideCards={hideCards}
               onMouseDownDrag={onMouseDownDrag}
               leftSlot={languages.length > 0 ? (
-                <div className={`flex items-center gap-0.5 md:gap-1.5 bg-black/40 backdrop-blur-sm rounded-full py-1.5 px-2 md:px-2.5 shrink-0 h-[32px] ${languages.length > 5 ? 'max-w-[7rem] md:max-w-none overflow-x-auto md:overflow-visible' : ''}`} style={languages.length > 5 ? { scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties : undefined}>
+                <div className={`flex items-center gap-1 md:gap-2 bg-black/40 backdrop-blur-sm rounded-full py-1.5 px-3 md:px-3 shrink-0 ${languages.length > 5 ? 'max-w-[10rem] md:max-w-none overflow-x-auto md:overflow-visible' : ''}`} style={languages.length > 5 ? { scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties : undefined}>
                   {languages.map((lang, i) => {
                     const langAlt = getLangAlt(lang);
                     return (
-                      <span key={i} className="group relative inline-flex items-center justify-center text-base md:text-lg leading-none cursor-help shrink-0" title={langAlt} aria-label={langAlt} role="img" tabIndex={0}>
+                      <span key={i} className="group relative inline-flex items-center justify-center text-xl md:text-2xl leading-none cursor-help shrink-0" title={langAlt} aria-label={langAlt} role="img" tabIndex={0}>
                         {getLangFlag(lang)}
                         <span role="tooltip" className="pointer-events-none absolute left-0 top-full z-50 mt-2 hidden whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[10px] text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 md:block md:text-xs">
                           {langAlt}
