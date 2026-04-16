@@ -891,13 +891,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   })}
                 </div>
               ) : undefined}
-              rightSlot={avgOn20 !== null && avgOn20 > 0 ? (
-                <div className="md:hidden flex items-center gap-0.5 bg-black/40 backdrop-blur-sm rounded-full py-0.5 px-1.5 cursor-pointer" onClick={handleOpenReviews}>
-                  <Star className="h-3 w-3 text-gold fill-gold" />
-                  <span className="text-xs font-bold text-gold">{avgOn20}</span>
-                  <span className="text-[9px] text-white/60">/20</span>
-                </div>
-              ) : undefined}
+              rightSlot={undefined}
             />
           )}
         </div>
