@@ -72,7 +72,7 @@ const VideoDbStructurePanel = () => {
     // Fetch generic videos
     const { data: generics } = await supabase
       .from("generic_videos" as any)
-      .select("id, url, name, city, neighborhood, thumbnail_url, sort_order")
+      .select("id, url, name, city, neighborhood, thumbnail_url, sort_order, instagram_account, tiktok_account, youtube_account")
       .order("sort_order")
       .limit(1000);
 
@@ -85,7 +85,7 @@ const VideoDbStructurePanel = () => {
       thumbnail_url: d.thumbnail_url,
       front_sort_order: d.sort_order ?? 0,
       show_on_front: false,
-      business_name: "— Générique —",
+      business_name: d.instagram_account || d.tiktok_account || d.youtube_account || "— Générique —",
       source: "generic" as const,
     }));
 
