@@ -910,10 +910,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         {(avgOn20 != null && totalReviewCount > 0) || woDescription ? (
           <div className="flex flex-col items-center justify-center pointer-events-auto gap-10 flex-1 -mt-[7.5rem]">
             {woDescription && (
-              <div
-                className=""
-              >
-              >
+              <div>
                 <div
                   className="cursor-pointer group flex flex-col items-center gap-2"
                   onClick={() => setShowDescriptionOverlay(true)}
