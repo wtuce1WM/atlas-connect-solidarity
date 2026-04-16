@@ -1578,7 +1578,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* POI sub-panel */}
       {selectedPoiBusinessId && (
-        <div className="absolute inset-0 z-[85] animate-slide-up-from-bottom bg-background">
+        <div className="absolute inset-0 lg:-top-[3.3rem] z-[85] animate-slide-up-from-bottom bg-background">
           <BookOnlineSlidePanel
             businessId={selectedPoiBusinessId}
             onClose={() => { setSelectedPoiBusinessId(null); onMosaicStateChange?.(false); if (poiOpenedFromMapRef.current) poiOpenedFromMapRef.current = false; }}
@@ -1593,7 +1593,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* KP sub-panel */}
       {selectedKpBusinessId && (
-         <div className="absolute inset-0 z-[85] animate-slide-up-from-bottom bg-background">
+         <div className="absolute inset-0 lg:-top-[3.3rem] z-[85] animate-slide-up-from-bottom bg-background">
           <BookOnlineSlidePanel
             businessId={selectedKpBusinessId}
             onClose={() => { setSelectedKpBusinessId(null); onMosaicStateChange?.(false); }}
