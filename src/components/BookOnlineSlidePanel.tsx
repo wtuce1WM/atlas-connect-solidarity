@@ -1129,7 +1129,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* Full Description Overlay */}
       {showDescriptionOverlay && woDescription && (
-        <div className="absolute inset-0 lg:-top-[3.3rem] z-[80] animate-zoom-out-center overflow-hidden flex flex-col lg:pt-0">
+        <div className="absolute inset-0 lg:-top-[3.3rem] z-[80] animate-zoom-out-center overflow-hidden flex flex-col lg:pt-[3.3rem]">
           {images[0] && (
             <div
               className="absolute inset-0 bg-cover bg-center"
@@ -1576,7 +1576,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* POI sub-panel */}
       {selectedPoiBusinessId && (
-        <div className="absolute inset-0 lg:-top-[3.3rem] z-[85] animate-slide-up-from-bottom bg-background flex flex-col">
+        <div className="absolute inset-0 lg:-top-[3.3rem] z-[85] animate-slide-up-from-bottom bg-background flex flex-col lg:pt-[3.3rem]">
           <SlidePanelHeader
             onClose={() => { setSelectedPoiBusinessId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); onMosaicStateChange?.(false); if (poiOpenedFromMapRef.current) poiOpenedFromMapRef.current = false; }}
             alwaysDark
@@ -1601,7 +1601,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* KP sub-panel */}
       {selectedKpBusinessId && (
-         <div className="absolute inset-0 lg:-top-[3.3rem] z-[85] animate-slide-up-from-bottom bg-background flex flex-col">
+         <div className="absolute inset-0 lg:-top-[3.3rem] z-[85] animate-slide-up-from-bottom bg-background flex flex-col lg:pt-[3.3rem]">
           <SlidePanelHeader
             onClose={() => { setSelectedKpBusinessId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); onMosaicStateChange?.(false); }}
             alwaysDark
@@ -1626,7 +1626,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       )}
 
       {showPoiMapOverlay && (
-        <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[80] flex flex-col" style={{ animation: "slide-up-from-bottom 0.4s ease-out both" }}>
+        <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[80] flex flex-col pt-[3.3rem]" style={{ animation: "slide-up-from-bottom 0.4s ease-out both" }}>
           <div className="sticky top-0 z-10 flex items-center px-4 py-2 gap-2 bg-black/30 backdrop-blur-sm">
             <button
               onClick={() => { setShowPoiMapOverlay(false); setPoiMapMode("poi"); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
