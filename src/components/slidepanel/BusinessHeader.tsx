@@ -38,7 +38,7 @@ const BusinessHeader = React.memo(function BusinessHeader({
         <div className={`min-w-0 flex-1 text-center md:text-left ${hasReviewsCard ? "md:pr-28" : ""}`}>
           <div className="flex items-start gap-2">
             <h2
-              className={`text-base md:text-xl font-bold uppercase min-w-0 flex-1 ${hasReviewsCard ? "line-clamp-2 md:truncate" : "line-clamp-3 md:line-clamp-2"}`}
+              className={`text-base md:text-xl font-bold uppercase min-w-0 flex-1 ${hasReviewsCard ? "line-clamp-2" : "line-clamp-3 md:line-clamp-2"}`}
               style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em", WebkitTextStroke: "0.8px currentColor", textShadow: "0 0 0 currentColor" }}
             >
               {business.name}
