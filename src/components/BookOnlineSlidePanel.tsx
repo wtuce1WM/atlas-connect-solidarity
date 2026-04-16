@@ -400,8 +400,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [videoPaused, setVideoPaused] = useState(true);
   const [videoMuted, setVideoMuted] = useState(true);
 
-  const keepMutedRef = useRef(false);
-  const muteLockSrcRef = useRef<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const iframeSrcRef = useRef<string>("");
   const overlayWasOpenRef = useRef(false);
@@ -443,8 +441,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   }, [businessId, currentMediaIndex]);
 
   useEffect(() => {
-    keepMutedRef.current = false;
-    muteLockSrcRef.current = null;
     overlayWasOpenRef.current = false;
     iframeSrcRef.current = "";
   }, [businessId]);
@@ -477,10 +473,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     }
 
     if (overlayWasOpenRef.current) {
-      keepMutedRef.current = true;
       if (videoRef.current) {
         videoRef.current.muted = true;
-        muteLockSrcRef.current = videoRef.current.currentSrc || videoRef.current.src || null;
         videoRef.current.play().catch(() => {});
       }
       if (iframeRef.current && iframeSrcRef.current) {
@@ -738,8 +732,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           externalVideoInteractiveMode={externalVideoInteractiveMode}
           videoRef={videoRef as React.RefObject<HTMLVideoElement>}
           iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>}
-          keepMutedRef={keepMutedRef}
-          muteLockSrcRef={muteLockSrcRef}
           onLoadedMetadata={handleVideoLoadedMetadata}
         />
         {effectiveMedia?.kind !== "video" && effectiveMedia?.kind !== "matterport" && (

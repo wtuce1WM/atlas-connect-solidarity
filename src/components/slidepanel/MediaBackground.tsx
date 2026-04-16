@@ -12,8 +12,6 @@ interface MediaBackgroundProps {
   externalVideoInteractiveMode: boolean;
   videoRef: React.RefObject<HTMLVideoElement>;
   iframeRef: React.RefObject<HTMLIFrameElement>;
-  keepMutedRef: React.MutableRefObject<boolean>;
-  muteLockSrcRef: React.MutableRefObject<string | null>;
   onLoadedMetadata: (e: React.SyntheticEvent<HTMLVideoElement>) => void;
 }
 
@@ -27,8 +25,6 @@ const MediaBackground = React.memo(function MediaBackground({
   externalVideoInteractiveMode,
   videoRef,
   iframeRef,
-  keepMutedRef,
-  muteLockSrcRef,
   onLoadedMetadata,
 }: MediaBackgroundProps) {
   if (!effectiveMedia) {
@@ -51,18 +47,7 @@ const MediaBackground = React.memo(function MediaBackground({
           playsInline
           muted
           onPlay={() => {
-            if (videoRef.current) {
-              const currentSrc = videoRef.current.currentSrc || videoRef.current.src || null;
-              if (keepMutedRef.current && muteLockSrcRef.current && currentSrc === muteLockSrcRef.current) {
-                videoRef.current.muted = true;
-                keepMutedRef.current = false;
-                muteLockSrcRef.current = null;
-              } else {
-                videoRef.current.muted = true;
-                keepMutedRef.current = false;
-                muteLockSrcRef.current = null;
-              }
-            }
+            if (videoRef.current) videoRef.current.muted = true;
           }}
           onLoadedMetadata={onLoadedMetadata}
         />
