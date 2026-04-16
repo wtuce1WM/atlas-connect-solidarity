@@ -1526,7 +1526,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             </div>
           )}
           <div className="shrink-0 h-[3.5rem] md:h-[3.75rem]" />
-        </div>
+        </OverlayShell>
       )}
 
       {/* External Links Overlay */}
@@ -1550,7 +1550,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               />
             </div>
           </div>
-        </div>
+        </OverlayShell>
       )}
 
       {/* Directions overlay */}
@@ -1597,7 +1597,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               toolbarPortalPrefix="poi"
             />
           </div>
-        </div>
+        </OverlayShell>
       )}
 
       {/* KP sub-panel */}
@@ -1623,7 +1623,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               toolbarPortalPrefix="kp"
             />
           </div>
-        </div>
+        </OverlayShell>
       )}
 
       {showPoiMapOverlay && (
@@ -1689,7 +1689,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               fitToMarkers
             />
           </div>
-        </div>
+        </OverlayShell>
       )}
 
       {/* Mosaic overlay */}
@@ -1777,7 +1777,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             inline
           />
           </div>
-        </div>
+        </OverlayShell>
       )}
       {/* Search bar */}
       {showSearchBar && (
