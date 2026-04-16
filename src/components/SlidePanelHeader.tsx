@@ -33,7 +33,7 @@ const SlidePanelHeader = ({
   const baseClass = alwaysDark
     ? "absolute top-0 left-0 right-0 flex items-center justify-between px-4 py-2 bg-transparent z-[75] overflow-visible"
     : mobileTransparent
-    ? "absolute top-0 left-0 right-0 lg:relative flex items-center justify-between px-4 py-2 bg-transparent lg:bg-card lg:border-b lg:border-border z-[75] overflow-visible"
+    ? "absolute top-0 left-0 right-0 flex items-center justify-between px-4 py-2 bg-transparent z-[75] overflow-visible"
     : "shrink-0 flex items-center justify-between px-4 py-2 bg-card border-b border-border z-[75] relative overflow-visible";
 
   return (
