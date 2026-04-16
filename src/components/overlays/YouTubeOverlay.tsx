@@ -4,7 +4,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import YouTubeShortsCarousel, { type YouTubeVideo } from "@/components/YouTubeShortsCarousel";
 import type { BookOnlineBusiness } from "@/hooks/useBookOnlineData";
 import OverlayShell from "@/components/overlays/OverlayShell";
-import type { BookOnlineBusiness } from "@/hooks/useBookOnlineData";
 
 interface YouTubeOverlayProps {
   business: BookOnlineBusiness;
