@@ -27,6 +27,8 @@ interface ToolbarPortalsProps {
   selectedPoiBusinessId: string | null;
   // Overlay state for ripple suppression
   anyOverlay: boolean;
+  /** Optional prefix to target scoped toolbar portal IDs */
+  toolbarPortalPrefix?: string;
 }
 
 export function ToolbarPortals({
@@ -47,10 +49,12 @@ export function ToolbarPortals({
   selectedKpBusinessId,
   selectedPoiBusinessId,
   anyOverlay,
+  toolbarPortalPrefix,
 }: ToolbarPortalsProps) {
-  const toolbarPortal = document.getElementById("slide-panel-toolbar");
-  const toolbarCenterPortal = document.getElementById("slide-panel-toolbar-center");
-  const toolbarLeftPortal = document.getElementById("slide-panel-toolbar-left");
+  const pfx = toolbarPortalPrefix ? `${toolbarPortalPrefix}-` : "";
+  const toolbarPortal = document.getElementById(`${pfx}slide-panel-toolbar`);
+  const toolbarCenterPortal = document.getElementById(`${pfx}slide-panel-toolbar-center`);
+  const toolbarLeftPortal = document.getElementById(`${pfx}slide-panel-toolbar-left`);
 
   const shouldHide = !!selectedKpBusinessId || !!selectedPoiBusinessId || showMosaic;
 
