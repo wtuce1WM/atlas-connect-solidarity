@@ -1584,7 +1584,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       {selectedPoiBusinessId && (
         <div className="absolute inset-0 lg:-top-[3.3rem] z-[85] animate-slide-up-from-bottom bg-background flex flex-col">
           <SlidePanelHeader
-            onClose={() => { setSelectedPoiBusinessId(null); onMosaicStateChange?.(false); if (poiOpenedFromMapRef.current) poiOpenedFromMapRef.current = false; }}
+            onClose={() => { setSelectedPoiBusinessId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); onMosaicStateChange?.(false); if (poiOpenedFromMapRef.current) poiOpenedFromMapRef.current = false; }}
             alwaysDark
             toolbarLeftId="poi-slide-panel-toolbar-left"
             toolbarCenterId="poi-slide-panel-toolbar-center"
@@ -1593,7 +1593,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           <div className="flex-1 min-h-0">
             <BookOnlineSlidePanel
               businessId={selectedPoiBusinessId}
-              onClose={() => { setSelectedPoiBusinessId(null); onMosaicStateChange?.(false); if (poiOpenedFromMapRef.current) poiOpenedFromMapRef.current = false; }}
+              onClose={() => { setSelectedPoiBusinessId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); onMosaicStateChange?.(false); if (poiOpenedFromMapRef.current) poiOpenedFromMapRef.current = false; }}
               showSearchBar={showSearchBar}
               onSearch={onSearch}
               onSearchBusinessSelect={onSearchBusinessSelect}
@@ -1609,7 +1609,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       {selectedKpBusinessId && (
          <div className="absolute inset-0 lg:-top-[3.3rem] z-[85] animate-slide-up-from-bottom bg-background flex flex-col">
           <SlidePanelHeader
-            onClose={() => { setSelectedKpBusinessId(null); onMosaicStateChange?.(false); }}
+            onClose={() => { setSelectedKpBusinessId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); onMosaicStateChange?.(false); }}
             alwaysDark
             toolbarLeftId="kp-slide-panel-toolbar-left"
             toolbarCenterId="kp-slide-panel-toolbar-center"
@@ -1618,7 +1618,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           <div className="flex-1 min-h-0">
             <BookOnlineSlidePanel
               businessId={selectedKpBusinessId}
-              onClose={() => { setSelectedKpBusinessId(null); onMosaicStateChange?.(false); }}
+              onClose={() => { setSelectedKpBusinessId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); onMosaicStateChange?.(false); }}
               interceptCloseRef={kpInterceptCloseRef}
               showSearchBar={showSearchBar}
               onSearch={onSearch}
