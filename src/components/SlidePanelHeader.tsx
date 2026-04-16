@@ -28,7 +28,7 @@ const SlidePanelHeader = ({
 }: SlidePanelHeaderProps) => {
   const closeClass = closeVariant === "destructive"
     ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
-    : "bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity";
+    : "bg-white text-black shadow-2xl hover:bg-white/90 transition-opacity";
 
   const baseClass = alwaysDark
     ? "absolute top-0 left-0 right-0 flex items-center justify-between px-4 py-2 bg-transparent z-[75] overflow-visible"
