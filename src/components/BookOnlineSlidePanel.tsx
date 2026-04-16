@@ -1542,7 +1542,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       >
                         <button
                           onClick={g.directClick}
-                          className="flex items-center justify-center h-10 rounded-l-full border border-r-0 border-white/10 text-white transition-colors shadow-lg bg-black/80 hover:bg-black/90 pl-3 pr-4"
+                          className="flex items-center justify-center h-10 rounded-l-full border border-r-0 border-white/10 text-white transition-colors shadow-[−8px_4px_12px_rgba(0,0,0,0.3)] bg-black/80 hover:bg-black/90 pl-3 pr-4"
                         >
                           {g.icon}
                         </button>
