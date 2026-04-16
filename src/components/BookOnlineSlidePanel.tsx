@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { DesktopMediaArrows, CardsToggleButton, useOwnerLogo } from "@/components/CardsVisibilityToggle";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
-import { MapPin, ChevronUp, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe, Landmark } from "lucide-react";
+import { MapPin, ChevronUp, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe, Landmark, Clock } from "lucide-react";
 import { FacebookIcon, InstagramIcon, TikTokIcon, YouTubeIcon, TwitterIcon, LinkedInIcon, PinterestIcon, VimeoIcon, SnapchatIcon } from "@/components/staff/SocialMediaIcons";
 import DynamicIcon from "@/components/DynamicIcon";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
@@ -719,6 +719,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             <div onClick={() => setShowAvailabilitySearch(true)} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[130px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Disponibilité</span>
               <CalendarCheck className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
+            </div>
+          )}
+          {business?.show_opening_hours && (
+            <div className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
+              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[100px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Horaires</span>
+              <Clock className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
           )}
           {showGoogleMap && business && (business.latitude || business.google_maps_url) && (
