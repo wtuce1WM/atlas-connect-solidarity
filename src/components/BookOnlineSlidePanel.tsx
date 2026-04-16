@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { DesktopMediaArrows, CardsToggleButton, useOwnerLogo } from "@/components/CardsVisibilityToggle";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
-import { MapPin, ChevronUp, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film } from "lucide-react";
+import { MapPin, ChevronUp, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe } from "lucide-react";
+import { FacebookIcon, InstagramIcon, TikTokIcon, YouTubeIcon, TwitterIcon, LinkedInIcon, PinterestIcon, VimeoIcon, SnapchatIcon } from "@/components/staff/SocialMediaIcons";
 import DynamicIcon from "@/components/DynamicIcon";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 import { supabase } from "@/integrations/supabase/client";
@@ -1638,6 +1639,68 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     </div>
                   );
                 })}
+              </div>
+            );
+          })()}
+          {/* Social / Menu / External links strip */}
+          {!descGridMode && (() => {
+            const socialItems: { name: string; url: string; icon: React.ReactNode }[] = [
+              business?.instagram_url && { name: "Instagram", url: business.instagram_url, icon: <InstagramIcon className="h-4 w-4" /> },
+              business?.facebook_url && { name: "Facebook", url: business.facebook_url, icon: <FacebookIcon className="h-4 w-4" /> },
+              business?.tiktok_url && { name: "TikTok", url: business.tiktok_url, icon: <TikTokIcon className="h-5 w-5" /> },
+              business?.youtube_url && { name: "YouTube", url: business.youtube_url, icon: <YouTubeIcon className="h-4 w-4" /> },
+              business?.twitter_url && { name: "X", url: business.twitter_url, icon: <TwitterIcon className="h-5 w-5" /> },
+              business?.linkedin_url && { name: "LinkedIn", url: business.linkedin_url, icon: <LinkedInIcon className="h-5 w-5" /> },
+              business?.pinterest_url && { name: "Pinterest", url: business.pinterest_url, icon: <PinterestIcon className="h-4 w-4" /> },
+              business?.vimeo_url && { name: "Vimeo", url: business.vimeo_url, icon: <VimeoIcon className="h-4 w-4" /> },
+              business?.snapchat_url && { name: "Snapchat", url: business.snapchat_url, icon: <SnapchatIcon className="h-4 w-4" /> },
+            ].filter(Boolean) as { name: string; url: string; icon: React.ReactNode }[];
+            const hasAnything = socialItems.length > 0 || menuDocs.length > 0 || externalLinks.length > 0;
+            if (!hasAnything) return null;
+            return (
+              <div className="relative z-20 shrink-0">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-transparent backdrop-blur-sm border-t border-white/10 overflow-x-auto scrollbar-none">
+                  {socialItems.map((s, i) => (
+                    <button
+                      key={i}
+                      onClick={() => window.open(s.url, "_blank", "noopener")}
+                      className="shrink-0 h-8 w-8 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
+                      title={s.name}
+                    >
+                      {s.icon}
+                    </button>
+                  ))}
+                  {socialItems.length > 0 && (menuDocs.length > 0 || externalLinks.length > 0) && (
+                    <div className="shrink-0 w-px h-5 bg-white/20" />
+                  )}
+                  {menuDocs.map((doc) => (
+                    <button
+                      key={doc.id}
+                      onClick={() => openDocOrBooking(doc.url, doc.name || 'Menu')}
+                      className="shrink-0 h-8 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors"
+                    >
+                      {categoryIcon ? <DynamicIcon name={categoryIcon} size={14} /> : <Globe className="h-3.5 w-3.5" />}
+                      <span className="text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{doc.name || 'Menu'}</span>
+                    </button>
+                  ))}
+                  {externalLinks.map((link) => (
+                    <button
+                      key={link.id}
+                      onClick={() => {
+                        if (link.url && link.url !== '#' && link.url !== '*') {
+                          openDocOrBooking(link.url, link.name || 'Lien', true);
+                        }
+                      }}
+                      className="shrink-0 h-8 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors overflow-hidden"
+                    >
+                      {link.icon ? (
+                        <img src={link.icon} alt={link.name || ''} className="h-8 w-8 object-contain rounded-full p-1" loading="lazy" />
+                      ) : (
+                        <span className="px-3 text-[11px] font-medium uppercase font-['Josefin_Sans',sans-serif] whitespace-nowrap">{link.name || 'Lien'}</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
               </div>
             );
           })()}
