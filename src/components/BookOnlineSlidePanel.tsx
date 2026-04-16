@@ -714,16 +714,26 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               <Sparkles className="h-[22px] w-[22px]" />
             </div>
           )}
-          {externalLinks.length > 0 && (
-            <div className="flex items-center justify-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pl-4 pr-3 transition-colors cursor-pointer">
-              {(() => {
-                const extDesc = externalLinks[0]?.description?.toLowerCase() || "";
-                return (extDesc === "presse" || extDesc === "media")
-                  ? <Newspaper className="h-[22px] w-[22px]" />
-                  : <ExternalLink className="h-[22px] w-[22px]" />;
-              })()}
-            </div>
-          )}
+          {externalLinks.length > 0 && (() => {
+            const extDesc = externalLinks[0]?.description?.toLowerCase() || "";
+            const isPresse = extDesc === "presse" || extDesc === "media";
+            const extLabel = (() => {
+              if (extDesc === "partenaires") return "Ils nous font confiance";
+              if (extDesc === "recompenses") return "Nous sommes reconnus par";
+              if (extDesc === "certifications") return "Nous sommes certifiés par";
+              if (extDesc === "en_savoir_plus") return "En savoir plus";
+              if (extDesc === "presse" || extDesc === "media") return "Ils parlent de nous";
+              return "+ d'infos";
+            })();
+            return (
+              <div className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
+                <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[200px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">{extLabel}</span>
+                {isPresse
+                  ? <Newspaper className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
+                  : <ExternalLink className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />}
+              </div>
+            );
+          })()}
           {hasReviewsCard && (
             <div className="flex items-center justify-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pl-4 pr-3 transition-colors cursor-pointer">
               <Star className="h-[22px] w-[22px] text-gold fill-gold" />
