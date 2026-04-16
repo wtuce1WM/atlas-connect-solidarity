@@ -700,6 +700,39 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       <DesktopMediaArrows totalMedia={totalMedia} cardsHidden={cardsHidden} onPrev={() => goMedia(-1)} onNext={() => goMedia(1)} />
 
+      {/* Left sidebar CTAs — mirrors the Full Description overlay sidebar */}
+      {!cardsHidden && (menuDocs.length > 0 || menuSummaries.length > 0 || externalLinks.length > 0 || hasReviewsCard) && (
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
+          {menuDocs.length > 0 && (
+            <div className="flex items-center justify-center h-10 rounded-r-full border border-l-0 border-white/10 text-white bg-black/80 pl-4 pr-3">
+              <span className="flex items-center justify-center w-6 h-6">
+                {categoryIcon ? <DynamicIcon name={categoryIcon} size={22} /> : <Newspaper className="h-[22px] w-[22px]" />}
+              </span>
+            </div>
+          )}
+          {menuSummaries.length > 0 && (
+            <div className="flex items-center justify-center h-10 rounded-r-full border border-l-0 border-white/10 text-white bg-black/80 pl-4 pr-3">
+              <Sparkles className="h-[22px] w-[22px]" />
+            </div>
+          )}
+          {externalLinks.length > 0 && (
+            <div className="flex items-center justify-center h-10 rounded-r-full border border-l-0 border-white/10 text-white bg-black/80 pl-4 pr-3">
+              {(() => {
+                const extDesc = externalLinks[0]?.description?.toLowerCase() || "";
+                return (extDesc === "presse" || extDesc === "media")
+                  ? <Newspaper className="h-[22px] w-[22px]" />
+                  : <ExternalLink className="h-[22px] w-[22px]" />;
+              })()}
+            </div>
+          )}
+          {hasReviewsCard && (
+            <div className="flex items-center justify-center h-10 rounded-r-full border border-l-0 border-white/10 text-white bg-black/80 pl-4 pr-3">
+              <Star className="h-[22px] w-[22px] text-gold fill-gold" />
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Overlaid content */}
       <div
         className={`relative z-10 flex flex-col overflow-y-auto overflow-x-hidden overscroll-contain h-full p-4 pt-14 md:p-6 md:pt-16 lg:pt-6 ${cardsHidden ? 'pb-0' : 'pb-8'} ${(effectiveMedia?.kind === "matterport" && cardsHidden) ? "pointer-events-none" : externalVideoInteractiveMode ? "pointer-events-none" : ""}`}
