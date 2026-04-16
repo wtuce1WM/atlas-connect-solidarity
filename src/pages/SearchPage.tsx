@@ -2449,7 +2449,7 @@ const SearchPage = () => {
                 toolbarCenterId="overlay-slide-panel-toolbar-center"
                 toolbarRightId="overlay-slide-panel-toolbar"
               />
-              <div className="flex-1 min-h-0">
+              <div className="flex-1 min-h-0 overflow-visible">
                 <BookOnlineSlidePanel
                   businessId={overlaySelectedBusiness.id}
                   onClose={() => { setOverlaySelectedBusiness(null); setIsOverlayPanelExpanded(false); }}
@@ -3254,7 +3254,7 @@ const SearchPage = () => {
                 mobileTransparent
               />
             )}
-            <div className="flex-1 min-h-0">
+            <div className="flex-1 min-h-0 overflow-visible">
               <BookOnlineSlidePanel
                 businessId={compactPanelBusiness.id}
                 onClose={closeCompactPanel}
