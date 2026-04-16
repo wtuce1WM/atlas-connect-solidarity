@@ -957,8 +957,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 })()}
                 <div
                   key={`rating-${business?.id}`}
-                  className="flex flex-col items-center justify-center gap-0.5 opacity-0 animate-fade-in py-1 cursor-pointer"
-                  style={{ animationDelay: '0.5s', animationFillMode: 'forwards' }}
+                  className="flex flex-col items-center justify-center gap-0.5 py-1 cursor-pointer"
                   onClick={handleOpenReviews}
                 >
                   <div className="flex items-center gap-3" style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}>
