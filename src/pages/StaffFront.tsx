@@ -382,7 +382,7 @@ const StaffFront = () => {
             </TabsTrigger>
             <TabsTrigger value="preview-mobile" className="gap-2">
               <Smartphone className="h-4 w-4" />
-              Mobile
+              Structure DB
             </TabsTrigger>
             <TabsTrigger value="suggestions" className="gap-2">
               <Search className="h-4 w-4" />
@@ -485,7 +485,7 @@ const StaffFront = () => {
           </TabsContent>
 
           <TabsContent value="preview-mobile">
-            <PreviewTab width={390} title="Mobile" resolutions={MOBILE_RESOLUTIONS} breakpoints="sm : 640px" cellSize={110} />
+            <div className="text-sm text-muted-foreground p-4">Structure DB — contenu à venir</div>
           </TabsContent>
 
           <TabsContent value="suggestions">
