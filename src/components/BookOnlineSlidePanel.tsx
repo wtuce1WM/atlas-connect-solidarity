@@ -1411,7 +1411,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           </div>
           <div className="relative z-10 flex-1 min-h-0 order-[-1]" style={{ perspective: "1200px" }}>
             {descGridMode ? (() => {
-              const GRID_PAGE_SIZE = 9;
+              const isMobileGrid = typeof window !== "undefined" && window.innerWidth < 768;
+              const GRID_PAGE_SIZE = isMobileGrid ? 8 : 9;
               const totalGridPages = Math.ceil(images.length / GRID_PAGE_SIZE);
               const currentPageImages = images.slice(descGridPage * GRID_PAGE_SIZE, (descGridPage + 1) * GRID_PAGE_SIZE);
               const globalOffset = descGridPage * GRID_PAGE_SIZE;
@@ -1447,7 +1448,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       }}
                     >
                       <div className="px-3">
-                        <div className="grid grid-cols-3 gap-1.5">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5">
                           {currentPageImages.map((img, i) => {
                             const realIndex = globalOffset + i;
                             return (
