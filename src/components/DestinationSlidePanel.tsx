@@ -480,7 +480,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
       {/* Mosaic overlay */}
       {showMosaic && (
-        <div className="absolute inset-0 lg:-top-[3.3rem] z-[76] overflow-hidden">
+        <OverlayShell zClass="z-[76]">
           <div className="absolute inset-0 bg-black overflow-y-auto animate-slide-in-left">
             <div className="sticky top-0 z-10 flex items-center bg-black px-2 py-2">
               <button
@@ -499,7 +499,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
               ))}
             </div>
           </div>
-        </div>
+        </OverlayShell>
       )}
 
       {/* Fullscreen lightbox */}
@@ -677,7 +677,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
       {/* Recursive business overlay */}
       {activeBusinessId && (
-        <div className="absolute inset-0 lg:-top-[3.3rem] z-[60]">
+        <OverlayShell zClass="z-[60]">
           <BookOnlineSlidePanel
             businessId={activeBusinessId}
             onClose={() => setActiveBusinessId(null)}
@@ -685,7 +685,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
             onSearch={onSearch}
             onSearchBusinessSelect={onSearchBusinessSelect}
           />
-        </div>
+        </OverlayShell>
       )}
     </OverlayShell>
   );
