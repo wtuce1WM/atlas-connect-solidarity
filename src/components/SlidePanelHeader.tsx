@@ -12,6 +12,8 @@ interface SlidePanelHeaderProps {
   toolbarRightId?: string;
   /** On mobile/tablet, float over content with transparent bg (for immersive media panels) */
   mobileTransparent?: boolean;
+  /** Always use dark/transparent style regardless of breakpoint */
+  alwaysDark?: boolean;
 }
 
 const SlidePanelHeader = ({
