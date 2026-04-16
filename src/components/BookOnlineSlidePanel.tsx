@@ -173,6 +173,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [showFallbackOverlay, setShowFallbackOverlay] = useState(false);
   const [searchOverlayActive, setSearchOverlayActive] = useState(false);
   const [showAvailabilitySearch, setShowAvailabilitySearch] = useState(false);
+  const [showHoursOverlay, setShowHoursOverlay] = useState(false);
   const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
   
@@ -211,8 +212,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   // Close interceptor
   useEffect(() => {
     if (!interceptCloseRef) return;
-    if (showAvailabilitySearch || showDescriptionOverlay || showDirections || showBookingOverlay || !!docOverlay || showMosaic || showYoutubeOverlay || selectedDestinationId || selectedPoiBusinessId || selectedKpBusinessId) {
+    if (showHoursOverlay || showAvailabilitySearch || showDescriptionOverlay || showDirections || showBookingOverlay || !!docOverlay || showMosaic || showYoutubeOverlay || selectedDestinationId || selectedPoiBusinessId || selectedKpBusinessId) {
       interceptCloseRef.current = () => {
+        if (showHoursOverlay) { setShowHoursOverlay(false); return true; }
         if (showAvailabilitySearch) { setShowAvailabilitySearch(false); return true; }
         if (showDescriptionOverlay) { setShowDescriptionOverlay(false); setDescOverlayContent(null); setDescOverlayDirect(false); return true; }
         if (showMosaic) { setShowMosaic(false); return true; }
@@ -249,7 +251,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     } else {
       interceptCloseRef.current = null;
     }
-  }, [previousBusinessId, cameFromFallback, fallbackPanelData, interceptCloseRef, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId, showAvailabilitySearch, showDescriptionOverlay, showDirections, showBookingOverlay, docOverlay, showMosaic, showYoutubeOverlay]);
+  }, [previousBusinessId, cameFromFallback, fallbackPanelData, interceptCloseRef, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId, showHoursOverlay, showAvailabilitySearch, showDescriptionOverlay, showDirections, showBookingOverlay, docOverlay, showMosaic, showYoutubeOverlay]);
 
   const hideCardsRef = useRef<() => void>(() => {});
   const hasSerpMapping = !!serpApiMapping || !!liteApiHotelId;
@@ -715,18 +717,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       {/* Left sidebar CTAs — mirrors the Full Description overlay sidebar */}
       {!cardsHidden && (
         <div className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
-          {isHotelWithPrice && (
+          {isHotelWithPrice ? (
             <div onClick={() => setShowAvailabilitySearch(true)} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
-              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[100px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Horaires</span>
+              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[130px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Disponibilité</span>
               <CalendarCheck className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
-          )}
-          {business?.show_opening_hours && (
-            <div className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
+          ) : hasOpeningHours && !business?.is_open_24h ? (
+            <div onClick={() => setShowHoursOverlay(true)} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[100px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Horaires</span>
               <Clock className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
-          )}
+          ) : null}
           {showGoogleMap && business && (business.latitude || business.google_maps_url) && (
             <div onClick={() => setShowPoiMapOverlay(true)} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Localisation</span>
@@ -1443,6 +1444,24 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         />
       )}
 
+      {/* Hours Overlay */}
+      {showHoursOverlay && business && (
+        <div className="absolute inset-0 z-[75] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in" onClick={() => setShowHoursOverlay(false)}>
+          <div className="bg-black/80 backdrop-blur-md border border-white/20 rounded-2xl p-5 w-[22rem] max-w-[95vw] text-white animate-zoom-out-center" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm font-semibold text-gold uppercase tracking-wider flex items-center gap-1.5">
+                <Clock className="h-4 w-4" />
+                {language === "en" ? "Opening hours" : language === "ar" ? "أوقات العمل" : "Horaires d'ouverture"}
+              </p>
+              <button onClick={() => setShowHoursOverlay(false)} className="text-white/50 hover:text-white transition-colors">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <HoursOverlayContent business={business} language={language} />
+          </div>
+        </div>
+      )}
+
       {/* Full Description Overlay */}
       {showDescriptionOverlay && woDescription && (
         <div className="absolute inset-0 lg:-top-[3.3rem] z-[80] animate-zoom-out-center overflow-hidden flex flex-col lg:pt-0">
@@ -2017,5 +2036,53 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     </div>
   );
 };
+
+/** Inline opening hours display for the hours overlay */
+function HoursOverlayContent({ business, language }: { business: any; language: string }) {
+  const frToEn: Record<string, string> = {
+    lundi: "monday", mardi: "tuesday", mercredi: "wednesday", jeudi: "thursday",
+    vendredi: "friday", samedi: "saturday", dimanche: "sunday",
+  };
+  const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+  const dayNames: Record<string, Record<string, string>> = {
+    fr: { monday: "Lundi", tuesday: "Mardi", wednesday: "Mercredi", thursday: "Jeudi", friday: "Vendredi", saturday: "Samedi", sunday: "Dimanche" },
+    en: { monday: "Monday", tuesday: "Tuesday", wednesday: "Wednesday", thursday: "Thursday", friday: "Friday", saturday: "Saturday", sunday: "Sunday" },
+    ar: { monday: "الاثنين", tuesday: "الثلاثاء", wednesday: "الأربعاء", thursday: "الخميس", friday: "الجمعة", saturday: "السبت", sunday: "الأحد" },
+  };
+  const displayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+  const rawHours = business.opening_hours as Record<string, any> | null;
+  const hours = rawHours ? Object.entries(rawHours).reduce((acc, [k, v]) => { acc[frToEn[k] || k] = v; return acc; }, {} as Record<string, any>) : null;
+  const now = new Date();
+  const todayKey = dayOrder[now.getDay()];
+  const names = dayNames[language] || dayNames.fr;
+
+  if (business.is_open_24h) {
+    return <p className="text-white/80 text-sm">{language === "en" ? "Open 24/7" : language === "ar" ? "مفتوح 24/24" : "Ouvert 24h/24"}</p>;
+  }
+  if (!hours) return <p className="text-white/50 text-sm">{language === "en" ? "No hours available" : "Aucun horaire disponible"}</p>;
+
+  return (
+    <div className="space-y-1.5">
+      {displayOrder.map(day => {
+        const dh = hours[day];
+        const isToday = day === todayKey;
+        const closed = !dh || dh.closed;
+        const closedLabel = language === "en" ? "Closed" : language === "ar" ? "مغلق" : "Fermé";
+        let timeStr = closedLabel;
+        if (dh && !dh.closed && dh.open && dh.close) {
+          timeStr = `${dh.open} - ${dh.close}`;
+          if (dh.open2 && dh.close2 && !dh.continuous) timeStr += ` / ${dh.open2} - ${dh.close2}`;
+          if (dh.continuous) timeStr += language === "en" ? " (continuous)" : " (continu)";
+        }
+        return (
+          <div key={day} className={`flex justify-between text-sm ${isToday ? "font-bold text-white" : closed ? "text-white/30" : "text-white/70"}`}>
+            <span>{names[day]}{isToday ? " ●" : ""}</span>
+            <span>{timeStr}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export default BookOnlineSlidePanel;
