@@ -156,8 +156,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
   const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
   const [allYoutubeVideos, setAllYoutubeVideos] = useState<YouTubeVideo[]>([]);
+  const [kpGroupTitle, setKpGroupTitle] = useState<string | null>(null);
 
-  // Hotel availability overlay
   const [availabilityOverlayCtx, setAvailabilityOverlayCtx] = useState<{
     liteApiHotelId: string;
     businessName: string;
