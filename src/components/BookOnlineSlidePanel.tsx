@@ -2036,4 +2036,52 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   );
 };
 
+/** Inline opening hours display for the hours overlay */
+function HoursOverlayContent({ business, language }: { business: any; language: string }) {
+  const frToEn: Record<string, string> = {
+    lundi: "monday", mardi: "tuesday", mercredi: "wednesday", jeudi: "thursday",
+    vendredi: "friday", samedi: "saturday", dimanche: "sunday",
+  };
+  const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+  const dayNames: Record<string, Record<string, string>> = {
+    fr: { monday: "Lundi", tuesday: "Mardi", wednesday: "Mercredi", thursday: "Jeudi", friday: "Vendredi", saturday: "Samedi", sunday: "Dimanche" },
+    en: { monday: "Monday", tuesday: "Tuesday", wednesday: "Wednesday", thursday: "Thursday", friday: "Friday", saturday: "Saturday", sunday: "Sunday" },
+    ar: { monday: "الاثنين", tuesday: "الثلاثاء", wednesday: "الأربعاء", thursday: "الخميس", friday: "الجمعة", saturday: "السبت", sunday: "الأحد" },
+  };
+  const displayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+  const rawHours = business.opening_hours as Record<string, any> | null;
+  const hours = rawHours ? Object.entries(rawHours).reduce((acc, [k, v]) => { acc[frToEn[k] || k] = v; return acc; }, {} as Record<string, any>) : null;
+  const now = new Date();
+  const todayKey = dayOrder[now.getDay()];
+  const names = dayNames[language] || dayNames.fr;
+
+  if (business.is_open_24h) {
+    return <p className="text-white/80 text-sm">{language === "en" ? "Open 24/7" : language === "ar" ? "مفتوح 24/24" : "Ouvert 24h/24"}</p>;
+  }
+  if (!hours) return <p className="text-white/50 text-sm">{language === "en" ? "No hours available" : "Aucun horaire disponible"}</p>;
+
+  return (
+    <div className="space-y-1.5">
+      {displayOrder.map(day => {
+        const dh = hours[day];
+        const isToday = day === todayKey;
+        const closed = !dh || dh.closed;
+        const closedLabel = language === "en" ? "Closed" : language === "ar" ? "مغلق" : "Fermé";
+        let timeStr = closedLabel;
+        if (dh && !dh.closed && dh.open && dh.close) {
+          timeStr = `${dh.open} - ${dh.close}`;
+          if (dh.open2 && dh.close2 && !dh.continuous) timeStr += ` / ${dh.open2} - ${dh.close2}`;
+          if (dh.continuous) timeStr += language === "en" ? " (continuous)" : " (continu)";
+        }
+        return (
+          <div key={day} className={`flex justify-between text-sm ${isToday ? "font-bold text-white" : closed ? "text-white/30" : "text-white/70"}`}>
+            <span>{names[day]}{isToday ? " ●" : ""}</span>
+            <span>{timeStr}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default BookOnlineSlidePanel;
