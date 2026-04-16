@@ -4615,7 +4615,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 if (error) { toast({ variant: "destructive", title: "Erreur", description: `${file.name}: ${error.message}` }); continue; }
                 const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
                 if (urlData?.publicUrl) {
-                   setVideoDocs(prev => { const maxOrder = prev.reduce((m, d) => Math.max(m, d._original_sort_order ?? 0), -1); return [...prev, { url: urlData.publicUrl, name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, service_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null, popup: false, event_id: null, badge_ids: [], _original_sort_order: maxOrder + 1 }]; });
+                   setVideoDocs(prev => { const maxOrder = prev.reduce((m, d) => Math.max(m, d._original_sort_order ?? 0), -1); return [...prev, { url: urlData.publicUrl, name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, service_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null, popup: false, event_id: null, badge_ids: [], _original_sort_order: maxOrder + 1, _original_front_sort_order: maxOrder + 1, _show_on_front: false }]; });
                 }
               }
               toast({ title: `${files.length} vidéo(s) uploadée(s) ✓` });
@@ -4635,7 +4635,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   if (error) { toast({ variant: "destructive", title: "Erreur", description: `${file.name}: ${error.message}` }); continue; }
                   const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
                   if (urlData?.publicUrl) {
-                    setVideoDocs(prev => { const maxOrder = prev.reduce((m, d) => Math.max(m, d._original_sort_order ?? 0), -1); return [...prev, { url: urlData.publicUrl, name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, service_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null, popup: false, event_id: null, badge_ids: [], _original_sort_order: maxOrder + 1 }]; });
+                    setVideoDocs(prev => { const maxOrder = prev.reduce((m, d) => Math.max(m, d._original_sort_order ?? 0), -1); return [...prev, { url: urlData.publicUrl, name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, service_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null, popup: false, event_id: null, badge_ids: [], _original_sort_order: maxOrder + 1, _original_front_sort_order: maxOrder + 1, _show_on_front: false }]; });
                   }
                 }
                 toast({ title: `${files.length} vidéo(s) uploadée(s) ✓` });
