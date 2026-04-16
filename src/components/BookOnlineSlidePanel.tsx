@@ -1456,9 +1456,66 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             {descGridSection ? (() => {
               const isMobileGrid = typeof window !== "undefined" && window.innerWidth < 768;
               const GRID_PAGE_SIZE = isMobileGrid ? 8 : 9;
-              const totalGridPages = Math.ceil(images.length / GRID_PAGE_SIZE);
-              const currentPageImages = images.slice(descGridPage * GRID_PAGE_SIZE, (descGridPage + 1) * GRID_PAGE_SIZE);
+
+              // Build items array based on active section
+              type GridItem = { key: string; imgUrl: string | null; label?: string; onClick: () => void; playIcon?: boolean; masterStar?: boolean };
+              let gridItems: GridItem[] = [];
+
+              if (descGridSection === "images") {
+                gridItems = images.map((img, i) => ({
+                  key: `img-${i}`,
+                  imgUrl: img,
+                  onClick: () => { const mi = mediaItems.findIndex(m => m.kind === "image" && m.url === img); setLightboxIndex(mi >= 0 ? mi : i); setIsLightboxOpen(true); },
+                }));
+              } else if (descGridSection === "videos") {
+                gridItems = videoDocs.map((vid, i) => {
+                  const ytMatch = vid.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
+                  const vimeoMatch = vid.url.match(/vimeo\.com\/(\d+)/);
+                  const thumb = vid.thumbnail_url || (ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : null) || (vimeoMatch ? `https://vumbnail.com/${vimeoMatch[1]}.jpg` : null);
+                  return {
+                    key: `vid-${i}`,
+                    imgUrl: thumb,
+                    label: vid.name || vid.city || undefined,
+                    playIcon: true,
+                    onClick: () => setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description }),
+                  };
+                });
+              } else if (descGridSection === "poi") {
+                gridItems = poiBusinesses.map((poi) => ({
+                  key: `poi-${poi.id}`,
+                  imgUrl: poi.images?.filter(Boolean)?.[0] || (poi as any).logo_url || null,
+                  label: poi.name,
+                  onClick: () => setSelectedPoiBusinessId(poi.id),
+                }));
+              } else if (descGridSection === "dest") {
+                gridItems = destinations.map((dest) => ({
+                  key: `dest-${dest.id}`,
+                  imgUrl: dest.images?.filter(Boolean)?.[0] || dest.image_url || null,
+                  label: language === "en" ? (dest.name_en || dest.name_fr) : dest.name_fr,
+                  onClick: () => setSelectedDestinationId(dest.id),
+                }));
+              } else if (descGridSection === "kp_subcat") {
+                gridItems = kpSubcategoryItems.map((rel) => ({
+                  key: `kps-${rel.id}`,
+                  imgUrl: rel.images?.filter(Boolean)?.[0] || rel.logo_url || null,
+                  label: rel.name,
+                  masterStar: rel.is_master,
+                  onClick: () => setSelectedKpBusinessId(rel.id),
+                }));
+              } else if (descGridSection === "kp") {
+                gridItems = kpRelated.map((rel) => ({
+                  key: `kp-${rel.id}`,
+                  imgUrl: rel.images?.filter(Boolean)?.[0] || rel.logo_url || null,
+                  label: rel.name,
+                  masterStar: rel.is_master,
+                  onClick: () => setSelectedKpBusinessId(rel.id),
+                }));
+              }
+
+              const totalGridPages = Math.max(1, Math.ceil(gridItems.length / GRID_PAGE_SIZE));
+              const currentPageItems = gridItems.slice(descGridPage * GRID_PAGE_SIZE, (descGridPage + 1) * GRID_PAGE_SIZE);
               const globalOffset = descGridPage * GRID_PAGE_SIZE;
+
               return (
                 <div className="w-full h-full flex flex-col items-center justify-center overflow-hidden">
                   {totalGridPages > 1 && (
@@ -1482,9 +1539,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       </button>
                     </div>
                   )}
-                  <div className="w-full max-w-3xl mx-auto px-3 md:px-3 relative" style={{ perspective: "1200px", maxWidth: window.innerWidth < 768 ? "85%" : undefined }}>
+                  <div className="w-full max-w-3xl mx-auto px-3 md:px-3 relative" style={{ perspective: "1200px", maxWidth: isMobileGrid ? "85%" : undefined }}>
                     <div
-                      key={descGridPage}
+                      key={`${descGridSection}-${descGridPage}`}
                       style={{
                         animation: "0.5s cubic-bezier(0.4, 0, 0.2, 1) both",
                         animationName: "descGridFlip",
@@ -1492,15 +1549,36 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     >
                       <div className="px-3">
                         <div className="grid grid-cols-2 md:grid-cols-3 grid-rows-4 md:grid-rows-3 gap-1.5">
-                          {currentPageImages.map((img, i) => {
+                          {currentPageItems.map((item, i) => {
                             const realIndex = globalOffset + i;
                             return (
                               <div
-                                key={`grid-${realIndex}`}
+                                key={item.key}
                                 className="relative aspect-square rounded-lg overflow-hidden cursor-pointer"
-                                onClick={() => { const mi = mediaItems.findIndex(m => m.kind === "image" && m.url === img); setLightboxIndex(mi >= 0 ? mi : realIndex); setIsLightboxOpen(true); }}
+                                onClick={item.onClick}
                               >
-                                <img src={img} alt={`${business?.name} ${realIndex + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
+                                {item.imgUrl ? (
+                                  <img src={item.imgUrl} alt={item.label || `${realIndex + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
+                                ) : (
+                                  <div className="w-full h-full bg-white/10 flex items-center justify-center">
+                                    {descGridSection === "videos" ? <Play className="h-8 w-8 text-white/40" /> : <MapPin className="h-8 w-8 text-white/40" />}
+                                  </div>
+                                )}
+                                {item.playIcon && (
+                                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                    <div className="h-10 w-10 rounded-full bg-black/50 flex items-center justify-center backdrop-blur-sm">
+                                      <Play className="h-5 w-5 text-white fill-white" />
+                                    </div>
+                                  </div>
+                                )}
+                                {item.label && (
+                                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 py-1.5 pointer-events-none">
+                                    <p className="text-[11px] font-medium text-white truncate font-['Josefin_Sans',sans-serif]">
+                                      {item.masterStar && <span className="text-gold mr-1">★</span>}
+                                      {item.label}
+                                    </p>
+                                  </div>
+                                )}
                               </div>
                             );
                           })}
