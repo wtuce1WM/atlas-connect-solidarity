@@ -68,8 +68,8 @@ const VideoDbStructurePanel = () => {
       city: d.city,
       neighborhood: d.neighborhood,
       thumbnail_url: d.thumbnail_url,
-      front_sort_order: d.front_sort_order ?? 0,
-      show_on_front: d.show_on_front ?? false,
+      front_sort_order: d.sort_order ?? 0,
+      show_on_front: false,
       business_name: "— Générique —",
       source: "generic" as const,
     }));
