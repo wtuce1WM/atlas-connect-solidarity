@@ -630,7 +630,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const hasBottomActionCtas = !!ctaConfig.bookingCta || !!ctaConfig.shopCta || !!ctaConfig.url4Cta || !!ctaConfig.url5Cta || (!cardsHidden && showGoogleMap && business?.latitude && business?.longitude);
   const externalVideoBackgroundClass = externalVideoInteractiveMode && showSearchBar
     ? `absolute inset-x-0 top-0 ${hasBottomActionCtas ? 'bottom-[160px]' : 'bottom-[88px]'} z-0`
-    : "absolute inset-0 z-0";
+    : "absolute inset-0 lg:-top-[52px] z-0";
 
   const openDocOrBooking = useCallback((url: string, title?: string, hideContact?: boolean) => {
     const isPdf = url?.toLowerCase().endsWith('.pdf') || url?.includes('/pdfs/');
