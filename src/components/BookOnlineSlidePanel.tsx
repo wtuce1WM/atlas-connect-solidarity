@@ -903,7 +903,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         />
 
         <div
-          className={`transition-all duration-300 ease-in-out ${cardsHidden ? 'translate-x-full opacity-0 pointer-events-none max-h-0 overflow-hidden' : 'translate-x-0 opacity-100'}`}
+          className={`flex flex-col flex-1 transition-all duration-300 ease-in-out ${cardsHidden ? 'translate-x-full opacity-0 pointer-events-none max-h-0 overflow-hidden' : 'translate-x-0 opacity-100'}`}
         >
 
         {/* Note /20 + bouton + : centrés entre carrousel info et tabs */}
