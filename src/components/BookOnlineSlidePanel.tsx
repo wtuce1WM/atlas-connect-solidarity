@@ -908,7 +908,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
         {/* Note /20 + bouton + : centrés entre carrousel info et tabs */}
         {(avgOn20 != null && totalReviewCount > 0) || woDescription ? (
-          <div className="flex flex-col items-center justify-center pointer-events-auto gap-3 flex-1 -mt-14">
+          <div className="flex flex-col items-center justify-center pointer-events-auto gap-6 flex-1 -mt-20">
             {woDescription && (
               <div
                 className="opacity-0 animate-zoom-out-center"
