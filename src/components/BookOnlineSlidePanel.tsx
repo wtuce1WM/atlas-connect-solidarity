@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { DesktopMediaArrows, CardsToggleButton, useOwnerLogo } from "@/components/CardsVisibilityToggle";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
-import { MapPin, ChevronUp, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe } from "lucide-react";
+import { MapPin, ChevronUp, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe, Landmark } from "lucide-react";
 import { FacebookIcon, InstagramIcon, TikTokIcon, YouTubeIcon, TwitterIcon, LinkedInIcon, PinterestIcon, VimeoIcon, SnapchatIcon } from "@/components/staff/SocialMediaIcons";
 import DynamicIcon from "@/components/DynamicIcon";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
@@ -156,8 +156,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
   const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
   const [allYoutubeVideos, setAllYoutubeVideos] = useState<YouTubeVideo[]>([]);
+  const [kpGroupTitle, setKpGroupTitle] = useState<string | null>(null);
 
-  // Hotel availability overlay
   const [availabilityOverlayCtx, setAvailabilityOverlayCtx] = useState<{
     liteApiHotelId: string;
     businessName: string;
@@ -323,6 +323,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     setActiveYoutubeVideo(null);
     setYoutubeIsPlaying(false);
     setShowYoutubeOverlay(false);
+    setKpGroupTitle(null);
     setActiveVideoOverlay(null);
     setVideoOverlayClosing(false);
     setShowPoiMapOverlay(false);
@@ -502,6 +503,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const hasKpSubcatCarousel = kpSubcategoryItems.length > 0;
   const hasDestCarousel = destinations.length > 1;
   const hasPoiCarousel = poiBusinesses.length >= 2;
+
+  // Fetch KP group title
+  useEffect(() => {
+    const kpCode = business?.kp_regroupement?.trim();
+    if (!kpCode || !hasKpCarousel) { setKpGroupTitle(null); return; }
+    let cancelled = false;
+    supabase.from("kp_group_titles").select("title").eq("kp_code", kpCode).eq("kp_type", "kp1").maybeSingle()
+      .then(({ data }) => { if (!cancelled) setKpGroupTitle(data?.title || null); });
+    return () => { cancelled = true; };
+  }, [business?.kp_regroupement, hasKpCarousel]);
 
   const videoTabLabel = useMemo(() => {
     if (business?.carousel_badge) {
@@ -764,6 +775,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             <div className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Avis clients</span>
               <Star className="h-[22px] w-[22px] text-gold fill-gold shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
+            </div>
+          )}
+          {hasKpCarousel && (
+            <div className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
+              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[200px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">{kpGroupTitle || (language === "en" ? "Other establishments" : "Autres établissements")}</span>
+              <Landmark className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
           )}
         </div>
