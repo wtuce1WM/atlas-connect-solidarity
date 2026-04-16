@@ -437,6 +437,7 @@ const StaffFront = () => {
                 <TabsTrigger value="dest-videos">Destinations</TabsTrigger>
                 <TabsTrigger value="pois-videos">POIS</TabsTrigger>
                 <TabsTrigger value="generic-videos">Génériques</TabsTrigger>
+                <TabsTrigger value="db-structure">Structure DB</TabsTrigger>
               </TabsList>
               <TabsContent value="front-videos">
                 <Tabs defaultValue="marrakech">
