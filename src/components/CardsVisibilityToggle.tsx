@@ -71,10 +71,13 @@ interface CardsToggleButtonProps {
 export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDownDrag, leftSlot, rightSlot }: CardsToggleButtonProps) => {
   return (
     <div className="w-full shrink-0 pointer-events-auto relative z-20">
-      <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center h-[32px] mb-2">
-        <div className="min-w-0 flex items-center justify-start">
-          {!cardsHidden && leftSlot}
+      {/* Flags row — above the button, only when cards are visible */}
+      {!cardsHidden && leftSlot && (
+        <div className="flex justify-center mb-1.5">
+          {leftSlot}
         </div>
+      )}
+      <div className="flex w-full items-center justify-center gap-3 h-[32px] mb-2">
         {cardsHidden ? (
           <button
             type="button"
@@ -112,9 +115,9 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
             <span className="hidden md:block h-1.5 w-8 rounded-full bg-white/60" />
           </button>
         )}
-        <div className="min-w-0 flex items-center justify-end">
-          {!cardsHidden && rightSlot}
-        </div>
+        {!cardsHidden && rightSlot && (
+          <div className="flex items-center">{rightSlot}</div>
+        )}
       </div>
     </div>
   );
