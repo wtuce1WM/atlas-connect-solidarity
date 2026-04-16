@@ -1550,6 +1550,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 animationDelay="0ms"
                 variant="overlay"
                 onClick={() => {}}
+                onOpenUrl={(url, title) => { setShowExtLinksOverlay(false); openDocOrBooking(url, title || 'Lien', true); }}
               />
             </div>
           </div>
