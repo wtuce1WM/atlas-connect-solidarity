@@ -732,8 +732,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           externalVideoInteractiveMode={externalVideoInteractiveMode}
           videoRef={videoRef as React.RefObject<HTMLVideoElement>}
           iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>}
-          keepMutedRef={keepMutedRef}
-          muteLockSrcRef={muteLockSrcRef}
           onLoadedMetadata={handleVideoLoadedMetadata}
         />
         {effectiveMedia?.kind !== "video" && effectiveMedia?.kind !== "matterport" && (
