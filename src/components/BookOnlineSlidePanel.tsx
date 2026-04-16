@@ -219,7 +219,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       interceptCloseRef.current = () => {
         if (showHoursOverlay) { setShowHoursOverlay(false); return true; }
         if (showAvailabilitySearch) { setShowAvailabilitySearch(false); return true; }
-        if (showDescriptionOverlay) { setShowDescriptionOverlay(false); setDescOverlayContent(null); setDescOverlayDirect(false); return true; }
         if (showMosaic) { setShowMosaic(false); return true; }
         if (showYoutubeOverlay) { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); setYoutubeIsPlaying(false); return true; }
         if (showBookingOverlay) { setShowBookingOverlay(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setBookingOverlayLoaded(false); setBookingOverlayHideContact(false); return true; }
@@ -227,9 +226,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         if (showDirections) { setShowDirections(false); return true; }
         if (selectedDestinationId && destInterceptCloseRef.current?.()) return true;
         if (selectedDestinationId) { setSelectedDestinationId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); return true; }
-        if (selectedPoiBusinessId) { setSelectedPoiBusinessId(null); return true; }
+        if (selectedPoiBusinessId) { setSelectedPoiBusinessId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); return true; }
         if (selectedKpBusinessId && kpInterceptCloseRef.current?.()) return true;
-        if (selectedKpBusinessId) { setSelectedKpBusinessId(null); return true; }
+        if (selectedKpBusinessId) { setSelectedKpBusinessId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); return true; }
+        if (showDescriptionOverlay) { setShowDescriptionOverlay(false); setDescOverlayContent(null); setDescOverlayDirect(false); return true; }
         return false;
       };
     } else if (previousBusinessId) {
