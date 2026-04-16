@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { DesktopMediaArrows, CardsToggleButton, useOwnerLogo } from "@/components/CardsVisibilityToggle";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
+import SlidePanelHeader from "@/components/SlidePanelHeader";
 import { createPortal } from "react-dom";
 import { MapPin, ChevronUp, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe, Landmark, Clock, Play, Building2, Compass } from "lucide-react";
 import { FacebookIcon, InstagramIcon, TikTokIcon, YouTubeIcon, TwitterIcon, LinkedInIcon, PinterestIcon, VimeoIcon, SnapchatIcon } from "@/components/staff/SocialMediaIcons";
@@ -71,9 +72,11 @@ interface BookOnlineSlidePanelProps {
   onMosaicStateChange?: (open: boolean) => void;
   closeTrigger?: number;
   propagateMosaicState?: boolean;
+  /** Optional prefix for toolbar portal IDs (used by POI/KP sub-panels) */
+  toolbarPortalPrefix?: string;
 }
 
-const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect, onMosaicStateChange, closeTrigger, propagateMosaicState = false }: BookOnlineSlidePanelProps) => {
+const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect, onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix }: BookOnlineSlidePanelProps) => {
   const [activeBusinessId, setActiveBusinessIdRaw] = useState(propBusinessId);
   const [previousBusinessId, setPreviousBusinessId] = useState<string | null>(null);
   const previousCardsHiddenRef = useRef(false);
@@ -689,6 +692,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         selectedKpBusinessId={selectedKpBusinessId}
         selectedPoiBusinessId={selectedPoiBusinessId}
         anyOverlay={anyOverlay}
+        toolbarPortalPrefix={toolbarPortalPrefix}
       />
 
       {/* Full-bleed background — extracted component */}
@@ -1578,32 +1582,52 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* POI sub-panel */}
       {selectedPoiBusinessId && (
-        <div className="absolute inset-0 lg:-top-[3.3rem] z-[85] animate-slide-up-from-bottom bg-background">
-          <BookOnlineSlidePanel
-            businessId={selectedPoiBusinessId}
+        <div className="absolute inset-0 lg:-top-[3.3rem] z-[85] animate-slide-up-from-bottom bg-background flex flex-col">
+          <SlidePanelHeader
             onClose={() => { setSelectedPoiBusinessId(null); onMosaicStateChange?.(false); if (poiOpenedFromMapRef.current) poiOpenedFromMapRef.current = false; }}
-            showSearchBar={showSearchBar}
-            onSearch={onSearch}
-            onSearchBusinessSelect={onSearchBusinessSelect}
-            onMosaicStateChange={onMosaicStateChange}
-            propagateMosaicState
+            mobileTransparent
+            toolbarLeftId="poi-slide-panel-toolbar-left"
+            toolbarCenterId="poi-slide-panel-toolbar-center"
+            toolbarRightId="poi-slide-panel-toolbar"
           />
+          <div className="flex-1 min-h-0">
+            <BookOnlineSlidePanel
+              businessId={selectedPoiBusinessId}
+              onClose={() => { setSelectedPoiBusinessId(null); onMosaicStateChange?.(false); if (poiOpenedFromMapRef.current) poiOpenedFromMapRef.current = false; }}
+              showSearchBar={showSearchBar}
+              onSearch={onSearch}
+              onSearchBusinessSelect={onSearchBusinessSelect}
+              onMosaicStateChange={onMosaicStateChange}
+              propagateMosaicState
+              toolbarPortalPrefix="poi"
+            />
+          </div>
         </div>
       )}
 
       {/* KP sub-panel */}
       {selectedKpBusinessId && (
-         <div className="absolute inset-0 lg:-top-[3.3rem] z-[85] animate-slide-up-from-bottom bg-background">
-          <BookOnlineSlidePanel
-            businessId={selectedKpBusinessId}
+         <div className="absolute inset-0 lg:-top-[3.3rem] z-[85] animate-slide-up-from-bottom bg-background flex flex-col">
+          <SlidePanelHeader
             onClose={() => { setSelectedKpBusinessId(null); onMosaicStateChange?.(false); }}
-            interceptCloseRef={kpInterceptCloseRef}
-            showSearchBar={showSearchBar}
-            onSearch={onSearch}
-            onSearchBusinessSelect={onSearchBusinessSelect}
-            onMosaicStateChange={onMosaicStateChange}
-            propagateMosaicState
+            mobileTransparent
+            toolbarLeftId="kp-slide-panel-toolbar-left"
+            toolbarCenterId="kp-slide-panel-toolbar-center"
+            toolbarRightId="kp-slide-panel-toolbar"
           />
+          <div className="flex-1 min-h-0">
+            <BookOnlineSlidePanel
+              businessId={selectedKpBusinessId}
+              onClose={() => { setSelectedKpBusinessId(null); onMosaicStateChange?.(false); }}
+              interceptCloseRef={kpInterceptCloseRef}
+              showSearchBar={showSearchBar}
+              onSearch={onSearch}
+              onSearchBusinessSelect={onSearchBusinessSelect}
+              onMosaicStateChange={onMosaicStateChange}
+              propagateMosaicState
+              toolbarPortalPrefix="kp"
+            />
+          </div>
         </div>
       )}
 
