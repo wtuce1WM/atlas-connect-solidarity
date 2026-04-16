@@ -504,7 +504,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const hasDestCarousel = destinations.length > 1;
   const hasPoiCarousel = poiBusinesses.length >= 2;
 
-  const videoTabLabel = useMemo(() => {
+  // Fetch KP group title
+  useEffect(() => {
+    const kpCode = business?.kp_regroupement?.trim();
+    if (!kpCode || !hasKpCarousel) { setKpGroupTitle(null); return; }
+    let cancelled = false;
+    supabase.from("kp_group_titles").select("title").eq("kp_code", kpCode).eq("kp_type", "kp1").maybeSingle()
+      .then(({ data }) => { if (!cancelled) setKpGroupTitle(data?.title || null); });
+    return () => { cancelled = true; };
+  }, [business?.kp_regroupement, hasKpCarousel]);
+
     if (business?.carousel_badge) {
       const cb = business.carousel_badge;
       if (cb === "immergez_vous") return language === "en" ? "Immerse yourself" : "Immergez-vous";
