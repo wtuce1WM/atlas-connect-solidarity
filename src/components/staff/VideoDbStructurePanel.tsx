@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchAllRows } from "@/lib/fetchAllRows";
 import { Loader2, Copy, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -27,13 +28,13 @@ const VideoDbStructurePanel = () => {
   const load = useCallback(async () => {
     setLoading(true);
 
-    // Fetch business videos
-    const { data: docs } = await supabase
-      .from("business_documents" as any)
-      .select("id, url, name, city, neighborhood, thumbnail_url, front_sort_order, show_on_front, business_id")
-      .eq("type", "video")
-      .order("business_id")
-      .limit(1000);
+    // Fetch all business videos (no 1000 limit)
+    const allDocs = await fetchAllRows<any>(
+      "business_documents",
+      "id, url, name, city, neighborhood, thumbnail_url, front_sort_order, show_on_front, business_id",
+      "business_id"
+    );
+    const docs = allDocs.filter((d: any) => d.type === "video");
 
     const bizIds = [...new Set((docs as any[] || []).map(d => d.business_id))];
     const { data: businesses } = bizIds.length > 0
