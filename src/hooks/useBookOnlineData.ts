@@ -539,10 +539,7 @@ export function useBookOnlineData(businessId: string) {
             const existingUrls = new Set(prev.map((v) => v.url));
             const newVids = linked.filter((v) => !existingUrls.has(v.url));
             if (newVids.length === 0) return prev;
-            // Insert linked/owner videos after own hosted Supabase storage videos
-            const ownHosted = prev.filter(v => /supabase\.co\/storage\//i.test(v.url));
-            const rest = prev.filter(v => !/supabase\.co\/storage\//i.test(v.url));
-            return [...ownHosted, ...newVids, ...rest];
+            return [...prev, ...newVids];
           });
         }
       };
@@ -593,10 +590,7 @@ export function useBookOnlineData(businessId: string) {
             const existingUrls = new Set(prev.map((v) => v.url));
             const newVids = linked.filter((v) => !existingUrls.has(v.url));
             if (newVids.length === 0) return prev;
-            // Insert linked/owner videos after own hosted Supabase storage videos
-            const ownHosted = prev.filter(v => /supabase\.co\/storage\//i.test(v.url));
-            const rest = prev.filter(v => !/supabase\.co\/storage\//i.test(v.url));
-            return [...ownHosted, ...newVids, ...rest];
+            return [...prev, ...newVids];
           });
         }
       };
@@ -637,9 +631,7 @@ export function useBookOnlineData(businessId: string) {
           const existingUrls = new Set(prev.map((v) => v.url));
           const newVids = genericVids.filter((v) => !existingUrls.has(v.url));
           if (newVids.length === 0) return prev;
-          const ownHosted = prev.filter(v => /supabase\.co\/storage\//i.test(v.url));
-          const rest = prev.filter(v => !/supabase\.co\/storage\//i.test(v.url));
-          return [...ownHosted, ...newVids, ...rest];
+          return [...prev, ...newVids];
         });
       };
 
@@ -712,16 +704,13 @@ export function useBookOnlineData(businessId: string) {
     });
   }, [destinations, language]);
 
-  // Derived: all video URLs — own hosted Supabase storage first, then linked/owner, then rest
+  // Derived: all video URLs — strict order from videoDocs (respects DB sort_order)
   const allVideoUrls = useMemo(() => {
     const legacyVideo = business?.video_1_url?.trim() || null;
-    const ownHosted = videoDocs.filter(d => /supabase\.co\/storage\//i.test(d.url)).map(d => d.url);
-    const linked = videoDocs.filter(d => d.owner_business_id && d.owner_business_id !== businessId && !/supabase\.co\/storage\//i.test(d.url)).map(d => d.url);
-    const rest = videoDocs.filter(d => !/supabase\.co\/storage\//i.test(d.url) && (!d.owner_business_id || d.owner_business_id === businessId)).map(d => d.url);
-    const urls = [...ownHosted, ...linked, ...rest].filter(Boolean);
+    const urls = videoDocs.map(d => d.url).filter(Boolean);
     if (legacyVideo && !urls.includes(legacyVideo)) urls.push(legacyVideo);
     return urls;
-  }, [business?.video_1_url, videoDocs, businessId]);
+  }, [business?.video_1_url, videoDocs]);
 
   // Dynamic: any Hôtellerie business with price data gets the availability widget
   const isHotelWithPrice = useMemo(() => {
