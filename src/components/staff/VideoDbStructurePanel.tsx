@@ -121,7 +121,7 @@ const VideoDbStructurePanel = () => {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3 flex-wrap">
-        <h3 className="text-base font-semibold">Structure DB — Vidéos ({rows.length})</h3>
+        <h3 className="text-base font-semibold">Toutes les vidéos ({rows.length})</h3>
         <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v as any)}>
           <SelectTrigger className="h-8 text-xs w-[180px]">
             <SelectValue />
