@@ -12,8 +12,6 @@ interface MediaBackgroundProps {
   externalVideoInteractiveMode: boolean;
   videoRef: React.RefObject<HTMLVideoElement>;
   iframeRef: React.RefObject<HTMLIFrameElement>;
-  keepMutedRef: React.MutableRefObject<boolean>;
-  muteLockSrcRef: React.MutableRefObject<string | null>;
   onLoadedMetadata: (e: React.SyntheticEvent<HTMLVideoElement>) => void;
 }
 
