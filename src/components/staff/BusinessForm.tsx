@@ -4599,7 +4599,55 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => { const maxOrder = prev.reduce((m, d) => Math.max(m, d._original_sort_order ?? 0), -1); return [...prev, { url: "", name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, service_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null, popup: false, event_id: null, badge_ids: [], _original_sort_order: maxOrder + 1, _original_front_sort_order: maxOrder + 1, _show_on_front: false }]; })}>
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
-          </div>
+           </div>
+           {/* Import video by document ID */}
+           <div className="flex items-center gap-2">
+             <Input
+               placeholder="Importer par Video ID (UUID)…"
+               className="h-7 text-xs flex-1 max-w-xs"
+               onKeyDown={async (e) => {
+                 if (e.key !== "Enter") return;
+                 e.preventDefault();
+                 const inputEl = e.currentTarget;
+                 const docId = inputEl.value.trim();
+                 if (!docId) return;
+                 const { data, error } = await supabase
+                   .from("business_documents" as any)
+                   .select("url, name, poi_id, destination_id, linked_business_id, subcategory_id, service_id, city, neighborhood, description, price, price_type, thumbnail_url, popup, event_id, sort_order, front_sort_order, show_on_front")
+                   .eq("id", docId)
+                   .eq("type", "video")
+                   .single();
+                 if (error || !data) { toast({ variant: "destructive", title: "Vidéo introuvable", description: `Aucun document vidéo avec l'ID ${docId.slice(0, 8)}…` }); return; }
+                 setVideoDocs(prev => {
+                   const maxOrder = prev.reduce((m, d) => Math.max(m, d._original_sort_order ?? 0), -1);
+                   return [...prev, {
+                     url: (data as any).url,
+                     name: (data as any).name || "",
+                     poi_id: null,
+                     destination_id: null,
+                     linked_business_id: null,
+                     subcategory_id: null,
+                     service_id: null,
+                     city: (data as any).city || null,
+                     neighborhood: (data as any).neighborhood || null,
+                     description: (data as any).description || null,
+                     price: (data as any).price || null,
+                     price_type: (data as any).price_type || null,
+                     thumbnail_url: (data as any).thumbnail_url || null,
+                     popup: (data as any).popup || false,
+                     event_id: null,
+                     badge_ids: [],
+                     _original_sort_order: maxOrder + 1,
+                     _original_front_sort_order: maxOrder + 1,
+                     _show_on_front: false,
+                   }];
+                 });
+                 inputEl.value = "";
+                 toast({ title: "Vidéo importée ✓", description: `URL copiée depuis ${docId.slice(0, 8)}… — métadonnées indépendantes` });
+               }}
+             />
+             <span className="text-[10px] text-muted-foreground">Entrez l'ID d'un document vidéo existant + Entrée</span>
+           </div>
           {/* Drop zone for multiple video files */}
           <div
             onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("border-primary", "bg-primary/5"); }}
