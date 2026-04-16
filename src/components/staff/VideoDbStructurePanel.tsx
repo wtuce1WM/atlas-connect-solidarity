@@ -57,8 +57,8 @@ const VideoDbStructurePanel = () => {
     // Fetch generic videos
     const { data: generics } = await supabase
       .from("generic_videos" as any)
-      .select("id, url, name, city, neighborhood, thumbnail_url, front_sort_order, show_on_front")
-      .order("front_sort_order")
+      .select("id, url, name, city, neighborhood, thumbnail_url, sort_order")
+      .order("sort_order")
       .limit(1000);
 
     const genRows: VideoRow[] = (generics as any[] || []).map(d => ({
