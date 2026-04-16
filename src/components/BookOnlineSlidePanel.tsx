@@ -814,7 +814,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
         {/* Top bar: toggle, flags, rating */}
         {!business?.hide_description && (
-        <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex flex-col items-center pb-5 md:pb-3 pointer-events-auto animate-[slide-in-top_0.35s_ease-out_both] mt-1 md:mt-0">
+        <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex flex-col items-center pb-1 pointer-events-auto animate-[slide-in-top_0.35s_ease-out_both] mt-0">
           {cardsHidden ? (
             <div className="w-full shrink-0 pointer-events-auto relative z-20">
               <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center h-[32px] mb-2">
