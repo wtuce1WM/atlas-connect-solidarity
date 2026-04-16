@@ -203,7 +203,7 @@ const DestinationsTabContent = ({
           }`}
           style={{ height: "100vh" }}
         >
-          <div className="flex-1 min-h-0">
+           <div className="flex-1 min-h-0 overflow-visible">
             <BookOnlineSlidePanel
               businessId={destSelectedBusinessId}
               onClose={() => {
