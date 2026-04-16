@@ -310,7 +310,7 @@ export function useBookOnlineData(businessId: string) {
           .select("url, name, city, price, price_type, description, thumbnail_url, business_id")
           .eq("business_id", businessId)
           .eq("type", "video")
-          .order("sort_order"),
+          .order("front_sort_order"),
       ]);
 
       if (isCancelled) return;
@@ -504,7 +504,7 @@ export function useBookOnlineData(businessId: string) {
           .select("url, name, city, price, price_type, description, thumbnail_url, business_id")
           .eq("linked_business_id", businessId)
           .eq("type", "video")
-          .order("sort_order");
+          .order("front_sort_order");
         if (!isCancelled && linkedVids && linkedVids.length > 0) {
           const ownerIds = [...new Set((linkedVids as any[]).map(v => v.business_id).filter(Boolean))];
           // Fetch owner info in parallel (single query)
@@ -550,7 +550,7 @@ export function useBookOnlineData(businessId: string) {
           .select("url, name, city, price, price_type, description, thumbnail_url, business_id")
           .eq("poi_id", businessId)
           .eq("type", "video")
-          .order("sort_order");
+          .order("front_sort_order");
         if (!isCancelled && poiVids && poiVids.length > 0) {
           const ownerIds = [...new Set((poiVids as any[]).map(v => v.business_id).filter(Boolean))];
           const ownerMap = new Map<string, { name: string; logo_url: string | null; instagram_url: string | null }>();
