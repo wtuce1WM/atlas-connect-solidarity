@@ -91,29 +91,17 @@ const ContactFlipCard = ({
               className="h-full flex flex-col items-center justify-center gap-2 cursor-pointer px-4"
               onClick={() => onOpenAvailabilitySearch?.()}
             >
-              {openBadgeInfo?.text && (
-                <div className={`flex items-center gap-1 rounded-full py-1 px-3 text-[10px] font-bold uppercase tracking-wider ${openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"}`}>
-                  <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
-                  {openBadgeInfo.text}
-                </div>
-              )}
               <span className="flex items-center gap-1.5 text-[11px] text-white/60 uppercase tracking-wider font-extrabold">
                 <Search className="h-3.5 w-3.5" />
                 {isEn ? "Check availability ›" : "Vérifier la disponibilité ›"}
               </span>
             </div>
           ) : (
-            /* Non-hotel mode: front shows badge + "Consultez les horaires" */
+            /* Non-hotel mode: front shows "Consultez les horaires" */
             <div
               className="h-full flex flex-col items-center justify-center gap-2 cursor-pointer px-4"
               onClick={() => showHours && setFlipped(true)}
             >
-              {openBadgeInfo?.text && (
-                <div className={`flex items-center gap-1 rounded-full py-1 px-3 text-[10px] font-bold uppercase tracking-wider ${openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"}`}>
-                  <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
-                  {openBadgeInfo.text}
-                </div>
-              )}
               {showHours && (
                 <span className="text-[10px] text-white/40 uppercase tracking-wider">
                   {isEn ? "View hours ›" : "Consultez les horaires ›"}
