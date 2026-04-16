@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from "react";
+import OverlayShell from "@/components/overlays/OverlayShell";
 import { businessUrl } from "@/lib/businessUrl";
 import { MapPin, ChevronDown, ChevronUp, X, Navigation, Minimize2, Star } from "lucide-react";
 import VideoControls from "@/components/VideoControls";
@@ -397,16 +398,16 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
   if (isLoading) {
     return (
-      <div className={`absolute inset-0 lg:-top-[3.3rem] z-[80] bg-black flex items-center justify-center ${slideAnim}`}>
+      <OverlayShell zClass="z-[80]" animClass={slideAnim} bg="bg-black" className="flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-      </div>
+      </OverlayShell>
     );
   }
 
   if (!destination) return null;
 
   return (
-    <div className={`absolute inset-0 lg:-top-[3.3rem] z-[80] bg-black overflow-hidden ${slideAnim}`}>
+    <OverlayShell zClass="z-[80]" animClass={slideAnim} bg="bg-black" className="flex flex-col">
       {/* Close button */}
       {!fullscreenVideo && !showDirections && (
         <div className="absolute top-3 left-3 z-[80] flex items-center gap-2">
