@@ -25,6 +25,7 @@ import BrokenLinksManagement from "@/components/staff/BrokenLinksManagement";
 import HotelApiComparison from "@/components/staff/HotelApiComparison";
 import PricingManagement from "@/components/staff/PricingManagement";
 import BlogManagement from "@/components/staff/BlogManagement";
+import KBViewer from "@/components/staff/KBViewer";
 
 const StaffMaster = () => {
   const [user, setUser] = useState<any>(null);
@@ -130,6 +131,10 @@ const StaffMaster = () => {
               <BookOpen className="h-4 w-4" />
               Connaissances
             </TabsTrigger>
+            <TabsTrigger value="kb" className="gap-2">
+              <BookOpen className="h-4 w-4" />
+              KB IA
+            </TabsTrigger>
             <TabsTrigger value="ai-knowledge" className="gap-2">
               <Brain className="h-4 w-4" />
               Base IA
@@ -193,6 +198,10 @@ const StaffMaster = () => {
               emptyLabel="Aucune entrée pour l'IA Concierge"
               showExternalUrls
             />
+          </TabsContent>
+
+          <TabsContent value="kb">
+            <KBViewer />
           </TabsContent>
 
           <TabsContent value="easter-eggs">
