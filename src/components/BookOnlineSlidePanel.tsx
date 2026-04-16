@@ -903,12 +903,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         />
 
         <div
-          className={`transition-all duration-300 ease-in-out ${cardsHidden ? 'translate-x-full opacity-0 pointer-events-none max-h-0 overflow-hidden' : 'translate-x-0 opacity-100'}`}
+          className={`flex flex-col flex-1 transition-all duration-300 ease-in-out ${cardsHidden ? 'translate-x-full opacity-0 pointer-events-none max-h-0 overflow-hidden' : 'translate-x-0 opacity-100'}`}
         >
 
         {/* Note /20 + bouton + : centrés entre carrousel info et tabs */}
         {(avgOn20 != null && totalReviewCount > 0) || woDescription ? (
-          <div className="flex flex-col items-center pointer-events-auto mt-2 mb-0 gap-3">
+          <div className="flex flex-col items-center justify-center pointer-events-auto gap-3 flex-1">
             {woDescription && (
               <div
                 className="opacity-0 animate-zoom-out-center"
