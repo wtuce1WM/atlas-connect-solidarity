@@ -212,8 +212,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   // Close interceptor
   useEffect(() => {
     if (!interceptCloseRef) return;
-    if (showAvailabilitySearch || showDescriptionOverlay || showDirections || showBookingOverlay || !!docOverlay || showMosaic || showYoutubeOverlay || selectedDestinationId || selectedPoiBusinessId || selectedKpBusinessId) {
+    if (showHoursOverlay || showAvailabilitySearch || showDescriptionOverlay || showDirections || showBookingOverlay || !!docOverlay || showMosaic || showYoutubeOverlay || selectedDestinationId || selectedPoiBusinessId || selectedKpBusinessId) {
       interceptCloseRef.current = () => {
+        if (showHoursOverlay) { setShowHoursOverlay(false); return true; }
         if (showAvailabilitySearch) { setShowAvailabilitySearch(false); return true; }
         if (showDescriptionOverlay) { setShowDescriptionOverlay(false); setDescOverlayContent(null); setDescOverlayDirect(false); return true; }
         if (showMosaic) { setShowMosaic(false); return true; }
