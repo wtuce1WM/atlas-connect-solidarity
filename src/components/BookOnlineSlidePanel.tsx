@@ -20,7 +20,7 @@ import DestinationSlidePanel from "@/components/DestinationSlidePanel";
 import PoiSlidePanel from "@/components/PoiSlidePanel";
 import { getLangFlag, getLangAlt } from "@/lib/languageFlags";
 import ContactFlipCard from "@/components/cards/ContactFlipCard";
-import ReviewsFlipCard from "@/components/cards/ReviewsFlipCard";
+
 import ExternalLinksFlipCard from "@/components/cards/ExternalLinksFlipCard";
 import SocialLinksCard from "@/components/cards/SocialLinksCard";
 import MenuSummaryCard from "@/components/cards/MenuSummaryCard";
@@ -482,7 +482,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   const handleOpenReviews = useCallback(async () => {
     if (!hasReviewsCard) return;
-    const html = buildReviewHtml(reviewTexts, reviewPlatforms, avgOn20, totalReviewCount, language, "card");
+    const html = buildReviewHtml(reviewTexts, reviewPlatforms, avgOn20, totalReviewCount, language, "sidebar");
     const title = language === "en" ? `Customer reviews (${totalReviewCount})` : `Avis clients (${totalReviewCount})`;
     setDescOverlayContent({ html, title });
     setDescGridMode(false);
