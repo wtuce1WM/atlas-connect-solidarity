@@ -365,25 +365,41 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const iframeSrcRef = useRef<string>("");
   const overlayWasOpenRef = useRef(false);
 
-  // Sync video state — re-attach listeners when video element changes (key-based remount)
-  const effectiveMediaUrl = effectiveMedia?.url;
+  // Sync video state — use MutationObserver-like approach via interval to catch key-based remounts
   useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    const onPlay = () => setVideoPaused(false);
-    const onPause = () => setVideoPaused(true);
-    const onVolChange = () => setVideoMuted(v.muted);
-    v.addEventListener("play", onPlay);
-    v.addEventListener("pause", onPause);
-    v.addEventListener("volumechange", onVolChange);
-    setVideoPaused(v.paused);
-    setVideoMuted(v.muted);
-    return () => {
-      v.removeEventListener("play", onPlay);
-      v.removeEventListener("pause", onPause);
-      v.removeEventListener("volumechange", onVolChange);
+    let lastEl: HTMLVideoElement | null = null;
+    let cleanup: (() => void) | null = null;
+
+    const attach = () => {
+      const v = videoRef.current;
+      if (v === lastEl) return;
+      cleanup?.();
+      cleanup = null;
+      lastEl = v;
+      if (!v) return;
+      const onPlay = () => setVideoPaused(false);
+      const onPause = () => setVideoPaused(true);
+      const onVolChange = () => setVideoMuted(v.muted);
+      v.addEventListener("play", onPlay);
+      v.addEventListener("pause", onPause);
+      v.addEventListener("volumechange", onVolChange);
+      setVideoPaused(v.paused);
+      setVideoMuted(v.muted);
+      cleanup = () => {
+        v.removeEventListener("play", onPlay);
+        v.removeEventListener("pause", onPause);
+        v.removeEventListener("volumechange", onVolChange);
+      };
     };
-  }, [businessId, currentMediaIndex, effectiveMediaUrl]);
+
+    attach();
+    // Poll briefly to catch React key-based remounts
+    const id = setInterval(attach, 200);
+    return () => {
+      clearInterval(id);
+      cleanup?.();
+    };
+  }, [businessId, currentMediaIndex]);
 
   useEffect(() => {
     keepMutedRef.current = false;
