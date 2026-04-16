@@ -1335,7 +1335,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             )}
           </div>
           {/* Right sticky sidebar */}
-          {!descGridSection && (menuDocs.length > 0 || menuSummaries.length > 0 || externalLinks.length > 0 || hasReviewsCard) && (() => {
+          {!descGridSection && !descOverlayContent && (menuDocs.length > 0 || menuSummaries.length > 0 || externalLinks.length > 0 || hasReviewsCard) && (() => {
             const groups: { key: string; icon: React.ReactNode; directClick?: () => void; items: { label: string; logo?: string | null; onClick: () => void }[]; tooltip?: string }[] = [];
             if (menuDocs.length > 0) groups.push({
               key: 'menu',
