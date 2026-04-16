@@ -365,7 +365,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const iframeSrcRef = useRef<string>("");
   const overlayWasOpenRef = useRef(false);
 
-  // Sync video state — FIX: added proper dependency array
+  // Sync video state — re-attach listeners when video element changes (key-based remount)
+  const effectiveMediaUrl = effectiveMedia?.url;
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
@@ -382,7 +383,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       v.removeEventListener("pause", onPause);
       v.removeEventListener("volumechange", onVolChange);
     };
-  }, [businessId, currentMediaIndex]);
+  }, [businessId, currentMediaIndex, effectiveMediaUrl]);
 
   useEffect(() => {
     keepMutedRef.current = false;
