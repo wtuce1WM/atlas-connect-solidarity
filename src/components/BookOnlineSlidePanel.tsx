@@ -812,9 +812,21 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         onTouchEnd={externalVideoInteractiveMode ? undefined : onTouchEnd}
       >
 
-        {/* Top bar: toggle, flags, rating */}
+        {/* Block 1: Logo + name — extracted component */}
+        <BusinessHeader
+          business={business}
+          businessId={businessId}
+          hookText={hookText}
+          showHook={showHook}
+          hasReviewsCard={hasReviewsCard}
+          avgOn20={avgOn20}
+          totalReviewCount={totalReviewCount}
+          onOpenReviews={handleOpenReviews}
+        />
+
+        {/* Top bar: toggle, flags, rating — below BusinessHeader */}
         {!business?.hide_description && (
-        <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex flex-col items-center pb-1 pointer-events-auto animate-[slide-in-top_0.35s_ease-out_both] mt-0">
+        <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex flex-col items-center pt-1 pb-1 pointer-events-auto animate-[slide-in-top_0.35s_ease-out_both]">
           {cardsHidden ? (
             <div className="w-full shrink-0 pointer-events-auto relative z-20">
               <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center h-[32px] mb-2">
@@ -889,18 +901,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           )}
         </div>
         )}
-
-        {/* Block 1: Logo + name — extracted component */}
-        <BusinessHeader
-          business={business}
-          businessId={businessId}
-          hookText={hookText}
-          showHook={showHook}
-          hasReviewsCard={hasReviewsCard}
-          avgOn20={avgOn20}
-          totalReviewCount={totalReviewCount}
-          onOpenReviews={handleOpenReviews}
-        />
 
         <div
           className={`flex flex-col flex-1 transition-all duration-300 ease-in-out ${cardsHidden ? 'translate-x-full opacity-0 pointer-events-none max-h-0 overflow-hidden' : 'translate-x-0 opacity-100'}`}
