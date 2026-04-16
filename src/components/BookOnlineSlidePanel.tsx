@@ -691,6 +691,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         selectedKpBusinessId={selectedKpBusinessId}
         selectedPoiBusinessId={selectedPoiBusinessId}
         anyOverlay={anyOverlay}
+        toolbarPortalPrefix={toolbarPortalPrefix}
       />
 
       {/* Full-bleed background — extracted component */}
