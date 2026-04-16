@@ -48,7 +48,6 @@ const MediaBackground = React.memo(function MediaBackground({
           src={effectiveMedia.url}
           className={`w-full h-full bg-black ${(isVerticalVideo || isSquareVideo) ? "object-cover" : "object-contain"}`}
           loop
-          loop
           playsInline
           muted
           onPlay={() => {
