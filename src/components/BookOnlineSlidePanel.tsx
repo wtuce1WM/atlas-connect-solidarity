@@ -1571,7 +1571,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         <div className="absolute inset-0 z-[80] bg-background">
           <DestinationSlidePanel
             destinationId={selectedDestinationId}
-            onClose={() => setSelectedDestinationId(null)}
+            onClose={() => { setSelectedDestinationId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); }}
             interceptCloseRef={destInterceptCloseRef}
             showSearchBar={showSearchBar}
             onSearch={onSearch}
