@@ -1222,7 +1222,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   return {
                     key: `vid-${i}`,
                     imgUrl: thumb,
-                    label: vid.name || vid.city || undefined,
+                    label: vid.name || undefined,
                     playIcon: true,
                     onClick: () => setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description }),
                   };
@@ -1627,7 +1627,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* POI sub-panel */}
       {selectedPoiBusinessId && (
-        <div className="absolute top-0 left-0 right-0 bottom-0 z-[70] animate-slide-up-from-bottom bg-background">
+        <div className="absolute top-0 left-0 right-0 bottom-0 z-[85] animate-slide-up-from-bottom bg-background">
           <BookOnlineSlidePanel
             businessId={selectedPoiBusinessId}
             onClose={() => { setSelectedPoiBusinessId(null); onMosaicStateChange?.(false); if (poiOpenedFromMapRef.current) poiOpenedFromMapRef.current = false; }}
@@ -1642,7 +1642,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* KP sub-panel */}
       {selectedKpBusinessId && (
-         <div className="absolute top-0 left-0 right-0 bottom-0 z-[70] animate-slide-up-from-bottom bg-background">
+         <div className="absolute top-0 left-0 right-0 bottom-0 z-[85] animate-slide-up-from-bottom bg-background">
           <BookOnlineSlidePanel
             businessId={selectedKpBusinessId}
             onClose={() => { setSelectedKpBusinessId(null); onMosaicStateChange?.(false); }}
