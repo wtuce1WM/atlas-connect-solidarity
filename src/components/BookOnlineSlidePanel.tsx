@@ -514,6 +514,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     return () => { cancelled = true; };
   }, [business?.kp_regroupement, hasKpCarousel]);
 
+  const videoTabLabel = useMemo(() => {
     if (business?.carousel_badge) {
       const cb = business.carousel_badge;
       if (cb === "immergez_vous") return language === "en" ? "Immerse yourself" : "Immergez-vous";
