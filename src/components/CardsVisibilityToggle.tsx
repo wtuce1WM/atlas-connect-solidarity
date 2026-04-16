@@ -73,7 +73,7 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
     <div className="w-full shrink-0 pointer-events-auto relative z-20">
       {/* Flags row — above the button, only when cards are visible */}
       {!cardsHidden && leftSlot && (
-        <div className="flex justify-center mb-1.5">
+        <div className="flex justify-center mb-3">
           {leftSlot}
         </div>
       )}
