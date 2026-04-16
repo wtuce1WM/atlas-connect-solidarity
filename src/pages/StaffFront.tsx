@@ -477,6 +477,9 @@ const StaffFront = () => {
               <TabsContent value="fs-videos">
                 <FrontStructureVideosPanel />
               </TabsContent>
+              <TabsContent value="db-structure">
+                <VideoDbStructurePanel />
+              </TabsContent>
             </Tabs>
           </TabsContent>
 
