@@ -82,7 +82,7 @@ const TypewriterHook = ({ text }: { text: string }) => {
 
   return (
     <p
-      className="text-base md:text-lg text-white/90 italic text-center max-w-[85%] md:max-w-xl leading-relaxed pointer-events-none"
+      className="text-lg md:text-xl text-white/90 font-bold text-center max-w-[85%] md:max-w-xl leading-relaxed pointer-events-none"
       style={{
         fontFamily: "'Josefin Sans', sans-serif",
         filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7)) drop-shadow(0 4px 24px hsla(0,0%,0%,0.4))",
