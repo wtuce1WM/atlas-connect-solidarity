@@ -2,7 +2,7 @@ import { useEffect, useState, RefObject } from "react";
 
 /**
  * Synchronize video play/pause/mute state with a <video> element.
- * Replaces duplicated event-listener logic across panels.
+ * Handles key-based remounts where the ref changes to a new DOM element.
  */
 export function useVideoSync(
   videoRef: RefObject<HTMLVideoElement>,
@@ -13,20 +13,37 @@ export function useVideoSync(
   const [videoMuted, setVideoMuted] = useState(true);
 
   useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    const onPlay = () => setVideoPaused(false);
-    const onPause = () => setVideoPaused(true);
-    const onVol = () => setVideoMuted(v.muted);
-    v.addEventListener("play", onPlay);
-    v.addEventListener("pause", onPause);
-    v.addEventListener("volumechange", onVol);
-    setVideoPaused(v.paused);
-    setVideoMuted(v.muted);
+    let lastEl: HTMLVideoElement | null = null;
+    let cleanup: (() => void) | null = null;
+
+    const attach = () => {
+      const v = videoRef.current;
+      if (v === lastEl) return;
+      cleanup?.();
+      cleanup = null;
+      lastEl = v;
+      if (!v) return;
+      const onPlay = () => setVideoPaused(false);
+      const onPause = () => setVideoPaused(true);
+      const onVol = () => setVideoMuted(v.muted);
+      v.addEventListener("play", onPlay);
+      v.addEventListener("pause", onPause);
+      v.addEventListener("volumechange", onVol);
+      setVideoPaused(v.paused);
+      setVideoMuted(v.muted);
+      cleanup = () => {
+        v.removeEventListener("play", onPlay);
+        v.removeEventListener("pause", onPause);
+        v.removeEventListener("volumechange", onVol);
+      };
+    };
+
+    attach();
+    // Poll briefly to catch React key-based remounts
+    const id = setInterval(attach, 200);
     return () => {
-      v.removeEventListener("play", onPlay);
-      v.removeEventListener("pause", onPause);
-      v.removeEventListener("volumechange", onVol);
+      clearInterval(id);
+      cleanup?.();
     };
   }, [dependency]); // eslint-disable-line react-hooks/exhaustive-deps
 

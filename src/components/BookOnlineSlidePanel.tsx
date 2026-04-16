@@ -365,22 +365,39 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const iframeSrcRef = useRef<string>("");
   const overlayWasOpenRef = useRef(false);
 
-  // Sync video state — FIX: added proper dependency array
+  // Sync video state — use MutationObserver-like approach via interval to catch key-based remounts
   useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    const onPlay = () => setVideoPaused(false);
-    const onPause = () => setVideoPaused(true);
-    const onVolChange = () => setVideoMuted(v.muted);
-    v.addEventListener("play", onPlay);
-    v.addEventListener("pause", onPause);
-    v.addEventListener("volumechange", onVolChange);
-    setVideoPaused(v.paused);
-    setVideoMuted(v.muted);
+    let lastEl: HTMLVideoElement | null = null;
+    let cleanup: (() => void) | null = null;
+
+    const attach = () => {
+      const v = videoRef.current;
+      if (v === lastEl) return;
+      cleanup?.();
+      cleanup = null;
+      lastEl = v;
+      if (!v) return;
+      const onPlay = () => setVideoPaused(false);
+      const onPause = () => setVideoPaused(true);
+      const onVolChange = () => setVideoMuted(v.muted);
+      v.addEventListener("play", onPlay);
+      v.addEventListener("pause", onPause);
+      v.addEventListener("volumechange", onVolChange);
+      setVideoPaused(v.paused);
+      setVideoMuted(v.muted);
+      cleanup = () => {
+        v.removeEventListener("play", onPlay);
+        v.removeEventListener("pause", onPause);
+        v.removeEventListener("volumechange", onVolChange);
+      };
+    };
+
+    attach();
+    // Poll briefly to catch React key-based remounts
+    const id = setInterval(attach, 200);
     return () => {
-      v.removeEventListener("play", onPlay);
-      v.removeEventListener("pause", onPause);
-      v.removeEventListener("volumechange", onVolChange);
+      clearInterval(id);
+      cleanup?.();
     };
   }, [businessId, currentMediaIndex]);
 
