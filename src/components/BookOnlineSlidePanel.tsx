@@ -979,6 +979,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         ) : null}
 
         {/* Bottom carousel removed — all sections now accessible via description overlay grid */}
+        </div>
 
         {/* Availability result (cards hidden mode) */}
         <HotelAvailabilityResult
