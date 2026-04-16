@@ -4754,6 +4754,10 @@ export type Database = {
           read_ct: number
         }[]
       }
+      replace_business_documents: {
+        Args: { p_business_id: string; p_docs: Json }
+        Returns: Json
+      }
       search_businesses_with_rank:
         | {
             Args: {
