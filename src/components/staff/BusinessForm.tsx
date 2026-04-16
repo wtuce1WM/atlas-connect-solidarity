@@ -2226,32 +2226,35 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           })
         );
 
-        await supabase.from("business_documents" as any).delete().eq("business_id", businessId);
         const allDocs = [
-          ...menuDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "menu" as const, url: d.url.trim(), name: d.name || null, language: d.language || null, icon: d.icon || null, sort_order: i, popup: false, force_external: d.force_external || false, show_on_front: false, front_sort_order: 0 })),
-          ...flipbookDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "flipbook" as const, url: d.url.trim(), name: d.name || null, language: d.language || null, icon: d.icon || null, sort_order: i, popup: false, force_external: d.force_external || false, show_on_front: false, front_sort_order: 0 })),
+          ...menuDocs.filter(d => d.url.trim()).map((d, i) => ({ type: "menu", url: d.url.trim(), name: d.name || null, language: d.language || null, icon: d.icon || null, sort_order: i, popup: false, force_external: d.force_external || false, show_on_front: false, front_sort_order: 0 })),
+          ...flipbookDocs.filter(d => d.url.trim()).map((d, i) => ({ type: "flipbook", url: d.url.trim(), name: d.name || null, language: d.language || null, icon: d.icon || null, sort_order: i, popup: false, force_external: d.force_external || false, show_on_front: false, front_sort_order: 0 })),
           ...externalLinkDocs
             .filter((d) => d.name.trim())
-            .map((d, i) => ({ business_id: businessId, type: "external_link" as const, url: d.url.trim() || "", name: d.name.trim(), language: d.language || null, icon: d.image_url || null, sort_order: i, description: d.description || "presse", popup: false, force_external: d.force_external || false, show_on_front: false, front_sort_order: 0 })),
-          ...videoDocsWithThumbs.map((d) => ({ business_id: businessId, type: "video" as const, url: d.url, name: d.name || null, language: null, icon: null, sort_order: d._original_sort_order ?? 0, front_sort_order: d._original_front_sort_order ?? d._original_sort_order ?? 0, show_on_front: d._show_on_front ?? false, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: d.popup || false, force_external: false, event_id: d.event_id || null })),
+            .map((d, i) => ({ type: "external_link", url: d.url.trim() || "", name: d.name.trim(), language: d.language || null, icon: d.image_url || null, sort_order: i, description: d.description || "presse", popup: false, force_external: d.force_external || false, show_on_front: false, front_sort_order: 0 })),
+          ...videoDocsWithThumbs.map((d) => ({ type: "video", url: d.url, name: d.name || null, language: null, icon: null, sort_order: d._original_sort_order ?? 0, front_sort_order: d._original_front_sort_order ?? d._original_sort_order ?? 0, show_on_front: d._show_on_front ?? false, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: d.popup || false, force_external: false, event_id: d.event_id || null })),
         ];
-        if (allDocs.length > 0) {
-          const { data: insertedDocs, error: docsError } = await supabase.from("business_documents" as any).insert(allDocs).select("id, type");
-          if (docsError) throw docsError;
 
-          // Save badge associations for video docs
-          if (insertedDocs) {
-            const videoInserted = (insertedDocs as any[]).filter((d: any) => d.type === "video");
-            const badgeRows: Array<{ document_id: string; badge_id: string }> = [];
-            videoInserted.forEach((inserted: any, i: number) => {
-              const original = videoDocsWithThumbs[i];
-              if (original?.badge_ids?.length) {
-                original.badge_ids.forEach(bid => badgeRows.push({ document_id: inserted.id, badge_id: bid }));
-              }
-            });
-            if (badgeRows.length > 0) {
-              await supabase.from("business_document_badges" as any).insert(badgeRows);
+        // Atomic replace: delete + insert in a single transaction
+        const { data: insertedDocs, error: docsError } = await supabase.rpc("replace_business_documents", {
+          p_business_id: businessId,
+          p_docs: allDocs,
+        });
+        if (docsError) throw docsError;
+
+        // Save badge associations for video docs
+        if (insertedDocs) {
+          const parsed = typeof insertedDocs === "string" ? JSON.parse(insertedDocs) : insertedDocs;
+          const videoInserted = (parsed as any[]).filter((d: any) => d.type === "video");
+          const badgeRows: Array<{ document_id: string; badge_id: string }> = [];
+          videoInserted.forEach((inserted: any, i: number) => {
+            const original = videoDocsWithThumbs[i];
+            if (original?.badge_ids?.length) {
+              original.badge_ids.forEach(bid => badgeRows.push({ document_id: inserted.id, badge_id: bid }));
             }
+          });
+          if (badgeRows.length > 0) {
+            await supabase.from("business_document_badges" as any).insert(badgeRows);
           }
         }
 
