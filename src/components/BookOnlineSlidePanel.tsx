@@ -944,7 +944,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       className="text-sm md:text-base text-white/90 italic text-center max-w-[70%] md:max-w-lg leading-relaxed line-clamp-5 md:line-clamp-3 cursor-pointer"
                       style={{
                         fontFamily: "'Josefin Sans', sans-serif",
-                        fontFamily: "'Josefin Sans', sans-serif",
                         filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7)) drop-shadow(0 4px 24px hsla(0,0%,0%,0.4))",
                       }}
                       onClick={handleOpenReviews}
