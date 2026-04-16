@@ -1,4 +1,5 @@
 import { X } from "lucide-react";
+import OverlayShell from "@/components/overlays/OverlayShell";
 
 type MediaItem = { kind: "video"; url: string; thumbnailUrl?: string | null } | { kind: "image"; url: string } | { kind: "matterport"; url: string };
 
@@ -32,13 +33,9 @@ const MosaicOverlay = ({
     ? "grid grid-cols-2 gap-2 p-2 pt-0"
     : "grid grid-cols-2 gap-2 p-2 -mt-2";
 
-  const containerClass = coverParentToolbar
-    ? "absolute inset-0 -top-[3.3rem] z-[76] overflow-hidden"
-    : "absolute inset-0 z-[76] overflow-hidden";
-
   return (
-    <div className={containerClass}>
-      <div className="absolute inset-0 bg-black overflow-y-auto animate-slide-in-left">
+    <OverlayShell zClass="z-[76]" coverToolbar={coverParentToolbar} desktopOnly={!coverParentToolbar}>
+      <div className="w-full h-full bg-black overflow-y-auto animate-slide-in-left">
         <div className={headerClass}>
           <button
             onClick={onClose}
@@ -63,7 +60,7 @@ const MosaicOverlay = ({
           })}
         </div>
       </div>
-    </div>
+    </OverlayShell>
   );
 };
 
