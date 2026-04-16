@@ -482,7 +482,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   const handleOpenReviews = useCallback(async () => {
     if (!hasReviewsCard) return;
-    const html = buildReviewHtml(reviewTexts, reviewPlatforms, avgOn20, totalReviewCount, language, "sidebar");
+    const html = buildReviewHtml(reviewTexts, reviewPlatforms, avgOn20, totalReviewCount, language);
     const title = language === "en" ? `Customer reviews (${totalReviewCount})` : `Avis clients (${totalReviewCount})`;
     setDescOverlayContent({ html, title });
     setDescGridMode(false);
@@ -1512,7 +1512,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             }
             if (hasReviewsCard) {
               const openReviewsOverlay = () => {
-                const html = buildReviewHtml(reviewTexts, reviewPlatforms, avgOn20, totalReviewCount, language, "sidebar");
+                const html = buildReviewHtml(reviewTexts, reviewPlatforms, avgOn20, totalReviewCount, language);
                 const title = language === "en" ? `Customer reviews (${totalReviewCount})` : `Avis clients (${totalReviewCount})`;
                 setDescOverlayContent({ html, title });
                 setDescGridMode(false);
