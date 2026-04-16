@@ -129,6 +129,7 @@ interface VideoDocInfo {
   owner_business_id?: string | null;
   owner_logo?: string | null;
   owner_name?: string | null;
+  generic_video_account?: string | null;
 }
 
 interface LogoBigState {
@@ -230,6 +231,20 @@ interface OwnerBadgeProps {
 export const OwnerBadge = ({ cardsHidden, currentMediaKind, currentMediaUrl, videoDocs, currentBusinessId, onNavigateToOwner }: OwnerBadgeProps) => {
   if (!cardsHidden || currentMediaKind !== "video") return null;
   const currentVideoDoc = videoDocs.find((d) => d.url === currentMediaUrl);
+
+  // Generic video: show account name badge without link
+  if (currentVideoDoc?.generic_video_account) {
+    return (
+      <div className="shrink-0 flex justify-center pointer-events-none pb-4">
+        <div className="flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 animate-cta-zoom-in">
+          <span className="text-xs font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+            {currentVideoDoc.generic_video_account} <span className="text-base">©</span>
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   if (!currentVideoDoc?.owner_business_id || currentVideoDoc.owner_business_id === currentBusinessId) return null;
   if (!currentVideoDoc.owner_name) return null;
   return (

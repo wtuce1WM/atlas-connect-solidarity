@@ -155,6 +155,8 @@ export interface VideoDoc {
   owner_logo: string | null;
   owner_instagram: string | null;
   is_poi_linked?: boolean;
+  /** Account name from a generic video (not navigable) */
+  generic_video_account?: string | null;
 }
 
 // In-memory cache to avoid re-fetching data for previously viewed businesses
@@ -609,24 +611,28 @@ export function useBookOnlineData(businessId: string) {
         const gvIds = (gvLinks as any[]).map((l: any) => l.generic_video_id);
         const { data: gvData } = await supabase
           .from("generic_videos")
-          .select("id, url, name, thumbnail_url")
+          .select("id, url, name, thumbnail_url, instagram_account, tiktok_account, youtube_account")
           .in("id", gvIds);
         if (isCancelled || !gvData?.length) return;
         const orderMap = new Map((gvLinks as any[]).map((l: any) => [l.generic_video_id, l.sort_order ?? 0]));
         const sorted = (gvData as any[]).sort((a: any, b: any) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0));
-        const genericVids: VideoDoc[] = sorted.map((gv: any) => ({
-          url: gv.url,
-          name: gv.name,
-          city: null,
-          price: null,
-          price_type: null,
-          description: null,
-          thumbnail_url: gv.thumbnail_url,
-          owner_business_id: businessId,
-          owner_name: null,
-          owner_logo: null,
-          owner_instagram: null,
-        }));
+        const genericVids: VideoDoc[] = sorted.map((gv: any) => {
+          const accountName = gv.instagram_account || gv.youtube_account || gv.tiktok_account || gv.name || null;
+          return {
+            url: gv.url,
+            name: gv.name,
+            city: null,
+            price: null,
+            price_type: null,
+            description: null,
+            thumbnail_url: gv.thumbnail_url,
+            owner_business_id: null,
+            owner_name: null,
+            owner_logo: null,
+            owner_instagram: null,
+            generic_video_account: accountName,
+          };
+        });
         setVideoDocs((prev) => {
           const existingUrls = new Set(prev.map((v) => v.url));
           const newVids = genericVids.filter((v) => !existingUrls.has(v.url));
