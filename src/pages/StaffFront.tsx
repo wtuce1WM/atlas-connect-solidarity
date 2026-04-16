@@ -320,6 +320,7 @@ import SocialLinksManagement from "@/components/staff/SocialLinksManagement";
 import VideoPoiAssignmentPanel from "@/components/staff/VideoPoiAssignmentPanel";
 import GenericVideosPanel from "@/components/staff/GenericVideosPanel";
 import FrontStructureVideosPanel from "@/components/staff/FrontStructureVideosPanel";
+import VideoDbStructurePanel from "@/components/staff/VideoDbStructurePanel";
 
 const StaffFront = () => {
   const [user, setUser] = useState<any>(null);
