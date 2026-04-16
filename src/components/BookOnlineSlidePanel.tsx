@@ -1422,9 +1422,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       <button
                         onClick={() => { playWoosh(wooshSfx); setDescGridPage(p => p - 1); }}
                         disabled={descGridPage === 0}
-                        className="h-8 w-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="h-12 w-12 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                       >
-                        <ChevronLeft className="h-4 w-4" />
+                        <ChevronLeft className="h-5 w-5" />
                       </button>
                       <span className="text-white text-xs font-medium font-['Josefin_Sans',sans-serif] min-w-[2rem] text-center">
                         {descGridPage + 1} / {totalGridPages}
@@ -1432,9 +1432,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       <button
                         onClick={() => { playWoosh(wooshSfx); setDescGridPage(p => p + 1); }}
                         disabled={descGridPage >= totalGridPages - 1}
-                        className="h-8 w-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="h-12 w-12 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                       >
-                        <ChevronRight className="h-4 w-4" />
+                        <ChevronRight className="h-5 w-5" />
                       </button>
                     </div>
                   )}
