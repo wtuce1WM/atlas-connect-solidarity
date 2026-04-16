@@ -28,13 +28,27 @@ const VideoDbStructurePanel = () => {
   const load = useCallback(async () => {
     setLoading(true);
 
-    // Fetch all business videos (no 1000 limit)
-    const allDocs = await fetchAllRows<any>(
-      "business_documents",
-      "id, url, name, city, neighborhood, thumbnail_url, front_sort_order, show_on_front, business_id",
-      "business_id"
-    );
-    const docs = allDocs.filter((d: any) => d.type === "video");
+    // Fetch all business videos with pagination (no 1000 limit)
+    const allDocs: any[] = [];
+    let offset = 0;
+    const batchSize = 1000;
+    let hasMore = true;
+    while (hasMore) {
+      const { data } = await supabase
+        .from("business_documents" as any)
+        .select("id, url, name, city, neighborhood, thumbnail_url, front_sort_order, show_on_front, business_id")
+        .eq("type", "video")
+        .order("business_id")
+        .range(offset, offset + batchSize - 1);
+      if (data && data.length > 0) {
+        allDocs.push(...data);
+        offset += batchSize;
+        hasMore = data.length === batchSize;
+      } else {
+        hasMore = false;
+      }
+    }
+    const docs = allDocs;
 
     const bizIds = [...new Set((docs as any[] || []).map(d => d.business_id))];
     const { data: businesses } = bizIds.length > 0
