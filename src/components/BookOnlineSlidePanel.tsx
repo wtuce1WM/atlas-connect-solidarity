@@ -1542,7 +1542,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       >
                         <button
                           onClick={g.directClick}
-                          className="flex items-center justify-center h-10 rounded-l-full border border-r-0 border-white/10 text-white transition-colors shadow-lg bg-black/80 hover:bg-black/90 pl-3 pr-4"
+                          className="flex items-center justify-center h-10 rounded-l-full border border-r-0 border-white/10 text-white transition-colors shadow-[−8px_4px_12px_rgba(0,0,0,0.3)] bg-black/80 hover:bg-black/90 pl-3 pr-4"
                         >
                           {g.icon}
                         </button>
@@ -1560,7 +1560,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                       onMouseEnter={() => setSidebarOpenGroup(g.key)}
                     >
                       <button
-                        className={`flex items-center justify-center h-10 rounded-l-full border border-r-0 border-white/10 text-white transition-colors shadow-lg pl-3 pr-4 ${isOpen ? 'bg-black/90' : 'bg-black/80 hover:bg-black/90'}`}
+                        className={`flex items-center justify-center h-10 rounded-l-full border border-r-0 border-white/10 text-white transition-colors shadow-[−8px_4px_12px_rgba(0,0,0,0.3)] pl-3 pr-4 ${isOpen ? 'bg-black/90' : 'bg-black/80 hover:bg-black/90'}`}
                       >
                         {g.icon}
                       </button>
@@ -1572,12 +1572,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                           <button
                             key={i}
                             onClick={item.onClick}
-                            className={`flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/20 text-white hover:bg-white/35 transition-colors shadow-lg whitespace-nowrap ${item.logo ? 'h-10 px-3' : 'h-7 gap-1.5 px-2.5 pr-3 text-[11px] font-medium'}`}
+                            className="flex items-center justify-center h-10 rounded-l-full bg-white/20 backdrop-blur-md border border-r-0 border-white/10 text-white hover:bg-white/35 transition-colors shadow-[−8px_4px_12px_rgba(0,0,0,0.3)] whitespace-nowrap px-3"
                           >
                             {item.logo ? (
                               <img src={item.logo} alt={item.label} className="h-6 max-w-[5rem] object-contain" loading="lazy" />
                             ) : (
-                              <span className="text-[11px]">{item.label}</span>
+                              <span className="text-[11px] font-medium">{item.label}</span>
                             )}
                           </button>
                         ))}
