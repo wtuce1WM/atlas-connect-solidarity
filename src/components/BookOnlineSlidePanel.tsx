@@ -911,8 +911,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           <div className="flex flex-col items-center justify-center pointer-events-auto gap-10 flex-1 -mt-[7.5rem]">
             {woDescription && (
               <div
-                className="opacity-0 animate-zoom-out-center"
-                style={{ animationDelay: '1.8s', animationFillMode: 'forwards', animationDuration: '1s' }}
+                className=""
+              >
               >
                 <div
                   className="cursor-pointer group flex flex-col items-center gap-2"
@@ -944,9 +944,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   const displayText = ((language === "en" ? defaultReview.text_en : defaultReview.text_fr) || defaultReview.text || "").trim();
                   return (
                     <p
-                      className="text-sm md:text-base text-white/90 italic text-center max-w-[70%] md:max-w-lg leading-relaxed line-clamp-5 md:line-clamp-3 cursor-pointer opacity-0 animate-fade-in"
+                      className="text-sm md:text-base text-white/90 italic text-center max-w-[70%] md:max-w-lg leading-relaxed line-clamp-5 md:line-clamp-3 cursor-pointer"
                       style={{
-                        animationDelay: '0.5s', animationFillMode: 'forwards',
+                        fontFamily: "'Josefin Sans', sans-serif",
                         fontFamily: "'Josefin Sans', sans-serif",
                         filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7)) drop-shadow(0 4px 24px hsla(0,0%,0%,0.4))",
                       }}
