@@ -1443,6 +1443,24 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         />
       )}
 
+      {/* Hours Overlay */}
+      {showHoursOverlay && business && (
+        <div className="absolute inset-0 z-[75] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in" onClick={() => setShowHoursOverlay(false)}>
+          <div className="bg-black/80 backdrop-blur-md border border-white/20 rounded-2xl p-5 w-[22rem] max-w-[95vw] text-white animate-zoom-out-center" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm font-semibold text-gold uppercase tracking-wider flex items-center gap-1.5">
+                <Clock className="h-4 w-4" />
+                {language === "en" ? "Opening hours" : language === "ar" ? "أوقات العمل" : "Horaires d'ouverture"}
+              </p>
+              <button onClick={() => setShowHoursOverlay(false)} className="text-white/50 hover:text-white transition-colors">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <HoursOverlayContent business={business} language={language} />
+          </div>
+        </div>
+      )}
+
       {/* Full Description Overlay */}
       {showDescriptionOverlay && woDescription && (
         <div className="absolute inset-0 lg:-top-[3.3rem] z-[80] animate-zoom-out-center overflow-hidden flex flex-col lg:pt-0">
