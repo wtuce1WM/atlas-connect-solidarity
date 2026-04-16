@@ -11,7 +11,7 @@ interface VideoRow {
   city: string | null;
   neighborhood: string | null;
   thumbnail_url: string | null;
-  sort_order: number;
+  front_sort_order: number;
   show_on_front: boolean;
   business_name: string;
 }
@@ -25,7 +25,7 @@ const VideoDbStructurePanel = () => {
     setLoading(true);
     const { data: docs } = await supabase
       .from("business_documents" as any)
-      .select("id, url, name, city, neighborhood, thumbnail_url, sort_order, show_on_front, business_id")
+      .select("id, url, name, city, neighborhood, thumbnail_url, front_sort_order, show_on_front, business_id")
       .eq("type", "video")
       .order("business_id")
       .limit(1000);
@@ -45,7 +45,7 @@ const VideoDbStructurePanel = () => {
       city: d.city,
       neighborhood: d.neighborhood,
       thumbnail_url: d.thumbnail_url,
-      sort_order: d.sort_order,
+      front_sort_order: d.front_sort_order,
       show_on_front: d.show_on_front,
       business_name: nameMap.get(d.business_id) || "?",
     })));
@@ -98,7 +98,7 @@ const VideoDbStructurePanel = () => {
               <th className="text-left py-2 px-2 font-medium">Ville</th>
               <th className="text-left py-2 px-2 font-medium">URL</th>
               <th className="text-center py-2 px-2 font-medium">Front</th>
-              <th className="text-center py-2 px-2 font-medium">Ordre</th>
+              <th className="text-center py-2 px-2 font-medium">Ordre Front</th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -119,7 +119,7 @@ const VideoDbStructurePanel = () => {
                 <td className="py-1.5 px-2 text-muted-foreground">{r.city || "—"}</td>
                 <td className="py-1.5 px-2 max-w-[200px] truncate text-muted-foreground" title={r.url}>{r.url}</td>
                 <td className="py-1.5 px-2 text-center">{r.show_on_front ? "✓" : ""}</td>
-                <td className="py-1.5 px-2 text-center">{r.sort_order}</td>
+                <td className="py-1.5 px-2 text-center">{r.front_sort_order}</td>
               </tr>
             ))}
           </tbody>
