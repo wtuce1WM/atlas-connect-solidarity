@@ -331,7 +331,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     setShowPoiMapOverlay(false);
     setShowDescriptionOverlay(false);
     setShowAvailabilitySearch(false);
-    setDescGridMode(false);
+    setDescGridSection(null);
     setDescOverlayContent(null);
     setShowExtLinksOverlay(false);
     setPoiMapMode("poi");
@@ -489,7 +489,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     const html = buildReviewHtml(reviewTexts, reviewPlatforms, avgOn20, totalReviewCount, language);
     const title = language === "en" ? `Customer reviews (${totalReviewCount})` : `Avis clients (${totalReviewCount})`;
     setDescOverlayContent({ html, title });
-    setDescGridMode(false);
+    setDescGridSection(null);
     setDescOverlayDirect(true);
     setShowDescriptionOverlay(true);
   }, [hasReviewsCard, reviewPlatforms, reviewTexts, totalReviewCount, language, avgOn20]);
@@ -747,7 +747,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             </div>
           )}
           {images.length > 0 && (
-            <div onClick={() => { setDescGridMode(true); setDescGridPage(0); setShowDescriptionOverlay(true); }} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
+            <div onClick={() => { setDescGridSection("images"); setDescGridPage(0); setShowDescriptionOverlay(true); }} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[80px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Images</span>
               <ImageIcon className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
@@ -1396,13 +1396,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           )}
           {!images[0] && <div className="absolute inset-0 bg-background" />}
           <div className="relative z-30 shrink-0 flex items-center gap-3 px-4 py-3 bg-transparent backdrop-blur-sm border-b border-white/10 order-[-2]">
-            <button onClick={() => { if (descGridMode) { setDescGridMode(false); setDescGridPage(0); } else if (descOverlayContent && !descOverlayDirect) { setDescOverlayContent(null); } else { setShowDescriptionOverlay(false); setDescOverlayContent(null); setDescOverlayDirect(false); } }} className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0">
+            <button onClick={() => { if (descGridMode) { setDescGridSection(null); setDescGridPage(0); } else if (descOverlayContent && !descOverlayDirect) { setDescOverlayContent(null); } else { setShowDescriptionOverlay(false); setDescOverlayContent(null); setDescOverlayDirect(false); } }} className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0">
               <X className="h-4 w-4" />
             </button>
             <h2 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] truncate text-white flex-1">{business?.name}</h2>
             {!descGridMode && images.length > 0 && (
               <button
-                onClick={() => { setDescGridMode(true); setDescGridPage(0); }}
+                onClick={() => { setDescGridSection("images"); setDescGridPage(0); }}
                 className="h-8 w-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors shrink-0"
               >
                 <ImageIcon className="h-4 w-4" />
@@ -1524,7 +1524,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             if (menuSummaries.length > 0) groups.push({
               key: 'ai',
               icon: <Sparkles className="h-[22px] w-[22px]" />,
-              items: menuSummaries.map(ms => ({ label: ms.title || 'Menu IA', onClick: () => { setDescOverlayContent({ html: ms.content || '', title: ms.title || 'Menu IA', priceDetails: ms.price_details, avgPriceRange: ms.avg_price_range }); setDescGridMode(false); setSidebarOpenGroup(null); } })),
+              items: menuSummaries.map(ms => ({ label: ms.title || 'Menu IA', onClick: () => { setDescOverlayContent({ html: ms.content || '', title: ms.title || 'Menu IA', priceDetails: ms.price_details, avgPriceRange: ms.avg_price_range }); setDescGridSection(null); setSidebarOpenGroup(null); } })),
             });
             if (externalLinks.length > 0) {
               const extDesc = externalLinks[0]?.description?.toLowerCase() || "";
@@ -1554,7 +1554,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 const html = buildReviewHtml(reviewTexts, reviewPlatforms, avgOn20, totalReviewCount, language);
                 const title = language === "en" ? `Customer reviews (${totalReviewCount})` : `Avis clients (${totalReviewCount})`;
                 setDescOverlayContent({ html, title });
-                setDescGridMode(false);
+                setDescGridSection(null);
                 setSidebarOpenGroup(null);
               };
               const activePlatforms = reviewPlatforms.filter(p => p.rating && p.count);
@@ -1697,7 +1697,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     key={i}
                     className={`relative w-[calc((100%-6px)/2)] md:w-[calc((100%-6*4px)/5)] shrink-0 aspect-[5/4] md:aspect-[4/3] lg:aspect-[3/2] rounded-md overflow-hidden cursor-pointer ${i >= 2 ? 'hidden md:block' : ''}`}
                     style={{ maxHeight: 'none' }}
-                    onClick={() => { setDescGridMode(true); setDescGridPage(0); }}
+                    onClick={() => { setDescGridSection("images"); setDescGridPage(0); }}
                   >
                     <img src={img} alt={`${business?.name} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/30">
