@@ -1391,16 +1391,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               className="absolute inset-0 bg-cover bg-center"
               style={{ backgroundImage: `url(${images[0]})` }}
             >
-              <div className={`absolute inset-0 transition-colors duration-300 ${descGridMode ? 'bg-black/75' : 'bg-black/50'}`} />
+              <div className={`absolute inset-0 transition-colors duration-300 ${descGridSection ? 'bg-black/75' : 'bg-black/50'}`} />
             </div>
           )}
           {!images[0] && <div className="absolute inset-0 bg-background" />}
           <div className="relative z-30 shrink-0 flex items-center gap-3 px-4 py-3 bg-transparent backdrop-blur-sm border-b border-white/10 order-[-2]">
-            <button onClick={() => { if (descGridMode) { setDescGridSection(null); setDescGridPage(0); } else if (descOverlayContent && !descOverlayDirect) { setDescOverlayContent(null); } else { setShowDescriptionOverlay(false); setDescOverlayContent(null); setDescOverlayDirect(false); } }} className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0">
+            <button onClick={() => { if (descGridSection) { setDescGridSection(null); setDescGridPage(0); } else if (descOverlayContent && !descOverlayDirect) { setDescOverlayContent(null); } else { setShowDescriptionOverlay(false); setDescOverlayContent(null); setDescOverlayDirect(false); } }} className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0">
               <X className="h-4 w-4" />
             </button>
             <h2 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] truncate text-white flex-1">{business?.name}</h2>
-            {!descGridMode && images.length > 0 && (
+            {!descGridSection && images.length > 0 && (
               <button
                 onClick={() => { setDescGridSection("images"); setDescGridPage(0); }}
                 className="h-8 w-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors shrink-0"
@@ -1410,7 +1410,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             )}
           </div>
           <div className="relative z-10 flex-1 min-h-0 order-[-1]" style={{ perspective: "1200px" }}>
-            {descGridMode ? (() => {
+            {descGridSection ? (() => {
               const isMobileGrid = typeof window !== "undefined" && window.innerWidth < 768;
               const GRID_PAGE_SIZE = isMobileGrid ? 8 : 9;
               const totalGridPages = Math.ceil(images.length / GRID_PAGE_SIZE);
@@ -1514,7 +1514,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             )}
           </div>
           {/* Right sticky sidebar */}
-          {!descGridMode && (menuDocs.length > 0 || menuSummaries.length > 0 || externalLinks.length > 0 || hasReviewsCard) && (() => {
+          {!descGridSection && (menuDocs.length > 0 || menuSummaries.length > 0 || externalLinks.length > 0 || hasReviewsCard) && (() => {
             const groups: { key: string; icon: React.ReactNode; directClick?: () => void; items: { label: string; logo?: string | null; onClick: () => void }[]; tooltip?: string }[] = [];
             if (menuDocs.length > 0) groups.push({
               key: 'menu',
@@ -1628,7 +1628,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             );
           })()}
           {/* Social / Menu / External links strip */}
-          {!descGridMode && (() => {
+          {!descGridSection && (() => {
             const socialItems: { name: string; url: string; icon: React.ReactNode }[] = [
               business?.instagram_url && { name: "Instagram", url: business.instagram_url, icon: <InstagramIcon className="h-4 w-4" /> },
               business?.facebook_url && { name: "Facebook", url: business.facebook_url, icon: <FacebookIcon className="h-4 w-4" /> },
@@ -1689,7 +1689,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               </div>
             );
           })()}
-          {images.length > 1 && !descGridMode && (
+          {images.length > 1 && !descGridSection && (
             <div className="relative z-20 shrink-0">
               <div className="flex items-center gap-1.5 px-2 py-1 md:py-2 bg-transparent backdrop-blur-sm border-t border-white/10">
               {images.slice(0, 5).map((img, i) => (
