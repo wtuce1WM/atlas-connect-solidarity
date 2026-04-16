@@ -485,7 +485,105 @@ const StaffFront = () => {
           </TabsContent>
 
           <TabsContent value="preview-mobile">
-            <div className="text-sm text-muted-foreground p-4">Structure DB — contenu à venir</div>
+            <div className="grid grid-cols-2 gap-6 w-full">
+              {/* Business Documents (videos) */}
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold">business_documents <span className="text-muted-foreground font-normal">(type = video)</span></h3>
+                <div className="border rounded-lg overflow-hidden">
+                  <table className="w-full text-xs">
+                    <thead className="bg-muted/50">
+                      <tr>
+                        <th className="text-left py-1.5 px-2 font-medium">Champ</th>
+                        <th className="text-left py-1.5 px-2 font-medium">Type</th>
+                        <th className="text-center py-1.5 px-2 font-medium">Nullable</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                      {[
+                        { col: "id", type: "uuid", nullable: false },
+                        { col: "business_id", type: "uuid", nullable: false },
+                        { col: "type", type: "text", nullable: false },
+                        { col: "url", type: "text", nullable: false },
+                        { col: "name", type: "text", nullable: true },
+                        { col: "language", type: "text", nullable: true },
+                        { col: "sort_order", type: "integer", nullable: false },
+                        { col: "created_at", type: "timestamptz", nullable: false },
+                        { col: "icon", type: "text", nullable: true },
+                        { col: "poi_id", type: "uuid", nullable: true },
+                        { col: "destination_id", type: "uuid", nullable: true },
+                        { col: "linked_business_id", type: "uuid", nullable: true },
+                        { col: "subcategory_id", type: "uuid", nullable: true },
+                        { col: "city", type: "text", nullable: true },
+                        { col: "description", type: "text", nullable: true },
+                        { col: "neighborhood", type: "text", nullable: true },
+                        { col: "price", type: "text", nullable: true },
+                        { col: "price_type", type: "text", nullable: true },
+                        { col: "thumbnail_url", type: "text", nullable: true },
+                        { col: "service_id", type: "uuid", nullable: true },
+                        { col: "popup", type: "boolean", nullable: false },
+                        { col: "start_date", type: "date", nullable: true },
+                        { col: "end_date", type: "date", nullable: true },
+                        { col: "show_on_front", type: "boolean", nullable: false },
+                        { col: "front_sort_order", type: "integer", nullable: false },
+                        { col: "force_external", type: "boolean", nullable: false },
+                        { col: "event_id", type: "uuid", nullable: true },
+                      ].map(f => (
+                        <tr key={f.col} className="hover:bg-muted/30">
+                          <td className="py-1 px-2 font-mono text-[11px]">{f.col}</td>
+                          <td className="py-1 px-2 text-muted-foreground">{f.type}</td>
+                          <td className="py-1 px-2 text-center">{f.nullable ? "✓" : ""}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Generic Videos */}
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold">generic_videos</h3>
+                <div className="border rounded-lg overflow-hidden">
+                  <table className="w-full text-xs">
+                    <thead className="bg-muted/50">
+                      <tr>
+                        <th className="text-left py-1.5 px-2 font-medium">Champ</th>
+                        <th className="text-left py-1.5 px-2 font-medium">Type</th>
+                        <th className="text-center py-1.5 px-2 font-medium">Nullable</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                      {[
+                        { col: "id", type: "uuid", nullable: false },
+                        { col: "url", type: "text", nullable: false },
+                        { col: "name", type: "text", nullable: true },
+                        { col: "thumbnail_url", type: "text", nullable: true },
+                        { col: "city", type: "text", nullable: true },
+                        { col: "neighborhood", type: "text", nullable: true },
+                        { col: "sort_order", type: "integer", nullable: false },
+                        { col: "created_at", type: "timestamptz", nullable: false },
+                        { col: "updated_at", type: "timestamptz", nullable: false },
+                        { col: "instagram_account", type: "text", nullable: true },
+                        { col: "instagram_url", type: "text", nullable: true },
+                        { col: "tiktok_account", type: "text", nullable: true },
+                        { col: "tiktok_url", type: "text", nullable: true },
+                        { col: "youtube_account", type: "text", nullable: true },
+                        { col: "youtube_url", type: "text", nullable: true },
+                        { col: "description", type: "text", nullable: true },
+                        { col: "instagram_video_url", type: "text", nullable: true },
+                        { col: "tiktok_video_url", type: "text", nullable: true },
+                        { col: "youtube_video_url", type: "text", nullable: true },
+                      ].map(f => (
+                        <tr key={f.col} className="hover:bg-muted/30">
+                          <td className="py-1 px-2 font-mono text-[11px]">{f.col}</td>
+                          <td className="py-1 px-2 text-muted-foreground">{f.type}</td>
+                          <td className="py-1 px-2 text-center">{f.nullable ? "✓" : ""}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="suggestions">
