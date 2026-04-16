@@ -1577,7 +1577,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* POI sub-panel */}
       {selectedPoiBusinessId && (
-        <OverlayShell zClass="z-[85]" animClass="animate-slide-up-from-bottom" bg="bg-background" className="flex flex-col">
+        <OverlayShell zClass="z-[85]" coverToolbar={false} animClass="animate-slide-up-from-bottom" bg="bg-background" className="flex flex-col">
           <SlidePanelHeader
             onClose={() => { setSelectedPoiBusinessId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); onMosaicStateChange?.(false); if (poiOpenedFromMapRef.current) poiOpenedFromMapRef.current = false; }}
             alwaysDark
@@ -1602,7 +1602,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* KP sub-panel */}
       {selectedKpBusinessId && (
-         <OverlayShell zClass="z-[85]" animClass="animate-slide-up-from-bottom" bg="bg-background" className="flex flex-col">
+         <OverlayShell zClass="z-[85]" coverToolbar={false} animClass="animate-slide-up-from-bottom" bg="bg-background" className="flex flex-col">
           <SlidePanelHeader
             onClose={() => { setSelectedKpBusinessId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); onMosaicStateChange?.(false); }}
             alwaysDark

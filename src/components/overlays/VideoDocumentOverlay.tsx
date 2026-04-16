@@ -88,7 +88,7 @@ const VideoDocumentOverlay = ({
   const isFile = overlayVid.type === "file";
 
   return (
-    <div className="absolute inset-0 z-[85] overflow-hidden" style={{ marginTop: "-3.25rem" }}>
+    <div className="absolute inset-0 z-[85] overflow-hidden">
     <div
       className={`absolute inset-0 bg-black overflow-hidden ${closing ? 'animate-slide-out-bottom' : 'animate-slide-in-left'}`}
       onAnimationEnd={() => { if (closing) onAnimationEnd(); }}
