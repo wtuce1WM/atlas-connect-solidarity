@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { DesktopMediaArrows, CardsToggleButton, useOwnerLogo } from "@/components/CardsVisibilityToggle";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import { createPortal } from "react-dom";
-import { MapPin, ChevronUp, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe, Landmark, Clock } from "lucide-react";
+import { MapPin, ChevronUp, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe, Landmark, Clock, Play, Building2, Compass } from "lucide-react";
 import { FacebookIcon, InstagramIcon, TikTokIcon, YouTubeIcon, TwitterIcon, LinkedInIcon, PinterestIcon, VimeoIcon, SnapchatIcon } from "@/components/staff/SocialMediaIcons";
 import DynamicIcon from "@/components/DynamicIcon";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
@@ -128,7 +128,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   
   const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(false);
   const [descOverlayDirect, setDescOverlayDirect] = useState(false);
-  const [descGridMode, setDescGridMode] = useState(false);
+  const [descGridSection, setDescGridSection] = useState<"images" | "videos" | "poi" | "dest" | "kp" | "kp_subcat" | null>(null);
    const [descGridPage, setDescGridPage] = useState(0);
    const [sidebarOpenGroup, setSidebarOpenGroup] = useState<string | null>(null);
    const [descOverlayContent, setDescOverlayContent] = useState<{ html: string; title: string; priceDetails?: string | null; avgPriceRange?: unknown } | null>(null);
