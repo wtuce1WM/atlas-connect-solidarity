@@ -140,7 +140,7 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
           />
         </div>
       )}
-    </div>
+    </OverlayShell>
   );
 };
 
