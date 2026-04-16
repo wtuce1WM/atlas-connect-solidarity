@@ -735,7 +735,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             </div>
           )}
           {videoDocs.length >= 2 && !business?.prioritize_images && (
-            <div className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
+            <div onClick={() => { setDescGridSection("videos"); setDescGridPage(0); setShowDescriptionOverlay(true); }} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[80px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Vidéos</span>
               <Film className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
@@ -753,9 +753,21 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             </div>
           )}
           {hasPoiCarousel && (
-            <div className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
+            <div onClick={() => { setDescGridSection("poi"); setDescGridPage(0); setShowDescriptionOverlay(true); }} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">À proximité</span>
-              <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300 text-red-500 fill-red-500" />
+              <Compass className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
+            </div>
+          )}
+          {hasDestCarousel && (
+            <div onClick={() => { setDescGridSection("dest"); setDescGridPage(0); setShowDescriptionOverlay(true); }} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
+              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Destinations</span>
+              <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
+            </div>
+          )}
+          {hasKpCarousel && (
+            <div onClick={() => { setDescGridSection("kp"); setDescGridPage(0); setShowDescriptionOverlay(true); }} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
+              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[180px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">{language === "en" ? "Other establishments" : "Autres établissements"}</span>
+              <Building2 className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
           )}
           {externalLinks.length > 0 && (() => {
