@@ -398,7 +398,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
   if (isLoading) {
     return (
-      <OverlayShell zClass="z-[80]" animClass={slideAnim} bg="bg-black" className="flex items-center justify-center">
+      <OverlayShell zClass="z-[80]" animClass={slideAnim} bg="bg-black" className="flex items-center justify-center" coverToolbar={false}>
         <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
       </OverlayShell>
     );
@@ -407,7 +407,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
   if (!destination) return null;
 
   return (
-    <OverlayShell zClass="z-[80]" animClass={slideAnim} bg="bg-black" className="flex flex-col">
+    <OverlayShell zClass="z-[80]" animClass={slideAnim} bg="bg-black" className="flex flex-col" coverToolbar={false}>
       {/* Close button */}
       {!fullscreenVideo && !showDirections && (
         <div className="absolute top-3 left-3 z-[80] flex items-center gap-2">
@@ -480,7 +480,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
       {/* Mosaic overlay */}
       {showMosaic && (
-        <OverlayShell zClass="z-[76]">
+        <OverlayShell zClass="z-[76]" coverToolbar={false}>
           <div className="absolute inset-0 bg-black overflow-y-auto animate-slide-in-left">
             <div className="sticky top-0 z-10 flex items-center bg-black px-2 py-2">
               <button
@@ -677,7 +677,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
       {/* Recursive business overlay */}
       {activeBusinessId && (
-        <OverlayShell zClass="z-[60]">
+        <OverlayShell zClass="z-[60]" coverToolbar={false}>
           <BookOnlineSlidePanel
             businessId={activeBusinessId}
             onClose={() => setActiveBusinessId(null)}
