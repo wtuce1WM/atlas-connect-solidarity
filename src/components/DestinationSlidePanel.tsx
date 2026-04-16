@@ -687,7 +687,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
           />
         </div>
       )}
-    </div>
+    </OverlayShell>
   );
 };
 
