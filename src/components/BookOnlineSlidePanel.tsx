@@ -1147,57 +1147,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               <X className="h-4 w-4" />
             </button>
             <h2 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] truncate text-white flex-1">{business?.name}</h2>
-            {/* Section icons in header */}
-            <div className="flex items-center gap-1 shrink-0">
-              {images.length > 0 && (
-                <button
-                  onClick={() => { setDescGridSection("images"); setDescGridPage(0); }}
-                  className={`h-8 w-8 flex items-center justify-center rounded-full transition-colors shrink-0 ${descGridSection === "images" ? "bg-white text-black" : "bg-white/20 text-white hover:bg-white/30"}`}
-                >
-                  <ImageIcon className="h-4 w-4" />
-                </button>
-              )}
-              {videoDocs.length >= 2 && !business?.prioritize_images && (
-                <button
-                  onClick={() => { setDescGridSection("videos"); setDescGridPage(0); }}
-                  className={`h-8 w-8 flex items-center justify-center rounded-full transition-colors shrink-0 ${descGridSection === "videos" ? "bg-white text-black" : "bg-white/20 text-white hover:bg-white/30"}`}
-                >
-                  <Film className="h-4 w-4" />
-                </button>
-              )}
-              {hasPoiCarousel && (
-                <button
-                  onClick={() => { setDescGridSection("poi"); setDescGridPage(0); }}
-                  className={`h-8 w-8 flex items-center justify-center rounded-full transition-colors shrink-0 ${descGridSection === "poi" ? "bg-white text-black" : "bg-white/20 text-white hover:bg-white/30"}`}
-                >
-                  <Compass className="h-4 w-4" />
-                </button>
-              )}
-              {hasDestCarousel && (
-                <button
-                  onClick={() => { setDescGridSection("dest"); setDescGridPage(0); }}
-                  className={`h-8 w-8 flex items-center justify-center rounded-full transition-colors shrink-0 ${descGridSection === "dest" ? "bg-white text-black" : "bg-white/20 text-white hover:bg-white/30"}`}
-                >
-                  <MapPin className="h-4 w-4" />
-                </button>
-              )}
-              {hasKpSubcatCarousel && (
-                <button
-                  onClick={() => { setDescGridSection("kp_subcat"); setDescGridPage(0); }}
-                  className={`h-8 w-8 flex items-center justify-center rounded-full transition-colors shrink-0 ${descGridSection === "kp_subcat" ? "bg-white text-black" : "bg-white/20 text-white hover:bg-white/30"}`}
-                >
-                  <Landmark className="h-4 w-4" />
-                </button>
-              )}
-              {hasKpCarousel && (
-                <button
-                  onClick={() => { setDescGridSection("kp"); setDescGridPage(0); }}
-                  className={`h-8 w-8 flex items-center justify-center rounded-full transition-colors shrink-0 ${descGridSection === "kp" ? "bg-white text-black" : "bg-white/20 text-white hover:bg-white/30"}`}
-                >
-                  <Building2 className="h-4 w-4" />
-                </button>
-              )}
-            </div>
           </div>
           <div className="relative z-10 flex-1 min-h-0 order-[-1]" style={{ perspective: "1200px" }}>
             {descGridSection ? (() => {
