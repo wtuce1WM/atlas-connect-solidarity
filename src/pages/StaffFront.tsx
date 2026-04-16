@@ -320,6 +320,7 @@ import SocialLinksManagement from "@/components/staff/SocialLinksManagement";
 import VideoPoiAssignmentPanel from "@/components/staff/VideoPoiAssignmentPanel";
 import GenericVideosPanel from "@/components/staff/GenericVideosPanel";
 import FrontStructureVideosPanel from "@/components/staff/FrontStructureVideosPanel";
+import VideoDbStructurePanel from "@/components/staff/VideoDbStructurePanel";
 
 const StaffFront = () => {
   const [user, setUser] = useState<any>(null);
@@ -437,6 +438,7 @@ const StaffFront = () => {
                 <TabsTrigger value="dest-videos">Destinations</TabsTrigger>
                 <TabsTrigger value="pois-videos">POIS</TabsTrigger>
                 <TabsTrigger value="generic-videos">Génériques</TabsTrigger>
+                <TabsTrigger value="db-structure">Structure DB</TabsTrigger>
               </TabsList>
               <TabsContent value="front-videos">
                 <Tabs defaultValue="marrakech">
@@ -475,6 +477,9 @@ const StaffFront = () => {
               </TabsContent>
               <TabsContent value="fs-videos">
                 <FrontStructureVideosPanel />
+              </TabsContent>
+              <TabsContent value="db-structure">
+                <VideoDbStructurePanel />
               </TabsContent>
             </Tabs>
           </TabsContent>
