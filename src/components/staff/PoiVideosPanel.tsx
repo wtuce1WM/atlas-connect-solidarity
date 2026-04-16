@@ -320,7 +320,7 @@ const PoiVideosPanel = () => {
         if (videos[i].source === "generic") continue;
         await supabase
           .from("business_documents")
-          .update({ sort_order: i } as any)
+          .update({ front_sort_order: i } as any)
           .eq("id", videos[i].id);
       }
       toast.success("Ordre sauvegardé");
