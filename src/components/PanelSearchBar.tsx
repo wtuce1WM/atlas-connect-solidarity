@@ -6,6 +6,7 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import MobileSearchOverlay from "@/components/MobileSearchOverlay";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import PanelAiOverlay from "@/components/overlays/PanelAiOverlay";
+import OverlayShell from "@/components/overlays/OverlayShell";
 
 interface PanelSearchBarProps {
   /** Called when user submits a search */
@@ -78,7 +79,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
 
       {/* Search overlay — covers toolbar */}
       {searchOverlayOpen && (
-        <div className={`absolute inset-0 ${noToolbarOffset ? "" : "lg:-top-[3.3rem]"} z-[90]`}>
+        <OverlayShell zClass="z-[90]" coverToolbar={!noToolbarOffset}>
           <MobileSearchOverlay
             open={searchOverlayOpen}
             onClose={() => setOverlay(false)}
@@ -115,11 +116,11 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
             category={businessCategory}
             businessName={businessName}
           />
-        </div>
+        </OverlayShell>
       )}
 
       {(voice.status === "recording" || voice.status === "processing") && (
-        <div className={`absolute inset-0 ${noToolbarOffset ? "" : "lg:-top-[3.3rem]"} z-[91]`}>
+        <OverlayShell zClass="z-[91]" coverToolbar={!noToolbarOffset}>
           <VoiceSearchOverlay
             isOpen
             liveTranscript={voice.liveTranscript}
@@ -127,7 +128,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
             onFinish={() => voice.finishRecording()}
             contained
           />
-        </div>
+        </OverlayShell>
       )}
     </>
   );

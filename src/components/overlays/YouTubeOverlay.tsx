@@ -3,6 +3,7 @@ import { X, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import YouTubeShortsCarousel, { type YouTubeVideo } from "@/components/YouTubeShortsCarousel";
 import type { BookOnlineBusiness } from "@/hooks/useBookOnlineData";
+import OverlayShell from "@/components/overlays/OverlayShell";
 
 interface YouTubeOverlayProps {
   business: BookOnlineBusiness;
@@ -51,7 +52,7 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
   }, [onSelectVideo]);
 
   return (
-    <div className="absolute inset-0 lg:-top-[3.3rem] z-[76] bg-black flex flex-col animate-slide-up-from-bottom overflow-hidden">
+    <OverlayShell zClass="z-[76]" animClass="animate-slide-up-from-bottom" bg="bg-black" className="flex flex-col">
       {/* Header bar */}
       <div className="relative flex items-center justify-center px-4 py-3 flex-shrink-0">
         <button
@@ -139,7 +140,7 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
           />
         </div>
       )}
-    </div>
+    </OverlayShell>
   );
 };
 

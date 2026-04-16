@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from "react";
+import OverlayShell from "@/components/overlays/OverlayShell";
 import { businessUrl } from "@/lib/businessUrl";
 import { MapPin, ChevronDown, ChevronUp, X, Navigation, Minimize2, Star } from "lucide-react";
 import VideoControls from "@/components/VideoControls";
@@ -397,16 +398,16 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
   if (isLoading) {
     return (
-      <div className={`absolute inset-0 lg:-top-[3.3rem] z-[80] bg-black flex items-center justify-center ${slideAnim}`}>
+      <OverlayShell zClass="z-[80]" animClass={slideAnim} bg="bg-black" className="flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-      </div>
+      </OverlayShell>
     );
   }
 
   if (!destination) return null;
 
   return (
-    <div className={`absolute inset-0 lg:-top-[3.3rem] z-[80] bg-black overflow-hidden ${slideAnim}`}>
+    <OverlayShell zClass="z-[80]" animClass={slideAnim} bg="bg-black" className="flex flex-col">
       {/* Close button */}
       {!fullscreenVideo && !showDirections && (
         <div className="absolute top-3 left-3 z-[80] flex items-center gap-2">
@@ -479,7 +480,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
       {/* Mosaic overlay */}
       {showMosaic && (
-        <div className="absolute inset-0 lg:-top-[3.3rem] z-[76] overflow-hidden">
+        <OverlayShell zClass="z-[76]">
           <div className="absolute inset-0 bg-black overflow-y-auto animate-slide-in-left">
             <div className="sticky top-0 z-10 flex items-center bg-black px-2 py-2">
               <button
@@ -498,7 +499,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
               ))}
             </div>
           </div>
-        </div>
+        </OverlayShell>
       )}
 
       {/* Fullscreen lightbox */}
@@ -676,7 +677,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
 
       {/* Recursive business overlay */}
       {activeBusinessId && (
-        <div className="absolute inset-0 lg:-top-[3.3rem] z-[60]">
+        <OverlayShell zClass="z-[60]">
           <BookOnlineSlidePanel
             businessId={activeBusinessId}
             onClose={() => setActiveBusinessId(null)}
@@ -684,9 +685,9 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
             onSearch={onSearch}
             onSearchBusinessSelect={onSearchBusinessSelect}
           />
-        </div>
+        </OverlayShell>
       )}
-    </div>
+    </OverlayShell>
   );
 };
 

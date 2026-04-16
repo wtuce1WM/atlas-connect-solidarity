@@ -41,6 +41,7 @@ import VideoDocumentOverlay from "@/components/overlays/VideoDocumentOverlay";
 import YouTubeOverlay from "@/components/overlays/YouTubeOverlay";
 import DocumentOverlay from "@/components/overlays/DocumentOverlay";
 import FallbackHotelsPanel from "@/components/overlays/FallbackHotelsPanel";
+import OverlayShell from "@/components/overlays/OverlayShell";
 import SerpApiHotelOverlay from "@/components/SerpApiHotelOverlay";
 import PanelSearchBar from "@/components/PanelSearchBar";
 
@@ -1129,7 +1130,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* Full Description Overlay */}
       {showDescriptionOverlay && woDescription && (
-        <div className="absolute inset-0 lg:-top-[3.3rem] z-[80] animate-zoom-out-center overflow-hidden flex flex-col lg:pt-[3.3rem]">
+        <OverlayShell zClass="z-[80]" animClass="animate-zoom-out-center" className="flex flex-col">
           {images[0] && (
             <div
               className="absolute inset-0 bg-cover bg-center"
@@ -1525,12 +1526,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             </div>
           )}
           <div className="shrink-0 h-[3.5rem] md:h-[3.75rem]" />
-        </div>
+        </OverlayShell>
       )}
 
       {/* External Links Overlay */}
       {showExtLinksOverlay && externalLinks.length > 0 && (
-        <div className="absolute inset-0 -top-[3.3rem] z-[85] overflow-hidden">
+        <OverlayShell zClass="z-[85]" desktopOnly={false}>
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setShowExtLinksOverlay(false)} />
           <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
             <div className="pointer-events-auto relative">
@@ -1549,7 +1550,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               />
             </div>
           </div>
-        </div>
+        </OverlayShell>
       )}
 
       {/* Directions overlay */}
@@ -1576,7 +1577,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* POI sub-panel */}
       {selectedPoiBusinessId && (
-        <div className="absolute inset-0 lg:-top-[3.3rem] z-[85] animate-slide-up-from-bottom bg-background flex flex-col lg:pt-[3.3rem]">
+        <OverlayShell zClass="z-[85]" animClass="animate-slide-up-from-bottom" bg="bg-background" className="flex flex-col">
           <SlidePanelHeader
             onClose={() => { setSelectedPoiBusinessId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); onMosaicStateChange?.(false); if (poiOpenedFromMapRef.current) poiOpenedFromMapRef.current = false; }}
             alwaysDark
@@ -1596,12 +1597,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               toolbarPortalPrefix="poi"
             />
           </div>
-        </div>
+        </OverlayShell>
       )}
 
       {/* KP sub-panel */}
       {selectedKpBusinessId && (
-         <div className="absolute inset-0 lg:-top-[3.3rem] z-[85] animate-slide-up-from-bottom bg-background flex flex-col lg:pt-[3.3rem]">
+         <OverlayShell zClass="z-[85]" animClass="animate-slide-up-from-bottom" bg="bg-background" className="flex flex-col">
           <SlidePanelHeader
             onClose={() => { setSelectedKpBusinessId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); onMosaicStateChange?.(false); }}
             alwaysDark
@@ -1622,11 +1623,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               toolbarPortalPrefix="kp"
             />
           </div>
-        </div>
+        </OverlayShell>
       )}
 
       {showPoiMapOverlay && (
-        <div className="absolute -top-[3.3rem] left-0 right-0 bottom-0 z-[80] flex flex-col pt-[3.3rem]" style={{ animation: "slide-up-from-bottom 0.4s ease-out both" }}>
+        <OverlayShell zClass="z-[80]" desktopOnly={false} animClass="animate-slide-up-from-bottom">
           <div className="sticky top-0 z-10 flex items-center px-4 py-2 gap-2 bg-black/30 backdrop-blur-sm">
             <button
               onClick={() => { setShowPoiMapOverlay(false); setPoiMapMode("poi"); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
@@ -1688,7 +1689,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               fitToMarkers
             />
           </div>
-        </div>
+        </OverlayShell>
       )}
 
       {/* Mosaic overlay */}
@@ -1758,7 +1759,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* Fallback hotels overlay */}
       {fallbackPanelData && showFallbackOverlay && (
-        <div className="absolute inset-0 -top-[3.3rem] z-[76] overflow-hidden">
+        <OverlayShell zClass="z-[76]" desktopOnly={false}>
           <div className="w-full h-full bg-white overflow-y-auto animate-slide-in-left">
           <FallbackHotelsPanel
             data={fallbackPanelData}
@@ -1776,7 +1777,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             inline
           />
           </div>
-        </div>
+        </OverlayShell>
       )}
       {/* Search bar */}
       {showSearchBar && (
