@@ -71,6 +71,8 @@ interface BookOnlineSlidePanelProps {
   onMosaicStateChange?: (open: boolean) => void;
   closeTrigger?: number;
   propagateMosaicState?: boolean;
+  /** Optional prefix for toolbar portal IDs (used by POI/KP sub-panels) */
+  toolbarPortalPrefix?: string;
 }
 
 const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect, onMosaicStateChange, closeTrigger, propagateMosaicState = false }: BookOnlineSlidePanelProps) => {
