@@ -226,7 +226,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         if (docOverlay) { setDocOverlay(null); setDocOverlayLoaded(false); return true; }
         if (showDirections) { setShowDirections(false); return true; }
         if (selectedDestinationId && destInterceptCloseRef.current?.()) return true;
-        if (selectedDestinationId) { setSelectedDestinationId(null); return true; }
+        if (selectedDestinationId) { setSelectedDestinationId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); return true; }
         if (selectedPoiBusinessId) { setSelectedPoiBusinessId(null); return true; }
         if (selectedKpBusinessId && kpInterceptCloseRef.current?.()) return true;
         if (selectedKpBusinessId) { setSelectedKpBusinessId(null); return true; }
