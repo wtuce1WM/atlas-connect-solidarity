@@ -1111,7 +1111,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               className="absolute inset-0 bg-cover bg-center"
               style={{ backgroundImage: `url(${images[0]})` }}
             >
-              <div className={`absolute inset-0 transition-colors duration-300 ${descGridSection ? 'bg-black/75' : 'bg-black/50'}`} />
+              {(() => {
+                const isReviews = !!descOverlayContent?.title && /^(avis|customer)/i.test(descOverlayContent.title);
+                const overlayClass = isReviews ? 'bg-black/85' : (descGridSection ? 'bg-black/75' : 'bg-black/50');
+                return <div className={`absolute inset-0 transition-colors duration-300 ${overlayClass}`} />;
+              })()}
             </div>
           )}
           {!images[0] && <div className="absolute inset-0 bg-background" />}
