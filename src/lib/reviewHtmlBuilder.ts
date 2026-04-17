@@ -44,15 +44,29 @@ export function buildReviewHtml(
     .map((p) => {
       const logo = LOGO_MAP[p.name] || "";
       const logoImg = logo
-        ? `<img src="${logo}" alt="${p.name}" style="width:24px;height:24px;object-fit:contain;border-radius:4px;flex-shrink:0" onerror="this.style.display='none'"/>`
+        ? `<img src="${logo}" alt="${p.name}" class="rv-logo" onerror="this.style.display='none'"/>`
         : "";
-      return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:hsla(0,0%,100%,0.06);border-radius:8px;width:160px;height:44px;box-sizing:border-box">${logoImg}<span style="display:flex;flex-direction:column;line-height:1.15;min-width:0;flex:1"><strong style="font-size:0.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</strong><span style="opacity:0.7;font-size:0.7rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.rating}/5 — ${p.count?.toLocaleString("fr-FR")}</span></span></div>`;
+      return `<div class="rv-card">${logoImg}<span class="rv-card-text"><strong class="rv-card-name">${p.name}</strong><span class="rv-card-meta">${p.rating}/5 — ${p.count?.toLocaleString("fr-FR")}</span></span></div>`;
     })
     .join("");
 
+  const responsiveCss = `<style>
+.rv-card{display:flex;align-items:center;gap:8px;padding:6px 10px;background:hsla(0,0%,100%,0.06);border-radius:8px;width:160px;height:44px;box-sizing:border-box}
+.rv-logo{width:24px;height:24px;object-fit:contain;border-radius:4px;flex-shrink:0}
+.rv-card-text{display:flex;flex-direction:column;line-height:1.15;min-width:0;flex:1}
+.rv-card-name{font-size:0.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rv-card-meta{opacity:0.7;font-size:0.7rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:640px){
+  .rv-card{width:auto;flex:1 1 calc(50% - 6px);min-width:0;padding:5px 8px;gap:6px;height:40px}
+  .rv-logo{width:20px;height:20px}
+  .rv-card-name{font-size:0.72rem}
+  .rv-card-meta{font-size:0.62rem}
+}
+</style>`;
+
   const starSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="hsl(43,75%,55%)" stroke="hsl(43,75%,55%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`;
   const ratingBlock = `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;margin-bottom:12px"><div style="display:flex;align-items:center;gap:12px;filter:drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))">${starSvg}<span style="font-family:'Josefin Sans',sans-serif;font-size:3rem;font-weight:900;color:hsl(43,75%,55%) !important">${avgOn20}<span style="font-size:1.5rem;font-weight:600;color:rgba(255,255,255,0.6) !important">/20</span></span></div></div>`;
-  const scoreHtml = `${ratingBlock}<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">${platformListHtml}</div>`;
+  const scoreHtml = `${responsiveCss}${ratingBlock}<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">${platformListHtml}</div>`;
 
   const textsHtml = texts.length > 0
     ? texts.slice(0, 10).map((r) => {
