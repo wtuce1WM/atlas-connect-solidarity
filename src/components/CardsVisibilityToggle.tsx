@@ -66,9 +66,11 @@ interface CardsToggleButtonProps {
   leftSlot?: React.ReactNode;
   /** Optional content rendered to the right of the Masquer button — e.g. rating badge */
   rightSlot?: React.ReactNode;
+  /** Optional content rendered between the flags row and the toggle button — e.g. hook text on mobile */
+  middleSlot?: React.ReactNode;
 }
 
-export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDownDrag, leftSlot, rightSlot }: CardsToggleButtonProps) => {
+export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDownDrag, leftSlot, rightSlot, middleSlot }: CardsToggleButtonProps) => {
   return (
     <div className="w-full shrink-0 pointer-events-auto relative z-20">
       <div className="flex w-full items-center justify-center gap-3 h-[32px] mb-2">
