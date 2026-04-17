@@ -18,6 +18,8 @@ interface VideoDoc {
   business_id: string;
   business_name: string;
   badge_ids: string[];
+  subcategory_name: string | null;
+  service_name: string | null;
 }
 
 const TestNoteViewer = () => {
@@ -38,7 +40,7 @@ const TestNoteViewer = () => {
       while (true) {
         const { data } = await supabase
           .from("business_documents")
-          .select("id, url, name, thumbnail_url, city, neighborhood, business_id")
+          .select("id, url, name, thumbnail_url, city, neighborhood, business_id, subcategory_id, service_id")
           .eq("type", "video")
           .range(offset, offset + PAGE - 1);
         if (!data || data.length === 0) break;
@@ -47,10 +49,12 @@ const TestNoteViewer = () => {
         offset += PAGE;
       }
 
-      const [noteRes, badgesRes, linksRes] = await Promise.all([
+      const [noteRes, badgesRes, linksRes, subsRes, servicesRes] = await Promise.all([
         supabase.from("knowledge_entries").select("title, content").eq("id", NOTE_ID).maybeSingle(),
         supabase.from("badges").select("id, name_fr"),
         supabase.from("business_document_badges").select("document_id, badge_id"),
+        supabase.from("subcategories").select("id, name_fr"),
+        supabase.from("services").select("id, name_fr"),
       ]);
 
       if (noteRes.data) {
@@ -60,6 +64,9 @@ const TestNoteViewer = () => {
       if (badgesRes.data) {
         setBadges([...badgesRes.data].sort((a, b) => a.name_fr.localeCompare(b.name_fr, "fr")));
       }
+
+      const subMap = new Map<string, string>((subsRes.data || []).map((s: any) => [s.id, s.name_fr]));
+      const svcMap = new Map<string, string>((servicesRes.data || []).map((s: any) => [s.id, s.name_fr]));
 
       const bizIds = [...new Set(allDocs.map(d => d.business_id))];
       const bizMap = new Map<string, string>();
@@ -85,6 +92,8 @@ const TestNoteViewer = () => {
         business_id: d.business_id,
         business_name: bizMap.get(d.business_id) || "—",
         badge_ids: badgeMap.get(d.id) || [],
+        subcategory_name: d.subcategory_id ? subMap.get(d.subcategory_id) || null : null,
+        service_name: d.service_id ? svcMap.get(d.service_id) || null : null,
       })));
       setLoading(false);
     })();
@@ -203,6 +212,11 @@ const TestNoteViewer = () => {
                       </button>
                       <div className="mt-1.5">
                         <p className="text-sm font-medium leading-tight">{v.business_name}</p>
+                        {(v.subcategory_name || v.service_name) && (
+                          <p className="text-base font-semibold text-foreground leading-tight mt-0.5">
+                            {[v.subcategory_name, v.service_name].filter(Boolean).join(" · ")}
+                          </p>
+                        )}
                         {(v.city || v.neighborhood) && (
                           <p className="text-[11px] text-muted-foreground/70 truncate">
                             {[v.city, v.neighborhood].filter(Boolean).join(" · ")}
