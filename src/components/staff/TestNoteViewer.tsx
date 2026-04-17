@@ -31,6 +31,8 @@ const TestNoteViewer = () => {
   const [badges, setBadges] = useState<{ id: string; name_fr: string }[]>([]);
   const [videos, setVideos] = useState<VideoDoc[]>([]);
   const [toBadgeCity, setToBadgeCity] = useState<string>("all");
+  const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
+  const [assigning, setAssigning] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   useEffect(() => {
