@@ -146,7 +146,7 @@ const TestNoteViewer = () => {
   }
 
   return (
-    <div className="p-6 max-w-6xl">
+    <div className="w-full p-6">
       <Tabs defaultValue="note" className="w-full">
         <TabsList>
           <TabsTrigger value="note">Note</TabsTrigger>
