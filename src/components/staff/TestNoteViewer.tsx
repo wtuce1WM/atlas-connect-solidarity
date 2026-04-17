@@ -231,6 +231,8 @@ const TestNoteViewer = () => {
               )}
             </div>
           )}
+        </TabsContent>
+
         <TabsContent value="tobadge" className="mt-4 space-y-2">
           {(() => {
             const toBadge = videos.filter(v => v.city && v.subcategory_name && v.badge_ids.length === 0);
