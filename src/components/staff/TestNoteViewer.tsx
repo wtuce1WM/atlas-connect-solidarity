@@ -30,6 +30,7 @@ const TestNoteViewer = () => {
   const [badge, setBadge] = useState<string>("none");
   const [badges, setBadges] = useState<{ id: string; name_fr: string }[]>([]);
   const [videos, setVideos] = useState<VideoDoc[]>([]);
+  const [toBadgeCity, setToBadgeCity] = useState<string>("all");
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -233,14 +234,39 @@ const TestNoteViewer = () => {
           )}
         </TabsContent>
 
-        <TabsContent value="tobadge" className="mt-4 space-y-2">
+        <TabsContent value="tobadge" className="mt-4 space-y-3">
           {(() => {
-            const toBadge = videos.filter(v => v.city && v.subcategory_name && v.badge_ids.length === 0);
-            if (toBadge.length === 0) return <p className="text-sm text-muted-foreground py-4">Aucune vidéo à badger.</p>;
+            const base = videos.filter(v => v.subcategory_name && v.badge_ids.length === 0);
+            const cityOptions = Array.from(new Set(base.map(v => v.city).filter(Boolean) as string[])).sort((a, b) => a.localeCompare(b, "fr"));
+            const hasNoCity = base.some(v => !v.city);
+            const toBadge = base.filter(v =>
+              toBadgeCity === "all" ? true :
+              toBadgeCity === "__none__" ? !v.city :
+              v.city?.toLowerCase() === toBadgeCity.toLowerCase()
+            );
             return (
               <>
-                <p className="text-sm text-muted-foreground mb-2">{toBadge.length} vidéo{toBadge.length !== 1 ? "s" : ""} à badger</p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-foreground">Ville :</span>
+                  <Select value={toBadgeCity} onValueChange={setToBadgeCity}>
+                    <SelectTrigger className="w-[260px]"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Toutes ({base.length})</SelectItem>
+                      {cityOptions.map(c => (
+                        <SelectItem key={c} value={c}>{c} ({base.filter(v => v.city?.toLowerCase() === c.toLowerCase()).length})</SelectItem>
+                      ))}
+                      {hasNoCity && (
+                        <SelectItem value="__none__">Sans ville ({base.filter(v => !v.city).length})</SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {toBadge.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-4">Aucune vidéo à badger.</p>
+                ) : (
+                  <>
+                    <p className="text-sm text-muted-foreground">{toBadge.length} vidéo{toBadge.length !== 1 ? "s" : ""} à badger</p>
+                    <div className="flex flex-wrap gap-2">
                   {toBadge.map(v => (
                     <div key={v.id} style={{ width: 220 }} className="flex flex-col rounded-lg border bg-background p-1.5">
                       <button
@@ -277,7 +303,9 @@ const TestNoteViewer = () => {
                       </div>
                     </div>
                   ))}
-                </div>
+                    </div>
+                  </>
+                )}
               </>
             );
           })()}
