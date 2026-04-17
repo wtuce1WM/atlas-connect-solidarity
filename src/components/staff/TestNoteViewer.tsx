@@ -277,8 +277,8 @@ const TestNoteViewer = () => {
                 ) : (
                   <>
                     <p className="text-sm text-muted-foreground">{toBadge.length} vidéo{toBadge.length !== 1 ? "s" : ""} à badger</p>
-                    <div className="grid grid-cols-5 gap-3">
-                      <div className="col-span-3 grid grid-cols-3 gap-2">
+                    <div className="relative left-1/2 right-1/2 -translate-x-1/2 w-screen px-4 grid grid-cols-5 gap-3">
+                      <div className="col-span-3 grid grid-cols-4 gap-2">
                         {toBadge.map(v => {
                           const selected = selectedVideoId === v.id;
                           return (
