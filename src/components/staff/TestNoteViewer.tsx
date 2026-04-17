@@ -18,6 +18,8 @@ interface VideoDoc {
   business_id: string;
   business_name: string;
   badge_ids: string[];
+  subcategory_name: string | null;
+  service_name: string | null;
 }
 
 const TestNoteViewer = () => {
