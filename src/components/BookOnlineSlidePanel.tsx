@@ -1113,7 +1113,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             >
               {(() => {
                 const isReviews = !!descOverlayContent?.title && /^(avis|customer)/i.test(descOverlayContent.title);
-                const overlayClass = isReviews ? 'bg-black/85' : (descGridSection ? 'bg-black/75' : 'bg-black/50');
+                const overlayClass = isReviews ? 'bg-black/70' : (descGridSection ? 'bg-black/75' : 'bg-black/50');
                 return <div className={`absolute inset-0 transition-colors duration-300 ${overlayClass}`} />;
               })()}
             </div>
