@@ -94,7 +94,7 @@ const TestNoteViewer = () => {
   const matchesCity = (v: VideoDoc) =>
     city === "none" ? false :
     city === "__none__" ? !v.city :
-    v.city?.toLowerCase() === city.toLowerCase() || !v.city;
+    v.city?.toLowerCase() === city.toLowerCase();
 
   // Badges available for selected city (incl. videos without city)
   const availableBadges = useMemo(() => {
