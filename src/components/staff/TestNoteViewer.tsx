@@ -11,17 +11,21 @@ const TestNoteViewer = () => {
   const [content, setContent] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [city, setCity] = useState<string>("none");
+  const [badge, setBadge] = useState<string>("none");
+  const [badges, setBadges] = useState<{ id: string; name_fr: string }[]>([]);
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from("knowledge_entries")
-        .select("title, content")
-        .eq("id", NOTE_ID)
-        .maybeSingle();
-      if (data) {
-        setTitle(data.title);
-        setContent(data.content);
+      const [noteRes, badgesRes] = await Promise.all([
+        supabase.from("knowledge_entries").select("title, content").eq("id", NOTE_ID).maybeSingle(),
+        supabase.from("badges").select("id, name_fr"),
+      ]);
+      if (noteRes.data) {
+        setTitle(noteRes.data.title);
+        setContent(noteRes.data.content);
+      }
+      if (badgesRes.data) {
+        setBadges([...badgesRes.data].sort((a, b) => a.name_fr.localeCompare(b.name_fr, "fr")));
       }
       setLoading(false);
     })();
