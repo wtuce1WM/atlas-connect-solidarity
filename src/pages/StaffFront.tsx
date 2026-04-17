@@ -321,6 +321,7 @@ import VideoPoiAssignmentPanel from "@/components/staff/VideoPoiAssignmentPanel"
 import GenericVideosPanel from "@/components/staff/GenericVideosPanel";
 import FrontStructureVideosPanel from "@/components/staff/FrontStructureVideosPanel";
 import VideoDbStructurePanel from "@/components/staff/VideoDbStructurePanel";
+import TestNoteViewer from "@/components/staff/TestNoteViewer";
 
 const StaffFront = () => {
   const [user, setUser] = useState<any>(null);
@@ -489,7 +490,7 @@ const StaffFront = () => {
           </TabsContent>
 
           <TabsContent value="test">
-            <div className="p-6 text-foreground">Test</div>
+            <TestNoteViewer />
           </TabsContent>
 
           <TabsContent value="preview-mobile">
