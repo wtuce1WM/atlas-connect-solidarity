@@ -277,8 +277,11 @@ const TestNoteViewer = () => {
                 ) : (
                   <>
                     <p className="text-sm text-muted-foreground">{toBadge.length} vidéo{toBadge.length !== 1 ? "s" : ""} à badger</p>
-                    <div className="flex w-full gap-3 items-start">
-                      <div className="grid grid-cols-4 gap-2 basis-3/5 grow min-w-0">
+                    <div
+                      className="grid w-full gap-3 items-start"
+                      style={{ gridTemplateColumns: "minmax(0, 60%) minmax(0, 40%)" }}
+                    >
+                      <div className="grid min-w-0 grid-cols-4 gap-2">
                         {toBadge.map(v => {
                           const selected = selectedVideoId === v.id;
                           return (
@@ -323,7 +326,7 @@ const TestNoteViewer = () => {
                           );
                         })}
                       </div>
-                      <aside className="basis-2/5 grow rounded-lg border bg-muted/20 p-3 max-h-[80vh] overflow-y-auto sticky top-2 self-start min-w-0">
+                      <aside className="min-w-0 rounded-lg border bg-muted/20 p-3 h-[78vh] overflow-y-auto sticky top-2">
                         {!selectedVideoId ? (
                           <p className="text-xs text-muted-foreground">Sélectionnez une vidéo pour lui affecter des badges.</p>
                         ) : (() => {
