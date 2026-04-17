@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { DesktopMediaArrows, CardsToggleButton, useOwnerLogo } from "@/components/CardsVisibilityToggle";
+import { MobileFlagsOpenBadgeAlternator } from "@/components/MobileFlagsOpenBadgeAlternator";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import { createPortal } from "react-dom";
