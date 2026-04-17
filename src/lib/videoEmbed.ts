@@ -6,16 +6,18 @@ export interface VideoEmbedInfo {
   isVertical: boolean;
 }
 
-export function getVideoEmbed(url: string, origin: string, opts?: { background?: boolean; defaultSoundOn?: boolean }): VideoEmbedInfo {
+export function getVideoEmbed(url: string, origin: string, opts?: { background?: boolean; defaultSoundOn?: boolean; autoplay?: boolean }): VideoEmbedInfo {
   const bg = opts?.background ?? false;
   const defaultSoundOn = opts?.defaultSoundOn ?? true;
+  const autoplay = opts?.autoplay ?? true;
+  const ap = autoplay ? 1 : 0;
   const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
   if (ytMatch) {
     const isShort = /\/shorts\//.test(url);
     const muteVal = bg ? (defaultSoundOn ? 0 : 1) : 1;
     return {
       type: "youtube",
-      embedUrl: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&mute=${muteVal}&loop=0&rel=0&controls=${bg ? 0 : 1}&modestbranding=1&playsinline=1&iv_load_policy=3&cc_load_policy=0&disablekb=${bg ? 1 : 0}&fs=0&showinfo=0&autohide=1&enablejsapi=1&origin=${encodeURIComponent(origin)}`,
+      embedUrl: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=${ap}&mute=${muteVal}&loop=0&rel=0&controls=${bg ? 0 : 1}&modestbranding=1&playsinline=1&iv_load_policy=3&cc_load_policy=0&disablekb=${bg ? 1 : 0}&fs=0&showinfo=0&autohide=1&enablejsapi=1&origin=${encodeURIComponent(origin)}`,
       isVertical: isShort,
     };
   }
@@ -23,7 +25,7 @@ export function getVideoEmbed(url: string, origin: string, opts?: { background?:
   if (vimeoMatch) {
     return {
       type: "vimeo",
-      embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=1&loop=0`,
+      embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=${ap}&muted=1&loop=0`,
       isVertical: false,
     };
   }
@@ -31,7 +33,7 @@ export function getVideoEmbed(url: string, origin: string, opts?: { background?:
   if (bunnyMatch) {
     return {
       type: "bunny",
-      embedUrl: `https://iframe.mediadelivery.net/embed/${bunnyMatch[1]}/${bunnyMatch[2]}?autoplay=true&preload=true&loop=false&responsive=true`,
+      embedUrl: `https://iframe.mediadelivery.net/embed/${bunnyMatch[1]}/${bunnyMatch[2]}?autoplay=${autoplay ? "true" : "false"}&preload=true&loop=false&responsive=true`,
       isVertical: false,
     };
   }
