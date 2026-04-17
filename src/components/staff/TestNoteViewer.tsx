@@ -115,9 +115,8 @@ const TestNoteViewer = () => {
 
   const filteredVideos = useMemo(() => {
     if (city === "none" || badge === "none") return [];
-    return videos.filter(v =>
-      v.city?.toLowerCase() === city.toLowerCase() && v.badge_ids.includes(badge)
-    );
+    return videos.filter(v => matchesCity(v) && v.badge_ids.includes(badge));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videos, city, badge]);
 
   if (loading) {
