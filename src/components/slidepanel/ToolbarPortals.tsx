@@ -52,6 +52,7 @@ export function ToolbarPortals({
   selectedPoiBusinessId,
   anyOverlay,
   toolbarPortalPrefix,
+  openBadgeInfo,
 }: ToolbarPortalsProps) {
   const pfx = toolbarPortalPrefix ? `${toolbarPortalPrefix}-` : "";
   const toolbarPortal = document.getElementById(`${pfx}slide-panel-toolbar`);
@@ -62,7 +63,7 @@ export function ToolbarPortals({
 
   return (
     <>
-      {/* Left portal: media + mosaic + youtube buttons */}
+      {/* Left portal: media + mosaic + youtube buttons + (mobile) open badge */}
       {toolbarLeftPortal && !shouldHide && createPortal(
         <div className="flex items-center gap-2">
           {serpApiOverlayCtxRef.current && activeBusinessId !== propBusinessId && (
@@ -78,6 +79,12 @@ export function ToolbarPortals({
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
+          )}
+          {openBadgeInfo?.text && (
+            <div className={`md:hidden flex items-center gap-1 rounded-full py-1 px-3 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap ${openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"}`}>
+              <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
+              {openBadgeInfo.text}
+            </div>
           )}
         </div>,
         toolbarLeftPortal
