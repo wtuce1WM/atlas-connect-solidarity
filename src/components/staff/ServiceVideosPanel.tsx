@@ -313,23 +313,44 @@ const ServiceVideosPanel = () => {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
+    const filteredIds = new Set(filteredVideos.map(v => v.id));
+    const oldIdxFiltered = filteredVideos.findIndex(v => v.id === active.id);
+    const newIdxFiltered = filteredVideos.findIndex(v => v.id === over.id);
+    if (oldIdxFiltered === -1 || newIdxFiltered === -1) return;
+    const reorderedFiltered = arrayMove(filteredVideos, oldIdxFiltered, newIdxFiltered);
+    // Rebuild videos: keep non-filtered videos in place, replace filtered slots in order
     setVideos(prev => {
-      const oldIndex = prev.findIndex(v => v.id === active.id);
-      const newIndex = prev.findIndex(v => v.id === over.id);
-      return arrayMove(prev, oldIndex, newIndex);
+      const result: ServiceVideo[] = [];
+      let cursor = 0;
+      for (const v of prev) {
+        if (filteredIds.has(v.id)) {
+          result.push(reorderedFiltered[cursor++]);
+        } else {
+          result.push(v);
+        }
+      }
+      return result;
     });
   };
 
   const saveOrder = async () => {
     setSaving(true);
     try {
-      for (let i = 0; i < videos.length; i++) {
-        await supabase
-          .from("business_documents")
-          .update({ front_sort_order: i } as any)
-          .eq("id", videos[i].id);
+      const results = await Promise.all(
+        filteredVideos.map((v, i) =>
+          supabase
+            .from("business_documents")
+            .update({ sort_order: i } as any)
+            .eq("id", v.id)
+        )
+      );
+      const failed = results.filter(r => r.error);
+      if (failed.length > 0) {
+        toast.error(`Erreur sur ${failed.length} vidéo(s)`);
+      } else {
+        toast.success(`Ordre sauvegardé (${filteredVideos.length} vidéos)`);
+        await load();
       }
-      toast.success("Ordre sauvegardé");
     } catch {
       toast.error("Erreur lors de la sauvegarde");
     }
