@@ -115,6 +115,12 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
           <div className="flex items-center">{rightSlot}</div>
         )}
       </div>
+      {/* Optional middle slot (e.g. hook text on mobile) — between button row and flags row */}
+      {!cardsHidden && middleSlot && (
+        <div className="flex justify-center mt-2">
+          {middleSlot}
+        </div>
+      )}
       {/* Flags row — below the button, only when cards are visible */}
       {!cardsHidden && leftSlot && (
         <div className="flex justify-center mt-3">
