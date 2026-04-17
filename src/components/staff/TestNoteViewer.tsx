@@ -11,17 +11,21 @@ const TestNoteViewer = () => {
   const [content, setContent] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [city, setCity] = useState<string>("none");
+  const [badge, setBadge] = useState<string>("none");
+  const [badges, setBadges] = useState<{ id: string; name_fr: string }[]>([]);
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from("knowledge_entries")
-        .select("title, content")
-        .eq("id", NOTE_ID)
-        .maybeSingle();
-      if (data) {
-        setTitle(data.title);
-        setContent(data.content);
+      const [noteRes, badgesRes] = await Promise.all([
+        supabase.from("knowledge_entries").select("title, content").eq("id", NOTE_ID).maybeSingle(),
+        supabase.from("badges").select("id, name_fr"),
+      ]);
+      if (noteRes.data) {
+        setTitle(noteRes.data.title);
+        setContent(noteRes.data.content);
+      }
+      if (badgesRes.data) {
+        setBadges([...badgesRes.data].sort((a, b) => a.name_fr.localeCompare(b.name_fr, "fr")));
       }
       setLoading(false);
     })();
@@ -47,6 +51,21 @@ const TestNoteViewer = () => {
             <SelectItem value="none">Aucun</SelectItem>
             <SelectItem value="marrakech">Marrakech</SelectItem>
             <SelectItem value="essaouira">Essaouira</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-medium text-foreground">Badge :</span>
+        <Select value={badge} onValueChange={setBadge}>
+          <SelectTrigger className="w-[260px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">Aucun</SelectItem>
+            {badges.map(b => (
+              <SelectItem key={b.id} value={b.id}>{b.name_fr}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
