@@ -380,6 +380,10 @@ const StaffFront = () => {
               <Play className="h-4 w-4" />
               Vidéos
             </TabsTrigger>
+            <TabsTrigger value="test" className="gap-2">
+              <FlaskConical className="h-4 w-4" />
+              Test
+            </TabsTrigger>
             <TabsTrigger value="preview-mobile" className="gap-2">
               <Smartphone className="h-4 w-4" />
               Structure DB
