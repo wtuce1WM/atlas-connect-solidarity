@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Play } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { toast } from "sonner";
 import VideoLightbox from "./VideoLightbox";
 
 const NOTE_ID = "919622ac-3bfe-4e3e-ab64-0dfeb3bd1696";
@@ -31,6 +32,8 @@ const TestNoteViewer = () => {
   const [badges, setBadges] = useState<{ id: string; name_fr: string }[]>([]);
   const [videos, setVideos] = useState<VideoDoc[]>([]);
   const [toBadgeCity, setToBadgeCity] = useState<string>("all");
+  const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
+  const [assigning, setAssigning] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -266,43 +269,87 @@ const TestNoteViewer = () => {
                 ) : (
                   <>
                     <p className="text-sm text-muted-foreground">{toBadge.length} vidéo{toBadge.length !== 1 ? "s" : ""} à badger</p>
-                    <div className="flex flex-wrap gap-2">
-                  {toBadge.map(v => (
-                    <div key={v.id} style={{ width: 220 }} className="flex flex-col rounded-lg border bg-background p-1.5">
-                      <button
-                        className="relative bg-black rounded overflow-hidden group flex-shrink-0 w-full"
-                        style={{ height: 110 }}
-                        onClick={() => setLightboxUrl(v.url)}
-                      >
-                        {v.thumbnail_url ? (
-                          <img src={v.thumbnail_url} alt="" className="w-full h-full object-cover" />
-                        ) : v.url.includes("supabase.co/storage") ? (
-                          <video src={v.url} className="w-full h-full object-cover" muted preload="metadata" />
-                        ) : (
-                          <div className="w-full h-full bg-muted" />
-                        )}
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <div className="w-8 h-8 rounded-full bg-primary/80 flex items-center justify-center">
-                            <Play className="h-4 w-4 text-primary-foreground fill-primary-foreground ml-0.5" />
-                          </div>
-                        </div>
-                      </button>
-                      <div className="mt-1.5">
-                        <p className="text-sm font-medium leading-tight">{v.business_name}</p>
-                        {(v.subcategory_name || v.service_name) && (
-                          <p className="text-base font-semibold text-foreground leading-tight mt-0.5">
-                            {[v.subcategory_name, v.service_name].filter(Boolean).join(" · ")}
-                          </p>
-                        )}
-                        {(v.city || v.neighborhood) && (
-                          <p className="text-[11px] text-muted-foreground/70 truncate">
-                            {[v.city, v.neighborhood].filter(Boolean).join(" · ")}
-                          </p>
-                        )}
-                        {v.name && <p className="text-[11px] text-muted-foreground/70 truncate">{v.name}</p>}
+                    <div className="grid grid-cols-4 gap-3">
+                      <div className="col-span-3 grid grid-cols-4 gap-2">
+                        {toBadge.map(v => {
+                          const selected = selectedVideoId === v.id;
+                          return (
+                            <div
+                              key={v.id}
+                              onClick={() => setSelectedVideoId(v.id)}
+                              className={`flex flex-col rounded-lg border bg-background p-1.5 cursor-pointer transition-colors ${selected ? "border-primary ring-2 ring-primary" : "hover:border-muted-foreground/30"}`}
+                            >
+                              <button
+                                className="relative bg-black rounded overflow-hidden group flex-shrink-0 w-full"
+                                style={{ height: 110 }}
+                                onClick={(e) => { e.stopPropagation(); setLightboxUrl(v.url); }}
+                              >
+                                {v.thumbnail_url ? (
+                                  <img src={v.thumbnail_url} alt="" className="w-full h-full object-cover" />
+                                ) : v.url.includes("supabase.co/storage") ? (
+                                  <video src={v.url} className="w-full h-full object-cover" muted preload="metadata" />
+                                ) : (
+                                  <div className="w-full h-full bg-muted" />
+                                )}
+                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <div className="w-8 h-8 rounded-full bg-primary/80 flex items-center justify-center">
+                                    <Play className="h-4 w-4 text-primary-foreground fill-primary-foreground ml-0.5" />
+                                  </div>
+                                </div>
+                              </button>
+                              <div className="mt-1.5">
+                                <p className="text-sm font-medium leading-tight">{v.business_name}</p>
+                                {(v.subcategory_name || v.service_name) && (
+                                  <p className="text-base font-semibold text-foreground leading-tight mt-0.5">
+                                    {[v.subcategory_name, v.service_name].filter(Boolean).join(" · ")}
+                                  </p>
+                                )}
+                                {(v.city || v.neighborhood) && (
+                                  <p className="text-[11px] text-muted-foreground/70 truncate">
+                                    {[v.city, v.neighborhood].filter(Boolean).join(" · ")}
+                                  </p>
+                                )}
+                                {v.name && <p className="text-[11px] text-muted-foreground/70 truncate">{v.name}</p>}
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                    </div>
-                  ))}
+                      <aside className="col-span-1 rounded-lg border bg-muted/20 p-3 max-h-[70vh] overflow-y-auto sticky top-2 self-start">
+                        {!selectedVideoId ? (
+                          <p className="text-xs text-muted-foreground">Sélectionnez une vidéo pour lui affecter un badge.</p>
+                        ) : (
+                          <>
+                            <p className="text-xs text-muted-foreground mb-2">Affecter un badge :</p>
+                            <div className="flex flex-col gap-1">
+                              {badges.map(b => (
+                                <button
+                                  key={b.id}
+                                  disabled={assigning}
+                                  onClick={async () => {
+                                    if (!selectedVideoId) return;
+                                    setAssigning(true);
+                                    const { error } = await supabase
+                                      .from("business_document_badges")
+                                      .insert({ document_id: selectedVideoId, badge_id: b.id });
+                                    setAssigning(false);
+                                    if (error) {
+                                      toast.error("Erreur : " + error.message);
+                                      return;
+                                    }
+                                    setVideos(prev => prev.map(v => v.id === selectedVideoId ? { ...v, badge_ids: [...v.badge_ids, b.id] } : v));
+                                    setSelectedVideoId(null);
+                                    toast.success(`Badge « ${b.name_fr} » affecté`);
+                                  }}
+                                  className="text-left text-sm px-2 py-1.5 rounded hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50"
+                                >
+                                  {b.name_fr}
+                                </button>
+                              ))}
+                            </div>
+                          </>
+                        )}
+                      </aside>
                     </div>
                   </>
                 )}
