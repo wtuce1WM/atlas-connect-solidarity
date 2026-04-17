@@ -1530,7 +1530,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* External Links Overlay */}
       {showExtLinksOverlay && externalLinks.length > 0 && (
-        <OverlayShell zClass="z-[85]" desktopOnly={false}>
+        <OverlayShell zClass="z-[85]" coverToolbar={false}>
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setShowExtLinksOverlay(false)} />
           <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
             <div className="pointer-events-auto relative">
