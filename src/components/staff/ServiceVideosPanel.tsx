@@ -139,10 +139,10 @@ const ServiceVideosPanel = () => {
     while (true) {
       const { data } = await supabase
         .from("business_documents")
-        .select("id, url, name, thumbnail_url, sort_order, business_id, service_id, subcategory_id, city, neighborhood")
+        .select("id, url, name, thumbnail_url, sort_order, front_sort_order, business_id, service_id, subcategory_id, city, neighborhood")
         .eq("type", "video")
         .not("subcategory_id", "is", null)
-        .order("sort_order", { ascending: true })
+        .order("front_sort_order", { ascending: true })
         .range(offset, offset + PAGE - 1);
       if (!data || data.length === 0) break;
       allDocs.push(...data);
@@ -340,7 +340,7 @@ const ServiceVideosPanel = () => {
         filteredVideos.map((v, i) =>
           supabase
             .from("business_documents")
-            .update({ sort_order: i } as any)
+            .update({ front_sort_order: i } as any)
             .eq("id", v.id)
         )
       );
