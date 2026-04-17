@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, Smartphone, Play, Image, MapPinned } from "lucide-react";
+import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, Smartphone, Play, Image, MapPinned, FlaskConical } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import VideoLightbox from "@/components/staff/VideoLightbox";
 
@@ -380,6 +380,10 @@ const StaffFront = () => {
               <Play className="h-4 w-4" />
               Vidéos
             </TabsTrigger>
+            <TabsTrigger value="test" className="gap-2">
+              <FlaskConical className="h-4 w-4" />
+              Test
+            </TabsTrigger>
             <TabsTrigger value="preview-mobile" className="gap-2">
               <Smartphone className="h-4 w-4" />
               Structure DB
@@ -482,6 +486,10 @@ const StaffFront = () => {
                 <VideoDbStructurePanel />
               </TabsContent>
             </Tabs>
+          </TabsContent>
+
+          <TabsContent value="test">
+            <div className="p-6 text-foreground">Test</div>
           </TabsContent>
 
           <TabsContent value="preview-mobile">
