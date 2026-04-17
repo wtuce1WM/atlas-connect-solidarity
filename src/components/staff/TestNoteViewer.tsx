@@ -30,6 +30,7 @@ const TestNoteViewer = () => {
   const [badge, setBadge] = useState<string>("none");
   const [badges, setBadges] = useState<{ id: string; name_fr: string }[]>([]);
   const [videos, setVideos] = useState<VideoDoc[]>([]);
+  const [toBadgeCity, setToBadgeCity] = useState<string>("all");
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   useEffect(() => {
