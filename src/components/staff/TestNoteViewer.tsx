@@ -323,7 +323,7 @@ const TestNoteViewer = () => {
                           );
                         })}
                       </div>
-                      <aside className="col-span-2 rounded-lg border bg-muted/20 p-3 max-h-[80vh] overflow-y-auto sticky top-2 self-start">
+                      <aside className="rounded-lg border bg-muted/20 p-3 max-h-[80vh] overflow-y-auto sticky top-2 self-start flex-1" style={{ width: '40vw' }}>
                         {!selectedVideoId ? (
                           <p className="text-xs text-muted-foreground">Sélectionnez une vidéo pour lui affecter des badges.</p>
                         ) : (() => {
