@@ -44,9 +44,9 @@ export function buildReviewHtml(
     .map((p) => {
       const logo = LOGO_MAP[p.name] || "";
       const logoImg = logo
-        ? `<img src="${logo}" alt="${p.name}" style="width:28px;height:28px;object-fit:contain;border-radius:4px;flex-shrink:0" onerror="this.style.display='none'"/>`
+        ? `<img src="${logo}" alt="${p.name}" style="width:24px;height:24px;object-fit:contain;border-radius:4px;flex-shrink:0" onerror="this.style.display='none'"/>`
         : "";
-      return `<div style="display:flex;align-items:center;gap:6px;padding:1px 0"><span style="display:flex;align-items:center;gap:6px">${logoImg}<span><strong style="font-size:1rem">${p.name}</strong><br/><span style="opacity:0.7;font-size:0.82rem">${p.rating}/5 — ${p.count?.toLocaleString("fr-FR")} ${reviewLabel}</span></span></span></div>`;
+      return `<div style="display:flex;align-items:center;gap:6px;padding:2px 8px;background:hsla(0,0%,100%,0.06);border-radius:6px;flex-shrink:0">${logoImg}<span style="display:flex;flex-direction:column;line-height:1.1"><strong style="font-size:0.85rem;white-space:nowrap">${p.name}</strong><span style="opacity:0.7;font-size:0.72rem;white-space:nowrap">${p.rating}/5 — ${p.count?.toLocaleString("fr-FR")}</span></span></div>`;
     })
     .join("");
 
