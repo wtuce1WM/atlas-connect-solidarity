@@ -1530,9 +1530,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
       {/* External Links Overlay */}
       {showExtLinksOverlay && externalLinks.length > 0 && (
-        <OverlayShell zClass="z-[85]" coverToolbar={false} className="!overflow-visible">
+        <OverlayShell zClass="z-[85]" className="!overflow-visible">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setShowExtLinksOverlay(false)} />
-          <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none p-4">
+          <div className="relative z-10 flex flex-1 items-center justify-center pointer-events-none p-4">
             <div className="pointer-events-auto relative">
               <button
                 onClick={() => setShowExtLinksOverlay(false)}
@@ -1540,7 +1540,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               >
                 <X className="h-4 w-4" />
               </button>
-                <ExternalLinksFlipCard
+              <ExternalLinksFlipCard
                 links={externalLinks}
                 animationDelay="0ms"
                 variant="overlay"
