@@ -891,12 +891,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   className="cursor-pointer group flex flex-col items-center gap-2"
                   onClick={() => setShowDescriptionOverlay(true)}
                 >
-                  {openBadgeInfo?.text && (
-                    <div className={`flex items-center gap-1 rounded-full py-1 px-3 text-[10px] font-bold uppercase tracking-wider ${openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"}`}>
-                      <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
-                      {openBadgeInfo.text}
-                    </div>
-                  )}
                   <div
                     className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
                     style={{ backgroundColor: '#25D366' }}
