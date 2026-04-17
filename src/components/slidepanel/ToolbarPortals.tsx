@@ -29,6 +29,8 @@ interface ToolbarPortalsProps {
   anyOverlay: boolean;
   /** Optional prefix to target scoped toolbar portal IDs */
   toolbarPortalPrefix?: string;
+  /** Open/closed badge — shown on mobile only between close button and WhatsApp */
+  openBadgeInfo?: { text: string; isOpen: boolean } | null;
 }
 
 export function ToolbarPortals({
