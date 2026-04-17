@@ -82,8 +82,8 @@ export function ToolbarPortals({
           )}
           {openBadgeInfo?.text && (
             <div
-              className={`md:hidden fixed top-2 z-[80] flex items-center gap-1 rounded-full py-1 px-3 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap pointer-events-auto ${openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"}`}
-              style={{ left: "calc(25% + 1.125rem)", transform: "translateX(-50%)", height: "2.25rem", paddingTop: 0, paddingBottom: 0, display: "flex", alignItems: "center" }}
+              className={`md:hidden fixed top-2 z-[80] flex items-center gap-1 rounded-full py-0.5 px-2 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap pointer-events-auto ${openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"}`}
+              style={{ left: "calc(25% + 1.125rem)", transform: "translateX(-50%)", height: "1.5rem", display: "flex", alignItems: "center" }}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
               {openBadgeInfo.text}
