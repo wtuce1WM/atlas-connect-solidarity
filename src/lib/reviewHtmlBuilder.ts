@@ -23,7 +23,7 @@ const LOGO_MAP: Record<string, string> = {
   TripAdvisor: "https://static.tacdn.com/img2/brand_refresh/Tripadvisor_logoset_solid_green.svg",
   "Restaurant Guru": "/review-logos/restaurant-guru.webp",
   Trustpilot: "https://cdn.trustpilot.net/brand-assets/4.1.0/logo-black.svg",
-  GetYourGuide: "https://cdn.getyourguide.com/tf/assets/static/favicon.ico",
+  GetYourGuide: "/review-logos/getyourguide.webp",
   Viator: "https://www.viator.com/favicon.ico",
   "Avis Vérifiés": "https://www.avis-verifies.com/favicon.ico",
   TourRadar: "https://www.tourradar.com/favicon.ico",
