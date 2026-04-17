@@ -488,6 +488,10 @@ const StaffFront = () => {
             </Tabs>
           </TabsContent>
 
+          <TabsContent value="test">
+            <div className="p-6 text-foreground">Test</div>
+          </TabsContent>
+
           <TabsContent value="preview-mobile">
             <div className="grid grid-cols-2 gap-6 w-full">
               {/* Business Documents (videos) */}
