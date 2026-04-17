@@ -1263,12 +1263,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 <div className={`px-4 pt-4 pb-6 md:pl-6 md:pt-6 ${descOverlayContent ? 'pr-4 md:pr-6' : 'pr-14 md:pr-16'}`}>
                   {descOverlayContent && (
                     <>
-                      <div className="flex items-center gap-2 mb-4">
-                        {descOverlayContent.title?.toLowerCase().startsWith("avis") || descOverlayContent.title?.toLowerCase().startsWith("customer")
-                          ? <Star className="h-4 w-4 text-gold fill-gold shrink-0" />
-                          : <Sparkles className="h-4 w-4 text-gold shrink-0" />}
-                        <h3 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] text-white">{descOverlayContent.title}</h3>
-                      </div>
+                      {!(descOverlayContent.title?.toLowerCase().startsWith("avis") || descOverlayContent.title?.toLowerCase().startsWith("customer")) && (
+                        <div className="flex items-center gap-2 mb-4">
+                          <Sparkles className="h-4 w-4 text-gold shrink-0" />
+                          <h3 className="text-sm font-bold uppercase font-['Josefin_Sans',sans-serif] text-white">{descOverlayContent.title}</h3>
+                        </div>
+                      )}
                       {(descOverlayContent.avgPriceRange || descOverlayContent.priceDetails) && (
                         <div className="flex flex-wrap gap-3 mb-5">
                           {descOverlayContent.avgPriceRange && (() => {
