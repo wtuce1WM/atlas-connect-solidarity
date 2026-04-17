@@ -60,26 +60,8 @@ import BusinessHeader from "@/components/slidepanel/BusinessHeader";
 import { buildReviewHtml } from "@/lib/reviewHtmlBuilder";
 import VideoControls from "@/components/VideoControls";
 
-/* Typewriter hook text component */
+/* Static hook text component */
 const TypewriterHook = ({ text }: { text: string }) => {
-  const [displayed, setDisplayed] = useState("");
-  const [done, setDone] = useState(false);
-
-  useEffect(() => {
-    setDisplayed("");
-    setDone(false);
-    let i = 0;
-    const timer = setInterval(() => {
-      i++;
-      setDisplayed(text.slice(0, i));
-      if (i >= text.length) {
-        clearInterval(timer);
-        setDone(true);
-      }
-    }, 35);
-    return () => clearInterval(timer);
-  }, [text]);
-
   return (
     <p
       className="text-lg md:text-xl text-white/90 font-bold text-center max-w-[85%] md:max-w-xl leading-relaxed pointer-events-none"
@@ -88,8 +70,7 @@ const TypewriterHook = ({ text }: { text: string }) => {
         filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7)) drop-shadow(0 4px 24px hsla(0,0%,0%,0.4))",
       }}
     >
-      {displayed}
-      {!done && <span className="animate-pulse">|</span>}
+      {text}
     </p>
   );
 };
