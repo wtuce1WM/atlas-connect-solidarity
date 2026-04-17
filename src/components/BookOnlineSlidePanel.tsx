@@ -853,7 +853,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   {languages.map((lang, i) => {
                     const langAlt = getLangAlt(lang);
                     return (
-                      <span key={i} className="group relative inline-flex items-center justify-center text-xl md:text-2xl leading-none cursor-help shrink-0" title={langAlt} aria-label={langAlt} role="img" tabIndex={0}>
+                      <span
+                        key={i}
+                        className="group relative inline-flex items-center justify-center text-xl md:text-2xl leading-none cursor-help shrink-0"
+                        title={langAlt}
+                        aria-label={langAlt}
+                        role="img"
+                        tabIndex={0}
+                        style={{ filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7)) drop-shadow(0 4px 24px hsla(0,0%,0%,0.4))" }}
+                      >
                         {getLangFlag(lang)}
                         <span role="tooltip" className="pointer-events-none absolute left-0 top-full z-50 mt-2 hidden whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[10px] text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 md:block md:text-xs">
                           {langAlt}
