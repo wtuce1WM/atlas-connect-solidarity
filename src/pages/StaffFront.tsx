@@ -489,7 +489,7 @@ const StaffFront = () => {
           </TabsContent>
 
           <TabsContent value="test">
-            <div className="p-6 text-foreground">Test</div>
+            <TestNoteViewer />
           </TabsContent>
 
           <TabsContent value="preview-mobile">
