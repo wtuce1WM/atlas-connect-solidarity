@@ -138,6 +138,7 @@ const TestNoteViewer = () => {
               <SelectItem value="none">Aucun</SelectItem>
               <SelectItem value="marrakech">Marrakech</SelectItem>
               <SelectItem value="essaouira">Essaouira</SelectItem>
+              <SelectItem value="__none__">Sans ville</SelectItem>
             </SelectContent>
           </Select>
         </div>
