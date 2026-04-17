@@ -898,7 +898,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           <div className="flex flex-col items-center justify-center pointer-events-auto gap-10 flex-1 -mt-[3rem]">
             {hookText && <TypewriterHook text={hookText} key={businessId + '-hook'} />}
             {woDescription && (
-              <div>
+              <div className="mt-6 md:mt-0">
                 <div
                   className="cursor-pointer group flex flex-col items-center gap-2"
                   onClick={() => setShowDescriptionOverlay(true)}
