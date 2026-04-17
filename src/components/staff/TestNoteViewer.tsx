@@ -212,6 +212,11 @@ const TestNoteViewer = () => {
                       </button>
                       <div className="mt-1.5">
                         <p className="text-sm font-medium leading-tight">{v.business_name}</p>
+                        {(v.subcategory_name || v.service_name) && (
+                          <p className="text-base font-semibold text-foreground leading-tight mt-0.5">
+                            {[v.subcategory_name, v.service_name].filter(Boolean).join(" · ")}
+                          </p>
+                        )}
                         {(v.city || v.neighborhood) && (
                           <p className="text-[11px] text-muted-foreground/70 truncate">
                             {[v.city, v.neighborhood].filter(Boolean).join(" · ")}
