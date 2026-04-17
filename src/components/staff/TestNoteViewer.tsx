@@ -239,7 +239,7 @@ const TestNoteViewer = () => {
 
         <TabsContent value="tobadge" className="mt-4 space-y-3">
           {(() => {
-            const base = videos.filter(v => v.subcategory_name && v.badge_ids.length === 0);
+            const base = videos.filter(v => v.subcategory_name && (v.badge_ids.length === 0 || v.id === selectedVideoId));
             const cityOptions = Array.from(new Set(base.map(v => v.city).filter(Boolean) as string[])).sort((a, b) => a.localeCompare(b, "fr"));
             const hasNoCity = base.some(v => !v.city);
             const toBadge = base.filter(v =>
@@ -318,37 +318,77 @@ const TestNoteViewer = () => {
                       <aside className="col-span-1 rounded-lg border bg-muted/20 p-3 max-h-[70vh] overflow-y-auto sticky top-2 self-start">
                         {!selectedVideoId ? (
                           <p className="text-xs text-muted-foreground">Sélectionnez une vidéo pour lui affecter un badge.</p>
-                        ) : (
-                          <>
-                            <p className="text-xs text-muted-foreground mb-2">Affecter un badge :</p>
-                            <div className="flex flex-col gap-1">
-                              {badges.map(b => (
+                        ) : (() => {
+                          const selectedVideo = videos.find(v => v.id === selectedVideoId);
+                          const assignedIds = new Set(selectedVideo?.badge_ids || []);
+                          const available = badges.filter(b => !assignedIds.has(b.id));
+                          const assigned = badges.filter(b => assignedIds.has(b.id));
+                          return (
+                            <>
+                              <div className="flex items-center justify-between mb-2">
+                                <p className="text-xs text-muted-foreground">Affecter des badges :</p>
                                 <button
-                                  key={b.id}
-                                  disabled={assigning}
-                                  onClick={async () => {
-                                    if (!selectedVideoId) return;
-                                    setAssigning(true);
-                                    const { error } = await supabase
-                                      .from("business_document_badges")
-                                      .insert({ document_id: selectedVideoId, badge_id: b.id });
-                                    setAssigning(false);
-                                    if (error) {
-                                      toast.error("Erreur : " + error.message);
-                                      return;
-                                    }
-                                    setVideos(prev => prev.map(v => v.id === selectedVideoId ? { ...v, badge_ids: [...v.badge_ids, b.id] } : v));
-                                    setSelectedVideoId(null);
-                                    toast.success(`Badge « ${b.name_fr} » affecté`);
-                                  }}
-                                  className="text-left text-sm px-2 py-1.5 rounded hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50"
+                                  onClick={() => setSelectedVideoId(null)}
+                                  className="text-xs text-primary hover:underline"
                                 >
-                                  {b.name_fr}
+                                  Terminer
                                 </button>
-                              ))}
-                            </div>
-                          </>
-                        )}
+                              </div>
+                              {assigned.length > 0 && (
+                                <div className="mb-3">
+                                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">Affectés</p>
+                                  <div className="flex flex-wrap gap-1">
+                                    {assigned.map(b => (
+                                      <button
+                                        key={b.id}
+                                        disabled={assigning}
+                                        onClick={async () => {
+                                          if (!selectedVideoId) return;
+                                          setAssigning(true);
+                                          const { error } = await supabase
+                                            .from("business_document_badges")
+                                            .delete()
+                                            .eq("document_id", selectedVideoId)
+                                            .eq("badge_id", b.id);
+                                          setAssigning(false);
+                                          if (error) { toast.error("Erreur : " + error.message); return; }
+                                          setVideos(prev => prev.map(v => v.id === selectedVideoId ? { ...v, badge_ids: v.badge_ids.filter(id => id !== b.id) } : v));
+                                          toast.success(`Badge « ${b.name_fr} » retiré`);
+                                        }}
+                                        className="text-xs px-2 py-1 rounded bg-primary text-primary-foreground hover:opacity-80 disabled:opacity-50"
+                                        title="Cliquer pour retirer"
+                                      >
+                                        {b.name_fr} ×
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              <div className="flex flex-col gap-1">
+                                {available.map(b => (
+                                  <button
+                                    key={b.id}
+                                    disabled={assigning}
+                                    onClick={async () => {
+                                      if (!selectedVideoId) return;
+                                      setAssigning(true);
+                                      const { error } = await supabase
+                                        .from("business_document_badges")
+                                        .insert({ document_id: selectedVideoId, badge_id: b.id });
+                                      setAssigning(false);
+                                      if (error) { toast.error("Erreur : " + error.message); return; }
+                                      setVideos(prev => prev.map(v => v.id === selectedVideoId ? { ...v, badge_ids: [...v.badge_ids, b.id] } : v));
+                                      toast.success(`Badge « ${b.name_fr} » affecté`);
+                                    }}
+                                    className="text-left text-sm px-2 py-1.5 rounded hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50"
+                                  >
+                                    {b.name_fr}
+                                  </button>
+                                ))}
+                              </div>
+                            </>
+                          );
+                        })()}
                       </aside>
                     </div>
                   </>
