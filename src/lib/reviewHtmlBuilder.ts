@@ -20,7 +20,7 @@ export interface ReviewText {
 
 const LOGO_MAP: Record<string, string> = {
   Google: "https://www.google.com/favicon.ico",
-  TripAdvisor: "https://static.tacdn.com/img2/brand_refresh/Tripadvisor_logoset_solid_green.svg",
+  TripAdvisor: "/review-logos/tripadvisor.webp",
   "Restaurant Guru": "/review-logos/restaurant-guru.webp",
   Trustpilot: "https://cdn.trustpilot.net/brand-assets/4.1.0/logo-black.svg",
   GetYourGuide: "/review-logos/getyourguide.webp",
