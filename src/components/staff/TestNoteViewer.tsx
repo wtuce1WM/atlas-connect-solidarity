@@ -35,6 +35,14 @@ const TestNoteViewer = () => {
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
   const [assigning, setAssigning] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [draftBadgeIds, setDraftBadgeIds] = useState<string[]>([]);
+
+  // Sync draft when selecting a video
+  useEffect(() => {
+    if (!selectedVideoId) { setDraftBadgeIds([]); return; }
+    const v = videos.find(x => x.id === selectedVideoId);
+    setDraftBadgeIds(v?.badge_ids || []);
+  }, [selectedVideoId, videos]);
 
   useEffect(() => {
     (async () => {
