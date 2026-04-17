@@ -139,6 +139,7 @@ const TestNoteViewer = () => {
         <TabsList>
           <TabsTrigger value="note">Note</TabsTrigger>
           <TabsTrigger value="badgees">Badgées</TabsTrigger>
+          <TabsTrigger value="tobadge">À badger</TabsTrigger>
         </TabsList>
 
         <TabsContent value="note" className="mt-4">
