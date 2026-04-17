@@ -146,7 +146,7 @@ const TestNoteViewer = () => {
   }
 
   return (
-    <div className="p-6 max-w-6xl">
+    <div className="w-full p-6">
       <Tabs defaultValue="note" className="w-full">
         <TabsList>
           <TabsTrigger value="note">Note</TabsTrigger>
@@ -277,8 +277,11 @@ const TestNoteViewer = () => {
                 ) : (
                   <>
                     <p className="text-sm text-muted-foreground">{toBadge.length} vidéo{toBadge.length !== 1 ? "s" : ""} à badger</p>
-                    <div className="relative left-1/2 -translate-x-1/2 w-screen px-4 flex gap-3 items-start">
-                      <div className="grid grid-cols-4 gap-2 shrink-0" style={{ width: '60vw' }}>
+                    <div
+                      className="grid w-full gap-3 items-start"
+                      style={{ gridTemplateColumns: "minmax(0, 60%) minmax(0, 40%)" }}
+                    >
+                      <div className="grid min-w-0 grid-cols-4 gap-2">
                         {toBadge.map(v => {
                           const selected = selectedVideoId === v.id;
                           return (
@@ -323,7 +326,7 @@ const TestNoteViewer = () => {
                           );
                         })}
                       </div>
-                      <aside className="rounded-lg border bg-muted/20 p-3 max-h-[80vh] overflow-y-auto sticky top-2 self-start flex-1" style={{ width: '40vw' }}>
+                      <aside className="min-w-0 rounded-lg border bg-muted/20 p-3 h-[78vh] overflow-y-auto sticky top-2">
                         {!selectedVideoId ? (
                           <p className="text-xs text-muted-foreground">Sélectionnez une vidéo pour lui affecter des badges.</p>
                         ) : (() => {
