@@ -1260,7 +1260,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               );
             })() : (
               <div className="w-full h-full overflow-y-auto overscroll-contain">
-                <div className="px-4 pt-4 pb-6 md:pl-6 md:pt-6 pr-14 md:pr-16">
+                <div className={`px-4 pt-4 pb-6 md:pl-6 md:pt-6 ${descOverlayContent ? 'pr-4 md:pr-6' : 'pr-14 md:pr-16'}`}>
                   {descOverlayContent && (
                     <>
                       <div className="flex items-center gap-2 mb-4">
