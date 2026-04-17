@@ -35,6 +35,14 @@ const TestNoteViewer = () => {
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
   const [assigning, setAssigning] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [draftBadgeIds, setDraftBadgeIds] = useState<string[]>([]);
+
+  // Sync draft when selecting a video
+  useEffect(() => {
+    if (!selectedVideoId) { setDraftBadgeIds([]); return; }
+    const v = videos.find(x => x.id === selectedVideoId);
+    setDraftBadgeIds(v?.badge_ids || []);
+  }, [selectedVideoId, videos]);
 
   useEffect(() => {
     (async () => {
@@ -269,8 +277,8 @@ const TestNoteViewer = () => {
                 ) : (
                   <>
                     <p className="text-sm text-muted-foreground">{toBadge.length} vidéo{toBadge.length !== 1 ? "s" : ""} à badger</p>
-                    <div className="grid grid-cols-4 gap-3">
-                      <div className="col-span-3 grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-5 gap-3">
+                      <div className="col-span-3 grid grid-cols-3 gap-2">
                         {toBadge.map(v => {
                           const selected = selectedVideoId === v.id;
                           return (
@@ -315,76 +323,66 @@ const TestNoteViewer = () => {
                           );
                         })}
                       </div>
-                      <aside className="col-span-1 rounded-lg border bg-muted/20 p-3 max-h-[70vh] overflow-y-auto sticky top-2 self-start">
+                      <aside className="col-span-2 rounded-lg border bg-muted/20 p-3 max-h-[80vh] overflow-y-auto sticky top-2 self-start">
                         {!selectedVideoId ? (
-                          <p className="text-xs text-muted-foreground">Sélectionnez une vidéo pour lui affecter un badge.</p>
+                          <p className="text-xs text-muted-foreground">Sélectionnez une vidéo pour lui affecter des badges.</p>
                         ) : (() => {
                           const selectedVideo = videos.find(v => v.id === selectedVideoId);
-                          const assignedIds = new Set(selectedVideo?.badge_ids || []);
-                          const available = badges.filter(b => !assignedIds.has(b.id));
-                          const assigned = badges.filter(b => assignedIds.has(b.id));
+                          const original = new Set(selectedVideo?.badge_ids || []);
+                          const draft = new Set(draftBadgeIds);
+                          const dirty = original.size !== draft.size || [...draft].some(id => !original.has(id));
                           return (
                             <>
-                              <div className="flex items-center justify-between mb-2">
-                                <p className="text-xs text-muted-foreground">Affecter des badges :</p>
-                                <button
-                                  onClick={() => setSelectedVideoId(null)}
-                                  className="text-xs text-primary hover:underline"
-                                >
-                                  Terminer
-                                </button>
-                              </div>
-                              {assigned.length > 0 && (
-                                <div className="mb-3">
-                                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">Affectés</p>
-                                  <div className="flex flex-wrap gap-1">
-                                    {assigned.map(b => (
-                                      <button
-                                        key={b.id}
-                                        disabled={assigning}
-                                        onClick={async () => {
-                                          if (!selectedVideoId) return;
-                                          setAssigning(true);
-                                          const { error } = await supabase
-                                            .from("business_document_badges")
-                                            .delete()
-                                            .eq("document_id", selectedVideoId)
-                                            .eq("badge_id", b.id);
-                                          setAssigning(false);
-                                          if (error) { toast.error("Erreur : " + error.message); return; }
-                                          setVideos(prev => prev.map(v => v.id === selectedVideoId ? { ...v, badge_ids: v.badge_ids.filter(id => id !== b.id) } : v));
-                                          toast.success(`Badge « ${b.name_fr} » retiré`);
-                                        }}
-                                        className="text-xs px-2 py-1 rounded bg-primary text-primary-foreground hover:opacity-80 disabled:opacity-50"
-                                        title="Cliquer pour retirer"
-                                      >
-                                        {b.name_fr} ×
-                                      </button>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                              <div className="flex flex-col gap-1">
-                                {available.map(b => (
+                              <div className="flex items-center justify-between mb-3 gap-2">
+                                <p className="text-xs font-medium text-foreground">Badges</p>
+                                <div className="flex items-center gap-1">
                                   <button
-                                    key={b.id}
-                                    disabled={assigning}
+                                    onClick={() => setSelectedVideoId(null)}
+                                    className="text-xs px-2 py-1 rounded hover:bg-accent text-muted-foreground"
+                                  >
+                                    Fermer
+                                  </button>
+                                  <button
+                                    disabled={!dirty || assigning}
                                     onClick={async () => {
                                       if (!selectedVideoId) return;
                                       setAssigning(true);
-                                      const { error } = await supabase
-                                        .from("business_document_badges")
-                                        .insert({ document_id: selectedVideoId, badge_id: b.id });
+                                      const toAdd = [...draft].filter(id => !original.has(id));
+                                      const toRemove = [...original].filter(id => !draft.has(id));
+                                      let err: any = null;
+                                      if (toRemove.length > 0) {
+                                        const r = await supabase.from("business_document_badges").delete().eq("document_id", selectedVideoId).in("badge_id", toRemove);
+                                        if (r.error) err = r.error;
+                                      }
+                                      if (!err && toAdd.length > 0) {
+                                        const r = await supabase.from("business_document_badges").insert(toAdd.map(badge_id => ({ document_id: selectedVideoId, badge_id })));
+                                        if (r.error) err = r.error;
+                                      }
                                       setAssigning(false);
-                                      if (error) { toast.error("Erreur : " + error.message); return; }
-                                      setVideos(prev => prev.map(v => v.id === selectedVideoId ? { ...v, badge_ids: [...v.badge_ids, b.id] } : v));
-                                      toast.success(`Badge « ${b.name_fr} » affecté`);
+                                      if (err) { toast.error("Erreur : " + err.message); return; }
+                                      setVideos(prev => prev.map(v => v.id === selectedVideoId ? { ...v, badge_ids: [...draft] } : v));
+                                      toast.success("Badges enregistrés");
                                     }}
-                                    className="text-left text-sm px-2 py-1.5 rounded hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50"
+                                    className="text-xs px-3 py-1 rounded bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-40"
                                   >
-                                    {b.name_fr}
+                                    {assigning ? "..." : "Enregistrer"}
                                   </button>
-                                ))}
+                                </div>
+                              </div>
+                              <div className="flex flex-wrap gap-1">
+                                {badges.map(badge => {
+                                  const isSelected = draft.has(badge.id);
+                                  return (
+                                    <button
+                                      key={badge.id}
+                                      type="button"
+                                      className={`text-xs px-2 py-1 rounded-full border transition-colors ${isSelected ? "bg-primary text-primary-foreground border-primary" : "bg-background text-muted-foreground border-border hover:border-primary/50"}`}
+                                      onClick={() => setDraftBadgeIds(prev => isSelected ? prev.filter(id => id !== badge.id) : [...prev, badge.id])}
+                                    >
+                                      {badge.name_fr}
+                                    </button>
+                                  );
+                                })}
                               </div>
                             </>
                           );
