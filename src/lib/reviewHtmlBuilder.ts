@@ -46,7 +46,7 @@ export function buildReviewHtml(
       const logoImg = logo
         ? `<img src="${logo}" alt="${p.name}" style="width:24px;height:24px;object-fit:contain;border-radius:4px;flex-shrink:0" onerror="this.style.display='none'"/>`
         : "";
-      return `<div style="display:flex;align-items:center;gap:6px;padding:2px 8px;background:hsla(0,0%,100%,0.06);border-radius:6px;flex-shrink:0">${logoImg}<span style="display:flex;flex-direction:column;line-height:1.1"><strong style="font-size:0.85rem;white-space:nowrap">${p.name}</strong><span style="opacity:0.7;font-size:0.72rem;white-space:nowrap">${p.rating}/5 — ${p.count?.toLocaleString("fr-FR")}</span></span></div>`;
+      return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:hsla(0,0%,100%,0.06);border-radius:8px;width:160px;height:44px;box-sizing:border-box">${logoImg}<span style="display:flex;flex-direction:column;line-height:1.15;min-width:0;flex:1"><strong style="font-size:0.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</strong><span style="opacity:0.7;font-size:0.7rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.rating}/5 — ${p.count?.toLocaleString("fr-FR")}</span></span></div>`;
     })
     .join("");
 
