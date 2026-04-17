@@ -91,13 +91,19 @@ const TestNoteViewer = () => {
     })();
   }, []);
 
-  // Badges available for selected city
+  const matchesCity = (v: VideoDoc) =>
+    city === "none" ? false :
+    city === "__none__" ? !v.city :
+    v.city?.toLowerCase() === city.toLowerCase() || !v.city;
+
+  // Badges available for selected city (incl. videos without city)
   const availableBadges = useMemo(() => {
     if (city === "none") return badges;
-    const cityVideos = videos.filter(v => v.city?.toLowerCase() === city.toLowerCase());
+    const cityVideos = videos.filter(matchesCity);
     const badgeIdsWithVideos = new Set<string>();
     cityVideos.forEach(v => v.badge_ids.forEach(id => badgeIdsWithVideos.add(id)));
     return badges.filter(b => badgeIdsWithVideos.has(b.id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [badges, videos, city]);
 
   // Reset badge if no longer available
