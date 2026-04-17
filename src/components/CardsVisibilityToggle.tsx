@@ -113,9 +113,10 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
             <span className="hidden md:block h-1.5 w-8 rounded-full bg-white/60" />
           </button>
         )}
-        {!cardsHidden && rightSlot && (
-          <div className="flex items-center">{rightSlot}</div>
-        )}
+        {/* Right slot — keeps button visually centered; rightSlot only shown when cards visible */}
+        <div className="flex items-center min-w-0 justify-end">
+          {!cardsHidden && rightSlot ? rightSlot : null}
+        </div>
       </div>
     </div>
   );
