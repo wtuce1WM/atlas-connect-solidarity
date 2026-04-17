@@ -55,6 +55,21 @@ const TestNoteViewer = () => {
         </Select>
       </div>
 
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-medium text-foreground">Badge :</span>
+        <Select value={badge} onValueChange={setBadge}>
+          <SelectTrigger className="w-[260px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">Aucun</SelectItem>
+            {badges.map(b => (
+              <SelectItem key={b.id} value={b.id}>{b.name_fr}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       {!content ? (
         <div className="text-muted-foreground">Note introuvable.</div>
       ) : (
