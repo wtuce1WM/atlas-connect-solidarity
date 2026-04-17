@@ -518,7 +518,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         {/* Media background */}
         <div className="absolute inset-0">
           {currentMedia?.kind === "video" ? (
-            <video ref={videoRef} key={currentMedia.url} src={currentMedia.url} className="w-full h-full object-cover" autoPlay loop muted playsInline />
+            <video ref={videoRef} key={currentMedia.url} src={currentMedia.url} className="w-full h-full object-cover" loop muted playsInline />
           ) : currentMedia?.kind === "image" ? (
             <img src={currentMedia.url} alt={destName} className="w-full h-full object-cover" />
           ) : (
