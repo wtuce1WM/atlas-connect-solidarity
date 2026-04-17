@@ -44,15 +44,15 @@ export function buildReviewHtml(
     .map((p) => {
       const logo = LOGO_MAP[p.name] || "";
       const logoImg = logo
-        ? `<img src="${logo}" alt="${p.name}" style="width:28px;height:28px;object-fit:contain;border-radius:4px;flex-shrink:0" onerror="this.style.display='none'"/>`
+        ? `<img src="${logo}" alt="${p.name}" style="width:24px;height:24px;object-fit:contain;border-radius:4px;flex-shrink:0" onerror="this.style.display='none'"/>`
         : "";
-      return `<div style="display:flex;align-items:center;gap:6px;padding:1px 0"><span style="display:flex;align-items:center;gap:6px">${logoImg}<span><strong style="font-size:1rem">${p.name}</strong><br/><span style="opacity:0.7;font-size:0.82rem">${p.rating}/5 — ${p.count?.toLocaleString("fr-FR")} ${reviewLabel}</span></span></span></div>`;
+      return `<div style="display:flex;align-items:center;gap:6px;padding:2px 8px;background:hsla(0,0%,100%,0.06);border-radius:6px;flex-shrink:0">${logoImg}<span style="display:flex;flex-direction:column;line-height:1.1"><strong style="font-size:0.85rem;white-space:nowrap">${p.name}</strong><span style="opacity:0.7;font-size:0.72rem;white-space:nowrap">${p.rating}/5 — ${p.count?.toLocaleString("fr-FR")}</span></span></div>`;
     })
     .join("");
 
   const starSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="hsl(43,75%,55%)" stroke="hsl(43,75%,55%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`;
   const ratingBlock = `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;margin-bottom:12px"><div style="display:flex;align-items:center;gap:12px;filter:drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))">${starSvg}<span style="font-family:'Josefin Sans',sans-serif;font-size:3rem;font-weight:900;color:hsl(43,75%,55%) !important">${avgOn20}<span style="font-size:1.5rem;font-weight:600;color:rgba(255,255,255,0.6) !important">/20</span></span></div></div>`;
-  const scoreHtml = `${ratingBlock}<div style="display:flex;flex-direction:column;gap:4px">${platformListHtml}</div>`;
+  const scoreHtml = `${ratingBlock}<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">${platformListHtml}</div>`;
 
   const textsHtml = texts.length > 0
     ? texts.slice(0, 10).map((r) => {
