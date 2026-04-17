@@ -874,7 +874,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               ) : undefined}
               middleSlot={hookText ? (
                 <p
-                  className="md:hidden text-base text-white/90 font-bold text-center max-w-[85%] leading-relaxed pointer-events-none px-2"
+                  className="md:hidden text-base text-white/90 font-bold text-center max-w-[95%] md:max-w-[85%] leading-relaxed pointer-events-none px-2"
                   style={{
                     fontFamily: "'Josefin Sans', sans-serif",
                     filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7)) drop-shadow(0 4px 24px hsla(0,0%,0%,0.4))",
