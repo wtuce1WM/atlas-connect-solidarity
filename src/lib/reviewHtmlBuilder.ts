@@ -11,6 +11,8 @@ interface ReviewPlatform {
   url: string | null;
   /** Optional: original listing URL used to derive a "leave a review" link */
   listingUrl?: string | null;
+  /** Optional: explicit "leave a review" URL (e.g. Google review URL) */
+  leaveReviewUrl?: string | null;
 }
 
 export interface ReviewText {
