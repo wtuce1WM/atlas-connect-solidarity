@@ -11,6 +11,8 @@ interface ReviewPlatform {
   url: string | null;
   /** Optional: original listing URL used to derive a "leave a review" link */
   listingUrl?: string | null;
+  /** Optional: explicit "leave a review" URL (e.g. Google review URL) */
+  leaveReviewUrl?: string | null;
 }
 
 export interface ReviewText {
@@ -57,15 +59,14 @@ export function buildReviewHtml(
         ? `<a class="rv-card" href="${p.url}" target="_blank" rel="noopener noreferrer">${cardInner}</a>`
         : `<div class="rv-card">${cardInner}</div>`;
 
-      // For TripAdvisor, derive a "leave a review" link from the listing URL
-      let leaveBtn = "";
-      if (p.name === "TripAdvisor") {
-        const listing = p.listingUrl || p.url;
-        const reviewHref = tripadvisorReviewUrl(listing);
-        if (reviewHref) {
-          leaveBtn = `<a class="rv-leave" href="${reviewHref}" target="_blank" rel="noopener noreferrer">✍️ ${leaveReviewLabel}</a>`;
-        }
+      // Determine "leave a review" link: explicit > derived (TripAdvisor only)
+      let reviewHref: string | null = p.leaveReviewUrl || null;
+      if (!reviewHref && p.name === "TripAdvisor") {
+        reviewHref = tripadvisorReviewUrl(p.listingUrl || p.url);
       }
+      const leaveBtn = reviewHref
+        ? `<a class="rv-leave" href="${reviewHref}" target="_blank" rel="noopener noreferrer">✍️ ${leaveReviewLabel}</a>`
+        : "";
 
       return `<div class="rv-card-wrap">${card}${leaveBtn}</div>`;
     })
