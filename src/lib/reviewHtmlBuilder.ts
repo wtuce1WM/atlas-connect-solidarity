@@ -44,27 +44,50 @@ export function buildReviewHtml(
   const reviewLabel = language === "en" ? "reviews" : "avis";
   const activePlats = platforms.filter((p) => p.rating && p.count);
 
+  const leaveReviewLabel = language === "en" ? "Leave a review" : "Laisser un avis";
+
   const platformListHtml = activePlats
     .map((p) => {
       const logo = LOGO_MAP[p.name] || "";
       const logoImg = logo
         ? `<img src="${logo}" alt="${p.name}" class="rv-logo" onerror="this.style.display='none'"/>`
         : "";
-      return `<div class="rv-card">${logoImg}<span class="rv-card-text"><strong class="rv-card-name">${p.name}</strong><span class="rv-card-meta">${p.rating}/5 — ${p.count?.toLocaleString("fr-FR")}</span></span></div>`;
+      const cardInner = `${logoImg}<span class="rv-card-text"><strong class="rv-card-name">${p.name}</strong><span class="rv-card-meta">${p.rating}/5 — ${p.count?.toLocaleString("fr-FR")}</span></span>`;
+      const card = p.url
+        ? `<a class="rv-card" href="${p.url}" target="_blank" rel="noopener noreferrer">${cardInner}</a>`
+        : `<div class="rv-card">${cardInner}</div>`;
+
+      // For TripAdvisor, derive a "leave a review" link from the listing URL
+      let leaveBtn = "";
+      if (p.name === "TripAdvisor") {
+        const listing = p.listingUrl || p.url;
+        const reviewHref = tripadvisorReviewUrl(listing);
+        if (reviewHref) {
+          leaveBtn = `<a class="rv-leave" href="${reviewHref}" target="_blank" rel="noopener noreferrer">✍️ ${leaveReviewLabel}</a>`;
+        }
+      }
+
+      return `<div class="rv-card-wrap">${card}${leaveBtn}</div>`;
     })
     .join("");
 
   const responsiveCss = `<style>
-.rv-card{display:flex;align-items:center;gap:8px;padding:6px 10px;background:hsla(0,0%,100%,0.06);border-radius:8px;width:160px;height:44px;box-sizing:border-box}
+.rv-card-wrap{display:flex;flex-direction:column;gap:4px;width:160px}
+.rv-card{display:flex;align-items:center;gap:8px;padding:6px 10px;background:hsla(0,0%,100%,0.06);border-radius:8px;width:100%;height:44px;box-sizing:border-box;text-decoration:none;color:inherit}
+a.rv-card:hover{background:hsla(0,0%,100%,0.12)}
+.rv-leave{display:flex;align-items:center;justify-content:center;gap:4px;font-size:0.7rem;padding:4px 6px;background:hsl(43,75%,55%);color:hsl(0,0%,10%) !important;border-radius:6px;text-decoration:none;font-weight:600;white-space:nowrap;font-family:'Josefin Sans',sans-serif}
+.rv-leave:hover{filter:brightness(1.1)}
 .rv-logo{width:24px;height:24px;object-fit:contain;border-radius:4px;flex-shrink:0}
 .rv-card-text{display:flex;flex-direction:column;line-height:1.15;min-width:0;flex:1}
 .rv-card-name{font-size:0.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rv-card-meta{opacity:0.7;font-size:0.7rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media (max-width:640px){
-  .rv-card{width:auto;flex:1 1 calc(50% - 6px);min-width:0;padding:5px 8px;gap:6px;height:40px}
+  .rv-card-wrap{width:auto;flex:1 1 calc(50% - 6px);min-width:0}
+  .rv-card{padding:5px 8px;gap:6px;height:40px}
   .rv-logo{width:20px;height:20px}
   .rv-card-name{font-size:0.72rem}
   .rv-card-meta{font-size:0.62rem}
+  .rv-leave{font-size:0.62rem;padding:3px 5px}
 }
 </style>`;
 
