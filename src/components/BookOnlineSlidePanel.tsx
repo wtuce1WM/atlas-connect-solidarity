@@ -906,7 +906,10 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               </div>
             )}
             {avgOn20 != null && totalReviewCount > 0 && (
-              <>
+              <div
+                onClick={handleOpenReviews}
+                className="cursor-pointer rounded-2xl border-2 border-gold bg-black/30 backdrop-blur-sm px-4 py-3 md:px-6 md:py-4 flex flex-col items-center gap-2 hover:bg-black/40 hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] transition-all"
+              >
                 {(() => {
                   const defaultReview = reviewTexts.find((r) => {
                     const displayText = ((language === "en" ? r.text_en : r.text_fr) || r.text || "").trim();
@@ -916,12 +919,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   const displayText = ((language === "en" ? defaultReview.text_en : defaultReview.text_fr) || defaultReview.text || "").trim();
                   return (
                     <p
-                      className="text-base md:text-lg text-white/90 italic text-center max-w-[95%] md:max-w-xl leading-relaxed line-clamp-6 md:line-clamp-4 cursor-pointer pl-6 pr-2 md:px-0"
-                      style={{
-                        fontFamily: "'Josefin Sans', sans-serif",
-                        filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7)) drop-shadow(0 4px 24px hsla(0,0%,0%,0.4))",
-                      }}
-                      onClick={handleOpenReviews}
+                      className="text-base md:text-lg text-white/90 italic text-center max-w-[95%] md:max-w-xl leading-relaxed line-clamp-6 md:line-clamp-4"
+                      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                     >
                       "{displayText}"
                       {defaultReview.author_name && (
@@ -932,9 +931,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 })()}
                 <div
                   key={`rating-${business?.id}`}
-                  className="flex items-center justify-center gap-3 py-1 cursor-pointer flex-wrap"
-                  onClick={handleOpenReviews}
-                  style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
+                  className="flex items-center justify-center gap-3 py-1 flex-wrap"
                 >
                   <div className="flex items-center gap-3">
                     <Star className="h-7 w-7 md:h-9 md:w-9 text-gold fill-gold" />
@@ -946,7 +943,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     · {totalReviewCount.toLocaleString("fr-FR")} {language === "en" ? "reviews" : "avis"}
                   </span>
                 </div>
-              </>
+              </div>
             )}
           </div>
         ) : null}
