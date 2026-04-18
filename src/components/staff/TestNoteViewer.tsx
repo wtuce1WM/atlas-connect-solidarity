@@ -184,6 +184,11 @@ const TestNoteViewer = () => {
         </TabsContent>
 
         <TabsContent value="badgees" className="mt-4 space-y-4">
+          {videosLoading && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
+              <Loader2 className="h-4 w-4 animate-spin" /> Chargement des vidéos…
+            </div>
+          )}
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-foreground">Ville :</span>
