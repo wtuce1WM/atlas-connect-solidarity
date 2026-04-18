@@ -136,6 +136,14 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
   const [cities, setCities] = useState<CityOption[]>([]);
   const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [subcategoriesMap, setSubcategoriesMap] = useState<Map<string, SubcategoryOption>>(new Map());
+  const [allSubcategories, setAllSubcategories] = useState<{ id: string; name: string; category_name: string }[]>([]);
+  const [allBadges, setAllBadges] = useState<{ id: string; name_fr: string }[]>([]);
+  const [videoBadges, setVideoBadges] = useState<Map<string, string[]>>(new Map());
+  const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
+  const [draftSubcategoryId, setDraftSubcategoryId] = useState<string>("");
+  const [draftBadgeIds, setDraftBadgeIds] = useState<string[]>([]);
+  const [subcategorySearch, setSubcategorySearch] = useState("");
+  const [savingAssign, setSavingAssign] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>(ALL_VALUE);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>(ALL_VALUE);
