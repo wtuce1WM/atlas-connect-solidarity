@@ -194,6 +194,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [showHoursOverlay, setShowHoursOverlay] = useState(false);
   const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
+
+  // Auto-close availability search overlay when search completes
+  const prevHotelSearchLoadingRef = useRef(false);
+  useEffect(() => {
+    if (prevHotelSearchLoadingRef.current && !hotelSearchLoading) {
+      setShowAvailabilitySearch(false);
+    }
+    prevHotelSearchLoadingRef.current = hotelSearchLoading;
+  }, [hotelSearchLoading]);
   
   const fallbackDataRef = useRef<FallbackPanelData | null>(null);
   useEffect(() => {
