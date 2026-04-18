@@ -69,27 +69,14 @@ export function buildReviewHtml(
     ? `<span style="font-family:'Josefin Sans',sans-serif;font-size:1rem;font-weight:500;color:rgba(255,255,255,0.6) !important;white-space:nowrap">· ${totalReviewCount.toLocaleString("fr-FR")} ${reviewLabel}</span>`
     : "";
   const ratingBlock = `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;margin-bottom:12px"><div style="display:flex;align-items:center;gap:10px;flex-wrap:nowrap;justify-content:center;filter:drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))">${starSvg}<span style="font-family:'Josefin Sans',sans-serif;font-size:3rem;font-weight:900;color:hsl(43,75%,55%) !important;white-space:nowrap">${avgOn20}<span style="font-size:1.5rem;font-weight:600;color:rgba(255,255,255,0.6) !important">/20</span></span>${reviewCountInline}</div></div>`;
-  const scoreInner = `${ratingBlock}<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">${platformListHtml}</div>`;
-  const scoreHtml = `${responsiveCss}<section style="padding:16px;border-radius:12px;background:hsla(0,0%,100%,0.04);margin-bottom:16px">${scoreInner}</section>`;
+  const scoreHtml = `${responsiveCss}${ratingBlock}<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">${platformListHtml}</div>`;
 
-  const defaultReview = texts.find((r) => r.is_default);
-  const otherReviews = texts.filter((r) => !r.is_default).slice(0, 10 - (defaultReview ? 1 : 0));
-
-  const renderBlockquote = (r: ReviewText, highlighted = false) => {
-    const displayText = (language === "en" ? r.text_en : r.text_fr) || r.text || "";
-    const style = highlighted
-      ? "margin:0;font-family:'Josefin Sans',sans-serif;font-size:1.05rem;line-height:1.625;font-weight:500"
-      : "margin-top:4px;font-family:'Josefin Sans',sans-serif;font-size:1rem;line-height:1.625";
-    return `<blockquote style="${style}"><p>${displayText}</p><footer style="font-family:'Roboto',sans-serif;font-size:1rem;font-style:normal;opacity:0.85">— ${r.author_name || (language === "en" ? "Anonymous" : "Anonyme")}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`;
-  };
-
-  const defaultHtml = defaultReview
-    ? `<section style="padding:16px;border-radius:12px;background:hsla(43,75%,55%,0.12);border:1px solid hsla(43,75%,55%,0.35);margin-bottom:16px">${renderBlockquote(defaultReview, true)}</section>`
+  const textsHtml = texts.length > 0
+    ? texts.slice(0, 10).map((r) => {
+      const displayText = (language === "en" ? r.text_en : r.text_fr) || r.text || "";
+      return `<blockquote style="margin-top:4px;font-family:'Josefin Sans',sans-serif;font-size:1rem;line-height:1.625"><p>${displayText}</p><footer style="font-family:'Roboto',sans-serif;font-size:1rem;font-style:normal">— ${r.author_name || (language === "en" ? "Anonymous" : "Anonyme")}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`;
+    }).join("")
     : "";
 
-  const othersHtml = otherReviews.length > 0
-    ? `<section style="padding:16px;border-radius:12px;background:hsla(0,0%,100%,0.04)">${otherReviews.map((r) => renderBlockquote(r)).join("")}</section>`
-    : "";
-
-  return scoreHtml + defaultHtml + othersHtml;
+  return scoreHtml + textsHtml;
 }
