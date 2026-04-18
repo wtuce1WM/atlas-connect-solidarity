@@ -24,9 +24,12 @@ interface VideoDoc {
 }
 
 const TestNoteViewer = () => {
+  const [activeTab, setActiveTab] = useState<string>("note");
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
-  const [loading, setLoading] = useState(true);
+  const [noteLoading, setNoteLoading] = useState(true);
+  const [videosLoading, setVideosLoading] = useState(false);
+  const [videosLoaded, setVideosLoaded] = useState(false);
   const [city, setCity] = useState<string>("none");
   const [badge, setBadge] = useState<string>("none");
   const [badges, setBadges] = useState<{ id: string; name_fr: string }[]>([]);
@@ -44,8 +47,25 @@ const TestNoteViewer = () => {
     setDraftBadgeIds(v?.badge_ids || []);
   }, [selectedVideoId, videos]);
 
+  // Light fetch: only the note (cheap) on mount
   useEffect(() => {
     (async () => {
+      const noteRes = await supabase.from("knowledge_entries").select("title, content").eq("id", NOTE_ID).maybeSingle();
+      if (noteRes.data) {
+        setTitle(noteRes.data.title);
+        setContent(noteRes.data.content);
+      }
+      setNoteLoading(false);
+    })();
+  }, []);
+
+  // Heavy fetch: only when entering a sub-tab that needs videos
+  useEffect(() => {
+    if (videosLoaded || videosLoading) return;
+    if (activeTab !== "badgees" && activeTab !== "tobadge") return;
+
+    (async () => {
+      setVideosLoading(true);
       const allDocs: any[] = [];
       let offset = 0;
       const PAGE = 1000;
@@ -61,18 +81,13 @@ const TestNoteViewer = () => {
         offset += PAGE;
       }
 
-      const [noteRes, badgesRes, linksRes, subsRes, servicesRes] = await Promise.all([
-        supabase.from("knowledge_entries").select("title, content").eq("id", NOTE_ID).maybeSingle(),
+      const [badgesRes, linksRes, subsRes, servicesRes] = await Promise.all([
         supabase.from("badges").select("id, name_fr"),
         supabase.from("business_document_badges").select("document_id, badge_id"),
         supabase.from("subcategories").select("id, name_fr"),
         supabase.from("services").select("id, name_fr"),
       ]);
 
-      if (noteRes.data) {
-        setTitle(noteRes.data.title);
-        setContent(noteRes.data.content);
-      }
       if (badgesRes.data) {
         setBadges([...badgesRes.data].sort((a, b) => a.name_fr.localeCompare(b.name_fr, "fr")));
       }
@@ -107,9 +122,10 @@ const TestNoteViewer = () => {
         subcategory_name: d.subcategory_id ? subMap.get(d.subcategory_id) || null : null,
         service_name: d.service_id ? svcMap.get(d.service_id) || null : null,
       })));
-      setLoading(false);
+      setVideosLoading(false);
+      setVideosLoaded(true);
     })();
-  }, []);
+  }, [activeTab, videosLoaded, videosLoading]);
 
   const matchesCity = (v: VideoDoc) =>
     city === "none" ? false :
@@ -137,7 +153,7 @@ const TestNoteViewer = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videos, city, badge]);
 
-  if (loading) {
+  if (noteLoading) {
     return (
       <div className="flex justify-center py-12">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
