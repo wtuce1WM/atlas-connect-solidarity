@@ -264,15 +264,11 @@ serve(async (req) => {
 
       if (!placeId) {
         const placeName = extractPlaceName(finalUrl) || extractPlaceName(url);
-        console.log("[Step8] no placeId yet, placeName:", placeName);
         if (placeName) {
           const found = await findPlaceId(placeName, apiKey);
-          console.log("[Step8] findPlaceId result:", found);
           if (found) placeId = found;
         }
       }
-
-      console.log("[Step8] final placeId:", placeId, "resolvedPlaceId before:", resolvedPlaceId);
 
       if (placeId) {
         resolvedPlaceId = placeId;
@@ -285,7 +281,6 @@ serve(async (req) => {
           }
         }
       }
-      console.log("[Step8] resolvedPlaceId after:", resolvedPlaceId);
     }
 
     if (lat !== null && lng !== null) {
