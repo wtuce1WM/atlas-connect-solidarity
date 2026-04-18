@@ -3718,7 +3718,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                           handleChange("google_maps_url", data.resolvedUrl);
                           handleChange("google_reviews_url", data.resolvedUrl);
                         }
-                        toast({ title: "GPS récupéré", description: `Lat: ${data.lat}, Lng: ${data.lng}${data.method ? ` (${data.method})` : ""}` });
+                        if (data.placeId) handleChange("google_place_id" as any, data.placeId);
+                        if (data.reviewUrl) handleChange("google_review_url" as any, data.reviewUrl);
+                        toast({ title: "GPS récupéré", description: `Lat: ${data.lat}, Lng: ${data.lng}${data.placeId ? " · Place ID + lien d'avis OK" : ""}` });
                       } else {
                         toast({ variant: "destructive", title: "Impossible d'extraire les coordonnées", description: "Le format de l'URL Google Maps n'est pas reconnu." });
                       }
