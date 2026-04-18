@@ -256,19 +256,26 @@ serve(async (req) => {
 
     // Step 8: If we got coords but no rating/placeId yet, try to fetch via Places API
     if (lat !== null && apiKey) {
-      let placeId = resolvedPlaceId || extractPlaceId(finalUrl) || extractPlaceId(url);
-      if (placeId && placeId.startsWith("0x")) placeId = undefined as any;
+      let placeId: string | undefined = resolvedPlaceId || undefined;
+      if (!placeId) {
+        const raw = extractPlaceId(finalUrl) || extractPlaceId(url);
+        if (raw && !raw.startsWith("0x")) placeId = raw;
+      }
 
       if (!placeId) {
         const placeName = extractPlaceName(finalUrl) || extractPlaceName(url);
+        console.log("[Step8] no placeId yet, placeName:", placeName);
         if (placeName) {
           const found = await findPlaceId(placeName, apiKey);
+          console.log("[Step8] findPlaceId result:", found);
           if (found) placeId = found;
         }
       }
 
+      console.log("[Step8] final placeId:", placeId, "resolvedPlaceId before:", resolvedPlaceId);
+
       if (placeId) {
-        if (!resolvedPlaceId) resolvedPlaceId = placeId;
+        resolvedPlaceId = placeId;
         if (rating === undefined) {
           const details = await fetchPlaceDetails(placeId, apiKey);
           if (details) {
@@ -278,6 +285,7 @@ serve(async (req) => {
           }
         }
       }
+      console.log("[Step8] resolvedPlaceId after:", resolvedPlaceId);
     }
 
     if (lat !== null && lng !== null) {
