@@ -253,8 +253,11 @@ serve(async (req) => {
 
     // Step 8: If we got coords but no rating/placeId yet, try to fetch via Places API
     if (lat !== null && apiKey) {
-      let placeId = resolvedPlaceId || extractPlaceId(finalUrl) || extractPlaceId(url);
-      if (placeId && placeId.startsWith("0x")) placeId = undefined as any;
+      let placeId: string | undefined = resolvedPlaceId || undefined;
+      if (!placeId) {
+        const raw = extractPlaceId(finalUrl) || extractPlaceId(url);
+        if (raw && !raw.startsWith("0x")) placeId = raw;
+      }
 
       if (!placeId) {
         const placeName = extractPlaceName(finalUrl) || extractPlaceName(url);
@@ -265,7 +268,7 @@ serve(async (req) => {
       }
 
       if (placeId) {
-        if (!resolvedPlaceId) resolvedPlaceId = placeId;
+        resolvedPlaceId = placeId;
         if (rating === undefined) {
           const details = await fetchPlaceDetails(placeId, apiKey);
           if (details) {
