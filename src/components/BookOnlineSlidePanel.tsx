@@ -1078,7 +1078,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           language={language}
           isSearching={hotelSearchLoading}
           onSearch={(checkIn, checkOut, adults) => {
-            setShowAvailabilitySearch(false);
             handleCheckAvailability(checkIn, checkOut, adults);
           }}
           onClose={() => setShowAvailabilitySearch(false)}
