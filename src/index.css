@@ -531,7 +531,7 @@ html.hide-scrollbar-panel-open::-webkit-scrollbar {
   }
   @media (max-width: 767px) {
     .slidepanel-review-short {
-      margin-top: 2rem !important;
+      margin-top: 1rem !important;
     }
   }
   .slidepanel-rating-short {
