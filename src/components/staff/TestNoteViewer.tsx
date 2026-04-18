@@ -163,7 +163,7 @@ const TestNoteViewer = () => {
 
   return (
     <div className="w-full p-6">
-      <Tabs defaultValue="note" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList>
           <TabsTrigger value="note">Note</TabsTrigger>
           <TabsTrigger value="badgees">Badgées</TabsTrigger>
