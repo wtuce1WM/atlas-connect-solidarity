@@ -279,8 +279,43 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
 
   useEffect(() => { load(); }, [load]);
 
-  // Build city options from videos themselves, sorted by cities table order
-  const videoCities = useMemo(() => {
+  // Load badges, all subcategories (with categories), and existing video-badge links — only for "Sans sous-catégorie"
+  useEffect(() => {
+    if (withSubcategory) return;
+    (async () => {
+      const [badgesRes, subsRes, catsRes, linksRes] = await Promise.all([
+        supabase.from("badges").select("id, name_fr").order("name_fr"),
+        supabase.from("subcategories").select("id, name_fr, category_id"),
+        supabase.from("categories").select("id, name_fr"),
+        supabase.from("business_document_badges").select("document_id, badge_id"),
+      ]);
+      if (badgesRes.data) setAllBadges(badgesRes.data);
+      const catNameMap = new Map<string, string>((catsRes.data || []).map((c: any) => [c.id, c.name_fr]));
+      const list = (subsRes.data || [])
+        .map((s: any) => ({ id: s.id, name: s.name_fr, category_name: catNameMap.get(s.category_id) || "" }))
+        .sort((a, b) => a.category_name.localeCompare(b.category_name, "fr") || a.name.localeCompare(b.name, "fr"));
+      setAllSubcategories(list);
+      const map = new Map<string, string[]>();
+      (linksRes.data || []).forEach((l: any) => {
+        const arr = map.get(l.document_id) || [];
+        arr.push(l.badge_id);
+        map.set(l.document_id, arr);
+      });
+      setVideoBadges(map);
+    })();
+  }, [withSubcategory]);
+
+  // Sync drafts when selecting a video
+  useEffect(() => {
+    if (!selectedVideoId) {
+      setDraftSubcategoryId("");
+      setDraftBadgeIds([]);
+      return;
+    }
+    setDraftSubcategoryId("");
+    setDraftBadgeIds(videoBadges.get(selectedVideoId) || []);
+  }, [selectedVideoId, videoBadges]);
+
     const citySet = new Set<string>();
     videos.forEach(v => { if (v.city) citySet.add(v.city); });
     const cityOrder = new Map(cities.map(c => [c.name, c.sort_order]));
