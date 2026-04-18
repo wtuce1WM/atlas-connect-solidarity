@@ -144,15 +144,18 @@ const VideoPoiAssignmentPanel = () => {
       .eq("type", "video")
       .not("poi_id", "is", null);
 
-    if (!docs || docs.length === 0) {
+    const { isInternalVideoUrl } = await import("@/lib/videoSourceFilter");
+    const filteredDocs = (docs || []).filter(d => isInternalVideoUrl(d.url));
+
+    if (filteredDocs.length === 0) {
       setMultiPoiVideos([]);
       setLoadingMulti(false);
       return;
     }
 
     // Group by url+business_id to find multi-POI
-    const groups: Record<string, typeof docs> = {};
-    docs.forEach(d => {
+    const groups: Record<string, typeof filteredDocs> = {};
+    filteredDocs.forEach(d => {
       const key = `${d.url}::${d.business_id}`;
       if (!groups[key]) groups[key] = [];
       groups[key].push(d);

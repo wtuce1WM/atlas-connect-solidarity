@@ -187,7 +187,8 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
       if (data.length < PAGE) break;
       offset += PAGE;
     }
-    const docs = allDocs;
+    const { isInternalVideoUrl } = await import("@/lib/videoSourceFilter");
+    const docs = allDocs.filter(d => isInternalVideoUrl(d.url));
 
     if (!docs || docs.length === 0) {
       setVideos([]);

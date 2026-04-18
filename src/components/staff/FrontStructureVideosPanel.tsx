@@ -152,6 +152,10 @@ const FrontStructureVideosPanel = () => {
       if (data.length < PAGE) break;
       offset += PAGE;
     }
+    const { isInternalVideoUrl } = await import("@/lib/videoSourceFilter");
+    const filteredDocs = allDocs.filter(d => isInternalVideoUrl(d.url));
+    allDocs.length = 0;
+    allDocs.push(...filteredDocs);
 
     const subMap = new Map<string, string>();
     allDocs.forEach(d => { if (d.subcategory_id) subMap.set(d.id, d.subcategory_id); });
