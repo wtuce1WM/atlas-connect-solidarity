@@ -316,6 +316,8 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
     setDraftBadgeIds(videoBadges.get(selectedVideoId) || []);
   }, [selectedVideoId, videoBadges]);
 
+  // Build city options from videos themselves, sorted by cities table order
+  const videoCities = useMemo(() => {
     const citySet = new Set<string>();
     videos.forEach(v => { if (v.city) citySet.add(v.city); });
     const cityOrder = new Map(cities.map(c => [c.name, c.sort_order]));
