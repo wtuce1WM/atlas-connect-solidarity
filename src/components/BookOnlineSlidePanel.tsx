@@ -897,7 +897,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
         {/* Note /20 + bouton + : centrés entre carrousel info et tabs */}
         {(avgOn20 != null && totalReviewCount > 0) || woDescription ? (
-          <div className="flex flex-col items-center justify-center pointer-events-auto gap-10 max-[1100px]:gap-4 flex-1 -mt-[3rem] max-[1100px]:mt-2">
+          <div className="slidepanel-center-short flex flex-col items-center justify-center pointer-events-auto gap-10 flex-1 -mt-[3rem]">
             {hookText && <TypewriterHook text={hookText} key={businessId + '-hook'} />}
             {woDescription && (
               <div className="mt-24 md:mt-0">
