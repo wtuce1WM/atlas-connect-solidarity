@@ -1136,6 +1136,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     flipbook_name: (business as any)?.flipbook_name || "",
     flipbook_language: (business as any)?.flipbook_language || "",
     google_maps_url: (business as any)?.google_maps_url || "",
+    google_place_id: (business as any)?.google_place_id || "",
+    google_review_url: (business as any)?.google_review_url || "",
     airbnb_url: (business as any)?.airbnb_url || "",
     pinterest_url: (business as any)?.pinterest_url || "",
     skype: (business as any)?.skype || "",
@@ -2006,6 +2008,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       flipbook_name: (formData as any).flipbook_name || null,
       flipbook_language: (formData as any).flipbook_language || null,
       google_maps_url: formData.google_maps_url || null,
+      google_place_id: (formData as any).google_place_id || null,
+      google_review_url: (formData as any).google_review_url || null,
       airbnb_url: formData.airbnb_url || null,
       pinterest_url: formData.pinterest_url || null,
       skype: formData.skype || null,
@@ -3718,7 +3722,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                           handleChange("google_maps_url", data.resolvedUrl);
                           handleChange("google_reviews_url", data.resolvedUrl);
                         }
-                        toast({ title: "GPS récupéré", description: `Lat: ${data.lat}, Lng: ${data.lng}${data.method ? ` (${data.method})` : ""}` });
+                        if (data.placeId) handleChange("google_place_id" as any, data.placeId);
+                        if (data.reviewUrl) handleChange("google_review_url" as any, data.reviewUrl);
+                        toast({ title: "GPS récupéré", description: `Lat: ${data.lat}, Lng: ${data.lng}${data.placeId ? " · Place ID + lien d'avis OK" : ""}` });
                       } else {
                         toast({ variant: "destructive", title: "Impossible d'extraire les coordonnées", description: "Le format de l'URL Google Maps n'est pas reconnu." });
                       }

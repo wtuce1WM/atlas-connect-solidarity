@@ -165,6 +165,7 @@ serve(async (req) => {
     let rating: number | undefined;
     let reviewCount: number | undefined;
     let reviews: any[] | undefined;
+    let resolvedPlaceId: string | undefined;
     
 
     // Step 2: Precise marker coords from final URL
@@ -197,6 +198,7 @@ serve(async (req) => {
           lng = result.lng;
           rating = result.rating;
           reviewCount = result.reviewCount;
+          resolvedPlaceId = placeId;
           method = "place-details-api";
         }
       }
@@ -206,12 +208,16 @@ serve(async (req) => {
     if (lat === null && apiKey) {
       const placeName = extractPlaceName(finalUrl) || extractPlaceName(url);
       if (placeName) {
-        const result = await resolveViaTextSearch(placeName, apiKey);
-        if (result) {
-          lat = result.lat;
-          lng = result.lng;
-          rating = result.rating;
-          reviewCount = result.reviewCount;
+        const searchUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(placeName)}&inputtype=textquery&fields=geometry,place_id,rating,user_ratings_total&key=${apiKey}`;
+        const resp = await fetch(searchUrl);
+        const data = await resp.json();
+        const candidate = data.candidates?.[0];
+        if (candidate?.geometry?.location) {
+          lat = candidate.geometry.location.lat;
+          lng = candidate.geometry.location.lng;
+          rating = candidate.rating ?? undefined;
+          reviewCount = candidate.user_ratings_total ?? undefined;
+          resolvedPlaceId = candidate.place_id ?? undefined;
           method = "places-api";
         }
       }
@@ -245,39 +251,43 @@ serve(async (req) => {
       }
     }
 
-    // Step 8: If we got coords but no rating yet, try to fetch rating + reviews via Places API
-    if (lat !== null && rating === undefined && apiKey) {
-      const placeId = extractPlaceId(finalUrl) || extractPlaceId(url);
-      if (placeId && !placeId.startsWith("0x")) {
-        const details = await fetchPlaceDetails(placeId, apiKey);
-        if (details) {
-          rating = details.rating;
-          reviewCount = details.reviewCount;
-          reviews = details.reviews;
-        }
-      }
-      if (rating === undefined) {
+    // Step 8: If we got coords but no rating/placeId yet, try to fetch via Places API
+    if (lat !== null && apiKey) {
+      let placeId = resolvedPlaceId || extractPlaceId(finalUrl) || extractPlaceId(url);
+      if (placeId && placeId.startsWith("0x")) placeId = undefined as any;
+
+      if (!placeId) {
         const placeName = extractPlaceName(finalUrl) || extractPlaceName(url);
         if (placeName) {
-          const foundPlaceId = await findPlaceId(placeName, apiKey);
-          if (foundPlaceId) {
-            const details = await fetchPlaceDetails(foundPlaceId, apiKey);
-            if (details) {
-              rating = details.rating;
-              reviewCount = details.reviewCount;
-              reviews = details.reviews;
-            }
+          const found = await findPlaceId(placeName, apiKey);
+          if (found) placeId = found;
+        }
+      }
+
+      if (placeId) {
+        if (!resolvedPlaceId) resolvedPlaceId = placeId;
+        if (rating === undefined) {
+          const details = await fetchPlaceDetails(placeId, apiKey);
+          if (details) {
+            rating = details.rating;
+            reviewCount = details.reviewCount;
+            reviews = details.reviews;
           }
         }
       }
     }
 
     if (lat !== null && lng !== null) {
+      const reviewUrl = resolvedPlaceId
+        ? `https://search.google.com/local/writereview?placeid=${resolvedPlaceId}`
+        : undefined;
       return new Response(JSON.stringify({
         lat: String(lat),
         lng: String(lng),
         resolvedUrl: finalUrl,
         method,
+        ...(resolvedPlaceId ? { placeId: resolvedPlaceId } : {}),
+        ...(reviewUrl ? { reviewUrl } : {}),
         ...(rating !== undefined ? { rating } : {}),
         ...(reviewCount !== undefined ? { reviewCount } : {}),
         ...(reviews && reviews.length > 0 ? { reviews } : {}),
