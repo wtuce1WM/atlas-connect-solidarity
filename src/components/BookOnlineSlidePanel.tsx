@@ -15,6 +15,7 @@ import poiNearbyImg from "@/assets/poi-nearby.webp";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 
 import { whatsappUrl } from "@/lib/phoneUtils";
+import { groupImagesWithHeadings } from "@/lib/groupImagesWithHeadings";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import BookingOverlay from "@/components/BookingOverlay";
