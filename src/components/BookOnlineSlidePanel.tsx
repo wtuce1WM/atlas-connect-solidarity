@@ -934,7 +934,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                     >
                       "{displayText}"
                       {defaultReview.author_name && (
-                        <span className="not-italic text-white ml-1">— {defaultReview.author_name}</span>
+                        <span className="not-italic text-white block mt-1">— {defaultReview.author_name}</span>
                       )}
                     </p>
                   );
