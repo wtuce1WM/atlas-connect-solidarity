@@ -527,4 +527,14 @@ html.hide-scrollbar-panel-open::-webkit-scrollbar {
   .slidepanel-rating-short {
     margin-top: 2rem !important;
   }
+  .slidepanel-left-cta-short {
+    top: 5rem !important;
+    transform: none !important;
+    max-height: calc(100vh - 10rem) !important;
+    overflow-y: auto !important;
+    scrollbar-width: none;
+  }
+  .slidepanel-left-cta-short::-webkit-scrollbar {
+    display: none;
+  }
 }
