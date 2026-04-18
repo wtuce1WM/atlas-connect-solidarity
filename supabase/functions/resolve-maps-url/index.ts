@@ -212,7 +212,6 @@ serve(async (req) => {
         const resp = await fetch(searchUrl);
         const data = await resp.json();
         const candidate = data.candidates?.[0];
-        console.log("[Step5] findplacefromtext candidate:", JSON.stringify(candidate));
         if (candidate?.geometry?.location) {
           lat = candidate.geometry.location.lat;
           lng = candidate.geometry.location.lng;
@@ -223,8 +222,6 @@ serve(async (req) => {
         }
       }
     }
-
-    console.log("[Pre-Step8] resolvedPlaceId:", resolvedPlaceId, "rating:", rating, "lat:", lat);
 
     // Step 6: Camera position @lat,lng — less precise fallback
     if (lat === null) {
