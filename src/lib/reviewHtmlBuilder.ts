@@ -2,11 +2,15 @@
  * Builds HTML for the reviews overlay (card variant with centered star score).
  */
 
+import { tripadvisorReviewUrl } from "./tripadvisorUrl";
+
 interface ReviewPlatform {
   name: string;
   rating: number | null;
   count: number | null;
   url: string | null;
+  /** Optional: original listing URL used to derive a "leave a review" link */
+  listingUrl?: string | null;
 }
 
 export interface ReviewText {
