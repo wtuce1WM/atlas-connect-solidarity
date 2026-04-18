@@ -344,6 +344,11 @@ const TestNoteViewer = () => {
         </TabsContent>
 
         <TabsContent value="tobadge" className="mt-4 space-y-3">
+          {videosLoading && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
+              <Loader2 className="h-4 w-4 animate-spin" /> Chargement des vidéos…
+            </div>
+          )}
           {(() => {
             const base = videos.filter(v => v.subcategory_name && (v.badge_ids.length === 0 || v.id === selectedVideoId));
             const cityOptions = Array.from(new Set(base.map(v => v.city).filter(Boolean) as string[])).sort((a, b) => a.localeCompare(b, "fr"));
