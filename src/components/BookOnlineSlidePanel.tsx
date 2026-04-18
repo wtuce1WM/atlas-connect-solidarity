@@ -925,7 +925,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   const displayText = ((language === "en" ? defaultReview.text_en : defaultReview.text_fr) || defaultReview.text || "").trim();
                   return (
                     <p
-                      className="text-base md:text-lg text-white/90 italic text-center max-w-[95%] md:max-w-xl leading-relaxed line-clamp-4 md:line-clamp-4 pl-8 pr-0 md:px-0 cursor-pointer"
+                      className="text-base md:text-lg text-white/90 italic text-center max-w-[95%] md:max-w-xl leading-relaxed line-clamp-4 md:line-clamp-4 pl-8 pr-0 md:px-0 cursor-pointer slidepanel-review-short"
                       onClick={handleOpenReviews}
                       style={{
                         fontFamily: "'Josefin Sans', sans-serif",
