@@ -1057,8 +1057,10 @@ export type Database = {
           getyourguide_url: string | null
           glovo_url: string | null
           google_maps_url: string | null
+          google_place_id: string | null
           google_rating: number | null
           google_review_count: number | null
+          google_review_url: string | null
           google_reviews_url: string | null
           hide_description: boolean
           hook_ar: string | null
@@ -1223,8 +1225,10 @@ export type Database = {
           getyourguide_url?: string | null
           glovo_url?: string | null
           google_maps_url?: string | null
+          google_place_id?: string | null
           google_rating?: number | null
           google_review_count?: number | null
+          google_review_url?: string | null
           google_reviews_url?: string | null
           hide_description?: boolean
           hook_ar?: string | null
@@ -1389,8 +1393,10 @@ export type Database = {
           getyourguide_url?: string | null
           glovo_url?: string | null
           google_maps_url?: string | null
+          google_place_id?: string | null
           google_rating?: number | null
           google_review_count?: number | null
+          google_review_url?: string | null
           google_reviews_url?: string | null
           hide_description?: boolean
           hook_ar?: string | null
@@ -4806,8 +4812,10 @@ export type Database = {
               getyourguide_url: string | null
               glovo_url: string | null
               google_maps_url: string | null
+              google_place_id: string | null
               google_rating: number | null
               google_review_count: number | null
+              google_review_url: string | null
               google_reviews_url: string | null
               hide_description: boolean
               hook_ar: string | null
@@ -4988,8 +4996,10 @@ export type Database = {
               getyourguide_url: string | null
               glovo_url: string | null
               google_maps_url: string | null
+              google_place_id: string | null
               google_rating: number | null
               google_review_count: number | null
+              google_review_url: string | null
               google_reviews_url: string | null
               hide_description: boolean
               hook_ar: string | null
