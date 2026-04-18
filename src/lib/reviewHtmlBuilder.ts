@@ -76,7 +76,7 @@ export function buildReviewHtml(
 .rv-card-wrap{display:flex;flex-direction:column;gap:4px;width:160px}
 .rv-card{display:flex;align-items:center;gap:8px;padding:6px 10px;background:hsla(0,0%,100%,0.06);border-radius:8px;width:100%;height:44px;box-sizing:border-box;text-decoration:none;color:inherit}
 a.rv-card:hover{background:hsla(0,0%,100%,0.12)}
-.rv-leave{display:flex;align-items:center;justify-content:center;gap:4px;font-size:0.7rem;padding:4px 6px;background:hsl(43,75%,55%);color:hsl(0,0%,10%) !important;border-radius:6px;text-decoration:none;font-weight:600;white-space:nowrap;font-family:'Josefin Sans',sans-serif}
+.rv-leave{display:flex;align-items:center;justify-content:center;gap:4px;font-size:0.7rem;padding:4px 6px;background:#C04F17;color:#fff !important;border-radius:6px;text-decoration:none;font-weight:600;white-space:nowrap;font-family:'Josefin Sans',sans-serif}
 .rv-leave:hover{filter:brightness(1.1)}
 .rv-logo{width:24px;height:24px;object-fit:contain;border-radius:4px;flex-shrink:0}
 .rv-card-text{display:flex;flex-direction:column;line-height:1.15;min-width:0;flex:1}
