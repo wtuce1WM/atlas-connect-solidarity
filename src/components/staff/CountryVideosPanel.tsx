@@ -568,8 +568,14 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
                                 const r = await supabase
                                   .from("business_documents")
                                   .update({ subcategory_id: draftSubcategoryId })
-                                  .eq("id", selectedVideoId);
-                                if (r.error) err = r.error;
+                                  .eq("id", selectedVideoId)
+                                  .select("id, subcategory_id");
+                                console.log("[CountryVideosPanel] subcategory update", { selectedVideoId, draftSubcategoryId, data: r.data, error: r.error });
+                                if (r.error) {
+                                  err = r.error;
+                                } else if (!r.data || r.data.length === 0) {
+                                  err = new Error("Aucune ligne mise à jour (RLS ?)");
+                                }
                               }
                               const toAdd = [...draft].filter(id => !original.has(id));
                               const toRemove = [...original].filter(id => !draft.has(id));
