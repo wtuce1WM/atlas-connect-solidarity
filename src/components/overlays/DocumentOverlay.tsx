@@ -25,7 +25,7 @@ const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverl
           <span className="text-sm font-semibold truncate">{name}</span>
         </div>
       </div>
-      <div className="flex-1 relative bg-background">
+      <div className="flex-1 relative bg-background pb-[70px] md:pb-[66px]">
         {type === "flipbook" ? (
           <iframe
             src={getFlipbookEmbedUrl(url)}
