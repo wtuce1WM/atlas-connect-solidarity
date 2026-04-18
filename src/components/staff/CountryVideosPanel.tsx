@@ -586,12 +586,15 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
                               }
                               const toAdd = [...draft].filter(id => !original.has(id));
                               const toRemove = [...original].filter(id => !draft.has(id));
+                              console.log("[CountryVideosPanel] badge diff", { selectedVideoId, original: [...original], draft: [...draft], toAdd, toRemove });
                               if (!err && toRemove.length > 0) {
-                                const r = await supabase.from("business_document_badges").delete().eq("document_id", selectedVideoId).in("badge_id", toRemove);
+                                const r = await supabase.from("business_document_badges").delete().eq("document_id", selectedVideoId).in("badge_id", toRemove).select();
+                                console.log("[CountryVideosPanel] badge delete", { data: r.data, error: r.error });
                                 if (r.error) err = r.error;
                               }
                               if (!err && toAdd.length > 0) {
-                                const r = await supabase.from("business_document_badges").insert(toAdd.map(badge_id => ({ document_id: selectedVideoId, badge_id })));
+                                const r = await supabase.from("business_document_badges").insert(toAdd.map(badge_id => ({ document_id: selectedVideoId, badge_id }))).select();
+                                console.log("[CountryVideosPanel] badge insert", { data: r.data, error: r.error });
                                 if (r.error) err = r.error;
                               }
                               setSavingAssign(false);
