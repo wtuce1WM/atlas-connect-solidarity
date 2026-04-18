@@ -198,6 +198,7 @@ serve(async (req) => {
           lng = result.lng;
           rating = result.rating;
           reviewCount = result.reviewCount;
+          resolvedPlaceId = placeId;
           method = "place-details-api";
         }
       }
@@ -207,12 +208,16 @@ serve(async (req) => {
     if (lat === null && apiKey) {
       const placeName = extractPlaceName(finalUrl) || extractPlaceName(url);
       if (placeName) {
-        const result = await resolveViaTextSearch(placeName, apiKey);
-        if (result) {
-          lat = result.lat;
-          lng = result.lng;
-          rating = result.rating;
-          reviewCount = result.reviewCount;
+        const searchUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(placeName)}&inputtype=textquery&fields=geometry,place_id,rating,user_ratings_total&key=${apiKey}`;
+        const resp = await fetch(searchUrl);
+        const data = await resp.json();
+        const candidate = data.candidates?.[0];
+        if (candidate?.geometry?.location) {
+          lat = candidate.geometry.location.lat;
+          lng = candidate.geometry.location.lng;
+          rating = candidate.rating ?? undefined;
+          reviewCount = candidate.user_ratings_total ?? undefined;
+          resolvedPlaceId = candidate.place_id ?? undefined;
           method = "places-api";
         }
       }
