@@ -515,7 +515,10 @@ html.hide-scrollbar-panel-open::-webkit-scrollbar {
 /* Short-height desktop adjustments for slidepanel central block */
 @media (max-height: 1100px) {
   .slidepanel-center-short {
-    gap: 1rem !important;
+    gap: 0 !important;
     margin-top: 0.5rem !important;
+  }
+  .slidepanel-plus-short {
+    margin-top: 4rem !important;
   }
 }
