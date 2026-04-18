@@ -253,7 +253,13 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
       }
     }
 
-    setVideos(docs.map(d => {
+    const seenIds = new Set<string>();
+    const dedupedDocs = docs.filter(d => {
+      if (seenIds.has(d.id)) return false;
+      seenIds.add(d.id);
+      return true;
+    });
+    setVideos(dedupedDocs.map(d => {
       const biz = bizMap.get(d.business_id);
       const sc = d.subcategory_id ? scMap.get(d.subcategory_id) : null;
       return {
