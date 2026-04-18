@@ -156,6 +156,10 @@ const PoiVideosPanel = () => {
       if (data.length < PAGE) break;
       offset += PAGE;
     }
+    const { isInternalVideoUrl } = await import("@/lib/videoSourceFilter");
+    const allDocsFiltered = allDocs.filter(d => isInternalVideoUrl(d.url));
+    allDocs.length = 0;
+    allDocs.push(...allDocsFiltered);
 
     // Fetch generic videos linked to POIs
     const { data: gvpLinks } = await supabase

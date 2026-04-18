@@ -48,7 +48,8 @@ const VideoDbStructurePanel = () => {
         hasMore = false;
       }
     }
-    const docs = allDocs;
+    const { isInternalVideoUrl } = await import("@/lib/videoSourceFilter");
+    const docs = allDocs.filter(d => isInternalVideoUrl(d.url));
 
     const bizIds = [...new Set((docs as any[] || []).map(d => d.business_id))];
     const { data: businesses } = bizIds.length > 0

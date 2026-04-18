@@ -149,6 +149,10 @@ const ServiceVideosPanel = () => {
       if (data.length < PAGE) break;
       offset += PAGE;
     }
+    const { isInternalVideoUrl } = await import("@/lib/videoSourceFilter");
+    const allDocsFiltered = allDocs.filter(d => isInternalVideoUrl(d.url));
+    allDocs.length = 0;
+    allDocs.push(...allDocsFiltered);
 
     if (allDocs.length === 0) {
       setVideos([]);
