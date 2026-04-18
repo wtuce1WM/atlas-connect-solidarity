@@ -941,17 +941,17 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 })()}
                 <div
                   key={`rating-${business?.id}`}
-                  className="flex items-center justify-center gap-3 py-2 px-5 rounded-full border-2 border-gold cursor-pointer flex-wrap slidepanel-rating-short"
+                  className="flex items-center justify-center gap-2.5 py-1.5 px-4 rounded-full border-2 border-gold cursor-pointer flex-wrap slidepanel-rating-short"
                   onClick={handleOpenReviews}
                   style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
                 >
-                  <div className="flex items-center gap-3">
-                    <Star className="h-7 w-7 md:h-9 md:w-9 text-gold fill-gold" />
-                    <span className="text-4xl md:text-5xl font-black text-gold whitespace-nowrap" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                      {avgOn20}<span className="text-xl md:text-2xl font-semibold text-white/60">/20</span>
+                  <div className="flex items-center gap-2.5">
+                    <Star className="h-6 w-6 md:h-7 md:w-7 text-gold fill-gold" />
+                    <span className="text-3xl md:text-4xl font-black text-gold whitespace-nowrap" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                      {avgOn20}<span className="text-lg md:text-xl font-semibold text-white/60">/20</span>
                     </span>
                   </div>
-                  <span className="text-sm md:text-base text-white/60 font-medium whitespace-nowrap" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                  <span className="text-xs md:text-sm text-white/60 font-medium whitespace-nowrap" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                     · {totalReviewCount.toLocaleString("fr-FR")} {language === "en" ? "reviews" : "avis"}
                   </span>
                 </div>
