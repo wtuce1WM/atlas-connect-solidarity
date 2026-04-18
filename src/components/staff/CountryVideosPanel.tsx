@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Play, GripVertical } from "lucide-react";
+import { Loader2, Play, GripVertical, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import VideoIdSearchInput from "./VideoIdSearchInput";
 import VideoLightbox from "./VideoLightbox";
 import { Button } from "@/components/ui/button";
