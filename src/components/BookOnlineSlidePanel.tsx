@@ -906,10 +906,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               </div>
             )}
             {avgOn20 != null && totalReviewCount > 0 && (
-              <div
-                onClick={handleOpenReviews}
-                className="cursor-pointer rounded-2xl border-2 border-gold bg-black/30 backdrop-blur-sm px-4 py-3 md:px-6 md:py-4 flex flex-col items-center gap-2 hover:bg-black/40 hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] transition-all"
-              >
+              <div className="flex flex-col items-center gap-3">
                 {(() => {
                   const defaultReview = reviewTexts.find((r) => {
                     const displayText = ((language === "en" ? r.text_en : r.text_fr) || r.text || "").trim();
@@ -930,18 +927,23 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   );
                 })()}
                 <div
-                  key={`rating-${business?.id}`}
-                  className="flex items-center justify-center gap-3 py-1 flex-wrap"
+                  onClick={handleOpenReviews}
+                  className="cursor-pointer rounded-2xl border-2 border-gold bg-black/30 backdrop-blur-sm px-4 py-3 md:px-6 md:py-4 hover:bg-black/40 hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] transition-all"
                 >
-                  <div className="flex items-center gap-3">
-                    <Star className="h-7 w-7 md:h-9 md:w-9 text-gold fill-gold" />
-                    <span className="text-4xl md:text-5xl font-black text-gold whitespace-nowrap" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                      {avgOn20}<span className="text-xl md:text-2xl font-semibold text-white/60">/20</span>
+                  <div
+                    key={`rating-${business?.id}`}
+                    className="flex items-center justify-center gap-3 flex-wrap"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Star className="h-7 w-7 md:h-9 md:w-9 text-gold fill-gold" />
+                      <span className="text-4xl md:text-5xl font-black text-gold whitespace-nowrap" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                        {avgOn20}<span className="text-xl md:text-2xl font-semibold text-white/60">/20</span>
+                      </span>
+                    </div>
+                    <span className="text-sm md:text-base text-white/60 font-medium whitespace-nowrap" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                      · {totalReviewCount.toLocaleString("fr-FR")} {language === "en" ? "reviews" : "avis"}
                     </span>
                   </div>
-                  <span className="text-sm md:text-base text-white/60 font-medium whitespace-nowrap" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                    · {totalReviewCount.toLocaleString("fr-FR")} {language === "en" ? "reviews" : "avis"}
-                  </span>
                 </div>
               </div>
             )}
