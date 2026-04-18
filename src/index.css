@@ -524,4 +524,7 @@ html.hide-scrollbar-panel-open::-webkit-scrollbar {
   .slidepanel-review-short {
     margin-top: 4rem !important;
   }
+  .slidepanel-rating-short {
+    margin-top: 2rem !important;
+  }
 }
