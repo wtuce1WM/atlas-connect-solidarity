@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Play, GripVertical } from "lucide-react";
+import { Loader2, Play, GripVertical, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import VideoIdSearchInput from "./VideoIdSearchInput";
 import VideoLightbox from "./VideoLightbox";
 import { Button } from "@/components/ui/button";
@@ -135,6 +136,14 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
   const [cities, setCities] = useState<CityOption[]>([]);
   const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [subcategoriesMap, setSubcategoriesMap] = useState<Map<string, SubcategoryOption>>(new Map());
+  const [allSubcategories, setAllSubcategories] = useState<{ id: string; name: string; category_name: string }[]>([]);
+  const [allBadges, setAllBadges] = useState<{ id: string; name_fr: string }[]>([]);
+  const [videoBadges, setVideoBadges] = useState<Map<string, string[]>>(new Map());
+  const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
+  const [draftSubcategoryId, setDraftSubcategoryId] = useState<string>("");
+  const [draftBadgeIds, setDraftBadgeIds] = useState<string[]>([]);
+  const [subcategorySearch, setSubcategorySearch] = useState("");
+  const [savingAssign, setSavingAssign] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>(ALL_VALUE);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>(ALL_VALUE);
@@ -269,6 +278,43 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
   }, [withSubcategory]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Load badges, all subcategories (with categories), and existing video-badge links — only for "Sans sous-catégorie"
+  useEffect(() => {
+    if (withSubcategory) return;
+    (async () => {
+      const [badgesRes, subsRes, catsRes, linksRes] = await Promise.all([
+        supabase.from("badges").select("id, name_fr").order("name_fr"),
+        supabase.from("subcategories").select("id, name_fr, category_id"),
+        supabase.from("categories").select("id, name_fr"),
+        supabase.from("business_document_badges").select("document_id, badge_id"),
+      ]);
+      if (badgesRes.data) setAllBadges(badgesRes.data);
+      const catNameMap = new Map<string, string>((catsRes.data || []).map((c: any) => [c.id, c.name_fr]));
+      const list = (subsRes.data || [])
+        .map((s: any) => ({ id: s.id, name: s.name_fr, category_name: catNameMap.get(s.category_id) || "" }))
+        .sort((a, b) => a.category_name.localeCompare(b.category_name, "fr") || a.name.localeCompare(b.name, "fr"));
+      setAllSubcategories(list);
+      const map = new Map<string, string[]>();
+      (linksRes.data || []).forEach((l: any) => {
+        const arr = map.get(l.document_id) || [];
+        arr.push(l.badge_id);
+        map.set(l.document_id, arr);
+      });
+      setVideoBadges(map);
+    })();
+  }, [withSubcategory]);
+
+  // Sync drafts when selecting a video
+  useEffect(() => {
+    if (!selectedVideoId) {
+      setDraftSubcategoryId("");
+      setDraftBadgeIds([]);
+      return;
+    }
+    setDraftSubcategoryId("");
+    setDraftBadgeIds(videoBadges.get(selectedVideoId) || []);
+  }, [selectedVideoId, videoBadges]);
 
   // Build city options from videos themselves, sorted by cities table order
   const videoCities = useMemo(() => {
@@ -431,7 +477,7 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
           <p className="text-sm text-muted-foreground">{filteredVideos.length} vidéo{filteredVideos.length !== 1 ? "s" : ""}</p>
           {filteredVideos.length === 0 ? (
             <p className="text-sm text-muted-foreground py-8 text-center">Aucune vidéo pour cette sélection.</p>
-          ) : (
+          ) : withSubcategory ? (
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <SortableContext items={filteredVideos.map(v => v.id)} strategy={verticalListSortingStrategy}>
                 <div className="flex flex-wrap gap-2">
@@ -441,6 +487,174 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
                 </div>
               </SortableContext>
             </DndContext>
+          ) : (
+            <div
+              className="grid w-full gap-3 items-start"
+              style={{ gridTemplateColumns: "minmax(0, 60%) minmax(0, 40%)" }}
+            >
+              <div className="grid min-w-0 grid-cols-4 gap-2">
+                {filteredVideos.map(v => {
+                  const selected = selectedVideoId === v.id;
+                  const currentBadges = videoBadges.get(v.id) || [];
+                  return (
+                    <div
+                      key={v.id}
+                      onClick={() => setSelectedVideoId(v.id)}
+                      className={`flex flex-col rounded-lg border bg-background p-1.5 cursor-pointer transition-colors ${selected ? "border-primary ring-2 ring-primary" : "hover:border-muted-foreground/30"}`}
+                    >
+                      <button
+                        className="relative bg-black rounded overflow-hidden group flex-shrink-0 w-full"
+                        style={{ height: 110 }}
+                        onClick={(e) => { e.stopPropagation(); setLightboxUrl(v.url); }}
+                      >
+                        {v.thumbnail_url ? (
+                          <img src={v.thumbnail_url} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-muted" />
+                        )}
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="w-8 h-8 rounded-full bg-primary/80 flex items-center justify-center">
+                            <Play className="h-4 w-4 text-primary-foreground fill-primary-foreground ml-0.5" />
+                          </div>
+                        </div>
+                      </button>
+                      <div className="mt-1.5">
+                        <p className="text-sm font-medium leading-tight">{v.business_name}</p>
+                        {(v.city || v.neighborhood) && (
+                          <p className="text-[11px] text-muted-foreground/70 truncate">
+                            {[v.city, v.neighborhood].filter(Boolean).join(" · ")}
+                          </p>
+                        )}
+                        {currentBadges.length > 0 && (
+                          <p className="text-[11px] text-primary mt-0.5">{currentBadges.length} badge{currentBadges.length > 1 ? "s" : ""}</p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <aside className="min-w-0 rounded-lg border bg-muted/20 p-3 h-[78vh] overflow-y-auto sticky top-2">
+                {!selectedVideoId ? (
+                  <p className="text-xs text-muted-foreground">Sélectionnez une vidéo pour lui affecter une sous-catégorie et des badges.</p>
+                ) : (() => {
+                  const original = new Set(videoBadges.get(selectedVideoId) || []);
+                  const draft = new Set(draftBadgeIds);
+                  const badgesDirty = original.size !== draft.size || [...draft].some(id => !original.has(id));
+                  const dirty = badgesDirty || !!draftSubcategoryId;
+                  const filteredSubs = subcategorySearch.trim()
+                    ? allSubcategories.filter(s =>
+                        s.name.toLowerCase().includes(subcategorySearch.toLowerCase()) ||
+                        s.category_name.toLowerCase().includes(subcategorySearch.toLowerCase())
+                      )
+                    : allSubcategories;
+                  return (
+                    <>
+                      <div className="flex items-center justify-between mb-3 gap-2">
+                        <p className="text-xs font-medium text-foreground">Affectation</p>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => setSelectedVideoId(null)}
+                            className="text-xs px-2 py-1 rounded hover:bg-accent text-muted-foreground"
+                          >
+                            Fermer
+                          </button>
+                          <button
+                            disabled={!dirty || savingAssign}
+                            onClick={async () => {
+                              if (!selectedVideoId) return;
+                              setSavingAssign(true);
+                              let err: any = null;
+                              if (draftSubcategoryId) {
+                                const r = await supabase
+                                  .from("business_documents")
+                                  .update({ subcategory_id: draftSubcategoryId })
+                                  .eq("id", selectedVideoId);
+                                if (r.error) err = r.error;
+                              }
+                              const toAdd = [...draft].filter(id => !original.has(id));
+                              const toRemove = [...original].filter(id => !draft.has(id));
+                              if (!err && toRemove.length > 0) {
+                                const r = await supabase.from("business_document_badges").delete().eq("document_id", selectedVideoId).in("badge_id", toRemove);
+                                if (r.error) err = r.error;
+                              }
+                              if (!err && toAdd.length > 0) {
+                                const r = await supabase.from("business_document_badges").insert(toAdd.map(badge_id => ({ document_id: selectedVideoId, badge_id })));
+                                if (r.error) err = r.error;
+                              }
+                              setSavingAssign(false);
+                              if (err) { toast.error("Erreur : " + err.message); return; }
+                              setVideoBadges(prev => {
+                                const next = new Map(prev);
+                                next.set(selectedVideoId, [...draft]);
+                                return next;
+                              });
+                              if (draftSubcategoryId) {
+                                // Remove the video from the list (it now has a subcategory)
+                                setVideos(prev => prev.filter(v => v.id !== selectedVideoId));
+                                setSelectedVideoId(null);
+                              }
+                              toast.success("Enregistré");
+                            }}
+                            className="text-xs px-3 py-1 rounded bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-40"
+                          >
+                            {savingAssign ? "..." : "Enregistrer"}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="mb-4">
+                        <p className="text-[11px] font-semibold text-foreground mb-1.5">Sous-catégorie</p>
+                        <div className="relative mb-1.5">
+                          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                          <Input
+                            value={subcategorySearch}
+                            onChange={(e) => setSubcategorySearch(e.target.value)}
+                            placeholder="Rechercher…"
+                            className="h-7 pl-7 text-xs"
+                          />
+                        </div>
+                        <div className="max-h-[28vh] overflow-y-auto rounded border bg-background">
+                          {filteredSubs.length === 0 ? (
+                            <p className="text-[11px] text-muted-foreground p-2">Aucun résultat.</p>
+                          ) : filteredSubs.map(s => {
+                            const isSel = draftSubcategoryId === s.id;
+                            return (
+                              <button
+                                key={s.id}
+                                type="button"
+                                onClick={() => setDraftSubcategoryId(isSel ? "" : s.id)}
+                                className={`w-full text-left text-xs px-2 py-1 border-b last:border-b-0 transition-colors ${isSel ? "bg-primary/10 text-primary font-medium" : "hover:bg-accent"}`}
+                              >
+                                <span className="text-muted-foreground">{s.category_name} · </span>{s.name}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="text-[11px] font-semibold text-foreground mb-1.5">Badges</p>
+                        <div className="flex flex-wrap gap-1">
+                          {allBadges.map(b => {
+                            const isSelected = draft.has(b.id);
+                            return (
+                              <button
+                                key={b.id}
+                                type="button"
+                                className={`text-xs px-2 py-1 rounded-full border transition-colors ${isSelected ? "bg-primary text-primary-foreground border-primary" : "bg-background text-muted-foreground border-border hover:border-primary/50"}`}
+                                onClick={() => setDraftBadgeIds(prev => isSelected ? prev.filter(id => id !== b.id) : [...prev, b.id])}
+                              >
+                                {b.name_fr}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
+              </aside>
+            </div>
           )}
         </>
       )}
