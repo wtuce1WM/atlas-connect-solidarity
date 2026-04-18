@@ -900,7 +900,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           <div className="slidepanel-center-short flex flex-col items-center justify-center pointer-events-auto gap-4 md:gap-10 flex-1 -mt-[3rem]">
             {hookText && <TypewriterHook text={hookText} key={businessId + '-hook'} />}
             {woDescription && (
-              <div className="mt-24 md:mt-0 slidepanel-plus-short">
+              <div className="mt-8 md:mt-0 slidepanel-plus-short">
                 <div
                   className="cursor-pointer group flex flex-col items-center gap-2"
                   onClick={() => setShowDescriptionOverlay(true)}
