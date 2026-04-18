@@ -932,7 +932,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 })()}
                 <div
                   key={`rating-${business?.id}`}
-                  className="flex items-center justify-center gap-3 py-1 cursor-pointer flex-wrap"
+                  className="flex items-center justify-center gap-3 py-2 px-5 rounded-full border-2 border-gold cursor-pointer flex-wrap"
                   onClick={handleOpenReviews}
                   style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
                 >
