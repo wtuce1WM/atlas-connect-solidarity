@@ -924,19 +924,21 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   if (!defaultReview) return null;
                   const displayText = ((language === "en" ? defaultReview.text_en : defaultReview.text_fr) || defaultReview.text || "").trim();
                   return (
-                    <p
-                      className="text-base md:text-lg text-white/90 italic text-center max-w-[95%] md:max-w-xl leading-relaxed line-clamp-4 md:line-clamp-4 pl-8 pr-0 md:px-0 cursor-pointer slidepanel-review-short"
+                    <div
+                      className="text-center max-w-[95%] md:max-w-xl pl-8 pr-0 md:px-0 cursor-pointer slidepanel-review-short"
                       onClick={handleOpenReviews}
                       style={{
                         fontFamily: "'Josefin Sans', sans-serif",
                         filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7)) drop-shadow(0 4px 24px hsla(0,0%,0%,0.4))",
                       }}
                     >
-                      "{displayText}"
+                      <p className="text-base md:text-lg text-white/90 italic leading-relaxed line-clamp-4">
+                        "{displayText}"
+                      </p>
                       {defaultReview.author_name && (
-                        <span className="not-italic text-white block mt-1">— {defaultReview.author_name}</span>
+                        <p className="text-sm md:text-base text-white mt-1.5">— {defaultReview.author_name}</p>
                       )}
-                    </p>
+                    </div>
                   );
                 })()}
                 <div
