@@ -936,7 +936,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                         "{displayText}"
                       </p>
                       {defaultReview.author_name && (
-                        <p className="text-sm md:text-base text-white mt-1.5">— {defaultReview.author_name}</p>
+                        <p className="text-sm md:text-base text-white mt-1.5 capitalize">— {defaultReview.author_name.toLowerCase()}</p>
                       )}
                     </div>
                   );
