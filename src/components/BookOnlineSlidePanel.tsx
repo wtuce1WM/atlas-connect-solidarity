@@ -899,7 +899,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         {(avgOn20 != null && totalReviewCount > 0) || woDescription ? (
           <div className="slidepanel-center-short flex flex-col items-center justify-center pointer-events-auto gap-4 md:gap-10 flex-1 -mt-[3rem]">
             {hookText && (
-              <div className="flex-1 md:flex-none flex items-center justify-center w-full md:w-auto">
+              <div className="mt-12 md:mt-0">
                 <TypewriterHook text={hookText} key={businessId + '-hook'} />
               </div>
             )}
