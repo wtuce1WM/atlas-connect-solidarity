@@ -336,7 +336,13 @@ export function useBookOnlineData(businessId: string) {
         owner_logo: null as string | null,
         owner_instagram: null as string | null,
       })) as VideoDoc[];
-      const filteredVDocs = vDocs.filter((d) => d.url);
+      // Dedupe by URL: same video can be linked to multiple POIs (one row per POI in DB)
+      const seenUrls = new Set<string>();
+      const filteredVDocs = vDocs.filter((d) => {
+        if (!d.url || seenUrls.has(d.url)) return false;
+        seenUrls.add(d.url);
+        return true;
+      });
       setVideoDocs(filteredVDocs);
       
 
