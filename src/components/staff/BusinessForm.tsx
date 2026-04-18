@@ -1136,6 +1136,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     flipbook_name: (business as any)?.flipbook_name || "",
     flipbook_language: (business as any)?.flipbook_language || "",
     google_maps_url: (business as any)?.google_maps_url || "",
+    google_place_id: (business as any)?.google_place_id || "",
+    google_review_url: (business as any)?.google_review_url || "",
     airbnb_url: (business as any)?.airbnb_url || "",
     pinterest_url: (business as any)?.pinterest_url || "",
     skype: (business as any)?.skype || "",
