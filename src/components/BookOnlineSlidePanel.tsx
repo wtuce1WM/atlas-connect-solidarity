@@ -64,7 +64,7 @@ import VideoControls from "@/components/VideoControls";
 const TypewriterHook = ({ text }: { text: string }) => {
   return (
     <p
-      className="block text-base md:text-xl text-white/90 font-bold text-center max-w-[85%] md:max-w-xl leading-relaxed pointer-events-none"
+      className="hidden md:block text-lg md:text-xl text-white/90 font-bold text-center max-w-[85%] md:max-w-xl leading-relaxed pointer-events-none"
       style={{
         fontFamily: "'Josefin Sans', sans-serif",
         filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7)) drop-shadow(0 4px 24px hsla(0,0%,0%,0.4))",
@@ -898,11 +898,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         {/* Note /20 + bouton + : centrés entre carrousel info et tabs */}
         {(avgOn20 != null && totalReviewCount > 0) || woDescription ? (
           <div className="slidepanel-center-short flex flex-col items-center justify-center pointer-events-auto gap-4 md:gap-10 flex-1 -mt-[3rem]">
-            {hookText && (
-              <div className="!mt-20 md:!mt-0">
-                <TypewriterHook text={hookText} key={businessId + '-hook'} />
-              </div>
-            )}
+            {hookText && <TypewriterHook text={hookText} key={businessId + '-hook'} />}
             {woDescription && (
               <div className="mt-8 md:mt-0 slidepanel-plus-short">
                 <div
