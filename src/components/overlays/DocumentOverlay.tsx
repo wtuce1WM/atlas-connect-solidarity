@@ -25,11 +25,12 @@ const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverl
           <span className="text-sm font-semibold truncate">{name}</span>
         </div>
       </div>
-      <div className="flex-1 relative bg-background pb-[70px] md:pb-[66px]">
+      <div className="flex-1 relative bg-background overflow-hidden">
         {type === "flipbook" ? (
           <iframe
             src={getFlipbookEmbedUrl(url)}
-            className="h-full w-full border-0"
+            className="border-0 absolute left-0 right-0 top-0"
+            style={{ height: "calc(100% + 70px)", bottom: "-70px" }}
             allow="clipboard-write; fullscreen"
             title={name}
             onLoad={onLoad}
@@ -51,7 +52,8 @@ const DocumentOverlay = ({ url, name, type, ts, onClose, onLoad }: DocumentOverl
             <iframe
               key={`${url}-gview-${ts}`}
               src={`https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`}
-              className="relative z-10 h-full w-full border-0 bg-transparent"
+              className="relative z-10 w-full border-0 bg-transparent"
+              style={{ height: "calc(100% + 70px)", marginTop: "-70px" }}
               title={name}
               onLoad={onLoad}
             />
