@@ -1369,7 +1369,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 className="absolute right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-end"
                 onMouseLeave={() => setSidebarOpenGroup(null)}
               >
-                {groups.map(g => {
+                {groups.filter(g => g.key === 'ai' || g.key === 'reviews').map(g => {
                   if (g.directClick) {
                     return (
                       <div key={g.key} className="group relative flex flex-col items-end"
