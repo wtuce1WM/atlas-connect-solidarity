@@ -1252,6 +1252,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   type MenuSummaryEntry = { id?: string; title: string; content: string; avg_price_range: any; price_details: string };
   const [menuSummaries, setMenuSummaries] = useState<MenuSummaryEntry[]>([]);
 
+  // --- Image badges (per image URL) ---
+  const [imageBadges, setImageBadges] = useState<Record<string, string[]>>({});
+
   useEffect(() => {
     if (!business?.id) return;
     const fetchDocs = async () => {
