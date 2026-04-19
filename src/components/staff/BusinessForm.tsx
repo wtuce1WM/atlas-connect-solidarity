@@ -4908,6 +4908,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             businessId={business?.id}
             popupImageUrl={(formData as any).popup_image_url || null}
             onPopupChange={(url) => handleChange("popup_image_url", url || "")}
+            badges={dbBadges}
+            imageBadges={imageBadges}
+            onImageBadgesChange={setImageBadges}
           />
           <AlertDialog>
             <AlertDialogTrigger asChild>
