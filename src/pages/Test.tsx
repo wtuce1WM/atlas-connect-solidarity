@@ -362,8 +362,8 @@ const Test = () => {
               {activeVideo && activeEmbed && (
                 <div className="flex flex-col items-start gap-2 shrink-0">
                   <div
-                    className="bg-black rounded-lg overflow-hidden shadow-lg"
-                    style={{ width: 720, height: 1280, maxWidth: "100%" }}
+                    className="bg-black rounded-lg overflow-hidden shadow-lg aspect-[9/16]"
+                    style={{ width: 720, maxWidth: "100%", maxHeight: "calc(100vh - 120px)" }}
                   >
                     {activeEmbed.type === "file" ? (
                       <video
