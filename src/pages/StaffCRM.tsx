@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, Users, UserCheck, ArrowLeft } from "lucide-react";
+import { LogOut, Users, UserCheck, ArrowLeft, Sparkles } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import GuestManagement from "@/components/staff/GuestManagement";
+import PersonasManagement from "@/components/staff/PersonasManagement";
 import AffiliateManagement from "@/components/staff/AffiliateManagement";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 
@@ -88,6 +89,10 @@ const StaffCRM = () => {
               <Users className="h-4 w-4" />
               Invités
             </TabsTrigger>
+            <TabsTrigger value="personas" className="gap-2">
+              <Sparkles className="h-4 w-4" />
+              Personas
+            </TabsTrigger>
             <TabsTrigger value="affiliates" className="gap-2">
               <UserCheck className="h-4 w-4" />
               Affiliés
@@ -96,6 +101,10 @@ const StaffCRM = () => {
 
           <TabsContent value="guests">
             <GuestManagement />
+          </TabsContent>
+
+          <TabsContent value="personas">
+            <PersonasManagement />
           </TabsContent>
 
           <TabsContent value="affiliates">
