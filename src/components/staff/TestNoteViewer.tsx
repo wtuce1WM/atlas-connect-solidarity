@@ -65,9 +65,17 @@ const TestNoteViewer = () => {
     if (!videosLoaded) return;
     if (activeTab !== "badgees" && activeTab !== "tobadge") return;
     (async () => {
-      const { data } = await supabase.from("business_document_badges").select("document_id, badge_id");
+      const all: any[] = [];
+      let off = 0;
+      while (true) {
+        const { data } = await supabase.from("business_document_badges").select("document_id, badge_id").range(off, off + 999);
+        if (!data || data.length === 0) break;
+        all.push(...data);
+        if (data.length < 1000) break;
+        off += 1000;
+      }
       const badgeMap = new Map<string, string[]>();
-      (data || []).forEach((l: any) => {
+      all.forEach((l) => {
         const arr = badgeMap.get(l.document_id) || [];
         arr.push(l.badge_id);
         badgeMap.set(l.document_id, arr);
