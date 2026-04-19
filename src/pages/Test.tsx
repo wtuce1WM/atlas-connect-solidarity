@@ -286,6 +286,61 @@ const Test = () => {
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const [isLandscape, setIsLandscape] = useState(false);
 
+  // Generic videos shown under the active video (Marrakech only)
+  const [genericVideos, setGenericVideos] = useState<
+    { id: string; url: string; business: SearchResultBusiness | null }[]
+  >([]);
+
+  useEffect(() => {
+    if (city !== "Marrakech") {
+      setGenericVideos([]);
+      return;
+    }
+    const load = async () => {
+      const [vidsRes, linksRes] = await Promise.all([
+        supabase
+          .from("generic_videos" as any)
+          .select("id, url")
+          .in("id", MARRAKECH_GENERIC_VIDEO_IDS),
+        supabase
+          .from("generic_video_businesses" as any)
+          .select("generic_video_id, business_id")
+          .in("generic_video_id", MARRAKECH_GENERIC_VIDEO_IDS),
+      ]);
+      const vids = (vidsRes.data || []) as any[];
+      const links = (linksRes.data || []) as any[];
+      const firstBizByVid: Record<string, string> = {};
+      links.forEach((l: any) => {
+        if (!firstBizByVid[l.generic_video_id]) {
+          firstBizByVid[l.generic_video_id] = l.business_id;
+        }
+      });
+      const bizIds = [...new Set(Object.values(firstBizByVid))];
+      const bizMap = new Map<string, SearchResultBusiness>();
+      if (bizIds.length > 0) {
+        const { data: bizs } = await supabase
+          .from("businesses")
+          .select("id, name, images, logo_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+          .in("id", bizIds);
+        (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
+      }
+      const ordered = MARRAKECH_GENERIC_VIDEO_IDS
+        .map((vid) => {
+          const v = vids.find((x: any) => x.id === vid);
+          if (!v) return null;
+          const bizId = firstBizByVid[vid];
+          return {
+            id: v.id,
+            url: v.url,
+            business: bizId ? bizMap.get(bizId) || null : null,
+          };
+        })
+        .filter(Boolean) as { id: string; url: string; business: SearchResultBusiness | null }[];
+      setGenericVideos(ordered);
+    };
+    load();
+  }, [city]);
+
   // Reset active video when entry/city changes
   useEffect(() => {
     setActiveVideoId(null);
