@@ -102,13 +102,16 @@ const PersonasManagement = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor={`video-${persona.id}`}>ID Vidéo (YouTube)</Label>
+                      <Label htmlFor={`video-${persona.id}`}>ID Vidéo (YouTube ou interne)</Label>
                       <Input
                         id={`video-${persona.id}`}
                         value={persona.video_id || ""}
                         onChange={(e) => updateField(persona.id, "video_id", e.target.value)}
-                        placeholder="ex: dQw4w9WgXcQ"
+                        placeholder="ID YouTube (dQw4w9WgXcQ) ou ID vidéo interne"
                       />
+                      <p className="text-xs text-muted-foreground">
+                        Collez l'ID YouTube ou l'UUID d'une vidéo interne stockée dans la bibliothèque.
+                      </p>
                     </div>
                   </div>
                   <div className="space-y-2">
