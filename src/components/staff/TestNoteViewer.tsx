@@ -68,7 +68,11 @@ const TestNoteViewer = () => {
       const all: any[] = [];
       let off = 0;
       while (true) {
-        const { data } = await supabase.from("business_document_badges").select("document_id, badge_id").range(off, off + 999);
+        const { data } = await supabase
+          .from("business_document_badges")
+          .select("document_id, badge_id, id")
+          .order("id")
+          .range(off, off + 999);
         if (!data || data.length === 0) break;
         all.push(...data);
         if (data.length < 1000) break;
