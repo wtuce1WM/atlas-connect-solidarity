@@ -388,6 +388,7 @@ const Test = () => {
   );
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [otherViewMode, setOtherViewMode] = useState<"details" | "videos">("details");
 
   const structureList = (
     <>
@@ -488,10 +489,36 @@ const Test = () => {
               {/* Other videos — left side (50%) when vertical, below when landscape */}
               {otherVideos.length > 0 && (
                 <div className={isLandscape ? "w-full order-2" : "w-1/2 min-w-0"}>
-                  <h3 className="text-sm font-semibold text-foreground mb-3">
-                    Autres vidéos ({otherVideos.length})
-                  </h3>
-                  <div className={`grid gap-4 ${isLandscape ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" : "grid-cols-1 md:grid-cols-2"}`}>
+                  <div className="flex items-center justify-between mb-3 gap-3">
+                    <h3 className="text-sm font-semibold text-foreground">
+                      Autres vidéos ({otherVideos.length})
+                    </h3>
+                    <div className="inline-flex rounded-md border border-border overflow-hidden text-xs">
+                      <button
+                        type="button"
+                        onClick={() => setOtherViewMode("details")}
+                        className={`px-3 py-1.5 transition-colors ${
+                          otherViewMode === "details"
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-background text-foreground hover:bg-muted"
+                        }`}
+                      >
+                        Détails
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setOtherViewMode("videos")}
+                        className={`px-3 py-1.5 transition-colors border-l border-border ${
+                          otherViewMode === "videos"
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-background text-foreground hover:bg-muted"
+                        }`}
+                      >
+                        Vidéos
+                      </button>
+                    </div>
+                  </div>
+                  <div className={`grid gap-4 ${isLandscape ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" : otherViewMode === "videos" ? "grid-cols-3 md:grid-cols-4" : "grid-cols-1 md:grid-cols-2"}`}>
                     {otherVideos.map((v, idx) => {
                       const handlePick = () => {
                         setActiveVideoId(v.id);
@@ -499,6 +526,36 @@ const Test = () => {
                         document.documentElement.scrollTo({ top: 0, behavior: "auto" });
                         document.querySelector("main")?.scrollTo({ top: 0, behavior: "auto" });
                       };
+                      if (otherViewMode === "videos") {
+                        const thumb = v.thumbnail_url || deriveThumbnail(v.url);
+                        const isFile = /\.(mp4|webm|mov)(\?|$)/i.test(v.url);
+                        return (
+                          <div
+                            key={v.id}
+                            onClick={handlePick}
+                            className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted cursor-pointer"
+                          >
+                            {thumb ? (
+                              <img src={thumb} alt={v.business_name} className="w-full h-full object-cover" loading="lazy" />
+                            ) : isFile ? (
+                              <video src={`${v.url}#t=0.5`} className="w-full h-full object-cover" preload="metadata" muted playsInline />
+                            ) : (
+                              <div className="w-full h-full bg-muted" />
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="w-8 h-8 rounded-full bg-black/50 flex items-center justify-center">
+                                <div className="w-0 h-0 border-y-[6px] border-y-transparent border-l-[9px] border-l-white ml-0.5" />
+                              </div>
+                            </div>
+                            {v.business_name && (
+                              <div className="absolute bottom-0 left-0 right-0 p-1.5">
+                                <p className="text-[10px] font-medium text-white line-clamp-1">{v.business_name}</p>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }
                       return (
                         <div key={v.id} onClick={handlePick} className="cursor-pointer">
                           {v.business ? (
