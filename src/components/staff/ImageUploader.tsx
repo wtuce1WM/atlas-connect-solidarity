@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { X, Loader2, Image as ImageIcon, GripVertical, AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, Loader2, Image as ImageIcon, GripVertical, AlertTriangle, ChevronLeft, ChevronRight, ChevronDown, Tag } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import {
@@ -22,6 +22,11 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+interface BadgeOption {
+  id: string;
+  name_fr: string;
+}
+
 interface ImageUploaderProps {
   images: string[];
   onChange: (images: string[]) => void;
@@ -29,6 +34,9 @@ interface ImageUploaderProps {
   businessId?: string;
   popupImageUrl?: string | null;
   onPopupChange?: (url: string | null) => void;
+  badges?: BadgeOption[];
+  imageBadges?: Record<string, string[]>;
+  onImageBadgesChange?: (next: Record<string, string[]>) => void;
 }
 
 interface ImageMeta {
@@ -49,6 +57,9 @@ interface SortableImageProps {
   meta?: ImageMeta;
   isPopup?: boolean;
   onPopupToggle?: (url: string) => void;
+  badges?: BadgeOption[];
+  selectedBadgeIds?: string[];
+  onToggleBadge?: (url: string, badgeId: string) => void;
 }
 
 const formatFileSize = (bytes: number) => {
