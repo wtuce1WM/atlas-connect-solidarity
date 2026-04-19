@@ -265,10 +265,12 @@ const Test = () => {
   }, [selectedEntry, city]);
 
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+  const [isLandscape, setIsLandscape] = useState(false);
 
   // Reset active video when entry/city changes
   useEffect(() => {
     setActiveVideoId(null);
+    setIsLandscape(false);
   }, [selectedEntryId, city]);
 
   const activeVideo = useMemo(
