@@ -530,6 +530,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       if (cb === "bienvenue") return language === "en" ? "Welcome" : "Bienvenue";
       if (cb === "bienvenue_a_l") return `${language === "en" ? "Welcome to" : "Bienvenue à l'"} ${business.name}`;
       if (cb === "bienvenue_a_la") return `${language === "en" ? "Welcome to" : "Bienvenue à la"} ${business.name}`;
+      if (cb === "bienvenue_aux") return `${language === "en" ? "Welcome to" : "Bienvenue aux"} ${business.name}`;
       if (cb === "nos_offres") return language === "en" ? "Our offers" : "Nos offres";
     }
     return `${language === "en" ? "Welcome to" : "Bienvenue à"} ${business?.name || ""}`;
