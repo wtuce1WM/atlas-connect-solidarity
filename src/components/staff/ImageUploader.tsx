@@ -41,6 +41,8 @@ interface ImageUploaderProps {
   onImageBadgesChange?: (next: Record<string, string[]>) => void;
   imageTitles?: Record<string, string>;
   onImageTitlesChange?: (next: Record<string, string>) => void;
+  imageDescriptions?: Record<string, string>;
+  onImageDescriptionsChange?: (next: Record<string, string>) => void;
 }
 
 interface ImageMeta {
