@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { X, Loader2, Image as ImageIcon, GripVertical, AlertTriangle, ChevronLeft, ChevronRight, ChevronDown, Tag } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import {
   DndContext,
@@ -37,6 +38,8 @@ interface ImageUploaderProps {
   badges?: BadgeOption[];
   imageBadges?: Record<string, string[]>;
   onImageBadgesChange?: (next: Record<string, string[]>) => void;
+  imageTitles?: Record<string, string>;
+  onImageTitlesChange?: (next: Record<string, string>) => void;
 }
 
 interface ImageMeta {
@@ -60,6 +63,8 @@ interface SortableImageProps {
   badges?: BadgeOption[];
   selectedBadgeIds?: string[];
   onToggleBadge?: (url: string, badgeId: string) => void;
+  title?: string;
+  onTitleChange?: (url: string, title: string) => void;
 }
 
 const formatFileSize = (bytes: number) => {
@@ -84,7 +89,7 @@ const extractPathInfo = (url: string): { path: string; extension: string } => {
   }
 };
 
-const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta, isPopup, onPopupToggle, badges, selectedBadgeIds, onToggleBadge }: SortableImageProps) => {
+const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta, isPopup, onPopupToggle, badges, selectedBadgeIds, onToggleBadge, title, onTitleChange }: SortableImageProps) => {
   const [badgesOpen, setBadgesOpen] = useState(false);
   const {
     attributes,
