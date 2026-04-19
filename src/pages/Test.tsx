@@ -99,28 +99,50 @@ const Test = () => {
     load();
   }, []);
 
-  // Load businesses in selected city to know which subcats/services exist locally
+  // Compute, per selected city, the set of front_structure entries that actually
+  // have matching internal videos — same logic as backoffice FrontStructureVideosPanel:
+  // group video docs by subcategory_id, then check which entries' subcategory_ids
+  // intersect with the city's video subcategories.
+  const [entriesWithVideos, setEntriesWithVideos] = useState<Set<string>>(new Set());
+
   useEffect(() => {
     setLoading(true);
     const load = async () => {
-      const { data } = await supabase
-        .from("businesses")
-        .select("categories, services")
-        .eq("is_active", true)
-        .ilike("city", city);
+      // Fetch all internal video docs for the selected city
+      let allDocs: any[] = [];
+      let offset = 0;
+      const PAGE = 1000;
+      while (true) {
+        const { data } = await supabase
+          .from("business_documents")
+          .select("id, url, subcategory_id")
+          .eq("type", "video")
+          .eq("city", city)
+          .not("subcategory_id", "is", null)
+          .range(offset, offset + PAGE - 1);
+        if (!data || data.length === 0) break;
+        allDocs.push(...data);
+        if (data.length < PAGE) break;
+        offset += PAGE;
+      }
+      const { isInternalVideoUrl } = await import("@/lib/videoSourceFilter");
+      const subIdsWithVideos = new Set<string>();
+      allDocs
+        .filter((d) => isInternalVideoUrl(d.url))
+        .forEach((d) => subIdsWithVideos.add(d.subcategory_id));
 
-      const subSet = new Set<string>();
-      const svcSet = new Set<string>();
-      (data || []).forEach((b: any) => {
-        (b.categories || []).forEach((c: string) => subSet.add(c));
-        (b.services || []).forEach((s: string) => svcSet.add(s));
+      // Mark entries that have at least one matching subcategory
+      const matchingEntryIds = new Set<string>();
+      entries.forEach((e) => {
+        if (e.subcategory_ids.some((id) => subIdsWithVideos.has(id))) {
+          matchingEntryIds.add(e.id);
+        }
       });
-      setCitySubcats(subSet);
-      setCityServices(svcSet);
+      setEntriesWithVideos(matchingEntryIds);
       setLoading(false);
     };
-    load();
-  }, [city]);
+    if (entries.length > 0) load();
+  }, [city, entries]);
 
   const HOME_ID = "__home__";
 
@@ -133,13 +155,9 @@ const Test = () => {
       service_ids: [],
     };
     if (loading) return [homeEntry, ...entries];
-    const filtered = entries.filter((e) => {
-      const hasSub = e.subcategory_ids.some((id) => citySubcats.has(subcatNames[id]));
-      const hasSvc = e.service_ids.some((id) => cityServices.has(serviceNames[id]));
-      return hasSub || hasSvc;
-    });
+    const filtered = entries.filter((e) => entriesWithVideos.has(e.id));
     return [homeEntry, ...filtered];
-  }, [entries, citySubcats, cityServices, subcatNames, serviceNames, loading]);
+  }, [entries, entriesWithVideos, loading]);
 
   const selectedEntry = useMemo(
     () => visibleEntries.find((e) => e.id === selectedEntryId) || null,
