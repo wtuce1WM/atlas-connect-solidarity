@@ -465,6 +465,13 @@ const ImageUploader = ({
                   meta={{ size: imageSizes[url], sizeChecked: url in imageSizes, width: imageDims[url]?.w, height: imageDims[url]?.h }}
                   isPopup={popupImageUrl === url}
                   onPopupToggle={onPopupChange ? (u) => onPopupChange(popupImageUrl === u ? null : u) : undefined}
+                  badges={badges}
+                  selectedBadgeIds={imageBadges?.[url] || []}
+                  onToggleBadge={onImageBadgesChange ? (u, bid) => {
+                    const current = imageBadges?.[u] || [];
+                    const next = current.includes(bid) ? current.filter(x => x !== bid) : [...current, bid];
+                    onImageBadgesChange({ ...(imageBadges || {}), [u]: next });
+                  } : undefined}
                 />
               ))}
             </div>
