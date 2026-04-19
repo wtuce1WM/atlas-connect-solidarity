@@ -68,6 +68,8 @@ interface SortableImageProps {
   onToggleBadge?: (url: string, badgeId: string) => void;
   title?: string;
   onTitleChange?: (url: string, title: string) => void;
+  description?: string;
+  onDescriptionChange?: (url: string, description: string) => void;
 }
 
 const formatFileSize = (bytes: number) => {
