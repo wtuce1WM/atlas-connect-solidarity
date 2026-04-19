@@ -103,6 +103,7 @@ const TestNoteViewer = () => {
           .from("business_documents")
           .select("id, url, name, thumbnail_url, city, neighborhood, business_id, subcategory_id, service_id")
           .eq("type", "video")
+          .order("id")
           .range(offset, offset + PAGE - 1);
         if (!data || data.length === 0) break;
         allDocs.push(...data.filter((d: any) => isInternalVideoUrl(d.url)));
