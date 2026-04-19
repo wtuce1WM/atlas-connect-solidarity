@@ -458,7 +458,7 @@ const TestNoteViewer = () => {
             </div>
           )}
           {(() => {
-            const base = videos.filter(v => v.subcategory_name && v.badge_ids.length === 0);
+            const base = videos.filter(v => v.badge_ids.length === 0);
             const cityOptions = Array.from(new Set(base.map(v => v.city).filter(Boolean) as string[])).sort((a, b) => a.localeCompare(b, "fr"));
             const hasNoCity = base.some(v => !v.city);
             const toBadge = base.filter(v =>
