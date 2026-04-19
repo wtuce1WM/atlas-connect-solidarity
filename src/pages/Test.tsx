@@ -553,6 +553,33 @@ const Test = () => {
                     )}
                   </div>
                   <p className="text-sm font-medium text-foreground">{activeVideo.business_name}</p>
+
+                  {city === "Marrakech" && genericVideos.length > 0 && (
+                    <div className="w-full mt-6">
+                      <h3 className="text-sm font-semibold text-foreground mb-3">
+                        Vidéos génériques ({genericVideos.length})
+                      </h3>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {genericVideos.map((gv, idx) => (
+                          <div key={gv.id}>
+                            {gv.business ? (
+                              <SearchResultCard
+                                business={gv.business}
+                                index={idx}
+                                labelLogos={[]}
+                                distanceKm={null}
+                                onClick={() => {}}
+                                onMouseEnter={() => {}}
+                                onMouseLeave={() => {}}
+                              />
+                            ) : (
+                              <div className="aspect-square bg-muted rounded-xl" />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
