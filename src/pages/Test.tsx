@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import SearchResultCard, { type SearchResultBusiness } from "@/components/SearchResultCard";
 import PanelSearchBar from "@/components/PanelSearchBar";
+import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
 import { Menu as MenuIcon, X } from "lucide-react";
 
 interface FrontEntry {
@@ -392,6 +393,17 @@ const Test = () => {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [otherViewMode, setOtherViewMode] = useState<"details" | "videos">("videos");
+  const [currentTime, setCurrentTime] = useState(0);
+
+  // Reset currentTime when active video changes
+  useEffect(() => {
+    setCurrentTime(0);
+  }, [activeVideo?.id]);
+
+  const isActiveGeneric = useMemo(
+    () => !!activeVideo && genericVideos.some((g) => g.id === activeVideo.id),
+    [activeVideo, genericVideos]
+  );
 
   const structureList = (
     <>
@@ -585,7 +597,7 @@ const Test = () => {
               {activeVideo && activeEmbed && (
                 <div className={`relative flex flex-col items-center gap-2 pb-24 ${isLandscape ? "w-full order-1" : "w-1/2 shrink-0"}`}>
                   <div
-                    className={`bg-black rounded-lg overflow-hidden shadow-lg w-full ${isLandscape ? "aspect-video" : "aspect-[9/16]"}`}
+                    className={`relative bg-black rounded-lg overflow-hidden shadow-lg w-full ${isLandscape ? "aspect-video" : "aspect-[9/16]"}`}
                     style={{
                       maxWidth: isLandscape ? 1280 : 720,
                       maxHeight: "calc(100vh - 120px)",
@@ -604,6 +616,7 @@ const Test = () => {
                           const v = e.currentTarget;
                           setIsLandscape(v.videoWidth > v.videoHeight);
                         }}
+                        onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
                       />
                     ) : (
                       <iframe
@@ -612,6 +625,12 @@ const Test = () => {
                         className="w-full h-full"
                         allow="autoplay; fullscreen; encrypted-media"
                         allowFullScreen
+                      />
+                    )}
+                    {isActiveGeneric && (
+                      <GenericVideoTimelineOverlay
+                        genericVideoId={activeVideo.id}
+                        currentTime={currentTime}
                       />
                     )}
                   </div>
