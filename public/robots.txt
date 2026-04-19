@@ -2,11 +2,13 @@ User-agent: Googlebot
 Allow: /
 Disallow: /staff/
 Disallow: /affiliates/
+Disallow: /test
 
 User-agent: Bingbot
 Allow: /
 Disallow: /staff/
 Disallow: /affiliates/
+Disallow: /test
 
 User-agent: Twitterbot
 Allow: /
@@ -18,6 +20,7 @@ User-agent: *
 Allow: /
 Disallow: /staff/
 Disallow: /affiliates/
+Disallow: /test
 
 Sitemap: https://oneworldmorocco.com/sitemap.xml
 Sitemap: https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/generate-sitemap

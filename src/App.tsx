@@ -60,6 +60,7 @@ const BlogPresentationFR = lazy(() => import("./pages/BlogPresentationFR"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const CarouselNavDemo = lazy(() => import("./pages/CarouselNavDemo"));
 const FicheImmersive = lazy(() => import("./pages/FicheImmersive"));
+const Test = lazy(() => import("./pages/Test"));
 
 const queryClient = new QueryClient();
 
@@ -155,6 +156,7 @@ const AppContent = () => {
               <Route path="/staff/presentation-fr" element={<StaffRouteGuard>{renderLazyRoute(<BlogPresentationFR />)}</StaffRouteGuard>} />
               <Route path="/unsubscribe" element={renderLazyRoute(<Unsubscribe />)} />
               <Route path="/fiche/:slug" element={renderLazyRoute(<FicheImmersive />)} />
+              <Route path="/test" element={renderLazyRoute(<Test />)} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={renderLazyRoute(<NotFound />)} />
             </Routes>
