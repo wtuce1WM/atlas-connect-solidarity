@@ -133,17 +133,15 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
               isActive ? "border-2 border-gold" : "border border-white/10"
             }`}
           >
-            <div className="flex items-baseline justify-between gap-2">
-              <p className="text-sm font-semibold leading-tight line-clamp-1">{it.name}</p>
-              {it.ratingOn20 != null && (
-                <span className="text-xs font-bold text-gold shrink-0">
-                  {formatRating(it.ratingOn20)}/20
-                </span>
-              )}
-            </div>
+            <p className="text-sm font-semibold leading-tight break-words">{it.name}</p>
             {it.hook && (
-              <p className="text-[11px] text-white/85 leading-snug mt-0.5 line-clamp-2">
+              <p className="text-[11px] text-white/85 leading-snug mt-0.5 break-words">
                 {it.hook}
+              </p>
+            )}
+            {it.ratingOn20 != null && (
+              <p className="text-xs font-bold text-gold mt-1">
+                {formatRating(it.ratingOn20)}/20
               </p>
             )}
           </div>
