@@ -232,6 +232,43 @@ const Club = () => {
     }
   };
 
+  const tx = {
+    fr: { loginTab: "Se connecter", registerTab: "S'inscrire", loginTitle: "Accéder à votre compte", loginSubmit: "Se connecter", loginError: "Email ou mot de passe incorrect.", forgotPassword: "Mot de passe oublié ?", resetSent: "Email de réinitialisation envoyé.", noAccount: "Pas encore de compte ?", hasAccount: "Déjà membre ?" },
+    en: { loginTab: "Sign in", registerTab: "Register", loginTitle: "Access your account", loginSubmit: "Sign in", loginError: "Incorrect email or password.", forgotPassword: "Forgot password?", resetSent: "Reset email sent.", noAccount: "No account yet?", hasAccount: "Already a member?" },
+    ar: { loginTab: "تسجيل الدخول", registerTab: "تسجيل", loginTitle: "الوصول إلى حسابك", loginSubmit: "تسجيل الدخول", loginError: "البريد أو كلمة المرور غير صحيحة.", forgotPassword: "نسيت كلمة المرور؟", resetSent: "تم إرسال بريد الاستعادة.", noAccount: "ليس لديك حساب؟", hasAccount: "عضو بالفعل؟" },
+  }[language] || { loginTab: "Se connecter", registerTab: "S'inscrire", loginTitle: "Accéder à votre compte", loginSubmit: "Se connecter", loginError: "Email ou mot de passe incorrect.", forgotPassword: "Mot de passe oublié ?", resetSent: "Email de réinitialisation envoyé.", noAccount: "Pas encore de compte ?", hasAccount: "Déjà membre ?" };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!loginEmail.trim() || !loginPassword) return;
+    setIsLoggingIn(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: loginEmail.trim(),
+      password: loginPassword,
+    });
+    setIsLoggingIn(false);
+    if (error) {
+      toast({ title: tx.loginError, variant: "destructive" });
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!loginEmail.trim()) {
+      toast({ title: t.emailLabel, variant: "destructive" });
+      return;
+    }
+    setIsResetting(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(loginEmail.trim(), {
+      redirectTo: window.location.origin + "/reset-password",
+    });
+    setIsResetting(false);
+    if (error) {
+      toast({ title: t.errorMsg, variant: "destructive" });
+    } else {
+      toast({ title: tx.resetSent });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.nickname.trim() || !form.email.trim()) return;
