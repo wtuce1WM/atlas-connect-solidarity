@@ -101,12 +101,11 @@ const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta
   };
 
   return (
+    <div ref={setNodeRef} style={style} className={cn("flex flex-col gap-1", isDragging && "z-50")}>
     <div
-      ref={setNodeRef}
-      style={style}
       className={cn(
         "relative group aspect-square rounded-lg overflow-hidden border bg-muted transition-shadow hover:shadow-md",
-        isDragging && "opacity-50 z-50",
+        isDragging && "opacity-50",
         isBroken && "ring-2 ring-amber-500"
       )}
     >
