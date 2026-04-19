@@ -65,9 +65,17 @@ const TestNoteViewer = () => {
     if (!videosLoaded) return;
     if (activeTab !== "badgees" && activeTab !== "tobadge") return;
     (async () => {
-      const { data } = await supabase.from("business_document_badges").select("document_id, badge_id");
+      const all: any[] = [];
+      let off = 0;
+      while (true) {
+        const { data } = await supabase.from("business_document_badges").select("document_id, badge_id").range(off, off + 999);
+        if (!data || data.length === 0) break;
+        all.push(...data);
+        if (data.length < 1000) break;
+        off += 1000;
+      }
       const badgeMap = new Map<string, string[]>();
-      (data || []).forEach((l: any) => {
+      all.forEach((l) => {
         const arr = badgeMap.get(l.document_id) || [];
         arr.push(l.badge_id);
         badgeMap.set(l.document_id, arr);
@@ -98,12 +106,22 @@ const TestNoteViewer = () => {
         offset += PAGE;
       }
 
-      const [badgesRes, linksRes, subsRes, servicesRes] = await Promise.all([
+      const [badgesRes, subsRes, servicesRes] = await Promise.all([
         supabase.from("badges").select("id, name_fr"),
-        supabase.from("business_document_badges").select("document_id, badge_id"),
         supabase.from("subcategories").select("id, name_fr"),
         supabase.from("services").select("id, name_fr"),
       ]);
+
+      // Paginated fetch of badge links (table can exceed 1000 rows)
+      const allLinks: any[] = [];
+      let linkOff = 0;
+      while (true) {
+        const { data } = await supabase.from("business_document_badges").select("document_id, badge_id").range(linkOff, linkOff + 999);
+        if (!data || data.length === 0) break;
+        allLinks.push(...data);
+        if (data.length < 1000) break;
+        linkOff += 1000;
+      }
 
       if (badgesRes.data) {
         setBadges([...badgesRes.data].sort((a, b) => a.name_fr.localeCompare(b.name_fr, "fr")));
@@ -120,7 +138,7 @@ const TestNoteViewer = () => {
       }
 
       const badgeMap = new Map<string, string[]>();
-      (linksRes.data || []).forEach((l: any) => {
+      allLinks.forEach((l) => {
         const arr = badgeMap.get(l.document_id) || [];
         arr.push(l.badge_id);
         badgeMap.set(l.document_id, arr);
