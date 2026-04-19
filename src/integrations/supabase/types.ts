@@ -1832,6 +1832,42 @@ export type Database = {
           },
         ]
       }
+      club_member_personas: {
+        Row: {
+          created_at: string
+          id: string
+          member_id: string
+          persona_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          member_id: string
+          persona_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          member_id?: string
+          persona_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_member_personas_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "club_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_member_personas_persona_id_fkey"
+            columns: ["persona_id"]
+            isOneToOne: false
+            referencedRelation: "personas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       club_members: {
         Row: {
           city: string | null
@@ -3457,6 +3493,39 @@ export type Database = {
           },
         ]
       }
+      personas: {
+        Row: {
+          created_at: string
+          id: string
+          name_ar: string | null
+          name_en: string | null
+          name_fr: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name_ar?: string | null
+          name_en?: string | null
+          name_fr: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name_ar?: string | null
+          name_en?: string | null
+          name_fr?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       points_of_interest: {
         Row: {
           city_id: string
@@ -4813,6 +4882,7 @@ export type Database = {
           last_name: string
           last_sign_in_at: string
           nickname: string
+          personas: Json
           phone: string
           user_id: string
           whatsapp: string

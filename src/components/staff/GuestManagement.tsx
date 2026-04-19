@@ -3,7 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Loader2, Mail, Phone, MapPin, LogIn } from "lucide-react";
+import { Users, Loader2, Mail, Phone, MapPin, LogIn, Sparkles } from "lucide-react";
+
+interface PersonaTag {
+  id: string;
+  slug: string;
+  name_fr: string;
+}
 
 interface ClubMemberWithSignIn {
   id: string;
@@ -18,6 +24,7 @@ interface ClubMemberWithSignIn {
   created_at: string;
   user_id: string | null;
   last_sign_in_at: string | null;
+  personas: PersonaTag[] | null;
 }
 
 const GuestManagement = () => {
@@ -40,7 +47,7 @@ const GuestManagement = () => {
         description: "Impossible de charger les membres du club.",
       });
     } else {
-      setMembers((data as ClubMemberWithSignIn[]) || []);
+      setMembers((data as unknown as ClubMemberWithSignIn[]) || []);
     }
     setLoading(false);
   };
@@ -107,6 +114,12 @@ const GuestManagement = () => {
                         Localisation
                       </div>
                     </TableHead>
+                    <TableHead>
+                      <div className="flex items-center gap-1">
+                        <Sparkles className="h-3.5 w-3.5" />
+                        Personas
+                      </div>
+                    </TableHead>
                     <TableHead>Inscrit le</TableHead>
                     <TableHead>
                       <div className="flex items-center gap-1">
@@ -136,6 +149,20 @@ const GuestManagement = () => {
                       </TableCell>
                       <TableCell className="text-sm">
                         {[member.city, member.country].filter(Boolean).join(", ") || "—"}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {member.personas && member.personas.length > 0 ? (
+                          <div className="flex flex-wrap gap-1 max-w-[200px]">
+                            {member.personas.map((p) => (
+                              <span
+                                key={p.id}
+                                className="inline-block px-2 py-0.5 rounded-full bg-gold/15 text-gold text-[11px] font-medium border border-gold/30"
+                              >
+                                {p.name_fr}
+                              </span>
+                            ))}
+                          </div>
+                        ) : "—"}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
                         {formatDate(member.created_at)}

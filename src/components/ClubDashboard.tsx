@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { businessUrl } from "@/lib/businessUrl";
-import { Crown, Loader2, LogOut, Save, Bookmark, Trash2, ExternalLink, Tag } from "lucide-react";
+import { Crown, Loader2, LogOut, Save, Bookmark, Trash2, ExternalLink, Tag, Sparkles } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,9 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
   const [memberId, setMemberId] = useState<string | null>(null);
   const [bookmarks, setBookmarks] = useState<{ id: string; business_id: string; name: string; city: string | null; main_category: string | null; slug: string | null; promotion: { type: string; value: number; currency: string; message: string | null } | null }[]>([]);
   const [countries, setCountries] = useState<{ id: string; name_fr: string; name_en: string | null; name_ar: string | null; code: string | null }[]>([]);
+  const [personas, setPersonas] = useState<{ id: string; slug: string; name_fr: string; name_en: string | null; name_ar: string | null }[]>([]);
+  const [selectedPersonaIds, setSelectedPersonaIds] = useState<Set<string>>(new Set());
+  const [initialPersonaIds, setInitialPersonaIds] = useState<Set<string>>(new Set());
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -138,13 +141,15 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       setIsLoading(true);
       try {
         // Fetch countries, member data, and bookmarks in parallel
-        const [countriesRes, memberRes, bookmarksRes] = await Promise.all([
+        const [countriesRes, memberRes, bookmarksRes, personasRes] = await Promise.all([
           supabase.from("countries").select("id, name_fr, name_en, name_ar, code").order("sort_order"),
           supabase.from("club_members").select("*").eq("user_id", user.id).maybeSingle(),
           supabase.from("bookmarks" as any).select("id, business_id").eq("user_id", user.id).order("created_at", { ascending: false }),
+          supabase.from("personas" as any).select("id, slug, name_fr, name_en, name_ar").order("sort_order"),
         ]);
 
         if (countriesRes.data) setCountries(countriesRes.data);
+        if (personasRes.data) setPersonas(personasRes.data as any);
 
         if (memberRes.data) {
           setMemberId(memberRes.data.id);
@@ -158,6 +163,14 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
             phone: memberRes.data.phone || "",
             whatsapp: memberRes.data.whatsapp || "",
           });
+          // Fetch the member's personas
+          const { data: cmpData } = await supabase
+            .from("club_member_personas" as any)
+            .select("persona_id")
+            .eq("member_id", memberRes.data.id);
+          const ids = new Set<string>(((cmpData as any[]) || []).map((r: any) => r.persona_id));
+          setSelectedPersonaIds(ids);
+          setInitialPersonaIds(new Set(ids));
         } else {
           setForm(prev => ({ ...prev, email: user.email || "" }));
         }
@@ -217,22 +230,43 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         user_id: user.id,
       };
 
+      let currentMemberId = memberId;
       if (memberId) {
-        // Update existing
         const { error } = await supabase
           .from("club_members")
           .update(payload as any)
           .eq("id", memberId);
         if (error) throw error;
       } else {
-        // Create new (Google sign-in user)
         const { data, error } = await supabase
           .from("club_members")
           .insert(payload as any)
           .select("id")
           .single();
         if (error) throw error;
-        if (data) setMemberId(data.id);
+        if (data) {
+          setMemberId(data.id);
+          currentMemberId = data.id;
+        }
+      }
+
+      // Sync personas
+      if (currentMemberId) {
+        const toAdd = [...selectedPersonaIds].filter(id => !initialPersonaIds.has(id));
+        const toRemove = [...initialPersonaIds].filter(id => !selectedPersonaIds.has(id));
+        if (toRemove.length > 0) {
+          await supabase
+            .from("club_member_personas" as any)
+            .delete()
+            .eq("member_id", currentMemberId)
+            .in("persona_id", toRemove);
+        }
+        if (toAdd.length > 0) {
+          await supabase
+            .from("club_member_personas" as any)
+            .insert(toAdd.map(persona_id => ({ member_id: currentMemberId, persona_id })) as any);
+        }
+        setInitialPersonaIds(new Set(selectedPersonaIds));
       }
 
       toast({ title: t.saved });
@@ -332,6 +366,48 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           <div>
             <label className="text-sm text-muted-foreground mb-1 block">{t.whatsappLabel}</label>
             <Input type="tel" value={form.whatsapp} onChange={handleChange("whatsapp")} />
+          </div>
+        </div>
+
+        {/* Personas selector */}
+        <div className="pt-2">
+          <label className="text-sm text-foreground font-semibold mb-2 flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-gold" />
+            {language === "en" ? "Your traveler profile" : language === "ar" ? "ملفك الشخصي للسفر" : "Votre profil de voyageur"}
+          </label>
+          <p className="text-xs text-muted-foreground mb-3">
+            {language === "en"
+              ? "Select one or more personas that match you (optional)."
+              : language === "ar"
+              ? "اختر شخصية واحدة أو أكثر تناسبك (اختياري)."
+              : "Sélectionnez un ou plusieurs personas qui vous correspondent (facultatif)."}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {personas.map((p) => {
+              const selected = selectedPersonaIds.has(p.id);
+              const label = language === "en" && p.name_en ? p.name_en : language === "ar" && p.name_ar ? p.name_ar : p.name_fr;
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedPersonaIds(prev => {
+                      const next = new Set(prev);
+                      if (next.has(p.id)) next.delete(p.id);
+                      else next.add(p.id);
+                      return next;
+                    });
+                  }}
+                  className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                    selected
+                      ? "bg-gold text-black border-gold font-semibold"
+                      : "bg-background text-foreground border-border hover:bg-muted"
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
         </div>
 
