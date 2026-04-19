@@ -574,8 +574,6 @@ const TestNoteViewer = () => {
                                   >
                                     {assigning ? "..." : "Enregistrer"}
                                   </button>
-                                    {assigning ? "..." : "Enregistrer"}
-                                  </button>
                                 </div>
                               </div>
                               <div className="flex flex-wrap gap-1">
