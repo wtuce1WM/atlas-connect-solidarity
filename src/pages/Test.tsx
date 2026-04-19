@@ -291,6 +291,7 @@ const Test = () => {
                         src={activeVideo.url}
                         controls
                         autoPlay
+                        loop
                         playsInline
                         className="w-full h-full object-cover"
                       />
