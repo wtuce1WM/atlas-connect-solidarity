@@ -378,7 +378,7 @@ const Test = () => {
                   <h3 className="text-sm font-semibold text-foreground mb-3">
                     Autres vidéos ({otherVideos.length})
                   </h3>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {otherVideos.map((v, idx) => (
                       <div key={v.id} onClick={() => setActiveVideoId(v.id)} className="cursor-pointer">
                         {v.business ? (
