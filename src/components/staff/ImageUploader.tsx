@@ -217,6 +217,21 @@ const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta
       />
     )}
 
+    {/* Description textarea (max 500) */}
+    {onDescriptionChange && (
+      <div className="space-y-0.5">
+        <Textarea
+          value={description || ""}
+          onChange={(e) => onDescriptionChange(url, e.target.value.slice(0, 500))}
+          placeholder="Description (max 500)"
+          maxLength={500}
+          rows={2}
+          className="text-[10px] min-h-[40px] resize-y"
+        />
+        <p className="text-[9px] text-muted-foreground text-right">{(description || "").length}/500</p>
+      </div>
+    )}
+
     {/* Collapsible badges drawer */}
     {badges && badges.length > 0 && onToggleBadge && (
       <div className="rounded-md border border-border bg-card">
