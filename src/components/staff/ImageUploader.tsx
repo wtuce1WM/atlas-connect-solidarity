@@ -246,6 +246,9 @@ const ImageUploader = ({
   businessId,
   popupImageUrl,
   onPopupChange,
+  badges,
+  imageBadges,
+  onImageBadgesChange,
 }: ImageUploaderProps) => {
   const [uploading, setUploading] = useState(false);
   const [brokenUrls, setBrokenUrls] = useState<Set<string>>(new Set());
