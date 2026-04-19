@@ -1252,6 +1252,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   type MenuSummaryEntry = { id?: string; title: string; content: string; avg_price_range: any; price_details: string };
   const [menuSummaries, setMenuSummaries] = useState<MenuSummaryEntry[]>([]);
 
+  // --- Image badges (per image URL) ---
+  const [imageBadges, setImageBadges] = useState<Record<string, string[]>>({});
+
   useEffect(() => {
     if (!business?.id) return;
     const fetchDocs = async () => {
@@ -1295,8 +1298,23 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         })));
       }
     };
+    const fetchImageBadges = async () => {
+      const { data } = await supabase
+        .from("business_image_badges" as any)
+        .select("image_url, badge_id")
+        .eq("business_id", business.id);
+      if (data) {
+        const map: Record<string, string[]> = {};
+        (data as any[]).forEach((row: any) => {
+          if (!map[row.image_url]) map[row.image_url] = [];
+          map[row.image_url].push(row.badge_id);
+        });
+        setImageBadges(map);
+      }
+    };
     fetchDocs();
     fetchSummaries();
+    fetchImageBadges();
   }, [business?.id]);
 
   const DOC_ICON_OPTIONS = [
@@ -2296,7 +2314,22 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         }
       }
 
-      // Save business points of interest
+      // Save image badges (only for images still present in formData.images)
+      if (businessId) {
+        await supabase.from("business_image_badges" as any).delete().eq("business_id", businessId);
+        const rows: Array<{ business_id: string; image_url: string; badge_id: string }> = [];
+        const currentImages = new Set(formData.images || []);
+        Object.entries(imageBadges).forEach(([url, badgeIds]) => {
+          if (!currentImages.has(url)) return;
+          (badgeIds || []).forEach((badge_id) => {
+            rows.push({ business_id: businessId, image_url: url, badge_id });
+          });
+        });
+        if (rows.length > 0) {
+          await supabase.from("business_image_badges" as any).insert(rows);
+        }
+      }
+
       if (businessId) {
         await supabase.from("business_points_of_interest" as any).delete().eq("business_id", businessId);
         if (selectedPOIIds.length > 0) {
@@ -4890,6 +4923,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             businessId={business?.id}
             popupImageUrl={(formData as any).popup_image_url || null}
             onPopupChange={(url) => handleChange("popup_image_url", url || "")}
+            badges={dbBadges}
+            imageBadges={imageBadges}
+            onImageBadgesChange={setImageBadges}
           />
           <AlertDialog>
             <AlertDialogTrigger asChild>

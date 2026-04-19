@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { X, Loader2, Image as ImageIcon, GripVertical, AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, Loader2, Image as ImageIcon, GripVertical, AlertTriangle, ChevronLeft, ChevronRight, ChevronDown, Tag } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import {
@@ -22,6 +22,11 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+interface BadgeOption {
+  id: string;
+  name_fr: string;
+}
+
 interface ImageUploaderProps {
   images: string[];
   onChange: (images: string[]) => void;
@@ -29,6 +34,9 @@ interface ImageUploaderProps {
   businessId?: string;
   popupImageUrl?: string | null;
   onPopupChange?: (url: string | null) => void;
+  badges?: BadgeOption[];
+  imageBadges?: Record<string, string[]>;
+  onImageBadgesChange?: (next: Record<string, string[]>) => void;
 }
 
 interface ImageMeta {
@@ -49,6 +57,9 @@ interface SortableImageProps {
   meta?: ImageMeta;
   isPopup?: boolean;
   onPopupToggle?: (url: string) => void;
+  badges?: BadgeOption[];
+  selectedBadgeIds?: string[];
+  onToggleBadge?: (url: string, badgeId: string) => void;
 }
 
 const formatFileSize = (bytes: number) => {
@@ -73,7 +84,8 @@ const extractPathInfo = (url: string): { path: string; extension: string } => {
   }
 };
 
-const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta, isPopup, onPopupToggle }: SortableImageProps) => {
+const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta, isPopup, onPopupToggle, badges, selectedBadgeIds, onToggleBadge }: SortableImageProps) => {
+  const [badgesOpen, setBadgesOpen] = useState(false);
   const {
     attributes,
     listeners,
@@ -89,12 +101,11 @@ const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta
   };
 
   return (
+    <div ref={setNodeRef} style={style} className={cn("flex flex-col gap-1", isDragging && "z-50")}>
     <div
-      ref={setNodeRef}
-      style={style}
       className={cn(
         "relative group aspect-square rounded-lg overflow-hidden border bg-muted transition-shadow hover:shadow-md",
-        isDragging && "opacity-50 z-50",
+        isDragging && "opacity-50",
         isBroken && "ring-2 ring-amber-500"
       )}
     >
@@ -185,6 +196,46 @@ const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta
         );
       })()}
     </div>
+
+    {/* Collapsible badges drawer */}
+    {badges && badges.length > 0 && onToggleBadge && (
+      <div className="rounded-md border border-border bg-card">
+        <button
+          type="button"
+          onClick={() => setBadgesOpen((v) => !v)}
+          className="w-full flex items-center justify-between px-2 py-1 text-[10px] font-medium text-foreground hover:bg-muted/50 rounded-md"
+        >
+          <span className="flex items-center gap-1">
+            <Tag className="h-3 w-3" />
+            Badges ({selectedBadgeIds?.length || 0})
+          </span>
+          <ChevronDown className={cn("h-3 w-3 transition-transform", badgesOpen && "rotate-180")} />
+        </button>
+        {badgesOpen && (
+          <div className="flex flex-wrap gap-1 px-2 pb-2 pt-0.5">
+            {badges.map((badge) => {
+              const isSelected = selectedBadgeIds?.includes(badge.id) || false;
+              return (
+                <button
+                  key={badge.id}
+                  type="button"
+                  className={cn(
+                    "text-[9px] px-1.5 py-0.5 rounded-full border transition-colors",
+                    isSelected
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-background text-muted-foreground border-border hover:border-primary/50"
+                  )}
+                  onClick={() => onToggleBadge(url, badge.id)}
+                >
+                  {badge.name_fr}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    )}
+    </div>
   );
 };
 
@@ -195,6 +246,9 @@ const ImageUploader = ({
   businessId,
   popupImageUrl,
   onPopupChange,
+  badges,
+  imageBadges,
+  onImageBadgesChange,
 }: ImageUploaderProps) => {
   const [uploading, setUploading] = useState(false);
   const [brokenUrls, setBrokenUrls] = useState<Set<string>>(new Set());
@@ -411,6 +465,13 @@ const ImageUploader = ({
                   meta={{ size: imageSizes[url], sizeChecked: url in imageSizes, width: imageDims[url]?.w, height: imageDims[url]?.h }}
                   isPopup={popupImageUrl === url}
                   onPopupToggle={onPopupChange ? (u) => onPopupChange(popupImageUrl === u ? null : u) : undefined}
+                  badges={badges}
+                  selectedBadgeIds={imageBadges?.[url] || []}
+                  onToggleBadge={onImageBadgesChange ? (u, bid) => {
+                    const current = imageBadges?.[u] || [];
+                    const next = current.includes(bid) ? current.filter(x => x !== bid) : [...current, bid];
+                    onImageBadgesChange({ ...(imageBadges || {}), [u]: next });
+                  } : undefined}
                 />
               ))}
             </div>
