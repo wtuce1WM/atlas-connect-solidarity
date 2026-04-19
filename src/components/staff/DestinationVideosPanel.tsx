@@ -437,7 +437,7 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
           {filteredVideos.map((v) => {
             const isOnFront = frontIds.has(v.id);
             return (
-              <div key={v.id} className={`rounded-lg border overflow-hidden transition-colors ${isOnFront ? "border-primary/50 bg-primary/5" : "bg-background"}`}>
+              <div key={v.id} data-video-id={v.id} className={`rounded-lg border overflow-hidden transition-colors ${isOnFront ? "border-primary/50 bg-primary/5" : "bg-background"}`}>
                 <div className="relative aspect-video bg-black">
                  <button
                       className="relative w-full h-full flex items-center justify-center group"
@@ -452,6 +452,13 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
                         <Play className="h-5 w-5 text-primary-foreground fill-primary-foreground ml-0.5" />
                       </div>
                     </button>
+                  <span
+                    onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(v.id); toast.success("ID copié"); }}
+                    className="absolute top-1.5 left-1.5 z-20 text-white/90 hover:text-white text-[10px] font-mono bg-black/60 rounded px-1.5 py-0.5 cursor-pointer"
+                    title={`Copier l'ID : ${v.id}`}
+                  >
+                    {v.id.slice(0, 8)}
+                  </span>
                   {/* Add / already added indicator */}
                   <button
                     onClick={(e) => { e.stopPropagation(); isOnFront ? removeFromFront(v.id) : addToFront(v); }}
