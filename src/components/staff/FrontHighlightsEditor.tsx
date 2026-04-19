@@ -15,6 +15,7 @@ interface Highlight {
   sort_order: number;
   business_id: string | null;
   section_title: string | null;
+  section_intro: string | null;
 }
 
 interface FrontHighlightsEditorProps {
@@ -25,6 +26,9 @@ export interface FrontHighlightsEditorHandle {
   save: () => Promise<void>;
 }
 
+const TOTAL_BLOCKS = 6;
+const DEFAULT_ICONS = ["Sparkles", "Star", "Heart", "MapPin", "Award", "Gem"];
+
 const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighlightsEditorProps>(
   ({ businessId }, ref) => {
   const [open, setOpen] = useState(true);
@@ -32,6 +36,7 @@ const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighl
   const [loaded, setLoaded] = useState(false);
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [sectionTitle, setSectionTitle] = useState("Nos Points Forts");
+  const [sectionIntro, setSectionIntro] = useState("");
 
   const fetchData = async () => {
     setLoading(true);
@@ -40,21 +45,32 @@ const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighl
       .select("*")
       .eq("business_id", businessId)
       .order("sort_order");
-    
+
     let result = (data as Highlight[]) || [];
-    
-    if (result.length > 0 && result[0].section_title) {
-      setSectionTitle(result[0].section_title);
+
+    if (result.length > 0) {
+      if (result[0].section_title) setSectionTitle(result[0].section_title);
+      if (result[0].section_intro) setSectionIntro(result[0].section_intro);
     }
-    
-    if (result.length === 0) {
-      const defaults = [
-        { business_id: businessId, icon: "Sparkles", title: "", description: "", sort_order: 0, section_title: "Nos Points Forts" },
-        { business_id: businessId, icon: "Star", title: "", description: "", sort_order: 1, section_title: "Nos Points Forts" },
-        { business_id: businessId, icon: "Heart", title: "", description: "", sort_order: 2, section_title: "Nos Points Forts" },
-        { business_id: businessId, icon: "MapPin", title: "", description: "", sort_order: 3, section_title: "Nos Points Forts" },
-      ];
-      await supabase.from("front_highlights").insert(defaults);
+
+    // Insert any missing blocks up to TOTAL_BLOCKS
+    const existingOrders = new Set(result.map((h) => h.sort_order));
+    const toInsert = [];
+    for (let i = 0; i < TOTAL_BLOCKS; i++) {
+      if (!existingOrders.has(i)) {
+        toInsert.push({
+          business_id: businessId,
+          icon: DEFAULT_ICONS[i] || "Star",
+          title: "",
+          description: "",
+          sort_order: i,
+          section_title: sectionTitle,
+          section_intro: sectionIntro,
+        });
+      }
+    }
+    if (toInsert.length > 0) {
+      await supabase.from("front_highlights").insert(toInsert);
       const { data: refetch } = await supabase
         .from("front_highlights")
         .select("*")
@@ -62,7 +78,7 @@ const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighl
         .order("sort_order");
       result = (refetch as Highlight[]) || [];
     }
-    
+
     setHighlights(result);
     setLoading(false);
     setLoaded(true);
@@ -84,17 +100,18 @@ const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighl
     for (const h of highlights) {
       await supabase
         .from("front_highlights")
-        .update({ 
-          icon: h.icon, 
-          title: h.title, 
+        .update({
+          icon: h.icon,
+          title: h.title,
           description: h.description.slice(0, 500),
-          section_title: sectionTitle
+          section_title: sectionTitle,
+          section_intro: sectionIntro.slice(0, 500),
         })
         .eq("id", h.id);
     }
   };
 
-  useImperativeHandle(ref, () => ({ save: handleSave }), [highlights, sectionTitle]);
+  useImperativeHandle(ref, () => ({ save: handleSave }), [highlights, sectionTitle, sectionIntro]);
 
   return (
     <Card>
@@ -117,7 +134,6 @@ const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighl
           ) : (
           <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-xs font-medium text-muted-foreground">Titre de la section</label>
                 <Input
                   value={sectionTitle}
                   onChange={(e) => setSectionTitle(e.target.value.slice(0, 60))}
@@ -128,10 +144,25 @@ const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighl
                 <p className="text-xs text-muted-foreground">{sectionTitle.length}/60 caractères</p>
               </div>
 
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-muted-foreground">
+                  Texte d'introduction ({sectionIntro.length}/500)
+                </label>
+                <Textarea
+                  value={sectionIntro}
+                  onChange={(e) => {
+                    if (e.target.value.length <= 500) setSectionIntro(e.target.value);
+                  }}
+                  placeholder="Texte d'introduction (max 500 caractères)"
+                  className="text-sm min-h-[80px] resize-none"
+                  maxLength={500}
+                />
+              </div>
+
               <p className="text-sm text-muted-foreground">
-                Configurez jusqu'à 4 blocs mettant en avant les points forts de cette fiche.
+                Configurez jusqu'à {TOTAL_BLOCKS} blocs mettant en avant les points forts de cette fiche.
               </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {highlights.map((h, i) => (
                   <div key={h.id} className="border rounded-lg p-4 space-y-3">
                     <div className="flex items-center gap-2">
