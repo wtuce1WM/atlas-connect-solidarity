@@ -68,7 +68,11 @@ const TestNoteViewer = () => {
       const all: any[] = [];
       let off = 0;
       while (true) {
-        const { data } = await supabase.from("business_document_badges").select("document_id, badge_id").range(off, off + 999);
+        const { data } = await supabase
+          .from("business_document_badges")
+          .select("document_id, badge_id, id")
+          .order("id")
+          .range(off, off + 999);
         if (!data || data.length === 0) break;
         all.push(...data);
         if (data.length < 1000) break;
@@ -99,6 +103,7 @@ const TestNoteViewer = () => {
           .from("business_documents")
           .select("id, url, name, thumbnail_url, city, neighborhood, business_id, subcategory_id, service_id")
           .eq("type", "video")
+          .order("id")
           .range(offset, offset + PAGE - 1);
         if (!data || data.length === 0) break;
         allDocs.push(...data.filter((d: any) => isInternalVideoUrl(d.url)));
@@ -113,10 +118,16 @@ const TestNoteViewer = () => {
       ]);
 
       // Paginated fetch of badge links (table can exceed 1000 rows)
+      // IMPORTANT: must order by a stable column, otherwise PostgREST pagination
+      // can return duplicates/skip rows across pages.
       const allLinks: any[] = [];
       let linkOff = 0;
       while (true) {
-        const { data } = await supabase.from("business_document_badges").select("document_id, badge_id").range(linkOff, linkOff + 999);
+        const { data } = await supabase
+          .from("business_document_badges")
+          .select("document_id, badge_id, id")
+          .order("id")
+          .range(linkOff, linkOff + 999);
         if (!data || data.length === 0) break;
         allLinks.push(...data);
         if (data.length < 1000) break;
