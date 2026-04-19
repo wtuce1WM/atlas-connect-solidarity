@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import SearchResultCard, { type SearchResultBusiness } from "@/components/SearchResultCard";
+import { Menu as MenuIcon, X } from "lucide-react";
 
 interface FrontEntry {
   id: string;
