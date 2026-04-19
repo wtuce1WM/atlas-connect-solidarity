@@ -41,7 +41,7 @@ const Test = () => {
   const [citySubcats, setCitySubcats] = useState<Set<string>>(new Set());
   const [cityServices, setCityServices] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
-  const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
+  const [selectedEntryId, setSelectedEntryId] = useState<string | null>("__home__");
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [loadingVideos, setLoadingVideos] = useState(false);
 
