@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { X, Loader2, Image as ImageIcon, GripVertical, AlertTriangle, ChevronLeft, ChevronRight, ChevronDown, Tag } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import {
   DndContext,
@@ -37,6 +38,8 @@ interface ImageUploaderProps {
   badges?: BadgeOption[];
   imageBadges?: Record<string, string[]>;
   onImageBadgesChange?: (next: Record<string, string[]>) => void;
+  imageTitles?: Record<string, string>;
+  onImageTitlesChange?: (next: Record<string, string>) => void;
 }
 
 interface ImageMeta {
@@ -60,6 +63,8 @@ interface SortableImageProps {
   badges?: BadgeOption[];
   selectedBadgeIds?: string[];
   onToggleBadge?: (url: string, badgeId: string) => void;
+  title?: string;
+  onTitleChange?: (url: string, title: string) => void;
 }
 
 const formatFileSize = (bytes: number) => {
@@ -84,7 +89,7 @@ const extractPathInfo = (url: string): { path: string; extension: string } => {
   }
 };
 
-const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta, isPopup, onPopupToggle, badges, selectedBadgeIds, onToggleBadge }: SortableImageProps) => {
+const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta, isPopup, onPopupToggle, badges, selectedBadgeIds, onToggleBadge, title, onTitleChange }: SortableImageProps) => {
   const [badgesOpen, setBadgesOpen] = useState(false);
   const {
     attributes,
@@ -197,6 +202,16 @@ const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta
       })()}
     </div>
 
+    {/* Title input */}
+    {onTitleChange && (
+      <Input
+        value={title || ""}
+        onChange={(e) => onTitleChange(url, e.target.value)}
+        placeholder="Titre"
+        className="h-6 text-[10px]"
+      />
+    )}
+
     {/* Collapsible badges drawer */}
     {badges && badges.length > 0 && onToggleBadge && (
       <div className="rounded-md border border-border bg-card">
@@ -249,6 +264,8 @@ const ImageUploader = ({
   badges,
   imageBadges,
   onImageBadgesChange,
+  imageTitles,
+  onImageTitlesChange,
 }: ImageUploaderProps) => {
   const [uploading, setUploading] = useState(false);
   const [brokenUrls, setBrokenUrls] = useState<Set<string>>(new Set());
@@ -471,6 +488,10 @@ const ImageUploader = ({
                     const current = imageBadges?.[u] || [];
                     const next = current.includes(bid) ? current.filter(x => x !== bid) : [...current, bid];
                     onImageBadgesChange({ ...(imageBadges || {}), [u]: next });
+                  } : undefined}
+                  title={imageTitles?.[url] || ""}
+                  onTitleChange={onImageTitlesChange ? (u, t) => {
+                    onImageTitlesChange({ ...(imageTitles || {}), [u]: t });
                   } : undefined}
                 />
               ))}
