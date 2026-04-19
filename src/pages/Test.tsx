@@ -597,7 +597,13 @@ const Test = () => {
                                   loading="lazy"
                                 />
                               ) : (
-                                <div className="w-full h-full bg-muted" />
+                                <video
+                                  src={`${gv.url}#t=0.5`}
+                                  className="w-full h-full object-cover"
+                                  preload="metadata"
+                                  muted
+                                  playsInline
+                                />
                               )}
                               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
                               <div className="absolute inset-0 flex items-center justify-center">
