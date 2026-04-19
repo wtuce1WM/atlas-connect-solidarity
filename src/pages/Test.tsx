@@ -184,10 +184,24 @@ const Test = () => {
     load();
   }, [selectedEntry, city, subcatNames, serviceNames]);
 
-  const firstVideo = videos[0];
-  const firstEmbed = useMemo(
-    () => (firstVideo ? getVideoEmbed(firstVideo.url, window.location.origin, { autoplay: true }) : null),
-    [firstVideo]
+  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+
+  // Reset active video when entry/city changes
+  useEffect(() => {
+    setActiveVideoId(null);
+  }, [selectedEntryId, city]);
+
+  const activeVideo = useMemo(
+    () => videos.find((v) => v.id === activeVideoId) || videos[0] || null,
+    [videos, activeVideoId]
+  );
+  const activeEmbed = useMemo(
+    () => (activeVideo ? getVideoEmbed(activeVideo.url, window.location.origin, { autoplay: true }) : null),
+    [activeVideo]
+  );
+  const otherVideos = useMemo(
+    () => (activeVideo ? videos.filter((v) => v.id !== activeVideo.id) : videos.slice(1)),
+    [videos, activeVideo]
   );
 
   return (
@@ -252,17 +266,18 @@ const Test = () => {
               Aucune vidéo trouvée pour « {selectedEntry.name} » à {city}.
             </p>
           ) : (
-            <div className="space-y-6">
-              {/* First video in 720x1280 frame */}
-              {firstVideo && firstEmbed && (
-                <div className="flex flex-col items-start gap-2">
+            <div className="flex gap-6 items-start">
+              {/* Active video in 720x1280 frame */}
+              {activeVideo && activeEmbed && (
+                <div className="flex flex-col items-start gap-2 shrink-0">
                   <div
                     className="bg-black rounded-lg overflow-hidden shadow-lg"
                     style={{ width: 720, height: 1280, maxWidth: "100%" }}
                   >
-                    {firstEmbed.type === "file" ? (
+                    {activeEmbed.type === "file" ? (
                       <video
-                        src={firstVideo.url}
+                        key={activeVideo.id}
+                        src={activeVideo.url}
                         controls
                         autoPlay
                         playsInline
@@ -270,28 +285,31 @@ const Test = () => {
                       />
                     ) : (
                       <iframe
-                        src={firstEmbed.embedUrl}
+                        key={activeVideo.id}
+                        src={activeEmbed.embedUrl}
                         className="w-full h-full"
                         allow="autoplay; fullscreen; encrypted-media"
                         allowFullScreen
                       />
                     )}
                   </div>
-                  <p className="text-sm font-medium text-foreground">{firstVideo.business_name}</p>
+                  <p className="text-sm font-medium text-foreground">{activeVideo.business_name}</p>
                 </div>
               )}
 
-              {/* Remaining videos as thumbnails */}
-              {videos.length > 1 && (
-                <div>
+              {/* Other videos as clickable thumbnails on the right */}
+              {otherVideos.length > 0 && (
+                <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-semibold text-foreground mb-3">
-                    Autres vidéos ({videos.length - 1})
+                    Autres vidéos ({otherVideos.length})
                   </h3>
-                  <div className="grid grid-cols-5 gap-3">
-                    {videos.slice(1).map((v) => (
-                      <div
+                  <div className="grid grid-cols-3 gap-3">
+                    {otherVideos.map((v) => (
+                      <button
                         key={v.id}
-                        className="rounded-md overflow-hidden border border-border bg-card"
+                        type="button"
+                        onClick={() => setActiveVideoId(v.id)}
+                        className="text-left rounded-md overflow-hidden border border-border bg-card hover:border-primary hover:shadow-md transition-all"
                       >
                         <div className="aspect-video bg-black">
                           {v.thumbnail_url ? (
@@ -305,7 +323,7 @@ const Test = () => {
                           )}
                         </div>
                         <p className="text-xs px-2 py-1 truncate">{v.business_name}</p>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 </div>
