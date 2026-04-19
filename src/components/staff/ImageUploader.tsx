@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { X, Loader2, Image as ImageIcon, GripVertical, AlertTriangle, ChevronLeft, ChevronRight, ChevronDown, Tag } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import {
   DndContext,
@@ -40,6 +41,8 @@ interface ImageUploaderProps {
   onImageBadgesChange?: (next: Record<string, string[]>) => void;
   imageTitles?: Record<string, string>;
   onImageTitlesChange?: (next: Record<string, string>) => void;
+  imageDescriptions?: Record<string, string>;
+  onImageDescriptionsChange?: (next: Record<string, string>) => void;
 }
 
 interface ImageMeta {
@@ -65,6 +68,8 @@ interface SortableImageProps {
   onToggleBadge?: (url: string, badgeId: string) => void;
   title?: string;
   onTitleChange?: (url: string, title: string) => void;
+  description?: string;
+  onDescriptionChange?: (url: string, description: string) => void;
 }
 
 const formatFileSize = (bytes: number) => {
@@ -89,7 +94,7 @@ const extractPathInfo = (url: string): { path: string; extension: string } => {
   }
 };
 
-const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta, isPopup, onPopupToggle, badges, selectedBadgeIds, onToggleBadge, title, onTitleChange }: SortableImageProps) => {
+const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta, isPopup, onPopupToggle, badges, selectedBadgeIds, onToggleBadge, title, onTitleChange, description, onDescriptionChange }: SortableImageProps) => {
   const [badgesOpen, setBadgesOpen] = useState(false);
   const {
     attributes,
@@ -212,6 +217,21 @@ const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta
       />
     )}
 
+    {/* Description textarea (max 500) */}
+    {onDescriptionChange && (
+      <div className="space-y-0.5">
+        <Textarea
+          value={description || ""}
+          onChange={(e) => onDescriptionChange(url, e.target.value.slice(0, 500))}
+          placeholder="Description (max 500)"
+          maxLength={500}
+          rows={2}
+          className="text-[10px] min-h-[40px] resize-y"
+        />
+        <p className="text-[9px] text-muted-foreground text-right">{(description || "").length}/500</p>
+      </div>
+    )}
+
     {/* Collapsible badges drawer */}
     {badges && badges.length > 0 && onToggleBadge && (
       <div className="rounded-md border border-border bg-card">
@@ -266,6 +286,8 @@ const ImageUploader = ({
   onImageBadgesChange,
   imageTitles,
   onImageTitlesChange,
+  imageDescriptions,
+  onImageDescriptionsChange,
 }: ImageUploaderProps) => {
   const [uploading, setUploading] = useState(false);
   const [brokenUrls, setBrokenUrls] = useState<Set<string>>(new Set());
@@ -492,6 +514,10 @@ const ImageUploader = ({
                   title={imageTitles?.[url] || ""}
                   onTitleChange={onImageTitlesChange ? (u, t) => {
                     onImageTitlesChange({ ...(imageTitles || {}), [u]: t });
+                  } : undefined}
+                  description={imageDescriptions?.[url] || ""}
+                  onDescriptionChange={onImageDescriptionsChange ? (u, d) => {
+                    onImageDescriptionsChange({ ...(imageDescriptions || {}), [u]: d });
                   } : undefined}
                 />
               ))}

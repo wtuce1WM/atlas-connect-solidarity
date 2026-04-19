@@ -1256,6 +1256,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   const [imageBadges, setImageBadges] = useState<Record<string, string[]>>({});
   // --- Image titles (per image URL) ---
   const [imageTitles, setImageTitles] = useState<Record<string, string>>({});
+  // --- Image descriptions (per image URL, max 500) ---
+  const [imageDescriptions, setImageDescriptions] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!business?.id) return;
@@ -1317,12 +1319,17 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     const fetchImageTitles = async () => {
       const { data } = await supabase
         .from("business_image_titles" as any)
-        .select("image_url, title")
+        .select("image_url, title, description")
         .eq("business_id", business.id);
       if (data) {
-        const map: Record<string, string> = {};
-        (data as any[]).forEach((row: any) => { map[row.image_url] = row.title || ""; });
-        setImageTitles(map);
+        const tmap: Record<string, string> = {};
+        const dmap: Record<string, string> = {};
+        (data as any[]).forEach((row: any) => {
+          tmap[row.image_url] = row.title || "";
+          dmap[row.image_url] = row.description || "";
+        });
+        setImageTitles(tmap);
+        setImageDescriptions(dmap);
       }
     };
     fetchDocs();
@@ -2344,16 +2351,18 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         }
       }
 
-      // Save image titles (only for images still present in formData.images, only non-empty)
+      // Save image titles + descriptions (only for images still present in formData.images, only if non-empty)
       if (businessId) {
         await supabase.from("business_image_titles" as any).delete().eq("business_id", businessId);
-        const titleRows: Array<{ business_id: string; image_url: string; title: string }> = [];
+        const titleRows: Array<{ business_id: string; image_url: string; title: string; description: string }> = [];
         const currentImagesT = new Set(formData.images || []);
-        Object.entries(imageTitles).forEach(([url, t]) => {
+        const allUrls = new Set<string>([...Object.keys(imageTitles), ...Object.keys(imageDescriptions)]);
+        allUrls.forEach((url) => {
           if (!currentImagesT.has(url)) return;
-          const trimmed = (t || "").trim();
-          if (!trimmed) return;
-          titleRows.push({ business_id: businessId, image_url: url, title: trimmed });
+          const t = (imageTitles[url] || "").trim();
+          const d = (imageDescriptions[url] || "").trim().slice(0, 500);
+          if (!t && !d) return;
+          titleRows.push({ business_id: businessId, image_url: url, title: t, description: d });
         });
         if (titleRows.length > 0) {
           await supabase.from("business_image_titles" as any).insert(titleRows);
@@ -4958,6 +4967,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             onImageBadgesChange={setImageBadges}
             imageTitles={imageTitles}
             onImageTitlesChange={setImageTitles}
+            imageDescriptions={imageDescriptions}
+            onImageDescriptionsChange={setImageDescriptions}
           />
           <AlertDialog>
             <AlertDialogTrigger asChild>
