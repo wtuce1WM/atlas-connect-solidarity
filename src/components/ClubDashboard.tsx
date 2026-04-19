@@ -141,13 +141,15 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       setIsLoading(true);
       try {
         // Fetch countries, member data, and bookmarks in parallel
-        const [countriesRes, memberRes, bookmarksRes] = await Promise.all([
+        const [countriesRes, memberRes, bookmarksRes, personasRes] = await Promise.all([
           supabase.from("countries").select("id, name_fr, name_en, name_ar, code").order("sort_order"),
           supabase.from("club_members").select("*").eq("user_id", user.id).maybeSingle(),
           supabase.from("bookmarks" as any).select("id, business_id").eq("user_id", user.id).order("created_at", { ascending: false }),
+          supabase.from("personas" as any).select("id, slug, name_fr, name_en, name_ar").order("sort_order"),
         ]);
 
         if (countriesRes.data) setCountries(countriesRes.data);
+        if (personasRes.data) setPersonas(personasRes.data as any);
 
         if (memberRes.data) {
           setMemberId(memberRes.data.id);
@@ -161,6 +163,14 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
             phone: memberRes.data.phone || "",
             whatsapp: memberRes.data.whatsapp || "",
           });
+          // Fetch the member's personas
+          const { data: cmpData } = await supabase
+            .from("club_member_personas" as any)
+            .select("persona_id")
+            .eq("member_id", memberRes.data.id);
+          const ids = new Set<string>(((cmpData as any[]) || []).map((r: any) => r.persona_id));
+          setSelectedPersonaIds(ids);
+          setInitialPersonaIds(new Set(ids));
         } else {
           setForm(prev => ({ ...prev, email: user.email || "" }));
         }
