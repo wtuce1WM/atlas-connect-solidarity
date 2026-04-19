@@ -559,29 +559,12 @@ const TestNoteViewer = () => {
                                   <button
                                     disabled={!dirty || assigning}
                                     onClick={async () => {
-                                      if (!selectedVideoId) return;
+                                      if (!selectedVideo) return;
                                       setAssigning(true);
-                                      const toAdd = [...draft].filter(id => !original.has(id));
-                                      const toRemove = [...original].filter(id => !draft.has(id));
-                                      let err: any = null;
-                                      if (toRemove.length > 0) {
-                                        const r = await supabase.from("business_document_badges").delete().eq("document_id", selectedVideoId).in("badge_id", toRemove);
-                                        if (r.error) err = r.error;
-                                      }
-                                      if (!err && toAdd.length > 0) {
-                                        // De-duplicate badge IDs and use upsert to avoid unique-constraint errors on retries
-                                        const uniqueToAdd = Array.from(new Set(toAdd));
-                                        const r = await supabase
-                                          .from("business_document_badges")
-                                          .upsert(
-                                            uniqueToAdd.map(badge_id => ({ document_id: selectedVideoId, badge_id })),
-                                            { onConflict: "document_id,badge_id", ignoreDuplicates: true }
-                                          );
-                                        if (r.error) err = r.error;
-                                      }
+                                      const err = await saveBadges(selectedVideo, draft, original);
                                       setAssigning(false);
                                       if (err) { toast.error("Erreur : " + err.message); return; }
-                                      const savedId = selectedVideoId;
+                                      const savedId = selectedVideo.id;
                                       setVideos(prev => prev.map(v => v.id === savedId ? { ...v, badge_ids: [...draft] } : v));
                                       // Deselect so the now-badged video leaves the "À badger" list
                                       setSelectedVideoId(null);
@@ -589,6 +572,8 @@ const TestNoteViewer = () => {
                                     }}
                                     className="text-xs px-3 py-1 rounded bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-40"
                                   >
+                                    {assigning ? "..." : "Enregistrer"}
+                                  </button>
                                     {assigning ? "..." : "Enregistrer"}
                                   </button>
                                 </div>
