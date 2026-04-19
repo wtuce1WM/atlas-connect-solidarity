@@ -519,6 +519,13 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
                         ) : (
                           <div className="w-full h-full bg-muted" />
                         )}
+                        <span
+                          onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(v.id); toast.success("ID copié"); }}
+                          className="absolute top-1 right-1 z-10 text-white/90 hover:text-white text-[10px] font-mono bg-black/60 rounded px-1.5 py-0.5 cursor-pointer"
+                          title={`Copier l'ID : ${v.id}`}
+                        >
+                          {v.id.slice(0, 8)}
+                        </span>
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                           <div className="w-8 h-8 rounded-full bg-primary/80 flex items-center justify-center">
                             <Play className="h-4 w-4 text-primary-foreground fill-primary-foreground ml-0.5" />
