@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import SearchResultCard, { type SearchResultBusiness } from "@/components/SearchResultCard";
+import { Menu as MenuIcon, X } from "lucide-react";
 
 interface FrontEntry {
   id: string;
@@ -310,55 +311,90 @@ const Test = () => {
     [videos, activeVideo]
   );
 
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const structureList = (
+    <>
+      <div className="mb-4">
+        <Select value={city} onValueChange={(v) => setCity(v as City)}>
+          <SelectTrigger className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {CITIES.map((c) => (
+              <SelectItem key={c} value={c}>{c}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <h2 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">
+        Structure du front
+      </h2>
+
+      {loading ? (
+        <p className="text-xs text-muted-foreground">Chargement…</p>
+      ) : visibleEntries.length === 0 ? (
+        <p className="text-xs text-muted-foreground">Aucune entrée pour {city}.</p>
+      ) : (
+        <ul className="space-y-1">
+          {visibleEntries.map((e) => {
+            const isActive = e.id === selectedEntryId;
+            return (
+              <li
+                key={e.id}
+                onClick={() => {
+                  setSelectedEntryId(e.id);
+                  setMenuOpen(false);
+                }}
+                className={`px-3 py-2 rounded-md text-sm cursor-pointer transition-colors ${
+                  isActive
+                    ? "bg-primary text-primary-foreground"
+                    : "text-foreground hover:bg-muted"
+                }`}
+              >
+                {e.name}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </>
+  );
+
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-      <div className="pt-[53px] flex w-full min-h-[calc(100vh-53px)]">
-        {/* Left column 20% */}
-        <aside className="w-1/5 min-w-[220px] border-r border-border bg-background p-4 overflow-y-auto">
-          <div className="mb-4">
-            <Select value={city} onValueChange={(v) => setCity(v as City)}>
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CITIES.map((c) => (
-                  <SelectItem key={c} value={c}>{c}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      <Header
+        rightContent={
+          <div className="flex items-center justify-end pr-2">
+            <button
+              type="button"
+              onClick={() => setMenuOpen((v) => !v)}
+              className="flex items-center gap-1.5 text-sm font-semibold text-foreground hover:text-gold transition-colors"
+              aria-label="Menu Structure"
+            >
+              {menuOpen ? <X className="h-4 w-4" /> : <MenuIcon className="h-4 w-4" />}
+              Menu
+            </button>
           </div>
+        }
+      />
 
-          <h2 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">
-            Structure du front
-          </h2>
+      {menuOpen && (
+        <div
+          className="fixed inset-0 top-[53px] z-[28]"
+          onClick={() => setMenuOpen(false)}
+        >
+          <div
+            className="w-1/5 min-w-[260px] h-full bg-background border-r border-border shadow-xl animate-in slide-in-from-left-2 fade-in duration-200 overflow-y-auto p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {structureList}
+          </div>
+        </div>
+      )}
 
-          {loading ? (
-            <p className="text-xs text-muted-foreground">Chargement…</p>
-          ) : visibleEntries.length === 0 ? (
-            <p className="text-xs text-muted-foreground">Aucune entrée pour {city}.</p>
-          ) : (
-            <ul className="space-y-1">
-              {visibleEntries.map((e) => {
-                const isActive = e.id === selectedEntryId;
-                return (
-                  <li
-                    key={e.id}
-                    onClick={() => setSelectedEntryId(e.id)}
-                    className={`px-3 py-2 rounded-md text-sm cursor-pointer transition-colors ${
-                      isActive
-                        ? "bg-primary text-primary-foreground"
-                        : "text-foreground hover:bg-muted"
-                    }`}
-                  >
-                    {e.name}
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </aside>
-
+      <div className="pt-[53px] flex w-full min-h-[calc(100vh-53px)]">
         {/* Right zone 80% */}
         <main className="flex-1 p-6 overflow-y-auto">
           {!selectedEntry ? (
