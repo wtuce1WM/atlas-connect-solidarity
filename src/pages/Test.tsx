@@ -288,7 +288,7 @@ const Test = () => {
 
   // Generic videos shown under the active video (Marrakech only)
   const [genericVideos, setGenericVideos] = useState<
-    { id: string; url: string; business: SearchResultBusiness | null }[]
+    { id: string; url: string; account: string | null; business: SearchResultBusiness | null }[]
   >([]);
 
   useEffect(() => {
@@ -300,7 +300,7 @@ const Test = () => {
       const [vidsRes, linksRes] = await Promise.all([
         supabase
           .from("generic_videos" as any)
-          .select("id, url")
+          .select("id, url, instagram_account, tiktok_account, youtube_account")
           .in("id", MARRAKECH_GENERIC_VIDEO_IDS),
         supabase
           .from("generic_video_businesses" as any)
@@ -329,13 +329,16 @@ const Test = () => {
           const v = vids.find((x: any) => x.id === vid);
           if (!v) return null;
           const bizId = firstBizByVid[vid];
+          const rawAccount = v.instagram_account || v.tiktok_account || v.youtube_account || null;
+          const account = rawAccount ? rawAccount.replace(/^@+/, "") : null;
           return {
             id: v.id,
             url: v.url,
+            account,
             business: bizId ? bizMap.get(bizId) || null : null,
           };
         })
-        .filter(Boolean) as { id: string; url: string; business: SearchResultBusiness | null }[];
+        .filter(Boolean) as { id: string; url: string; account: string | null; business: SearchResultBusiness | null }[];
       setGenericVideos(ordered);
     };
     load();
