@@ -334,16 +334,29 @@ const Test = () => {
                         <div className="aspect-video bg-black">
                           {(() => {
                             const thumb = v.thumbnail_url || deriveThumbnail(v.url);
-                            return thumb ? (
-                              <img
-                                src={thumb}
-                                alt={v.business_name}
-                                className="w-full h-full object-cover"
-                                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-muted" />
-                            );
+                            if (thumb) {
+                              return (
+                                <img
+                                  src={thumb}
+                                  alt={v.business_name}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                                />
+                              );
+                            }
+                            // Internal mp4/webm fallback: use first frame via <video preload="metadata">
+                            if (/\.(mp4|webm|mov|m4v|ogv)(\?|$)/i.test(v.url)) {
+                              return (
+                                <video
+                                  src={`${v.url}#t=0.5`}
+                                  className="w-full h-full object-cover"
+                                  preload="metadata"
+                                  muted
+                                  playsInline
+                                />
+                              );
+                            }
+                            return <div className="w-full h-full bg-muted" />;
                           })()}
                         </div>
                         <p className="text-xs px-2 py-1 truncate">{v.business_name}</p>
