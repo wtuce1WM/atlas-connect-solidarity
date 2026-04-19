@@ -580,7 +580,7 @@ const Test = () => {
 
               {/* Active video — right side (50%) */}
               {activeVideo && activeEmbed && (
-                <div className={`flex flex-col items-center gap-2 ${isLandscape ? "w-full order-1" : "w-1/2 shrink-0"}`}>
+                <div className={`relative flex flex-col items-center gap-2 pb-24 ${isLandscape ? "w-full order-1" : "w-1/2 shrink-0"}`}>
                   <div
                     className={`bg-black rounded-lg overflow-hidden shadow-lg w-full ${isLandscape ? "aspect-video" : "aspect-[9/16]"}`}
                     style={{
