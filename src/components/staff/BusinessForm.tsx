@@ -2314,7 +2314,22 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         }
       }
 
-      // Save business points of interest
+      // Save image badges (only for images still present in formData.images)
+      if (businessId) {
+        await supabase.from("business_image_badges" as any).delete().eq("business_id", businessId);
+        const rows: Array<{ business_id: string; image_url: string; badge_id: string }> = [];
+        const currentImages = new Set(formData.images || []);
+        Object.entries(imageBadges).forEach(([url, badgeIds]) => {
+          if (!currentImages.has(url)) return;
+          (badgeIds || []).forEach((badge_id) => {
+            rows.push({ business_id: businessId, image_url: url, badge_id });
+          });
+        });
+        if (rows.length > 0) {
+          await supabase.from("business_image_badges" as any).insert(rows);
+        }
+      }
+
       if (businessId) {
         await supabase.from("business_points_of_interest" as any).delete().eq("business_id", businessId);
         if (selectedPOIIds.length > 0) {
