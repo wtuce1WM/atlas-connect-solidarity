@@ -2632,6 +2632,42 @@ export type Database = {
         }
         Relationships: []
       }
+      generic_video_badges: {
+        Row: {
+          badge_id: string
+          created_at: string
+          generic_video_id: string
+          id: string
+        }
+        Insert: {
+          badge_id: string
+          created_at?: string
+          generic_video_id: string
+          id?: string
+        }
+        Update: {
+          badge_id?: string
+          created_at?: string
+          generic_video_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generic_video_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generic_video_badges_generic_video_id_fkey"
+            columns: ["generic_video_id"]
+            isOneToOne: false
+            referencedRelation: "generic_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       generic_video_businesses: {
         Row: {
           business_id: string
