@@ -3504,7 +3504,7 @@ export type Database = {
           slug: string
           sort_order: number
           updated_at: string
-          video_id: string | null
+          video_ids: string[]
         }
         Insert: {
           created_at?: string
@@ -3516,7 +3516,7 @@ export type Database = {
           slug: string
           sort_order?: number
           updated_at?: string
-          video_id?: string | null
+          video_ids?: string[]
         }
         Update: {
           created_at?: string
@@ -3528,7 +3528,7 @@ export type Database = {
           slug?: string
           sort_order?: number
           updated_at?: string
-          video_id?: string | null
+          video_ids?: string[]
         }
         Relationships: []
       }
