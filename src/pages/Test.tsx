@@ -393,6 +393,17 @@ const Test = () => {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [otherViewMode, setOtherViewMode] = useState<"details" | "videos">("videos");
+  const [currentTime, setCurrentTime] = useState(0);
+
+  // Reset currentTime when active video changes
+  useEffect(() => {
+    setCurrentTime(0);
+  }, [activeVideo?.id]);
+
+  const isActiveGeneric = useMemo(
+    () => !!activeVideo && genericVideos.some((g) => g.id === activeVideo.id),
+    [activeVideo, genericVideos]
+  );
 
   const structureList = (
     <>
