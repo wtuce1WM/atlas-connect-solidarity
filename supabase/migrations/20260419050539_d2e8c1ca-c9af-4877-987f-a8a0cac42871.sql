@@ -1,0 +1,1 @@
+ALTER TABLE public.business_image_titles ADD COLUMN IF NOT EXISTS description TEXT NOT NULL DEFAULT '';
