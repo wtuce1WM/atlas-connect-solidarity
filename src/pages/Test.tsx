@@ -22,6 +22,14 @@ interface VideoItem {
 const CITIES = ["Marrakech", "Essaouira"] as const;
 type City = typeof CITIES[number];
 
+function deriveThumbnail(url: string): string | null {
+  const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
+  if (yt) return `https://i.ytimg.com/vi/${yt[1]}/hqdefault.jpg`;
+  const bunny = url.match(/iframe\.mediadelivery\.net\/embed\/(\d+)\/([\w-]+)/);
+  if (bunny) return `https://vz-${bunny[1]}.b-cdn.net/${bunny[2]}/thumbnail.jpg`;
+  return null;
+}
+
 const Test = () => {
   const [city, setCity] = useState<City>("Marrakech");
   const [entries, setEntries] = useState<FrontEntry[]>([]);
@@ -324,15 +332,19 @@ const Test = () => {
                         className="text-left rounded-md overflow-hidden border border-border bg-card hover:border-primary hover:shadow-md transition-all"
                       >
                         <div className="aspect-video bg-black">
-                          {v.thumbnail_url ? (
-                            <img
-                              src={v.thumbnail_url}
-                              alt={v.business_name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-muted" />
-                          )}
+                          {(() => {
+                            const thumb = v.thumbnail_url || deriveThumbnail(v.url);
+                            return thumb ? (
+                              <img
+                                src={thumb}
+                                alt={v.business_name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-muted" />
+                            );
+                          })()}
                         </div>
                         <p className="text-xs px-2 py-1 truncate">{v.business_name}</p>
                       </button>
