@@ -221,27 +221,26 @@ const Test = () => {
       const internal = allDocs;
 
       const bizIds = [...new Set(internal.map((d: any) => d.business_id))];
-      const bizNameMap = new Map<string, string>();
-      const bizImageMap = new Map<string, string | null>();
+      const bizMap = new Map<string, SearchResultBusiness>();
       if (bizIds.length > 0) {
         const { data: bizs } = await supabase
           .from("businesses")
-          .select("id, name, images, logo_url")
+          .select("id, name, images, logo_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
           .in("id", bizIds);
-        (bizs || []).forEach((b: any) => {
-          bizNameMap.set(b.id, b.name);
-          bizImageMap.set(b.id, b.images?.[0] || b.logo_url || null);
-        });
+        (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
       }
 
       setVideos(
-        internal.map((d: any) => ({
-          id: d.id,
-          url: d.url,
-          business_name: bizNameMap.get(d.business_id) || "—",
-          thumbnail_url: d.thumbnail_url,
-          business_image: bizImageMap.get(d.business_id) || null,
-        }))
+        internal.map((d: any) => {
+          const biz = bizMap.get(d.business_id) || null;
+          return {
+            id: d.id,
+            url: d.url,
+            business_name: biz?.name || "—",
+            thumbnail_url: d.thumbnail_url,
+            business: biz,
+          };
+        })
       );
       setLoadingVideos(false);
     };
