@@ -64,6 +64,14 @@ const SortableVideoCard = ({
           <GripVertical className="h-3.5 w-3.5" />
         </div>
         <span className="text-[10px] text-muted-foreground font-mono">{index + 1}</span>
+        <button
+          type="button"
+          className="ml-auto text-[10px] text-muted-foreground font-mono truncate max-w-[100px] hover:text-foreground transition-colors"
+          title={`Copier l'ID : ${video.id}`}
+          onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(video.id); toast.success("ID copié"); }}
+        >
+          {video.id.slice(0, 8)}
+        </button>
       </div>
       <button
         className="relative bg-black group flex-shrink-0 w-full"
