@@ -508,6 +508,7 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
                 if (cb === "bienvenue") return language === "en" ? "Welcome" : "Bienvenue";
                 if (cb === "bienvenue_a_l") return `${language === "en" ? "Welcome to" : "Bienvenue à l'"} ${poi.name}`;
                 if (cb === "bienvenue_a_la") return `${language === "en" ? "Welcome to" : "Bienvenue à la"} ${poi.name}`;
+                if (cb === "bienvenue_aux") return `${language === "en" ? "Welcome to" : "Bienvenue aux"} ${poi.name}`;
                 if (cb === "nos_offres") return language === "en" ? "Our offers" : "Nos offres";
               }
               return `${language === "en" ? "Welcome to" : "Bienvenue à"} ${poi?.name || ""}`;
