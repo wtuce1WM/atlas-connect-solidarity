@@ -686,6 +686,7 @@ const Test = () => {
                   )}
 
                   <PanelSearchBar
+                    iconVariant="black"
                     onSearch={(params) => {
                       const sp = new URLSearchParams(params);
                       navigate(`/search?${sp.toString()}`);
