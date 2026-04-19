@@ -25,6 +25,15 @@ interface VideoItem {
 const CITIES = ["Marrakech", "Essaouira"] as const;
 type City = typeof CITIES[number];
 
+const MARRAKECH_GENERIC_VIDEO_IDS = [
+  "70c850b6-3efe-4753-9698-cafcee272f3a",
+  "1e1df289-bf96-4806-bc00-2902f3f8d85a",
+  "7d197236-cb2a-432f-82ff-93bef906a216",
+  "86d76e55-6462-4b8d-bd06-59242e57128e",
+  "2856a9c6-a39f-4d56-8191-3d820208a7e8",
+  "57f63bf0-046a-420f-bbc7-e75e34171f7c",
+];
+
 function deriveThumbnail(url: string): string | null {
   const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
   if (yt) return `https://i.ytimg.com/vi/${yt[1]}/hqdefault.jpg`;
