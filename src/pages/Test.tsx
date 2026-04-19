@@ -560,23 +560,39 @@ const Test = () => {
                         Vidéos génériques ({genericVideos.length})
                       </h3>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {genericVideos.map((gv, idx) => (
-                          <div key={gv.id}>
-                            {gv.business ? (
-                              <SearchResultCard
-                                business={gv.business}
-                                index={idx}
-                                labelLogos={[]}
-                                distanceKm={null}
-                                onClick={() => {}}
-                                onMouseEnter={() => {}}
-                                onMouseLeave={() => {}}
-                              />
-                            ) : (
-                              <div className="aspect-square bg-muted rounded-xl" />
-                            )}
-                          </div>
-                        ))}
+                        {genericVideos.map((gv) => {
+                          const thumb = deriveThumbnail(gv.url);
+                          return (
+                            <div
+                              key={gv.id}
+                              className="relative aspect-[9/16] rounded-xl overflow-hidden bg-muted group cursor-pointer"
+                            >
+                              {thumb ? (
+                                <img
+                                  src={thumb}
+                                  alt={gv.business?.name || "Vidéo générique"}
+                                  className="w-full h-full object-cover"
+                                  loading="lazy"
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-muted" />
+                              )}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-12 h-12 rounded-full bg-black/50 flex items-center justify-center">
+                                  <div className="w-0 h-0 border-y-[8px] border-y-transparent border-l-[12px] border-l-white ml-1" />
+                                </div>
+                              </div>
+                              {gv.business?.name && (
+                                <div className="absolute bottom-0 left-0 right-0 p-2">
+                                  <p className="text-xs font-medium text-white line-clamp-2">
+                                    {gv.business.name}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
