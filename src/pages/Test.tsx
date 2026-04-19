@@ -324,15 +324,19 @@ const Test = () => {
                         className="text-left rounded-md overflow-hidden border border-border bg-card hover:border-primary hover:shadow-md transition-all"
                       >
                         <div className="aspect-video bg-black">
-                          {v.thumbnail_url ? (
-                            <img
-                              src={v.thumbnail_url}
-                              alt={v.business_name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-muted" />
-                          )}
+                          {(() => {
+                            const thumb = v.thumbnail_url || deriveThumbnail(v.url);
+                            return thumb ? (
+                              <img
+                                src={thumb}
+                                alt={v.business_name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-muted" />
+                            );
+                          })()}
                         </div>
                         <p className="text-xs px-2 py-1 truncate">{v.business_name}</p>
                       </button>
