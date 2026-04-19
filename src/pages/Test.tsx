@@ -684,6 +684,14 @@ const Test = () => {
                       </div>
                     </div>
                   )}
+
+                  <PanelSearchBar
+                    onSearch={(params) => {
+                      const sp = new URLSearchParams(params);
+                      navigate(`/search?${sp.toString()}`);
+                    }}
+                    onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
+                  />
                 </div>
               )}
             </div>
