@@ -196,6 +196,46 @@ const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta
         );
       })()}
     </div>
+
+    {/* Collapsible badges drawer */}
+    {badges && badges.length > 0 && onToggleBadge && (
+      <div className="rounded-md border border-border bg-card">
+        <button
+          type="button"
+          onClick={() => setBadgesOpen((v) => !v)}
+          className="w-full flex items-center justify-between px-2 py-1 text-[10px] font-medium text-foreground hover:bg-muted/50 rounded-md"
+        >
+          <span className="flex items-center gap-1">
+            <Tag className="h-3 w-3" />
+            Badges ({selectedBadgeIds?.length || 0})
+          </span>
+          <ChevronDown className={cn("h-3 w-3 transition-transform", badgesOpen && "rotate-180")} />
+        </button>
+        {badgesOpen && (
+          <div className="flex flex-wrap gap-1 px-2 pb-2 pt-0.5">
+            {badges.map((badge) => {
+              const isSelected = selectedBadgeIds?.includes(badge.id) || false;
+              return (
+                <button
+                  key={badge.id}
+                  type="button"
+                  className={cn(
+                    "text-[9px] px-1.5 py-0.5 rounded-full border transition-colors",
+                    isSelected
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-background text-muted-foreground border-border hover:border-primary/50"
+                  )}
+                  onClick={() => onToggleBadge(url, badge.id)}
+                >
+                  {badge.name_fr}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    )}
+    </div>
   );
 };
 
