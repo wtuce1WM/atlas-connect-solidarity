@@ -199,7 +199,7 @@ const Test = () => {
           const chunk = bizIds.slice(i, i + batch);
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order")
+            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order, poi_id, linked_business_id")
             .eq("type", "video")
             .eq("show_on_front", true)
             .in("business_id", chunk)
@@ -219,7 +219,7 @@ const Test = () => {
         while (true) {
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, subcategory_id, city, sort_order")
+            .select("id, url, thumbnail_url, business_id, subcategory_id, city, sort_order, poi_id, linked_business_id")
             .eq("type", "video")
             .in("subcategory_id", subIds)
             .eq("city", city)
@@ -238,19 +238,28 @@ const Test = () => {
 
       const internal = allDocs;
 
-      const bizIds = [...new Set(internal.map((d: any) => d.business_id))];
+      // Resolve display business: prefer linked_business_id, then poi_id, then business_id (parent)
+      const displayBizIds = [
+        ...new Set(
+          internal.map((d: any) => d.linked_business_id || d.poi_id || d.business_id)
+        ),
+      ];
       const bizMap = new Map<string, SearchResultBusiness>();
-      if (bizIds.length > 0) {
-        const { data: bizs } = await supabase
-          .from("businesses")
-          .select("id, name, images, logo_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
-          .in("id", bizIds);
-        (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
+      if (displayBizIds.length > 0) {
+        const batch = 300;
+        for (let i = 0; i < displayBizIds.length; i += batch) {
+          const { data: bizs } = await supabase
+            .from("businesses")
+            .select("id, name, images, logo_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+            .in("id", displayBizIds.slice(i, i + batch));
+          (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
+        }
       }
 
       setVideos(
         internal.map((d: any) => {
-          const biz = bizMap.get(d.business_id) || null;
+          const displayId = d.linked_business_id || d.poi_id || d.business_id;
+          const biz = bizMap.get(displayId) || null;
           return {
             id: d.id,
             url: d.url,
