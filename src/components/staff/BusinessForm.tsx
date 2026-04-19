@@ -1319,12 +1319,17 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     const fetchImageTitles = async () => {
       const { data } = await supabase
         .from("business_image_titles" as any)
-        .select("image_url, title")
+        .select("image_url, title, description")
         .eq("business_id", business.id);
       if (data) {
-        const map: Record<string, string> = {};
-        (data as any[]).forEach((row: any) => { map[row.image_url] = row.title || ""; });
-        setImageTitles(map);
+        const tmap: Record<string, string> = {};
+        const dmap: Record<string, string> = {};
+        (data as any[]).forEach((row: any) => {
+          tmap[row.image_url] = row.title || "";
+          dmap[row.image_url] = row.description || "";
+        });
+        setImageTitles(tmap);
+        setImageDescriptions(dmap);
       }
     };
     fetchDocs();
