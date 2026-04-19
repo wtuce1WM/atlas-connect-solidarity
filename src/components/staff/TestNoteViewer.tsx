@@ -77,7 +77,7 @@ const TestNoteViewer = () => {
           .eq("type", "video")
           .range(offset, offset + PAGE - 1);
         if (!data || data.length === 0) break;
-        allDocs.push(...data);
+        allDocs.push(...data.filter((d: any) => isInternalVideoUrl(d.url)));
         if (data.length < PAGE) break;
         offset += PAGE;
       }
