@@ -230,22 +230,43 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         user_id: user.id,
       };
 
+      let currentMemberId = memberId;
       if (memberId) {
-        // Update existing
         const { error } = await supabase
           .from("club_members")
           .update(payload as any)
           .eq("id", memberId);
         if (error) throw error;
       } else {
-        // Create new (Google sign-in user)
         const { data, error } = await supabase
           .from("club_members")
           .insert(payload as any)
           .select("id")
           .single();
         if (error) throw error;
-        if (data) setMemberId(data.id);
+        if (data) {
+          setMemberId(data.id);
+          currentMemberId = data.id;
+        }
+      }
+
+      // Sync personas
+      if (currentMemberId) {
+        const toAdd = [...selectedPersonaIds].filter(id => !initialPersonaIds.has(id));
+        const toRemove = [...initialPersonaIds].filter(id => !selectedPersonaIds.has(id));
+        if (toRemove.length > 0) {
+          await supabase
+            .from("club_member_personas" as any)
+            .delete()
+            .eq("member_id", currentMemberId)
+            .in("persona_id", toRemove);
+        }
+        if (toAdd.length > 0) {
+          await supabase
+            .from("club_member_personas" as any)
+            .insert(toAdd.map(persona_id => ({ member_id: currentMemberId, persona_id })) as any);
+        }
+        setInitialPersonaIds(new Set(selectedPersonaIds));
       }
 
       toast({ title: t.saved });
