@@ -1298,8 +1298,23 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         })));
       }
     };
+    const fetchImageBadges = async () => {
+      const { data } = await supabase
+        .from("business_image_badges" as any)
+        .select("image_url, badge_id")
+        .eq("business_id", business.id);
+      if (data) {
+        const map: Record<string, string[]> = {};
+        (data as any[]).forEach((row: any) => {
+          if (!map[row.image_url]) map[row.image_url] = [];
+          map[row.image_url].push(row.badge_id);
+        });
+        setImageBadges(map);
+      }
+    };
     fetchDocs();
     fetchSummaries();
+    fetchImageBadges();
   }, [business?.id]);
 
   const DOC_ICON_OPTIONS = [
