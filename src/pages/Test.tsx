@@ -265,10 +265,12 @@ const Test = () => {
   }, [selectedEntry, city]);
 
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+  const [isLandscape, setIsLandscape] = useState(false);
 
   // Reset active video when entry/city changes
   useEffect(() => {
     setActiveVideoId(null);
+    setIsLandscape(false);
   }, [selectedEntryId, city]);
 
   const activeVideo = useMemo(
@@ -290,6 +292,19 @@ const Test = () => {
     }
     return { ...base, embedUrl };
   }, [activeVideo]);
+
+  // Reset orientation guess when active video changes (vertical by default for embeds = Shorts)
+  useEffect(() => {
+    if (!activeEmbed) return;
+    // For non-file embeds, use isVertical hint from getVideoEmbed (Shorts)
+    if (activeEmbed.type !== "file") {
+      setIsLandscape(!activeEmbed.isVertical);
+    } else {
+      // For files, default to vertical until metadata loads
+      setIsLandscape(false);
+    }
+  }, [activeVideo?.id, activeEmbed]);
+
   const otherVideos = useMemo(
     () => (activeVideo ? videos.filter((v) => v.id !== activeVideo.id) : videos.slice(1)),
     [videos, activeVideo]
@@ -357,13 +372,17 @@ const Test = () => {
               Aucune vidéo trouvée pour « {selectedEntry.name} » à {city}.
             </p>
           ) : (
-            <div className="flex gap-6 items-start">
-              {/* Active video in 720x1280 frame */}
+            <div className={isLandscape ? "flex flex-col gap-6" : "flex gap-6 items-start"}>
+              {/* Active video — 720x1280 (vertical) or 1280x720 (horizontal) */}
               {activeVideo && activeEmbed && (
                 <div className="flex flex-col items-start gap-2 shrink-0">
                   <div
-                    className="bg-black rounded-lg overflow-hidden shadow-lg aspect-[9/16]"
-                    style={{ width: 720, maxWidth: "100%", maxHeight: "calc(100vh - 120px)" }}
+                    className={`bg-black rounded-lg overflow-hidden shadow-lg ${isLandscape ? "aspect-video" : "aspect-[9/16]"}`}
+                    style={{
+                      width: isLandscape ? 1280 : 720,
+                      maxWidth: "100%",
+                      maxHeight: "calc(100vh - 120px)",
+                    }}
                   >
                     {activeEmbed.type === "file" ? (
                       <video
@@ -374,6 +393,10 @@ const Test = () => {
                         loop
                         playsInline
                         className="w-full h-full object-cover"
+                        onLoadedMetadata={(e) => {
+                          const v = e.currentTarget;
+                          setIsLandscape(v.videoWidth > v.videoHeight);
+                        }}
                       />
                     ) : (
                       <iframe
@@ -389,13 +412,13 @@ const Test = () => {
                 </div>
               )}
 
-              {/* Other videos as clickable thumbnails on the right */}
+              {/* Other videos — to the right (vertical) or below (horizontal) */}
               {otherVideos.length > 0 && (
-                <div className="flex-1 min-w-0">
+                <div className={isLandscape ? "w-full" : "flex-1 min-w-0"}>
                   <h3 className="text-sm font-semibold text-foreground mb-3">
                     Autres vidéos ({otherVideos.length})
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className={`grid gap-4 ${isLandscape ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" : "grid-cols-1 md:grid-cols-2"}`}>
                     {otherVideos.map((v, idx) => (
                       <div key={v.id} onClick={() => setActiveVideoId(v.id)} className="cursor-pointer">
                         {v.business ? (
