@@ -462,12 +462,22 @@ const TestNoteViewer = () => {
                                         if (r.error) err = r.error;
                                       }
                                       if (!err && toAdd.length > 0) {
-                                        const r = await supabase.from("business_document_badges").insert(toAdd.map(badge_id => ({ document_id: selectedVideoId, badge_id })));
+                                        // De-duplicate badge IDs and use upsert to avoid unique-constraint errors on retries
+                                        const uniqueToAdd = Array.from(new Set(toAdd));
+                                        const r = await supabase
+                                          .from("business_document_badges")
+                                          .upsert(
+                                            uniqueToAdd.map(badge_id => ({ document_id: selectedVideoId, badge_id })),
+                                            { onConflict: "document_id,badge_id", ignoreDuplicates: true }
+                                          );
                                         if (r.error) err = r.error;
                                       }
                                       setAssigning(false);
                                       if (err) { toast.error("Erreur : " + err.message); return; }
-                                      setVideos(prev => prev.map(v => v.id === selectedVideoId ? { ...v, badge_ids: [...draft] } : v));
+                                      const savedId = selectedVideoId;
+                                      setVideos(prev => prev.map(v => v.id === savedId ? { ...v, badge_ids: [...draft] } : v));
+                                      // Deselect so the now-badged video leaves the "À badger" list
+                                      setSelectedVideoId(null);
                                       toast.success("Badges enregistrés");
                                     }}
                                     className="text-xs px-3 py-1 rounded bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-40"
