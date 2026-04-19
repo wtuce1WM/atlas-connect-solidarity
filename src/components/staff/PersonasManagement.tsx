@@ -45,15 +45,27 @@ const PersonasManagement = () => {
   const fetchVideoMetas = async (ids: string[]) => {
     const unique = Array.from(new Set(ids.filter(isUuid)));
     if (!unique.length) return;
-    const { data } = await supabase
+    const map: Record<string, InternalVideoMeta> = {};
+
+    // 1) generic_videos
+    const { data: gen } = await supabase
       .from("generic_videos")
       .select("id, name, url, thumbnail_url")
       .in("id", unique);
-    if (data) {
-      const map: Record<string, InternalVideoMeta> = {};
-      data.forEach((v: any) => (map[v.id] = v));
-      setVideoMeta((prev) => ({ ...prev, ...map }));
+    (gen || []).forEach((v: any) => (map[v.id] = v));
+
+    // 2) business_documents (vidéos liées à des POIs / établissements)
+    const missing = unique.filter((id) => !map[id]);
+    if (missing.length) {
+      const { data: docs } = await supabase
+        .from("business_documents")
+        .select("id, name, url, thumbnail_url")
+        .eq("type", "video")
+        .in("id", missing);
+      (docs || []).forEach((v: any) => (map[v.id] = v));
     }
+
+    setVideoMeta((prev) => ({ ...prev, ...map }));
   };
 
   const fetchPersonas = async () => {
