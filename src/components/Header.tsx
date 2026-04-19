@@ -88,9 +88,6 @@ const Header = ({ variant = "default", compact = false, rightContent }: HeaderPr
       <Link to="/devenir-affilie" className="self-center rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-gold-foreground transition-colors hover:bg-gold/90 text-center" onClick={() => setMobileOpen(false)}>
         {t("nav.joinNow")}
       </Link>
-      <Link to="/test" className="text-foreground text-sm font-semibold transition-colors hover:text-gold" onClick={() => setMobileOpen(false)}>
-        Test
-      </Link>
     </>
   );
 
@@ -124,6 +121,7 @@ const Header = ({ variant = "default", compact = false, rightContent }: HeaderPr
           <li><a href="/affiliates" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>{t("footer.affiliates")}</a></li>
           <li><Link to="/blog" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>{t("footer.blog")}</Link></li>
           <li><Link to="/devenir-affilie" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>{language === "ar" ? "أدرج شركتك" : language === "en" ? "Add your business" : "Ajoutez votre entreprise"}</Link></li>
+          <li><Link to="/test" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>Test</Link></li>
         </ul>
         <a
           href="https://wa.me/212661439221"
