@@ -184,10 +184,24 @@ const Test = () => {
     load();
   }, [selectedEntry, city, subcatNames, serviceNames]);
 
-  const firstVideo = videos[0];
-  const firstEmbed = useMemo(
-    () => (firstVideo ? getVideoEmbed(firstVideo.url, window.location.origin, { autoplay: true }) : null),
-    [firstVideo]
+  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+
+  // Reset active video when entry/city changes
+  useEffect(() => {
+    setActiveVideoId(null);
+  }, [selectedEntryId, city]);
+
+  const activeVideo = useMemo(
+    () => videos.find((v) => v.id === activeVideoId) || videos[0] || null,
+    [videos, activeVideoId]
+  );
+  const activeEmbed = useMemo(
+    () => (activeVideo ? getVideoEmbed(activeVideo.url, window.location.origin, { autoplay: true }) : null),
+    [activeVideo]
+  );
+  const otherVideos = useMemo(
+    () => (activeVideo ? videos.filter((v) => v.id !== activeVideo.id) : videos.slice(1)),
+    [videos, activeVideo]
   );
 
   return (
