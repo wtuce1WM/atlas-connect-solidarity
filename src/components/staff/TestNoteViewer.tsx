@@ -60,6 +60,22 @@ const TestNoteViewer = () => {
     })();
   }, []);
 
+  // Refresh only badge links (cheap) when switching to a video sub-tab
+  useEffect(() => {
+    if (!videosLoaded) return;
+    if (activeTab !== "badgees" && activeTab !== "tobadge") return;
+    (async () => {
+      const { data } = await supabase.from("business_document_badges").select("document_id, badge_id");
+      const badgeMap = new Map<string, string[]>();
+      (data || []).forEach((l: any) => {
+        const arr = badgeMap.get(l.document_id) || [];
+        arr.push(l.badge_id);
+        badgeMap.set(l.document_id, arr);
+      });
+      setVideos(prev => prev.map(v => ({ ...v, badge_ids: badgeMap.get(v.id) || [] })));
+    })();
+  }, [activeTab, videosLoaded]);
+
   // Heavy fetch: only when entering a sub-tab that needs videos
   useEffect(() => {
     if (videosLoaded || videosLoading) return;
