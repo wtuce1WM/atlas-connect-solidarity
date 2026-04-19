@@ -292,6 +292,19 @@ const Test = () => {
     }
     return { ...base, embedUrl };
   }, [activeVideo]);
+
+  // Reset orientation guess when active video changes (vertical by default for embeds = Shorts)
+  useEffect(() => {
+    if (!activeEmbed) return;
+    // For non-file embeds, use isVertical hint from getVideoEmbed (Shorts)
+    if (activeEmbed.type !== "file") {
+      setIsLandscape(!activeEmbed.isVertical);
+    } else {
+      // For files, default to vertical until metadata loads
+      setIsLandscape(false);
+    }
+  }, [activeVideo?.id, activeEmbed]);
+
   const otherVideos = useMemo(
     () => (activeVideo ? videos.filter((v) => v.id !== activeVideo.id) : videos.slice(1)),
     [videos, activeVideo]
