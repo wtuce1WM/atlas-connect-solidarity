@@ -395,51 +395,6 @@ const Test = () => {
       )}
 
       <div className="pt-[53px] flex w-full min-h-[calc(100vh-53px)]">
-        {/* Left column 20% */}
-        <aside className="w-1/5 min-w-[220px] border-r border-border bg-background p-4 overflow-y-auto">
-          <div className="mb-4">
-            <Select value={city} onValueChange={(v) => setCity(v as City)}>
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CITIES.map((c) => (
-                  <SelectItem key={c} value={c}>{c}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <h2 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">
-            Structure du front
-          </h2>
-
-          {loading ? (
-            <p className="text-xs text-muted-foreground">Chargement…</p>
-          ) : visibleEntries.length === 0 ? (
-            <p className="text-xs text-muted-foreground">Aucune entrée pour {city}.</p>
-          ) : (
-            <ul className="space-y-1">
-              {visibleEntries.map((e) => {
-                const isActive = e.id === selectedEntryId;
-                return (
-                  <li
-                    key={e.id}
-                    onClick={() => setSelectedEntryId(e.id)}
-                    className={`px-3 py-2 rounded-md text-sm cursor-pointer transition-colors ${
-                      isActive
-                        ? "bg-primary text-primary-foreground"
-                        : "text-foreground hover:bg-muted"
-                    }`}
-                  >
-                    {e.name}
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </aside>
-
         {/* Right zone 80% */}
         <main className="flex-1 p-6 overflow-y-auto">
           {!selectedEntry ? (
