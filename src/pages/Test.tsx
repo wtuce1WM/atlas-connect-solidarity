@@ -17,6 +17,7 @@ interface VideoItem {
   url: string;
   business_name: string;
   thumbnail_url: string | null;
+  business_image: string | null;
 }
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
@@ -220,12 +221,16 @@ const Test = () => {
 
       const bizIds = [...new Set(internal.map((d: any) => d.business_id))];
       const bizNameMap = new Map<string, string>();
+      const bizImageMap = new Map<string, string | null>();
       if (bizIds.length > 0) {
         const { data: bizs } = await supabase
           .from("businesses")
-          .select("id, name")
+          .select("id, name, images, logo_url")
           .in("id", bizIds);
-        (bizs || []).forEach((b: any) => bizNameMap.set(b.id, b.name));
+        (bizs || []).forEach((b: any) => {
+          bizNameMap.set(b.id, b.name);
+          bizImageMap.set(b.id, b.images?.[0] || b.logo_url || null);
+        });
       }
 
       setVideos(
@@ -234,6 +239,7 @@ const Test = () => {
           url: d.url,
           business_name: bizNameMap.get(d.business_id) || "—",
           thumbnail_url: d.thumbnail_url,
+          business_image: bizImageMap.get(d.business_id) || null,
         }))
       );
       setLoadingVideos(false);
@@ -380,9 +386,9 @@ const Test = () => {
                         onClick={() => setActiveVideoId(v.id)}
                         className="text-left rounded-md overflow-hidden border border-border bg-card hover:border-primary hover:shadow-md transition-all"
                       >
-                        <div className="aspect-video bg-black">
+                        <div className="aspect-square bg-muted">
                           {(() => {
-                            const thumb = v.thumbnail_url || deriveThumbnail(v.url);
+                            const thumb = v.business_image;
                             if (thumb) {
                               return (
                                 <img
