@@ -3496,6 +3496,7 @@ export type Database = {
       personas: {
         Row: {
           created_at: string
+          description: string | null
           id: string
           name_ar: string | null
           name_en: string | null
@@ -3503,9 +3504,11 @@ export type Database = {
           slug: string
           sort_order: number
           updated_at: string
+          video_id: string | null
         }
         Insert: {
           created_at?: string
+          description?: string | null
           id?: string
           name_ar?: string | null
           name_en?: string | null
@@ -3513,9 +3516,11 @@ export type Database = {
           slug: string
           sort_order?: number
           updated_at?: string
+          video_id?: string | null
         }
         Update: {
           created_at?: string
+          description?: string | null
           id?: string
           name_ar?: string | null
           name_en?: string | null
@@ -3523,6 +3528,7 @@ export type Database = {
           slug?: string
           sort_order?: number
           updated_at?: string
+          video_id?: string | null
         }
         Relationships: []
       }
