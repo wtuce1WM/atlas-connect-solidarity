@@ -422,8 +422,9 @@ const Test = () => {
                     {otherVideos.map((v, idx) => {
                       const handlePick = () => {
                         setActiveVideoId(v.id);
-                        const main = document.querySelector("main");
-                        if (main) main.scrollTo({ top: 0, behavior: "smooth" });
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                        document.documentElement.scrollTo({ top: 0, behavior: "smooth" });
+                        document.querySelector("main")?.scrollTo({ top: 0, behavior: "smooth" });
                       };
                       return (
                         <div key={v.id} onClick={handlePick} className="cursor-pointer">
