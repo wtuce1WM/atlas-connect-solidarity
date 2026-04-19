@@ -409,48 +409,9 @@ const Test = () => {
             </p>
           ) : (
             <div className={isLandscape ? "flex flex-col gap-6" : "flex gap-6 items-start"}>
-              {/* Active video — 720x1280 (vertical) or 1280x720 (horizontal) */}
-              {activeVideo && activeEmbed && (
-                <div className="flex flex-col items-start gap-2 shrink-0">
-                  <div
-                    className={`bg-black rounded-lg overflow-hidden shadow-lg ${isLandscape ? "aspect-video" : "aspect-[9/16]"}`}
-                    style={{
-                      width: isLandscape ? 1280 : 720,
-                      maxWidth: "100%",
-                      maxHeight: "calc(100vh - 120px)",
-                    }}
-                  >
-                    {activeEmbed.type === "file" ? (
-                      <video
-                        key={activeVideo.id}
-                        src={activeVideo.url}
-                        controls
-                        autoPlay
-                        loop
-                        playsInline
-                        className="w-full h-full object-cover"
-                        onLoadedMetadata={(e) => {
-                          const v = e.currentTarget;
-                          setIsLandscape(v.videoWidth > v.videoHeight);
-                        }}
-                      />
-                    ) : (
-                      <iframe
-                        key={activeVideo.id}
-                        src={activeEmbed.embedUrl}
-                        className="w-full h-full"
-                        allow="autoplay; fullscreen; encrypted-media"
-                        allowFullScreen
-                      />
-                    )}
-                  </div>
-                  <p className="text-sm font-medium text-foreground">{activeVideo.business_name}</p>
-                </div>
-              )}
-
-              {/* Other videos — to the right (vertical) or below (horizontal) */}
+              {/* Other videos — left side (50%) when vertical, below when landscape */}
               {otherVideos.length > 0 && (
-                <div className={isLandscape ? "w-full" : "flex-1 min-w-0"}>
+                <div className={isLandscape ? "w-full order-2" : "w-1/2 min-w-0"}>
                   <h3 className="text-sm font-semibold text-foreground mb-3">
                     Autres vidéos ({otherVideos.length})
                   </h3>
@@ -481,6 +442,44 @@ const Test = () => {
                       );
                     })}
                   </div>
+                </div>
+              )}
+
+              {/* Active video — right side (50%) */}
+              {activeVideo && activeEmbed && (
+                <div className={`flex flex-col items-center gap-2 ${isLandscape ? "w-full order-1" : "w-1/2 shrink-0"}`}>
+                  <div
+                    className={`bg-black rounded-lg overflow-hidden shadow-lg w-full ${isLandscape ? "aspect-video" : "aspect-[9/16]"}`}
+                    style={{
+                      maxWidth: isLandscape ? 1280 : 720,
+                      maxHeight: "calc(100vh - 120px)",
+                    }}
+                  >
+                    {activeEmbed.type === "file" ? (
+                      <video
+                        key={activeVideo.id}
+                        src={activeVideo.url}
+                        controls
+                        autoPlay
+                        loop
+                        playsInline
+                        className="w-full h-full object-cover"
+                        onLoadedMetadata={(e) => {
+                          const v = e.currentTarget;
+                          setIsLandscape(v.videoWidth > v.videoHeight);
+                        }}
+                      />
+                    ) : (
+                      <iframe
+                        key={activeVideo.id}
+                        src={activeEmbed.embedUrl}
+                        className="w-full h-full"
+                        allow="autoplay; fullscreen; encrypted-media"
+                        allowFullScreen
+                      />
+                    )}
+                  </div>
+                  <p className="text-sm font-medium text-foreground">{activeVideo.business_name}</p>
                 </div>
               )}
             </div>
