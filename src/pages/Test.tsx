@@ -562,9 +562,27 @@ const Test = () => {
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         {genericVideos.map((gv) => {
                           const thumb = deriveThumbnail(gv.url);
+                          const handlePick = () => {
+                            const genericItem: VideoItem = {
+                              id: gv.id,
+                              url: gv.url,
+                              business_name: gv.business?.name || "—",
+                              thumbnail_url: thumb,
+                              business: gv.business,
+                            };
+                            setVideos((prev) => {
+                              if (prev.some((v) => v.id === gv.id)) return prev;
+                              return [genericItem, ...prev];
+                            });
+                            setActiveVideoId(gv.id);
+                            window.scrollTo({ top: 0, behavior: "auto" });
+                            document.documentElement.scrollTo({ top: 0, behavior: "auto" });
+                            document.querySelector("main")?.scrollTo({ top: 0, behavior: "auto" });
+                          };
                           return (
                             <div
                               key={gv.id}
+                              onClick={handlePick}
                               className="relative aspect-[9/16] rounded-xl overflow-hidden bg-muted group cursor-pointer"
                             >
                               {thumb ? (
