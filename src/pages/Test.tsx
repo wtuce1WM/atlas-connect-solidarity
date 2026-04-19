@@ -218,11 +218,11 @@ const Test = () => {
         while (true) {
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, subcategory_id, city, sort_order, front_sort_order")
+            .select("id, url, thumbnail_url, business_id, subcategory_id, city, sort_order")
             .eq("type", "video")
             .in("subcategory_id", subIds)
-            .ilike("city", city)
-            .order("front_sort_order", { ascending: true })
+            .eq("city", city)
+            .order("sort_order", { ascending: true })
             .range(offset, offset + PAGE - 1);
           if (!data || data.length === 0) break;
           allDocs.push(...data);
@@ -232,8 +232,7 @@ const Test = () => {
         const { isInternalVideoUrl } = await import("@/lib/videoSourceFilter");
         allDocs = allDocs
           .filter((d: any) => isInternalVideoUrl(d.url))
-          .sort((a: any, b: any) => (a.front_sort_order ?? 0) - (b.front_sort_order ?? 0))
-          .slice(0, 15);
+          .sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
       }
 
       const internal = allDocs;
