@@ -89,19 +89,20 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
     };
   }, [genericVideoId]);
 
-  // Cumulative: show every item whose start_time has been reached
+  // Cumulative: show every item whose start_time has been reached, keep last 3
   const visibleItems = useMemo(() => {
-    return items.filter((it) => (it.start_time ?? 0) <= currentTime);
+    const reached = items.filter((it) => (it.start_time ?? 0) <= currentTime);
+    return reached.slice(-3);
   }, [items, currentTime]);
 
   if (visibleItems.length === 0) return null;
 
   return (
-    <div className="absolute top-3 left-3 z-20 flex flex-col gap-2 max-w-[60%] pointer-events-none">
+    <div className="absolute top-3 left-3 right-3 z-20 flex flex-row gap-2 pointer-events-none">
       {visibleItems.map((it) => (
         <div
           key={it.id}
-          className="rounded-md bg-black/65 backdrop-blur-sm px-3 py-2 text-white shadow-lg border border-white/10 animate-in fade-in slide-in-from-left-2 duration-300"
+          className="flex-1 min-w-0 rounded-md bg-black/65 backdrop-blur-sm px-3 py-2 text-white shadow-lg border border-white/10 animate-in fade-in slide-in-from-left-2 duration-300"
         >
           <div className="flex items-baseline justify-between gap-2">
             <p className="text-sm font-semibold leading-tight line-clamp-1">{it.name}</p>
