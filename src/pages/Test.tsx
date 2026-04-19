@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getVideoEmbed } from "@/lib/videoEmbed";
+import SearchResultCard, { type SearchResultBusiness } from "@/components/SearchResultCard";
 
 interface FrontEntry {
   id: string;
@@ -17,7 +18,7 @@ interface VideoItem {
   url: string;
   business_name: string;
   thumbnail_url: string | null;
-  business_image: string | null;
+  business: SearchResultBusiness | null;
 }
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
@@ -220,27 +221,26 @@ const Test = () => {
       const internal = allDocs;
 
       const bizIds = [...new Set(internal.map((d: any) => d.business_id))];
-      const bizNameMap = new Map<string, string>();
-      const bizImageMap = new Map<string, string | null>();
+      const bizMap = new Map<string, SearchResultBusiness>();
       if (bizIds.length > 0) {
         const { data: bizs } = await supabase
           .from("businesses")
-          .select("id, name, images, logo_url")
+          .select("id, name, images, logo_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
           .in("id", bizIds);
-        (bizs || []).forEach((b: any) => {
-          bizNameMap.set(b.id, b.name);
-          bizImageMap.set(b.id, b.images?.[0] || b.logo_url || null);
-        });
+        (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
       }
 
       setVideos(
-        internal.map((d: any) => ({
-          id: d.id,
-          url: d.url,
-          business_name: bizNameMap.get(d.business_id) || "—",
-          thumbnail_url: d.thumbnail_url,
-          business_image: bizImageMap.get(d.business_id) || null,
-        }))
+        internal.map((d: any) => {
+          const biz = bizMap.get(d.business_id) || null;
+          return {
+            id: d.id,
+            url: d.url,
+            business_name: biz?.name || "—",
+            thumbnail_url: d.thumbnail_url,
+            business: biz,
+          };
+        })
       );
       setLoadingVideos(false);
     };
@@ -379,43 +379,22 @@ const Test = () => {
                     Autres vidéos ({otherVideos.length})
                   </h3>
                   <div className="grid grid-cols-3 gap-3">
-                    {otherVideos.map((v) => (
-                      <button
-                        key={v.id}
-                        type="button"
-                        onClick={() => setActiveVideoId(v.id)}
-                        className="text-left rounded-md overflow-hidden border border-border bg-card hover:border-primary hover:shadow-md transition-all"
-                      >
-                        <div className="aspect-square bg-muted">
-                          {(() => {
-                            const thumb = v.business_image;
-                            if (thumb) {
-                              return (
-                                <img
-                                  src={thumb}
-                                  alt={v.business_name}
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-                                />
-                              );
-                            }
-                            // Internal mp4/webm fallback: use first frame via <video preload="metadata">
-                            if (/\.(mp4|webm|mov|m4v|ogv)(\?|$)/i.test(v.url)) {
-                              return (
-                                <video
-                                  src={`${v.url}#t=0.5`}
-                                  className="w-full h-full object-cover"
-                                  preload="metadata"
-                                  muted
-                                  playsInline
-                                />
-                              );
-                            }
-                            return <div className="w-full h-full bg-muted" />;
-                          })()}
-                        </div>
-                        <p className="text-xs px-2 py-1 truncate">{v.business_name}</p>
-                      </button>
+                    {otherVideos.map((v, idx) => (
+                      <div key={v.id} onClick={() => setActiveVideoId(v.id)} className="cursor-pointer">
+                        {v.business ? (
+                          <SearchResultCard
+                            business={v.business}
+                            index={idx}
+                            labelLogos={[]}
+                            distanceKm={null}
+                            onClick={() => setActiveVideoId(v.id)}
+                            onMouseEnter={() => {}}
+                            onMouseLeave={() => {}}
+                          />
+                        ) : (
+                          <div className="aspect-square bg-muted rounded-xl" />
+                        )}
+                      </div>
                     ))}
                   </div>
                 </div>
