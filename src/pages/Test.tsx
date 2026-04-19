@@ -45,6 +45,7 @@ function deriveThumbnail(url: string): string | null {
 }
 
 const Test = () => {
+  const navigate = useNavigate();
   const [city, setCity] = useState<City>("Marrakech");
   const [entries, setEntries] = useState<FrontEntry[]>([]);
   const [subcatNames, setSubcatNames] = useState<Record<string, string>>({});
