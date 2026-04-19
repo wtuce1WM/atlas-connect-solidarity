@@ -84,7 +84,8 @@ const extractPathInfo = (url: string): { path: string; extension: string } => {
   }
 };
 
-const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta, isPopup, onPopupToggle }: SortableImageProps) => {
+const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta, isPopup, onPopupToggle, badges, selectedBadgeIds, onToggleBadge }: SortableImageProps) => {
+  const [badgesOpen, setBadgesOpen] = useState(false);
   const {
     attributes,
     listeners,
