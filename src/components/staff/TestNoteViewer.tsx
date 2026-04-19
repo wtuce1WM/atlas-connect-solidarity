@@ -113,10 +113,16 @@ const TestNoteViewer = () => {
       ]);
 
       // Paginated fetch of badge links (table can exceed 1000 rows)
+      // IMPORTANT: must order by a stable column, otherwise PostgREST pagination
+      // can return duplicates/skip rows across pages.
       const allLinks: any[] = [];
       let linkOff = 0;
       while (true) {
-        const { data } = await supabase.from("business_document_badges").select("document_id, badge_id").range(linkOff, linkOff + 999);
+        const { data } = await supabase
+          .from("business_document_badges")
+          .select("document_id, badge_id, id")
+          .order("id")
+          .range(linkOff, linkOff + 999);
         if (!data || data.length === 0) break;
         allLinks.push(...data);
         if (data.length < 1000) break;
