@@ -47,7 +47,7 @@ const GuestManagement = () => {
         description: "Impossible de charger les membres du club.",
       });
     } else {
-      setMembers((data as ClubMemberWithSignIn[]) || []);
+      setMembers((data as unknown as ClubMemberWithSignIn[]) || []);
     }
     setLoading(false);
   };
