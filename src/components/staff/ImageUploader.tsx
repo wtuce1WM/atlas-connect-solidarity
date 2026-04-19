@@ -202,6 +202,16 @@ const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta
       })()}
     </div>
 
+    {/* Title input */}
+    {onTitleChange && (
+      <Input
+        value={title || ""}
+        onChange={(e) => onTitleChange(url, e.target.value)}
+        placeholder="Titre"
+        className="h-6 text-[10px]"
+      />
+    )}
+
     {/* Collapsible badges drawer */}
     {badges && badges.length > 0 && onToggleBadge && (
       <div className="rounded-md border border-border bg-card">
