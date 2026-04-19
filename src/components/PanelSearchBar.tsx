@@ -25,9 +25,11 @@ interface PanelSearchBarProps {
   closeTrigger?: number;
   /** When true, skip the negative top offset used to cover a toolbar (e.g. inside a map panel) */
   noToolbarOffset?: boolean;
+  /** Color of the magnifier icon and border (defaults to white) */
+  iconVariant?: "white" | "black";
 }
 
-const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCategory, businessName, onOverlayChange, darkBackground, closeTrigger, noToolbarOffset }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCategory, businessName, onOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white" }: PanelSearchBarProps) => {
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
   // Notify parent when search overlay opens/closes
@@ -64,6 +66,8 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
     voice.toggleRecording();
   }, [voice]);
 
+  const isBlack = iconVariant === "black";
+
   return (
     <>
       {/* Trigger bar fixed at bottom */}
@@ -71,9 +75,9 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
         <button
           type="button"
           onClick={() => setOverlay(true)}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-transparent border border-white/40 rounded-xl backdrop-blur-sm"
+          className={`w-full flex items-center justify-center gap-3 px-4 py-3 bg-transparent border rounded-xl backdrop-blur-sm ${isBlack ? 'border-black/40' : 'border-white/40'}`}
         >
-          <Search className="h-4 w-4 text-white shrink-0" />
+          <Search className={`h-4 w-4 shrink-0 ${isBlack ? 'text-black' : 'text-white'}`} />
         </button>
       </div>
 
