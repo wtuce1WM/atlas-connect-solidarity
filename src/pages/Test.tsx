@@ -120,13 +120,23 @@ const Test = () => {
     load();
   }, [city]);
 
+  const HOME_ID = "__home__";
+
   const visibleEntries = useMemo(() => {
-    if (loading) return entries;
-    return entries.filter((e) => {
+    const homeEntry: FrontEntry = {
+      id: HOME_ID,
+      name: "Home",
+      sort_order: -1,
+      subcategory_ids: [],
+      service_ids: [],
+    };
+    if (loading) return [homeEntry, ...entries];
+    const filtered = entries.filter((e) => {
       const hasSub = e.subcategory_ids.some((id) => citySubcats.has(subcatNames[id]));
       const hasSvc = e.service_ids.some((id) => cityServices.has(serviceNames[id]));
       return hasSub || hasSvc;
     });
+    return [homeEntry, ...filtered];
   }, [entries, citySubcats, cityServices, subcatNames, serviceNames, loading]);
 
   const selectedEntry = useMemo(
@@ -145,36 +155,68 @@ const Test = () => {
     const load = async () => {
       setLoadingVideos(true);
 
-      const subIds = selectedEntry.subcategory_ids;
-      if (subIds.length === 0) {
-        setVideos([]);
-        setLoadingVideos(false);
-        return;
+      const isHome = selectedEntry.id === HOME_ID;
+
+      let allDocs: any[] = [];
+
+      if (isHome) {
+        // Same logic as backoffice "Vidéos / Homepage" sub-tab:
+        // business_documents where show_on_front = true, for businesses in this city,
+        // ordered by front_sort_order ascending.
+        const cityBiz = await supabase
+          .from("businesses")
+          .select("id")
+          .eq("city", city);
+        const bizIds = (cityBiz.data || []).map((b: any) => b.id);
+        if (bizIds.length === 0) {
+          setVideos([]);
+          setLoadingVideos(false);
+          return;
+        }
+        const batch = 300;
+        for (let i = 0; i < bizIds.length; i += batch) {
+          const chunk = bizIds.slice(i, i + batch);
+          const { data } = await supabase
+            .from("business_documents")
+            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order")
+            .eq("type", "video")
+            .eq("show_on_front", true)
+            .in("business_id", chunk)
+            .order("front_sort_order", { ascending: true });
+          if (data) allDocs.push(...data);
+        }
+        allDocs.sort((a: any, b: any) => (a.front_sort_order ?? 0) - (b.front_sort_order ?? 0));
+      } else {
+        const subIds = selectedEntry.subcategory_ids;
+        if (subIds.length === 0) {
+          setVideos([]);
+          setLoadingVideos(false);
+          return;
+        }
+        let offset = 0;
+        const PAGE = 1000;
+        while (true) {
+          const { data } = await supabase
+            .from("business_documents")
+            .select("id, url, thumbnail_url, business_id, subcategory_id, city, sort_order")
+            .eq("type", "video")
+            .in("subcategory_id", subIds)
+            .ilike("city", city)
+            .order("sort_order", { ascending: true })
+            .range(offset, offset + PAGE - 1);
+          if (!data || data.length === 0) break;
+          allDocs.push(...data);
+          if (data.length < PAGE) break;
+          offset += PAGE;
+        }
+        const { isInternalVideoUrl } = await import("@/lib/videoSourceFilter");
+        allDocs = allDocs
+          .filter((d: any) => isInternalVideoUrl(d.url))
+          .sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+          .slice(0, 15);
       }
 
-      const allDocs: any[] = [];
-      let offset = 0;
-      const PAGE = 1000;
-      while (true) {
-        const { data } = await supabase
-          .from("business_documents")
-          .select("id, url, thumbnail_url, business_id, subcategory_id, city, sort_order")
-          .eq("type", "video")
-          .in("subcategory_id", subIds)
-          .ilike("city", city)
-          .order("sort_order", { ascending: true })
-          .range(offset, offset + PAGE - 1);
-        if (!data || data.length === 0) break;
-        allDocs.push(...data);
-        if (data.length < PAGE) break;
-        offset += PAGE;
-      }
-
-      const { isInternalVideoUrl } = await import("@/lib/videoSourceFilter");
-      const internal = allDocs
-        .filter((d: any) => isInternalVideoUrl(d.url))
-        .sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
-        .slice(0, 15);
+      const internal = allDocs;
 
       const bizIds = [...new Set(internal.map((d: any) => d.business_id))];
       const bizNameMap = new Map<string, string>();
