@@ -419,23 +419,30 @@ const Test = () => {
                     Autres vidéos ({otherVideos.length})
                   </h3>
                   <div className={`grid gap-4 ${isLandscape ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" : "grid-cols-1 md:grid-cols-2"}`}>
-                    {otherVideos.map((v, idx) => (
-                      <div key={v.id} onClick={() => setActiveVideoId(v.id)} className="cursor-pointer">
-                        {v.business ? (
-                          <SearchResultCard
-                            business={v.business}
-                            index={idx}
-                            labelLogos={[]}
-                            distanceKm={null}
-                            onClick={() => setActiveVideoId(v.id)}
-                            onMouseEnter={() => {}}
-                            onMouseLeave={() => {}}
-                          />
-                        ) : (
-                          <div className="aspect-square bg-muted rounded-xl" />
-                        )}
-                      </div>
-                    ))}
+                    {otherVideos.map((v, idx) => {
+                      const handlePick = () => {
+                        setActiveVideoId(v.id);
+                        const main = document.querySelector("main");
+                        if (main) main.scrollTo({ top: 0, behavior: "smooth" });
+                      };
+                      return (
+                        <div key={v.id} onClick={handlePick} className="cursor-pointer">
+                          {v.business ? (
+                            <SearchResultCard
+                              business={v.business}
+                              index={idx}
+                              labelLogos={[]}
+                              distanceKm={null}
+                              onClick={handlePick}
+                              onMouseEnter={() => {}}
+                              onMouseLeave={() => {}}
+                            />
+                          ) : (
+                            <div className="aspect-square bg-muted rounded-xl" />
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
