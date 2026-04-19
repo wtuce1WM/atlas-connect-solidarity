@@ -1,14 +1,24 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Loader2, Mail, Phone, MapPin, LogIn, Sparkles } from "lucide-react";
+import { Users, Loader2, Mail, Phone, MapPin, LogIn, Sparkles, Pencil } from "lucide-react";
 
 interface PersonaTag {
   id: string;
   slug: string;
   name_fr: string;
+}
+
+interface PersonaOption {
+  id: string;
+  name_fr: string;
+  sort_order: number;
 }
 
 interface ClubMemberWithSignIn {
@@ -31,36 +41,93 @@ const GuestManagement = () => {
   const { toast } = useToast();
   const [members, setMembers] = useState<ClubMemberWithSignIn[]>([]);
   const [loading, setLoading] = useState(true);
+  const [allPersonas, setAllPersonas] = useState<PersonaOption[]>([]);
+  const [editingMember, setEditingMember] = useState<ClubMemberWithSignIn | null>(null);
+  const [selectedPersonaIds, setSelectedPersonaIds] = useState<Set<string>>(new Set());
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchMembers();
+    fetchPersonas();
   }, []);
 
   const fetchMembers = async () => {
     setLoading(true);
     const { data, error } = await supabase.rpc("get_club_members_with_last_sign_in");
-
     if (error) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible de charger les membres du club.",
-      });
+      toast({ variant: "destructive", title: "Erreur", description: "Impossible de charger les membres du club." });
     } else {
       setMembers((data as unknown as ClubMemberWithSignIn[]) || []);
     }
     setLoading(false);
   };
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("fr-FR", {
+  const fetchPersonas = async () => {
+    const { data } = await supabase
+      .from("personas")
+      .select("id, name_fr, sort_order")
+      .order("sort_order", { ascending: true });
+    setAllPersonas(data || []);
+  };
+
+  const openEdit = (member: ClubMemberWithSignIn) => {
+    setEditingMember(member);
+    setSelectedPersonaIds(new Set((member.personas || []).map((p) => p.id)));
+  };
+
+  const togglePersona = (id: string) => {
+    setSelectedPersonaIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleSave = async () => {
+    if (!editingMember) return;
+    setSaving(true);
+    const memberId = editingMember.id;
+    const currentIds = new Set((editingMember.personas || []).map((p) => p.id));
+    const toAdd = [...selectedPersonaIds].filter((id) => !currentIds.has(id));
+    const toRemove = [...currentIds].filter((id) => !selectedPersonaIds.has(id));
+
+    if (toRemove.length) {
+      const { error } = await supabase
+        .from("club_member_personas")
+        .delete()
+        .eq("member_id", memberId)
+        .in("persona_id", toRemove);
+      if (error) {
+        toast({ variant: "destructive", title: "Erreur", description: error.message });
+        setSaving(false);
+        return;
+      }
+    }
+    if (toAdd.length) {
+      const { error } = await supabase
+        .from("club_member_personas")
+        .insert(toAdd.map((persona_id) => ({ member_id: memberId, persona_id })));
+      if (error) {
+        toast({ variant: "destructive", title: "Erreur", description: error.message });
+        setSaving(false);
+        return;
+      }
+    }
+    toast({ title: "Enregistré", description: "Personas mis à jour." });
+    setEditingMember(null);
+    setSaving(false);
+    fetchMembers();
+  };
+
+  const formatDate = (dateStr: string) =>
+    new Date(dateStr).toLocaleDateString("fr-FR", {
       day: "numeric",
       month: "short",
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
 
   return (
     <div className="space-y-6">
@@ -96,46 +163,20 @@ const GuestManagement = () => {
                   <TableRow>
                     <TableHead>Pseudonyme</TableHead>
                     <TableHead>Nom complet</TableHead>
-                    <TableHead>
-                      <div className="flex items-center gap-1">
-                        <Mail className="h-3.5 w-3.5" />
-                        Email
-                      </div>
-                    </TableHead>
-                    <TableHead>
-                      <div className="flex items-center gap-1">
-                        <Phone className="h-3.5 w-3.5" />
-                        Tél / WhatsApp
-                      </div>
-                    </TableHead>
-                    <TableHead>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="h-3.5 w-3.5" />
-                        Localisation
-                      </div>
-                    </TableHead>
-                    <TableHead>
-                      <div className="flex items-center gap-1">
-                        <Sparkles className="h-3.5 w-3.5" />
-                        Personas
-                      </div>
-                    </TableHead>
+                    <TableHead><div className="flex items-center gap-1"><Mail className="h-3.5 w-3.5" />Email</div></TableHead>
+                    <TableHead><div className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" />Tél / WhatsApp</div></TableHead>
+                    <TableHead><div className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />Localisation</div></TableHead>
+                    <TableHead><div className="flex items-center gap-1"><Sparkles className="h-3.5 w-3.5" />Personas</div></TableHead>
                     <TableHead>Inscrit le</TableHead>
-                    <TableHead>
-                      <div className="flex items-center gap-1">
-                        <LogIn className="h-3.5 w-3.5" />
-                        Dernière connexion
-                      </div>
-                    </TableHead>
+                    <TableHead><div className="flex items-center gap-1"><LogIn className="h-3.5 w-3.5" />Dernière connexion</div></TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {members.map((member) => (
                     <TableRow key={member.id}>
                       <TableCell className="font-medium">{member.nickname}</TableCell>
-                      <TableCell>
-                        {[member.first_name, member.last_name].filter(Boolean).join(" ") || "—"}
-                      </TableCell>
+                      <TableCell>{[member.first_name, member.last_name].filter(Boolean).join(" ") || "—"}</TableCell>
                       <TableCell className="text-sm">{member.email || "—"}</TableCell>
                       <TableCell className="text-sm">
                         {member.phone || member.whatsapp ? (
@@ -147,28 +188,26 @@ const GuestManagement = () => {
                           </div>
                         ) : "—"}
                       </TableCell>
-                      <TableCell className="text-sm">
-                        {[member.city, member.country].filter(Boolean).join(", ") || "—"}
-                      </TableCell>
+                      <TableCell className="text-sm">{[member.city, member.country].filter(Boolean).join(", ") || "—"}</TableCell>
                       <TableCell className="text-sm">
                         {member.personas && member.personas.length > 0 ? (
                           <div className="flex flex-wrap gap-1 max-w-[200px]">
                             {member.personas.map((p) => (
-                              <span
-                                key={p.id}
-                                className="inline-block px-2 py-0.5 rounded-full bg-gold/15 text-gold text-[11px] font-medium border border-gold/30"
-                              >
+                              <span key={p.id} className="inline-block px-2 py-0.5 rounded-full bg-gold/15 text-gold text-[11px] font-medium border border-gold/30">
                                 {p.name_fr}
                               </span>
                             ))}
                           </div>
                         ) : "—"}
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-                        {formatDate(member.created_at)}
-                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{formatDate(member.created_at)}</TableCell>
                       <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
                         {member.last_sign_in_at ? formatDate(member.last_sign_in_at) : "—"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="icon" onClick={() => openEdit(member)} title="Éditer les personas">
+                          <Pencil className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -178,6 +217,48 @@ const GuestManagement = () => {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={!!editingMember} onOpenChange={(open) => !open && setEditingMember(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              Personas — {editingMember?.nickname}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="max-h-[60vh] overflow-y-auto space-y-2 py-2">
+            {allPersonas.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Aucun persona disponible.</p>
+            ) : (
+              allPersonas.map((p) => {
+                const checked = selectedPersonaIds.has(p.id);
+                return (
+                  <Label
+                    key={p.id}
+                    htmlFor={`persona-${p.id}`}
+                    className="flex items-center gap-3 p-2 rounded-md border hover:bg-muted/50 cursor-pointer"
+                  >
+                    <Checkbox
+                      id={`persona-${p.id}`}
+                      checked={checked}
+                      onCheckedChange={() => togglePersona(p.id)}
+                    />
+                    <span className="text-sm">{p.name_fr}</span>
+                  </Label>
+                );
+              })
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingMember(null)} disabled={saving}>
+              Annuler
+            </Button>
+            <Button onClick={handleSave} disabled={saving}>
+              {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              Enregistrer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
