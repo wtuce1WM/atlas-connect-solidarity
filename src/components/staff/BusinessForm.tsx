@@ -4967,6 +4967,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             onImageBadgesChange={setImageBadges}
             imageTitles={imageTitles}
             onImageTitlesChange={setImageTitles}
+            imageDescriptions={imageDescriptions}
+            onImageDescriptionsChange={setImageDescriptions}
           />
           <AlertDialog>
             <AlertDialogTrigger asChild>
