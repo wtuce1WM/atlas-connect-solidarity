@@ -17,11 +17,12 @@ interface VideoDoc {
   thumbnail_url: string | null;
   city: string | null;
   neighborhood: string | null;
-  business_id: string;
+  business_id: string | null;
   business_name: string;
   badge_ids: string[];
   subcategory_name: string | null;
   service_name: string | null;
+  source: "business" | "generic";
 }
 
 const TestNoteViewer = () => {
