@@ -515,6 +515,10 @@ const ImageUploader = ({
                   onTitleChange={onImageTitlesChange ? (u, t) => {
                     onImageTitlesChange({ ...(imageTitles || {}), [u]: t });
                   } : undefined}
+                  description={imageDescriptions?.[url] || ""}
+                  onDescriptionChange={onImageDescriptionsChange ? (u, d) => {
+                    onImageDescriptionsChange({ ...(imageDescriptions || {}), [u]: d });
+                  } : undefined}
                 />
               ))}
             </div>
