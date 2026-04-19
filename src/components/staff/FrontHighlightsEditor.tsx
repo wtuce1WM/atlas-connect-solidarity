@@ -1,9 +1,11 @@
-import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
+import { useState, useEffect, forwardRef, useImperativeHandle, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ChevronDown, Loader2, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, Loader2, Sparkles, Upload, X } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import IconPicker from "./IconPicker";
 import DynamicIcon from "@/components/DynamicIcon";
 
@@ -16,6 +18,7 @@ interface Highlight {
   business_id: string | null;
   section_title: string | null;
   section_intro: string | null;
+  image_url: string | null;
 }
 
 interface FrontHighlightsEditorProps {
@@ -35,8 +38,11 @@ const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighl
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [highlights, setHighlights] = useState<Highlight[]>([]);
-  const [sectionTitle, setSectionTitle] = useState("Nos Points Forts");
+  const [sectionTitle, setSectionTitle] = useState("");
   const [sectionIntro, setSectionIntro] = useState("");
+  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
+  const fileInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
+  const { toast } = useToast();
 
   const fetchData = async () => {
     setLoading(true);
@@ -53,7 +59,6 @@ const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighl
       if (result[0].section_intro) setSectionIntro(result[0].section_intro);
     }
 
-    // Insert any missing blocks up to TOTAL_BLOCKS
     const existingOrders = new Set(result.map((h) => h.sort_order));
     const toInsert = [];
     for (let i = 0; i < TOTAL_BLOCKS; i++) {
@@ -88,12 +93,38 @@ const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighl
     if (!loaded && businessId) fetchData();
   }, [businessId, loaded]);
 
-  const updateField = (index: number, field: keyof Highlight, value: string) => {
+  const updateField = (index: number, field: keyof Highlight, value: string | null) => {
     setHighlights((prev) => {
       const next = [...prev];
       next[index] = { ...next[index], [field]: value };
       return next;
     });
+  };
+
+  const handleImageUpload = async (index: number, file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast({ variant: "destructive", title: "Type invalide", description: "Sélectionnez une image." });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ variant: "destructive", title: "Trop volumineux", description: "Max 5MB." });
+      return;
+    }
+    setUploadingIndex(index);
+    try {
+      const ext = file.name.split(".").pop();
+      const fileName = `highlights/${businessId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await supabase.storage.from("business-images").upload(fileName, file);
+      if (error) throw error;
+      const { data } = supabase.storage.from("business-images").getPublicUrl(fileName);
+      if (data?.publicUrl) {
+        updateField(index, "image_url", data.publicUrl);
+      }
+    } catch (e: any) {
+      toast({ variant: "destructive", title: "Erreur upload", description: e.message });
+    } finally {
+      setUploadingIndex(null);
+    }
   };
 
   const handleSave = async () => {
@@ -106,6 +137,7 @@ const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighl
           description: h.description.slice(0, 500),
           section_title: sectionTitle,
           section_intro: sectionIntro.slice(0, 500),
+          image_url: h.image_url,
         })
         .eq("id", h.id);
     }
@@ -170,9 +202,55 @@ const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighl
                       <DynamicIcon name={h.icon} className="h-5 w-5 text-primary" />
                     </div>
 
-                    <div>
-                      <label className="text-xs font-medium text-muted-foreground mb-1 block">Icône</label>
-                      <IconPicker value={h.icon} onChange={(v) => updateField(i, "icon", v)} />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground mb-1 block">Icône</label>
+                        <IconPicker value={h.icon} onChange={(v) => updateField(i, "icon", v)} />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground mb-1 block">Image</label>
+                        <input
+                          ref={(el) => (fileInputRefs.current[i] = el)}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) handleImageUpload(i, f);
+                            e.target.value = "";
+                          }}
+                        />
+                        {h.image_url ? (
+                          <div className="relative h-9 rounded border overflow-hidden bg-muted">
+                            <img src={h.image_url} alt="" className="w-full h-full object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => updateField(i, "image_url", null)}
+                              className="absolute top-0.5 right-0.5 bg-destructive text-destructive-foreground rounded-full p-0.5"
+                              aria-label="Supprimer l'image"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="h-9 w-full text-xs"
+                            disabled={uploadingIndex === i}
+                            onClick={() => fileInputRefs.current[i]?.click()}
+                          >
+                            {uploadingIndex === i ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <>
+                                <Upload className="h-3 w-3 mr-1" /> Upload
+                              </>
+                            )}
+                          </Button>
+                        )}
+                      </div>
                     </div>
 
                     <div>

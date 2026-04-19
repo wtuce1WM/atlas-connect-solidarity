@@ -2278,6 +2278,7 @@ export type Database = {
           description: string
           icon: string
           id: string
+          image_url: string | null
           section_intro: string | null
           section_title: string | null
           sort_order: number
@@ -2290,6 +2291,7 @@ export type Database = {
           description?: string
           icon?: string
           id?: string
+          image_url?: string | null
           section_intro?: string | null
           section_title?: string | null
           sort_order?: number
@@ -2302,6 +2304,7 @@ export type Database = {
           description?: string
           icon?: string
           id?: string
+          image_url?: string | null
           section_intro?: string | null
           section_title?: string | null
           sort_order?: number
