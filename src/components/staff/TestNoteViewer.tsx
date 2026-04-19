@@ -412,22 +412,12 @@ const TestNoteViewer = () => {
                               <button
                                 disabled={!dirty || assigning}
                                 onClick={async () => {
-                                  if (!selectedVideoId) return;
+                                  if (!selectedVideo) return;
                                   setAssigning(true);
-                                  const toAdd = [...draft].filter(id => !original.has(id));
-                                  const toRemove = [...original].filter(id => !draft.has(id));
-                                  let err: any = null;
-                                  if (toRemove.length > 0) {
-                                    const r = await supabase.from("business_document_badges").delete().eq("document_id", selectedVideoId).in("badge_id", toRemove);
-                                    if (r.error) err = r.error;
-                                  }
-                                  if (!err && toAdd.length > 0) {
-                                    const r = await supabase.from("business_document_badges").insert(toAdd.map(badge_id => ({ document_id: selectedVideoId, badge_id })));
-                                    if (r.error) err = r.error;
-                                  }
+                                  const err = await saveBadges(selectedVideo, draft, original);
                                   setAssigning(false);
                                   if (err) { toast.error("Erreur : " + err.message); return; }
-                                  setVideos(prev => prev.map(v => v.id === selectedVideoId ? { ...v, badge_ids: [...draft] } : v));
+                                  setVideos(prev => prev.map(v => v.id === selectedVideo.id ? { ...v, badge_ids: [...draft] } : v));
                                   toast.success("Badges enregistrés");
                                 }}
                                 className="text-xs px-3 py-1 rounded bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-40"
