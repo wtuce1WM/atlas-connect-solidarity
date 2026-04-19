@@ -489,6 +489,10 @@ const ImageUploader = ({
                     const next = current.includes(bid) ? current.filter(x => x !== bid) : [...current, bid];
                     onImageBadgesChange({ ...(imageBadges || {}), [u]: next });
                   } : undefined}
+                  title={imageTitles?.[url] || ""}
+                  onTitleChange={onImageTitlesChange ? (u, t) => {
+                    onImageTitlesChange({ ...(imageTitles || {}), [u]: t });
+                  } : undefined}
                 />
               ))}
             </div>
