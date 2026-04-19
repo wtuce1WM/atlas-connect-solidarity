@@ -379,43 +379,22 @@ const Test = () => {
                     Autres vidéos ({otherVideos.length})
                   </h3>
                   <div className="grid grid-cols-3 gap-3">
-                    {otherVideos.map((v) => (
-                      <button
-                        key={v.id}
-                        type="button"
-                        onClick={() => setActiveVideoId(v.id)}
-                        className="text-left rounded-md overflow-hidden border border-border bg-card hover:border-primary hover:shadow-md transition-all"
-                      >
-                        <div className="aspect-square bg-muted">
-                          {(() => {
-                            const thumb = v.business_image;
-                            if (thumb) {
-                              return (
-                                <img
-                                  src={thumb}
-                                  alt={v.business_name}
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-                                />
-                              );
-                            }
-                            // Internal mp4/webm fallback: use first frame via <video preload="metadata">
-                            if (/\.(mp4|webm|mov|m4v|ogv)(\?|$)/i.test(v.url)) {
-                              return (
-                                <video
-                                  src={`${v.url}#t=0.5`}
-                                  className="w-full h-full object-cover"
-                                  preload="metadata"
-                                  muted
-                                  playsInline
-                                />
-                              );
-                            }
-                            return <div className="w-full h-full bg-muted" />;
-                          })()}
-                        </div>
-                        <p className="text-xs px-2 py-1 truncate">{v.business_name}</p>
-                      </button>
+                    {otherVideos.map((v, idx) => (
+                      <div key={v.id} onClick={() => setActiveVideoId(v.id)} className="cursor-pointer">
+                        {v.business ? (
+                          <SearchResultCard
+                            business={v.business}
+                            index={idx}
+                            labelLogos={[]}
+                            distanceKm={null}
+                            onClick={() => setActiveVideoId(v.id)}
+                            onMouseEnter={() => {}}
+                            onMouseLeave={() => {}}
+                          />
+                        ) : (
+                          <div className="aspect-square bg-muted rounded-xl" />
+                        )}
+                      </div>
                     ))}
                   </div>
                 </div>
