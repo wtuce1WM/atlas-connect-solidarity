@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { X, Loader2, Image as ImageIcon, GripVertical, AlertTriangle, ChevronLeft, ChevronRight, ChevronDown, Tag } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import {
   DndContext,
