@@ -89,36 +89,66 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
     };
   }, [genericVideoId]);
 
-  // Cumulative: show every item whose start_time has been reached, keep last 3
-  const visibleItems = useMemo(() => {
-    const reached = items.filter((it) => (it.start_time ?? 0) <= currentTime);
-    return reached.slice(-3);
-  }, [items, currentTime]);
+  // All items whose start_time has been reached (cumulative)
+  const reachedItems = useMemo(
+    () => items.filter((it) => (it.start_time ?? 0) <= currentTime),
+    [items, currentTime]
+  );
 
-  if (visibleItems.length === 0) return null;
+  // Active = the latest reached item still within its end_time window (or last reached)
+  const activeId = useMemo(() => {
+    if (reachedItems.length === 0) return null;
+    const within = [...reachedItems].reverse().find((it) => {
+      const end = it.end_time ?? Infinity;
+      return currentTime < end;
+    });
+    return (within || reachedItems[reachedItems.length - 1]).id;
+  }, [reachedItems, currentTime]);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const activeRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll active item into view
+  useEffect(() => {
+    if (activeRef.current && scrollRef.current) {
+      activeRef.current.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    }
+  }, [activeId]);
+
+  if (reachedItems.length === 0) return null;
 
   return (
-    <div className="absolute top-3 left-3 right-3 z-20 flex flex-row gap-2 pointer-events-none">
-      {visibleItems.map((it) => (
-        <div
-          key={it.id}
-          className="flex-1 min-w-0 rounded-md bg-black/65 backdrop-blur-sm px-3 py-2 text-white shadow-lg border border-white/10 animate-in fade-in slide-in-from-left-2 duration-300"
-        >
-          <div className="flex items-baseline justify-between gap-2">
-            <p className="text-sm font-semibold leading-tight line-clamp-1">{it.name}</p>
-            {it.ratingOn20 != null && (
-              <span className="text-xs font-bold text-gold shrink-0">
-                {formatRating(it.ratingOn20)}/20
-              </span>
+    <div
+      ref={scrollRef}
+      className="absolute top-3 left-3 right-3 z-20 flex flex-row gap-2 overflow-x-auto scrollbar-hide pb-1"
+      style={{ scrollbarWidth: "none" }}
+    >
+      {reachedItems.map((it) => {
+        const isActive = it.id === activeId;
+        return (
+          <div
+            key={it.id}
+            ref={isActive ? activeRef : undefined}
+            className={`shrink-0 w-[33%] min-w-[180px] rounded-md bg-black/65 backdrop-blur-sm px-3 py-2 text-white shadow-lg animate-in fade-in slide-in-from-left-2 duration-300 transition-colors ${
+              isActive ? "border-2 border-gold" : "border border-white/10"
+            }`}
+          >
+            <div className="flex items-baseline justify-between gap-2">
+              <p className="text-sm font-semibold leading-tight line-clamp-1">{it.name}</p>
+              {it.ratingOn20 != null && (
+                <span className="text-xs font-bold text-gold shrink-0">
+                  {formatRating(it.ratingOn20)}/20
+                </span>
+              )}
+            </div>
+            {it.hook && (
+              <p className="text-[11px] text-white/85 leading-snug mt-0.5 line-clamp-2">
+                {it.hook}
+              </p>
             )}
           </div>
-          {it.hook && (
-            <p className="text-[11px] text-white/85 leading-snug mt-0.5 line-clamp-2">
-              {it.hook}
-            </p>
-          )}
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
