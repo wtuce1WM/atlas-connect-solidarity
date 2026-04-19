@@ -388,6 +388,7 @@ const Test = () => {
   );
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [otherViewMode, setOtherViewMode] = useState<"details" | "videos">("details");
 
   const structureList = (
     <>
