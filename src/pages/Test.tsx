@@ -288,7 +288,7 @@ const Test = () => {
 
   // Generic videos shown under the active video (Marrakech only)
   const [genericVideos, setGenericVideos] = useState<
-    { id: string; url: string; business: SearchResultBusiness | null }[]
+    { id: string; url: string; account: string | null; business: SearchResultBusiness | null }[]
   >([]);
 
   useEffect(() => {
@@ -300,7 +300,7 @@ const Test = () => {
       const [vidsRes, linksRes] = await Promise.all([
         supabase
           .from("generic_videos" as any)
-          .select("id, url")
+          .select("id, url, instagram_account, tiktok_account, youtube_account")
           .in("id", MARRAKECH_GENERIC_VIDEO_IDS),
         supabase
           .from("generic_video_businesses" as any)
@@ -329,13 +329,16 @@ const Test = () => {
           const v = vids.find((x: any) => x.id === vid);
           if (!v) return null;
           const bizId = firstBizByVid[vid];
+          const rawAccount = v.instagram_account || v.tiktok_account || v.youtube_account || null;
+          const account = rawAccount ? rawAccount.replace(/^@+/, "") : null;
           return {
             id: v.id,
             url: v.url,
+            account,
             business: bizId ? bizMap.get(bizId) || null : null,
           };
         })
-        .filter(Boolean) as { id: string; url: string; business: SearchResultBusiness | null }[];
+        .filter(Boolean) as { id: string; url: string; account: string | null; business: SearchResultBusiness | null }[];
       setGenericVideos(ordered);
     };
     load();
@@ -559,14 +562,15 @@ const Test = () => {
                       <h3 className="text-sm font-semibold text-foreground mb-3">
                         Vidéos génériques ({genericVideos.length})
                       </h3>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
                         {genericVideos.map((gv) => {
                           const thumb = deriveThumbnail(gv.url);
+                          const label = gv.account ? `@${gv.account}` : (gv.business?.name || "");
                           const handlePick = () => {
                             const genericItem: VideoItem = {
                               id: gv.id,
                               url: gv.url,
-                              business_name: gv.business?.name || "—",
+                              business_name: label || "—",
                               thumbnail_url: thumb,
                               business: gv.business,
                             };
@@ -583,12 +587,12 @@ const Test = () => {
                             <div
                               key={gv.id}
                               onClick={handlePick}
-                              className="relative aspect-[9/16] rounded-xl overflow-hidden bg-muted group cursor-pointer"
+                              className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted group cursor-pointer"
                             >
                               {thumb ? (
                                 <img
                                   src={thumb}
-                                  alt={gv.business?.name || "Vidéo générique"}
+                                  alt={label || "Vidéo générique"}
                                   className="w-full h-full object-cover"
                                   loading="lazy"
                                 />
@@ -597,14 +601,14 @@ const Test = () => {
                               )}
                               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
                               <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="w-12 h-12 rounded-full bg-black/50 flex items-center justify-center">
-                                  <div className="w-0 h-0 border-y-[8px] border-y-transparent border-l-[12px] border-l-white ml-1" />
+                                <div className="w-8 h-8 rounded-full bg-black/50 flex items-center justify-center">
+                                  <div className="w-0 h-0 border-y-[6px] border-y-transparent border-l-[9px] border-l-white ml-0.5" />
                                 </div>
                               </div>
-                              {gv.business?.name && (
-                                <div className="absolute bottom-0 left-0 right-0 p-2">
-                                  <p className="text-xs font-medium text-white line-clamp-2">
-                                    {gv.business.name}
+                              {label && (
+                                <div className="absolute bottom-0 left-0 right-0 p-1.5">
+                                  <p className="text-[10px] font-medium text-white line-clamp-1">
+                                    {label}
                                   </p>
                                 </div>
                               )}
