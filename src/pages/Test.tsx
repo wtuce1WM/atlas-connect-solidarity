@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import SearchResultCard, { type SearchResultBusiness } from "@/components/SearchResultCard";
 import PanelSearchBar from "@/components/PanelSearchBar";
+import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
 import { Menu as MenuIcon, X } from "lucide-react";
 
 interface FrontEntry {
