@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getVideoEmbed } from "@/lib/videoEmbed";
+import SearchResultCard, { type SearchResultBusiness } from "@/components/SearchResultCard";
 
 interface FrontEntry {
   id: string;
@@ -17,7 +18,7 @@ interface VideoItem {
   url: string;
   business_name: string;
   thumbnail_url: string | null;
-  business_image: string | null;
+  business: SearchResultBusiness | null;
 }
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
