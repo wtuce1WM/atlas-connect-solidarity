@@ -2278,6 +2278,7 @@ export type Database = {
           description: string
           icon: string
           id: string
+          section_intro: string | null
           section_title: string | null
           sort_order: number
           title: string
@@ -2289,6 +2290,7 @@ export type Database = {
           description?: string
           icon?: string
           id?: string
+          section_intro?: string | null
           section_title?: string | null
           sort_order?: number
           title?: string
@@ -2300,6 +2302,7 @@ export type Database = {
           description?: string
           icon?: string
           id?: string
+          section_intro?: string | null
           section_title?: string | null
           sort_order?: number
           title?: string
