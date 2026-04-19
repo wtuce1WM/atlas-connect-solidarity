@@ -120,13 +120,23 @@ const Test = () => {
     load();
   }, [city]);
 
+  const HOME_ID = "__home__";
+
   const visibleEntries = useMemo(() => {
-    if (loading) return entries;
-    return entries.filter((e) => {
+    const homeEntry: FrontEntry = {
+      id: HOME_ID,
+      name: "Home",
+      sort_order: -1,
+      subcategory_ids: [],
+      service_ids: [],
+    };
+    if (loading) return [homeEntry, ...entries];
+    const filtered = entries.filter((e) => {
       const hasSub = e.subcategory_ids.some((id) => citySubcats.has(subcatNames[id]));
       const hasSvc = e.service_ids.some((id) => cityServices.has(serviceNames[id]));
       return hasSub || hasSvc;
     });
+    return [homeEntry, ...filtered];
   }, [entries, citySubcats, cityServices, subcatNames, serviceNames, loading]);
 
   const selectedEntry = useMemo(
