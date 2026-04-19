@@ -65,18 +65,15 @@ const TestNoteViewer = () => {
     if (!videosLoaded) return;
     if (activeTab !== "badgees" && activeTab !== "tobadge") return;
     (async () => {
+      const docIds = videos.map(v => v.id);
       const all: any[] = [];
-      let off = 0;
-      while (true) {
+      for (let i = 0; i < docIds.length; i += 200) {
+        const batch = docIds.slice(i, i + 200);
         const { data } = await supabase
           .from("business_document_badges")
-          .select("document_id, badge_id, id")
-          .order("id")
-          .range(off, off + 999);
-        if (!data || data.length === 0) break;
-        all.push(...data);
-        if (data.length < 1000) break;
-        off += 1000;
+          .select("document_id, badge_id")
+          .in("document_id", batch);
+        if (data) all.push(...data);
       }
       const badgeMap = new Map<string, string[]>();
       all.forEach((l) => {
