@@ -159,6 +159,7 @@ const Test = () => {
   }, [city, entries]);
 
   const HOME_ID = "__home__";
+  const VLOGS_ID = "__vlogs__";
 
   const visibleEntries = useMemo(() => {
     const homeEntry: FrontEntry = {
@@ -168,9 +169,16 @@ const Test = () => {
       subcategory_ids: [],
       service_ids: [],
     };
-    if (loading) return [homeEntry, ...entries];
+    const vlogsEntry: FrontEntry = {
+      id: VLOGS_ID,
+      name: "#Vlogs",
+      sort_order: -0.5,
+      subcategory_ids: [],
+      service_ids: [],
+    };
+    if (loading) return [homeEntry, vlogsEntry, ...entries];
     const filtered = entries.filter((e) => entriesWithVideos.has(e.id));
-    return [homeEntry, ...filtered];
+    return [homeEntry, vlogsEntry, ...filtered];
   }, [entries, entriesWithVideos, loading]);
 
   const selectedEntry = useMemo(
