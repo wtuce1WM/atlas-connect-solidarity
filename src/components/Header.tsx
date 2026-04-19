@@ -88,6 +88,9 @@ const Header = ({ variant = "default", compact = false, rightContent }: HeaderPr
       <Link to="/devenir-affilie" className="self-center rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-gold-foreground transition-colors hover:bg-gold/90 text-center" onClick={() => setMobileOpen(false)}>
         {t("nav.joinNow")}
       </Link>
+      <Link to="/test" className="text-foreground text-sm font-semibold transition-colors hover:text-gold" onClick={() => setMobileOpen(false)}>
+        Test
+      </Link>
     </>
   );
 
