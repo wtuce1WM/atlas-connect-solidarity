@@ -117,21 +117,16 @@ const TestNoteViewer = () => {
         supabase.from("services").select("id, name_fr"),
       ]);
 
-      // Paginated fetch of badge links (table can exceed 1000 rows)
-      // IMPORTANT: must order by a stable column, otherwise PostgREST pagination
-      // can return duplicates/skip rows across pages.
+      // Fetch badge links ONLY for the documents we have (avoids 1000-row limit pitfalls)
       const allLinks: any[] = [];
-      let linkOff = 0;
-      while (true) {
+      const docIds = allDocs.map(d => d.id);
+      for (let i = 0; i < docIds.length; i += 200) {
+        const batch = docIds.slice(i, i + 200);
         const { data } = await supabase
           .from("business_document_badges")
-          .select("document_id, badge_id, id")
-          .order("id")
-          .range(linkOff, linkOff + 999);
-        if (!data || data.length === 0) break;
-        allLinks.push(...data);
-        if (data.length < 1000) break;
-        linkOff += 1000;
+          .select("document_id, badge_id")
+          .in("document_id", batch);
+        if (data) allLinks.push(...data);
       }
 
       if (badgesRes.data) {
