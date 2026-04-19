@@ -286,6 +286,8 @@ const ImageUploader = ({
   onImageBadgesChange,
   imageTitles,
   onImageTitlesChange,
+  imageDescriptions,
+  onImageDescriptionsChange,
 }: ImageUploaderProps) => {
   const [uploading, setUploading] = useState(false);
   const [brokenUrls, setBrokenUrls] = useState<Set<string>>(new Set());
