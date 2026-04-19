@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import VideoLightbox from "./VideoLightbox";
+import { isInternalVideoUrl } from "@/lib/videoSourceFilter";
 
 const NOTE_ID = "919622ac-3bfe-4e3e-ab64-0dfeb3bd1696";
 
@@ -76,7 +77,7 @@ const TestNoteViewer = () => {
           .eq("type", "video")
           .range(offset, offset + PAGE - 1);
         if (!data || data.length === 0) break;
-        allDocs.push(...data);
+        allDocs.push(...data.filter((d: any) => isInternalVideoUrl(d.url)));
         if (data.length < PAGE) break;
         offset += PAGE;
       }
