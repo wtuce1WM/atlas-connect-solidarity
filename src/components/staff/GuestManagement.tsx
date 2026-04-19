@@ -3,7 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Loader2, Mail, Phone, MapPin, LogIn } from "lucide-react";
+import { Users, Loader2, Mail, Phone, MapPin, LogIn, Sparkles } from "lucide-react";
+
+interface PersonaTag {
+  id: string;
+  slug: string;
+  name_fr: string;
+}
 
 interface ClubMemberWithSignIn {
   id: string;
@@ -18,6 +24,7 @@ interface ClubMemberWithSignIn {
   created_at: string;
   user_id: string | null;
   last_sign_in_at: string | null;
+  personas: PersonaTag[] | null;
 }
 
 const GuestManagement = () => {
