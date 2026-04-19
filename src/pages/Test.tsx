@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import SearchResultCard, { type SearchResultBusiness } from "@/components/SearchResultCard";
+import PanelSearchBar from "@/components/PanelSearchBar";
 import { Menu as MenuIcon, X } from "lucide-react";
 
 interface FrontEntry {
@@ -43,6 +45,7 @@ function deriveThumbnail(url: string): string | null {
 }
 
 const Test = () => {
+  const navigate = useNavigate();
   const [city, setCity] = useState<City>("Marrakech");
   const [entries, setEntries] = useState<FrontEntry[]>([]);
   const [subcatNames, setSubcatNames] = useState<Record<string, string>>({});
@@ -580,7 +583,7 @@ const Test = () => {
 
               {/* Active video — right side (50%) */}
               {activeVideo && activeEmbed && (
-                <div className={`flex flex-col items-center gap-2 ${isLandscape ? "w-full order-1" : "w-1/2 shrink-0"}`}>
+                <div className={`relative flex flex-col items-center gap-2 pb-24 ${isLandscape ? "w-full order-1" : "w-1/2 shrink-0"}`}>
                   <div
                     className={`bg-black rounded-lg overflow-hidden shadow-lg w-full ${isLandscape ? "aspect-video" : "aspect-[9/16]"}`}
                     style={{
@@ -681,6 +684,14 @@ const Test = () => {
                       </div>
                     </div>
                   )}
+
+                  <PanelSearchBar
+                    onSearch={(params) => {
+                      const sp = new URLSearchParams(params);
+                      navigate(`/search?${sp.toString()}`);
+                    }}
+                    onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
+                  />
                 </div>
               )}
             </div>
