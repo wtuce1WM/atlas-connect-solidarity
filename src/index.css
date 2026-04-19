@@ -9,7 +9,7 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Moroccan-inspired color palette */
-    --background: 30 25% 97%;
+    --background: 0 0% 100%;
     --foreground: 0 0% 5%;
 
     --card: 0 0% 100%;
@@ -65,7 +65,7 @@ All colors MUST be HSL.
     --gradient-gold: linear-gradient(135deg, hsl(43 75% 45%) 0%, hsl(43 75% 65%) 100%);
     --gradient-hero-overlay: linear-gradient(to bottom, hsla(0 0% 0% / 0.3) 0%, hsla(0 0% 0% / 0.6) 100%);
 
-    --sidebar-background: 30 25% 97%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 0 0% 5%;
     --sidebar-primary: 16 65% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
