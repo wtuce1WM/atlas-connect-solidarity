@@ -69,12 +69,19 @@ const SortableFrontCard = ({
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
 
   return (
-    <div ref={setNodeRef} style={style} className="flex flex-col rounded-lg border bg-background overflow-hidden text-xs">
+    <div ref={setNodeRef} style={style} data-video-id={video.id} className="flex flex-col rounded-lg border bg-background overflow-hidden text-xs">
       <button className="relative aspect-video bg-black group" onClick={() => onPlay(video.url)}>
         <div {...attributes} {...listeners} onClick={(e) => e.stopPropagation()} className="absolute top-1 left-1 z-10 cursor-grab active:cursor-grabbing text-white/80 hover:text-white bg-black/40 rounded p-0.5">
           <GripVertical className="h-3 w-3" />
         </div>
         <span className="absolute top-1 left-7 z-10 text-white/80 text-[10px] font-mono bg-black/40 rounded px-1">{index + 1}</span>
+        <span
+          onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(video.id); toast.success("ID copié"); }}
+          className="absolute bottom-1 right-1 z-10 text-white/80 hover:text-white text-[10px] font-mono bg-black/40 rounded px-1 cursor-pointer"
+          title={`Copier l'ID : ${video.id}`}
+        >
+          {video.id.slice(0, 8)}
+        </span>
         <div onClick={(e) => { e.stopPropagation(); onRemove(video.id); }} className="absolute top-1 right-1 z-10 text-white/80 hover:text-destructive bg-black/40 rounded p-0.5 cursor-pointer">
           <X className="h-3 w-3" />
         </div>
@@ -430,7 +437,7 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
           {filteredVideos.map((v) => {
             const isOnFront = frontIds.has(v.id);
             return (
-              <div key={v.id} className={`rounded-lg border overflow-hidden transition-colors ${isOnFront ? "border-primary/50 bg-primary/5" : "bg-background"}`}>
+              <div key={v.id} data-video-id={v.id} className={`rounded-lg border overflow-hidden transition-colors ${isOnFront ? "border-primary/50 bg-primary/5" : "bg-background"}`}>
                 <div className="relative aspect-video bg-black">
                  <button
                       className="relative w-full h-full flex items-center justify-center group"
@@ -445,6 +452,13 @@ const DestinationVideosPanel = ({ cityName }: DestinationVideosPanelProps) => {
                         <Play className="h-5 w-5 text-primary-foreground fill-primary-foreground ml-0.5" />
                       </div>
                     </button>
+                  <span
+                    onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(v.id); toast.success("ID copié"); }}
+                    className="absolute top-1.5 left-1.5 z-20 text-white/90 hover:text-white text-[10px] font-mono bg-black/60 rounded px-1.5 py-0.5 cursor-pointer"
+                    title={`Copier l'ID : ${v.id}`}
+                  >
+                    {v.id.slice(0, 8)}
+                  </span>
                   {/* Add / already added indicator */}
                   <button
                     onClick={(e) => { e.stopPropagation(); isOnFront ? removeFromFront(v.id) : addToFront(v); }}
