@@ -4882,6 +4882,7 @@ export type Database = {
           last_name: string
           last_sign_in_at: string
           nickname: string
+          personas: Json
           phone: string
           user_id: string
           whatsapp: string
