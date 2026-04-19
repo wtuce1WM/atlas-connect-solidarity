@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles, Loader2, Save, Trash2, Youtube, Film } from "lucide-react";
+import { Sparkles, Loader2, Save, Trash2, Plus, Film } from "lucide-react";
 
 interface Persona {
   id: string;
@@ -14,7 +14,7 @@ interface Persona {
   name_fr: string;
   name_en: string | null;
   description: string | null;
-  video_id: string | null;
+  video_ids: string[];
   sort_order: number;
 }
 
@@ -26,8 +26,8 @@ interface InternalVideoMeta {
 }
 
 const MAX_DESC = 2000;
+const MAX_VIDEOS = 12;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 const isUuid = (v: string) => UUID_RE.test(v.trim());
 
 const PersonasManagement = () => {
@@ -35,41 +35,47 @@ const PersonasManagement = () => {
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
-  const [internalVideos, setInternalVideos] = useState<Record<string, InternalVideoMeta>>({});
+  const [videoMeta, setVideoMeta] = useState<Record<string, InternalVideoMeta>>({});
+  const [newIdInput, setNewIdInput] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetchPersonas();
   }, []);
 
+  const fetchVideoMetas = async (ids: string[]) => {
+    const unique = Array.from(new Set(ids.filter(isUuid)));
+    if (!unique.length) return;
+    const { data } = await supabase
+      .from("generic_videos")
+      .select("id, name, url, thumbnail_url")
+      .in("id", unique);
+    if (data) {
+      const map: Record<string, InternalVideoMeta> = {};
+      data.forEach((v: any) => (map[v.id] = v));
+      setVideoMeta((prev) => ({ ...prev, ...map }));
+    }
+  };
+
   const fetchPersonas = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("personas")
-      .select("id, slug, name_fr, name_en, description, video_id, sort_order")
+      .select("id, slug, name_fr, name_en, description, video_ids, sort_order")
       .order("sort_order", { ascending: true });
     if (error) {
       toast({ variant: "destructive", title: "Erreur", description: "Chargement impossible." });
     } else {
-      const list = (data as Persona[]) || [];
+      const list = ((data as unknown) as Persona[]) || [];
+      // Ensure video_ids is always an array
+      list.forEach((p) => { if (!Array.isArray(p.video_ids)) p.video_ids = []; });
       setPersonas(list);
-      // Fetch internal video metadata for any UUID video_ids
-      const uuids = list.map((p) => p.video_id).filter((v): v is string => !!v && isUuid(v));
-      if (uuids.length) {
-        const { data: vids } = await supabase
-          .from("generic_videos")
-          .select("id, name, url, thumbnail_url")
-          .in("id", uuids);
-        if (vids) {
-          const map: Record<string, InternalVideoMeta> = {};
-          vids.forEach((v: any) => (map[v.id] = v));
-          setInternalVideos(map);
-        }
-      }
+      const allIds = list.flatMap((p) => p.video_ids || []);
+      fetchVideoMetas(allIds);
     }
     setLoading(false);
   };
 
-  const updateField = (id: string, field: keyof Persona, value: string | null) => {
+  const updateField = (id: string, field: keyof Persona, value: any) => {
     setPersonas((prev) => prev.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
   };
 
@@ -80,7 +86,7 @@ const PersonasManagement = () => {
       .update({
         name_fr: persona.name_fr,
         description: persona.description,
-        video_id: persona.video_id?.trim() || null,
+        video_ids: persona.video_ids,
       })
       .eq("id", persona.id);
     setSavingId(null);
@@ -89,85 +95,70 @@ const PersonasManagement = () => {
       return;
     }
     toast({ title: "Enregistré", description: `${persona.name_fr} mis à jour.` });
-    // Refresh internal video metadata if needed
-    const vid = persona.video_id?.trim();
-    if (vid && isUuid(vid) && !internalVideos[vid]) {
-      const { data } = await supabase
-        .from("generic_videos")
-        .select("id, name, url, thumbnail_url")
-        .eq("id", vid)
-        .maybeSingle();
-      if (data) setInternalVideos((prev) => ({ ...prev, [vid]: data as InternalVideoMeta }));
-    }
+    fetchVideoMetas(persona.video_ids);
   };
 
-  const handleRemoveVideo = async (persona: Persona) => {
-    setSavingId(persona.id);
-    const { error } = await supabase
-      .from("personas")
-      .update({ video_id: null })
-      .eq("id", persona.id);
-    setSavingId(null);
-    if (error) {
-      toast({ variant: "destructive", title: "Erreur", description: error.message });
+  const handleAddVideo = (persona: Persona) => {
+    const raw = (newIdInput[persona.id] || "").trim();
+    if (!raw) return;
+    if (!isUuid(raw)) {
+      toast({ variant: "destructive", title: "ID invalide", description: "Doit être un UUID de vidéo interne." });
       return;
     }
-    updateField(persona.id, "video_id", null);
-    toast({ title: "Vidéo supprimée", description: `${persona.name_fr} : vidéo retirée.` });
+    if (persona.video_ids.includes(raw)) {
+      toast({ variant: "destructive", title: "Doublon", description: "Cette vidéo est déjà associée." });
+      return;
+    }
+    if (persona.video_ids.length >= MAX_VIDEOS) {
+      toast({ variant: "destructive", title: "Limite atteinte", description: `Maximum ${MAX_VIDEOS} vidéos.` });
+      return;
+    }
+    updateField(persona.id, "video_ids", [...persona.video_ids, raw]);
+    setNewIdInput((prev) => ({ ...prev, [persona.id]: "" }));
+    fetchVideoMetas([raw]);
   };
 
-  const renderVideoPreview = (persona: Persona) => {
-    const vid = persona.video_id?.trim();
-    if (!vid) return null;
+  const handleRemoveVideo = (persona: Persona, vid: string) => {
+    updateField(persona.id, "video_ids", persona.video_ids.filter((v) => v !== vid));
+  };
 
-    if (isUuid(vid)) {
-      const meta = internalVideos[vid];
-      return (
-        <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
-          <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-            <Film className="h-3.5 w-3.5" />
-            Vidéo interne
-          </div>
-          <div className="flex gap-3 items-start">
-            {meta?.thumbnail_url ? (
-              <img
-                src={meta.thumbnail_url}
-                alt={meta.name || "Vidéo"}
-                className="h-20 w-32 object-cover rounded"
-              />
-            ) : meta?.url ? (
-              <video src={meta.url} className="h-20 w-32 object-cover rounded bg-black" muted />
-            ) : (
-              <div className="h-20 w-32 rounded bg-muted flex items-center justify-center text-xs text-muted-foreground">
-                Aperçu indisponible
-              </div>
-            )}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{meta?.name || "Vidéo sans nom"}</p>
-              <p className="text-xs text-muted-foreground font-mono truncate">{vid}</p>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    // Treat as YouTube ID
+  const renderVideoCard = (persona: Persona, vid: string, idx: number) => {
+    const meta = videoMeta[vid];
     return (
-      <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
-        <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-          <Youtube className="h-3.5 w-3.5" />
-          Vidéo YouTube
+      <div key={vid} className="rounded-lg border bg-muted/20 p-2 space-y-2 relative group">
+        <div className="aspect-video w-full rounded overflow-hidden bg-black flex items-center justify-center">
+          {meta?.url ? (
+            <video
+              src={meta.url}
+              poster={meta.thumbnail_url || undefined}
+              controls
+              preload="metadata"
+              className="w-full h-full object-cover"
+            />
+          ) : meta?.thumbnail_url ? (
+            <img src={meta.thumbnail_url} alt={meta.name || ""} className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-xs text-muted-foreground">Aperçu indisponible</span>
+          )}
         </div>
-        <div className="aspect-video w-full max-w-md rounded overflow-hidden bg-black">
-          <iframe
-            src={`https://www.youtube.com/embed/${vid}`}
-            title={`YouTube ${vid}`}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="w-full h-full"
-          />
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-medium truncate">
+              #{idx + 1} · {meta?.name || "Vidéo sans nom"}
+            </p>
+            <p className="text-[10px] text-muted-foreground font-mono truncate">{vid}</p>
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 shrink-0"
+            onClick={() => handleRemoveVideo(persona, vid)}
+            title="Retirer cette vidéo"
+          >
+            <Trash2 className="h-3.5 w-3.5 text-destructive" />
+          </Button>
         </div>
-        <p className="text-xs text-muted-foreground font-mono">{vid}</p>
       </div>
     );
   };
@@ -177,7 +168,7 @@ const PersonasManagement = () => {
       <div>
         <h2 className="text-2xl font-bold">Personas</h2>
         <p className="text-muted-foreground">
-          Profils de voyageurs proposés aux membres du Club ({personas.length})
+          Profils de voyageurs proposés aux membres du Club ({personas.length}). Jusqu'à {MAX_VIDEOS} vidéos internes par persona.
         </p>
       </div>
 
@@ -189,7 +180,7 @@ const PersonasManagement = () => {
         <div className="grid gap-4">
           {personas.map((persona) => {
             const descLen = (persona.description || "").length;
-            const hasVideo = !!persona.video_id?.trim();
+            const count = persona.video_ids.length;
             return (
               <Card key={persona.id}>
                 <CardHeader>
@@ -199,44 +190,52 @@ const PersonasManagement = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor={`name-${persona.id}`}>Nom (FR)</Label>
-                      <Input
-                        id={`name-${persona.id}`}
-                        value={persona.name_fr}
-                        onChange={(e) => updateField(persona.id, "name_fr", e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor={`video-${persona.id}`}>ID Vidéo (YouTube ou interne)</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          id={`video-${persona.id}`}
-                          value={persona.video_id || ""}
-                          onChange={(e) => updateField(persona.id, "video_id", e.target.value)}
-                          placeholder="ID YouTube (dQw4w9WgXcQ) ou UUID interne"
-                        />
-                        {hasVideo && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            onClick={() => handleRemoveVideo(persona)}
-                            disabled={savingId === persona.id}
-                            title="Supprimer la vidéo"
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Collez l'ID YouTube ou l'UUID d'une vidéo interne stockée dans la bibliothèque.
-                      </p>
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`name-${persona.id}`}>Nom (FR)</Label>
+                    <Input
+                      id={`name-${persona.id}`}
+                      value={persona.name_fr}
+                      onChange={(e) => updateField(persona.id, "name_fr", e.target.value)}
+                    />
                   </div>
 
-                  {hasVideo && renderVideoPreview(persona)}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label className="flex items-center gap-2">
+                        <Film className="h-4 w-4" />
+                        Vidéos internes ({count} / {MAX_VIDEOS})
+                      </Label>
+                    </div>
+                    <div className="flex gap-2">
+                      <Input
+                        value={newIdInput[persona.id] || ""}
+                        onChange={(e) => setNewIdInput((prev) => ({ ...prev, [persona.id]: e.target.value }))}
+                        placeholder="Coller un UUID de vidéo interne…"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleAddVideo(persona);
+                          }
+                        }}
+                        disabled={count >= MAX_VIDEOS}
+                        className="font-mono text-xs"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => handleAddVideo(persona)}
+                        disabled={count >= MAX_VIDEOS}
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Ajouter
+                      </Button>
+                    </div>
+                    {count > 0 && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 pt-2">
+                        {persona.video_ids.map((vid, idx) => renderVideoCard(persona, vid, idx))}
+                      </div>
+                    )}
+                  </div>
 
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
