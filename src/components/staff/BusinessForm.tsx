@@ -1256,6 +1256,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   const [imageBadges, setImageBadges] = useState<Record<string, string[]>>({});
   // --- Image titles (per image URL) ---
   const [imageTitles, setImageTitles] = useState<Record<string, string>>({});
+  // --- Image descriptions (per image URL, max 500) ---
+  const [imageDescriptions, setImageDescriptions] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!business?.id) return;
