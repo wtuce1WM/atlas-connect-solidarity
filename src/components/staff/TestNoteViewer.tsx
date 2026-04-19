@@ -49,6 +49,30 @@ const TestNoteViewer = () => {
     setDraftBadgeIds(v?.badge_ids || []);
   }, [selectedVideoId, videos]);
 
+  const saveBadges = async (video: VideoDoc, draft: Set<string>, original: Set<string>) => {
+    const toAdd = [...draft].filter(id => !original.has(id));
+    const toRemove = [...original].filter(id => !draft.has(id));
+    const isGeneric = video.source === "generic";
+    const table = isGeneric ? "generic_video_badges" : "business_document_badges";
+    const fkCol = isGeneric ? "generic_video_id" : "document_id";
+    let err: any = null;
+    if (toRemove.length > 0) {
+      const r = await supabase.from(table as any).delete().eq(fkCol, video.id).in("badge_id", toRemove);
+      if (r.error) err = r.error;
+    }
+    if (!err && toAdd.length > 0) {
+      const unique = Array.from(new Set(toAdd));
+      const r = await supabase
+        .from(table as any)
+        .upsert(unique.map(badge_id => ({ [fkCol]: video.id, badge_id })) as any, {
+          onConflict: `${fkCol},badge_id`,
+          ignoreDuplicates: true,
+        });
+      if (r.error) err = r.error;
+    }
+    return err;
+  };
+
   // Light fetch: only the note (cheap) on mount
   useEffect(() => {
     (async () => {
