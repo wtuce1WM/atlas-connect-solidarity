@@ -195,10 +195,21 @@ const Test = () => {
     () => videos.find((v) => v.id === activeVideoId) || videos[0] || null,
     [videos, activeVideoId]
   );
-  const activeEmbed = useMemo(
-    () => (activeVideo ? getVideoEmbed(activeVideo.url, window.location.origin, { autoplay: true }) : null),
-    [activeVideo]
-  );
+  const activeEmbed = useMemo(() => {
+    if (!activeVideo) return null;
+    const base = getVideoEmbed(activeVideo.url, window.location.origin, { autoplay: true });
+    // Force loop on the embed URL
+    let embedUrl = base.embedUrl;
+    if (base.type === "youtube") {
+      const ytId = activeVideo.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1];
+      embedUrl = embedUrl.replace("loop=0", `loop=1&playlist=${ytId}`);
+    } else if (base.type === "vimeo") {
+      embedUrl = embedUrl.replace("loop=0", "loop=1");
+    } else if (base.type === "bunny") {
+      embedUrl = embedUrl.replace("loop=false", "loop=true");
+    }
+    return { ...base, embedUrl };
+  }, [activeVideo]);
   const otherVideos = useMemo(
     () => (activeVideo ? videos.filter((v) => v.id !== activeVideo.id) : videos.slice(1)),
     [videos, activeVideo]
@@ -280,6 +291,7 @@ const Test = () => {
                         src={activeVideo.url}
                         controls
                         autoPlay
+                        loop
                         playsInline
                         className="w-full h-full object-cover"
                       />
