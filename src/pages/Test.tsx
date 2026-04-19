@@ -198,8 +198,77 @@ const Test = () => {
       setLoadingVideos(true);
 
       const isHome = selectedEntry.id === HOME_ID;
+      const isVlogs = selectedEntry.id === VLOGS_ID;
 
       let allDocs: any[] = [];
+
+      if (isVlogs) {
+        const { data: dest } = await supabase
+          .from("destinations" as any)
+          .select("id")
+          .eq("name_fr", city)
+          .maybeSingle();
+        const destId = (dest as any)?.id;
+        if (!destId) {
+          setVideos([]);
+          setLoadingVideos(false);
+          return;
+        }
+        const { data: links } = await supabase
+          .from("generic_video_destinations" as any)
+          .select("generic_video_id, sort_order")
+          .eq("destination_id", destId)
+          .order("sort_order", { ascending: true });
+        const vidIds = ((links as any[]) || []).map((l) => l.generic_video_id);
+        if (vidIds.length === 0) {
+          setVideos([]);
+          setLoadingVideos(false);
+          return;
+        }
+        const [vidsRes, bizLinksRes] = await Promise.all([
+          supabase
+            .from("generic_videos" as any)
+            .select("id, url, name, thumbnail_url, instagram_account, tiktok_account, youtube_account")
+            .in("id", vidIds),
+          supabase
+            .from("generic_video_businesses" as any)
+            .select("generic_video_id, business_id")
+            .in("generic_video_id", vidIds),
+        ]);
+        const firstBizByVid: Record<string, string> = {};
+        (((bizLinksRes as any).data as any[]) || []).forEach((l: any) => {
+          if (!firstBizByVid[l.generic_video_id]) firstBizByVid[l.generic_video_id] = l.business_id;
+        });
+        const bizIds = [...new Set(Object.values(firstBizByVid))];
+        const bizMap = new Map<string, SearchResultBusiness>();
+        if (bizIds.length > 0) {
+          const { data: bizs } = await supabase
+            .from("businesses")
+            .select("id, name, images, logo_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+            .in("id", bizIds);
+          (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
+        }
+        const vids = ((vidsRes as any).data as any[]) || [];
+        const ordered = vidIds
+          .map((vid) => {
+            const v = vids.find((x: any) => x.id === vid);
+            if (!v) return null;
+            const bizId = firstBizByVid[vid];
+            const biz = bizId ? bizMap.get(bizId) || null : null;
+            const acct = (v.instagram_account || v.tiktok_account || v.youtube_account || "").replace(/^@+/, "");
+            return {
+              id: v.id,
+              url: v.url,
+              business_name: v.name || (acct ? `@${acct}` : (biz?.name || "—")),
+              thumbnail_url: v.thumbnail_url || deriveThumbnail(v.url),
+              business: biz,
+            } as VideoItem;
+          })
+          .filter(Boolean) as VideoItem[];
+        setVideos(ordered);
+        setLoadingVideos(false);
+        return;
+      }
 
       if (isHome) {
         // Same logic as backoffice "Vidéos / Homepage" sub-tab:
