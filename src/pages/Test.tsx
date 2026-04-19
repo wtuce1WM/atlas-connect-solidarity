@@ -134,7 +134,9 @@ const Test = () => {
     [visibleEntries, selectedEntryId]
   );
 
-  // Load videos for selected entry filtered by city
+  // Load videos for selected entry — same logic as backoffice FrontStructureVideosPanel:
+  // match business_documents.subcategory_id ∈ entry.subcategory_ids, filter by document.city,
+  // keep only internal videos, sort by sort_order, take first 15.
   useEffect(() => {
     if (!selectedEntry) {
       setVideos([]);
@@ -142,45 +144,50 @@ const Test = () => {
     }
     const load = async () => {
       setLoadingVideos(true);
-      // Get business ids in this city matching subcats or services of the entry
-      const subNames = selectedEntry.subcategory_ids.map((id) => subcatNames[id]).filter(Boolean);
-      const svcNames = selectedEntry.service_ids.map((id) => serviceNames[id]).filter(Boolean);
 
-      let bizQuery = supabase
-        .from("businesses")
-        .select("id, name, categories, services")
-        .eq("is_active", true)
-        .ilike("city", city);
-
-      const { data: bizs } = await bizQuery;
-      const matchedBiz = (bizs || []).filter((b: any) => {
-        const cats = b.categories || [];
-        const svcs = b.services || [];
-        return subNames.some((n) => cats.includes(n)) || svcNames.some((n) => svcs.includes(n));
-      });
-      const bizIds = matchedBiz.map((b: any) => b.id);
-      const bizNameMap = new Map<string, string>(matchedBiz.map((b: any) => [b.id, b.name]));
-
-      if (bizIds.length === 0) {
+      const subIds = selectedEntry.subcategory_ids;
+      if (subIds.length === 0) {
         setVideos([]);
         setLoadingVideos(false);
         return;
       }
 
-      const { data: docs } = await supabase
-        .from("business_documents")
-        .select("id, url, business_id, thumbnail_url, sort_order, front_sort_order")
-        .eq("type", "video")
-        .in("business_id", bizIds)
-        .order("front_sort_order", { ascending: true })
-        .order("sort_order", { ascending: true })
-        .limit(15);
+      const allDocs: any[] = [];
+      let offset = 0;
+      const PAGE = 1000;
+      while (true) {
+        const { data } = await supabase
+          .from("business_documents")
+          .select("id, url, thumbnail_url, business_id, subcategory_id, city, sort_order")
+          .eq("type", "video")
+          .in("subcategory_id", subIds)
+          .ilike("city", city)
+          .order("sort_order", { ascending: true })
+          .range(offset, offset + PAGE - 1);
+        if (!data || data.length === 0) break;
+        allDocs.push(...data);
+        if (data.length < PAGE) break;
+        offset += PAGE;
+      }
 
       const { isInternalVideoUrl } = await import("@/lib/videoSourceFilter");
-      const filtered = (docs || []).filter((d: any) => isInternalVideoUrl(d.url));
+      const internal = allDocs
+        .filter((d: any) => isInternalVideoUrl(d.url))
+        .sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+        .slice(0, 15);
+
+      const bizIds = [...new Set(internal.map((d: any) => d.business_id))];
+      const bizNameMap = new Map<string, string>();
+      if (bizIds.length > 0) {
+        const { data: bizs } = await supabase
+          .from("businesses")
+          .select("id, name")
+          .in("id", bizIds);
+        (bizs || []).forEach((b: any) => bizNameMap.set(b.id, b.name));
+      }
 
       setVideos(
-        filtered.slice(0, 15).map((d: any) => ({
+        internal.map((d: any) => ({
           id: d.id,
           url: d.url,
           business_name: bizNameMap.get(d.business_id) || "—",
@@ -190,7 +197,7 @@ const Test = () => {
       setLoadingVideos(false);
     };
     load();
-  }, [selectedEntry, city, subcatNames, serviceNames]);
+  }, [selectedEntry, city]);
 
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
 
