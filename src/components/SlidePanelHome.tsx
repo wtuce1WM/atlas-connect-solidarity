@@ -41,13 +41,13 @@ const SlidePanelHome = ({
 
   if (!open || !videoUrl) return null;
 
-  const embed = getVideoEmbed(videoUrl, window.location.origin, { autoplay: true });
+  const embed = getVideoEmbed(videoUrl, window.location.origin, { autoplay: true, defaultSoundOn: true });
   let embedUrl = embed.embedUrl;
   if (embed.type === "youtube") {
     const ytId = videoUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1];
-    embedUrl = embedUrl.replace("loop=0", `loop=1&playlist=${ytId}`);
+    embedUrl = embedUrl.replace("loop=0", `loop=1&playlist=${ytId}`).replace(/[?&]mute=1/, (m) => m[0] + "mute=0");
   } else if (embed.type === "vimeo") {
-    embedUrl = embedUrl.replace("loop=0", "loop=1");
+    embedUrl = embedUrl.replace("loop=0", "loop=1").replace("muted=1", "muted=0");
   } else if (embed.type === "bunny") {
     embedUrl = embedUrl.replace("loop=false", "loop=true");
   }
