@@ -565,9 +565,10 @@ const Test = () => {
         </div>
       )}
 
-      <div className="pt-[53px] flex w-full min-h-[calc(100vh-53px)]">
-        {/* Right zone 80% */}
-        <main className="flex-1 p-6 overflow-y-auto relative">
+      <div className="pt-[53px] flex w-full h-[calc(100vh-53px)]">
+        {/* Right zone 80% — flex column so search bar can be a fixed footer */}
+        <section className="flex-1 flex flex-col relative min-w-0">
+          <main className="flex-1 p-6 overflow-y-auto relative">
           {!selectedEntry ? (
             <p className="text-sm text-muted-foreground">
               Sélectionne une entrée dans la colonne de gauche.
@@ -720,23 +721,23 @@ const Test = () => {
             </div>
           )}
 
-          {/* Sticky search bar pinned to bottom of right panel */}
+          </main>
+
+          {/* Search bar pinned to bottom of right column (outside scrollable main) */}
           {activeVideo && activeEmbed && (
-            <div className="sticky bottom-0 left-0 right-0 z-[85] -mx-6 -mb-6 mt-6 bg-background/95 backdrop-blur-sm border-t border-border">
-              <div className="relative h-[68px]">
-                <PanelSearchBar
-                  iconVariant="black"
-                  noToolbarOffset
-                  onSearch={(params) => {
-                    const sp = new URLSearchParams(params);
-                    navigate(`/search?${sp.toString()}`);
-                  }}
-                  onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
-                />
-              </div>
+            <div className="shrink-0 relative h-[68px] bg-background/95 backdrop-blur-sm border-t border-border">
+              <PanelSearchBar
+                iconVariant="black"
+                noToolbarOffset
+                onSearch={(params) => {
+                  const sp = new URLSearchParams(params);
+                  navigate(`/search?${sp.toString()}`);
+                }}
+                onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
+              />
             </div>
           )}
-        </main>
+        </section>
       </div>
     </div>
   );
