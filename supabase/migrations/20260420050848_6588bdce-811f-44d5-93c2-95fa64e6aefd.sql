@@ -1,0 +1,1 @@
+ALTER TABLE public.badges ADD COLUMN is_active_on_front boolean DEFAULT NULL;
