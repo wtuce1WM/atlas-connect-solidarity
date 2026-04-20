@@ -2466,6 +2466,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          show_in_menu: boolean
           sort_order: number
           updated_at: string
         }
@@ -2473,6 +2474,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          show_in_menu?: boolean
           sort_order?: number
           updated_at?: string
         }
@@ -2480,6 +2482,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          show_in_menu?: boolean
           sort_order?: number
           updated_at?: string
         }
