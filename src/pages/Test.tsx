@@ -676,30 +676,30 @@ const Test = () => {
                         const thumb = v.thumbnail_url || deriveThumbnail(v.url);
                         const isFile = /\.(mp4|webm|mov)(\?|$)/i.test(v.url);
                         return (
-                          <div
-                            key={v.id}
-                            onClick={handlePick}
-                            className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted cursor-pointer"
-                          >
-                            {thumb ? (
-                              <img src={thumb} alt={v.business_name} className="w-full h-full object-cover" loading="lazy" />
-                            ) : isFile ? (
-                              <video src={`${v.url}#t=0.5`} className="w-full h-full object-cover" preload="metadata" muted playsInline />
-                            ) : (
-                              <div className="w-full h-full bg-muted" />
-                            )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <div className="w-8 h-8 rounded-full bg-black/50 flex items-center justify-center">
-                                <div className="w-0 h-0 border-y-[6px] border-y-transparent border-l-[9px] border-l-white ml-0.5" />
-                              </div>
-                            </div>
-                            {v.business_name && (
-                              <div className="absolute bottom-0 left-0 right-0 p-1.5">
-                                <p className="text-[10px] font-medium text-white line-clamp-1">{v.business_name}</p>
-                              </div>
-                            )}
+                      <div
+                        key={v.id}
+                        onClick={handlePick}
+                        className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted cursor-pointer"
+                      >
+                        {thumb ? (
+                          <img src={thumb} alt={v.business_name} className="w-full h-full object-cover" loading="lazy" />
+                        ) : isFile ? (
+                          <video src={`${v.url}#t=0.5`} className="w-full h-full object-cover" preload="metadata" muted playsInline autoPlay={idx === 0} />
+                        ) : (
+                          <div className="w-full h-full bg-muted" />
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-full bg-black/50 flex items-center justify-center">
+                            <div className="w-0 h-0 border-y-[6px] border-y-transparent border-l-[9px] border-l-white ml-0.5" />
                           </div>
+                        </div>
+                        {v.business_name && (
+                          <div className="absolute bottom-0 left-0 right-0 p-1.5">
+                            <p className="text-[10px] font-medium text-white line-clamp-1">{v.business_name}</p>
+                          </div>
+                        )}
+                      </div>
                         );
                       }
                       return (
