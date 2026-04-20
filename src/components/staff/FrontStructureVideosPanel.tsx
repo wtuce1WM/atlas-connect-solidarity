@@ -7,6 +7,7 @@ import VideoLightbox from "./VideoLightbox";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import {
   DndContext,
@@ -41,6 +42,7 @@ interface FsEntry {
   id: string;
   name: string;
   sort_order: number;
+  show_in_menu: boolean;
   subcategoryIds: Set<string>;
 }
 
@@ -122,12 +124,12 @@ const FrontStructureVideosPanel = () => {
     setLoading(true);
 
     const [fsRes, fssRes, citiesRes] = await Promise.all([
-      supabase.from("front_structure").select("id, name, sort_order").order("sort_order"),
+      supabase.from("front_structure").select("id, name, sort_order, show_in_menu" as any).order("sort_order"),
       supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
       supabase.from("cities").select("name_fr, sort_order").eq("is_active", true).order("sort_order"),
     ]);
 
-    const fsData = fsRes.data || [];
+    const fsData = (fsRes.data || []) as any[];
     const fssData = fssRes.data || [];
     setCities((citiesRes.data || []).map(c => ({ name: c.name_fr, sort_order: c.sort_order ?? 0 })));
 
@@ -137,10 +139,11 @@ const FrontStructureVideosPanel = () => {
       fsSubMap.get(link.front_structure_id)!.add(link.subcategory_id);
     }
 
-    const entries: FsEntry[] = fsData.map(fs => ({
+    const entries: FsEntry[] = fsData.map((fs: any) => ({
       id: fs.id,
       name: fs.name,
       sort_order: fs.sort_order ?? 0,
+      show_in_menu: fs.show_in_menu ?? true,
       subcategoryIds: fsSubMap.get(fs.id) || new Set(),
     }));
     setFsEntries(entries);
@@ -251,6 +254,20 @@ const FrontStructureVideosPanel = () => {
   const expandAll = () => setOpenSections(new Set(fsEntries.map(f => f.id)));
   const collapseAll = () => setOpenSections(new Set());
 
+  const toggleShowInMenu = async (fsId: string, value: boolean) => {
+    setFsEntries(prev => prev.map(e => e.id === fsId ? { ...e, show_in_menu: value } : e));
+    const { error } = await supabase
+      .from("front_structure")
+      .update({ show_in_menu: value } as any)
+      .eq("id", fsId);
+    if (error) {
+      toast.error("Erreur lors de la sauvegarde");
+      setFsEntries(prev => prev.map(e => e.id === fsId ? { ...e, show_in_menu: !value } : e));
+    } else {
+      toast.success(value ? "Visible dans le menu" : "Masqué du menu");
+    }
+  };
+
   const handleDragEnd = (fsId: string) => (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -350,11 +367,20 @@ const FrontStructureVideosPanel = () => {
         const isOpen = openSections.has(fs.id);
         return (
           <Collapsible key={fs.id} open={isOpen} onOpenChange={() => toggleSection(fs.id)}>
-            <CollapsibleTrigger className="flex items-center gap-2 w-full py-2 px-3 rounded-lg border bg-background hover:bg-muted/50 transition-colors">
-              {isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-              <span className="font-semibold text-sm">{fs.name}</span>
-              <Badge variant="secondary" className="ml-2">{vids.length}</Badge>
-            </CollapsibleTrigger>
+            <div className="flex items-center gap-2 w-full py-2 px-3 rounded-lg border bg-background hover:bg-muted/50 transition-colors">
+              <CollapsibleTrigger className="flex items-center gap-2 flex-1 text-left">
+                {isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+                <span className="font-semibold text-sm">{fs.name}</span>
+                <Badge variant="secondary" className="ml-2">{vids.length}</Badge>
+              </CollapsibleTrigger>
+              <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer" onClick={(e) => e.stopPropagation()}>
+                <span>Montrer dans le menu</span>
+                <Switch
+                  checked={fs.show_in_menu}
+                  onCheckedChange={(checked) => toggleShowInMenu(fs.id, checked)}
+                />
+              </label>
+            </div>
             <CollapsibleContent className="pt-3 pb-1">
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd(fs.id)}>
                 <SortableContext items={vids.map(v => v.id)} strategy={rectSortingStrategy}>

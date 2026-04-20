@@ -93,13 +93,15 @@ const Test = () => {
       });
 
       setEntries(
-        (entriesRes.data || []).map((e: any) => ({
-          id: e.id,
-          name: e.name,
-          sort_order: e.sort_order,
-          subcategory_ids: linksByEntry[e.id] || [],
-          service_ids: svcLinksByEntry[e.id] || [],
-        }))
+        (entriesRes.data || [])
+          .filter((e: any) => e.show_in_menu !== false)
+          .map((e: any) => ({
+            id: e.id,
+            name: e.name,
+            sort_order: e.sort_order,
+            subcategory_ids: linksByEntry[e.id] || [],
+            service_ids: svcLinksByEntry[e.id] || [],
+          }))
       );
     };
     load();

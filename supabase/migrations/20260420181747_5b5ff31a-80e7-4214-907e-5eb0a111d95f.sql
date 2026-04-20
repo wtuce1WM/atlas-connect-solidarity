@@ -1,0 +1,1 @@
+ALTER TABLE public.front_structure ADD COLUMN IF NOT EXISTS show_in_menu boolean NOT NULL DEFAULT true;
