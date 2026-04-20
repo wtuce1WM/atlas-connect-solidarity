@@ -476,8 +476,43 @@ const Test = () => {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [hoveredEntryId, setHoveredEntryId] = useState<string | null>(null);
-  const [otherViewMode, setOtherViewMode] = useState<"details" | "videos">("videos");
+  const [otherViewMode, setOtherViewMode] = useState<"details" | "videos" | "guide">("videos");
   const [currentTime, setCurrentTime] = useState(0);
+  const [guideVideos, setGuideVideos] = useState<VideoItem[]>([]);
+  const [loadingGuide, setLoadingGuide] = useState(false);
+
+  // Load Tarik Belasri's visible YouTube shorts when "guide" mode is selected
+  useEffect(() => {
+    if (otherViewMode !== "guide") return;
+    let cancelled = false;
+    (async () => {
+      setLoadingGuide(true);
+      const { data: biz } = await supabase
+        .from("businesses")
+        .select("id, name, images, logo_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+        .ilike("name", "Tarik Belasri")
+        .maybeSingle();
+      if (!biz) { if (!cancelled) { setGuideVideos([]); setLoadingGuide(false); } return; }
+      const { data: yvs } = await supabase
+        .from("business_youtube_videos")
+        .select("id, video_id, title, thumbnail, is_visible, is_short, sort_order, published_at")
+        .eq("business_id", biz.id)
+        .eq("is_short", true)
+        .eq("is_visible", true)
+        .order("sort_order", { ascending: true });
+      if (cancelled) return;
+      const items: VideoItem[] = (yvs || []).map((y: any) => ({
+        id: y.id,
+        url: `https://www.youtube.com/shorts/${y.video_id}`,
+        business_name: y.title || biz.name,
+        thumbnail_url: y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/hqdefault.jpg`,
+        business: biz as SearchResultBusiness,
+      }));
+      setGuideVideos(items);
+      setLoadingGuide(false);
+    })();
+    return () => { cancelled = true; };
+  }, [otherViewMode]);
 
 
   // Reset currentTime when active video changes
@@ -632,14 +667,17 @@ const Test = () => {
             <p className="text-sm text-muted-foreground">
               Aucune vidéo trouvée pour « {selectedEntry.name} » à {city}.
             </p>
-          ) : (
+          ) : (() => {
+            const isGuide = otherViewMode === "guide";
+            const displayList = isGuide ? guideVideos : otherVideos;
+            const isThumbMode = otherViewMode === "videos" || isGuide;
+            return (
             <div className="flex gap-6 items-start">
-              {/* Other videos — full width grid */}
-              {otherVideos.length > 0 && (
+              {(displayList.length > 0 || isGuide) && (
                 <div className="w-full min-w-0">
                   <div className="flex items-center justify-between mb-3 gap-3">
                     <h3 className="text-sm font-semibold text-foreground">
-                      {(selectedSubId && subcatNames[selectedSubId]) || selectedEntry.name} ({otherVideos.length})
+                      {isGuide ? "Suivez le guide" : ((selectedSubId && subcatNames[selectedSubId]) || selectedEntry.name)} ({displayList.length})
                     </h3>
                     <div className="inline-flex rounded-md border border-border overflow-hidden text-xs">
                       <button
@@ -664,15 +702,31 @@ const Test = () => {
                       >
                         Vidéos
                       </button>
+                      <button
+                        type="button"
+                        onClick={() => setOtherViewMode("guide")}
+                        className={`px-3 py-1.5 transition-colors border-l border-border ${
+                          otherViewMode === "guide"
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-background text-foreground hover:bg-muted"
+                        }`}
+                      >
+                        Suivez le guide
+                      </button>
                     </div>
                   </div>
-                  <div className={`grid gap-4 ${otherViewMode === "videos" ? (panelOpen ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-3" : "grid-cols-2 md:grid-cols-4 lg:grid-cols-6") : (panelOpen ? "grid-cols-1 md:grid-cols-2" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4")}`}>
-                    {otherVideos.map((v, idx) => {
+                  {isGuide && loadingGuide ? (
+                    <p className="text-sm text-muted-foreground">Chargement…</p>
+                  ) : isGuide && displayList.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Aucune vidéo disponible.</p>
+                  ) : (
+                  <div className={`grid gap-4 ${isThumbMode ? (panelOpen ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-3" : "grid-cols-2 md:grid-cols-4 lg:grid-cols-6") : (panelOpen ? "grid-cols-1 md:grid-cols-2" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4")}`}>
+                    {displayList.map((v, idx) => {
                       const handlePick = () => {
                         setActiveVideoId(v.id);
                         setPanelOpen(true);
                       };
-                      if (otherViewMode === "videos") {
+                      if (isThumbMode) {
                         const thumb = v.thumbnail_url || deriveThumbnail(v.url);
                         const isFile = /\.(mp4|webm|mov)(\?|$)/i.test(v.url);
                         return (
@@ -721,10 +775,12 @@ const Test = () => {
                       );
                     })}
                   </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
+            );
+          })()}
         </main>
       </div>
 
