@@ -731,6 +731,7 @@ const Test = () => {
                       onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
                     />
                   )}
+                </div>
               )}
 
             </div>
