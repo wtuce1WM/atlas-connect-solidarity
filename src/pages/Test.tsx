@@ -667,14 +667,17 @@ const Test = () => {
             <p className="text-sm text-muted-foreground">
               Aucune vidéo trouvée pour « {selectedEntry.name} » à {city}.
             </p>
-          ) : (
+          ) : (() => {
+            const isGuide = otherViewMode === "guide";
+            const displayList = isGuide ? guideVideos : otherVideos;
+            const isThumbMode = otherViewMode === "videos" || isGuide;
+            return (
             <div className="flex gap-6 items-start">
-              {/* Other videos — full width grid */}
-              {otherVideos.length > 0 && (
+              {(displayList.length > 0 || isGuide) && (
                 <div className="w-full min-w-0">
                   <div className="flex items-center justify-between mb-3 gap-3">
                     <h3 className="text-sm font-semibold text-foreground">
-                      {(selectedSubId && subcatNames[selectedSubId]) || selectedEntry.name} ({otherVideos.length})
+                      {isGuide ? "Suivez le guide" : ((selectedSubId && subcatNames[selectedSubId]) || selectedEntry.name)} ({displayList.length})
                     </h3>
                     <div className="inline-flex rounded-md border border-border overflow-hidden text-xs">
                       <button
@@ -712,13 +715,18 @@ const Test = () => {
                       </button>
                     </div>
                   </div>
-                  <div className={`grid gap-4 ${otherViewMode === "videos" ? (panelOpen ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-3" : "grid-cols-2 md:grid-cols-4 lg:grid-cols-6") : (panelOpen ? "grid-cols-1 md:grid-cols-2" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4")}`}>
-                    {otherVideos.map((v, idx) => {
+                  {isGuide && loadingGuide ? (
+                    <p className="text-sm text-muted-foreground">Chargement…</p>
+                  ) : isGuide && displayList.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Aucune vidéo disponible.</p>
+                  ) : (
+                  <div className={`grid gap-4 ${isThumbMode ? (panelOpen ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-3" : "grid-cols-2 md:grid-cols-4 lg:grid-cols-6") : (panelOpen ? "grid-cols-1 md:grid-cols-2" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4")}`}>
+                    {displayList.map((v, idx) => {
                       const handlePick = () => {
                         setActiveVideoId(v.id);
                         setPanelOpen(true);
                       };
-                      if (otherViewMode === "videos") {
+                      if (isThumbMode) {
                         const thumb = v.thumbnail_url || deriveThumbnail(v.url);
                         const isFile = /\.(mp4|webm|mov)(\?|$)/i.test(v.url);
                         return (
