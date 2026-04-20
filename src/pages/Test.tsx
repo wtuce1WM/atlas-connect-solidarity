@@ -720,7 +720,7 @@ const Test = () => {
                     <p className="text-sm font-medium text-foreground">{activeVideo.business_name}</p>
                   </div>
 
-                  <PanelSearchBar
+                  {!isLandscape && (
                     iconVariant="black"
                     noToolbarOffset
                     onSearch={(params) => {
