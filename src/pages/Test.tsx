@@ -619,7 +619,7 @@ const Test = () => {
                 <div className={isLandscape ? "w-full order-2" : "w-1/2 min-w-0"}>
                   <div className="flex items-center justify-between mb-3 gap-3">
                     <h3 className="text-sm font-semibold text-foreground">
-                      {selectedEntry.name} ({otherVideos.length})
+                      {(selectedSubId && subcatNames[selectedSubId]) || selectedEntry.name} ({otherVideos.length})
                     </h3>
                     <div className="inline-flex rounded-md border border-border overflow-hidden text-xs">
                       <button
