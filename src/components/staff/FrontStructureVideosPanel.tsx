@@ -124,12 +124,12 @@ const FrontStructureVideosPanel = () => {
     setLoading(true);
 
     const [fsRes, fssRes, citiesRes] = await Promise.all([
-      supabase.from("front_structure").select("id, name, sort_order").order("sort_order"),
+      supabase.from("front_structure").select("id, name, sort_order, show_in_menu" as any).order("sort_order"),
       supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
       supabase.from("cities").select("name_fr, sort_order").eq("is_active", true).order("sort_order"),
     ]);
 
-    const fsData = fsRes.data || [];
+    const fsData = (fsRes.data || []) as any[];
     const fssData = fssRes.data || [];
     setCities((citiesRes.data || []).map(c => ({ name: c.name_fr, sort_order: c.sort_order ?? 0 })));
 
@@ -139,10 +139,11 @@ const FrontStructureVideosPanel = () => {
       fsSubMap.get(link.front_structure_id)!.add(link.subcategory_id);
     }
 
-    const entries: FsEntry[] = fsData.map(fs => ({
+    const entries: FsEntry[] = fsData.map((fs: any) => ({
       id: fs.id,
       name: fs.name,
       sort_order: fs.sort_order ?? 0,
+      show_in_menu: fs.show_in_menu ?? true,
       subcategoryIds: fsSubMap.get(fs.id) || new Set(),
     }));
     setFsEntries(entries);
