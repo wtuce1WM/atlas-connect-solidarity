@@ -321,10 +321,10 @@ const Test = () => {
 
         // Keep businesses that match the current menu selection,
         // but display their own global #1 internal video when available.
-        const displayIdsInOrder = [...new Set(allDocs.map((d: any) => d.linked_business_id || d.poi_id || d.business_id))];
+        const displayIdsInOrder = [...new Set(allDocs.map((d: any) => d.linked_business_id || d.business_id))];
         const fallbackByDisplay = new Map<string, any>();
         for (const d of allDocs) {
-          const displayId = d.linked_business_id || d.poi_id || d.business_id;
+          const displayId = d.linked_business_id || d.business_id;
           if (!fallbackByDisplay.has(displayId)) fallbackByDisplay.set(displayId, d);
         }
 
@@ -350,10 +350,10 @@ const Test = () => {
           .map((displayId) => ownTopByDisplay.get(displayId) || fallbackByDisplay.get(displayId))
           .filter(Boolean);
 
-        // Resolve display business: prefer linked_business_id, then poi_id, then business_id (parent)
+        // Resolve display business: prefer linked_business_id, then business_id (parent)
         const displayBizIds = [
           ...new Set(
-            internal.map((d: any) => d.linked_business_id || d.poi_id || d.business_id)
+            internal.map((d: any) => d.linked_business_id || d.business_id)
           ),
         ];
         const bizMap = new Map<string, SearchResultBusiness>();
@@ -370,7 +370,7 @@ const Test = () => {
 
         setVideos(
           internal.map((d: any) => {
-            const displayId = d.linked_business_id || d.poi_id || d.business_id;
+            const displayId = d.linked_business_id || d.business_id;
             const biz = bizMap.get(displayId) || null;
             return {
               id: d.id,
@@ -385,10 +385,10 @@ const Test = () => {
         return;
       }
 
-      // Resolve display business: prefer linked_business_id, then poi_id, then business_id (parent)
+      // Resolve display business: prefer linked_business_id, then business_id (parent)
       const displayBizIds = [
         ...new Set(
-          allDocs.map((d: any) => d.linked_business_id || d.poi_id || d.business_id)
+          allDocs.map((d: any) => d.linked_business_id || d.business_id)
         ),
       ];
       const bizMap = new Map<string, SearchResultBusiness>();
@@ -405,7 +405,7 @@ const Test = () => {
 
       setVideos(
         allDocs.map((d: any) => {
-          const displayId = d.linked_business_id || d.poi_id || d.business_id;
+          const displayId = d.linked_business_id || d.business_id;
           const biz = bizMap.get(displayId) || null;
           return {
             id: d.id,
