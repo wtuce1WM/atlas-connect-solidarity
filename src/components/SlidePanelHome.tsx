@@ -53,7 +53,7 @@ const SlidePanelHome = ({
   }
 
   return createPortal(
-    <div className="fixed inset-y-0 right-0 w-1/2 z-[60]"
+    <div className="fixed inset-y-0 right-0 w-full lg:w-1/2 z-[60]"
       onClick={(e) => {
         if (panelRef.current && !panelRef.current.contains(e.target as Node)) onClose();
       }}
