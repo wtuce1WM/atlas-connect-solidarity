@@ -207,11 +207,10 @@ const Test = () => {
         }
         const { data: links } = await supabase
           .from("generic_video_destinations" as any)
-          .select("generic_video_id, sort_order")
-          .eq("destination_id", destId)
-          .order("sort_order", { ascending: true });
-        const vidIds = ((links as any[]) || []).map((l) => l.generic_video_id);
-        if (vidIds.length === 0) {
+          .select("generic_video_id")
+          .eq("destination_id", destId);
+        const linkedIds = new Set(((links as any[]) || []).map((l) => l.generic_video_id));
+        if (linkedIds.size === 0) {
           setVideos([]);
           setLoadingVideos(false);
           return;
@@ -219,12 +218,13 @@ const Test = () => {
         const [vidsRes, bizLinksRes] = await Promise.all([
           supabase
             .from("generic_videos" as any)
-            .select("id, url, name, thumbnail_url, instagram_account, tiktok_account, youtube_account")
-            .in("id", vidIds),
+            .select("id, url, name, thumbnail_url, instagram_account, tiktok_account, youtube_account, sort_order")
+            .in("id", [...linkedIds])
+            .order("sort_order", { ascending: true }),
           supabase
             .from("generic_video_businesses" as any)
             .select("generic_video_id, business_id")
-            .in("generic_video_id", vidIds),
+            .in("generic_video_id", [...linkedIds]),
         ]);
         const firstBizByVid: Record<string, string> = {};
         (((bizLinksRes as any).data as any[]) || []).forEach((l: any) => {
@@ -240,6 +240,7 @@ const Test = () => {
           (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
         }
         const vids = ((vidsRes as any).data as any[]) || [];
+        const vidIds = vids.map((v: any) => v.id);
         const ordered = vidIds
           .map((vid) => {
             const v = vids.find((x: any) => x.id === vid);
