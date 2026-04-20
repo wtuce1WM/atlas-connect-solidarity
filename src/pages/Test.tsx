@@ -311,10 +311,7 @@ const Test = () => {
           if (data.length < PAGE) break;
           offset += PAGE;
         }
-        const { isInternalVideoUrl } = await import("@/lib/videoSourceFilter");
-        allDocs = allDocs
-          .filter((d: any) => isInternalVideoUrl(d.url))
-          .sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+        allDocs = allDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
         // For each display business, keep the first video (in sort_order) that is
         // actually linked to the selected subcategory — do NOT substitute with the
