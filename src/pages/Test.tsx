@@ -329,15 +329,32 @@ const Test = () => {
           .sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
       }
 
-      // Keep only the #1 video of each business within the current selection
-      // (allDocs is already filtered + sorted by sort_order asc).
-      const seenBiz = new Set<string>();
+      // Keep only the #1 video of each business within the current selection.
+      // Priority: prefer the business's OWN video (business_id === displayId) over
+      // videos owned by third parties that merely link to this business.
+      // allDocs is already sorted by sort_order asc.
+      const ownByDisplay = new Map<string, any>();
+      const linkedByDisplay = new Map<string, any>();
+      for (const d of allDocs) {
+        const displayId = d.linked_business_id || d.poi_id || d.business_id;
+        const isOwn = d.business_id === displayId;
+        if (isOwn) {
+          if (!ownByDisplay.has(displayId)) ownByDisplay.set(displayId, d);
+        } else {
+          if (!linkedByDisplay.has(displayId)) linkedByDisplay.set(displayId, d);
+        }
+      }
       const internal: any[] = [];
+      const seenBiz = new Set<string>();
+      // Walk allDocs in sort_order to preserve global ordering of results,
+      // but for each displayId pick the "own" video if it exists.
       for (const d of allDocs) {
         const displayId = d.linked_business_id || d.poi_id || d.business_id;
         if (seenBiz.has(displayId)) continue;
+        const chosen = ownByDisplay.get(displayId) || linkedByDisplay.get(displayId);
+        if (!chosen) continue;
         seenBiz.add(displayId);
-        internal.push(d);
+        internal.push(chosen);
       }
 
 
