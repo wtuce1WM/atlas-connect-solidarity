@@ -219,8 +219,15 @@ const FrontStructureVideosPanel = () => {
           return subId && fs.subcategoryIds.has(subId);
         })
         .sort((a, b) => a.sort_order - b.sort_order);
-      if (matching.length > 0) {
-        result.set(fs.id, matching);
+      const seenBiz = new Set<string>();
+      const deduped: VideoItem[] = [];
+      for (const v of matching) {
+        if (seenBiz.has(v.business_id)) continue;
+        seenBiz.add(v.business_id);
+        deduped.push(v);
+      }
+      if (deduped.length > 0) {
+        result.set(fs.id, deduped);
       }
     }
     return result;
