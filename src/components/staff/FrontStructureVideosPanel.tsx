@@ -254,6 +254,20 @@ const FrontStructureVideosPanel = () => {
   const expandAll = () => setOpenSections(new Set(fsEntries.map(f => f.id)));
   const collapseAll = () => setOpenSections(new Set());
 
+  const toggleShowInMenu = async (fsId: string, value: boolean) => {
+    setFsEntries(prev => prev.map(e => e.id === fsId ? { ...e, show_in_menu: value } : e));
+    const { error } = await supabase
+      .from("front_structure")
+      .update({ show_in_menu: value } as any)
+      .eq("id", fsId);
+    if (error) {
+      toast.error("Erreur lors de la sauvegarde");
+      setFsEntries(prev => prev.map(e => e.id === fsId ? { ...e, show_in_menu: !value } : e));
+    } else {
+      toast.success(value ? "Visible dans le menu" : "Masqué du menu");
+    }
+  };
+
   const handleDragEnd = (fsId: string) => (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
