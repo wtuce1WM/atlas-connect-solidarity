@@ -191,6 +191,7 @@ const FrontStructureVideosPanel = () => {
       url: d.url,
       name: d.name,
       thumbnail_url: d.thumbnail_url,
+      business_id: d.business_id,
       business_name: bizMap.get(d.business_id) || "—",
       subcategory_name: d.subcategory_id ? (scNameMap.get(d.subcategory_id) || "—") : "—",
       city: d.city || null,
