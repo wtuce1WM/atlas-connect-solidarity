@@ -301,7 +301,7 @@ const Test = () => {
         }
         allDocs.sort((a: any, b: any) => (a.front_sort_order ?? 0) - (b.front_sort_order ?? 0));
       } else {
-        const subIds = selectedEntry.subcategory_ids;
+        const subIds = selectedSubId ? [selectedSubId] : selectedEntry.subcategory_ids;
         if (subIds.length === 0) {
           setVideos([]);
           setLoadingVideos(false);
