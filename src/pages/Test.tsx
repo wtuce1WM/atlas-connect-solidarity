@@ -720,15 +720,17 @@ const Test = () => {
                     <p className="text-sm font-medium text-foreground">{activeVideo.business_name}</p>
                   </div>
 
-                  <PanelSearchBar
-                    iconVariant="black"
-                    noToolbarOffset
-                    onSearch={(params) => {
-                      const sp = new URLSearchParams(params);
-                      navigate(`/search?${sp.toString()}`);
-                    }}
-                    onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
-                  />
+                  {!isLandscape && (
+                    <PanelSearchBar
+                      iconVariant="black"
+                      noToolbarOffset
+                      onSearch={(params) => {
+                        const sp = new URLSearchParams(params);
+                        navigate(`/search?${sp.toString()}`);
+                      }}
+                      onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
+                    />
+                  )}
                 </div>
               )}
 
