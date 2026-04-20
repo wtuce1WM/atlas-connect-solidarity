@@ -206,6 +206,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           id: string
+          is_active_on_front: boolean | null
           name_ar: string | null
           name_en: string | null
           name_fr: string
@@ -218,6 +219,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_active_on_front?: boolean | null
           name_ar?: string | null
           name_en?: string | null
           name_fr: string
@@ -230,6 +232,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_active_on_front?: boolean | null
           name_ar?: string | null
           name_en?: string | null
           name_fr?: string
