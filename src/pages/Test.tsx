@@ -473,6 +473,7 @@ const Test = () => {
   );
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [hoveredEntryId, setHoveredEntryId] = useState<string | null>(null);
   const [otherViewMode, setOtherViewMode] = useState<"details" | "videos">("videos");
   const [currentTime, setCurrentTime] = useState(0);
 
