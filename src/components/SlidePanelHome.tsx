@@ -60,7 +60,7 @@ const SlidePanelHome = ({
     >
       <div
         ref={panelRef}
-        className="absolute right-0 top-0 h-full w-1/2 bg-background border-l border-border shadow-2xl animate-slide-in-right overflow-y-auto"
+        className="absolute right-0 top-0 h-full w-full bg-background border-l border-border shadow-2xl animate-slide-in-right overflow-y-auto"
       >
         <button
           type="button"
