@@ -407,8 +407,10 @@ const Test = () => {
     setActiveVideoId(null);
   }, [selectedEntryId, city]);
 
+  const [panelOpen, setPanelOpen] = useState(false);
+
   const activeVideo = useMemo(
-    () => videos.find((v) => v.id === activeVideoId) || videos[0] || null,
+    () => videos.find((v) => v.id === activeVideoId) || null,
     [videos, activeVideoId]
   );
   const activeEmbed = useMemo(() => {
