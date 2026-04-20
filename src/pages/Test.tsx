@@ -699,6 +699,17 @@ const Test = () => {
                       >
                         Vidéos
                       </button>
+                      <button
+                        type="button"
+                        onClick={() => setOtherViewMode("guide")}
+                        className={`px-3 py-1.5 transition-colors border-l border-border ${
+                          otherViewMode === "guide"
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-background text-foreground hover:bg-muted"
+                        }`}
+                      >
+                        Suivez le guide
+                      </button>
                     </div>
                   </div>
                   <div className={`grid gap-4 ${otherViewMode === "videos" ? (panelOpen ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-3" : "grid-cols-2 md:grid-cols-4 lg:grid-cols-6") : (panelOpen ? "grid-cols-1 md:grid-cols-2" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4")}`}>
