@@ -42,6 +42,7 @@ interface FsEntry {
   id: string;
   name: string;
   sort_order: number;
+  show_in_menu: boolean;
   subcategoryIds: Set<string>;
 }
 
