@@ -531,6 +531,7 @@ const Test = () => {
                   onClick={() => {
                     setSelectedEntryId(e.id);
                     setSelectedSubId(null);
+                    setMenuOpen(false);
                   }}
                   className={`px-3 py-2 rounded-md text-sm cursor-pointer transition-colors ${
                     isActive && !selectedSubId
