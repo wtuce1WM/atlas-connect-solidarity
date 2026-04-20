@@ -132,11 +132,8 @@ const Test = () => {
         if (data.length < PAGE) break;
         offset += PAGE;
       }
-      const { isInternalVideoUrl } = await import("@/lib/videoSourceFilter");
       const subIdsWithVideos = new Set<string>();
-      allDocs
-        .filter((d) => isInternalVideoUrl(d.url))
-        .forEach((d) => subIdsWithVideos.add(d.subcategory_id));
+      allDocs.forEach((d) => subIdsWithVideos.add(d.subcategory_id));
 
       // Mark entries that have at least one matching subcategory
       const matchingEntryIds = new Set<string>();
