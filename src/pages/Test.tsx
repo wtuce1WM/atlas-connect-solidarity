@@ -612,7 +612,7 @@ const Test = () => {
                       </button>
                     </div>
                   </div>
-                  <div className={`grid gap-4 ${otherViewMode === "videos" ? (panelOpen ? "grid-cols-3" : "grid-cols-6") : (panelOpen ? "grid-cols-1 md:grid-cols-2" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4")}`}>
+                  <div className={`grid gap-4 ${otherViewMode === "videos" ? (panelOpen ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-3" : "grid-cols-2 md:grid-cols-4 lg:grid-cols-6") : (panelOpen ? "grid-cols-1 md:grid-cols-2" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4")}`}>
                     {otherVideos.map((v, idx) => {
                       const handlePick = () => {
                         setActiveVideoId(v.id);
