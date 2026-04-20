@@ -714,15 +714,23 @@ const Test = () => {
                     )}
                   </div>
                   <p className="text-sm font-medium text-foreground">{activeVideo.business_name}</p>
+                </div>
+              )}
 
-                  <PanelSearchBar
-                    iconVariant="black"
-                    onSearch={(params) => {
-                      const sp = new URLSearchParams(params);
-                      navigate(`/search?${sp.toString()}`);
-                    }}
-                    onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
-                  />
+              {/* Sticky search bar pinned to bottom of right panel */}
+              {activeVideo && activeEmbed && (
+                <div className="sticky bottom-0 left-0 right-0 z-[85] -mx-4 lg:-mx-6 bg-background/95 backdrop-blur-sm border-t border-border">
+                  <div className="relative h-[68px]">
+                    <PanelSearchBar
+                      iconVariant="black"
+                      noToolbarOffset
+                      onSearch={(params) => {
+                        const sp = new URLSearchParams(params);
+                        navigate(`/search?${sp.toString()}`);
+                      }}
+                      onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
+                    />
+                  </div>
                 </div>
               )}
             </div>
