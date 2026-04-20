@@ -476,8 +476,43 @@ const Test = () => {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [hoveredEntryId, setHoveredEntryId] = useState<string | null>(null);
-  const [otherViewMode, setOtherViewMode] = useState<"details" | "videos">("videos");
+  const [otherViewMode, setOtherViewMode] = useState<"details" | "videos" | "guide">("videos");
   const [currentTime, setCurrentTime] = useState(0);
+  const [guideVideos, setGuideVideos] = useState<VideoItem[]>([]);
+  const [loadingGuide, setLoadingGuide] = useState(false);
+
+  // Load Tarik Belasri's visible YouTube shorts when "guide" mode is selected
+  useEffect(() => {
+    if (otherViewMode !== "guide") return;
+    let cancelled = false;
+    (async () => {
+      setLoadingGuide(true);
+      const { data: biz } = await supabase
+        .from("businesses")
+        .select("id, name, images, logo_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+        .ilike("name", "Tarik Belasri")
+        .maybeSingle();
+      if (!biz) { if (!cancelled) { setGuideVideos([]); setLoadingGuide(false); } return; }
+      const { data: yvs } = await supabase
+        .from("business_youtube_videos")
+        .select("id, video_id, title, thumbnail, is_visible, is_short, sort_order, published_at")
+        .eq("business_id", biz.id)
+        .eq("is_short", true)
+        .eq("is_visible", true)
+        .order("sort_order", { ascending: true });
+      if (cancelled) return;
+      const items: VideoItem[] = (yvs || []).map((y: any) => ({
+        id: y.id,
+        url: `https://www.youtube.com/shorts/${y.video_id}`,
+        business_name: y.title || biz.name,
+        thumbnail_url: y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/hqdefault.jpg`,
+        business: biz as SearchResultBusiness,
+      }));
+      setGuideVideos(items);
+      setLoadingGuide(false);
+    })();
+    return () => { cancelled = true; };
+  }, [otherViewMode]);
 
 
   // Reset currentTime when active video changes
