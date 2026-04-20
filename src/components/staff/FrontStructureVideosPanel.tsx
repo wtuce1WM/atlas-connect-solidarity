@@ -29,6 +29,7 @@ interface VideoItem {
   url: string;
   name: string | null;
   thumbnail_url: string | null;
+  business_id: string;
   business_name: string;
   subcategory_name: string;
   city: string | null;
@@ -190,6 +191,7 @@ const FrontStructureVideosPanel = () => {
       url: d.url,
       name: d.name,
       thumbnail_url: d.thumbnail_url,
+      business_id: d.business_id,
       business_name: bizMap.get(d.business_id) || "—",
       subcategory_name: d.subcategory_id ? (scNameMap.get(d.subcategory_id) || "—") : "—",
       city: d.city || null,
@@ -217,8 +219,15 @@ const FrontStructureVideosPanel = () => {
           return subId && fs.subcategoryIds.has(subId);
         })
         .sort((a, b) => a.sort_order - b.sort_order);
-      if (matching.length > 0) {
-        result.set(fs.id, matching);
+      const seenBiz = new Set<string>();
+      const deduped: VideoItem[] = [];
+      for (const v of matching) {
+        if (seenBiz.has(v.business_id)) continue;
+        seenBiz.add(v.business_id);
+        deduped.push(v);
+      }
+      if (deduped.length > 0) {
+        result.set(fs.id, deduped);
       }
     }
     return result;

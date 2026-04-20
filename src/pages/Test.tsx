@@ -326,7 +326,15 @@ const Test = () => {
           .sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
       }
 
-      const internal = allDocs;
+      // Keep only 1 video per display business (the first in sort order, already sorted above)
+      const seenBiz = new Set<string>();
+      const internal: any[] = [];
+      for (const d of allDocs) {
+        const displayId = d.linked_business_id || d.poi_id || d.business_id;
+        if (seenBiz.has(displayId)) continue;
+        seenBiz.add(displayId);
+        internal.push(d);
+      }
 
       // Resolve display business: prefer linked_business_id, then poi_id, then business_id (parent)
       const displayBizIds = [
