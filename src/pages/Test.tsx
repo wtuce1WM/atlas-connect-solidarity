@@ -155,6 +155,7 @@ const Test = () => {
         }
       });
       setEntriesWithVideos(matchingEntryIds);
+      setSubsWithVideos(subIdsWithVideos);
       setLoading(false);
     };
     if (entries.length > 0) load();
