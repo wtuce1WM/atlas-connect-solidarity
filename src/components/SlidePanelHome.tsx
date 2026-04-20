@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { X } from "lucide-react";
+import { X, ChevronUp, ChevronDown } from "lucide-react";
 import { createPortal } from "react-dom";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import PanelSearchBar from "@/components/PanelSearchBar";
