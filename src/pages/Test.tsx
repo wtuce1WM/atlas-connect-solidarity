@@ -514,7 +514,9 @@ const Test = () => {
         <ul className="space-y-1">
           {visibleEntries.map((e) => {
             const isActive = e.id === selectedEntryId;
-            const children = isActive
+            const isHovered = e.id === hoveredEntryId;
+            const showChildren = isActive || isHovered;
+            const children = showChildren
               ? [
                   ...e.subcategory_ids
                     .filter((id) => subsWithVideos.has(id))
@@ -526,7 +528,11 @@ const Test = () => {
                 ]
               : [];
             return (
-              <li key={e.id}>
+              <li
+                key={e.id}
+                onMouseEnter={() => setHoveredEntryId(e.id)}
+                onMouseLeave={() => setHoveredEntryId((prev) => (prev === e.id ? null : prev))}
+              >
                 <div
                   onClick={() => {
                     setSelectedEntryId(e.id);
@@ -552,7 +558,11 @@ const Test = () => {
                           key={`${c.type}-${c.id}`}
                           onClick={(ev) => {
                             ev.stopPropagation();
-                            if (c.type === "sub") setSelectedSubId(c.id);
+                            if (c.type === "sub") {
+                              setSelectedEntryId(e.id);
+                              setSelectedSubId(c.id);
+                              setMenuOpen(false);
+                            }
                           }}
                           className={`px-2 py-1 text-xs rounded transition-colors ${
                             isSubActive
