@@ -437,7 +437,7 @@ const Test = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [otherViewMode, setOtherViewMode] = useState<"details" | "videos">("videos");
   const [currentTime, setCurrentTime] = useState(0);
-  const [panelOpen, setPanelOpen] = useState(false);
+
 
   // Reset currentTime when active video changes
   useEffect(() => {
