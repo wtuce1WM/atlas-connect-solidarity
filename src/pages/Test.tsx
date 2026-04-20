@@ -448,10 +448,12 @@ const Test = () => {
   }, [selectedEntry, selectedSubId, city, subcatNames, videos.length]);
 
   const [panelOpen, setPanelOpen] = useState(false);
+  const [guideVideos, setGuideVideos] = useState<VideoItem[]>([]);
+  const [loadingGuide, setLoadingGuide] = useState(false);
 
   const activeVideo = useMemo(
-    () => videos.find((v) => v.id === activeVideoId) || null,
-    [videos, activeVideoId]
+    () => [...videos, ...guideVideos].find((v) => v.id === activeVideoId) || null,
+    [videos, guideVideos, activeVideoId]
   );
   const activeEmbed = useMemo(() => {
     if (!activeVideo) return null;
@@ -478,8 +480,6 @@ const Test = () => {
   const [hoveredEntryId, setHoveredEntryId] = useState<string | null>(null);
   const [otherViewMode, setOtherViewMode] = useState<"details" | "videos" | "guide">("videos");
   const [currentTime, setCurrentTime] = useState(0);
-  const [guideVideos, setGuideVideos] = useState<VideoItem[]>([]);
-  const [loadingGuide, setLoadingGuide] = useState(false);
 
   // Load Tarik Belasri's visible YouTube shorts when "guide" mode is selected
   useEffect(() => {
