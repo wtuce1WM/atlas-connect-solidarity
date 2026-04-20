@@ -534,6 +534,7 @@ export type Database = {
           event_id: string | null
           force_external: boolean
           front_sort_order: number
+          hide_logo: boolean
           icon: string | null
           id: string
           language: string | null
@@ -563,6 +564,7 @@ export type Database = {
           event_id?: string | null
           force_external?: boolean
           front_sort_order?: number
+          hide_logo?: boolean
           icon?: string | null
           id?: string
           language?: string | null
@@ -592,6 +594,7 @@ export type Database = {
           event_id?: string | null
           force_external?: boolean
           front_sort_order?: number
+          hide_logo?: boolean
           icon?: string | null
           id?: string
           language?: string | null
