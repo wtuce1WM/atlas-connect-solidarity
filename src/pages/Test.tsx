@@ -565,9 +565,10 @@ const Test = () => {
         </div>
       )}
 
-      <div className="pt-[53px] flex w-full min-h-[calc(100vh-53px)]">
-        {/* Right zone 80% */}
-        <main className="flex-1 p-6 overflow-y-auto relative">
+      <div className="pt-[53px] flex w-full h-[calc(100vh-53px)]">
+        {/* Right zone 80% — flex column so search bar can be a fixed footer */}
+        <section className="flex-1 flex flex-col relative min-w-0">
+          <main className="flex-1 p-6 overflow-y-auto relative">
           {!selectedEntry ? (
             <p className="text-sm text-muted-foreground">
               Sélectionne une entrée dans la colonne de gauche.
