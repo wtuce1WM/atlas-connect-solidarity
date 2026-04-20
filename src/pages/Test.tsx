@@ -319,35 +319,18 @@ const Test = () => {
           .filter((d: any) => isInternalVideoUrl(d.url))
           .sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
-        // Keep businesses that match the current menu selection,
-        // but display their own global #1 internal video when available.
+        // For each display business, keep the first video (in sort_order) that is
+        // actually linked to the selected subcategory — do NOT substitute with the
+        // business's global #1 video, since it may not match the current subcategory.
         const displayIdsInOrder = [...new Set(allDocs.map((d: any) => d.linked_business_id || d.business_id))];
-        const fallbackByDisplay = new Map<string, any>();
+        const firstByDisplay = new Map<string, any>();
         for (const d of allDocs) {
           const displayId = d.linked_business_id || d.business_id;
-          if (!fallbackByDisplay.has(displayId)) fallbackByDisplay.set(displayId, d);
-        }
-
-        const ownTopByDisplay = new Map<string, any>();
-        const batch = 300;
-        for (let i = 0; i < displayIdsInOrder.length; i += batch) {
-          const ids = displayIdsInOrder.slice(i, i + batch);
-          const { data: ownDocs } = await supabase
-            .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, sort_order, poi_id, linked_business_id")
-            .eq("type", "video")
-            .in("business_id", ids)
-            .order("sort_order", { ascending: true });
-
-          (ownDocs || [])
-            .filter((d: any) => isInternalVideoUrl(d.url))
-            .forEach((d: any) => {
-              if (!ownTopByDisplay.has(d.business_id)) ownTopByDisplay.set(d.business_id, d);
-            });
+          if (!firstByDisplay.has(displayId)) firstByDisplay.set(displayId, d);
         }
 
         const internal = displayIdsInOrder
-          .map((displayId) => ownTopByDisplay.get(displayId) || fallbackByDisplay.get(displayId))
+          .map((displayId) => firstByDisplay.get(displayId))
           .filter(Boolean);
 
         // Resolve display business: prefer linked_business_id, then business_id (parent)
