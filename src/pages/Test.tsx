@@ -793,6 +793,25 @@ const Test = () => {
         isGeneric={isActiveGeneric}
         currentTime={currentTime}
         onTimeUpdate={setCurrentTime}
+        onPrev={() => {
+          const list = otherViewMode === "guide" ? guideVideos : videos;
+          const i = list.findIndex((v) => v.id === activeVideoId);
+          if (i > 0) setActiveVideoId(list[i - 1].id);
+        }}
+        onNext={() => {
+          const list = otherViewMode === "guide" ? guideVideos : videos;
+          const i = list.findIndex((v) => v.id === activeVideoId);
+          if (i >= 0 && i < list.length - 1) setActiveVideoId(list[i + 1].id);
+        }}
+        hasPrev={(() => {
+          const list = otherViewMode === "guide" ? guideVideos : videos;
+          return list.findIndex((v) => v.id === activeVideoId) > 0;
+        })()}
+        hasNext={(() => {
+          const list = otherViewMode === "guide" ? guideVideos : videos;
+          const i = list.findIndex((v) => v.id === activeVideoId);
+          return i >= 0 && i < list.length - 1;
+        })()}
       />
     </div>
   );
