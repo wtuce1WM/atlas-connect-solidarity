@@ -326,12 +326,36 @@ const Test = () => {
           .sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
       }
 
-      // Keep only 1 video per display business (the first in sort order, already sorted above)
+      // Keep only the #1 video of each business: fetch min sort_order per business
+      // across ALL its video documents (not just the current subcategory).
+      const candidateBizIds = [...new Set(allDocs.map((d: any) => d.business_id))];
+      const minSortByBiz = new Map<string, number>();
+      if (candidateBizIds.length > 0) {
+        const { isInternalVideoUrl } = await import("@/lib/videoSourceFilter");
+        const batch = 200;
+        for (let i = 0; i < candidateBizIds.length; i += batch) {
+          const chunk = candidateBizIds.slice(i, i + batch);
+          const { data: allBizVideos } = await supabase
+            .from("business_documents")
+            .select("business_id, url, sort_order")
+            .eq("type", "video")
+            .in("business_id", chunk);
+          (allBizVideos || [])
+            .filter((d: any) => isInternalVideoUrl(d.url))
+            .forEach((d: any) => {
+              const cur = minSortByBiz.get(d.business_id);
+              const so = d.sort_order ?? 0;
+              if (cur === undefined || so < cur) minSortByBiz.set(d.business_id, so);
+            });
+        }
+      }
       const seenBiz = new Set<string>();
       const internal: any[] = [];
       for (const d of allDocs) {
         const displayId = d.linked_business_id || d.poi_id || d.business_id;
         if (seenBiz.has(displayId)) continue;
+        const minSo = minSortByBiz.get(d.business_id);
+        if (minSo === undefined || (d.sort_order ?? 0) !== minSo) continue;
         seenBiz.add(displayId);
         internal.push(d);
       }
