@@ -400,12 +400,10 @@ const Test = () => {
   }, [selectedEntry, city, selectedSubId]);
 
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
-  const [isLandscape, setIsLandscape] = useState(false);
 
   // Reset active video when entry/city changes
   useEffect(() => {
     setActiveVideoId(null);
-    setIsLandscape(false);
   }, [selectedEntryId, city]);
 
   const activeVideo = useMemo(
@@ -427,18 +425,6 @@ const Test = () => {
     }
     return { ...base, embedUrl };
   }, [activeVideo]);
-
-  // Reset orientation guess when active video changes (vertical by default for embeds = Shorts)
-  useEffect(() => {
-    if (!activeEmbed) return;
-    // For non-file embeds, use isVertical hint from getVideoEmbed (Shorts)
-    if (activeEmbed.type !== "file") {
-      setIsLandscape(!activeEmbed.isVertical);
-    } else {
-      // For files, default to vertical until metadata loads
-      setIsLandscape(false);
-    }
-  }, [activeVideo?.id, activeEmbed]);
 
   const otherVideos = useMemo(
     () => (activeVideo ? videos.filter((v) => v.id !== activeVideo.id) : videos.slice(1)),
