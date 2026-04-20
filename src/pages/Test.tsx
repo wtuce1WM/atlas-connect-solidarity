@@ -567,7 +567,7 @@ const Test = () => {
 
       <div className="pt-[53px] flex w-full min-h-[calc(100vh-53px)]">
         {/* Right zone 80% */}
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className={`p-6 overflow-y-auto transition-all duration-300 ${panelOpen ? "w-1/2" : "flex-1"}`}>
           {!selectedEntry ? (
             <p className="text-sm text-muted-foreground">
               Sélectionne une entrée dans la colonne de gauche.
@@ -612,7 +612,7 @@ const Test = () => {
                       </button>
                     </div>
                   </div>
-                  <div className={`grid gap-4 ${otherViewMode === "videos" ? "grid-cols-4 md:grid-cols-6 lg:grid-cols-8" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4"}`}>
+                  <div className={`grid gap-4 ${otherViewMode === "videos" ? (panelOpen ? "grid-cols-3 md:grid-cols-4" : "grid-cols-4 md:grid-cols-6 lg:grid-cols-8") : (panelOpen ? "grid-cols-1 md:grid-cols-2" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4")}`}>
                     {otherVideos.map((v, idx) => {
                       const handlePick = () => {
                         setActiveVideoId(v.id);
