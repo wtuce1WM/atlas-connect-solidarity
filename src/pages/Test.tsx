@@ -676,7 +676,7 @@ const Test = () => {
               {/* Active video column — same containment pattern as slidepanel */}
               {activeVideo && activeEmbed && (
                 <div
-                  className={`relative overflow-hidden ${isLandscape ? "w-full order-1" : "w-1/2 shrink-0 sticky top-0 self-start h-[calc(100vh-101px)]"}`}
+                  className={`relative overflow-hidden ${isLandscape ? "w-full order-1" : "w-1/2 shrink-0 self-start h-[calc(100vh-101px)]"}`}
                 >
                   <div className={`flex flex-col items-center gap-2 ${isLandscape ? "" : "h-full overflow-y-auto pb-24 pr-1"}`}>
                     <div
