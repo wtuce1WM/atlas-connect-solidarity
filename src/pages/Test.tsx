@@ -448,6 +448,8 @@ const Test = () => {
   }, [selectedEntry, selectedSubId, city, subcatNames, videos.length]);
 
   const [panelOpen, setPanelOpen] = useState(false);
+  const [guideVideos, setGuideVideos] = useState<VideoItem[]>([]);
+  const [loadingGuide, setLoadingGuide] = useState(false);
 
   const activeVideo = useMemo(
     () => [...videos, ...guideVideos].find((v) => v.id === activeVideoId) || null,
