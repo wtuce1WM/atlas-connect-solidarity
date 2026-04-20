@@ -673,48 +673,62 @@ const Test = () => {
                 </div>
               )}
 
-              {/* Active video — right side (50%) */}
+              {/* Active video column — same containment pattern as slidepanel */}
               {activeVideo && activeEmbed && (
-                <div className={`relative flex flex-col items-center gap-2 ${isLandscape ? "w-full order-1" : "w-1/2 shrink-0"}`}>
-                  <div
-                    className={`relative bg-black rounded-lg overflow-hidden shadow-lg w-full ${isLandscape ? "aspect-video" : "aspect-[9/16]"}`}
-                    style={{
-                      maxWidth: isLandscape ? 1280 : 720,
-                      maxHeight: "calc(100vh - 120px)",
-                    }}
-                  >
-                    {activeEmbed.type === "file" ? (
-                      <video
-                        key={activeVideo.id}
-                        src={activeVideo.url}
-                        controls
-                        autoPlay
-                        loop
-                        playsInline
-                        className="w-full h-full object-cover"
-                        onLoadedMetadata={(e) => {
-                          const v = e.currentTarget;
-                          setIsLandscape(v.videoWidth > v.videoHeight);
-                        }}
-                        onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-                      />
-                    ) : (
-                      <iframe
-                        key={activeVideo.id}
-                        src={activeEmbed.embedUrl}
-                        className="w-full h-full"
-                        allow="autoplay; fullscreen; encrypted-media"
-                        allowFullScreen
-                      />
-                    )}
-                    {isActiveGeneric && (
-                      <GenericVideoTimelineOverlay
-                        genericVideoId={activeVideo.id}
-                        currentTime={currentTime}
-                      />
-                    )}
+                <div
+                  className={`relative overflow-hidden ${isLandscape ? "w-full order-1" : "w-1/2 shrink-0 sticky top-0 self-start h-[calc(100vh-101px)]"}`}
+                >
+                  <div className={`flex flex-col items-center gap-2 ${isLandscape ? "" : "h-full overflow-y-auto pb-24 pr-1"}`}>
+                    <div
+                      className={`relative bg-black rounded-lg overflow-hidden shadow-lg w-full ${isLandscape ? "aspect-video" : "aspect-[9/16]"}`}
+                      style={{
+                        maxWidth: isLandscape ? 1280 : 720,
+                        maxHeight: "calc(100vh - 120px)",
+                      }}
+                    >
+                      {activeEmbed.type === "file" ? (
+                        <video
+                          key={activeVideo.id}
+                          src={activeVideo.url}
+                          controls
+                          autoPlay
+                          loop
+                          playsInline
+                          className="w-full h-full object-cover"
+                          onLoadedMetadata={(e) => {
+                            const v = e.currentTarget;
+                            setIsLandscape(v.videoWidth > v.videoHeight);
+                          }}
+                          onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+                        />
+                      ) : (
+                        <iframe
+                          key={activeVideo.id}
+                          src={activeEmbed.embedUrl}
+                          className="w-full h-full"
+                          allow="autoplay; fullscreen; encrypted-media"
+                          allowFullScreen
+                        />
+                      )}
+                      {isActiveGeneric && (
+                        <GenericVideoTimelineOverlay
+                          genericVideoId={activeVideo.id}
+                          currentTime={currentTime}
+                        />
+                      )}
+                    </div>
+                    <p className="text-sm font-medium text-foreground">{activeVideo.business_name}</p>
                   </div>
-                  <p className="text-sm font-medium text-foreground">{activeVideo.business_name}</p>
+
+                  <PanelSearchBar
+                    iconVariant="black"
+                    noToolbarOffset
+                    onSearch={(params) => {
+                      const sp = new URLSearchParams(params);
+                      navigate(`/search?${sp.toString()}`);
+                    }}
+                    onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
+                  />
                 </div>
               )}
 
@@ -722,19 +736,6 @@ const Test = () => {
           )}
 
           </main>
-
-          {/* Search bar — anchored to bottom of right column; overlay fills the whole section */}
-          {activeVideo && activeEmbed && (
-            <PanelSearchBar
-              iconVariant="black"
-              noToolbarOffset
-              onSearch={(params) => {
-                const sp = new URLSearchParams(params);
-                navigate(`/search?${sp.toString()}`);
-              }}
-              onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
-            />
-          )}
         </section>
       </div>
     </div>
