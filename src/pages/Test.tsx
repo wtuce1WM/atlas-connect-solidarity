@@ -684,7 +684,7 @@ const Test = () => {
                         {thumb ? (
                           <img src={thumb} alt={v.business_name} className="w-full h-full object-cover" loading="lazy" />
                         ) : isFile ? (
-                          <video src={`${v.url}#t=0.5`} className="w-full h-full object-cover" preload="metadata" muted playsInline autoPlay={idx === 0} />
+                          <video src={`${v.url}#t=0.5`} className="w-full h-full object-cover" preload="metadata" muted playsInline />
                         ) : (
                           <div className="w-full h-full bg-muted" />
                         )}
