@@ -118,6 +118,8 @@ const Test = () => {
   // group video docs by subcategory_id, then check which entries' subcategory_ids
   // intersect with the city's video subcategories.
   const [entriesWithVideos, setEntriesWithVideos] = useState<Set<string>>(new Set());
+  const [subsWithVideos, setSubsWithVideos] = useState<Set<string>>(new Set());
+  const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -153,6 +155,7 @@ const Test = () => {
         }
       });
       setEntriesWithVideos(matchingEntryIds);
+      setSubsWithVideos(subIdsWithVideos);
       setLoading(false);
     };
     if (entries.length > 0) load();
@@ -298,7 +301,7 @@ const Test = () => {
         }
         allDocs.sort((a: any, b: any) => (a.front_sort_order ?? 0) - (b.front_sort_order ?? 0));
       } else {
-        const subIds = selectedEntry.subcategory_ids;
+        const subIds = selectedSubId ? [selectedSubId] : selectedEntry.subcategory_ids;
         if (subIds.length === 0) {
           setVideos([]);
           setLoadingVideos(false);
@@ -394,7 +397,7 @@ const Test = () => {
       setLoadingVideos(false);
     };
     load();
-  }, [selectedEntry, city]);
+  }, [selectedEntry, city, selectedSubId]);
 
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const [isLandscape, setIsLandscape] = useState(false);
@@ -546,6 +549,7 @@ const Test = () => {
             const children = isActive
               ? [
                   ...e.subcategory_ids
+                    .filter((id) => subsWithVideos.has(id))
                     .map((id) => ({ id, name: subcatNames[id], type: "sub" as const }))
                     .filter((c) => c.name),
                   ...e.service_ids
@@ -558,10 +562,13 @@ const Test = () => {
                 <div
                   onClick={() => {
                     setSelectedEntryId(e.id);
+                    setSelectedSubId(null);
                   }}
                   className={`px-3 py-2 rounded-md text-sm cursor-pointer transition-colors ${
-                    isActive
+                    isActive && !selectedSubId
                       ? "bg-primary text-primary-foreground"
+                      : isActive
+                      ? "bg-muted text-foreground"
                       : "text-foreground hover:bg-muted"
                   }`}
                 >
@@ -569,14 +576,25 @@ const Test = () => {
                 </div>
                 {children.length > 0 && (
                   <ul className="mt-1 ml-3 border-l border-border pl-3 space-y-0.5">
-                    {children.map((c) => (
-                      <li
-                        key={`${c.type}-${c.id}`}
-                        className="px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded cursor-default"
-                      >
-                        {c.type === "svc" ? "🔧 " : ""}{c.name}
-                      </li>
-                    ))}
+                    {children.map((c) => {
+                      const isSubActive = c.type === "sub" && selectedSubId === c.id;
+                      return (
+                        <li
+                          key={`${c.type}-${c.id}`}
+                          onClick={(ev) => {
+                            ev.stopPropagation();
+                            if (c.type === "sub") setSelectedSubId(c.id);
+                          }}
+                          className={`px-2 py-1 text-xs rounded transition-colors ${
+                            isSubActive
+                              ? "bg-primary text-primary-foreground"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer"
+                          }`}
+                        >
+                          {c.type === "svc" ? "🔧 " : ""}{c.name}
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </li>
