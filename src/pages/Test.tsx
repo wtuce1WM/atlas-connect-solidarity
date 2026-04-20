@@ -428,8 +428,8 @@ const Test = () => {
   }, [activeVideo]);
 
   const otherVideos = useMemo(
-    () => (activeVideo ? videos.filter((v) => v.id !== activeVideo.id) : videos.slice(1)),
-    [videos, activeVideo]
+    () => (panelOpen && activeVideo ? videos.filter((v) => v.id !== activeVideo.id) : videos),
+    [videos, activeVideo, panelOpen]
   );
 
   const [menuOpen, setMenuOpen] = useState(false);
