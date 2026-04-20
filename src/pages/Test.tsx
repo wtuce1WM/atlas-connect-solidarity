@@ -7,6 +7,7 @@ import { getVideoEmbed } from "@/lib/videoEmbed";
 import SearchResultCard, { type SearchResultBusiness } from "@/components/SearchResultCard";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
+import SlidePanelHome from "@/components/SlidePanelHome";
 import { Menu as MenuIcon, X } from "lucide-react";
 
 interface FrontEntry {
@@ -434,6 +435,7 @@ const Test = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [otherViewMode, setOtherViewMode] = useState<"details" | "videos">("videos");
   const [currentTime, setCurrentTime] = useState(0);
+  const [panelOpen, setPanelOpen] = useState(false);
 
   // Reset currentTime when active video changes
   useEffect(() => {
