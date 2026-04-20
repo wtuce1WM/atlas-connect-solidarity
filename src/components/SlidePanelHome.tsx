@@ -15,6 +15,10 @@ interface SlidePanelHomeProps {
   isGeneric: boolean;
   currentTime: number;
   onTimeUpdate: (t: number) => void;
+  onPrev?: () => void;
+  onNext?: () => void;
+  hasPrev?: boolean;
+  hasNext?: boolean;
 }
 
 const SlidePanelHome = ({
@@ -26,6 +30,10 @@ const SlidePanelHome = ({
   isGeneric,
   currentTime,
   onTimeUpdate,
+  onPrev,
+  onNext,
+  hasPrev,
+  hasNext,
 }: SlidePanelHomeProps) => {
   const navigate = useNavigate();
   const panelRef = useRef<HTMLDivElement>(null);
