@@ -543,20 +543,42 @@ const Test = () => {
         <ul className="space-y-1">
           {visibleEntries.map((e) => {
             const isActive = e.id === selectedEntryId;
+            const children = isActive
+              ? [
+                  ...e.subcategory_ids
+                    .map((id) => ({ id, name: subcatNames[id], type: "sub" as const }))
+                    .filter((c) => c.name),
+                  ...e.service_ids
+                    .map((id) => ({ id, name: serviceNames[id], type: "svc" as const }))
+                    .filter((c) => c.name),
+                ]
+              : [];
             return (
-              <li
-                key={e.id}
-                onClick={() => {
-                  setSelectedEntryId(e.id);
-                  setMenuOpen(false);
-                }}
-                className={`px-3 py-2 rounded-md text-sm cursor-pointer transition-colors ${
-                  isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "text-foreground hover:bg-muted"
-                }`}
-              >
-                {e.name}
+              <li key={e.id}>
+                <div
+                  onClick={() => {
+                    setSelectedEntryId(e.id);
+                  }}
+                  className={`px-3 py-2 rounded-md text-sm cursor-pointer transition-colors ${
+                    isActive
+                      ? "bg-primary text-primary-foreground"
+                      : "text-foreground hover:bg-muted"
+                  }`}
+                >
+                  {e.name}
+                </div>
+                {children.length > 0 && (
+                  <ul className="mt-1 ml-3 border-l border-border pl-3 space-y-0.5">
+                    {children.map((c) => (
+                      <li
+                        key={`${c.type}-${c.id}`}
+                        className="px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded cursor-default"
+                      >
+                        {c.type === "svc" ? "🔧 " : ""}{c.name}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             );
           })}
