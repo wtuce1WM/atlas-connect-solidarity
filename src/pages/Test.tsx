@@ -568,7 +568,7 @@ const Test = () => {
       <div className="pt-[53px] flex w-full h-[calc(100vh-53px)]">
         {/* Right zone 80% — search bar is anchored to this column so overlays stay contained */}
         <section className="flex-1 relative min-w-0 overflow-hidden">
-          <main className={`h-full p-6 overflow-y-auto relative ${activeVideo && activeEmbed ? "pb-24" : ""}`}>
+          <main className="h-full p-6 overflow-y-auto relative">
           {!selectedEntry ? (
             <p className="text-sm text-muted-foreground">
               Sélectionne une entrée dans la colonne de gauche.
@@ -675,7 +675,7 @@ const Test = () => {
 
               {/* Active video — right side (50%) */}
               {activeVideo && activeEmbed && (
-                <div className={`relative flex flex-col items-center gap-2 pb-24 ${isLandscape ? "w-full order-1" : "w-1/2 shrink-0"}`}>
+                <div className={`relative flex flex-col items-center gap-2 ${isLandscape ? "w-full order-1" : "w-1/2 shrink-0"}`}>
                   <div
                     className={`relative bg-black rounded-lg overflow-hidden shadow-lg w-full ${isLandscape ? "aspect-video" : "aspect-[9/16]"}`}
                     style={{
@@ -715,6 +715,20 @@ const Test = () => {
                     )}
                   </div>
                   <p className="text-sm font-medium text-foreground">{activeVideo.business_name}</p>
+                  <div
+                    className="relative h-[68px] w-full"
+                    style={{ maxWidth: isLandscape ? 1280 : 720 }}
+                  >
+                    <PanelSearchBar
+                      iconVariant="black"
+                      noToolbarOffset
+                      onSearch={(params) => {
+                        const sp = new URLSearchParams(params);
+                        navigate(`/search?${sp.toString()}`);
+                      }}
+                      onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
+                    />
+                  </div>
                 </div>
               )}
 
@@ -722,19 +736,6 @@ const Test = () => {
           )}
 
           </main>
-
-          {/* Search bar anchored to the right column so its overlays never escape fullscreen */}
-          {activeVideo && activeEmbed && (
-            <PanelSearchBar
-              iconVariant="black"
-              noToolbarOffset
-              onSearch={(params) => {
-                const sp = new URLSearchParams(params);
-                navigate(`/search?${sp.toString()}`);
-              }}
-              onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
-            />
-          )}
         </section>
       </div>
     </div>
