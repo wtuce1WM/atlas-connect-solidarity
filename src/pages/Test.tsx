@@ -566,9 +566,9 @@ const Test = () => {
       )}
 
       <div className="pt-[53px] flex w-full h-[calc(100vh-53px)]">
-        {/* Right zone 80% — flex column so search bar can be a fixed footer */}
-        <section className="flex-1 flex flex-col relative min-w-0">
-          <main className="flex-1 p-6 overflow-y-auto relative">
+        {/* Right zone 80% — search bar is anchored to this column so overlays stay contained */}
+        <section className="flex-1 relative min-w-0 overflow-hidden">
+          <main className={`h-full p-6 overflow-y-auto relative ${activeVideo && activeEmbed ? "pb-24" : ""}`}>
           {!selectedEntry ? (
             <p className="text-sm text-muted-foreground">
               Sélectionne une entrée dans la colonne de gauche.
@@ -723,19 +723,17 @@ const Test = () => {
 
           </main>
 
-          {/* Search bar pinned to bottom of right column (outside scrollable main) */}
+          {/* Search bar anchored to the right column so its overlays never escape fullscreen */}
           {activeVideo && activeEmbed && (
-            <div className="shrink-0 relative h-[68px] bg-background/95 backdrop-blur-sm border-t border-border">
-              <PanelSearchBar
-                iconVariant="black"
-                noToolbarOffset
-                onSearch={(params) => {
-                  const sp = new URLSearchParams(params);
-                  navigate(`/search?${sp.toString()}`);
-                }}
-                onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
-              />
-            </div>
+            <PanelSearchBar
+              iconVariant="black"
+              noToolbarOffset
+              onSearch={(params) => {
+                const sp = new URLSearchParams(params);
+                navigate(`/search?${sp.toString()}`);
+              }}
+              onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
+            />
           )}
         </section>
       </div>
