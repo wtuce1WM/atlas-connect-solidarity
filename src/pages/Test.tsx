@@ -565,10 +565,9 @@ const Test = () => {
         </div>
       )}
 
-      <div className="pt-[53px] flex w-full h-[calc(100vh-53px)]">
-        {/* Right zone 80% — search bar is anchored to this column so overlays stay contained */}
-        <section className="flex-1 relative min-w-0 overflow-hidden">
-          <main className="h-full p-6 overflow-y-auto relative">
+      <div className="pt-[53px] flex w-full min-h-[calc(100vh-53px)]">
+        {/* Right zone 80% */}
+        <main className="flex-1 p-6 overflow-y-auto">
           {!selectedEntry ? (
             <p className="text-sm text-muted-foreground">
               Sélectionne une entrée dans la colonne de gauche.
@@ -673,72 +672,62 @@ const Test = () => {
                 </div>
               )}
 
-              {/* Active video column — same containment pattern as slidepanel */}
+              {/* Active video — right side (50%) */}
               {activeVideo && activeEmbed && (
-                <div
-                  className={`relative overflow-hidden ${isLandscape ? "w-full order-1" : "w-1/2 shrink-0 self-start h-[calc(100vh-101px)]"}`}
-                >
-                  <div className={`flex flex-col items-center gap-2 ${isLandscape ? "" : "h-full overflow-y-auto pb-24 pr-1"}`}>
-                    <div
-                      className={`relative bg-black rounded-lg overflow-hidden shadow-lg w-full ${isLandscape ? "aspect-video" : "aspect-[9/16]"}`}
-                      style={{
-                        maxWidth: isLandscape ? 1280 : 720,
-                        maxHeight: "calc(100vh - 120px)",
-                      }}
-                    >
-                      {activeEmbed.type === "file" ? (
-                        <video
-                          key={activeVideo.id}
-                          src={activeVideo.url}
-                          controls
-                          autoPlay
-                          loop
-                          playsInline
-                          className="w-full h-full object-cover"
-                          onLoadedMetadata={(e) => {
-                            const v = e.currentTarget;
-                            setIsLandscape(v.videoWidth > v.videoHeight);
-                          }}
-                          onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-                        />
-                      ) : (
-                        <iframe
-                          key={activeVideo.id}
-                          src={activeEmbed.embedUrl}
-                          className="w-full h-full"
-                          allow="autoplay; fullscreen; encrypted-media"
-                          allowFullScreen
-                        />
-                      )}
-                      {isActiveGeneric && (
-                        <GenericVideoTimelineOverlay
-                          genericVideoId={activeVideo.id}
-                          currentTime={currentTime}
-                        />
-                      )}
-                    </div>
-                    <p className="text-sm font-medium text-foreground">{activeVideo.business_name}</p>
+                <div className={`relative flex flex-col items-center gap-2 pb-24 ${isLandscape ? "w-full order-1" : "w-1/2 shrink-0"}`}>
+                  <div
+                    className={`relative bg-black rounded-lg overflow-hidden shadow-lg w-full ${isLandscape ? "aspect-video" : "aspect-[9/16]"}`}
+                    style={{
+                      maxWidth: isLandscape ? 1280 : 720,
+                      maxHeight: "calc(100vh - 120px)",
+                    }}
+                  >
+                    {activeEmbed.type === "file" ? (
+                      <video
+                        key={activeVideo.id}
+                        src={activeVideo.url}
+                        controls
+                        autoPlay
+                        loop
+                        playsInline
+                        className="w-full h-full object-cover"
+                        onLoadedMetadata={(e) => {
+                          const v = e.currentTarget;
+                          setIsLandscape(v.videoWidth > v.videoHeight);
+                        }}
+                        onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+                      />
+                    ) : (
+                      <iframe
+                        key={activeVideo.id}
+                        src={activeEmbed.embedUrl}
+                        className="w-full h-full"
+                        allow="autoplay; fullscreen; encrypted-media"
+                        allowFullScreen
+                      />
+                    )}
+                    {isActiveGeneric && (
+                      <GenericVideoTimelineOverlay
+                        genericVideoId={activeVideo.id}
+                        currentTime={currentTime}
+                      />
+                    )}
                   </div>
+                  <p className="text-sm font-medium text-foreground">{activeVideo.business_name}</p>
 
-                  {!isLandscape && (
-                    <PanelSearchBar
-                      iconVariant="black"
-                      noToolbarOffset
-                      onSearch={(params) => {
-                        const sp = new URLSearchParams(params);
-                        navigate(`/search?${sp.toString()}`);
-                      }}
-                      onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
-                    />
-                  )}
+                  <PanelSearchBar
+                    iconVariant="black"
+                    onSearch={(params) => {
+                      const sp = new URLSearchParams(params);
+                      navigate(`/search?${sp.toString()}`);
+                    }}
+                    onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
+                  />
                 </div>
               )}
-
             </div>
           )}
-
-          </main>
-        </section>
+        </main>
       </div>
     </div>
   );
