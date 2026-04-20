@@ -450,8 +450,8 @@ const Test = () => {
   const [panelOpen, setPanelOpen] = useState(false);
 
   const activeVideo = useMemo(
-    () => videos.find((v) => v.id === activeVideoId) || null,
-    [videos, activeVideoId]
+    () => [...videos, ...guideVideos].find((v) => v.id === activeVideoId) || null,
+    [videos, guideVideos, activeVideoId]
   );
   const activeEmbed = useMemo(() => {
     if (!activeVideo) return null;
