@@ -28,15 +28,6 @@ interface VideoItem {
 const CITIES = ["Marrakech", "Essaouira"] as const;
 type City = typeof CITIES[number];
 
-const MARRAKECH_GENERIC_VIDEO_IDS = [
-  "70c850b6-3efe-4753-9698-cafcee272f3a",
-  "1e1df289-bf96-4806-bc00-2902f3f8d85a",
-  "7d197236-cb2a-432f-82ff-93bef906a216",
-  "86d76e55-6462-4b8d-bd06-59242e57128e",
-  "2856a9c6-a39f-4d56-8191-3d820208a7e8",
-  "57f63bf0-046a-420f-bbc7-e75e34171f7c",
-];
-
 function deriveThumbnail(url: string): string | null {
   const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
   if (yt) return `https://i.ytimg.com/vi/${yt[1]}/hqdefault.jpg`;
@@ -432,64 +423,6 @@ const Test = () => {
 
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const [isLandscape, setIsLandscape] = useState(false);
-
-  // Generic videos shown under the active video (Marrakech only)
-  const [genericVideos, setGenericVideos] = useState<
-    { id: string; url: string; account: string | null; business: SearchResultBusiness | null }[]
-  >([]);
-
-  useEffect(() => {
-    if (city !== "Marrakech") {
-      setGenericVideos([]);
-      return;
-    }
-    const load = async () => {
-      const [vidsRes, linksRes] = await Promise.all([
-        supabase
-          .from("generic_videos" as any)
-          .select("id, url, instagram_account, tiktok_account, youtube_account")
-          .in("id", MARRAKECH_GENERIC_VIDEO_IDS),
-        supabase
-          .from("generic_video_businesses" as any)
-          .select("generic_video_id, business_id")
-          .in("generic_video_id", MARRAKECH_GENERIC_VIDEO_IDS),
-      ]);
-      const vids = (vidsRes.data || []) as any[];
-      const links = (linksRes.data || []) as any[];
-      const firstBizByVid: Record<string, string> = {};
-      links.forEach((l: any) => {
-        if (!firstBizByVid[l.generic_video_id]) {
-          firstBizByVid[l.generic_video_id] = l.business_id;
-        }
-      });
-      const bizIds = [...new Set(Object.values(firstBizByVid))];
-      const bizMap = new Map<string, SearchResultBusiness>();
-      if (bizIds.length > 0) {
-        const { data: bizs } = await supabase
-          .from("businesses")
-          .select("id, name, images, logo_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
-          .in("id", bizIds);
-        (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
-      }
-      const ordered = MARRAKECH_GENERIC_VIDEO_IDS
-        .map((vid) => {
-          const v = vids.find((x: any) => x.id === vid);
-          if (!v) return null;
-          const bizId = firstBizByVid[vid];
-          const rawAccount = v.instagram_account || v.tiktok_account || v.youtube_account || null;
-          const account = rawAccount ? rawAccount.replace(/^@+/, "") : null;
-          return {
-            id: v.id,
-            url: v.url,
-            account,
-            business: bizId ? bizMap.get(bizId) || null : null,
-          };
-        })
-        .filter(Boolean) as { id: string; url: string; account: string | null; business: SearchResultBusiness | null }[];
-      setGenericVideos(ordered);
-    };
-    load();
-  }, [city]);
 
   // Reset active video when entry/city changes
   useEffect(() => {
