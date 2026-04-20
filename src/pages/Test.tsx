@@ -715,20 +715,6 @@ const Test = () => {
                     )}
                   </div>
                   <p className="text-sm font-medium text-foreground">{activeVideo.business_name}</p>
-                  <div
-                    className="relative h-[68px] w-full"
-                    style={{ maxWidth: isLandscape ? 1280 : 720 }}
-                  >
-                    <PanelSearchBar
-                      iconVariant="black"
-                      noToolbarOffset
-                      onSearch={(params) => {
-                        const sp = new URLSearchParams(params);
-                        navigate(`/search?${sp.toString()}`);
-                      }}
-                      onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
-                    />
-                  </div>
                 </div>
               )}
 
@@ -736,6 +722,19 @@ const Test = () => {
           )}
 
           </main>
+
+          {/* Search bar — anchored to bottom of right column; overlay fills the whole section */}
+          {activeVideo && activeEmbed && (
+            <PanelSearchBar
+              iconVariant="black"
+              noToolbarOffset
+              onSearch={(params) => {
+                const sp = new URLSearchParams(params);
+                navigate(`/search?${sp.toString()}`);
+              }}
+              onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
+            />
+          )}
         </section>
       </div>
     </div>
