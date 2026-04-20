@@ -327,41 +327,77 @@ const Test = () => {
         allDocs = allDocs
           .filter((d: any) => isInternalVideoUrl(d.url))
           .sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-      }
 
-      // Keep only the #1 video of each business within the current selection.
-      // Priority: prefer the business's OWN video (business_id === displayId) over
-      // videos owned by third parties that merely link to this business.
-      // allDocs is already sorted by sort_order asc.
-      const ownByDisplay = new Map<string, any>();
-      const linkedByDisplay = new Map<string, any>();
-      for (const d of allDocs) {
-        const displayId = d.linked_business_id || d.poi_id || d.business_id;
-        const isOwn = d.business_id === displayId;
-        if (isOwn) {
-          if (!ownByDisplay.has(displayId)) ownByDisplay.set(displayId, d);
-        } else {
-          if (!linkedByDisplay.has(displayId)) linkedByDisplay.set(displayId, d);
+        // Keep businesses that match the current menu selection,
+        // but display their own global #1 internal video when available.
+        const displayIdsInOrder = [...new Set(allDocs.map((d: any) => d.linked_business_id || d.poi_id || d.business_id))];
+        const fallbackByDisplay = new Map<string, any>();
+        for (const d of allDocs) {
+          const displayId = d.linked_business_id || d.poi_id || d.business_id;
+          if (!fallbackByDisplay.has(displayId)) fallbackByDisplay.set(displayId, d);
         }
-      }
-      const internal: any[] = [];
-      const seenBiz = new Set<string>();
-      // Walk allDocs in sort_order to preserve global ordering of results,
-      // but for each displayId pick the "own" video if it exists.
-      for (const d of allDocs) {
-        const displayId = d.linked_business_id || d.poi_id || d.business_id;
-        if (seenBiz.has(displayId)) continue;
-        const chosen = ownByDisplay.get(displayId) || linkedByDisplay.get(displayId);
-        if (!chosen) continue;
-        seenBiz.add(displayId);
-        internal.push(chosen);
-      }
 
+        const ownTopByDisplay = new Map<string, any>();
+        const batch = 300;
+        for (let i = 0; i < displayIdsInOrder.length; i += batch) {
+          const ids = displayIdsInOrder.slice(i, i + batch);
+          const { data: ownDocs } = await supabase
+            .from("business_documents")
+            .select("id, url, thumbnail_url, business_id, sort_order, poi_id, linked_business_id")
+            .eq("type", "video")
+            .in("business_id", ids)
+            .order("sort_order", { ascending: true });
+
+          (ownDocs || [])
+            .filter((d: any) => isInternalVideoUrl(d.url))
+            .forEach((d: any) => {
+              if (!ownTopByDisplay.has(d.business_id)) ownTopByDisplay.set(d.business_id, d);
+            });
+        }
+
+        const internal = displayIdsInOrder
+          .map((displayId) => ownTopByDisplay.get(displayId) || fallbackByDisplay.get(displayId))
+          .filter(Boolean);
+
+        // Resolve display business: prefer linked_business_id, then poi_id, then business_id (parent)
+        const displayBizIds = [
+          ...new Set(
+            internal.map((d: any) => d.linked_business_id || d.poi_id || d.business_id)
+          ),
+        ];
+        const bizMap = new Map<string, SearchResultBusiness>();
+        if (displayBizIds.length > 0) {
+          const batch = 300;
+          for (let i = 0; i < displayBizIds.length; i += batch) {
+            const { data: bizs } = await supabase
+              .from("businesses")
+              .select("id, name, images, logo_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+              .in("id", displayBizIds.slice(i, i + batch));
+            (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
+          }
+        }
+
+        setVideos(
+          internal.map((d: any) => {
+            const displayId = d.linked_business_id || d.poi_id || d.business_id;
+            const biz = bizMap.get(displayId) || null;
+            return {
+              id: d.id,
+              url: d.url,
+              business_name: biz?.name || "—",
+              thumbnail_url: d.thumbnail_url,
+              business: biz,
+            };
+          })
+        );
+        setLoadingVideos(false);
+        return;
+      }
 
       // Resolve display business: prefer linked_business_id, then poi_id, then business_id (parent)
       const displayBizIds = [
         ...new Set(
-          internal.map((d: any) => d.linked_business_id || d.poi_id || d.business_id)
+          allDocs.map((d: any) => d.linked_business_id || d.poi_id || d.business_id)
         ),
       ];
       const bizMap = new Map<string, SearchResultBusiness>();
@@ -377,7 +413,7 @@ const Test = () => {
       }
 
       setVideos(
-        internal.map((d: any) => {
+        allDocs.map((d: any) => {
           const displayId = d.linked_business_id || d.poi_id || d.business_id;
           const biz = bizMap.get(displayId) || null;
           return {
