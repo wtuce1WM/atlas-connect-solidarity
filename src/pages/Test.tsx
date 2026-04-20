@@ -544,10 +544,8 @@ const Test = () => {
   }, [activeVideo?.id]);
 
   const isActiveGeneric = useMemo(
-    () =>
-      !!activeVideo &&
-      (selectedEntryId === VLOGS_ID || genericVideos.some((g) => g.id === activeVideo.id)),
-    [activeVideo, genericVideos, selectedEntryId]
+    () => !!activeVideo && selectedEntryId === VLOGS_ID,
+    [activeVideo, selectedEntryId]
   );
 
   const structureList = (
