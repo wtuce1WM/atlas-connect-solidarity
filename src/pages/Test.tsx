@@ -580,9 +580,9 @@ const Test = () => {
             </p>
           ) : (
             <div className="flex gap-6 items-start">
-              {/* Other videos — left side (50%) when vertical, below when landscape */}
+              {/* Other videos — full width grid */}
               {otherVideos.length > 0 && (
-                <div className="w-1/2 min-w-0">
+                <div className="w-full min-w-0">
                   <div className="flex items-center justify-between mb-3 gap-3">
                     <h3 className="text-sm font-semibold text-foreground">
                       {(selectedSubId && subcatNames[selectedSubId]) || selectedEntry.name} ({otherVideos.length})
@@ -612,13 +612,11 @@ const Test = () => {
                       </button>
                     </div>
                   </div>
-                  <div className={`grid gap-4 ${otherViewMode === "videos" ? "grid-cols-3 md:grid-cols-4" : "grid-cols-1 md:grid-cols-2"}`}>
+                  <div className={`grid gap-4 ${otherViewMode === "videos" ? "grid-cols-4 md:grid-cols-6 lg:grid-cols-8" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4"}`}>
                     {otherVideos.map((v, idx) => {
                       const handlePick = () => {
                         setActiveVideoId(v.id);
-                        window.scrollTo({ top: 0, behavior: "auto" });
-                        document.documentElement.scrollTo({ top: 0, behavior: "auto" });
-                        document.querySelector("main")?.scrollTo({ top: 0, behavior: "auto" });
+                        setPanelOpen(true);
                       };
                       if (otherViewMode === "videos") {
                         const thumb = v.thumbnail_url || deriveThumbnail(v.url);
@@ -671,60 +669,21 @@ const Test = () => {
                   </div>
                 </div>
               )}
-
-              {/* Active video — right side (50%) */}
-              {activeVideo && activeEmbed && (
-                <div className="relative flex flex-col items-center gap-2 pb-24 w-1/2 shrink-0">
-                  <div
-                    className="relative bg-black rounded-lg overflow-hidden shadow-lg w-full aspect-[9/16]"
-                    style={{
-                      maxWidth: 720,
-                      maxHeight: "calc(100vh - 120px)",
-                    }}
-                  >
-                    {activeEmbed.type === "file" ? (
-                      <video
-                        key={activeVideo.id}
-                        src={activeVideo.url}
-                        controls
-                        autoPlay
-                        loop
-                        playsInline
-                        className="w-full h-full object-cover"
-                        onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-                      />
-                    ) : (
-                      <iframe
-                        key={activeVideo.id}
-                        src={activeEmbed.embedUrl}
-                        className="w-full h-full"
-                        allow="autoplay; fullscreen; encrypted-media"
-                        allowFullScreen
-                      />
-                    )}
-                    {isActiveGeneric && (
-                      <GenericVideoTimelineOverlay
-                        genericVideoId={activeVideo.id}
-                        currentTime={currentTime}
-                      />
-                    )}
-                  </div>
-                  <p className="text-sm font-medium text-foreground">{activeVideo.business_name}</p>
-
-                  <PanelSearchBar
-                    iconVariant="black"
-                    onSearch={(params) => {
-                      const sp = new URLSearchParams(params);
-                      navigate(`/search?${sp.toString()}`);
-                    }}
-                    onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
-                  />
-                </div>
-              )}
             </div>
           )}
         </main>
       </div>
+
+      <SlidePanelHome
+        open={panelOpen}
+        onClose={() => setPanelOpen(false)}
+        videoUrl={activeVideo?.url || null}
+        videoId={activeVideo?.id || null}
+        businessName={activeVideo?.business_name || ""}
+        isGeneric={isActiveGeneric}
+        currentTime={currentTime}
+        onTimeUpdate={setCurrentTime}
+      />
     </div>
   );
 };
