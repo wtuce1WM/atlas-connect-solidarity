@@ -721,15 +721,16 @@ const Test = () => {
                   </div>
 
                   {!isLandscape && (
-                    iconVariant="black"
-                    noToolbarOffset
-                    onSearch={(params) => {
-                      const sp = new URLSearchParams(params);
-                      navigate(`/search?${sp.toString()}`);
-                    }}
-                    onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
-                  />
-                </div>
+                    <PanelSearchBar
+                      iconVariant="black"
+                      noToolbarOffset
+                      onSearch={(params) => {
+                        const sp = new URLSearchParams(params);
+                        navigate(`/search?${sp.toString()}`);
+                      }}
+                      onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
+                    />
+                  )}
               )}
 
             </div>
