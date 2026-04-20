@@ -29,6 +29,7 @@ interface VideoItem {
   url: string;
   name: string | null;
   thumbnail_url: string | null;
+  business_id: string;
   business_name: string;
   subcategory_name: string;
   city: string | null;
