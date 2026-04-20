@@ -480,8 +480,6 @@ const Test = () => {
   const [hoveredEntryId, setHoveredEntryId] = useState<string | null>(null);
   const [otherViewMode, setOtherViewMode] = useState<"details" | "videos" | "guide">("videos");
   const [currentTime, setCurrentTime] = useState(0);
-  const [guideVideos, setGuideVideos] = useState<VideoItem[]>([]);
-  const [loadingGuide, setLoadingGuide] = useState(false);
 
   // Load Tarik Belasri's visible YouTube shorts when "guide" mode is selected
   useEffect(() => {
