@@ -397,7 +397,7 @@ const Test = () => {
       setLoadingVideos(false);
     };
     load();
-  }, [selectedEntry, city]);
+  }, [selectedEntry, city, selectedSubId]);
 
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const [isLandscape, setIsLandscape] = useState(false);
