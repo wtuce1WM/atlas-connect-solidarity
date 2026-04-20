@@ -577,10 +577,10 @@ const Test = () => {
               Aucune vidéo trouvée pour « {selectedEntry.name} » à {city}.
             </p>
           ) : (
-            <div className={isLandscape ? "flex flex-col gap-6" : "flex gap-6 items-start"}>
+            <div className="flex gap-6 items-start">
               {/* Other videos — left side (50%) when vertical, below when landscape */}
               {otherVideos.length > 0 && (
-                <div className={isLandscape ? "w-full order-2" : "w-1/2 min-w-0"}>
+                <div className="w-1/2 min-w-0">
                   <div className="flex items-center justify-between mb-3 gap-3">
                     <h3 className="text-sm font-semibold text-foreground">
                       {(selectedSubId && subcatNames[selectedSubId]) || selectedEntry.name} ({otherVideos.length})
@@ -610,7 +610,7 @@ const Test = () => {
                       </button>
                     </div>
                   </div>
-                  <div className={`grid gap-4 ${isLandscape ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" : otherViewMode === "videos" ? "grid-cols-3 md:grid-cols-4" : "grid-cols-1 md:grid-cols-2"}`}>
+                  <div className={`grid gap-4 ${otherViewMode === "videos" ? "grid-cols-3 md:grid-cols-4" : "grid-cols-1 md:grid-cols-2"}`}>
                     {otherVideos.map((v, idx) => {
                       const handlePick = () => {
                         setActiveVideoId(v.id);
@@ -672,11 +672,11 @@ const Test = () => {
 
               {/* Active video — right side (50%) */}
               {activeVideo && activeEmbed && (
-                <div className={`relative flex flex-col items-center gap-2 pb-24 ${isLandscape ? "w-full order-1" : "w-1/2 shrink-0"}`}>
+                <div className="relative flex flex-col items-center gap-2 pb-24 w-1/2 shrink-0">
                   <div
-                    className={`relative bg-black rounded-lg overflow-hidden shadow-lg w-full ${isLandscape ? "aspect-video" : "aspect-[9/16]"}`}
+                    className="relative bg-black rounded-lg overflow-hidden shadow-lg w-full aspect-[9/16]"
                     style={{
-                      maxWidth: isLandscape ? 1280 : 720,
+                      maxWidth: 720,
                       maxHeight: "calc(100vh - 120px)",
                     }}
                   >
@@ -689,10 +689,6 @@ const Test = () => {
                         loop
                         playsInline
                         className="w-full h-full object-cover"
-                        onLoadedMetadata={(e) => {
-                          const v = e.currentTarget;
-                          setIsLandscape(v.videoWidth > v.videoHeight);
-                        }}
                         onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
                       />
                     ) : (
