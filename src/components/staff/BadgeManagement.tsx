@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { Plus, Edit, Trash2, GripVertical, ChevronDown, ChevronRight, Award } from "lucide-react";
 
 interface BadgeBusiness {
@@ -39,6 +40,7 @@ interface BadgeData {
   sort_order: number | null;
   color_hex: string | null;
   text_color_hex: string | null;
+  is_active_on_front: boolean | null;
 }
 
 interface BadgeSubcategory {
@@ -361,14 +363,15 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
               <TableHead>Nom (EN)</TableHead>
               <TableHead>Sous-catégories associées</TableHead>
               <TableHead className="text-center">Établissements</TableHead>
+              <TableHead className="text-center">Activé sur le front</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
-              <TableRow><TableCell colSpan={8} className="text-center py-8">Chargement...</TableCell></TableRow>
+              <TableRow><TableCell colSpan={9} className="text-center py-8">Chargement...</TableCell></TableRow>
             ) : badges.length === 0 ? (
-              <TableRow><TableCell colSpan={8} className="text-center py-8">Aucun badge défini.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={9} className="text-center py-8">Aucun badge défini.</TableCell></TableRow>
             ) : (
               badges.map(badge => {
                 const isExpanded = expandedBadges.has(badge.id);
@@ -419,6 +422,19 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
                       <TableCell className="text-center">
                         <Badge variant="outline">{count}</Badge>
                       </TableCell>
+                      <TableCell className="text-center" onClick={e => e.stopPropagation()}>
+                        <Switch
+                          checked={!!badge.is_active_on_front}
+                          onCheckedChange={async (checked) => {
+                            const { error } = await supabase.from("badges").update({ is_active_on_front: checked }).eq("id", badge.id);
+                            if (error) {
+                              toast({ variant: "destructive", title: "Erreur", description: "Impossible de mettre à jour." });
+                            } else {
+                              setBadges(prev => prev.map(b => b.id === badge.id ? { ...b, is_active_on_front: checked } : b));
+                            }
+                          }}
+                        />
+                      </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2" onClick={e => e.stopPropagation()}>
                           <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(badge)}><Edit className="h-4 w-4" /></Button>
@@ -428,7 +444,7 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
                     </TableRow>
                     {isExpanded && businesses.length > 0 && (
                       <TableRow>
-                        <TableCell colSpan={8} className="bg-muted/30 p-0">
+                        <TableCell colSpan={9} className="bg-muted/30 p-0">
                           <div className="px-8 py-3 space-y-1">
                             {businesses.map(b => (
                               <div key={b.id} className="flex items-center justify-between py-1.5 px-3 rounded hover:bg-background transition-colors">
