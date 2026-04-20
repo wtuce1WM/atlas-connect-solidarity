@@ -405,6 +405,7 @@ const Test = () => {
   // Reset active video when entry/city changes
   useEffect(() => {
     setActiveVideoId(null);
+    setPanelOpen(false);
   }, [selectedEntryId, city]);
 
   const [panelOpen, setPanelOpen] = useState(false);
