@@ -353,11 +353,20 @@ const FrontStructureVideosPanel = () => {
         const isOpen = openSections.has(fs.id);
         return (
           <Collapsible key={fs.id} open={isOpen} onOpenChange={() => toggleSection(fs.id)}>
-            <CollapsibleTrigger className="flex items-center gap-2 w-full py-2 px-3 rounded-lg border bg-background hover:bg-muted/50 transition-colors">
-              {isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-              <span className="font-semibold text-sm">{fs.name}</span>
-              <Badge variant="secondary" className="ml-2">{vids.length}</Badge>
-            </CollapsibleTrigger>
+            <div className="flex items-center gap-2 w-full py-2 px-3 rounded-lg border bg-background hover:bg-muted/50 transition-colors">
+              <CollapsibleTrigger className="flex items-center gap-2 flex-1 text-left">
+                {isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+                <span className="font-semibold text-sm">{fs.name}</span>
+                <Badge variant="secondary" className="ml-2">{vids.length}</Badge>
+              </CollapsibleTrigger>
+              <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer" onClick={(e) => e.stopPropagation()}>
+                <span>Montrer dans le menu</span>
+                <Switch
+                  checked={fs.show_in_menu}
+                  onCheckedChange={(checked) => toggleShowInMenu(fs.id, checked)}
+                />
+              </label>
+            </div>
             <CollapsibleContent className="pt-3 pb-1">
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd(fs.id)}>
                 <SortableContext items={vids.map(v => v.id)} strategy={rectSortingStrategy}>
