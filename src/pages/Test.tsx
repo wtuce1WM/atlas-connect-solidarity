@@ -118,6 +118,8 @@ const Test = () => {
   // group video docs by subcategory_id, then check which entries' subcategory_ids
   // intersect with the city's video subcategories.
   const [entriesWithVideos, setEntriesWithVideos] = useState<Set<string>>(new Set());
+  const [subsWithVideos, setSubsWithVideos] = useState<Set<string>>(new Set());
+  const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
 
   useEffect(() => {
     setLoading(true);
