@@ -474,12 +474,6 @@ const Test = () => {
     [videos, activeVideo, panelOpen]
   );
 
-  const displayVideos = useMemo(
-    () => (otherViewMode === "guide" ? guideVideos : otherVideos),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [otherViewMode, guideVideos, otherVideos]
-  );
-
   const [menuOpen, setMenuOpen] = useState(false);
   const [hoveredEntryId, setHoveredEntryId] = useState<string | null>(null);
   const [otherViewMode, setOtherViewMode] = useState<"details" | "videos" | "guide">("videos");
