@@ -780,6 +780,27 @@ const Test = () => {
                             <div className="w-0 h-0 border-y-[6px] border-y-transparent border-l-[9px] border-l-white ml-0.5" />
                           </div>
                         </div>
+                        {v.owner && (
+                          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-[6] flex flex-col items-center justify-center gap-2 px-2 pointer-events-none">
+                            {v.owner.logo_url && (
+                              <img
+                                key={`logo-${v.id}`}
+                                src={v.owner.logo_url}
+                                alt={v.owner.name}
+                                className="animate-logo-big-full-reveal max-w-[70%] max-h-[40%] object-contain"
+                                style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))" }}
+                              />
+                            )}
+                            <div
+                              key={`cta-${v.id}`}
+                              className="animate-cta-zoom-in flex items-center gap-1 rounded-full bg-black border border-white/15 px-2 py-0.5"
+                            >
+                              <span className="text-[9px] font-medium text-white whitespace-nowrap" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                                {v.owner.name} <span className="text-[11px]">©</span>
+                              </span>
+                            </div>
+                          </div>
+                        )}
                         {v.business_name && (
                           <div className="absolute bottom-0 left-0 right-0 p-1.5">
                             <p className="text-[10px] font-medium text-white line-clamp-1">{v.business_name}</p>
