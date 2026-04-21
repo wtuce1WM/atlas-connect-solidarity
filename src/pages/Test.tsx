@@ -293,7 +293,7 @@ const Test = () => {
           const chunk = bizIds.slice(i, i + batch);
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order, poi_id, linked_business_id")
+            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id")
             .eq("type", "video")
             .eq("show_on_front", true)
             .in("business_id", chunk)
@@ -313,7 +313,7 @@ const Test = () => {
         while (true) {
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, subcategory_id, city, sort_order, poi_id, linked_business_id")
+            .select("id, url, thumbnail_url, business_id, subcategory_id, city, sort_order, poi_id, linked_business_id, destination_id")
             .eq("type", "video")
             .in("subcategory_id", subIds)
             .eq("city", city)
@@ -372,7 +372,16 @@ const Test = () => {
           internal.map((d: any) => {
             const displayId = getDisplayId(d);
             const biz = bizMap.get(displayId) || null;
-            const ownerBiz = d.business_id !== displayId ? bizMap.get(d.business_id) || null : null;
+            // Owner is shown when:
+            // - the video's business_id differs from the display entity, OR
+            // - the video is attached to a destination (no poi/linked) → still credit the owner business
+            const isDestinationVideo = !d.poi_id && !d.linked_business_id && !!d.destination_id;
+            const ownerBiz =
+              d.business_id !== displayId
+                ? bizMap.get(d.business_id) || null
+                : isDestinationVideo
+                ? bizMap.get(d.business_id) || null
+                : null;
             return {
               id: d.id,
               url: d.url,
@@ -408,7 +417,13 @@ const Test = () => {
         allDocs.map((d: any) => {
           const displayId = getDisplayId(d);
           const biz = bizMap.get(displayId) || null;
-          const ownerBiz = d.business_id !== displayId ? bizMap.get(d.business_id) || null : null;
+          const isDestinationVideo = !d.poi_id && !d.linked_business_id && !!d.destination_id;
+          const ownerBiz =
+            d.business_id !== displayId
+              ? bizMap.get(d.business_id) || null
+              : isDestinationVideo
+              ? bizMap.get(d.business_id) || null
+              : null;
           return {
             id: d.id,
             url: d.url,
