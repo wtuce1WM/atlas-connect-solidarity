@@ -1054,10 +1054,47 @@ export type Database = {
           },
         ]
       }
+      business_youtube_video_pois: {
+        Row: {
+          created_at: string
+          id: string
+          point_of_interest_id: string
+          youtube_video_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          point_of_interest_id: string
+          youtube_video_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          point_of_interest_id?: string
+          youtube_video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_youtube_video_pois_point_of_interest_id_fkey"
+            columns: ["point_of_interest_id"]
+            isOneToOne: false
+            referencedRelation: "points_of_interest"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_youtube_video_pois_youtube_video_id_fkey"
+            columns: ["youtube_video_id"]
+            isOneToOne: false
+            referencedRelation: "business_youtube_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_youtube_videos: {
         Row: {
           business_id: string
           created_at: string
+          destination_id: string | null
           duration_seconds: number
           id: string
           is_short: boolean
@@ -1072,6 +1109,7 @@ export type Database = {
         Insert: {
           business_id: string
           created_at?: string
+          destination_id?: string | null
           duration_seconds?: number
           id?: string
           is_short?: boolean
@@ -1086,6 +1124,7 @@ export type Database = {
         Update: {
           business_id?: string
           created_at?: string
+          destination_id?: string | null
           duration_seconds?: number
           id?: string
           is_short?: boolean
@@ -1110,6 +1149,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_youtube_videos_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
             referencedColumns: ["id"]
           },
         ]
