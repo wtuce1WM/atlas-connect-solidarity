@@ -212,7 +212,25 @@ const YouTubeBackofficePanel = () => {
     }
   };
 
-  const filtered = businesses.filter((b) => {
+  const togglePoiGroup = async (videoId: string, poiIds: string[], allSelected: boolean) => {
+    const current = poisByVideo[videoId] || [];
+    if (allSelected) {
+      const next = current.filter((id) => !poiIds.includes(id));
+      setPoisByVideo((prev) => ({ ...prev, [videoId]: next }));
+      await supabase
+        .from("business_youtube_video_pois")
+        .delete()
+        .eq("youtube_video_id", videoId)
+        .in("point_of_interest_id", poiIds);
+    } else {
+      const toAdd = poiIds.filter((id) => !current.includes(id));
+      if (toAdd.length === 0) return;
+      setPoisByVideo((prev) => ({ ...prev, [videoId]: [...current, ...toAdd] }));
+      await supabase
+        .from("business_youtube_video_pois")
+        .insert(toAdd.map((id) => ({ youtube_video_id: videoId, point_of_interest_id: id })));
+    }
+  };
     if (!search.trim()) return true;
     const q = search.toLowerCase();
     return (
