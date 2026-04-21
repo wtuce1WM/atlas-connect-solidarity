@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { X, ChevronUp, ChevronDown, Play } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import OverlayShell from "@/components/overlays/OverlayShell";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -17,55 +17,33 @@ interface ExternalVideosOverlayProps {
   onClose: () => void;
 }
 
-/** Extract a YouTube thumbnail fallback from URL */
 function getYouTubeThumb(url: string): string | null {
   const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
   return m ? `https://i.ytimg.com/vi/${m[1]}/hqdefault.jpg` : null;
 }
 
 /**
- * Overlay style C: vertical carousel of long-form (horizontal 16:9) external videos.
- * Navigation: vertical snap scroll, chevrons (desktop), thumbnail strip (right), keyboard arrows, dot indicators (mobile).
+ * Long-form external videos (mostly YouTube 16:9). Single player on top,
+ * horizontal thumbnail carousel pinned to bottom (same pattern as YouTubeOverlay).
  */
 const ExternalVideosOverlay = ({ videos, businessName, onClose }: ExternalVideosOverlayProps) => {
   const { language } = useLanguage();
-  const scrollerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const stripRef = useRef<HTMLDivElement>(null);
   const origin = typeof window !== "undefined" ? window.location.origin : "";
 
-  // Track which slide is in view (snap-based)
-  useEffect(() => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    let raf = 0;
-    const onScroll = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        const idx = Math.round(el.scrollTop / el.clientHeight);
-        setActiveIndex(idx);
-      });
-    };
-    el.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      el.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(raf);
-    };
-  }, []);
-
   const goTo = (i: number) => {
-    const el = scrollerRef.current;
-    if (!el) return;
     const clamped = Math.max(0, Math.min(videos.length - 1, i));
-    el.scrollTo({ top: clamped * el.clientHeight, behavior: "smooth" });
+    setActiveIndex(clamped);
   };
 
   // Keyboard navigation
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === "ArrowRight") {
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
         e.preventDefault();
         goTo(activeIndex + 1);
-      } else if (e.key === "ArrowUp" || e.key === "PageUp" || e.key === "ArrowLeft") {
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
         e.preventDefault();
         goTo(activeIndex - 1);
       } else if (e.key === "Home") {
@@ -82,10 +60,20 @@ const ExternalVideosOverlay = ({ videos, businessName, onClose }: ExternalVideos
     return () => window.removeEventListener("keydown", onKey);
   }, [activeIndex, videos.length, onClose]);
 
-  // Pre-compute embeds
-  const embeds = useMemo(
-    () => videos.map((v) => getVideoEmbed(v.url, origin, { background: false, autoplay: true })),
-    [videos, origin]
+  // Auto-scroll thumbnail strip to keep active centered
+  useEffect(() => {
+    const strip = stripRef.current;
+    if (!strip) return;
+    const activeEl = strip.querySelector<HTMLElement>(`[data-thumb-idx="${activeIndex}"]`);
+    if (activeEl) {
+      activeEl.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    }
+  }, [activeIndex]);
+
+  const activeVideo = videos[activeIndex];
+  const activeEmbed = useMemo(
+    () => (activeVideo ? getVideoEmbed(activeVideo.url, origin, { background: false, autoplay: true }) : null),
+    [activeVideo, origin]
   );
 
   if (!videos.length) return null;
@@ -108,7 +96,7 @@ const ExternalVideosOverlay = ({ videos, businessName, onClose }: ExternalVideos
             </svg>
           </div>
           <p className="text-xs text-white font-medium truncate" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-            {videos[activeIndex]?.name?.trim() || businessName || (language === "en" ? "Videos" : "Vidéos")}
+            {activeVideo?.name?.trim() || businessName || (language === "en" ? "Videos" : "Vidéos")}
           </p>
           <span className="text-[11px] text-white/60 tabular-nums shrink-0">
             {activeIndex + 1}/{videos.length}
@@ -116,72 +104,63 @@ const ExternalVideosOverlay = ({ videos, businessName, onClose }: ExternalVideos
         </div>
       </div>
 
-      {/* Vertical snap scroller */}
-      <div
-        ref={scrollerRef}
-        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden snap-y snap-mandatory scrollbar-none"
-        style={{ scrollbarWidth: "none" }}
-      >
-        {videos.map((v, i) => {
-          const embed = embeds[i];
-          const shouldMount = Math.abs(i - activeIndex) <= 1;
-          return (
-            <div
-              key={`${v.url}-${i}`}
-              className="w-full h-full snap-start flex items-center justify-center px-4 py-4 md:pr-32"
-              style={{ height: "100%" }}
+      {/* Player area */}
+      <div className="flex-1 min-h-0 flex items-center justify-center px-4 py-4 relative">
+        <div className="w-full max-w-5xl aspect-video relative rounded-xl overflow-hidden bg-black shadow-2xl">
+          {activeEmbed && (
+            <iframe
+              key={activeVideo.url}
+              src={activeEmbed.embedUrl}
+              className="absolute inset-0 w-full h-full"
+              allow="autoplay; encrypted-media; fullscreen"
+              allowFullScreen
+              frameBorder={0}
+              title={activeVideo.name || `video-${activeIndex}`}
+            />
+          )}
+        </div>
+
+        {/* Side chevrons (desktop) */}
+        {videos.length > 1 && (
+          <>
+            <button
+              onClick={() => goTo(activeIndex - 1)}
+              disabled={activeIndex === 0}
+              className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed items-center justify-center z-10 transition-colors"
+              aria-label={language === "en" ? "Previous video" : "Vidéo précédente"}
             >
-              <div className="w-full max-w-5xl aspect-video relative rounded-xl overflow-hidden bg-black shadow-2xl">
-                {shouldMount ? (
-                  <iframe
-                    key={v.url}
-                    src={i === activeIndex ? embed.embedUrl : embed.embedUrl.replace("autoplay=1", "autoplay=0")}
-                    className="absolute inset-0 w-full h-full"
-                    allow="autoplay; encrypted-media; fullscreen"
-                    allowFullScreen
-                    frameBorder={0}
-                    title={v.name || `video-${i}`}
-                  />
-                ) : v.thumbnail_url ? (
-                  <img src={v.thumbnail_url} alt={v.name || ""} className="absolute inset-0 w-full h-full object-cover opacity-50" />
-                ) : null}
-              </div>
-            </div>
-          );
-        })}
+              <ChevronLeft className="h-5 w-5 text-white" />
+            </button>
+            <button
+              onClick={() => goTo(activeIndex + 1)}
+              disabled={activeIndex === videos.length - 1}
+              className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed items-center justify-center z-10 transition-colors"
+              aria-label={language === "en" ? "Next video" : "Vidéo suivante"}
+            >
+              <ChevronRight className="h-5 w-5 text-white" />
+            </button>
+          </>
+        )}
       </div>
 
-      {/* Vertical nav buttons (desktop) */}
+      {/* Thumbnail carousel — pinned to bottom */}
       {videos.length > 1 && (
-        <>
-          <button
-            onClick={() => goTo(activeIndex - 1)}
-            disabled={activeIndex === 0}
-            className="hidden md:flex absolute left-6 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed items-center justify-center z-20 transition-colors"
-            aria-label={language === "en" ? "Previous video" : "Vidéo précédente"}
+        <div className="shrink-0 overflow-hidden px-3 pb-16 pt-2 border-t border-white/10">
+          <div
+            ref={stripRef}
+            className="flex gap-2 overflow-x-auto scrollbar-none snap-x snap-mandatory"
+            style={{ scrollbarWidth: "none" }}
           >
-            <ChevronUp className="h-5 w-5 text-white" />
-          </button>
-          <button
-            onClick={() => goTo(activeIndex + 1)}
-            disabled={activeIndex === videos.length - 1}
-            className="hidden md:flex absolute left-6 top-1/2 translate-y-[calc(50%+12px)] w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed items-center justify-center z-20 transition-colors"
-            aria-label={language === "en" ? "Next video" : "Vidéo suivante"}
-          >
-            <ChevronDown className="h-5 w-5 text-white" />
-          </button>
-
-          {/* Thumbnail strip (desktop, right side) */}
-          <div className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 flex-col gap-2 max-h-[80vh] overflow-y-auto scrollbar-none z-20 p-2 rounded-xl bg-black/40 backdrop-blur-sm">
             {videos.map((v, i) => {
               const thumb = v.thumbnail_url || getYouTubeThumb(v.url);
               const isActive = i === activeIndex;
               return (
                 <button
                   key={`thumb-${v.url}-${i}`}
+                  data-thumb-idx={i}
                   onClick={() => goTo(i)}
-                  className={`relative w-24 aspect-video rounded-md overflow-hidden flex-shrink-0 transition-all ${
-                    isActive ? "ring-2 ring-white scale-105" : "ring-1 ring-white/20 opacity-60 hover:opacity-100"
+                  className={`relative w-40 md:w-48 aspect-video rounded-lg overflow-hidden flex-shrink-0 snap-start transition-all ${
+                    isActive ? "ring-2 ring-white scale-[1.02]" : "ring-1 ring-white/20 opacity-60 hover:opacity-100"
                   }`}
                   aria-label={`${language === "en" ? "Go to video" : "Aller à la vidéo"} ${i + 1}`}
                 >
@@ -189,31 +168,24 @@ const ExternalVideosOverlay = ({ videos, businessName, onClose }: ExternalVideos
                     <img src={thumb} alt={v.name || `video-${i}`} className="absolute inset-0 w-full h-full object-cover" />
                   ) : (
                     <div className="absolute inset-0 bg-white/10 flex items-center justify-center">
-                      <Play className="h-4 w-4 text-white" />
+                      <Play className="h-5 w-5 text-white" />
                     </div>
                   )}
-                  <div className="absolute bottom-0.5 right-0.5 bg-black/70 text-white text-[9px] px-1 rounded tabular-nums">
+                  <div className="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded tabular-nums">
                     {i + 1}
                   </div>
+                  {v.name && (
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-2 pt-4 pb-1">
+                      <p className="text-[10px] text-white truncate" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                        {v.name}
+                      </p>
+                    </div>
+                  )}
                 </button>
               );
             })}
           </div>
-
-          {/* Dots indicator (mobile) */}
-          <div className="md:hidden absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-20 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm">
-            {videos.map((_, i) => (
-              <button
-                key={`dot-${i}`}
-                onClick={() => goTo(i)}
-                className={`rounded-full transition-all ${
-                  i === activeIndex ? "w-6 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/40"
-                }`}
-                aria-label={`${language === "en" ? "Go to video" : "Aller à la vidéo"} ${i + 1}`}
-              />
-            ))}
-          </div>
-        </>
+        </div>
       )}
     </OverlayShell>
   );
