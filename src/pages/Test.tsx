@@ -528,6 +528,7 @@ const Test = () => {
         business_name: y.title || biz.name,
         thumbnail_url: y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/hqdefault.jpg`,
         business: biz as SearchResultBusiness,
+        owner: null,
       }));
       setGuideVideos(items);
       setLoadingGuide(false);
