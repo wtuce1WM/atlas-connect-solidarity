@@ -177,6 +177,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [youtubeIsPlaying, setYoutubeIsPlaying] = useState(false);
   const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
   const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
+  const [showExternalVideosOverlay, setShowExternalVideosOverlay] = useState(false);
   const [allYoutubeVideos, setAllYoutubeVideos] = useState<YouTubeVideo[]>([]);
   const [kpGroupTitle, setKpGroupTitle] = useState<string | null>(null);
 
@@ -506,7 +507,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   // Bottom tabs
   const hasVideosCarousel = videoDocs.length > 0;
-  const hasYoutubeBottomCarousel = !!(business?.youtube_url && business?.show_youtube_tab && youtubeVideoCount !== 0);
+  const hasYoutubeChannel = !!(business?.youtube_url && business?.show_youtube_tab && youtubeVideoCount !== 0);
+  // External (YouTube/Vimeo/etc.) videos attached to this business or POI — used when the business has no YouTube channel
+  const externalVideoDocs = useMemo(
+    () => (videoDocs || []).filter((d: any) => isExternalVideoUrl(d.url)),
+    [videoDocs]
+  );
+  const hasExternalVideos = externalVideoDocs.length > 0;
+  // Single YouTube button: opens channel overlay if channel exists, else external videos overlay
+  const hasYoutubeBottomCarousel = hasYoutubeChannel || hasExternalVideos;
   const hasYoutubeReady = !!(youtubeVideoCount && youtubeVideoCount > 0);
   const hasKpCarousel = kpRelated.length > 0;
   const hasKpSubcatCarousel = kpSubcategoryItems.length > 0;
