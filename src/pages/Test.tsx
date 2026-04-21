@@ -293,7 +293,7 @@ const Test = () => {
           const chunk = bizIds.slice(i, i + batch);
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order, poi_id, linked_business_id")
+            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id")
             .eq("type", "video")
             .eq("show_on_front", true)
             .in("business_id", chunk)
@@ -313,7 +313,7 @@ const Test = () => {
         while (true) {
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, subcategory_id, city, sort_order, poi_id, linked_business_id")
+            .select("id, url, thumbnail_url, business_id, subcategory_id, city, sort_order, poi_id, linked_business_id, destination_id")
             .eq("type", "video")
             .in("subcategory_id", subIds)
             .eq("city", city)
