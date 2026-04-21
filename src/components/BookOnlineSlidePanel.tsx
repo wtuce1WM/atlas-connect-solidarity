@@ -40,6 +40,8 @@ import { useBookOnlineData } from "@/hooks/useBookOnlineData";
 import type { Destination } from "@/hooks/useBookOnlineData";
 import VideoDocumentOverlay from "@/components/overlays/VideoDocumentOverlay";
 import YouTubeOverlay from "@/components/overlays/YouTubeOverlay";
+import ExternalVideosOverlay from "@/components/overlays/ExternalVideosOverlay";
+import { isExternalVideoUrl } from "@/lib/videoSourceFilter";
 import DocumentOverlay from "@/components/overlays/DocumentOverlay";
 import FallbackHotelsPanel from "@/components/overlays/FallbackHotelsPanel";
 import OverlayShell from "@/components/overlays/OverlayShell";
@@ -175,6 +177,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [youtubeIsPlaying, setYoutubeIsPlaying] = useState(false);
   const [activeYoutubeVideo, setActiveYoutubeVideo] = useState<YouTubeVideo | null>(null);
   const [showYoutubeOverlay, setShowYoutubeOverlay] = useState(false);
+  const [showExternalVideosOverlay, setShowExternalVideosOverlay] = useState(false);
   const [allYoutubeVideos, setAllYoutubeVideos] = useState<YouTubeVideo[]>([]);
   const [kpGroupTitle, setKpGroupTitle] = useState<string | null>(null);
 
@@ -241,12 +244,13 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   // Close interceptor
   useEffect(() => {
     if (!interceptCloseRef) return;
-    if (showHoursOverlay || showAvailabilitySearch || showDescriptionOverlay || showDirections || showBookingOverlay || !!docOverlay || showMosaic || showYoutubeOverlay || selectedDestinationId || selectedPoiBusinessId || selectedKpBusinessId) {
+    if (showHoursOverlay || showAvailabilitySearch || showDescriptionOverlay || showDirections || showBookingOverlay || !!docOverlay || showMosaic || showYoutubeOverlay || showExternalVideosOverlay || selectedDestinationId || selectedPoiBusinessId || selectedKpBusinessId) {
       interceptCloseRef.current = () => {
         if (showHoursOverlay) { setShowHoursOverlay(false); return true; }
         if (showAvailabilitySearch) { setShowAvailabilitySearch(false); return true; }
         if (showMosaic) { setShowMosaic(false); return true; }
         if (showYoutubeOverlay) { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); setYoutubeIsPlaying(false); return true; }
+        if (showExternalVideosOverlay) { setShowExternalVideosOverlay(false); return true; }
         if (showBookingOverlay) { setShowBookingOverlay(false); setBookingOverlayUrl(null); setBookingOverlayTitle(undefined); setBookingOverlayLoaded(false); setBookingOverlayHideContact(false); return true; }
         if (docOverlay) { setDocOverlay(null); setDocOverlayLoaded(false); return true; }
         if (showDirections) { setShowDirections(false); return true; }
@@ -280,7 +284,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     } else {
       interceptCloseRef.current = null;
     }
-  }, [previousBusinessId, cameFromFallback, fallbackPanelData, interceptCloseRef, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId, showHoursOverlay, showAvailabilitySearch, showDescriptionOverlay, showDirections, showBookingOverlay, docOverlay, showMosaic, showYoutubeOverlay]);
+  }, [previousBusinessId, cameFromFallback, fallbackPanelData, interceptCloseRef, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId, showHoursOverlay, showAvailabilitySearch, showDescriptionOverlay, showDirections, showBookingOverlay, docOverlay, showMosaic, showYoutubeOverlay, showExternalVideosOverlay]);
 
   const hideCardsRef = useRef<() => void>(() => {});
   const hasSerpMapping = !!serpApiMapping || !!liteApiHotelId;
@@ -354,6 +358,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     setActiveYoutubeVideo(null);
     setYoutubeIsPlaying(false);
     setShowYoutubeOverlay(false);
+    setShowExternalVideosOverlay(false);
     setKpGroupTitle(null);
     setActiveVideoOverlay(null);
     setVideoOverlayClosing(false);
@@ -437,7 +442,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   useEffect(() => {
     const overlayOpen =
       showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
-      !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic ||
+      !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
       !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
       showFallbackOverlay || searchOverlayActive || showDescriptionOverlay || !!forceMuted;
 
@@ -460,7 +465,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     if (iframe) { ytPost("mute"); ytPost("playVideo"); }
   }, [
     forceMuted, showDirections, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId,
-    docOverlay, showBookingOverlay, showYoutubeOverlay, showMosaic, externalOverlayActive,
+    docOverlay, showBookingOverlay, showYoutubeOverlay, showExternalVideosOverlay, showMosaic, externalOverlayActive,
     showPoiMapOverlay, activeVideoOverlay, showFallbackOverlay, searchOverlayActive, showDescriptionOverlay,
   ]);
 
@@ -504,7 +509,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
 
   // Bottom tabs
   const hasVideosCarousel = videoDocs.length > 0;
-  const hasYoutubeBottomCarousel = !!(business?.youtube_url && business?.show_youtube_tab && youtubeVideoCount !== 0);
+  const hasYoutubeChannel = !!(business?.youtube_url && business?.show_youtube_tab && youtubeVideoCount !== 0);
+  // External (YouTube/Vimeo/etc.) videos attached to this business or POI — used when the business has no YouTube channel
+  const externalVideoDocs = useMemo(
+    () => (videoDocs || []).filter((d: any) => isExternalVideoUrl(d.url)),
+    [videoDocs]
+  );
+  const hasExternalVideos = externalVideoDocs.length > 0;
+  // Single YouTube button: opens channel overlay if channel exists, else external videos overlay
+  const hasYoutubeBottomCarousel = hasYoutubeChannel || hasExternalVideos;
   const hasYoutubeReady = !!(youtubeVideoCount && youtubeVideoCount > 0);
   const hasKpCarousel = kpRelated.length > 0;
   const hasKpSubcatCarousel = kpSubcategoryItems.length > 0;
@@ -648,7 +661,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   }, []);
 
   // Overlay state for ripple suppression
-  const anyOverlay = showDirections || showBookingOverlay || !!docOverlay || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId || showPoiMapOverlay || !!activeVideoOverlay || isLightboxOpen || showMosaic || showYoutubeOverlay || !!availabilityOverlayCtx || !!serpApiOverlayCtx || showFallbackOverlay || !!externalOverlayActive;
+  const anyOverlay = showDirections || showBookingOverlay || !!docOverlay || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId || showPoiMapOverlay || !!activeVideoOverlay || isLightboxOpen || showMosaic || showYoutubeOverlay || showExternalVideosOverlay || !!availabilityOverlayCtx || !!serpApiOverlayCtx || showFallbackOverlay || !!externalOverlayActive;
 
   const handleVideoLoadedMetadata = useCallback((e: React.SyntheticEvent<HTMLVideoElement>) => {
     const v = e.currentTarget;
@@ -779,7 +792,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
             </div>
           )}
           {hasYoutubeBottomCarousel && (
-            <div onClick={() => { const firstShort = allYoutubeVideos.find(v => v.isShort) || allYoutubeVideos[0] || null; if (firstShort) setActiveYoutubeVideo(firstShort); setShowYoutubeOverlay(true); setYoutubeIsPlaying(true); }} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
+            <div onClick={() => {
+              if (hasYoutubeChannel) {
+                const firstShort = allYoutubeVideos.find(v => v.isShort) || allYoutubeVideos[0] || null;
+                if (firstShort) setActiveYoutubeVideo(firstShort);
+                setShowYoutubeOverlay(true);
+                setYoutubeIsPlaying(true);
+              } else {
+                setShowExternalVideosOverlay(true);
+              }
+            }} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[80px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">YouTube</span>
               <YouTubeIcon className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
@@ -1074,6 +1096,20 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           onSelectVideo={setActiveYoutubeVideo}
           onPlayingChange={setYoutubeIsPlaying}
           onClose={() => { setShowYoutubeOverlay(false); setActiveYoutubeVideo(null); setYoutubeIsPlaying(false); }}
+        />
+      )}
+
+      {/* External Videos Overlay (long-form YouTube videos linked to this business/POI) */}
+      {showExternalVideosOverlay && (
+        <ExternalVideosOverlay
+          videos={externalVideoDocs.map((d: any) => ({
+            url: d.url,
+            name: d.name ?? null,
+            thumbnail_url: d.thumbnail_url ?? null,
+            description: d.description ?? null,
+          }))}
+          businessName={business?.name}
+          onClose={() => setShowExternalVideosOverlay(false)}
         />
       )}
 
