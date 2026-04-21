@@ -231,6 +231,8 @@ const YouTubeBackofficePanel = () => {
         .insert(toAdd.map((id) => ({ youtube_video_id: videoId, point_of_interest_id: id })));
     }
   };
+
+  const filtered = businesses.filter((b) => {
     if (!search.trim()) return true;
     const q = search.toLowerCase();
     return (
