@@ -37,7 +37,7 @@ const BusinessHeader = React.memo(function BusinessHeader({
             <img src={business.logo_url} alt="" className={`w-full h-full object-contain ${business.logo_bg === "transparent" ? "" : "p-1"}`} />
           </div>
         )}
-        <div className={`min-w-0 flex-1 text-center md:text-left ${hasReviewsCard ? "md:pr-28" : openBadgeInfo?.text ? "md:pr-32" : ""}`}>
+        <div className={`min-w-0 flex-1 text-center md:text-left ${hasReviewsCard ? "md:pr-28" : ""}`}>
           <div className="flex items-start gap-2">
             <h2
               className={`text-base md:text-xl font-bold uppercase min-w-0 flex-1 ${hasReviewsCard ? "line-clamp-2" : "line-clamp-3 md:line-clamp-2"}`}
@@ -53,14 +53,6 @@ const BusinessHeader = React.memo(function BusinessHeader({
             </p>
           )}
         </div>
-        {openBadgeInfo?.text && (
-          <div className="hidden md:block absolute right-4 md:right-6 top-1/2 -translate-y-1/2 pointer-events-auto">
-            <div className={`flex items-center gap-1 rounded-full py-1 px-3 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap ${openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"}`}>
-              <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
-              {openBadgeInfo.text}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
