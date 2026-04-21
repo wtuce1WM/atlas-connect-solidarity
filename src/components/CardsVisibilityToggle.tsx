@@ -126,7 +126,7 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
       </div>
       {/* Optional middle slot (e.g. hook text on mobile) */}
       {!cardsHidden && middleSlot && (
-        <div className="flex justify-center mt-6 md:mt-3">
+        <div className="flex justify-center mt-10 md:mt-3">
           {middleSlot}
         </div>
       )}
