@@ -79,7 +79,6 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
             type="button"
             className="inline-flex items-center gap-2 rounded-full px-3 h-[32px] text-black shadow-lg backdrop-blur-sm hover:opacity-90 transition-colors"
             style={{ backgroundColor: '#25D366' }}
-            title="Afficher les cartes"
             aria-label="Afficher les cartes"
             onClick={(e) => { e.stopPropagation(); showCards(); }}
             onMouseDown={(e) => e.stopPropagation()}
@@ -94,7 +93,6 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
             type="button"
             className="inline-flex items-center gap-2 rounded-full px-3 h-[32px] text-white shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:opacity-90 transition-colors"
             style={{ backgroundColor: '#25D366' }}
-            title="Masquer les cartes"
             aria-label="Masquer les cartes"
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
