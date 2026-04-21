@@ -448,6 +448,7 @@ interface SortableVideoCardProps {
   videoDocs: VideoDocEntry[];
   setVideoDocs: Dispatch<SetStateAction<VideoDocEntry[]>>;
   poiBusinessesForCity: Array<{ id: string; name: string; neighborhood: string | null }>;
+  allPoiBusinesses: Array<{ id: string; name: string; city: string | null }>;
   dbDestinations: Array<{ id: string; name_fr: string }>;
   allBusinessesForVideo: Array<{ id: string; name: string }>;
   videoBusinessSearch: Record<number, string>;
@@ -480,7 +481,7 @@ const SortableDocRow = ({ id, children }: { id: string; children: React.ReactNod
   );
 };
 
-const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinessesForCity, dbDestinations, allBusinessesForVideo, videoBusinessSearch, setVideoBusinessSearch, dbCategories, dbSubcategories, dbServices, dbCities, dbNeighborhoods, dbEvents, dbBadges, videoEventSearch, setVideoEventSearch, business, toast, onOpenDesc, onDelete }: SortableVideoCardProps) => {
+const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinessesForCity, allPoiBusinesses, dbDestinations, allBusinessesForVideo, videoBusinessSearch, setVideoBusinessSearch, dbCategories, dbSubcategories, dbServices, dbCities, dbNeighborhoods, dbEvents, dbBadges, videoEventSearch, setVideoEventSearch, business, toast, onOpenDesc, onDelete }: SortableVideoCardProps) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1, zIndex: isDragging ? 50 : undefined };
 
@@ -586,12 +587,41 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
         <CollapsibleContent>
           <div className="grid grid-cols-1 gap-1 pt-1">
             <div>
+              <label className="text-[9px] text-muted-foreground">Ville</label>
+              <Select value={doc.city || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, city: v === "__none__" ? null : v, neighborhood: null } : d))}>
+                <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">— Aucune</SelectItem>
+                  {dbCities.map(c => <SelectItem key={c.id} value={c.name_fr}>{c.name_fr}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-[9px] text-muted-foreground">Quartier</label>
+              <Select value={doc.neighborhood || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, neighborhood: v === "__none__" ? null : v } : d))}>
+                <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">— Aucun</SelectItem>
+                  {(() => {
+                    const selectedCity = dbCities.find(c => c.name_fr === doc.city);
+                    if (!selectedCity) return null;
+                    return dbNeighborhoods.filter(n => n.city_id === selectedCity.id).map(n => <SelectItem key={n.id} value={n.name}>{n.name}</SelectItem>);
+                  })()}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
               <label className="text-[9px] text-muted-foreground">POI</label>
               <Select value={doc.poi_id || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, poi_id: v === "__none__" ? null : v } : d))}>
                 <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__none__">— Aucun</SelectItem>
-                  {poiBusinessesForCity.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                  {(() => {
+                    const list = doc.city
+                      ? allPoiBusinesses.filter(p => p.city === doc.city)
+                      : allPoiBusinesses;
+                    return list.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>);
+                  })()}
                 </SelectContent>
               </Select>
             </div>
@@ -670,30 +700,6 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
                         return <SelectItem key={srv.id} value={srv.id}>{srv.name_fr}{sub ? ` / ${sub.name_fr}` : ''}</SelectItem>;
                       })
                   }
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-[9px] text-muted-foreground">Ville</label>
-              <Select value={doc.city || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, city: v === "__none__" ? null : v, neighborhood: null } : d))}>
-                <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__">— Aucune</SelectItem>
-                  {dbCities.map(c => <SelectItem key={c.id} value={c.name_fr}>{c.name_fr}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-[9px] text-muted-foreground">Quartier</label>
-              <Select value={doc.neighborhood || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, neighborhood: v === "__none__" ? null : v } : d))}>
-                <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__">— Aucun</SelectItem>
-                  {(() => {
-                    const selectedCity = dbCities.find(c => c.name_fr === doc.city);
-                    if (!selectedCity) return null;
-                    return dbNeighborhoods.filter(n => n.city_id === selectedCity.id).map(n => <SelectItem key={n.id} value={n.name}>{n.name}</SelectItem>);
-                  })()}
                 </SelectContent>
               </Select>
             </div>
@@ -940,6 +946,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [selectedPOIIds, setSelectedPOIIds] = useState<string[]>([]);
   const [selectedPoiBusinessIds, setSelectedPoiBusinessIds] = useState<string[]>([]);
   const [poiBusinessesForCity, setPoiBusinessesForCity] = useState<Array<{ id: string; name: string; neighborhood: string | null }>>([]);
+  const [allPoiBusinesses, setAllPoiBusinesses] = useState<Array<{ id: string; name: string; city: string | null }>>([]);
   const [allBusinessesForVideo, setAllBusinessesForVideo] = useState<Array<{ id: string; name: string }>>([]);
   const [dbEvents, setDbEvents] = useState<Array<{ id: string; name: string }>>([]);
   const [videoEventSearch, setVideoEventSearch] = useState<Record<number, string>>({});
@@ -1573,6 +1580,19 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     fetchPoiBusinesses();
   }, [formData.city, business?.id]);
 
+  // Fetch ALL POI businesses (used for video → POI selector, filtered by the video's own city)
+  useEffect(() => {
+    const fetchAll = async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name, city")
+        .eq("is_poi", true)
+        .eq("is_active", true)
+        .order("name");
+      setAllPoiBusinesses((data || []).map(b => ({ id: b.id, name: b.name, city: b.city || null })));
+    };
+    fetchAll();
+  }, []);
   // Fetch all businesses for video linking
   useEffect(() => {
     const fetchAll = async () => {
@@ -4827,6 +4847,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     videoDocs={videoDocs}
                     setVideoDocs={setVideoDocs}
                     poiBusinessesForCity={poiBusinessesForCity}
+                    allPoiBusinesses={allPoiBusinesses}
                     dbDestinations={dbDestinations}
                     allBusinessesForVideo={allBusinessesForVideo}
                     videoBusinessSearch={videoBusinessSearch}
