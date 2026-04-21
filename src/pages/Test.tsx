@@ -8,7 +8,7 @@ import SearchResultCard, { type SearchResultBusiness } from "@/components/Search
 import PanelSearchBar from "@/components/PanelSearchBar";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
 import SlidePanelHome from "@/components/SlidePanelHome";
-import { Menu as MenuIcon, X } from "lucide-react";
+import { Menu as MenuIcon, X, Star } from "lucide-react";
 
 interface FrontEntry {
   id: string;
