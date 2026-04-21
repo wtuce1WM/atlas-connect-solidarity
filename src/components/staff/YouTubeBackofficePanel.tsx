@@ -74,6 +74,8 @@ const YouTubeBackofficePanel = () => {
   const [poisByVideo, setPoisByVideo] = useState<Record<string, string[]>>({});
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [pois, setPois] = useState<POI[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
+  const [cityByVideo, setCityByVideo] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
