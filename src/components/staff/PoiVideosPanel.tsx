@@ -307,9 +307,24 @@ const PoiVideosPanel = () => {
     return result;
   }, [cityFilteredVideos, selectedPoi]);
 
+  const canReorder = selectedPoi !== "__all__";
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
+    // Only allow reordering when a specific POI is selected (scoped ordering)
+    if (!canReorder) {
+      toast.info("Sélectionnez un POI précis pour réordonner");
+      return;
+    }
+    // Only reorder among internal videos (source === "document")
+    const activeVideo = videos.find(v => v.id === active.id);
+    const overVideo = videos.find(v => v.id === over.id);
+    if (!activeVideo || !overVideo) return;
+    if (activeVideo.source !== "document" || overVideo.source !== "document") {
+      toast.info("Seules les vidéos internes peuvent être réordonnées");
+      return;
+    }
     setVideos(prev => {
       const oldIndex = prev.findIndex(v => v.id === active.id);
       const newIndex = prev.findIndex(v => v.id === over.id);
@@ -318,16 +333,23 @@ const PoiVideosPanel = () => {
   };
 
   const saveOrder = async () => {
+    if (!canReorder) {
+      toast.error("Sélectionnez un POI précis pour sauvegarder");
+      return;
+    }
     setSaving(true);
     try {
-      for (let i = 0; i < videos.length; i++) {
-        if (videos[i].source === "generic") continue;
-        await supabase
-          .from("business_documents")
-          .update({ front_sort_order: i } as any)
-          .eq("id", videos[i].id);
-      }
-      toast.success("Ordre sauvegardé");
+      // Only save internal videos for the selected POI, scoped indexing
+      const internalForPoi = filteredVideos.filter(v => v.source === "document");
+      await Promise.all(
+        internalForPoi.map((v, i) =>
+          supabase
+            .from("business_documents")
+            .update({ front_sort_order: i } as any)
+            .eq("id", v.id)
+        )
+      );
+      toast.success(`Ordre sauvegardé (${internalForPoi.length} vidéo${internalForPoi.length !== 1 ? "s" : ""})`);
     } catch {
       toast.error("Erreur lors de la sauvegarde");
     }
