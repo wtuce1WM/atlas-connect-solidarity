@@ -78,6 +78,13 @@ interface City {
   name: string;
 }
 
+interface BadgeOption {
+  id: string;
+  name_fr: string;
+  color_hex: string | null;
+  text_color_hex: string | null;
+}
+
 const YouTubeBackofficePanel = () => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [videosByBusiness, setVideosByBusiness] = useState<Record<string, YouTubeVideo[]>>({});
