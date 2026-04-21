@@ -1580,6 +1580,19 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     fetchPoiBusinesses();
   }, [formData.city, business?.id]);
 
+  // Fetch ALL POI businesses (used for video → POI selector, filtered by the video's own city)
+  useEffect(() => {
+    const fetchAll = async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name, city")
+        .eq("is_poi", true)
+        .eq("is_active", true)
+        .order("name");
+      setAllPoiBusinesses((data || []).map(b => ({ id: b.id, name: b.name, city: b.city || null })));
+    };
+    fetchAll();
+  }, []);
   // Fetch all businesses for video linking
   useEffect(() => {
     const fetchAll = async () => {
