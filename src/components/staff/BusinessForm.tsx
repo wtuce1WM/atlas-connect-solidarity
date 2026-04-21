@@ -1648,7 +1648,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     fetchAll();
   }, [business?.id]);
 
-  const handleChange = (field: string, value: string | boolean | string[]) => {
+  const handleChange = (field: string, value: string | boolean | string[] | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setIsDirty(true);
   };
