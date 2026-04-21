@@ -60,6 +60,12 @@ interface Destination {
 interface POI {
   id: string;
   name_fr: string;
+  city_id: string;
+}
+
+interface City {
+  id: string;
+  name: string;
 }
 
 const YouTubeBackofficePanel = () => {
