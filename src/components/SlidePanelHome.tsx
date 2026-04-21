@@ -19,6 +19,7 @@ interface SlidePanelHomeProps {
   onNext?: () => void;
   hasPrev?: boolean;
   hasNext?: boolean;
+  owner?: { id: string; name: string; logo_url: string | null } | null;
 }
 
 const SlidePanelHome = ({
@@ -34,6 +35,7 @@ const SlidePanelHome = ({
   onNext,
   hasPrev,
   hasNext,
+  owner,
 }: SlidePanelHomeProps) => {
   const navigate = useNavigate();
   const panelRef = useRef<HTMLDivElement>(null);
