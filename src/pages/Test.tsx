@@ -18,12 +18,20 @@ interface FrontEntry {
   service_ids: string[];
 }
 
+interface OwnerInfo {
+  id: string;
+  name: string;
+  logo_url: string | null;
+}
+
 interface VideoItem {
   id: string;
   url: string;
   business_name: string;
   thumbnail_url: string | null;
   business: SearchResultBusiness | null;
+  /** Set only when the video's owner business differs from the display entity */
+  owner: OwnerInfo | null;
 }
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
@@ -257,6 +265,7 @@ const Test = () => {
               business_name: v.name || (acct ? `@${acct}` : (biz?.name || "—")),
               thumbnail_url: v.thumbnail_url || deriveThumbnail(v.url),
               business: biz,
+              owner: null,
             } as VideoItem;
           })
           .filter(Boolean) as VideoItem[];
@@ -344,14 +353,17 @@ const Test = () => {
 
         // Resolve display business: prefer poi_id, then linked_business_id, then business_id
         const displayBizIds = [...new Set(internal.map(getDisplayId))];
+        // Also resolve owner business (business_id of the doc) when different from display
+        const ownerBizIds = [...new Set(internal.map((d: any) => d.business_id).filter((id: string) => !displayBizIds.includes(id)))];
+        const allBizIds = [...new Set([...displayBizIds, ...ownerBizIds])];
         const bizMap = new Map<string, SearchResultBusiness>();
-        if (displayBizIds.length > 0) {
+        if (allBizIds.length > 0) {
           const batch = 300;
-          for (let i = 0; i < displayBizIds.length; i += batch) {
+          for (let i = 0; i < allBizIds.length; i += batch) {
             const { data: bizs } = await supabase
               .from("businesses")
               .select("id, name, images, logo_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
-              .in("id", displayBizIds.slice(i, i + batch));
+              .in("id", allBizIds.slice(i, i + batch));
             (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
           }
         }
@@ -360,12 +372,14 @@ const Test = () => {
           internal.map((d: any) => {
             const displayId = getDisplayId(d);
             const biz = bizMap.get(displayId) || null;
+            const ownerBiz = d.business_id !== displayId ? bizMap.get(d.business_id) || null : null;
             return {
               id: d.id,
               url: d.url,
               business_name: biz?.name || "—",
               thumbnail_url: d.thumbnail_url,
               business: biz,
+              owner: ownerBiz ? { id: ownerBiz.id, name: ownerBiz.name, logo_url: (ownerBiz as any).logo_url ?? null } : null,
             };
           })
         );
@@ -373,34 +387,35 @@ const Test = () => {
         return;
       }
 
-      // Resolve display business: prefer linked_business_id, then business_id (parent)
-      const displayBizIds = [
-        ...new Set(
-          allDocs.map((d: any) => d.linked_business_id || d.business_id)
-        ),
-      ];
+      // Home path: display business prefers poi_id > linked_business_id > business_id
+      const getDisplayId = (d: any) => d.poi_id || d.linked_business_id || d.business_id;
+      const displayBizIds = [...new Set(allDocs.map(getDisplayId))];
+      const ownerBizIds = [...new Set(allDocs.map((d: any) => d.business_id).filter((id: string) => !displayBizIds.includes(id)))];
+      const allBizIds = [...new Set([...displayBizIds, ...ownerBizIds])];
       const bizMap = new Map<string, SearchResultBusiness>();
-      if (displayBizIds.length > 0) {
+      if (allBizIds.length > 0) {
         const batch = 300;
-        for (let i = 0; i < displayBizIds.length; i += batch) {
+        for (let i = 0; i < allBizIds.length; i += batch) {
           const { data: bizs } = await supabase
             .from("businesses")
             .select("id, name, images, logo_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
-            .in("id", displayBizIds.slice(i, i + batch));
+            .in("id", allBizIds.slice(i, i + batch));
           (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
         }
       }
 
       setVideos(
         allDocs.map((d: any) => {
-          const displayId = d.linked_business_id || d.business_id;
+          const displayId = getDisplayId(d);
           const biz = bizMap.get(displayId) || null;
+          const ownerBiz = d.business_id !== displayId ? bizMap.get(d.business_id) || null : null;
           return {
             id: d.id,
             url: d.url,
             business_name: biz?.name || "—",
             thumbnail_url: d.thumbnail_url,
             business: biz,
+            owner: ownerBiz ? { id: ownerBiz.id, name: ownerBiz.name, logo_url: (ownerBiz as any).logo_url ?? null } : null,
           };
         })
       );
@@ -514,6 +529,7 @@ const Test = () => {
         business_name: y.title || biz.name,
         thumbnail_url: y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/hqdefault.jpg`,
         business: biz as SearchResultBusiness,
+        owner: null,
       }));
       setGuideVideos(items);
       setLoadingGuide(false);
@@ -764,6 +780,27 @@ const Test = () => {
                             <div className="w-0 h-0 border-y-[6px] border-y-transparent border-l-[9px] border-l-white ml-0.5" />
                           </div>
                         </div>
+                        {v.owner && (
+                          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-[6] flex flex-col items-center justify-center gap-2 px-2 pointer-events-none">
+                            {v.owner.logo_url && (
+                              <img
+                                key={`logo-${v.id}`}
+                                src={v.owner.logo_url}
+                                alt={v.owner.name}
+                                className="animate-logo-big-full-reveal max-w-[70%] max-h-[40%] object-contain"
+                                style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))" }}
+                              />
+                            )}
+                            <div
+                              key={`cta-${v.id}`}
+                              className="animate-cta-zoom-in flex items-center gap-1 rounded-full bg-black border border-white/15 px-2 py-0.5"
+                            >
+                              <span className="text-[9px] font-medium text-white whitespace-nowrap" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                                {v.owner.name} <span className="text-[11px]">©</span>
+                              </span>
+                            </div>
+                          </div>
+                        )}
                         {v.business_name && (
                           <div className="absolute bottom-0 left-0 right-0 p-1.5">
                             <p className="text-[10px] font-medium text-white line-clamp-1">{v.business_name}</p>
@@ -807,6 +844,7 @@ const Test = () => {
         videoId={activeVideo?.id || null}
         businessName={activeVideo?.business_name || ""}
         isGeneric={isActiveGeneric}
+        owner={activeVideo?.owner || null}
         currentTime={currentTime}
         onTimeUpdate={setCurrentTime}
         onPrev={() => {
