@@ -18,12 +18,20 @@ interface FrontEntry {
   service_ids: string[];
 }
 
+interface OwnerInfo {
+  id: string;
+  name: string;
+  logo_url: string | null;
+}
+
 interface VideoItem {
   id: string;
   url: string;
   business_name: string;
   thumbnail_url: string | null;
   business: SearchResultBusiness | null;
+  /** Set only when the video's owner business differs from the display entity */
+  owner: OwnerInfo | null;
 }
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
