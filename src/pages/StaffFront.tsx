@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, Smartphone, Play, Image, MapPinned, FlaskConical } from "lucide-react";
+import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, Smartphone, Play, Image, MapPinned, FlaskConical, Youtube } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import VideoLightbox from "@/components/staff/VideoLightbox";
+import YouTubeBackofficePanel from "@/components/staff/YouTubeBackofficePanel";
 
 interface FrontVideo {
   id: string;
@@ -381,6 +382,10 @@ const StaffFront = () => {
               <Play className="h-4 w-4" />
               Vidéos
             </TabsTrigger>
+            <TabsTrigger value="youtube" className="gap-2">
+              <Youtube className="h-4 w-4" />
+              YouTube
+            </TabsTrigger>
             <TabsTrigger value="test" className="gap-2">
               <FlaskConical className="h-4 w-4" />
               Test
@@ -487,6 +492,10 @@ const StaffFront = () => {
                 <VideoDbStructurePanel />
               </TabsContent>
             </Tabs>
+          </TabsContent>
+
+          <TabsContent value="youtube">
+            <YouTubeBackofficePanel />
           </TabsContent>
 
           <TabsContent value="test">
