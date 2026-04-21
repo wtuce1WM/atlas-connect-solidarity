@@ -1299,7 +1299,18 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             });
           }
         }
-        setVideoDocs((data as any[]).filter((d: any) => d.type === "video").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: !!(d as any).popup, hide_logo: !!(d as any).hide_logo, event_id: d.event_id || null, badge_ids: badgeAssocMap.get(d.id) || [], _original_sort_order: d.sort_order ?? 0, _original_front_sort_order: d.front_sort_order ?? 0, _show_on_front: d.show_on_front ?? false })));
+        const cityAssocMap = new Map<string, string[]>();
+        if (videoDocIds.length > 0) {
+          for (let i = 0; i < videoDocIds.length; i += 200) {
+            const batch = videoDocIds.slice(i, i + 200);
+            const { data: cityData } = await supabase.from("business_document_cities" as any).select("document_id, city_id").in("document_id", batch);
+            if (cityData) (cityData as any[]).forEach((c: any) => {
+              if (!cityAssocMap.has(c.document_id)) cityAssocMap.set(c.document_id, []);
+              cityAssocMap.get(c.document_id)!.push(c.city_id);
+            });
+          }
+        }
+        setVideoDocs((data as any[]).filter((d: any) => d.type === "video").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: !!(d as any).popup, hide_logo: !!(d as any).hide_logo, event_id: d.event_id || null, badge_ids: badgeAssocMap.get(d.id) || [], city_ids: cityAssocMap.get(d.id) || [], _original_sort_order: d.sort_order ?? 0, _original_front_sort_order: d.front_sort_order ?? 0, _show_on_front: d.show_on_front ?? false })));
       }
     };
     const fetchSummaries = async () => {
@@ -2314,19 +2325,26 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         });
         if (docsError) throw docsError;
 
-        // Save badge associations for video docs
+        // Save badge + city associations for video docs
         if (insertedDocs) {
           const parsed = typeof insertedDocs === "string" ? JSON.parse(insertedDocs) : insertedDocs;
           const videoInserted = (parsed as any[]).filter((d: any) => d.type === "video");
           const badgeRows: Array<{ document_id: string; badge_id: string }> = [];
+          const cityRows: Array<{ document_id: string; city_id: string }> = [];
           videoInserted.forEach((inserted: any, i: number) => {
             const original = videoDocsWithThumbs[i];
             if (original?.badge_ids?.length) {
               original.badge_ids.forEach(bid => badgeRows.push({ document_id: inserted.id, badge_id: bid }));
             }
+            if (original?.city_ids?.length) {
+              original.city_ids.forEach(cid => cityRows.push({ document_id: inserted.id, city_id: cid }));
+            }
           });
           if (badgeRows.length > 0) {
             await supabase.from("business_document_badges" as any).insert(badgeRows);
+          }
+          if (cityRows.length > 0) {
+            await supabase.from("business_document_cities" as any).insert(cityRows);
           }
         }
 
@@ -4704,7 +4722,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 <span className="text-xs text-muted-foreground">🔊 Son {formData.default_sound_on ? "activé" : "désactivé"} par défaut</span>
               </div>
             </div>
-            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => { const maxOrder = prev.reduce((m, d) => Math.max(m, d._original_sort_order ?? 0), -1); return [...prev, { url: "", name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, service_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null, popup: false, hide_logo: false, event_id: null, badge_ids: [], _original_sort_order: maxOrder + 1, _original_front_sort_order: maxOrder + 1, _show_on_front: false }]; })}>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => { const maxOrder = prev.reduce((m, d) => Math.max(m, d._original_sort_order ?? 0), -1); return [...prev, { url: "", name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, service_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null, popup: false, hide_logo: false, event_id: null, badge_ids: [], city_ids: [], _original_sort_order: maxOrder + 1, _original_front_sort_order: maxOrder + 1, _show_on_front: false }]; })}>
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
            </div>
@@ -4746,6 +4764,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                      hide_logo: (data as any).hide_logo || false,
                      event_id: null,
                      badge_ids: [],
+                     city_ids: [],
                      _original_sort_order: maxOrder + 1,
                      _original_front_sort_order: maxOrder + 1,
                      _show_on_front: false,
@@ -4775,7 +4794,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 if (error) { toast({ variant: "destructive", title: "Erreur", description: `${file.name}: ${error.message}` }); continue; }
                 const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
                 if (urlData?.publicUrl) {
-                   setVideoDocs(prev => { const maxOrder = prev.reduce((m, d) => Math.max(m, d._original_sort_order ?? 0), -1); return [...prev, { url: urlData.publicUrl, name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, service_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null, popup: false, hide_logo: false, event_id: null, badge_ids: [], _original_sort_order: maxOrder + 1, _original_front_sort_order: maxOrder + 1, _show_on_front: false }]; });
+                   setVideoDocs(prev => { const maxOrder = prev.reduce((m, d) => Math.max(m, d._original_sort_order ?? 0), -1); return [...prev, { url: urlData.publicUrl, name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, service_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null, popup: false, hide_logo: false, event_id: null, badge_ids: [], city_ids: [], _original_sort_order: maxOrder + 1, _original_front_sort_order: maxOrder + 1, _show_on_front: false }]; });
                 }
               }
               toast({ title: `${files.length} vidéo(s) uploadée(s) ✓` });
@@ -4795,7 +4814,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   if (error) { toast({ variant: "destructive", title: "Erreur", description: `${file.name}: ${error.message}` }); continue; }
                   const { data: urlData } = supabase.storage.from("business-videos").getPublicUrl(path);
                   if (urlData?.publicUrl) {
-                    setVideoDocs(prev => { const maxOrder = prev.reduce((m, d) => Math.max(m, d._original_sort_order ?? 0), -1); return [...prev, { url: urlData.publicUrl, name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, service_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null, popup: false, hide_logo: false, event_id: null, badge_ids: [], _original_sort_order: maxOrder + 1, _original_front_sort_order: maxOrder + 1, _show_on_front: false }]; });
+                    setVideoDocs(prev => { const maxOrder = prev.reduce((m, d) => Math.max(m, d._original_sort_order ?? 0), -1); return [...prev, { url: urlData.publicUrl, name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: null, service_id: null, city: null, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null, popup: false, hide_logo: false, event_id: null, badge_ids: [], city_ids: [], _original_sort_order: maxOrder + 1, _original_front_sort_order: maxOrder + 1, _show_on_front: false }]; });
                   }
                 }
                 toast({ title: `${files.length} vidéo(s) uploadée(s) ✓` });
