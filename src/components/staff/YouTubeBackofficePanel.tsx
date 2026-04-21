@@ -93,6 +93,8 @@ const YouTubeBackofficePanel = () => {
   const [subcategories, setSubcategories] = useState<SubcategoryOption[]>([]);
   const [pois, setPois] = useState<POI[]>([]);
   const [cities, setCities] = useState<City[]>([]);
+  const [badgesList, setBadgesList] = useState<BadgeOption[]>([]);
+  const [badgesByVideo, setBadgesByVideo] = useState<Record<string, string[]>>({});
   const [cityByVideo, setCityByVideo] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -102,7 +104,7 @@ const YouTubeBackofficePanel = () => {
 
   const loadAll = useCallback(async () => {
     setLoading(true);
-    const [bizRes, videosRes, destRes, poiRes, vpoiRes, citiesRes, subcatRes, catRes] = await Promise.all([
+    const [bizRes, videosRes, destRes, poiRes, vpoiRes, citiesRes, subcatRes, catRes, badgesRes, vbadgesRes] = await Promise.all([
       supabase
         .from("businesses")
         .select("id, name, city, youtube_url")
