@@ -244,7 +244,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   // Close interceptor
   useEffect(() => {
     if (!interceptCloseRef) return;
-    if (showHoursOverlay || showAvailabilitySearch || showDescriptionOverlay || showDirections || showBookingOverlay || !!docOverlay || showMosaic || showYoutubeOverlay || selectedDestinationId || selectedPoiBusinessId || selectedKpBusinessId) {
+    if (showHoursOverlay || showAvailabilitySearch || showDescriptionOverlay || showDirections || showBookingOverlay || !!docOverlay || showMosaic || showYoutubeOverlay || showExternalVideosOverlay || selectedDestinationId || selectedPoiBusinessId || selectedKpBusinessId) {
       interceptCloseRef.current = () => {
         if (showHoursOverlay) { setShowHoursOverlay(false); return true; }
         if (showAvailabilitySearch) { setShowAvailabilitySearch(false); return true; }
@@ -284,7 +284,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     } else {
       interceptCloseRef.current = null;
     }
-  }, [previousBusinessId, cameFromFallback, fallbackPanelData, interceptCloseRef, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId, showHoursOverlay, showAvailabilitySearch, showDescriptionOverlay, showDirections, showBookingOverlay, docOverlay, showMosaic, showYoutubeOverlay]);
+  }, [previousBusinessId, cameFromFallback, fallbackPanelData, interceptCloseRef, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId, showHoursOverlay, showAvailabilitySearch, showDescriptionOverlay, showDirections, showBookingOverlay, docOverlay, showMosaic, showYoutubeOverlay, showExternalVideosOverlay]);
 
   const hideCardsRef = useRef<() => void>(() => {});
   const hasSerpMapping = !!serpApiMapping || !!liteApiHotelId;
@@ -442,7 +442,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   useEffect(() => {
     const overlayOpen =
       showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
-      !!docOverlay || showBookingOverlay || showYoutubeOverlay || showMosaic ||
+      !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
       !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
       showFallbackOverlay || searchOverlayActive || showDescriptionOverlay || !!forceMuted;
 
@@ -465,7 +465,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     if (iframe) { ytPost("mute"); ytPost("playVideo"); }
   }, [
     forceMuted, showDirections, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId,
-    docOverlay, showBookingOverlay, showYoutubeOverlay, showMosaic, externalOverlayActive,
+    docOverlay, showBookingOverlay, showYoutubeOverlay, showExternalVideosOverlay, showMosaic, externalOverlayActive,
     showPoiMapOverlay, activeVideoOverlay, showFallbackOverlay, searchOverlayActive, showDescriptionOverlay,
   ]);
 
@@ -661,7 +661,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   }, []);
 
   // Overlay state for ripple suppression
-  const anyOverlay = showDirections || showBookingOverlay || !!docOverlay || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId || showPoiMapOverlay || !!activeVideoOverlay || isLightboxOpen || showMosaic || showYoutubeOverlay || !!availabilityOverlayCtx || !!serpApiOverlayCtx || showFallbackOverlay || !!externalOverlayActive;
+  const anyOverlay = showDirections || showBookingOverlay || !!docOverlay || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId || showPoiMapOverlay || !!activeVideoOverlay || isLightboxOpen || showMosaic || showYoutubeOverlay || showExternalVideosOverlay || !!availabilityOverlayCtx || !!serpApiOverlayCtx || showFallbackOverlay || !!externalOverlayActive;
 
   const handleVideoLoadedMetadata = useCallback((e: React.SyntheticEvent<HTMLVideoElement>) => {
     const v = e.currentTarget;
