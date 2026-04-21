@@ -265,6 +265,7 @@ const Test = () => {
               business_name: v.name || (acct ? `@${acct}` : (biz?.name || "—")),
               thumbnail_url: v.thumbnail_url || deriveThumbnail(v.url),
               business: biz,
+              owner: null,
             } as VideoItem;
           })
           .filter(Boolean) as VideoItem[];
