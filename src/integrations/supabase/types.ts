@@ -526,6 +526,42 @@ export type Database = {
           },
         ]
       }
+      business_document_cities: {
+        Row: {
+          city_id: string
+          created_at: string
+          document_id: string
+          id: string
+        }
+        Insert: {
+          city_id: string
+          created_at?: string
+          document_id: string
+          id?: string
+        }
+        Update: {
+          city_id?: string
+          created_at?: string
+          document_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_document_cities_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_document_cities_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "business_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_documents: {
         Row: {
           business_id: string
