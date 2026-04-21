@@ -844,6 +844,7 @@ const Test = () => {
         videoId={activeVideo?.id || null}
         businessName={activeVideo?.business_name || ""}
         isGeneric={isActiveGeneric}
+        owner={activeVideo?.owner || null}
         currentTime={currentTime}
         onTimeUpdate={setCurrentTime}
         onPrev={() => {
