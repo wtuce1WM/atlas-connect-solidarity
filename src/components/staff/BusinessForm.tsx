@@ -4847,6 +4847,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     videoDocs={videoDocs}
                     setVideoDocs={setVideoDocs}
                     poiBusinessesForCity={poiBusinessesForCity}
+                    allPoiBusinesses={allPoiBusinesses}
                     dbDestinations={dbDestinations}
                     allBusinessesForVideo={allBusinessesForVideo}
                     videoBusinessSearch={videoBusinessSearch}
