@@ -1,0 +1,1 @@
+ALTER TABLE public.business_youtube_videos ADD COLUMN IF NOT EXISTS subcategory_id uuid REFERENCES public.subcategories(id) ON DELETE SET NULL;
