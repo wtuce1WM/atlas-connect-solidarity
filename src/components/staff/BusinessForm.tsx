@@ -1189,6 +1189,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     show_opening_hours: (business as any)?.show_opening_hours ?? false,
     closure_message: (business as any)?.closure_message || "",
     show_videos: (business as any)?.show_videos ?? false,
+    front_video_count: (business as any)?.front_video_count ?? 3,
     default_sound_on: (business as any)?.default_sound_on ?? true,
     prioritize_images: (business as any)?.prioritize_images ?? false,
     show_youtube_tab: (business as any)?.show_youtube_tab ?? false,
