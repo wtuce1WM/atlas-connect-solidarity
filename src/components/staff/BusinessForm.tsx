@@ -587,15 +587,29 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
         <CollapsibleContent>
           <div className="grid grid-cols-1 gap-1 pt-1">
             <div>
-              <label className="text-[9px] text-muted-foreground">Ville</label>
-              <Select value={doc.city || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, city: v === "__none__" ? null : v, neighborhood: null } : d))}>
-                <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__">— Aucune</SelectItem>
-                  <SelectItem value="__all__">Toutes les villes</SelectItem>
-                  {dbCities.map(c => <SelectItem key={c.id} value={c.name_fr}>{c.name_fr}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <label className="text-[9px] text-muted-foreground">Villes (multi-sélection)</label>
+              <div className="flex flex-wrap gap-0.5 mt-0.5">
+                {dbCities.map(c => {
+                  const isSelected = doc.city_ids.includes(c.id);
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      className={`text-[9px] px-1.5 py-0.5 rounded-full border transition-colors ${isSelected ? "bg-primary text-primary-foreground border-primary" : "bg-background text-muted-foreground border-border hover:border-primary/50"}`}
+                      onClick={() => setVideoDocs(prev => prev.map((d, i) => {
+                        if (i !== idx) return d;
+                        const nextCityIds = isSelected ? d.city_ids.filter(cid => cid !== c.id) : [...d.city_ids, c.id];
+                        // Sync legacy single `city` field to first selected city's name (for back-compat with POI/quartier filters)
+                        const firstCityId = nextCityIds[0];
+                        const firstCityName = firstCityId ? (dbCities.find(x => x.id === firstCityId)?.name_fr || null) : null;
+                        return { ...d, city_ids: nextCityIds, city: firstCityName, neighborhood: firstCityName === d.city ? d.neighborhood : null };
+                      }))}
+                    >
+                      {c.name_fr}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
             <div>
               <label className="text-[9px] text-muted-foreground">Quartier</label>
