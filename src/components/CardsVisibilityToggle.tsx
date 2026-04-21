@@ -74,7 +74,7 @@ interface CardsToggleButtonProps {
 
 export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDownDrag, leftSlot, rightSlot, middleSlot, openBadgeInfo }: CardsToggleButtonProps) => {
   return (
-    <div className={`w-full shrink-0 pointer-events-auto relative z-20 ${openBadgeInfo?.text ? (middleSlot ? "pb-6 md:pb-0" : "pb-9 md:pb-0") : ""}`}>
+    <div className={`w-full shrink-0 pointer-events-auto relative z-20 ${openBadgeInfo?.text ? (middleSlot ? "pb-2 md:pb-0" : "pb-9 md:pb-0") : ""}`}>
       <div className="flex w-full items-center justify-center gap-3 h-[32px] mb-2 relative">
         {cardsHidden ? (
           <button
@@ -126,7 +126,7 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
       </div>
       {/* Optional middle slot (e.g. hook text on mobile) */}
       {!cardsHidden && middleSlot && (
-        <div className="flex justify-center mt-6 md:mt-3">
+        <div className="flex justify-center mt-10 md:mt-3">
           {middleSlot}
         </div>
       )}
