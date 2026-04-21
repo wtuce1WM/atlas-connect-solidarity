@@ -102,7 +102,7 @@ const YouTubeBackofficePanel = () => {
     if (destRes.data) setDestinations(destRes.data as Destination[]);
     const poisData = (poiRes.data || []) as POI[];
     setPois(poisData);
-    if (citiesRes.data) setCities(citiesRes.data as City[]);
+    if (citiesRes.data) setCities((citiesRes.data as any[]).map((c) => ({ id: c.id, name: c.name_fr })));
 
     const grouped: Record<string, YouTubeVideo[]> = {};
     (videosRes.data || []).forEach((v: any) => {
