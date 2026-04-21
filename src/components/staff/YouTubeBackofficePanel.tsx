@@ -60,6 +60,12 @@ interface Destination {
 interface POI {
   id: string;
   name_fr: string;
+  city_id: string;
+}
+
+interface City {
+  id: string;
+  name: string;
 }
 
 const YouTubeBackofficePanel = () => {
@@ -68,13 +74,15 @@ const YouTubeBackofficePanel = () => {
   const [poisByVideo, setPoisByVideo] = useState<Record<string, string[]>>({});
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [pois, setPois] = useState<POI[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
+  const [cityByVideo, setCityByVideo] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
 
   const loadAll = useCallback(async () => {
     setLoading(true);
-    const [bizRes, videosRes, destRes, poiRes, vpoiRes] = await Promise.all([
+    const [bizRes, videosRes, destRes, poiRes, vpoiRes, citiesRes] = await Promise.all([
       supabase
         .from("businesses")
         .select("id, name, city, youtube_url")
@@ -85,13 +93,16 @@ const YouTubeBackofficePanel = () => {
         .select("id, business_id, video_id, title, thumbnail, is_short, is_visible, destination_id")
         .order("sort_order"),
       supabase.from("destinations").select("id, name_fr").order("name_fr"),
-      supabase.from("points_of_interest").select("id, name_fr").order("name_fr"),
+      supabase.from("points_of_interest").select("id, name_fr, city_id").order("name_fr"),
       supabase.from("business_youtube_video_pois").select("youtube_video_id, point_of_interest_id"),
+      supabase.from("cities").select("id, name_fr").order("name_fr"),
     ]);
 
     if (bizRes.data) setBusinesses(bizRes.data as Business[]);
     if (destRes.data) setDestinations(destRes.data as Destination[]);
-    if (poiRes.data) setPois(poiRes.data as POI[]);
+    const poisData = (poiRes.data || []) as POI[];
+    setPois(poisData);
+    if (citiesRes.data) setCities((citiesRes.data as any[]).map((c) => ({ id: c.id, name: c.name_fr })));
 
     const grouped: Record<string, YouTubeVideo[]> = {};
     (videosRes.data || []).forEach((v: any) => {
@@ -106,6 +117,13 @@ const YouTubeBackofficePanel = () => {
       poiMap[row.youtube_video_id].push(row.point_of_interest_id);
     });
     setPoisByVideo(poiMap);
+
+    const cityMap: Record<string, string> = {};
+    Object.entries(poiMap).forEach(([videoId, poiIds]) => {
+      const firstPoi = poisData.find((p) => p.id === poiIds[0]);
+      if (firstPoi) cityMap[videoId] = firstPoi.city_id;
+    });
+    setCityByVideo(cityMap);
 
     setLoading(false);
   }, []);
@@ -319,6 +337,33 @@ const YouTubeBackofficePanel = () => {
 
                             <div className="space-y-1.5">
                               <label className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
+                                Ville
+                              </label>
+                              <Select
+                                value={cityByVideo[video.id] || "none"}
+                                onValueChange={(val) =>
+                                  setCityByVideo((prev) => ({
+                                    ...prev,
+                                    [video.id]: val === "none" ? "" : val,
+                                  }))
+                                }
+                              >
+                                <SelectTrigger className="h-7 text-xs">
+                                  <SelectValue placeholder="Aucune" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="none">— Aucune —</SelectItem>
+                                  {cities.map((c) => (
+                                    <SelectItem key={c.id} value={c.id}>
+                                      {c.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="space-y-1.5">
+                              <label className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
                                 POIs ({selectedPois.length})
                               </label>
                               <Popover>
@@ -326,16 +371,21 @@ const YouTubeBackofficePanel = () => {
                                   <Button
                                     variant="outline"
                                     size="sm"
+                                    disabled={!cityByVideo[video.id]}
                                     className="h-7 w-full justify-start text-xs font-normal"
                                   >
-                                    {selectedPois.length === 0
+                                    {!cityByVideo[video.id]
+                                      ? "Sélectionnez d'abord une ville"
+                                      : selectedPois.length === 0
                                       ? "Aucun POI sélectionné"
                                       : `${selectedPois.length} POI${selectedPois.length > 1 ? "s" : ""} sélectionné${selectedPois.length > 1 ? "s" : ""}`}
                                   </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-72 p-0" align="start">
                                   <div className="max-h-64 overflow-y-auto p-1">
-                                    {pois.map((poi) => {
+                                    {pois
+                                      .filter((p) => p.city_id === cityByVideo[video.id])
+                                      .map((poi) => {
                                       const checked = selectedPois.includes(poi.id);
                                       return (
                                         <button
@@ -350,6 +400,11 @@ const YouTubeBackofficePanel = () => {
                                         </button>
                                       );
                                     })}
+                                    {pois.filter((p) => p.city_id === cityByVideo[video.id]).length === 0 && (
+                                      <p className="text-xs text-muted-foreground text-center py-3">
+                                        Aucun POI dans cette ville.
+                                      </p>
+                                    )}
                                   </div>
                                 </PopoverContent>
                               </Popover>
