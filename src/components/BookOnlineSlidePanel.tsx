@@ -889,6 +889,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               showCards={showCards}
               hideCards={hideCards}
               onMouseDownDrag={onMouseDownDrag}
+              openBadgeInfo={openBadgeInfo}
               leftSlot={languages.length > 0 ? (
                 <div className={`hidden md:flex items-center flex-wrap justify-center gap-1 md:gap-2 py-1.5 px-3 md:px-3 shrink-0 ${languages.length > 5 ? 'md:max-w-none' : ''}`}>
                   {languages.map((lang, i) => {
