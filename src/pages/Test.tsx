@@ -327,12 +327,14 @@ const Test = () => {
           return (a.sort_order ?? 0) - (b.sort_order ?? 0);
         });
 
-        // For each display business, keep the first video — internal videos win
+        // Display entity priority: poi_id > linked_business_id > business_id.
+        // For each display entity, keep the first video — internal videos win
         // because of the sort above.
-        const displayIdsInOrder = [...new Set(allDocs.map((d: any) => d.linked_business_id || d.business_id))];
+        const getDisplayId = (d: any) => d.poi_id || d.linked_business_id || d.business_id;
+        const displayIdsInOrder = [...new Set(allDocs.map(getDisplayId))];
         const firstByDisplay = new Map<string, any>();
         for (const d of allDocs) {
-          const displayId = d.linked_business_id || d.business_id;
+          const displayId = getDisplayId(d);
           if (!firstByDisplay.has(displayId)) firstByDisplay.set(displayId, d);
         }
 
@@ -340,12 +342,8 @@ const Test = () => {
           .map((displayId) => firstByDisplay.get(displayId))
           .filter(Boolean);
 
-        // Resolve display business: prefer linked_business_id, then business_id (parent)
-        const displayBizIds = [
-          ...new Set(
-            internal.map((d: any) => d.linked_business_id || d.business_id)
-          ),
-        ];
+        // Resolve display business: prefer poi_id, then linked_business_id, then business_id
+        const displayBizIds = [...new Set(internal.map(getDisplayId))];
         const bizMap = new Map<string, SearchResultBusiness>();
         if (displayBizIds.length > 0) {
           const batch = 300;
@@ -360,7 +358,7 @@ const Test = () => {
 
         setVideos(
           internal.map((d: any) => {
-            const displayId = d.linked_business_id || d.business_id;
+            const displayId = getDisplayId(d);
             const biz = bizMap.get(displayId) || null;
             return {
               id: d.id,
