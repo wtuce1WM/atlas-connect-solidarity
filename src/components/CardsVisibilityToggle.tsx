@@ -68,12 +68,14 @@ interface CardsToggleButtonProps {
   rightSlot?: React.ReactNode;
   /** Optional content rendered between the flags row and the toggle button — e.g. hook text on mobile */
   middleSlot?: React.ReactNode;
+  /** Open/closed badge — rendered absolutely below the toggle so it doesn't push cards down */
+  openBadgeInfo?: { text: string; isOpen: boolean } | null;
 }
 
-export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDownDrag, leftSlot, rightSlot, middleSlot }: CardsToggleButtonProps) => {
+export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDownDrag, leftSlot, rightSlot, middleSlot, openBadgeInfo }: CardsToggleButtonProps) => {
   return (
     <div className="w-full shrink-0 pointer-events-auto relative z-20">
-      <div className="flex w-full items-center justify-center gap-3 h-[32px] mb-2">
+      <div className="flex w-full items-center justify-center gap-3 h-[32px] mb-2 relative">
         {cardsHidden ? (
           <button
             type="button"
@@ -111,6 +113,15 @@ export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDo
         )}
         {!cardsHidden && rightSlot && (
           <div className="flex items-center">{rightSlot}</div>
+        )}
+        {/* Open/closed badge — absolutely positioned below the toggle button */}
+        {openBadgeInfo?.text && (
+          <div
+            className={`absolute left-1/2 -translate-x-1/2 top-full mt-1 flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap pointer-events-auto z-10 ${openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"}`}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
+            {openBadgeInfo.text}
+          </div>
         )}
       </div>
       {/* Optional middle slot (e.g. hook text on mobile) */}

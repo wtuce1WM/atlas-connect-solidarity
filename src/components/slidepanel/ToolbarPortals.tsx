@@ -80,15 +80,6 @@ export function ToolbarPortals({
               <ChevronLeft className="h-4 w-4" />
             </button>
           )}
-          {openBadgeInfo?.text && (
-            <div
-              className={`md:hidden fixed z-[80] flex items-center gap-1 rounded-full px-1.5 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap pointer-events-auto ${openBadgeInfo.isOpen ? "bg-[#25D366] text-white" : "bg-[#C04F17] text-white"}`}
-              style={{ left: "calc(25% + 1.125rem)", transform: "translateX(-50%)", top: "calc(0.5rem + (2.25rem - 1.25rem) / 2)", height: "1.25rem" }}
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
-              {openBadgeInfo.text}
-            </div>
-          )}
         </div>,
         toolbarLeftPortal
       )}
