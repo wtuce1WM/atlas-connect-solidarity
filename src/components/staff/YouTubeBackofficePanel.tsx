@@ -337,6 +337,33 @@ const YouTubeBackofficePanel = () => {
 
                             <div className="space-y-1.5">
                               <label className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
+                                Ville
+                              </label>
+                              <Select
+                                value={cityByVideo[video.id] || "none"}
+                                onValueChange={(val) =>
+                                  setCityByVideo((prev) => ({
+                                    ...prev,
+                                    [video.id]: val === "none" ? "" : val,
+                                  }))
+                                }
+                              >
+                                <SelectTrigger className="h-7 text-xs">
+                                  <SelectValue placeholder="Aucune" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="none">— Aucune —</SelectItem>
+                                  {cities.map((c) => (
+                                    <SelectItem key={c.id} value={c.id}>
+                                      {c.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="space-y-1.5">
+                              <label className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
                                 POIs ({selectedPois.length})
                               </label>
                               <Popover>
