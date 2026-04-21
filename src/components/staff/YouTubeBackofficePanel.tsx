@@ -61,22 +61,13 @@ interface Destination {
 interface POI {
   id: string;
   name_fr: string;
-  city_id: string;
-  latitude: number | null;
-  longitude: number | null;
+  city: string | null;
+  neighborhood: string | null;
 }
 
 interface City {
   id: string;
   name: string;
-}
-
-interface Neighborhood {
-  id: string;
-  name: string;
-  city_id: string;
-  latitude: number | null;
-  longitude: number | null;
 }
 
 const YouTubeBackofficePanel = () => {
