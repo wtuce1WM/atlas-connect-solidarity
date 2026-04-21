@@ -364,9 +364,9 @@ const PoiVideosPanel = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold">Vidéos avec POI ({videos.length})</h3>
-        <Button size="sm" onClick={saveOrder} disabled={saving}>
+        <Button size="sm" onClick={saveOrder} disabled={saving || !canReorder} title={!canReorder ? "Sélectionnez un POI précis" : undefined}>
           {saving ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null}
-          Sauvegarder l'ordre
+          Sauvegarder l'ordre{canReorder ? " (internes)" : ""}
         </Button>
       </div>
 
