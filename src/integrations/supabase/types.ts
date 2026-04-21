@@ -1078,7 +1078,14 @@ export type Database = {
             foreignKeyName: "business_youtube_video_pois_point_of_interest_id_fkey"
             columns: ["point_of_interest_id"]
             isOneToOne: false
-            referencedRelation: "points_of_interest"
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_youtube_video_pois_point_of_interest_id_fkey"
+            columns: ["point_of_interest_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
           {
