@@ -91,6 +91,7 @@ const YouTubeBackofficePanel = () => {
   const [search, setSearch] = useState("");
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
+  const [syncingId, setSyncingId] = useState<string | null>(null);
 
   const loadAll = useCallback(async () => {
     setLoading(true);
