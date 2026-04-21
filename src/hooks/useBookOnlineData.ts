@@ -345,8 +345,89 @@ export function useBookOnlineData(businessId: string) {
         seenUrls.add(d.url);
         return true;
       });
-      setVideoDocs(filteredVDocs);
-      
+
+      // Pre-fetch linked / POI / generic videos in parallel so the initial render
+      // already has all videos sorted (own → linked → external) before showing media.
+      const [linkedVidsRes, poiVidsRes, gvLinksRes] = await Promise.all([
+        supabase
+          .from("business_documents")
+          .select("url, name, city, price, price_type, description, thumbnail_url, business_id")
+          .eq("linked_business_id", businessId)
+          .eq("type", "video")
+          .order("front_sort_order"),
+        supabase
+          .from("business_documents")
+          .select("url, name, city, price, price_type, description, thumbnail_url, business_id")
+          .eq("poi_id", businessId)
+          .eq("type", "video")
+          .order("front_sort_order"),
+        supabase
+          .from("generic_video_pois" as any)
+          .select("generic_video_id, sort_order")
+          .eq("poi_id", businessId)
+          .order("sort_order", { ascending: true }) as any,
+      ]);
+
+      if (isCancelled) return;
+
+      const ownerIds = new Set<string>();
+      ((linkedVidsRes.data || []) as any[]).forEach((v) => v.business_id && ownerIds.add(v.business_id));
+      ((poiVidsRes.data || []) as any[]).forEach((v) => v.business_id && ownerIds.add(v.business_id));
+      const ownerMap = new Map<string, { name: string; logo_url: string | null; instagram_url: string | null }>();
+      const gvIds = ((gvLinksRes.data || []) as any[]).map((l: any) => l.generic_video_id);
+      const [ownersRes, gvDataRes] = await Promise.all([
+        ownerIds.size > 0
+          ? supabase.from("businesses").select("id, name, logo_url, instagram_url, is_active").in("id", [...ownerIds])
+          : Promise.resolve({ data: [] as any[] }),
+        gvIds.length > 0
+          ? supabase.from("generic_videos").select("id, url, name, thumbnail_url, instagram_account, tiktok_account, youtube_account").in("id", gvIds)
+          : Promise.resolve({ data: [] as any[] }),
+      ]);
+      if (isCancelled) return;
+      ((ownersRes.data || []) as any[]).forEach((o: any) => {
+        if (o.is_active === false) return;
+        ownerMap.set(o.id, { name: o.name, logo_url: o.logo_url, instagram_url: o.instagram_url });
+      });
+
+      const buildLinked = (rows: any[], isPoi: boolean): VideoDoc[] =>
+        (rows || [])
+          .filter((d) => d.url && ownerMap.has(d.business_id))
+          .map((d) => {
+            const o = ownerMap.get(d.business_id);
+            return {
+              url: d.url, name: d.name, city: d.city, price: d.price,
+              price_type: d.price_type, description: d.description,
+              thumbnail_url: d.thumbnail_url,
+              owner_business_id: d.business_id,
+              owner_name: o?.name || null,
+              owner_logo: o?.logo_url || null,
+              owner_instagram: o?.instagram_url || null,
+              ...(isPoi ? { is_poi_linked: true } : {}),
+            } as VideoDoc;
+          });
+
+      const linkedVDocs = buildLinked((linkedVidsRes.data || []) as any[], false);
+      const poiVDocs = buildLinked((poiVidsRes.data || []) as any[], true);
+
+      const orderMap = new Map(((gvLinksRes.data || []) as any[]).map((l: any) => [l.generic_video_id, l.sort_order ?? 0]));
+      const genericVDocs: VideoDoc[] = ((gvDataRes.data || []) as any[])
+        .sort((a: any, b: any) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0))
+        .map((gv: any) => ({
+          url: gv.url, name: gv.name, city: null, price: null, price_type: null,
+          description: null, thumbnail_url: gv.thumbnail_url,
+          owner_business_id: null, owner_name: null, owner_logo: null, owner_instagram: null,
+          generic_video_account: gv.instagram_account || gv.youtube_account || gv.tiktok_account || gv.name || null,
+        }));
+
+      // Merge all, dedupe by URL (preserve first occurrence)
+      const merged: VideoDoc[] = [];
+      const mergedSeen = new Set<string>();
+      for (const d of [...filteredVDocs, ...linkedVDocs, ...poiVDocs, ...genericVDocs]) {
+        if (!d.url || mergedSeen.has(d.url)) continue;
+        mergedSeen.add(d.url);
+        merged.push(d);
+      }
+      setVideoDocs(merged);
 
       // Important: render panel as soon as core data is ready
       setIsLoading(false);
@@ -668,9 +749,8 @@ export function useBookOnlineData(businessId: string) {
         fetchDestinations(),
         fetchPoiBusinesses(),
         fetchKpRelated(),
-        fetchLinkedVideos(),
-        fetchPoiLinkedVideos(),
-        fetchGenericVideosForPoi(),
+        // fetchLinkedVideos / fetchPoiLinkedVideos / fetchGenericVideosForPoi
+        // are now performed in the initial fetch above so the first render is correctly ordered.
         fetchLiteApiMapping(),
         fetchSerpApiMapping(),
       ]);
