@@ -81,6 +81,7 @@ const YouTubeBackofficePanel = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
+  const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
 
   const loadAll = useCallback(async () => {
     setLoading(true);
@@ -325,13 +326,34 @@ const YouTubeBackofficePanel = () => {
                           }`}
                         >
                           <div className="aspect-video relative bg-muted">
-                            <img
-                              src={video.thumbnail}
-                              alt={video.title}
-                              className="w-full h-full object-cover"
-                            />
+                            {playingVideoId === video.id ? (
+                              <iframe
+                                src={`https://www.youtube-nocookie.com/embed/${video.video_id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
+                                className="w-full h-full"
+                                allow="autoplay; encrypted-media"
+                                allowFullScreen
+                              />
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => setPlayingVideoId(video.id)}
+                                className="w-full h-full relative group"
+                                aria-label="Lire la vidéo"
+                              >
+                                <img
+                                  src={video.thumbnail}
+                                  alt={video.title}
+                                  className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
+                                  <div className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
+                                    <Play className="h-5 w-5 text-white fill-white ml-0.5" />
+                                  </div>
+                                </div>
+                              </button>
+                            )}
                             {video.is_short && (
-                              <Badge className="absolute top-2 left-2 bg-red-600 hover:bg-red-600 text-white text-[10px]">
+                              <Badge className="absolute top-2 left-2 bg-red-600 hover:bg-red-600 text-white text-[10px] z-10">
                                 SHORT
                               </Badge>
                             )}
