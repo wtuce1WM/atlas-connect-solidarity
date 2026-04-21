@@ -676,6 +676,35 @@ const YouTubeBackofficePanel = () => {
                                 </div>
                               )}
                             </div>
+
+                            <div className="space-y-1.5">
+                              <label className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
+                                Badges ({(badgesByVideo[video.id] || []).length})
+                              </label>
+                              <div className="flex flex-wrap gap-1.5">
+                                {badgesList.length === 0 ? (
+                                  <p className="text-[10px] text-muted-foreground">Aucun badge disponible</p>
+                                ) : (
+                                  badgesList.map((b) => {
+                                    const isSelected = (badgesByVideo[video.id] || []).includes(b.id);
+                                    const style = isSelected && b.color_hex
+                                      ? { backgroundColor: b.color_hex, color: b.text_color_hex || "#fff", borderColor: b.color_hex }
+                                      : undefined;
+                                    return (
+                                      <Badge
+                                        key={b.id}
+                                        variant={isSelected ? "default" : "outline"}
+                                        style={style}
+                                        className="cursor-pointer transition-colors text-[10px]"
+                                        onClick={() => toggleBadge(video.id, b.id)}
+                                      >
+                                        {b.name_fr}
+                                      </Badge>
+                                    );
+                                  })
+                                )}
+                              </div>
+                            </div>
                           </div>
                         </div>
                       );
