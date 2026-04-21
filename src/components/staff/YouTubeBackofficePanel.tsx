@@ -371,16 +371,21 @@ const YouTubeBackofficePanel = () => {
                                   <Button
                                     variant="outline"
                                     size="sm"
+                                    disabled={!cityByVideo[video.id]}
                                     className="h-7 w-full justify-start text-xs font-normal"
                                   >
-                                    {selectedPois.length === 0
+                                    {!cityByVideo[video.id]
+                                      ? "Sélectionnez d'abord une ville"
+                                      : selectedPois.length === 0
                                       ? "Aucun POI sélectionné"
                                       : `${selectedPois.length} POI${selectedPois.length > 1 ? "s" : ""} sélectionné${selectedPois.length > 1 ? "s" : ""}`}
                                   </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-72 p-0" align="start">
                                   <div className="max-h-64 overflow-y-auto p-1">
-                                    {pois.map((poi) => {
+                                    {pois
+                                      .filter((p) => p.city_id === cityByVideo[video.id])
+                                      .map((poi) => {
                                       const checked = selectedPois.includes(poi.id);
                                       return (
                                         <button
@@ -395,6 +400,11 @@ const YouTubeBackofficePanel = () => {
                                         </button>
                                       );
                                     })}
+                                    {pois.filter((p) => p.city_id === cityByVideo[video.id]).length === 0 && (
+                                      <p className="text-xs text-muted-foreground text-center py-3">
+                                        Aucun POI dans cette ville.
+                                      </p>
+                                    )}
                                   </div>
                                 </PopoverContent>
                               </Popover>
