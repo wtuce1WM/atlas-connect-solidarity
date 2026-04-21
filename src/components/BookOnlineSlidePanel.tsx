@@ -1099,6 +1099,20 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         />
       )}
 
+      {/* External Videos Overlay (long-form YouTube videos linked to this business/POI) */}
+      {showExternalVideosOverlay && (
+        <ExternalVideosOverlay
+          videos={externalVideoDocs.map((d: any) => ({
+            url: d.url,
+            name: d.name ?? null,
+            thumbnail_url: d.thumbnail_url ?? null,
+            description: d.description ?? null,
+          }))}
+          businessName={business?.name}
+          onClose={() => setShowExternalVideosOverlay(false)}
+        />
+      )}
+
       {/* Video Document Overlay */}
       {activeVideoOverlay && (
         <VideoDocumentOverlay
