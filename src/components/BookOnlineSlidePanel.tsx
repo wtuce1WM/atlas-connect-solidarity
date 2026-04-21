@@ -1190,7 +1190,12 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   onClick: () => { const mi = mediaItems.findIndex(m => m.kind === "image" && m.url === img); setLightboxIndex(mi >= 0 ? mi : i); setIsLightboxOpen(true); },
                 }));
               } else if (descGridSection === "videos") {
-                gridItems = videoDocs.map((vid, i) => {
+                // Reorder videoDocs to match allVideoUrls order (own → linked → external)
+                const urlOrder = new Map(allVideoUrls.map((u, i) => [u, i]));
+                const sortedVideoDocs = [...videoDocs].sort(
+                  (a, b) => (urlOrder.get(a.url) ?? 999) - (urlOrder.get(b.url) ?? 999)
+                );
+                gridItems = sortedVideoDocs.map((vid, i) => {
                   const ytMatch = vid.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
                   const vimeoMatch = vid.url.match(/vimeo\.com\/(\d+)/);
                   const thumb = vid.thumbnail_url || (ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : null) || (vimeoMatch ? `https://vumbnail.com/${vimeoMatch[1]}.jpg` : null);
