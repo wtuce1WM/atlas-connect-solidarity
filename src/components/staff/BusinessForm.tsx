@@ -1189,6 +1189,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     show_opening_hours: (business as any)?.show_opening_hours ?? false,
     closure_message: (business as any)?.closure_message || "",
     show_videos: (business as any)?.show_videos ?? false,
+    front_video_count: (business as any)?.front_video_count ?? 3,
     default_sound_on: (business as any)?.default_sound_on ?? true,
     prioritize_images: (business as any)?.prioritize_images ?? false,
     show_youtube_tab: (business as any)?.show_youtube_tab ?? false,
@@ -1647,7 +1648,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     fetchAll();
   }, [business?.id]);
 
-  const handleChange = (field: string, value: string | boolean | string[]) => {
+  const handleChange = (field: string, value: string | boolean | string[] | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setIsDirty(true);
   };
@@ -2138,6 +2139,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       show_opening_hours: formData.show_opening_hours,
       closure_message: formData.closure_message || null,
       show_videos: formData.show_videos,
+      front_video_count: formData.front_video_count || 3,
       default_sound_on: formData.default_sound_on,
       prioritize_images: formData.prioritize_images,
       show_youtube_tab: formData.show_youtube_tab ?? false,
@@ -4739,22 +4741,38 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
         {/* Videos (multiple) */}
         <div id="section-videos" className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '160px' }}>
-           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Label className="text-base font-semibold">🎬 Vidéos</Label>
-              <div className="flex items-center gap-2">
-                <Switch checked={formData.show_videos} onCheckedChange={(checked) => { handleChange("show_videos", checked); if (checked) handleChange("prioritize_images", false); }} />
-                <span className="text-xs text-muted-foreground">{formData.show_videos ? "Activé" : "Désactivé"} — Active le Carrousel vidéo</span>
-              </div>
-              <div className="flex items-center gap-2 ml-4">
-                <Switch checked={formData.default_sound_on} onCheckedChange={(checked) => handleChange("default_sound_on", checked)} />
-                <span className="text-xs text-muted-foreground">🔊 Son {formData.default_sound_on ? "activé" : "désactivé"} par défaut</span>
-              </div>
+            <div className="flex items-center justify-between flex-wrap gap-4">
+             <div className="flex items-center gap-3 flex-wrap">
+               <Label className="text-base font-semibold">🎬 Vidéos</Label>
+               <div className="flex items-center gap-2">
+                 <Label className="text-xs text-muted-foreground whitespace-nowrap">Nombre de résultats en front :</Label>
+                 <Input
+                   type="number"
+                   min={1}
+                   max={9}
+                   value={formData.front_video_count || 3}
+                   onChange={(e) => {
+                     const val = parseInt(e.target.value, 10);
+                     if (!isNaN(val) && val >= 1 && val <= 9) {
+                       handleChange("front_video_count", val);
+                     }
+                   }}
+                   className="w-16 h-7 text-xs"
+                 />
+               </div>
+               <div className="flex items-center gap-2">
+                 <Switch checked={formData.show_videos} onCheckedChange={(checked) => { handleChange("show_videos", checked); if (checked) handleChange("prioritize_images", false); }} />
+                 <span className="text-xs text-muted-foreground">{formData.show_videos ? "Activé" : "Désactivé"} — Active le Carrousel vidéo</span>
+               </div>
+               <div className="flex items-center gap-2 ml-4">
+                 <Switch checked={formData.default_sound_on} onCheckedChange={(checked) => handleChange("default_sound_on", checked)} />
+                 <span className="text-xs text-muted-foreground">🔊 Son {formData.default_sound_on ? "activé" : "désactivé"} par défaut</span>
+               </div>
+             </div>
+             <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => { const maxOrder = prev.reduce((m, d) => Math.max(m, d._original_sort_order ?? 0), -1); const def = getNewVideoDefaults(); return [...prev, { url: "", name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: def.subcategory_id, service_id: null, city: def.city, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null, popup: false, hide_logo: false, event_id: null, badge_ids: [], city_ids: def.city_ids, _original_sort_order: maxOrder + 1, _original_front_sort_order: maxOrder + 1, _show_on_front: false }]; })}>
+               <Plus className="h-3 w-3" /> Ajouter
+             </Button>
             </div>
-            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setVideoDocs(prev => { const maxOrder = prev.reduce((m, d) => Math.max(m, d._original_sort_order ?? 0), -1); const def = getNewVideoDefaults(); return [...prev, { url: "", name: "", poi_id: null, destination_id: null, linked_business_id: null, subcategory_id: def.subcategory_id, service_id: null, city: def.city, neighborhood: null, description: null, price: null, price_type: null, thumbnail_url: null, popup: false, hide_logo: false, event_id: null, badge_ids: [], city_ids: def.city_ids, _original_sort_order: maxOrder + 1, _original_front_sort_order: maxOrder + 1, _show_on_front: false }]; })}>
-              <Plus className="h-3 w-3" /> Ajouter
-            </Button>
-           </div>
            {/* Import video by document ID */}
            <div className="flex items-center gap-2">
              <Input

@@ -1283,6 +1283,7 @@ export type Database = {
           flipbook_language: string | null
           flipbook_name: string | null
           flipbook_url: string | null
+          front_video_count: number | null
           gamme_id: string | null
           getyourguide_rating: number | null
           getyourguide_review_count: number | null
@@ -1451,6 +1452,7 @@ export type Database = {
           flipbook_language?: string | null
           flipbook_name?: string | null
           flipbook_url?: string | null
+          front_video_count?: number | null
           gamme_id?: string | null
           getyourguide_rating?: number | null
           getyourguide_review_count?: number | null
@@ -1619,6 +1621,7 @@ export type Database = {
           flipbook_language?: string | null
           flipbook_name?: string | null
           flipbook_url?: string | null
+          front_video_count?: number | null
           gamme_id?: string | null
           getyourguide_rating?: number | null
           getyourguide_review_count?: number | null
@@ -5159,6 +5162,7 @@ export type Database = {
               flipbook_language: string | null
               flipbook_name: string | null
               flipbook_url: string | null
+              front_video_count: number | null
               gamme_id: string | null
               getyourguide_rating: number | null
               getyourguide_review_count: number | null
@@ -5343,6 +5347,7 @@ export type Database = {
               flipbook_language: string | null
               flipbook_name: string | null
               flipbook_url: string | null
+              front_video_count: number | null
               gamme_id: string | null
               getyourguide_rating: number | null
               getyourguide_review_count: number | null
