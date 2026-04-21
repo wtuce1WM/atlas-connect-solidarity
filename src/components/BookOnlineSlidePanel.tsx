@@ -60,6 +60,7 @@ import MediaBackground from "@/components/slidepanel/MediaBackground";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
 import { buildReviewHtml } from "@/lib/reviewHtmlBuilder";
 import VideoControls from "@/components/VideoControls";
+import VideoThumbnail from "@/components/VideoThumbnail";
 
 /* Static hook text component */
 const TypewriterHook = ({ text }: { text: string }) => {
