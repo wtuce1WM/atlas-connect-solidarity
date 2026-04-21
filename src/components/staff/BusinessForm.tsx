@@ -448,6 +448,7 @@ interface SortableVideoCardProps {
   videoDocs: VideoDocEntry[];
   setVideoDocs: Dispatch<SetStateAction<VideoDocEntry[]>>;
   poiBusinessesForCity: Array<{ id: string; name: string; neighborhood: string | null }>;
+  allPoiBusinesses: Array<{ id: string; name: string; city: string | null }>;
   dbDestinations: Array<{ id: string; name_fr: string }>;
   allBusinessesForVideo: Array<{ id: string; name: string }>;
   videoBusinessSearch: Record<number, string>;
