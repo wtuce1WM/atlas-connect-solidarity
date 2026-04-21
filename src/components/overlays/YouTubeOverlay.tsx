@@ -134,6 +134,11 @@ const YouTubeOverlay = ({ business, activeVideo, onSelectVideo, onPlayingChange,
             onVideoCount={() => {}}
             onPlayingChange={onPlayingChange}
             onSelectVideo={handleSelectVideo}
+            onVideosLoaded={(vids) => {
+              if (!activeVideo && vids.length > 0) {
+                handleSelectVideo(vids[0]);
+              }
+            }}
             activeVideoId={activeVideo?.videoId ?? null}
             hideHeader
             size="match-tabs"
