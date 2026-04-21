@@ -315,11 +315,20 @@ const Test = () => {
           if (data.length < PAGE) break;
           offset += PAGE;
         }
-        allDocs = allDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+        // Sort: internal videos (owner === display business, i.e. no linked_business_id
+        // or linked_business_id === business_id) first, then videos imported from another
+        // owner. Within each group, keep ascending sort_order.
+        const isInternal = (d: any) =>
+          !d.linked_business_id || d.linked_business_id === d.business_id;
+        allDocs = allDocs.sort((a: any, b: any) => {
+          const ai = isInternal(a) ? 0 : 1;
+          const bi = isInternal(b) ? 0 : 1;
+          if (ai !== bi) return ai - bi;
+          return (a.sort_order ?? 0) - (b.sort_order ?? 0);
+        });
 
-        // For each display business, keep the first video (in sort_order) that is
-        // actually linked to the selected subcategory — do NOT substitute with the
-        // business's global #1 video, since it may not match the current subcategory.
+        // For each display business, keep the first video — internal videos win
+        // because of the sort above.
         const displayIdsInOrder = [...new Set(allDocs.map((d: any) => d.linked_business_id || d.business_id))];
         const firstByDisplay = new Map<string, any>();
         for (const d of allDocs) {
