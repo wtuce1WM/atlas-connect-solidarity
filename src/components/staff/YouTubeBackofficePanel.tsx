@@ -78,14 +78,13 @@ const YouTubeBackofficePanel = () => {
   const [pois, setPois] = useState<POI[]>([]);
   const [cities, setCities] = useState<City[]>([]);
   const [cityByVideo, setCityByVideo] = useState<Record<string, string>>({});
-  const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
 
   const loadAll = useCallback(async () => {
     setLoading(true);
-    const [bizRes, videosRes, destRes, poiRes, vpoiRes, citiesRes, nbRes] = await Promise.all([
+    const [bizRes, videosRes, destRes, poiRes, vpoiRes, citiesRes] = await Promise.all([
       supabase
         .from("businesses")
         .select("id, name, city, youtube_url")
@@ -96,18 +95,26 @@ const YouTubeBackofficePanel = () => {
         .select("id, business_id, video_id, title, thumbnail, is_short, is_visible, destination_id")
         .order("sort_order"),
       supabase.from("destinations").select("id, name_fr").order("name_fr"),
-      supabase.from("points_of_interest").select("id, name_fr, city_id, latitude, longitude").order("name_fr"),
+      supabase
+        .from("businesses")
+        .select("id, name, city, neighborhood")
+        .eq("is_poi", true)
+        .eq("is_active", true)
+        .order("name"),
       supabase.from("business_youtube_video_pois").select("youtube_video_id, point_of_interest_id"),
       supabase.from("cities").select("id, name_fr").order("name_fr"),
-      supabase.from("neighborhoods").select("id, name, city_id, latitude, longitude").order("sort_order"),
     ]);
 
     if (bizRes.data) setBusinesses(bizRes.data as Business[]);
     if (destRes.data) setDestinations(destRes.data as Destination[]);
-    const poisData = (poiRes.data || []) as POI[];
+    const poisData: POI[] = (poiRes.data || []).map((p: any) => ({
+      id: p.id,
+      name_fr: p.name,
+      city: p.city,
+      neighborhood: p.neighborhood,
+    }));
     setPois(poisData);
     if (citiesRes.data) setCities((citiesRes.data as any[]).map((c) => ({ id: c.id, name: c.name_fr })));
-    if (nbRes.data) setNeighborhoods(nbRes.data as Neighborhood[]);
 
     const grouped: Record<string, YouTubeVideo[]> = {};
     (videosRes.data || []).forEach((v: any) => {
@@ -123,10 +130,15 @@ const YouTubeBackofficePanel = () => {
     });
     setPoisByVideo(poiMap);
 
+    const citiesById = new Map<string, string>();
+    (citiesRes.data || []).forEach((c: any) => citiesById.set((c.name_fr || "").toLowerCase(), c.id));
     const cityMap: Record<string, string> = {};
     Object.entries(poiMap).forEach(([videoId, poiIds]) => {
       const firstPoi = poisData.find((p) => p.id === poiIds[0]);
-      if (firstPoi) cityMap[videoId] = firstPoi.city_id;
+      if (firstPoi && firstPoi.city) {
+        const cid = citiesById.get(firstPoi.city.toLowerCase());
+        if (cid) cityMap[videoId] = cid;
+      }
     });
     setCityByVideo(cityMap);
 
