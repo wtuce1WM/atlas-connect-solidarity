@@ -749,9 +749,8 @@ export function useBookOnlineData(businessId: string) {
         fetchDestinations(),
         fetchPoiBusinesses(),
         fetchKpRelated(),
-        fetchLinkedVideos(),
-        fetchPoiLinkedVideos(),
-        fetchGenericVideosForPoi(),
+        // fetchLinkedVideos / fetchPoiLinkedVideos / fetchGenericVideosForPoi
+        // are now performed in the initial fetch above so the first render is correctly ordered.
         fetchLiteApiMapping(),
         fetchSerpApiMapping(),
       ]);
