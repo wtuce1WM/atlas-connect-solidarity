@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS front_video_count INTEGER DEFAULT 3 CHECK (front_video_count >= 1 AND front_video_count <= 9);
