@@ -386,34 +386,35 @@ const Test = () => {
         return;
       }
 
-      // Resolve display business: prefer linked_business_id, then business_id (parent)
-      const displayBizIds = [
-        ...new Set(
-          allDocs.map((d: any) => d.linked_business_id || d.business_id)
-        ),
-      ];
+      // Home path: display business prefers poi_id > linked_business_id > business_id
+      const getDisplayId = (d: any) => d.poi_id || d.linked_business_id || d.business_id;
+      const displayBizIds = [...new Set(allDocs.map(getDisplayId))];
+      const ownerBizIds = [...new Set(allDocs.map((d: any) => d.business_id).filter((id: string) => !displayBizIds.includes(id)))];
+      const allBizIds = [...new Set([...displayBizIds, ...ownerBizIds])];
       const bizMap = new Map<string, SearchResultBusiness>();
-      if (displayBizIds.length > 0) {
+      if (allBizIds.length > 0) {
         const batch = 300;
-        for (let i = 0; i < displayBizIds.length; i += batch) {
+        for (let i = 0; i < allBizIds.length; i += batch) {
           const { data: bizs } = await supabase
             .from("businesses")
             .select("id, name, images, logo_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
-            .in("id", displayBizIds.slice(i, i + batch));
+            .in("id", allBizIds.slice(i, i + batch));
           (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
         }
       }
 
       setVideos(
         allDocs.map((d: any) => {
-          const displayId = d.linked_business_id || d.business_id;
+          const displayId = getDisplayId(d);
           const biz = bizMap.get(displayId) || null;
+          const ownerBiz = d.business_id !== displayId ? bizMap.get(d.business_id) || null : null;
           return {
             id: d.id,
             url: d.url,
             business_name: biz?.name || "—",
             thumbnail_url: d.thumbnail_url,
             business: biz,
+            owner: ownerBiz ? { id: ownerBiz.id, name: ownerBiz.name, logo_url: (ownerBiz as any).logo_url ?? null } : null,
           };
         })
       );
