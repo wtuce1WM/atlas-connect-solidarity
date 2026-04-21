@@ -1411,15 +1411,11 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                 setDescGridSection(null);
                 setSidebarOpenGroup(null);
               };
-              const activePlatforms = reviewPlatforms.filter(p => p.rating && p.count);
               groups.push({
                 key: 'reviews',
                 icon: <Star className="h-[22px] w-[22px] text-gold fill-gold" />,
-                items: activePlatforms.map(p => ({
-                  label: `${p.name} ${p.rating}/5`,
-                  logo: null,
-                  onClick: () => { openReviewsOverlay(); },
-                })),
+                directClick: openReviewsOverlay,
+                items: [],
               });
             }
             return (
