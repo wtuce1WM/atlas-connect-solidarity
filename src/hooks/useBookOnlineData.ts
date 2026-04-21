@@ -712,20 +712,26 @@ export function useBookOnlineData(businessId: string) {
     });
   }, [destinations, language]);
 
-  // Derived: all video URLs — order: internal (own fiche) → owner (other linked fiches) → external (generic / no owner). Stable within each bucket via DB sort_order.
+  // Derived: all video URLs — order: internal (linked KP/POI fiches) → owner (own fiche) → external (YouTube/Vimeo/links). Stable within each bucket via DB sort_order.
   const allVideoUrls = useMemo(() => {
     const legacyVideo = business?.video_1_url?.trim() || null;
+    const isExternal = (url: string) => /youtube\.com|youtu\.be|vimeo\.com/i.test(url);
     const rank = (d: VideoDoc) => {
-      if (d.generic_video_account || !d.owner_business_id) return 2; // external
-      if (d.owner_business_id === businessId) return 0; // internal (own fiche)
-      return 1; // owner (other linked fiches)
+      if (isExternal(d.url)) return 2; // external (YouTube/Vimeo/links)
+      if (d.owner_business_id === businessId) return 1; // owner (own fiche)
+      return 0; // internal (other linked fiches: KP/POI/generic)
     };
     const sorted = videoDocs
       .map((d, i) => ({ d, i }))
       .sort((a, b) => rank(a.d) - rank(b.d) || a.i - b.i)
       .map(x => x.d);
     const urls = sorted.map(d => d.url).filter(Boolean);
-    if (legacyVideo && !urls.includes(legacyVideo)) urls.unshift(legacyVideo);
+    // Legacy video belongs to the fiche → place it in the "owner" bucket
+    if (legacyVideo && !urls.includes(legacyVideo)) {
+      const firstExternal = urls.findIndex(isExternal);
+      if (firstExternal === -1) urls.push(legacyVideo);
+      else urls.splice(firstExternal, 0, legacyVideo);
+    }
     return urls;
   }, [business?.video_1_url, videoDocs, businessId]);
 
