@@ -1275,10 +1275,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   type ExternalLinkEntry = { id?: string; _uid: string; url: string; name: string; language: string; image_url: string; description: string; force_external: boolean };
   const [externalLinkDocs, setExternalLinkDocs] = useState<ExternalLinkEntry[]>([]);
   const [videoDocs, setVideoDocs] = useState<VideoDocEntry[]>([]);
-  // Returns default city_ids/subcategory_id/city for the FIRST video added (pre-fill from business).
-  // Returns empty defaults for subsequent videos so the user can override per-video.
-  const getNewVideoDefaults = (currentLength: number) => {
-    if (currentLength > 0) return { city_ids: [] as string[], subcategory_id: null as string | null, city: null as string | null };
+  // Returns default city_ids/subcategory_id/city for ALL new videos (pre-fill from business).
+  const getNewVideoDefaults = () => {
     // Pre-fill with ALL cities of the business: primary city + zone_city_ids
     const matchedPrimaryCity = formData.city ? dbCities.find(c => c.name_fr === formData.city) : null;
     const allCityIds = new Set<string>();
