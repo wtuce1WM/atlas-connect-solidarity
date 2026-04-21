@@ -78,6 +78,13 @@ interface City {
   name: string;
 }
 
+interface BadgeOption {
+  id: string;
+  name_fr: string;
+  color_hex: string | null;
+  text_color_hex: string | null;
+}
+
 const YouTubeBackofficePanel = () => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [videosByBusiness, setVideosByBusiness] = useState<Record<string, YouTubeVideo[]>>({});
@@ -86,6 +93,8 @@ const YouTubeBackofficePanel = () => {
   const [subcategories, setSubcategories] = useState<SubcategoryOption[]>([]);
   const [pois, setPois] = useState<POI[]>([]);
   const [cities, setCities] = useState<City[]>([]);
+  const [badgesList, setBadgesList] = useState<BadgeOption[]>([]);
+  const [badgesByVideo, setBadgesByVideo] = useState<Record<string, string[]>>({});
   const [cityByVideo, setCityByVideo] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -95,7 +104,7 @@ const YouTubeBackofficePanel = () => {
 
   const loadAll = useCallback(async () => {
     setLoading(true);
-    const [bizRes, videosRes, destRes, poiRes, vpoiRes, citiesRes, subcatRes, catRes] = await Promise.all([
+    const [bizRes, videosRes, destRes, poiRes, vpoiRes, citiesRes, subcatRes, catRes, badgesRes, vbadgesRes] = await Promise.all([
       supabase
         .from("businesses")
         .select("id, name, city, youtube_url")
@@ -116,6 +125,8 @@ const YouTubeBackofficePanel = () => {
       supabase.from("cities").select("id, name_fr").order("name_fr"),
       supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
       supabase.from("categories").select("id, name_fr"),
+      supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("sort_order", { ascending: true }).order("name_fr"),
+      supabase.from("business_youtube_video_badges").select("youtube_video_id, badge_id") as any,
     ]);
 
     const catNameById = new Map<string, string>(
@@ -169,6 +180,19 @@ const YouTubeBackofficePanel = () => {
       }
     });
     setCityByVideo(cityMap);
+
+    setBadgesList(((badgesRes.data || []) as any[]).map((b) => ({
+      id: b.id,
+      name_fr: b.name_fr,
+      color_hex: b.color_hex,
+      text_color_hex: b.text_color_hex,
+    })));
+    const badgeMap: Record<string, string[]> = {};
+    ((vbadgesRes.data || []) as any[]).forEach((row: any) => {
+      if (!badgeMap[row.youtube_video_id]) badgeMap[row.youtube_video_id] = [];
+      badgeMap[row.youtube_video_id].push(row.badge_id);
+    });
+    setBadgesByVideo(badgeMap);
 
     setLoading(false);
   }, []);
@@ -296,6 +320,26 @@ const YouTubeBackofficePanel = () => {
       await supabase
         .from("business_youtube_video_pois")
         .insert(toAdd.map((id) => ({ youtube_video_id: videoId, point_of_interest_id: id })));
+    }
+  };
+
+  const toggleBadge = async (videoId: string, badgeId: string) => {
+    const current = badgesByVideo[videoId] || [];
+    const isSelected = current.includes(badgeId);
+    if (isSelected) {
+      setBadgesByVideo((prev) => ({ ...prev, [videoId]: current.filter((id) => id !== badgeId) }));
+      const { error } = await (supabase as any)
+        .from("business_youtube_video_badges")
+        .delete()
+        .eq("youtube_video_id", videoId)
+        .eq("badge_id", badgeId);
+      if (error) toast.error("Erreur badge");
+    } else {
+      setBadgesByVideo((prev) => ({ ...prev, [videoId]: [...current, badgeId] }));
+      const { error } = await (supabase as any)
+        .from("business_youtube_video_badges")
+        .insert({ youtube_video_id: videoId, badge_id: badgeId });
+      if (error) toast.error("Erreur badge");
     }
   };
 
@@ -631,6 +675,35 @@ const YouTubeBackofficePanel = () => {
                                   })}
                                 </div>
                               )}
+                            </div>
+
+                            <div className="space-y-1.5">
+                              <label className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
+                                Badges ({(badgesByVideo[video.id] || []).length})
+                              </label>
+                              <div className="flex flex-wrap gap-1.5">
+                                {badgesList.length === 0 ? (
+                                  <p className="text-[10px] text-muted-foreground">Aucun badge disponible</p>
+                                ) : (
+                                  badgesList.map((b) => {
+                                    const isSelected = (badgesByVideo[video.id] || []).includes(b.id);
+                                    const style = isSelected && b.color_hex
+                                      ? { backgroundColor: b.color_hex, color: b.text_color_hex || "#fff", borderColor: b.color_hex }
+                                      : undefined;
+                                    return (
+                                      <Badge
+                                        key={b.id}
+                                        variant={isSelected ? "default" : "outline"}
+                                        style={style}
+                                        className="cursor-pointer transition-colors text-[10px]"
+                                        onClick={() => toggleBadge(video.id, b.id)}
+                                      >
+                                        {b.name_fr}
+                                      </Badge>
+                                    );
+                                  })
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
