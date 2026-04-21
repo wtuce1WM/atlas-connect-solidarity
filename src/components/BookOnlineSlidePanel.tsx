@@ -60,6 +60,7 @@ import MediaBackground from "@/components/slidepanel/MediaBackground";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
 import { buildReviewHtml } from "@/lib/reviewHtmlBuilder";
 import VideoControls from "@/components/VideoControls";
+import VideoThumbnail from "@/components/VideoThumbnail";
 
 /* Static hook text component */
 const TypewriterHook = ({ text }: { text: string }) => {
@@ -1180,7 +1181,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               const GRID_PAGE_SIZE = isMobileGrid ? 8 : 9;
 
               // Build items array based on active section
-              type GridItem = { key: string; imgUrl: string | null; label?: string; onClick: () => void; playIcon?: boolean; masterStar?: boolean };
+              type GridItem = { key: string; imgUrl: string | null; label?: string; onClick: () => void; playIcon?: boolean; masterStar?: boolean; videoFallbackUrl?: string };
               let gridItems: GridItem[] = [];
 
               if (descGridSection === "images") {
@@ -1199,13 +1200,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                   const ytMatch = vid.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
                   const vimeoMatch = vid.url.match(/vimeo\.com\/(\d+)/);
                   const thumb = vid.thumbnail_url || (ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : null) || (vimeoMatch ? `https://vumbnail.com/${vimeoMatch[1]}.jpg` : null);
+                  const isHostedFile = !thumb && !ytMatch && !vimeoMatch;
                   return {
                     key: `vid-${i}`,
                     imgUrl: thumb,
+                    videoFallbackUrl: isHostedFile ? vid.url : undefined,
                     label: vid.name || undefined,
                     playIcon: true,
                     onClick: () => setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description }),
-                  };
+                  } as GridItem;
                 });
               } else if (descGridSection === "poi") {
                 gridItems = poiBusinesses.map((poi) => ({
@@ -1286,6 +1289,8 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
                               >
                                 {item.imgUrl ? (
                                   <img src={item.imgUrl} alt={item.label || `${realIndex + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
+                                ) : item.videoFallbackUrl ? (
+                                  <VideoThumbnail src={item.videoFallbackUrl} alt={item.label} className="w-full h-full object-cover" />
                                 ) : (
                                   <div className="w-full h-full bg-white/10 flex items-center justify-center">
                                     {descGridSection === "videos" ? <Play className="h-8 w-8 text-white/40" /> : <MapPin className="h-8 w-8 text-white/40" />}
