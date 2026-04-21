@@ -712,13 +712,22 @@ export function useBookOnlineData(businessId: string) {
     });
   }, [destinations, language]);
 
-  // Derived: all video URLs — strict order from videoDocs (respects DB sort_order)
+  // Derived: all video URLs — order: internal (own fiche) → owner (other linked fiches) → external (generic / no owner). Stable within each bucket via DB sort_order.
   const allVideoUrls = useMemo(() => {
     const legacyVideo = business?.video_1_url?.trim() || null;
-    const urls = videoDocs.map(d => d.url).filter(Boolean);
-    if (legacyVideo && !urls.includes(legacyVideo)) urls.push(legacyVideo);
+    const rank = (d: VideoDoc) => {
+      if (d.generic_video_account || !d.owner_business_id) return 2; // external
+      if (d.owner_business_id === businessId) return 0; // internal (own fiche)
+      return 1; // owner (other linked fiches)
+    };
+    const sorted = videoDocs
+      .map((d, i) => ({ d, i }))
+      .sort((a, b) => rank(a.d) - rank(b.d) || a.i - b.i)
+      .map(x => x.d);
+    const urls = sorted.map(d => d.url).filter(Boolean);
+    if (legacyVideo && !urls.includes(legacyVideo)) urls.unshift(legacyVideo);
     return urls;
-  }, [business?.video_1_url, videoDocs]);
+  }, [business?.video_1_url, videoDocs, businessId]);
 
   // Dynamic: any Hôtellerie business with price data gets the availability widget
   const isHotelWithPrice = useMemo(() => {
