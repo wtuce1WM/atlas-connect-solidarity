@@ -93,7 +93,7 @@ const YouTubeBackofficePanel = () => {
 
   const loadAll = useCallback(async () => {
     setLoading(true);
-    const [bizRes, videosRes, destRes, poiRes, vpoiRes, citiesRes] = await Promise.all([
+    const [bizRes, videosRes, destRes, poiRes, vpoiRes, citiesRes, nbRes] = await Promise.all([
       supabase
         .from("businesses")
         .select("id, name, city, youtube_url")
@@ -104,9 +104,10 @@ const YouTubeBackofficePanel = () => {
         .select("id, business_id, video_id, title, thumbnail, is_short, is_visible, destination_id")
         .order("sort_order"),
       supabase.from("destinations").select("id, name_fr").order("name_fr"),
-      supabase.from("points_of_interest").select("id, name_fr, city_id").order("name_fr"),
+      supabase.from("points_of_interest").select("id, name_fr, city_id, latitude, longitude").order("name_fr"),
       supabase.from("business_youtube_video_pois").select("youtube_video_id, point_of_interest_id"),
       supabase.from("cities").select("id, name_fr").order("name_fr"),
+      supabase.from("neighborhoods").select("id, name, city_id, latitude, longitude").order("sort_order"),
     ]);
 
     if (bizRes.data) setBusinesses(bizRes.data as Business[]);
@@ -114,6 +115,7 @@ const YouTubeBackofficePanel = () => {
     const poisData = (poiRes.data || []) as POI[];
     setPois(poisData);
     if (citiesRes.data) setCities((citiesRes.data as any[]).map((c) => ({ id: c.id, name: c.name_fr })));
+    if (nbRes.data) setNeighborhoods(nbRes.data as Neighborhood[]);
 
     const grouped: Record<string, YouTubeVideo[]> = {};
     (videosRes.data || []).forEach((v: any) => {
