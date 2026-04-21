@@ -186,6 +186,27 @@ const YouTubeBackofficePanel = () => {
     });
   };
 
+  const handleSync = async (business: Business, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!business.youtube_url) {
+      toast.error("Aucune URL YouTube configurée");
+      return;
+    }
+    setSyncingId(business.id);
+    try {
+      const { error } = await supabase.functions.invoke("fetch-youtube-channel", {
+        body: { channelUrl: business.youtube_url, maxResults: 50, businessId: business.id, syncToDb: true },
+      });
+      if (error) throw error;
+      toast.success("Vidéos YouTube synchronisées");
+      await loadAll();
+    } catch (err: any) {
+      toast.error(err.message || "Erreur de synchronisation");
+    } finally {
+      setSyncingId(null);
+    }
+  };
+
   const toggleVisibility = async (video: YouTubeVideo) => {
     const newVal = !video.is_visible;
     setVideosByBusiness((prev) => ({
