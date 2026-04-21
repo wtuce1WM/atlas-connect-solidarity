@@ -40,6 +40,8 @@ import { useBookOnlineData } from "@/hooks/useBookOnlineData";
 import type { Destination } from "@/hooks/useBookOnlineData";
 import VideoDocumentOverlay from "@/components/overlays/VideoDocumentOverlay";
 import YouTubeOverlay from "@/components/overlays/YouTubeOverlay";
+import ExternalVideosOverlay from "@/components/overlays/ExternalVideosOverlay";
+import { isExternalVideoUrl } from "@/lib/videoSourceFilter";
 import DocumentOverlay from "@/components/overlays/DocumentOverlay";
 import FallbackHotelsPanel from "@/components/overlays/FallbackHotelsPanel";
 import OverlayShell from "@/components/overlays/OverlayShell";
