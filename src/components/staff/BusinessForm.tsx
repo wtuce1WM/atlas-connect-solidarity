@@ -587,12 +587,41 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
         <CollapsibleContent>
           <div className="grid grid-cols-1 gap-1 pt-1">
             <div>
+              <label className="text-[9px] text-muted-foreground">Ville</label>
+              <Select value={doc.city || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, city: v === "__none__" ? null : v, neighborhood: null } : d))}>
+                <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">— Aucune</SelectItem>
+                  {dbCities.map(c => <SelectItem key={c.id} value={c.name_fr}>{c.name_fr}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-[9px] text-muted-foreground">Quartier</label>
+              <Select value={doc.neighborhood || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, neighborhood: v === "__none__" ? null : v } : d))}>
+                <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">— Aucun</SelectItem>
+                  {(() => {
+                    const selectedCity = dbCities.find(c => c.name_fr === doc.city);
+                    if (!selectedCity) return null;
+                    return dbNeighborhoods.filter(n => n.city_id === selectedCity.id).map(n => <SelectItem key={n.id} value={n.name}>{n.name}</SelectItem>);
+                  })()}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
               <label className="text-[9px] text-muted-foreground">POI</label>
               <Select value={doc.poi_id || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, poi_id: v === "__none__" ? null : v } : d))}>
                 <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__none__">— Aucun</SelectItem>
-                  {poiBusinessesForCity.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                  {(() => {
+                    const list = doc.city
+                      ? allPoiBusinesses.filter(p => p.city === doc.city)
+                      : allPoiBusinesses;
+                    return list.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>);
+                  })()}
                 </SelectContent>
               </Select>
             </div>
@@ -671,30 +700,6 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
                         return <SelectItem key={srv.id} value={srv.id}>{srv.name_fr}{sub ? ` / ${sub.name_fr}` : ''}</SelectItem>;
                       })
                   }
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-[9px] text-muted-foreground">Ville</label>
-              <Select value={doc.city || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, city: v === "__none__" ? null : v, neighborhood: null } : d))}>
-                <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__">— Aucune</SelectItem>
-                  {dbCities.map(c => <SelectItem key={c.id} value={c.name_fr}>{c.name_fr}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-[9px] text-muted-foreground">Quartier</label>
-              <Select value={doc.neighborhood || "__none__"} onValueChange={(v) => setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, neighborhood: v === "__none__" ? null : v } : d))}>
-                <SelectTrigger className="h-5 text-[9px]"><SelectValue placeholder="—" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__">— Aucun</SelectItem>
-                  {(() => {
-                    const selectedCity = dbCities.find(c => c.name_fr === doc.city);
-                    if (!selectedCity) return null;
-                    return dbNeighborhoods.filter(n => n.city_id === selectedCity.id).map(n => <SelectItem key={n.id} value={n.name}>{n.name}</SelectItem>);
-                  })()}
                 </SelectContent>
               </Select>
             </div>
