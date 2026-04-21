@@ -32,6 +32,7 @@ import {
   Search,
   Check,
   X,
+  RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -90,6 +91,7 @@ const YouTubeBackofficePanel = () => {
   const [search, setSearch] = useState("");
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
+  const [syncingId, setSyncingId] = useState<string | null>(null);
 
   const loadAll = useCallback(async () => {
     setLoading(true);
@@ -182,6 +184,27 @@ const YouTubeBackofficePanel = () => {
       else next.add(id);
       return next;
     });
+  };
+
+  const handleSync = async (business: Business, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!business.youtube_url) {
+      toast.error("Aucune URL YouTube configurée");
+      return;
+    }
+    setSyncingId(business.id);
+    try {
+      const { error } = await supabase.functions.invoke("fetch-youtube-channel", {
+        body: { channelUrl: business.youtube_url, maxResults: 50, businessId: business.id, syncToDb: true },
+      });
+      if (error) throw error;
+      toast.success("Vidéos YouTube synchronisées");
+      await loadAll();
+    } catch (err: any) {
+      toast.error(err.message || "Erreur de synchronisation");
+    } finally {
+      setSyncingId(null);
+    }
   };
 
   const toggleVisibility = async (video: YouTubeVideo) => {
@@ -342,11 +365,27 @@ const YouTubeBackofficePanel = () => {
                     </p>
                   </div>
                 </div>
-                {isOpen ? (
-                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                )}
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => handleSync(business, e)}
+                    disabled={syncingId === business.id || !business.youtube_url}
+                    className="text-xs h-7"
+                  >
+                    {syncingId === business.id ? (
+                      <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                    ) : (
+                      <RefreshCw className="h-3 w-3 mr-1" />
+                    )}
+                    Synchroniser
+                  </Button>
+                  {isOpen ? (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </div>
               </CollapsibleTrigger>
 
               <CollapsibleContent className="px-3 pb-3">
