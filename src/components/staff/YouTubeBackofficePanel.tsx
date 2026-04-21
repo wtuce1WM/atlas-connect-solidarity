@@ -365,11 +365,27 @@ const YouTubeBackofficePanel = () => {
                     </p>
                   </div>
                 </div>
-                {isOpen ? (
-                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                )}
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => handleSync(business, e)}
+                    disabled={syncingId === business.id || !business.youtube_url}
+                    className="text-xs h-7"
+                  >
+                    {syncingId === business.id ? (
+                      <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                    ) : (
+                      <RefreshCw className="h-3 w-3 mr-1" />
+                    )}
+                    Synchroniser
+                  </Button>
+                  {isOpen ? (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </div>
               </CollapsibleTrigger>
 
               <CollapsibleContent className="px-3 pb-3">
