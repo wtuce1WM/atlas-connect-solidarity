@@ -61,11 +61,21 @@ interface POI {
   id: string;
   name_fr: string;
   city_id: string;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 interface City {
   id: string;
   name: string;
+}
+
+interface Neighborhood {
+  id: string;
+  name: string;
+  city_id: string;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 const YouTubeBackofficePanel = () => {
@@ -76,13 +86,14 @@ const YouTubeBackofficePanel = () => {
   const [pois, setPois] = useState<POI[]>([]);
   const [cities, setCities] = useState<City[]>([]);
   const [cityByVideo, setCityByVideo] = useState<Record<string, string>>({});
+  const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
 
   const loadAll = useCallback(async () => {
     setLoading(true);
-    const [bizRes, videosRes, destRes, poiRes, vpoiRes, citiesRes] = await Promise.all([
+    const [bizRes, videosRes, destRes, poiRes, vpoiRes, citiesRes, nbRes] = await Promise.all([
       supabase
         .from("businesses")
         .select("id, name, city, youtube_url")
@@ -93,9 +104,10 @@ const YouTubeBackofficePanel = () => {
         .select("id, business_id, video_id, title, thumbnail, is_short, is_visible, destination_id")
         .order("sort_order"),
       supabase.from("destinations").select("id, name_fr").order("name_fr"),
-      supabase.from("points_of_interest").select("id, name_fr, city_id").order("name_fr"),
+      supabase.from("points_of_interest").select("id, name_fr, city_id, latitude, longitude").order("name_fr"),
       supabase.from("business_youtube_video_pois").select("youtube_video_id, point_of_interest_id"),
       supabase.from("cities").select("id, name_fr").order("name_fr"),
+      supabase.from("neighborhoods").select("id, name, city_id, latitude, longitude").order("sort_order"),
     ]);
 
     if (bizRes.data) setBusinesses(bizRes.data as Business[]);
@@ -103,6 +115,7 @@ const YouTubeBackofficePanel = () => {
     const poisData = (poiRes.data || []) as POI[];
     setPois(poisData);
     if (citiesRes.data) setCities((citiesRes.data as any[]).map((c) => ({ id: c.id, name: c.name_fr })));
+    if (nbRes.data) setNeighborhoods(nbRes.data as Neighborhood[]);
 
     const grouped: Record<string, YouTubeVideo[]> = {};
     (videosRes.data || []).forEach((v: any) => {
@@ -382,29 +395,64 @@ const YouTubeBackofficePanel = () => {
                                   </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-72 p-0" align="start">
-                                  <div className="max-h-64 overflow-y-auto p-1">
-                                    {pois
-                                      .filter((p) => p.city_id === cityByVideo[video.id])
-                                      .map((poi) => {
-                                      const checked = selectedPois.includes(poi.id);
-                                      return (
-                                        <button
-                                          key={poi.id}
-                                          onClick={() => togglePoi(video.id, poi.id)}
-                                          className="w-full flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-muted rounded text-left"
-                                        >
-                                          <div className="w-4 h-4 border rounded flex items-center justify-center shrink-0">
-                                            {checked && <Check className="h-3 w-3 text-primary" />}
-                                          </div>
-                                          <span className="flex-1">{poi.name_fr}</span>
-                                        </button>
+                                  <div className="max-h-64 overflow-y-auto p-1 space-y-2">
+                                    {(() => {
+                                      const cityId = cityByVideo[video.id];
+                                      const cityPois = pois.filter((p) => p.city_id === cityId);
+                                      if (cityPois.length === 0) {
+                                        return (
+                                          <p className="text-xs text-muted-foreground text-center py-3">
+                                            Aucun POI dans cette ville.
+                                          </p>
+                                        );
+                                      }
+                                      const cityNbs = neighborhoods.filter((n) => n.city_id === cityId);
+                                      const groups: Record<string, POI[]> = {};
+                                      cityPois.forEach((p) => {
+                                        let key = "Autre";
+                                        if (p.latitude != null && p.longitude != null && cityNbs.length > 0) {
+                                          let best: { name: string; d: number } | null = null;
+                                          cityNbs.forEach((n) => {
+                                            if (n.latitude == null || n.longitude == null) return;
+                                            const dx = (n.latitude - p.latitude!);
+                                            const dy = (n.longitude - p.longitude!);
+                                            const d = dx * dx + dy * dy;
+                                            if (!best || d < best.d) best = { name: n.name, d };
+                                          });
+                                          if (best) key = best.name;
+                                        }
+                                        if (!groups[key]) groups[key] = [];
+                                        groups[key].push(p);
+                                      });
+                                      const sortedKeys = Object.keys(groups).sort((a, b) =>
+                                        a === "Autre" ? 1 : b === "Autre" ? -1 : a.localeCompare(b)
                                       );
-                                    })}
-                                    {pois.filter((p) => p.city_id === cityByVideo[video.id]).length === 0 && (
-                                      <p className="text-xs text-muted-foreground text-center py-3">
-                                        Aucun POI dans cette ville.
-                                      </p>
-                                    )}
+                                      return sortedKeys.map((nbName) => (
+                                        <div key={nbName}>
+                                          <div className="px-2 py-1 text-[10px] uppercase tracking-wide text-muted-foreground font-semibold sticky top-0 bg-popover">
+                                            {nbName}{" "}
+                                            <span className="opacity-60 normal-case">
+                                              ({groups[nbName].length})
+                                            </span>
+                                          </div>
+                                          {groups[nbName].map((poi) => {
+                                            const checked = selectedPois.includes(poi.id);
+                                            return (
+                                              <button
+                                                key={poi.id}
+                                                onClick={() => togglePoi(video.id, poi.id)}
+                                                className="w-full flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-muted rounded text-left"
+                                              >
+                                                <div className="w-4 h-4 border rounded flex items-center justify-center shrink-0">
+                                                  {checked && <Check className="h-3 w-3 text-primary" />}
+                                                </div>
+                                                <span className="flex-1">{poi.name_fr}</span>
+                                              </button>
+                                            );
+                                          })}
+                                        </div>
+                                      ));
+                                    })()}
                                   </div>
                                 </PopoverContent>
                               </Popover>
