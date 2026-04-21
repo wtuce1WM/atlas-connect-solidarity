@@ -21,6 +21,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Loader2,
   Play,
@@ -211,6 +212,26 @@ const YouTubeBackofficePanel = () => {
     }
   };
 
+  const togglePoiGroup = async (videoId: string, poiIds: string[], allSelected: boolean) => {
+    const current = poisByVideo[videoId] || [];
+    if (allSelected) {
+      const next = current.filter((id) => !poiIds.includes(id));
+      setPoisByVideo((prev) => ({ ...prev, [videoId]: next }));
+      await supabase
+        .from("business_youtube_video_pois")
+        .delete()
+        .eq("youtube_video_id", videoId)
+        .in("point_of_interest_id", poiIds);
+    } else {
+      const toAdd = poiIds.filter((id) => !current.includes(id));
+      if (toAdd.length === 0) return;
+      setPoisByVideo((prev) => ({ ...prev, [videoId]: [...current, ...toAdd] }));
+      await supabase
+        .from("business_youtube_video_pois")
+        .insert(toAdd.map((id) => ({ youtube_video_id: videoId, point_of_interest_id: id })));
+    }
+  };
+
   const filtered = businesses.filter((b) => {
     if (!search.trim()) return true;
     const q = search.toLowerCase();
@@ -394,8 +415,8 @@ const YouTubeBackofficePanel = () => {
                                       : `${selectedPois.length} POI${selectedPois.length > 1 ? "s" : ""} sélectionné${selectedPois.length > 1 ? "s" : ""}`}
                                   </Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-72 p-0" align="start">
-                                  <div className="max-h-64 overflow-y-auto p-1 space-y-2">
+                                <PopoverContent className="w-80 p-3" align="start">
+                                  <div className="max-h-72 overflow-y-auto space-y-3">
                                     {(() => {
                                       const cityId = cityByVideo[video.id];
                                       const cityPois = pois.filter((p) => p.city_id === cityId);
@@ -407,51 +428,65 @@ const YouTubeBackofficePanel = () => {
                                         );
                                       }
                                       const cityNbs = neighborhoods.filter((n) => n.city_id === cityId);
-                                      const groups: Record<string, POI[]> = {};
+                                      const grouped: Record<string, POI[]> = {};
                                       cityPois.forEach((p) => {
                                         let key = "Autre";
                                         if (p.latitude != null && p.longitude != null && cityNbs.length > 0) {
                                           let best: { name: string; d: number } | null = null;
                                           cityNbs.forEach((n) => {
                                             if (n.latitude == null || n.longitude == null) return;
-                                            const dx = (n.latitude - p.latitude!);
-                                            const dy = (n.longitude - p.longitude!);
+                                            const dx = n.latitude - p.latitude!;
+                                            const dy = n.longitude - p.longitude!;
                                             const d = dx * dx + dy * dy;
                                             if (!best || d < best.d) best = { name: n.name, d };
                                           });
                                           if (best) key = best.name;
                                         }
-                                        if (!groups[key]) groups[key] = [];
-                                        groups[key].push(p);
+                                        if (!grouped[key]) grouped[key] = [];
+                                        grouped[key].push(p);
                                       });
-                                      const sortedKeys = Object.keys(groups).sort((a, b) =>
+                                      const sortedKeys = Object.keys(grouped).sort((a, b) =>
                                         a === "Autre" ? 1 : b === "Autre" ? -1 : a.localeCompare(b)
                                       );
-                                      return sortedKeys.map((nbName) => (
-                                        <div key={nbName}>
-                                          <div className="px-2 py-1 text-[10px] uppercase tracking-wide text-muted-foreground font-semibold sticky top-0 bg-popover">
-                                            {nbName}{" "}
-                                            <span className="opacity-60 normal-case">
-                                              ({groups[nbName].length})
-                                            </span>
-                                          </div>
-                                          {groups[nbName].map((poi) => {
-                                            const checked = selectedPois.includes(poi.id);
-                                            return (
+                                      return sortedKeys.map((nbName) => {
+                                        const ids = grouped[nbName].map((p) => p.id);
+                                        const allSelected = ids.every((id) => selectedPois.includes(id));
+                                        const someSelected = !allSelected && ids.some((id) => selectedPois.includes(id));
+                                        return (
+                                          <div key={nbName}>
+                                            <div className="mb-1 flex items-center gap-2">
+                                              <Checkbox
+                                                checked={allSelected ? true : someSelected ? "indeterminate" : false}
+                                                onCheckedChange={() => togglePoiGroup(video.id, ids, allSelected)}
+                                                className="h-3.5 w-3.5 shrink-0"
+                                              />
                                               <button
-                                                key={poi.id}
-                                                onClick={() => togglePoi(video.id, poi.id)}
-                                                className="w-full flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-muted rounded text-left"
+                                                type="button"
+                                                className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                                                onClick={() => togglePoiGroup(video.id, ids, allSelected)}
                                               >
-                                                <div className="w-4 h-4 border rounded flex items-center justify-center shrink-0">
-                                                  {checked && <Check className="h-3 w-3 text-primary" />}
-                                                </div>
-                                                <span className="flex-1">{poi.name_fr}</span>
+                                                {nbName}
+                                                <span className="text-[10px] opacity-60">({ids.length})</span>
                                               </button>
-                                            );
-                                          })}
-                                        </div>
-                                      ));
+                                            </div>
+                                            <div className="flex flex-wrap gap-1.5">
+                                              {grouped[nbName].map((poi) => {
+                                                const isSelected = selectedPois.includes(poi.id);
+                                                return (
+                                                  <Badge
+                                                    key={poi.id}
+                                                    variant={isSelected ? "default" : "outline"}
+                                                    className="cursor-pointer transition-colors text-[10px]"
+                                                    onClick={() => togglePoi(video.id, poi.id)}
+                                                  >
+                                                    {poi.name_fr}
+                                                  </Badge>
+                                                );
+                                              })}
+                                            </div>
+                                          </div>
+                                        );
+                                      });
                                     })()}
                                   </div>
                                 </PopoverContent>
