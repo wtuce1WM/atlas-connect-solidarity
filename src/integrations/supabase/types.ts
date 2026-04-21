@@ -1108,6 +1108,7 @@ export type Database = {
           is_visible: boolean
           published_at: string | null
           sort_order: number
+          subcategory_id: string | null
           thumbnail: string
           title: string
           updated_at: string
@@ -1123,6 +1124,7 @@ export type Database = {
           is_visible?: boolean
           published_at?: string | null
           sort_order?: number
+          subcategory_id?: string | null
           thumbnail?: string
           title?: string
           updated_at?: string
@@ -1138,6 +1140,7 @@ export type Database = {
           is_visible?: boolean
           published_at?: string | null
           sort_order?: number
+          subcategory_id?: string | null
           thumbnail?: string
           title?: string
           updated_at?: string
@@ -1163,6 +1166,13 @@ export type Database = {
             columns: ["destination_id"]
             isOneToOne: false
             referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_youtube_videos_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "subcategories"
             referencedColumns: ["id"]
           },
         ]
