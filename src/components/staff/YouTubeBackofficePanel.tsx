@@ -181,6 +181,19 @@ const YouTubeBackofficePanel = () => {
     });
     setCityByVideo(cityMap);
 
+    setBadgesList(((badgesRes.data || []) as any[]).map((b) => ({
+      id: b.id,
+      name_fr: b.name_fr,
+      color_hex: b.color_hex,
+      text_color_hex: b.text_color_hex,
+    })));
+    const badgeMap: Record<string, string[]> = {};
+    ((vbadgesRes.data || []) as any[]).forEach((row: any) => {
+      if (!badgeMap[row.youtube_video_id]) badgeMap[row.youtube_video_id] = [];
+      badgeMap[row.youtube_video_id].push(row.badge_id);
+    });
+    setBadgesByVideo(badgeMap);
+
     setLoading(false);
   }, []);
 
