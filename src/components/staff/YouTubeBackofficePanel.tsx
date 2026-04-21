@@ -323,6 +323,26 @@ const YouTubeBackofficePanel = () => {
     }
   };
 
+  const toggleBadge = async (videoId: string, badgeId: string) => {
+    const current = badgesByVideo[videoId] || [];
+    const isSelected = current.includes(badgeId);
+    if (isSelected) {
+      setBadgesByVideo((prev) => ({ ...prev, [videoId]: current.filter((id) => id !== badgeId) }));
+      const { error } = await (supabase as any)
+        .from("business_youtube_video_badges")
+        .delete()
+        .eq("youtube_video_id", videoId)
+        .eq("badge_id", badgeId);
+      if (error) toast.error("Erreur badge");
+    } else {
+      setBadgesByVideo((prev) => ({ ...prev, [videoId]: [...current, badgeId] }));
+      const { error } = await (supabase as any)
+        .from("business_youtube_video_badges")
+        .insert({ youtube_video_id: videoId, badge_id: badgeId });
+      if (error) toast.error("Erreur badge");
+    }
+  };
+
   const filtered = businesses.filter((b) => {
     if (!search.trim()) return true;
     const q = search.toLowerCase();
