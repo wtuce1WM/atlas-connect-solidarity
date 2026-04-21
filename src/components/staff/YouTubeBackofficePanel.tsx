@@ -422,7 +422,8 @@ const YouTubeBackofficePanel = () => {
                                   <div className="max-h-72 overflow-y-auto space-y-3">
                                     {(() => {
                                       const cityId = cityByVideo[video.id];
-                                      const cityPois = pois.filter((p) => p.city_id === cityId);
+                                      const cityName = (cities.find((c) => c.id === cityId)?.name || "").toLowerCase();
+                                      const cityPois = pois.filter((p) => (p.city || "").toLowerCase() === cityName);
                                       if (cityPois.length === 0) {
                                         return (
                                           <p className="text-xs text-muted-foreground text-center py-3">
@@ -430,21 +431,9 @@ const YouTubeBackofficePanel = () => {
                                           </p>
                                         );
                                       }
-                                      const cityNbs = neighborhoods.filter((n) => n.city_id === cityId);
                                       const grouped: Record<string, POI[]> = {};
                                       cityPois.forEach((p) => {
-                                        let key = "Autre";
-                                        if (p.latitude != null && p.longitude != null && cityNbs.length > 0) {
-                                          let best: { name: string; d: number } | null = null;
-                                          cityNbs.forEach((n) => {
-                                            if (n.latitude == null || n.longitude == null) return;
-                                            const dx = n.latitude - p.latitude!;
-                                            const dy = n.longitude - p.longitude!;
-                                            const d = dx * dx + dy * dy;
-                                            if (!best || d < best.d) best = { name: n.name, d };
-                                          });
-                                          if (best) key = best.name;
-                                        }
+                                        const key = p.neighborhood || "Autre";
                                         if (!grouped[key]) grouped[key] = [];
                                         grouped[key].push(p);
                                       });
