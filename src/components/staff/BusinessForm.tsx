@@ -4750,7 +4750,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                    type="number"
                    min={1}
                    max={9}
-                   value={formData.front_video_count || 3}
+                   value={formData.front_video_count || 1}
                    onChange={(e) => {
                      const val = parseInt(e.target.value, 10);
                      if (!isNaN(val) && val >= 1 && val <= 9) {
