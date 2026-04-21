@@ -51,11 +51,18 @@ interface YouTubeVideo {
   is_short: boolean;
   is_visible: boolean;
   destination_id: string | null;
+  subcategory_id: string | null;
 }
 
 interface Destination {
   id: string;
   name_fr: string;
+}
+
+interface SubcategoryOption {
+  id: string;
+  name_fr: string;
+  category_name: string;
 }
 
 interface POI {
@@ -75,6 +82,7 @@ const YouTubeBackofficePanel = () => {
   const [videosByBusiness, setVideosByBusiness] = useState<Record<string, YouTubeVideo[]>>({});
   const [poisByVideo, setPoisByVideo] = useState<Record<string, string[]>>({});
   const [destinations, setDestinations] = useState<Destination[]>([]);
+  const [subcategories, setSubcategories] = useState<SubcategoryOption[]>([]);
   const [pois, setPois] = useState<POI[]>([]);
   const [cities, setCities] = useState<City[]>([]);
   const [cityByVideo, setCityByVideo] = useState<Record<string, string>>({});
@@ -85,7 +93,7 @@ const YouTubeBackofficePanel = () => {
 
   const loadAll = useCallback(async () => {
     setLoading(true);
-    const [bizRes, videosRes, destRes, poiRes, vpoiRes, citiesRes] = await Promise.all([
+    const [bizRes, videosRes, destRes, poiRes, vpoiRes, citiesRes, subcatRes, catRes] = await Promise.all([
       supabase
         .from("businesses")
         .select("id, name, city, youtube_url")
@@ -93,7 +101,7 @@ const YouTubeBackofficePanel = () => {
         .order("name"),
       supabase
         .from("business_youtube_videos")
-        .select("id, business_id, video_id, title, thumbnail, is_short, is_visible, destination_id")
+        .select("id, business_id, video_id, title, thumbnail, is_short, is_visible, destination_id, subcategory_id")
         .order("sort_order"),
       supabase.from("destinations").select("id, name_fr").order("name_fr"),
       supabase
@@ -104,7 +112,24 @@ const YouTubeBackofficePanel = () => {
         .order("name"),
       supabase.from("business_youtube_video_pois").select("youtube_video_id, point_of_interest_id"),
       supabase.from("cities").select("id, name_fr").order("name_fr"),
+      supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
+      supabase.from("categories").select("id, name_fr"),
     ]);
+
+    const catNameById = new Map<string, string>(
+      ((catRes.data || []) as any[]).map((c) => [c.id, c.name_fr])
+    );
+    const subcatOptions: SubcategoryOption[] = ((subcatRes.data || []) as any[])
+      .map((s) => ({
+        id: s.id,
+        name_fr: s.name_fr,
+        category_name: catNameById.get(s.category_id) || "—",
+      }))
+      .sort((a, b) =>
+        a.category_name.localeCompare(b.category_name, "fr") ||
+        a.name_fr.localeCompare(b.name_fr, "fr")
+      );
+    setSubcategories(subcatOptions);
 
     if (bizRes.data) setBusinesses(bizRes.data as Business[]);
     if (destRes.data) setDestinations(destRes.data as Destination[]);
@@ -172,6 +197,21 @@ const YouTubeBackofficePanel = () => {
       .update({ is_visible: newVal })
       .eq("id", video.id);
     if (error) toast.error("Erreur de mise à jour");
+  };
+
+  const updateSubcategory = async (video: YouTubeVideo, subId: string | null) => {
+    setVideosByBusiness((prev) => ({
+      ...prev,
+      [video.business_id]: prev[video.business_id].map((v) =>
+        v.id === video.id ? { ...v, subcategory_id: subId } : v
+      ),
+    }));
+    const { error } = await supabase
+      .from("business_youtube_videos")
+      .update({ subcategory_id: subId } as any)
+      .eq("id", video.id);
+    if (error) toast.error("Erreur de mise à jour sous-catégorie");
+    else toast.success("Sous-catégorie mise à jour");
   };
 
   const updateDestination = async (video: YouTubeVideo, destId: string | null) => {
@@ -368,6 +408,30 @@ const YouTubeBackofficePanel = () => {
                               <p className="text-xs leading-tight line-clamp-2 flex-1 font-medium">
                                 {video.title}
                               </p>
+                            </div>
+
+                            <div className="space-y-1.5">
+                              <label className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
+                                Sous-catégorie
+                              </label>
+                              <Select
+                                value={video.subcategory_id || "none"}
+                                onValueChange={(val) =>
+                                  updateSubcategory(video, val === "none" ? null : val)
+                                }
+                              >
+                                <SelectTrigger className="h-7 text-xs">
+                                  <SelectValue placeholder="Aucune" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="none">— Aucune —</SelectItem>
+                                  {subcategories.map((s) => (
+                                    <SelectItem key={s.id} value={s.id}>
+                                      {s.name_fr} / {s.category_name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
                             </div>
 
                             <div className="space-y-1.5">
