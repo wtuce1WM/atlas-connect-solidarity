@@ -95,7 +95,7 @@ const YouTubeBackofficePanel = () => {
       supabase.from("destinations").select("id, name_fr").order("name_fr"),
       supabase.from("points_of_interest").select("id, name_fr, city_id").order("name_fr"),
       supabase.from("business_youtube_video_pois").select("youtube_video_id, point_of_interest_id"),
-      supabase.from("cities").select("id, name").order("name"),
+      supabase.from("cities").select("id, name_fr").order("name_fr"),
     ]);
 
     if (bizRes.data) setBusinesses(bizRes.data as Business[]);
