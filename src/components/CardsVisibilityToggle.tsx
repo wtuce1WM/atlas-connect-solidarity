@@ -74,7 +74,7 @@ interface CardsToggleButtonProps {
 
 export const CardsToggleButton = ({ cardsHidden, showCards, hideCards, onMouseDownDrag, leftSlot, rightSlot, middleSlot, openBadgeInfo }: CardsToggleButtonProps) => {
   return (
-    <div className="w-full shrink-0 pointer-events-auto relative z-20">
+    <div className={`w-full shrink-0 pointer-events-auto relative z-20 ${openBadgeInfo?.text ? "pb-5 md:pb-0" : ""}`}>
       <div className="flex w-full items-center justify-center gap-3 h-[32px] mb-2 relative">
         {cardsHidden ? (
           <button
