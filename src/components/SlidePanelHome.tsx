@@ -160,7 +160,7 @@ const SlidePanelHome = ({
             </a>
             {description && (
               <div
-                className="pointer-events-auto text-white text-sm text-center leading-snug max-w-md select-text"
+                className="pointer-events-auto text-white text-lg md:text-xl text-center leading-snug max-w-xl select-text"
                 style={{ textShadow: "0 1px 2px hsla(0,0%,0%,0.9), 0 2px 8px hsla(0,0%,0%,0.7)" }}
                 dangerouslySetInnerHTML={{ __html: description }}
               />
