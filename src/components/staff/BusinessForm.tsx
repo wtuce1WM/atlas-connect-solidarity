@@ -686,10 +686,15 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
                       onClick={() => setVideoDocs(prev => prev.map((d, i) => {
                         if (i !== idx) return d;
                         const nextCityIds = isSelected ? d.city_ids.filter(cid => cid !== c.id) : [...d.city_ids, c.id];
-                        // Sync legacy single `city` field to first selected city's name (for back-compat with POI/quartier filters)
                         const firstCityId = nextCityIds[0];
                         const firstCityName = firstCityId ? (dbCities.find(x => x.id === firstCityId)?.name_fr || null) : null;
-                        return { ...d, city_ids: nextCityIds, city: firstCityName, neighborhood: firstCityName === d.city ? d.neighborhood : null };
+                        return {
+                          ...d,
+                          city_ids: nextCityIds,
+                          // Empty string = explicit "aucune ville" pour empêcher le fallback legacy business.city
+                          city: firstCityName ?? "",
+                          neighborhood: firstCityName && firstCityName === d.city ? d.neighborhood : null,
+                        };
                       }))}
                     >
                       {c.name_fr}
@@ -1121,6 +1126,9 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         const key = d.id || "";
         if (key && backfilledDocIdsRef.current.has(key)) return d;
 
+        // Empty string means the user explicitly cleared the city selection.
+        if (d.city === "") return d;
+
         // Legacy fallback priority:
         // 1) document city
         // 2) parent business city (older videos inherited the business city)
@@ -1472,7 +1480,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             });
           }
         }
-        setVideoDocs((data as any[]).filter((d: any) => d.type === "video").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: !!(d as any).popup, hide_logo: !!(d as any).hide_logo, event_id: d.event_id || null, badge_ids: badgeAssocMap.get(d.id) || [], city_ids: cityAssocMap.get(d.id) || [], instagram_account: d.instagram_account || null, instagram_url: d.instagram_url || null, instagram_video_url: d.instagram_video_url || null, tiktok_account: d.tiktok_account || null, tiktok_url: d.tiktok_url || null, tiktok_video_url: d.tiktok_video_url || null, youtube_account: d.youtube_account || null, youtube_url: d.youtube_url || null, youtube_video_url: d.youtube_video_url || null, _original_sort_order: d.sort_order ?? 0, _original_front_sort_order: d.front_sort_order ?? 0, _show_on_front: d.show_on_front ?? false })));
+        setVideoDocs((data as any[]).filter((d: any) => d.type === "video").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city ?? null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: !!(d as any).popup, hide_logo: !!(d as any).hide_logo, event_id: d.event_id || null, badge_ids: badgeAssocMap.get(d.id) || [], city_ids: cityAssocMap.get(d.id) || [], instagram_account: d.instagram_account || null, instagram_url: d.instagram_url || null, instagram_video_url: d.instagram_video_url || null, tiktok_account: d.tiktok_account || null, tiktok_url: d.tiktok_url || null, tiktok_video_url: d.tiktok_video_url || null, youtube_account: d.youtube_account || null, youtube_url: d.youtube_url || null, youtube_video_url: d.youtube_video_url || null, _original_sort_order: d.sort_order ?? 0, _original_front_sort_order: d.front_sort_order ?? 0, _show_on_front: d.show_on_front ?? false })));
       }
     };
     const fetchSummaries = async () => {
@@ -2478,7 +2486,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           ...externalLinkDocs
             .filter((d) => d.name.trim())
             .map((d, i) => ({ type: "external_link", url: d.url.trim() || "", name: d.name.trim(), language: d.language || null, icon: d.image_url || null, sort_order: i, description: d.description || "presse", popup: false, force_external: d.force_external || false, show_on_front: false, front_sort_order: 0 })),
-          ...videoDocsWithThumbs.map((d, i) => ({ type: "video", url: d.url, name: d.name || null, language: null, icon: null, sort_order: i, front_sort_order: d._original_front_sort_order ?? 0, show_on_front: d._show_on_front ?? false, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: d.popup || false, hide_logo: d.hide_logo || false, force_external: false, event_id: d.event_id || null, instagram_account: d.instagram_account || null, instagram_url: d.instagram_url || null, instagram_video_url: d.instagram_video_url || null, tiktok_account: d.tiktok_account || null, tiktok_url: d.tiktok_url || null, tiktok_video_url: d.tiktok_video_url || null, youtube_account: d.youtube_account || null, youtube_url: d.youtube_url || null, youtube_video_url: d.youtube_video_url || null })),
+          ...videoDocsWithThumbs.map((d, i) => ({ type: "video", url: d.url, name: d.name || null, language: null, icon: null, sort_order: i, front_sort_order: d._original_front_sort_order ?? 0, show_on_front: d._show_on_front ?? false, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city === "" ? "" : (d.city || null), neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: d.popup || false, hide_logo: d.hide_logo || false, force_external: false, event_id: d.event_id || null, instagram_account: d.instagram_account || null, instagram_url: d.instagram_url || null, instagram_video_url: d.instagram_video_url || null, tiktok_account: d.tiktok_account || null, tiktok_url: d.tiktok_url || null, tiktok_video_url: d.tiktok_video_url || null, youtube_account: d.youtube_account || null, youtube_url: d.youtube_url || null, youtube_video_url: d.youtube_video_url || null })),
         ];
 
         // Atomic replace: delete + insert in a single transaction
