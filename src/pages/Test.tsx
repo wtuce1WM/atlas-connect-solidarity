@@ -25,6 +25,12 @@ interface OwnerInfo {
   logo_bg: string | null;
 }
 
+interface SocialInfo {
+  platform: "instagram" | "tiktok" | "youtube";
+  account: string;
+  url: string | null;
+}
+
 interface VideoItem {
   id: string;
   url: string;
@@ -33,6 +39,8 @@ interface VideoItem {
   business: SearchResultBusiness | null;
   /** Set only when the video's owner business differs from the display entity */
   owner: OwnerInfo | null;
+  social: SocialInfo | null;
+  description: string | null;
 }
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
