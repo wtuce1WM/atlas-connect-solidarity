@@ -51,7 +51,7 @@ const SlidePanelHome = ({
 
   if (!open || !videoUrl) return null;
 
-  const embed = getVideoEmbed(videoUrl, window.location.origin, { autoplay: true, defaultSoundOn: true });
+  const embed = getVideoEmbed(videoUrl, window.location.origin, { autoplay: false, defaultSoundOn: true });
   let embedUrl = embed.embedUrl;
   if (embed.type === "youtube") {
     const ytId = videoUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1];
