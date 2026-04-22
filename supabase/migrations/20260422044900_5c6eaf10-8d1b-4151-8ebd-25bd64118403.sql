@@ -1,0 +1,1 @@
+UPDATE public.businesses SET front_video_count = 1 WHERE front_video_count = 3;
