@@ -420,53 +420,49 @@ const Test = () => {
         const seenIds = new Set<string>();
         allDocs = allDocs.filter((d: any) => (seenIds.has(d.id) ? false : (seenIds.add(d.id), true)));
 
-        // Display entity priority: poi_id > linked_business_id > business_id.
-        const getDisplayId = (d: any) => d.poi_id || d.linked_business_id || d.business_id;
-
-        // Pre-fetch all businesses involved (display + owner) so we can read
-        // front_video_count to know how many vignettes are allowed per business.
-        const rawDisplayIds = [...new Set(allDocs.map(getDisplayId))];
-        const rawOwnerIds = [...new Set(allDocs.map((d: any) => d.business_id))];
-        const allBizIds = [...new Set([...rawDisplayIds, ...rawOwnerIds])];
+        // Précharge tous les businesses référencés pour résoudre correctement
+        // l'entité d'affichage finale (POI prioritaire) et ses métadonnées.
+        const allBizIds = [...new Set(
+          allDocs.flatMap((d: any) => [d.business_id, d.poi_id, d.linked_business_id].filter(Boolean))
+        )] as string[];
         const bizMap = new Map<string, SearchResultBusiness>();
         if (allBizIds.length > 0) {
           const batch = 300;
           for (let i = 0; i < allBizIds.length; i += batch) {
             const { data: bizs } = await supabase
               .from("businesses")
-              .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, google_rating, priority_score, front_video_count")
+              .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, google_rating, priority_score, front_video_count, is_poi")
               .in("id", allBizIds.slice(i, i + batch));
             (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
           }
         }
 
-        // Dédup simple :
-        // 1) On respecte front_video_count par entité d'affichage.
-        // 2) Si un POI est déjà affiché via une vidéo taguée `poi_id`,
-        //    on masque toutes les autres vidéos dont ce POI est le propriétaire.
+        // Entité d'affichage simplifiée :
+        // - si la vidéo pointe vers un POI (`poi_id`), on affiche ce POI
+        // - sinon, si le propriétaire de la vidéo est lui-même un POI, on affiche ce POI
+        // - sinon, on garde la logique linked_business_id > business_id
+        const getDisplayId = (d: any) => {
+          if (d.poi_id) return d.poi_id;
+          if ((bizMap.get(d.business_id) as any)?.is_poi) return d.business_id;
+          return d.linked_business_id || d.business_id;
+        };
+
+        // Dédup simple : 1 entité d'affichage = 1 vignette.
+        // Pour les POI, cela impose explicitement 1 POI = 1 vignette.
+        // Pour les autres entités, on conserve front_video_count.
         const countByDisplay = new Map<string, number>();
-        const limited: any[] = [];
+        const internal: any[] = [];
         for (const d of allDocs) {
           const displayId = getDisplayId(d);
-          const limit = (bizMap.get(displayId) as any)?.front_video_count ?? 1;
+          const displayBiz = bizMap.get(displayId) as any;
+          const limit = displayBiz?.is_poi ? 1 : (displayBiz?.front_video_count ?? 1);
           const seen = countByDisplay.get(displayId) ?? 0;
           if (seen < limit) {
-            limited.push(d);
+            internal.push(d);
             countByDisplay.set(displayId, seen + 1);
           }
-        }
-        let internal = limited;
+        };
 
-        const displayedPoiIds = new Set<string>(
-          internal
-            .map((d: any) => d.poi_id)
-            .filter((id: string | null | undefined): id is string => Boolean(id))
-        );
-
-        internal = internal.filter((d: any) => {
-          if (d.poi_id) return true;
-          return !displayedPoiIds.has(d.business_id);
-        });
 
         // Sort: verified first, then computed_rating (note interne /20) DESC, then priority_score DESC.
         internal.sort((a: any, b: any) => {
