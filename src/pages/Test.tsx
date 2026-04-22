@@ -440,7 +440,13 @@ const Test = () => {
           }
         }
 
-        // Dedup: keep up to front_video_count vidéos per display entity.
+        // Règle anti-doublon simplifiée :
+        // 1) On respecte front_video_count par entité d'affichage (POI ou business).
+        // 2) Une fois qu'un POI est affiché (au moins une vidéo avec ce poi_id),
+        //    on n'affiche plus AUCUNE autre vidéo du même propriétaire (business_id),
+        //    qu'elle soit taguée POI ou non. Le POI prime, point.
+        // 3) Inversement, si un business apparaît déjà via une vidéo sans poi_id,
+        //    ses vidéos taguées POI sont retirées (pas de double présence).
         const countByDisplay = new Map<string, number>();
         const limited: any[] = [];
         for (const d of allDocs) {
@@ -454,20 +460,31 @@ const Test = () => {
         }
         let internal = limited;
 
-        // Hide POI-displayed videos when the owner business already has its own
-        // (non-POI) vignette in the list.
+        // Owners qui ont déjà une vignette propre (sans poi_id)
         const ownersWithOwnVignette = new Set<string>(
-          internal
-            .filter((d: any) => !d.poi_id)
-            .map((d: any) => d.business_id)
+          internal.filter((d: any) => !d.poi_id).map((d: any) => d.business_id)
         );
-        // Anti-doublon : si le propriétaire a déjà sa propre vignette (sans poi_id),
-        // on retire complètement ses autres vidéos taguées POI (pas de réattribution).
-        internal = internal.filter(
-          (d: any) => !d.poi_id || !ownersWithOwnVignette.has(d.business_id)
+        // Owners dont une vidéo est déjà affichée via un POI
+        const ownersShownViaPoi = new Set<string>(
+          internal.filter((d: any) => d.poi_id).map((d: any) => d.business_id)
         );
-        // Note: la condition ci-dessus retire bien la vidéo POI quand l'owner a déjà
-        // une vignette propre — elle n'est ni affichée sous le POI, ni sous l'owner.
+        internal = internal.filter((d: any) => {
+          // Si le propriétaire a sa propre vignette, on retire ses vidéos POI
+          if (d.poi_id && ownersWithOwnVignette.has(d.business_id)) return false;
+          // Si une vidéo POI du propriétaire est déjà affichée, on retire ses
+          // autres vidéos (POI différents ou non) pour ne pas le voir plusieurs fois.
+          if (!d.poi_id && ownersShownViaPoi.has(d.business_id)) return false;
+          return true;
+        });
+        // Après ce filtre, on garde la 1ère occurrence par business_id côté POI
+        // pour éviter qu'un même propriétaire apparaisse via plusieurs POI.
+        const seenOwnerPoi = new Set<string>();
+        internal = internal.filter((d: any) => {
+          if (!d.poi_id) return true;
+          if (seenOwnerPoi.has(d.business_id)) return false;
+          seenOwnerPoi.add(d.business_id);
+          return true;
+        });
 
         // Sort: verified first, then computed_rating (note interne /20) DESC, then priority_score DESC.
         internal.sort((a: any, b: any) => {
