@@ -284,7 +284,83 @@ const SERVICES: Record<string, string[]> = {
   ],
 };
 
-type VideoDocEntry = { id?: string; url: string; name: string; poi_id: string | null; destination_id: string | null; linked_business_id: string | null; subcategory_id: string | null; service_id: string | null; city: string | null; neighborhood: string | null; description: string | null; price: string | null; price_type: string | null; thumbnail_url: string | null; popup: boolean; hide_logo: boolean; event_id: string | null; badge_ids: string[]; city_ids: string[]; _original_sort_order?: number; _original_front_sort_order?: number; _show_on_front?: boolean };
+type VideoDocEntry = { id?: string; url: string; name: string; poi_id: string | null; destination_id: string | null; linked_business_id: string | null; subcategory_id: string | null; service_id: string | null; city: string | null; neighborhood: string | null; description: string | null; price: string | null; price_type: string | null; thumbnail_url: string | null; popup: boolean; hide_logo: boolean; event_id: string | null; badge_ids: string[]; city_ids: string[]; instagram_account?: string | null; instagram_url?: string | null; instagram_video_url?: string | null; tiktok_account?: string | null; tiktok_url?: string | null; tiktok_video_url?: string | null; youtube_account?: string | null; youtube_url?: string | null; youtube_video_url?: string | null; _original_sort_order?: number; _original_front_sort_order?: number; _show_on_front?: boolean };
+
+/* ─── Dialog d'édition des liens sociaux d'une vidéo ─── */
+const VideoSocialLinksDialog = ({
+  open,
+  onOpenChange,
+  doc,
+  onSave,
+}: {
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  doc: VideoDocEntry | null;
+  onSave: (patch: Partial<VideoDocEntry>) => void;
+}) => {
+  const [ig, setIg] = useState({ account: "", url: "", videoUrl: "" });
+  const [tt, setTt] = useState({ account: "", url: "", videoUrl: "" });
+  const [yt, setYt] = useState({ account: "", url: "", videoUrl: "" });
+
+  useEffect(() => {
+    if (open && doc) {
+      setIg({ account: doc.instagram_account || "", url: doc.instagram_url || "", videoUrl: doc.instagram_video_url || "" });
+      setTt({ account: doc.tiktok_account || "", url: doc.tiktok_url || "", videoUrl: doc.tiktok_video_url || "" });
+      setYt({ account: doc.youtube_account || "", url: doc.youtube_url || "", videoUrl: doc.youtube_video_url || "" });
+    }
+  }, [open, doc]);
+
+  if (!doc) return null;
+
+  const save = () => {
+    onSave({
+      instagram_account: ig.account || null, instagram_url: ig.url || null, instagram_video_url: ig.videoUrl || null,
+      tiktok_account: tt.account || null, tiktok_url: tt.url || null, tiktok_video_url: tt.videoUrl || null,
+      youtube_account: yt.account || null, youtube_url: yt.url || null, youtube_video_url: yt.videoUrl || null,
+    });
+    onOpenChange(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader><DialogTitle>Liens sociaux</DialogTitle></DialogHeader>
+        <div className="space-y-4">
+          <div className="space-y-2 p-3 rounded-lg border">
+            <label className="text-sm font-semibold flex items-center gap-1.5 uppercase tracking-wide">
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+              Instagram
+            </label>
+            <Input placeholder="Compte (@…)" value={ig.account} onChange={e => setIg(p => ({ ...p, account: e.target.value }))} />
+            <Input placeholder="URL du profil" value={ig.url} onChange={e => setIg(p => ({ ...p, url: e.target.value }))} />
+            <Input placeholder="URL de la vidéo Instagram" value={ig.videoUrl} onChange={e => setIg(p => ({ ...p, videoUrl: e.target.value }))} />
+          </div>
+          <div className="space-y-2 p-3 rounded-lg border">
+            <label className="text-sm font-semibold flex items-center gap-1.5 uppercase tracking-wide">
+              <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1 0-5.78c.29 0 .58.04.86.11V9a6.27 6.27 0 0 0-.86-.06A6.33 6.33 0 0 0 3.16 15.3a6.33 6.33 0 0 0 6.33 6.33c3.5 0 6.33-2.84 6.33-6.33V9.14a8.16 8.16 0 0 0 4.77 1.52V7.21a4.85 4.85 0 0 1-1-.52Z"/></svg>
+              TikTok
+            </label>
+            <Input placeholder="Compte (@…)" value={tt.account} onChange={e => setTt(p => ({ ...p, account: e.target.value }))} />
+            <Input placeholder="URL du profil" value={tt.url} onChange={e => setTt(p => ({ ...p, url: e.target.value }))} />
+            <Input placeholder="URL de la vidéo TikTok" value={tt.videoUrl} onChange={e => setTt(p => ({ ...p, videoUrl: e.target.value }))} />
+          </div>
+          <div className="space-y-2 p-3 rounded-lg border">
+            <label className="text-sm font-semibold flex items-center gap-1.5 uppercase tracking-wide">
+              <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current"><path d="M23.5 6.2a3.02 3.02 0 0 0-2.12-2.14C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.38.56A3.02 3.02 0 0 0 .5 6.2 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.8 3.02 3.02 0 0 0 2.12 2.14c1.88.56 9.38.56 9.38.56s7.5 0 9.38-.56a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.8ZM9.75 15.02V8.98L15.5 12l-5.75 3.02Z"/></svg>
+              YouTube
+            </label>
+            <Input placeholder="Nom de la chaîne" value={yt.account} onChange={e => setYt(p => ({ ...p, account: e.target.value }))} />
+            <Input placeholder="URL de la chaîne" value={yt.url} onChange={e => setYt(p => ({ ...p, url: e.target.value }))} />
+            <Input placeholder="URL de la vidéo YouTube" value={yt.videoUrl} onChange={e => setYt(p => ({ ...p, videoUrl: e.target.value }))} />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button type="button" onClick={save}>Enregistrer</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 /** Generate a JPEG thumbnail from a video URL. Returns a Blob or null. */
 async function generateVideoThumbnail(videoUrl: string): Promise<Blob | null> {
@@ -465,6 +541,7 @@ interface SortableVideoCardProps {
   business: any;
   toast: any;
   onOpenDesc: () => void;
+  onOpenSocial: () => void;
   onDelete: () => void;
 }
 
@@ -481,7 +558,7 @@ const SortableDocRow = ({ id, children }: { id: string; children: React.ReactNod
   );
 };
 
-const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinessesForCity, allPoiBusinesses, dbDestinations, allBusinessesForVideo, videoBusinessSearch, setVideoBusinessSearch, dbCategories, dbSubcategories, dbServices, dbCities, dbNeighborhoods, dbEvents, dbBadges, videoEventSearch, setVideoEventSearch, business, toast, onOpenDesc, onDelete }: SortableVideoCardProps) => {
+const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinessesForCity, allPoiBusinesses, dbDestinations, allBusinessesForVideo, videoBusinessSearch, setVideoBusinessSearch, dbCategories, dbSubcategories, dbServices, dbCities, dbNeighborhoods, dbEvents, dbBadges, videoEventSearch, setVideoEventSearch, business, toast, onOpenDesc, onOpenSocial, onDelete }: SortableVideoCardProps) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1, zIndex: isDragging ? 50 : undefined };
 
@@ -495,6 +572,16 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
         <span className="text-[9px] text-muted-foreground shrink-0">{idx + 1}</span>
         <Button type="button" variant={doc.description ? "default" : "outline"} size="sm" className="h-5 px-1.5 text-[9px] shrink-0" title="Description" onClick={onOpenDesc}>
           TXT
+        </Button>
+        <Button
+          type="button"
+          variant={(doc.instagram_account || doc.instagram_url || doc.instagram_video_url || doc.tiktok_account || doc.tiktok_url || doc.tiktok_video_url || doc.youtube_account || doc.youtube_url || doc.youtube_video_url) ? "default" : "outline"}
+          size="sm"
+          className="h-5 px-1.5 text-[9px] shrink-0"
+          title="Liens sociaux"
+          onClick={onOpenSocial}
+        >
+          SOCIAL
         </Button>
         <label className="flex items-center gap-1 shrink-0 cursor-pointer" title="Ouvrir en popup">
           <Checkbox
@@ -1292,6 +1379,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     };
   };
   const [videoDescDialogIdx, setVideoDescDialogIdx] = useState<number | null>(null);
+  const [videoSocialDialogIdx, setVideoSocialDialogIdx] = useState<number | null>(null);
   const [videoDeleteConfirmIdx, setVideoDeleteConfirmIdx] = useState<number | null>(null);
 
   // --- Menu summaries (multiple per business) ---
@@ -1340,7 +1428,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             });
           }
         }
-        setVideoDocs((data as any[]).filter((d: any) => d.type === "video").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: !!(d as any).popup, hide_logo: !!(d as any).hide_logo, event_id: d.event_id || null, badge_ids: badgeAssocMap.get(d.id) || [], city_ids: cityAssocMap.get(d.id) || [], _original_sort_order: d.sort_order ?? 0, _original_front_sort_order: d.front_sort_order ?? 0, _show_on_front: d.show_on_front ?? false })));
+        setVideoDocs((data as any[]).filter((d: any) => d.type === "video").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: !!(d as any).popup, hide_logo: !!(d as any).hide_logo, event_id: d.event_id || null, badge_ids: badgeAssocMap.get(d.id) || [], city_ids: cityAssocMap.get(d.id) || [], instagram_account: d.instagram_account || null, instagram_url: d.instagram_url || null, instagram_video_url: d.instagram_video_url || null, tiktok_account: d.tiktok_account || null, tiktok_url: d.tiktok_url || null, tiktok_video_url: d.tiktok_video_url || null, youtube_account: d.youtube_account || null, youtube_url: d.youtube_url || null, youtube_video_url: d.youtube_video_url || null, _original_sort_order: d.sort_order ?? 0, _original_front_sort_order: d.front_sort_order ?? 0, _show_on_front: d.show_on_front ?? false })));
       }
     };
     const fetchSummaries = async () => {
@@ -2346,7 +2434,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           ...externalLinkDocs
             .filter((d) => d.name.trim())
             .map((d, i) => ({ type: "external_link", url: d.url.trim() || "", name: d.name.trim(), language: d.language || null, icon: d.image_url || null, sort_order: i, description: d.description || "presse", popup: false, force_external: d.force_external || false, show_on_front: false, front_sort_order: 0 })),
-          ...videoDocsWithThumbs.map((d, i) => ({ type: "video", url: d.url, name: d.name || null, language: null, icon: null, sort_order: i, front_sort_order: d._original_front_sort_order ?? 0, show_on_front: d._show_on_front ?? false, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: d.popup || false, hide_logo: d.hide_logo || false, force_external: false, event_id: d.event_id || null })),
+          ...videoDocsWithThumbs.map((d, i) => ({ type: "video", url: d.url, name: d.name || null, language: null, icon: null, sort_order: i, front_sort_order: d._original_front_sort_order ?? 0, show_on_front: d._show_on_front ?? false, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city || null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: d.popup || false, hide_logo: d.hide_logo || false, force_external: false, event_id: d.event_id || null, instagram_account: d.instagram_account || null, instagram_url: d.instagram_url || null, instagram_video_url: d.instagram_video_url || null, tiktok_account: d.tiktok_account || null, tiktok_url: d.tiktok_url || null, tiktok_video_url: d.tiktok_video_url || null, youtube_account: d.youtube_account || null, youtube_url: d.youtube_url || null, youtube_video_url: d.youtube_video_url || null })),
         ];
 
         // Atomic replace: delete + insert in a single transaction
@@ -4932,6 +5020,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     business={business}
                     toast={toast}
                     onOpenDesc={() => setVideoDescDialogIdx(idx)}
+                    onOpenSocial={() => setVideoSocialDialogIdx(idx)}
                     onDelete={() => setVideoDeleteConfirmIdx(idx)}
                   />
                 ))}
@@ -4987,6 +5076,17 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+
+          {/* Social links dialog (per video) */}
+          <VideoSocialLinksDialog
+            open={videoSocialDialogIdx !== null}
+            onOpenChange={(o) => { if (!o) setVideoSocialDialogIdx(null); }}
+            doc={videoSocialDialogIdx !== null ? videoDocs[videoSocialDialogIdx] : null}
+            onSave={(patch) => {
+              if (videoSocialDialogIdx === null) return;
+              setVideoDocs(prev => prev.map((d, i) => i === videoSocialDialogIdx ? { ...d, ...patch } : d));
+            }}
+          />
 
           {/* Delete confirmation dialog */}
           <AlertDialog open={videoDeleteConfirmIdx !== null} onOpenChange={(open) => { if (!open) setVideoDeleteConfirmIdx(null); }}>

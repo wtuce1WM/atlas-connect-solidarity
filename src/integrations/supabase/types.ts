@@ -576,6 +576,9 @@ export type Database = {
           hide_logo: boolean
           icon: string | null
           id: string
+          instagram_account: string | null
+          instagram_url: string | null
+          instagram_video_url: string | null
           language: string | null
           linked_business_id: string | null
           name: string | null
@@ -590,8 +593,14 @@ export type Database = {
           start_date: string | null
           subcategory_id: string | null
           thumbnail_url: string | null
+          tiktok_account: string | null
+          tiktok_url: string | null
+          tiktok_video_url: string | null
           type: string
           url: string
+          youtube_account: string | null
+          youtube_url: string | null
+          youtube_video_url: string | null
         }
         Insert: {
           business_id: string
@@ -606,6 +615,9 @@ export type Database = {
           hide_logo?: boolean
           icon?: string | null
           id?: string
+          instagram_account?: string | null
+          instagram_url?: string | null
+          instagram_video_url?: string | null
           language?: string | null
           linked_business_id?: string | null
           name?: string | null
@@ -620,8 +632,14 @@ export type Database = {
           start_date?: string | null
           subcategory_id?: string | null
           thumbnail_url?: string | null
+          tiktok_account?: string | null
+          tiktok_url?: string | null
+          tiktok_video_url?: string | null
           type: string
           url: string
+          youtube_account?: string | null
+          youtube_url?: string | null
+          youtube_video_url?: string | null
         }
         Update: {
           business_id?: string
@@ -636,6 +654,9 @@ export type Database = {
           hide_logo?: boolean
           icon?: string | null
           id?: string
+          instagram_account?: string | null
+          instagram_url?: string | null
+          instagram_video_url?: string | null
           language?: string | null
           linked_business_id?: string | null
           name?: string | null
@@ -650,8 +671,14 @@ export type Database = {
           start_date?: string | null
           subcategory_id?: string | null
           thumbnail_url?: string | null
+          tiktok_account?: string | null
+          tiktok_url?: string | null
+          tiktok_video_url?: string | null
           type?: string
           url?: string
+          youtube_account?: string | null
+          youtube_url?: string | null
+          youtube_video_url?: string | null
         }
         Relationships: [
           {
