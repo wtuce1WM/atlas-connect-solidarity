@@ -1,8 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X, ChevronUp, ChevronDown } from "lucide-react";
 import { createPortal } from "react-dom";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import PanelSearchBar from "@/components/PanelSearchBar";
+import VideoControls from "@/components/VideoControls";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
 import { useNavigate } from "react-router-dom";
 
@@ -39,6 +40,13 @@ const SlidePanelHome = ({
 }: SlidePanelHomeProps) => {
   const navigate = useNavigate();
   const panelRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const [filePaused, setFilePaused] = useState(true);
+  const [fileMuted, setFileMuted] = useState(false);
+  const [ytPlaying, setYtPlaying] = useState(false);
+  const [ytMuted, setYtMuted] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -48,6 +56,25 @@ const SlidePanelHome = ({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
+
+  // Sync file video state
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const onPlay = () => setFilePaused(false);
+    const onPause = () => setFilePaused(true);
+    const onVol = () => setFileMuted(v.muted);
+    v.addEventListener("play", onPlay);
+    v.addEventListener("pause", onPause);
+    v.addEventListener("volumechange", onVol);
+    setFilePaused(v.paused);
+    setFileMuted(v.muted);
+    return () => {
+      v.removeEventListener("play", onPlay);
+      v.removeEventListener("pause", onPause);
+      v.removeEventListener("volumechange", onVol);
+    };
+  }, [videoUrl, videoId]);
 
   if (!open || !videoUrl) return null;
 
@@ -108,9 +135,9 @@ const SlidePanelHome = ({
           <div className="relative bg-black overflow-hidden w-full h-full">
             {embed.type === "file" ? (
               <video
+                ref={videoRef}
                 key={videoId || videoUrl}
                 src={videoUrl}
-                controls
                 loop
                 playsInline
                 className="w-full h-full object-cover"
@@ -118,6 +145,7 @@ const SlidePanelHome = ({
               />
             ) : (
               <iframe
+                ref={iframeRef}
                 key={videoId || videoUrl}
                 src={embedUrl}
                 className="w-full h-full"
@@ -131,7 +159,7 @@ const SlidePanelHome = ({
             {owner && (
               <div
                 key={`owner-overlay-${videoId || videoUrl}`}
-                className="absolute inset-x-0 bottom-20 z-[6] flex flex-col items-center justify-center gap-3 px-4 pointer-events-none"
+                className="absolute inset-x-0 bottom-40 z-[6] flex flex-col items-center justify-center gap-3 px-4 pointer-events-none"
               >
                 {owner.logo_url && (
                   <div className="animate-logo-big-full-reveal max-w-[140px] max-h-[110px] md:max-w-[240px] md:max-h-[160px]">
@@ -151,7 +179,29 @@ const SlidePanelHome = ({
               </div>
             )}
           </div>
-          <div className="absolute inset-x-0 bottom-16 z-10 p-4 flex flex-col items-center gap-2 pointer-events-none">
+          <div className="absolute inset-x-0 bottom-0 z-10 p-4 flex flex-col items-center gap-3 pointer-events-none bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+            {embed.type === "file" && (
+              <div className="pointer-events-auto">
+                <VideoControls
+                  type="file"
+                  videoRef={videoRef}
+                  paused={filePaused}
+                  muted={fileMuted}
+                />
+              </div>
+            )}
+            {embed.type === "youtube" && (
+              <div className="pointer-events-auto">
+                <VideoControls
+                  type="youtube"
+                  iframeRef={iframeRef}
+                  playing={ytPlaying}
+                  muted={ytMuted}
+                  onPlayingChange={setYtPlaying}
+                  onMutedChange={setYtMuted}
+                />
+              </div>
+            )}
             <p className="text-sm font-medium text-white pointer-events-auto">{businessName}</p>
             <div className="w-full max-w-xl pointer-events-auto">
               <PanelSearchBar
