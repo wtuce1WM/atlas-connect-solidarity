@@ -929,6 +929,8 @@ const Test = () => {
         businessName={activeVideo?.business_name || ""}
         isGeneric={isActiveGeneric}
         owner={activeVideo?.owner || null}
+        social={activeVideo?.social || null}
+        description={activeVideo?.description || null}
         currentTime={currentTime}
         onTimeUpdate={setCurrentTime}
         onPrev={() => {
