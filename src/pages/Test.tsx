@@ -473,10 +473,15 @@ const Test = () => {
           internal.map((d: any) => {
             const displayId = getDisplayId(d) as string;
             const biz = bizMap.get(displayId) || null;
-            // Only show an owner logo when the video belongs to a KP establishment
-            // distinct from the displayed POI. If the POI itself owns the video, no owner.
-            const ownerBiz =
-              d.business_id !== displayId ? bizMap.get(d.business_id) || null : null;
+            // Owner = the KP establishment behind the video (not the POI itself).
+            // Priority: business_id if distinct from POI, else linked_business_id.
+            const ownerId =
+              d.business_id && d.business_id !== displayId
+                ? d.business_id
+                : d.linked_business_id && d.linked_business_id !== displayId
+                  ? d.linked_business_id
+                  : null;
+            const ownerBiz = ownerId ? bizMap.get(ownerId) || null : null;
             return {
               id: d.id,
               url: d.url,
