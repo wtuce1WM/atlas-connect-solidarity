@@ -413,13 +413,10 @@ const Test = () => {
         allDocs.map((d: any) => {
           const displayId = getDisplayId(d);
           const biz = bizMap.get(displayId) || null;
-          const isDestinationVideo = !d.poi_id && !d.linked_business_id && !!d.destination_id;
           const ownerBiz =
             d.business_id !== displayId
-              ? bizMap.get(d.business_id) || null
-              : isDestinationVideo
-              ? bizMap.get(d.business_id) || null
-              : null;
+              ? bizMap.get(d.business_id) || biz
+              : biz;
           return {
             id: d.id,
             url: d.url,
