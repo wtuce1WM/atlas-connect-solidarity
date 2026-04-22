@@ -836,7 +836,7 @@ const Test = () => {
                         setPanelOpen(true);
                       };
                       if (isThumbMode) {
-                        const thumb = v.thumbnail_url || deriveThumbnail(v.url);
+                        const thumb = deriveThumbnail(v.url) || v.thumbnail_url;
                         const isFile = /\.(mp4|webm|mov)(\?|$)/i.test(v.url);
                         return (
                       <div
