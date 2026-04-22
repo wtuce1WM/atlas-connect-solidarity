@@ -790,7 +790,7 @@ const Test = () => {
                           </div>
                         </div>
                         {v.owner?.logo_url && (
-                          <div className="absolute inset-x-0 bottom-[25%] z-[6] flex items-center justify-center px-2 pointer-events-none">
+                          <div className="absolute inset-x-0 bottom-[15%] z-[6] flex items-center justify-center px-2 pointer-events-none">
                             <div className="animate-logo-big-full-reveal max-w-[100px] max-h-[72px]">
                               <img
                                 key={`logo-${v.id}`}
