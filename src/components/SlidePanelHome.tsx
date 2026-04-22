@@ -70,7 +70,7 @@ const SlidePanelHome = ({
     >
       <div
         ref={panelRef}
-        className="absolute right-0 top-0 h-full w-full bg-background border-l border-border shadow-2xl animate-slide-in-right overflow-y-auto"
+        className="absolute right-0 top-0 h-full w-full bg-background border-l border-border shadow-2xl animate-slide-in-right overflow-hidden"
       >
         <button
           type="button"
@@ -104,11 +104,8 @@ const SlidePanelHome = ({
           </div>
         )}
 
-        <div className="flex flex-col items-center gap-2 p-6 pb-24">
-          <div
-            className="relative bg-black rounded-lg overflow-hidden shadow-lg w-full aspect-[9/16]"
-            style={{ maxWidth: 720, maxHeight: "calc(100vh - 120px)" }}
-          >
+        <div className="relative w-full h-full">
+          <div className="relative bg-black overflow-hidden w-full h-full">
             {embed.type === "file" ? (
               <video
                 key={videoId || videoUrl}
@@ -155,16 +152,19 @@ const SlidePanelHome = ({
               </div>
             )}
           </div>
-          <p className="text-sm font-medium text-foreground">{businessName}</p>
-
-          <PanelSearchBar
-            iconVariant="black"
-            onSearch={(params) => {
-              const sp = new URLSearchParams(params);
-              navigate(`/search?${sp.toString()}`);
-            }}
-            onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
-          />
+          <div className="absolute inset-x-0 bottom-0 z-10 p-4 flex flex-col items-center gap-2 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none">
+            <p className="text-sm font-medium text-white pointer-events-auto">{businessName}</p>
+            <div className="w-full max-w-xl pointer-events-auto">
+              <PanelSearchBar
+                iconVariant="black"
+                onSearch={(params) => {
+                  const sp = new URLSearchParams(params);
+                  navigate(`/search?${sp.toString()}`);
+                }}
+                onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>,
