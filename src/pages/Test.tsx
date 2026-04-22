@@ -789,24 +789,17 @@ const Test = () => {
                             <div className="w-0 h-0 border-y-[6px] border-y-transparent border-l-[9px] border-l-white ml-0.5" />
                           </div>
                         </div>
-                        {v.owner?.logo_url && (() => {
-                          const isBlackBg = v.owner.logo_bg === "black";
-                          const badgeClass = v.owner.logo_bg === "white"
-                            ? "bg-white/90 ring-1 ring-black/10"
-                            : "bg-black/70 ring-1 ring-white/15 backdrop-blur-sm";
-                          return (
-                            <div className="absolute inset-x-0 bottom-7 z-[6] flex justify-center px-2 pointer-events-none">
-                              <div className={`animate-logo-big-full-reveal flex items-center justify-center rounded-md p-1.5 shadow-md ${badgeClass}`} style={{ width: "44%", height: "22%" }}>
-                                <img
-                                  key={`logo-${v.id}`}
-                                  src={v.owner.logo_url}
-                                  alt={v.owner.name}
-                                  className="max-w-full max-h-full object-contain"
-                                />
-                              </div>
-                            </div>
-                          );
-                        })()}
+                        {v.owner?.logo_url && (
+                          <div className="absolute inset-x-0 bottom-7 z-[6] flex justify-center px-2 pointer-events-none">
+                            <img
+                              key={`logo-${v.id}`}
+                              src={v.owner.logo_url}
+                              alt={v.owner.name}
+                              className="animate-logo-big-full-reveal max-w-[44%] max-h-[22%] object-contain"
+                              style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
+                            />
+                          </div>
+                        )}
                         {v.business_name && (
                           <div className="absolute bottom-0 left-0 right-0 p-1.5">
                             <p className="text-[10px] font-medium text-white line-clamp-1">{v.business_name}</p>
