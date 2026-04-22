@@ -64,8 +64,15 @@ function extractSocial(d: any): SocialInfo | null {
   return null;
 }
 
+const HOME_ID = "__home__";
+const VLOGS_ID = "__vlogs__";
+
 const Test = () => {
   const navigate = useNavigate();
+
+  // ============================================================
+  // STATE
+  // ============================================================
   const [city, setCity] = useState<City>("Marrakech");
   const [entries, setEntries] = useState<FrontEntry[]>([]);
   const [subcatNames, setSubcatNames] = useState<Record<string, string>>({});
@@ -73,9 +80,26 @@ const Test = () => {
   const [citySubcats, setCitySubcats] = useState<Set<string>>(new Set());
   const [cityServices, setCityServices] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
-  const [selectedEntryId, setSelectedEntryId] = useState<string | null>("__home__");
+  const [selectedEntryId, setSelectedEntryId] = useState<string | null>(HOME_ID);
+  const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [loadingVideos, setLoadingVideos] = useState(false);
+  const [entriesWithVideos, setEntriesWithVideos] = useState<Set<string>>(new Set());
+  const [subsWithVideos, setSubsWithVideos] = useState<Set<string>>(new Set());
+  const [cityRowId, setCityRowId] = useState<string | null>(null);
+  const [extraCityDocIds, setExtraCityDocIds] = useState<Set<string>>(new Set());
+  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [guideVideos, setGuideVideos] = useState<VideoItem[]>([]);
+  const [loadingGuide, setLoadingGuide] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [hoveredEntryId, setHoveredEntryId] = useState<string | null>(null);
+  const [otherViewMode, setOtherViewMode] = useState<"details" | "videos" | "guide">("videos");
+  const [currentTime, setCurrentTime] = useState(0);
+
+  // ============================================================
+  // EFFECTS
+  // ============================================================
 
   // SEO: noindex
   useEffect(() => {
@@ -134,18 +158,7 @@ const Test = () => {
     load();
   }, []);
 
-  // Compute, per selected city, the set of front_structure entries that actually
-  // have matching internal videos — same logic as backoffice FrontStructureVideosPanel:
-  // group video docs by subcategory_id, then check which entries' subcategory_ids
-  // intersect with the city's video subcategories.
-  const [entriesWithVideos, setEntriesWithVideos] = useState<Set<string>>(new Set());
-  const [subsWithVideos, setSubsWithVideos] = useState<Set<string>>(new Set());
-  const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
-
-  // Resolve the cities table id for the selected city (used to pull videos
-  // assigned to this city via the business_document_cities junction table,
-  // i.e. videos owned by businesses from a different city but tagged here).
-  const [cityRowId, setCityRowId] = useState<string | null>(null);
+  // Resolve the cities table id (for multi-city video assignments)
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -160,7 +173,6 @@ const Test = () => {
   }, [city]);
 
   // Document ids assigned to this city via business_document_cities (multi-city)
-  const [extraCityDocIds, setExtraCityDocIds] = useState<Set<string>>(new Set());
   useEffect(() => {
     if (!cityRowId) { setExtraCityDocIds(new Set()); return; }
     let cancelled = false;
@@ -222,9 +234,6 @@ const Test = () => {
     };
     if (entries.length > 0) load();
   }, [city, entries, extraCityDocIds]);
-
-  const HOME_ID = "__home__";
-  const VLOGS_ID = "__vlogs__";
 
   const visibleEntries = useMemo(() => {
     const homeEntry: FrontEntry = {
@@ -540,20 +549,11 @@ const Test = () => {
     load();
   }, [selectedEntry, city, selectedSubId, extraCityDocIds]);
 
-  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
-
   // Reset active video when entry/city changes
   useEffect(() => {
     setActiveVideoId(null);
     setPanelOpen(false);
   }, [selectedEntryId, city]);
-
-  // Note: ordering is handled directly when videos are loaded
-  // (verified first, then computed_rating DESC, then priority_score DESC).
-
-  const [panelOpen, setPanelOpen] = useState(false);
-  const [guideVideos, setGuideVideos] = useState<VideoItem[]>([]);
-  const [loadingGuide, setLoadingGuide] = useState(false);
 
   const activeVideo = useMemo(
     () => [...videos, ...guideVideos].find((v) => v.id === activeVideoId) || null,
@@ -580,10 +580,12 @@ const Test = () => {
     [videos, activeVideo, panelOpen]
   );
 
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [hoveredEntryId, setHoveredEntryId] = useState<string | null>(null);
-  const [otherViewMode, setOtherViewMode] = useState<"details" | "videos" | "guide">("videos");
-  const [currentTime, setCurrentTime] = useState(0);
+  // Active list (used by panel navigation)
+  const activeList = useMemo(
+    () => (otherViewMode === "guide" ? guideVideos : videos),
+    [otherViewMode, guideVideos, videos]
+  );
+
 
   // Load Tarik Belasri's visible YouTube shorts when "guide" mode is selected
   useEffect(() => {
@@ -926,23 +928,17 @@ const Test = () => {
         currentTime={currentTime}
         onTimeUpdate={setCurrentTime}
         onPrev={() => {
-          const list = otherViewMode === "guide" ? guideVideos : videos;
-          const i = list.findIndex((v) => v.id === activeVideoId);
-          if (i > 0) setActiveVideoId(list[i - 1].id);
+          const i = activeList.findIndex((v) => v.id === activeVideoId);
+          if (i > 0) setActiveVideoId(activeList[i - 1].id);
         }}
         onNext={() => {
-          const list = otherViewMode === "guide" ? guideVideos : videos;
-          const i = list.findIndex((v) => v.id === activeVideoId);
-          if (i >= 0 && i < list.length - 1) setActiveVideoId(list[i + 1].id);
+          const i = activeList.findIndex((v) => v.id === activeVideoId);
+          if (i >= 0 && i < activeList.length - 1) setActiveVideoId(activeList[i + 1].id);
         }}
-        hasPrev={(() => {
-          const list = otherViewMode === "guide" ? guideVideos : videos;
-          return list.findIndex((v) => v.id === activeVideoId) > 0;
-        })()}
+        hasPrev={activeList.findIndex((v) => v.id === activeVideoId) > 0}
         hasNext={(() => {
-          const list = otherViewMode === "guide" ? guideVideos : videos;
-          const i = list.findIndex((v) => v.id === activeVideoId);
-          return i >= 0 && i < list.length - 1;
+          const i = activeList.findIndex((v) => v.id === activeVideoId);
+          return i >= 0 && i < activeList.length - 1;
         })()}
       />
     </div>
