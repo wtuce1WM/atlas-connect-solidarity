@@ -348,9 +348,21 @@ const Test = () => {
           if (!firstByDisplay.has(displayId)) firstByDisplay.set(displayId, d);
         }
 
-        const internal = displayIdsInOrder
+        let internal = displayIdsInOrder
           .map((displayId) => firstByDisplay.get(displayId))
           .filter(Boolean);
+
+        // Hide POI-displayed videos when the owner business already has its own
+        // (non-POI) vignette in the list. Avoids duplicates like "Nomad" + "Place
+        // Des Épices (vidéo de Nomad)".
+        const ownersWithOwnVignette = new Set<string>(
+          internal
+            .filter((d: any) => !d.poi_id)
+            .map((d: any) => d.business_id)
+        );
+        internal = internal.filter(
+          (d: any) => !d.poi_id || !ownersWithOwnVignette.has(d.business_id)
+        );
 
         // Resolve display business: prefer poi_id, then linked_business_id, then business_id
         const displayBizIds = [...new Set(internal.map(getDisplayId))];
