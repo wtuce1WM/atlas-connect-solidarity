@@ -922,23 +922,17 @@ const Test = () => {
         currentTime={currentTime}
         onTimeUpdate={setCurrentTime}
         onPrev={() => {
-          const list = otherViewMode === "guide" ? guideVideos : videos;
-          const i = list.findIndex((v) => v.id === activeVideoId);
-          if (i > 0) setActiveVideoId(list[i - 1].id);
+          const i = activeList.findIndex((v) => v.id === activeVideoId);
+          if (i > 0) setActiveVideoId(activeList[i - 1].id);
         }}
         onNext={() => {
-          const list = otherViewMode === "guide" ? guideVideos : videos;
-          const i = list.findIndex((v) => v.id === activeVideoId);
-          if (i >= 0 && i < list.length - 1) setActiveVideoId(list[i + 1].id);
+          const i = activeList.findIndex((v) => v.id === activeVideoId);
+          if (i >= 0 && i < activeList.length - 1) setActiveVideoId(activeList[i + 1].id);
         }}
-        hasPrev={(() => {
-          const list = otherViewMode === "guide" ? guideVideos : videos;
-          return list.findIndex((v) => v.id === activeVideoId) > 0;
-        })()}
+        hasPrev={activeList.findIndex((v) => v.id === activeVideoId) > 0}
         hasNext={(() => {
-          const list = otherViewMode === "guide" ? guideVideos : videos;
-          const i = list.findIndex((v) => v.id === activeVideoId);
-          return i >= 0 && i < list.length - 1;
+          const i = activeList.findIndex((v) => v.id === activeVideoId);
+          return i >= 0 && i < activeList.length - 1;
         })()}
       />
     </div>
