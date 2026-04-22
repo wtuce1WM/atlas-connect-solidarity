@@ -461,9 +461,13 @@ const Test = () => {
             .filter((d: any) => !d.poi_id)
             .map((d: any) => d.business_id)
         );
+        // Anti-doublon : si le propriétaire a déjà sa propre vignette (sans poi_id),
+        // on retire complètement ses autres vidéos taguées POI (pas de réattribution).
         internal = internal.filter(
           (d: any) => !d.poi_id || !ownersWithOwnVignette.has(d.business_id)
         );
+        // Note: la condition ci-dessus retire bien la vidéo POI quand l'owner a déjà
+        // une vignette propre — elle n'est ni affichée sous le POI, ni sous l'owner.
 
         // Sort: verified first, then computed_rating (note interne /20) DESC, then priority_score DESC.
         internal.sort((a: any, b: any) => {
