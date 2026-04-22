@@ -4921,7 +4921,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   toast({ title: "Vidéo importée ✓", description: `URL copiée depuis ${docId.slice(0, 8)}… — métadonnées indépendantes` });
                }}
              />
-             <span className="text-[10px] text-muted-foreground">Entrez l'ID d'un document vidéo existant + Entrée</span>
+             <span className="text-[10px] text-muted-foreground">Entrez l'ID d'un document vidéo ou d'une vidéo générique + Entrée</span>
            </div>
           {/* Drop zone for multiple video files */}
           <div
