@@ -203,7 +203,7 @@ const Test = () => {
       setLoading(false);
     };
     if (entries.length > 0) load();
-  }, [city, entries]);
+  }, [city, entries, extraCityDocIds]);
 
   const HOME_ID = "__home__";
   const VLOGS_ID = "__vlogs__";
