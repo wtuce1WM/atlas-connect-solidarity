@@ -179,7 +179,7 @@ const SlidePanelHome = ({
               </div>
             )}
           </div>
-          <div className="absolute inset-x-0 bottom-0 top-0 z-10 p-4 flex flex-col items-center justify-end gap-3 pointer-events-none bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+          <div className="absolute inset-x-0 bottom-0 top-0 z-10 p-4 flex flex-col items-center justify-end gap-3 pointer-events-none">
             {embed.type === "file" && (
               <div className="pointer-events-auto">
                 <VideoControls
