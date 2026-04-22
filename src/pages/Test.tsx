@@ -54,6 +54,16 @@ function deriveThumbnail(url: string): string | null {
   return null;
 }
 
+function extractSocial(d: any): SocialInfo | null {
+  const ig = (d?.instagram_account || "").trim();
+  if (ig) return { platform: "instagram", account: ig.replace(/^@+/, ""), url: d?.instagram_url || null };
+  const tt = (d?.tiktok_account || "").trim();
+  if (tt) return { platform: "tiktok", account: tt.replace(/^@+/, ""), url: d?.tiktok_url || null };
+  const yt = (d?.youtube_account || "").trim();
+  if (yt) return { platform: "youtube", account: yt.replace(/^@+/, ""), url: d?.youtube_url || null };
+  return null;
+}
+
 const Test = () => {
   const navigate = useNavigate();
   const [city, setCity] = useState<City>("Marrakech");
