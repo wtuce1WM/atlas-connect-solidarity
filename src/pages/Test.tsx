@@ -329,6 +329,8 @@ const Test = () => {
               thumbnail_url: v.thumbnail_url || deriveThumbnail(v.url),
               business: biz,
               owner: null,
+              social: extractSocial(v),
+              description: null,
             } as VideoItem;
           })
           .filter(Boolean) as VideoItem[];
@@ -495,6 +497,8 @@ const Test = () => {
               thumbnail_url: d.thumbnail_url,
               business: biz,
               owner: ownerBiz ? { id: ownerBiz.id, name: ownerBiz.name, logo_url: (ownerBiz as any).logo_url ?? null, logo_bg: (ownerBiz as any).logo_bg ?? null } : null,
+              social: extractSocial(d),
+              description: d.description ?? null,
             };
           })
         );
@@ -534,6 +538,8 @@ const Test = () => {
             thumbnail_url: d.thumbnail_url,
             business: biz,
             owner: ownerBiz ? { id: ownerBiz.id, name: ownerBiz.name, logo_url: (ownerBiz as any).logo_url ?? null, logo_bg: (ownerBiz as any).logo_bg ?? null } : null,
+            social: extractSocial(d),
+            description: d.description ?? null,
           };
         })
       );
@@ -614,6 +620,8 @@ const Test = () => {
         thumbnail_url: y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/hqdefault.jpg`,
         business: biz as SearchResultBusiness,
         owner: null,
+        social: null,
+        description: null,
       }));
       setGuideVideos(items);
       setLoadingGuide(false);
