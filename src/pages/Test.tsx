@@ -365,15 +365,15 @@ const Test = () => {
           }
         }
 
-        // Sort like the Search page: verified first, then google_rating DESC, then priority_score DESC.
+        // Sort: verified first, then computed_rating (note interne /20) DESC, then priority_score DESC.
         internal.sort((a: any, b: any) => {
           const ba = bizMap.get(getDisplayId(a)) as any;
           const bb = bizMap.get(getDisplayId(b)) as any;
           const aVerified = ba?.wtuce_status === "verified" ? 0 : 1;
           const bVerified = bb?.wtuce_status === "verified" ? 0 : 1;
           if (aVerified !== bVerified) return aVerified - bVerified;
-          const aRating = ba?.google_rating ?? -1;
-          const bRating = bb?.google_rating ?? -1;
+          const aRating = ba?.computed_rating ?? -1;
+          const bRating = bb?.computed_rating ?? -1;
           if (aRating !== bRating) return bRating - aRating;
           const aPrio = ba?.priority_score ?? 0;
           const bPrio = bb?.priority_score ?? 0;
