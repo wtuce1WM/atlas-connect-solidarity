@@ -158,18 +158,7 @@ const Test = () => {
     load();
   }, []);
 
-  // Compute, per selected city, the set of front_structure entries that actually
-  // have matching internal videos — same logic as backoffice FrontStructureVideosPanel:
-  // group video docs by subcategory_id, then check which entries' subcategory_ids
-  // intersect with the city's video subcategories.
-  const [entriesWithVideos, setEntriesWithVideos] = useState<Set<string>>(new Set());
-  const [subsWithVideos, setSubsWithVideos] = useState<Set<string>>(new Set());
-  const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
-
-  // Resolve the cities table id for the selected city (used to pull videos
-  // assigned to this city via the business_document_cities junction table,
-  // i.e. videos owned by businesses from a different city but tagged here).
-  const [cityRowId, setCityRowId] = useState<string | null>(null);
+  // Resolve the cities table id (for multi-city video assignments)
   useEffect(() => {
     let cancelled = false;
     (async () => {
