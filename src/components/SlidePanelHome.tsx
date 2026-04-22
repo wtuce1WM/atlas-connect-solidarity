@@ -51,7 +51,7 @@ const SlidePanelHome = ({
 
   if (!open || !videoUrl) return null;
 
-  const embed = getVideoEmbed(videoUrl, window.location.origin, { autoplay: true, defaultSoundOn: true });
+  const embed = getVideoEmbed(videoUrl, window.location.origin, { autoplay: false, defaultSoundOn: true });
   let embedUrl = embed.embedUrl;
   if (embed.type === "youtube") {
     const ytId = videoUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1];
@@ -111,7 +111,6 @@ const SlidePanelHome = ({
                 key={videoId || videoUrl}
                 src={videoUrl}
                 controls
-                autoPlay
                 loop
                 playsInline
                 className="w-full h-full object-cover"
@@ -152,7 +151,7 @@ const SlidePanelHome = ({
               </div>
             )}
           </div>
-          <div className="absolute inset-x-0 bottom-0 z-10 p-4 flex flex-col items-center gap-2 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none">
+          <div className="absolute inset-x-0 bottom-16 z-10 p-4 flex flex-col items-center gap-2 pointer-events-none">
             <p className="text-sm font-medium text-white pointer-events-auto">{businessName}</p>
             <div className="w-full max-w-xl pointer-events-auto">
               <PanelSearchBar
