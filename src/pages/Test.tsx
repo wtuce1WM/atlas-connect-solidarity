@@ -325,36 +325,20 @@ const Test = () => {
           if (data.length < PAGE) break;
           offset += PAGE;
         }
-        // Sort: internal videos (owner === display business, i.e. no linked_business_id
-        // or linked_business_id === business_id) first, then videos imported from another
-        // owner. Within each group, keep ascending sort_order.
-        const isInternal = (d: any) =>
-          !d.linked_business_id || d.linked_business_id === d.business_id;
-        allDocs = allDocs.sort((a: any, b: any) => {
-          const ai = isInternal(a) ? 0 : 1;
-          const bi = isInternal(b) ? 0 : 1;
-          if (ai !== bi) return ai - bi;
-          return (a.sort_order ?? 0) - (b.sort_order ?? 0);
-        });
 
         // Display entity priority: poi_id > linked_business_id > business_id.
-        // For each display entity, keep the first video — internal videos win
-        // because of the sort above.
         const getDisplayId = (d: any) => d.poi_id || d.linked_business_id || d.business_id;
-        const displayIdsInOrder = [...new Set(allDocs.map(getDisplayId))];
+
+        // Dedup: keep one video per display entity (first encountered).
         const firstByDisplay = new Map<string, any>();
         for (const d of allDocs) {
           const displayId = getDisplayId(d);
           if (!firstByDisplay.has(displayId)) firstByDisplay.set(displayId, d);
         }
-
-        let internal = displayIdsInOrder
-          .map((displayId) => firstByDisplay.get(displayId))
-          .filter(Boolean);
+        let internal = [...firstByDisplay.values()];
 
         // Hide POI-displayed videos when the owner business already has its own
-        // (non-POI) vignette in the list. Avoids duplicates like "Nomad" + "Place
-        // Des Épices (vidéo de Nomad)".
+        // (non-POI) vignette in the list.
         const ownersWithOwnVignette = new Set<string>(
           internal
             .filter((d: any) => !d.poi_id)
@@ -375,11 +359,26 @@ const Test = () => {
           for (let i = 0; i < allBizIds.length; i += batch) {
             const { data: bizs } = await supabase
               .from("businesses")
-              .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+              .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, google_rating, priority_score")
               .in("id", allBizIds.slice(i, i + batch));
             (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
           }
         }
+
+        // Sort like the Search page: verified first, then google_rating DESC, then priority_score DESC.
+        internal.sort((a: any, b: any) => {
+          const ba = bizMap.get(getDisplayId(a)) as any;
+          const bb = bizMap.get(getDisplayId(b)) as any;
+          const aVerified = ba?.wtuce_status === "verified" ? 0 : 1;
+          const bVerified = bb?.wtuce_status === "verified" ? 0 : 1;
+          if (aVerified !== bVerified) return aVerified - bVerified;
+          const aRating = ba?.google_rating ?? -1;
+          const bRating = bb?.google_rating ?? -1;
+          if (aRating !== bRating) return bRating - aRating;
+          const aPrio = ba?.priority_score ?? 0;
+          const bPrio = bb?.priority_score ?? 0;
+          return bPrio - aPrio;
+        });
 
         setVideos(
           internal.map((d: any) => {
