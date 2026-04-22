@@ -104,11 +104,8 @@ const SlidePanelHome = ({
           </div>
         )}
 
-        <div className="flex flex-col items-center gap-2 p-6 pb-24">
-          <div
-            className="relative bg-black rounded-lg overflow-hidden shadow-lg w-full aspect-[9/16]"
-            style={{ maxWidth: 720, maxHeight: "calc(100vh - 120px)" }}
-          >
+        <div className="relative w-full h-full">
+          <div className="relative bg-black overflow-hidden w-full h-full">
             {embed.type === "file" ? (
               <video
                 key={videoId || videoUrl}
