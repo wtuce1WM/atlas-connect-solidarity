@@ -124,10 +124,42 @@ const Test = () => {
   const [subsWithVideos, setSubsWithVideos] = useState<Set<string>>(new Set());
   const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
 
+  // Resolve the cities table id for the selected city (used to pull videos
+  // assigned to this city via the business_document_cities junction table,
+  // i.e. videos owned by businesses from a different city but tagged here).
+  const [cityRowId, setCityRowId] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("cities")
+        .select("id")
+        .eq("name_fr", city)
+        .maybeSingle();
+      if (!cancelled) setCityRowId((data as any)?.id || null);
+    })();
+    return () => { cancelled = true; };
+  }, [city]);
+
+  // Document ids assigned to this city via business_document_cities (multi-city)
+  const [extraCityDocIds, setExtraCityDocIds] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    if (!cityRowId) { setExtraCityDocIds(new Set()); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("business_document_cities")
+        .select("document_id")
+        .eq("city_id", cityRowId);
+      if (!cancelled) setExtraCityDocIds(new Set(((data as any[]) || []).map((r) => r.document_id)));
+    })();
+    return () => { cancelled = true; };
+  }, [cityRowId]);
+
   useEffect(() => {
     setLoading(true);
     const load = async () => {
-      // Fetch all internal video docs for the selected city
+      // Fetch all internal video docs for the selected city (own city + multi-city assigned)
       let allDocs: any[] = [];
       let offset = 0;
       const PAGE = 1000;
@@ -144,6 +176,18 @@ const Test = () => {
         if (data.length < PAGE) break;
         offset += PAGE;
       }
+      // Add multi-city assigned docs
+      const extraIds = [...extraCityDocIds];
+      for (let i = 0; i < extraIds.length; i += 300) {
+        const chunk = extraIds.slice(i, i + 300);
+        const { data } = await supabase
+          .from("business_documents")
+          .select("id, url, subcategory_id")
+          .eq("type", "video")
+          .not("subcategory_id", "is", null)
+          .in("id", chunk);
+        if (data) allDocs.push(...data);
+      }
       const subIdsWithVideos = new Set<string>();
       allDocs.forEach((d) => subIdsWithVideos.add(d.subcategory_id));
 
@@ -159,7 +203,7 @@ const Test = () => {
       setLoading(false);
     };
     if (entries.length > 0) load();
-  }, [city, entries]);
+  }, [city, entries, extraCityDocIds]);
 
   const HOME_ID = "__home__";
   const VLOGS_ID = "__vlogs__";
@@ -301,6 +345,21 @@ const Test = () => {
             .order("front_sort_order", { ascending: true });
           if (data) allDocs.push(...data);
         }
+        // Include videos assigned to this city via business_document_cities (multi-city)
+        const extraIds = [...extraCityDocIds].filter((id) => !allDocs.some((d) => d.id === id));
+        for (let i = 0; i < extraIds.length; i += batch) {
+          const chunk = extraIds.slice(i, i + batch);
+          const { data } = await supabase
+            .from("business_documents")
+            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id")
+            .eq("type", "video")
+            .eq("show_on_front", true)
+            .in("id", chunk);
+          if (data) allDocs.push(...data);
+        }
+        // Dedup by id
+        const seen = new Set<string>();
+        allDocs = allDocs.filter((d: any) => (seen.has(d.id) ? false : (seen.add(d.id), true)));
         allDocs.sort((a: any, b: any) => (a.front_sort_order ?? 0) - (b.front_sort_order ?? 0));
       } else {
         const subIds = selectedSubId ? [selectedSubId] : selectedEntry.subcategory_ids;
@@ -325,6 +384,21 @@ const Test = () => {
           if (data.length < PAGE) break;
           offset += PAGE;
         }
+        // Include videos assigned to this city via business_document_cities (multi-city)
+        const extraIds = [...extraCityDocIds].filter((id) => !allDocs.some((d) => d.id === id));
+        for (let i = 0; i < extraIds.length; i += 300) {
+          const chunk = extraIds.slice(i, i + 300);
+          const { data } = await supabase
+            .from("business_documents")
+            .select("id, url, thumbnail_url, business_id, subcategory_id, city, sort_order, poi_id, linked_business_id, destination_id")
+            .eq("type", "video")
+            .in("subcategory_id", subIds)
+            .in("id", chunk);
+          if (data) allDocs.push(...data);
+        }
+        // Dedup by id (a video could be returned twice if it matches both filters)
+        const seenIds = new Set<string>();
+        allDocs = allDocs.filter((d: any) => (seenIds.has(d.id) ? false : (seenIds.add(d.id), true)));
 
         // Display entity priority: poi_id > linked_business_id > business_id.
         const getDisplayId = (d: any) => d.poi_id || d.linked_business_id || d.business_id;
@@ -442,7 +516,7 @@ const Test = () => {
       setLoadingVideos(false);
     };
     load();
-  }, [selectedEntry, city, selectedSubId]);
+  }, [selectedEntry, city, selectedSubId, extraCityDocIds]);
 
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
 
