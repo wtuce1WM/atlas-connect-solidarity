@@ -89,6 +89,7 @@ const Test = () => {
   const [cityRowId, setCityRowId] = useState<string | null>(null);
   const [extraCityDocIds, setExtraCityDocIds] = useState<Set<string>>(new Set());
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+  const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const [guideVideos, setGuideVideos] = useState<VideoItem[]>([]);
   const [loadingGuide, setLoadingGuide] = useState(false);
@@ -552,13 +553,9 @@ const Test = () => {
   // Reset active video when entry/city changes
   useEffect(() => {
     setActiveVideoId(null);
+    setActiveVideo(null);
     setPanelOpen(false);
   }, [selectedEntryId, city]);
-
-  const activeVideo = useMemo(
-    () => [...videos, ...guideVideos].find((v) => v.id === activeVideoId) || null,
-    [videos, guideVideos, activeVideoId]
-  );
   const activeEmbed = useMemo(() => {
     if (!activeVideo) return null;
     const base = getVideoEmbed(activeVideo.url, window.location.origin, { autoplay: true });
@@ -832,6 +829,7 @@ const Test = () => {
                   <div className={`grid gap-4 ${isThumbMode ? (panelOpen ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-3" : "grid-cols-2 md:grid-cols-4 lg:grid-cols-6") : (panelOpen ? "grid-cols-1 md:grid-cols-2" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6")}`}>
                     {displayList.map((v, idx) => {
                       const handlePick = () => {
+                        setActiveVideo(v);
                         setActiveVideoId(v.id);
                         setPanelOpen(true);
                       };
@@ -928,16 +926,22 @@ const Test = () => {
         currentTime={currentTime}
         onTimeUpdate={setCurrentTime}
         onPrev={() => {
-          const i = activeList.findIndex((v) => v.id === activeVideoId);
-          if (i > 0) setActiveVideoId(activeList[i - 1].id);
+          const i = activeList.findIndex((v) => v.id === activeVideo?.id);
+          if (i > 0) {
+            setActiveVideo(activeList[i - 1]);
+            setActiveVideoId(activeList[i - 1].id);
+          }
         }}
         onNext={() => {
-          const i = activeList.findIndex((v) => v.id === activeVideoId);
-          if (i >= 0 && i < activeList.length - 1) setActiveVideoId(activeList[i + 1].id);
+          const i = activeList.findIndex((v) => v.id === activeVideo?.id);
+          if (i >= 0 && i < activeList.length - 1) {
+            setActiveVideo(activeList[i + 1]);
+            setActiveVideoId(activeList[i + 1].id);
+          }
         }}
-        hasPrev={activeList.findIndex((v) => v.id === activeVideoId) > 0}
+        hasPrev={activeList.findIndex((v) => v.id === activeVideo?.id) > 0}
         hasNext={(() => {
-          const i = activeList.findIndex((v) => v.id === activeVideoId);
+          const i = activeList.findIndex((v) => v.id === activeVideo?.id);
           return i >= 0 && i < activeList.length - 1;
         })()}
       />
