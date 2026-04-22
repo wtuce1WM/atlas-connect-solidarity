@@ -151,7 +151,7 @@ const SlidePanelHome = ({
               </div>
             )}
           </div>
-          <div className="absolute inset-x-0 bottom-0 z-10 p-4 flex flex-col items-center gap-2 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none">
+          <div className="absolute inset-x-0 bottom-16 z-10 p-4 flex flex-col items-center gap-2 pointer-events-none">
             <p className="text-sm font-medium text-white pointer-events-auto">{businessName}</p>
             <div className="w-full max-w-xl pointer-events-auto">
               <PanelSearchBar
