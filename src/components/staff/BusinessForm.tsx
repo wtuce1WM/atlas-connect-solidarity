@@ -1098,6 +1098,26 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     fetchTaxonomy();
   }, []);
 
+  // Backfill legacy videos: if city_ids is empty but legacy `city` field is set,
+  // resolve the city name to its ID so it appears selected in the multi-city picker.
+  useEffect(() => {
+    if (dbCities.length === 0) return;
+    setVideoDocs(prev => {
+      let changed = false;
+      const next = prev.map(d => {
+        if ((!d.city_ids || d.city_ids.length === 0) && d.city) {
+          const match = dbCities.find(c => c.name_fr === d.city);
+          if (match) {
+            changed = true;
+            return { ...d, city_ids: [match.id] };
+          }
+        }
+        return d;
+      });
+      return changed ? next : prev;
+    });
+  }, [dbCities]);
+
 /** Standalone sub-component to manage LiteAPI hotel mapping for a single business */
 const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   const [hotelId, setHotelId] = useState("");
