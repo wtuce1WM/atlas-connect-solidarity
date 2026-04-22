@@ -1379,6 +1379,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     };
   };
   const [videoDescDialogIdx, setVideoDescDialogIdx] = useState<number | null>(null);
+  const [videoSocialDialogIdx, setVideoSocialDialogIdx] = useState<number | null>(null);
   const [videoDeleteConfirmIdx, setVideoDeleteConfirmIdx] = useState<number | null>(null);
 
   // --- Menu summaries (multiple per business) ---
@@ -5019,6 +5020,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     business={business}
                     toast={toast}
                     onOpenDesc={() => setVideoDescDialogIdx(idx)}
+                    onOpenSocial={() => setVideoSocialDialogIdx(idx)}
                     onDelete={() => setVideoDeleteConfirmIdx(idx)}
                   />
                 ))}
