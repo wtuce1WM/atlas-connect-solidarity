@@ -64,8 +64,15 @@ function extractSocial(d: any): SocialInfo | null {
   return null;
 }
 
+const HOME_ID = "__home__";
+const VLOGS_ID = "__vlogs__";
+
 const Test = () => {
   const navigate = useNavigate();
+
+  // ============================================================
+  // STATE
+  // ============================================================
   const [city, setCity] = useState<City>("Marrakech");
   const [entries, setEntries] = useState<FrontEntry[]>([]);
   const [subcatNames, setSubcatNames] = useState<Record<string, string>>({});
@@ -73,9 +80,26 @@ const Test = () => {
   const [citySubcats, setCitySubcats] = useState<Set<string>>(new Set());
   const [cityServices, setCityServices] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
-  const [selectedEntryId, setSelectedEntryId] = useState<string | null>("__home__");
+  const [selectedEntryId, setSelectedEntryId] = useState<string | null>(HOME_ID);
+  const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [loadingVideos, setLoadingVideos] = useState(false);
+  const [entriesWithVideos, setEntriesWithVideos] = useState<Set<string>>(new Set());
+  const [subsWithVideos, setSubsWithVideos] = useState<Set<string>>(new Set());
+  const [cityRowId, setCityRowId] = useState<string | null>(null);
+  const [extraCityDocIds, setExtraCityDocIds] = useState<Set<string>>(new Set());
+  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [guideVideos, setGuideVideos] = useState<VideoItem[]>([]);
+  const [loadingGuide, setLoadingGuide] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [hoveredEntryId, setHoveredEntryId] = useState<string | null>(null);
+  const [otherViewMode, setOtherViewMode] = useState<"details" | "videos" | "guide">("videos");
+  const [currentTime, setCurrentTime] = useState(0);
+
+  // ============================================================
+  // EFFECTS
+  // ============================================================
 
   // SEO: noindex
   useEffect(() => {
