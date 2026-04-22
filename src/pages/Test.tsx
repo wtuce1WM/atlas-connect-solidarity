@@ -22,6 +22,7 @@ interface OwnerInfo {
   id: string;
   name: string;
   logo_url: string | null;
+  logo_bg: string | null;
 }
 
 interface VideoItem {
@@ -246,7 +247,7 @@ const Test = () => {
         if (bizIds.length > 0) {
           const { data: bizs } = await supabase
             .from("businesses")
-            .select("id, name, images, logo_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+            .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
             .in("id", bizIds);
           (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
         }
@@ -362,7 +363,7 @@ const Test = () => {
           for (let i = 0; i < allBizIds.length; i += batch) {
             const { data: bizs } = await supabase
               .from("businesses")
-              .select("id, name, images, logo_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+              .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
               .in("id", allBizIds.slice(i, i + batch));
             (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
           }
@@ -384,7 +385,7 @@ const Test = () => {
               business_name: biz?.name || "—",
               thumbnail_url: d.thumbnail_url,
               business: biz,
-              owner: ownerBiz ? { id: ownerBiz.id, name: ownerBiz.name, logo_url: (ownerBiz as any).logo_url ?? null } : null,
+              owner: ownerBiz ? { id: ownerBiz.id, name: ownerBiz.name, logo_url: (ownerBiz as any).logo_url ?? null, logo_bg: (ownerBiz as any).logo_bg ?? null } : null,
             };
           })
         );
@@ -403,7 +404,7 @@ const Test = () => {
         for (let i = 0; i < allBizIds.length; i += batch) {
           const { data: bizs } = await supabase
             .from("businesses")
-            .select("id, name, images, logo_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+            .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
             .in("id", allBizIds.slice(i, i + batch));
           (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
         }
@@ -423,7 +424,7 @@ const Test = () => {
             business_name: biz?.name || "—",
             thumbnail_url: d.thumbnail_url,
             business: biz,
-            owner: ownerBiz ? { id: ownerBiz.id, name: ownerBiz.name, logo_url: (ownerBiz as any).logo_url ?? null } : null,
+            owner: ownerBiz ? { id: ownerBiz.id, name: ownerBiz.name, logo_url: (ownerBiz as any).logo_url ?? null, logo_bg: (ownerBiz as any).logo_bg ?? null } : null,
           };
         })
       );
@@ -788,17 +789,24 @@ const Test = () => {
                             <div className="w-0 h-0 border-y-[6px] border-y-transparent border-l-[9px] border-l-white ml-0.5" />
                           </div>
                         </div>
-                        {v.owner?.logo_url && (
-                          <div className="absolute inset-x-0 bottom-7 z-[6] flex justify-center px-2 pointer-events-none">
-                            <img
-                              key={`logo-${v.id}`}
-                              src={v.owner.logo_url}
-                              alt={v.owner.name}
-                              className="animate-logo-big-full-reveal max-w-[40%] max-h-[20%] object-contain"
-                              style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))" }}
-                            />
-                          </div>
-                        )}
+                        {v.owner?.logo_url && (() => {
+                          const isBlackBg = v.owner.logo_bg === "black";
+                          const badgeClass = v.owner.logo_bg === "white"
+                            ? "bg-white/90 ring-1 ring-black/10"
+                            : "bg-black/70 ring-1 ring-white/15 backdrop-blur-sm";
+                          return (
+                            <div className="absolute inset-x-0 bottom-7 z-[6] flex justify-center px-2 pointer-events-none">
+                              <div className={`animate-logo-big-full-reveal flex items-center justify-center rounded-md p-1.5 shadow-md ${badgeClass}`} style={{ width: "44%", height: "22%" }}>
+                                <img
+                                  key={`logo-${v.id}`}
+                                  src={v.owner.logo_url}
+                                  alt={v.owner.name}
+                                  className="max-w-full max-h-full object-contain"
+                                />
+                              </div>
+                            </div>
+                          );
+                        })()}
                         {v.business_name && (
                           <div className="absolute bottom-0 left-0 right-0 p-1.5">
                             <p className="text-[10px] font-medium text-white line-clamp-1">{v.business_name}</p>
