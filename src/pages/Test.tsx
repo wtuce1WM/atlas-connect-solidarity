@@ -384,6 +384,21 @@ const Test = () => {
           if (data.length < PAGE) break;
           offset += PAGE;
         }
+        // Include videos assigned to this city via business_document_cities (multi-city)
+        const extraIds = [...extraCityDocIds].filter((id) => !allDocs.some((d) => d.id === id));
+        for (let i = 0; i < extraIds.length; i += 300) {
+          const chunk = extraIds.slice(i, i + 300);
+          const { data } = await supabase
+            .from("business_documents")
+            .select("id, url, thumbnail_url, business_id, subcategory_id, city, sort_order, poi_id, linked_business_id, destination_id")
+            .eq("type", "video")
+            .in("subcategory_id", subIds)
+            .in("id", chunk);
+          if (data) allDocs.push(...data);
+        }
+        // Dedup by id (a video could be returned twice if it matches both filters)
+        const seenIds = new Set<string>();
+        allDocs = allDocs.filter((d: any) => (seenIds.has(d.id) ? false : (seenIds.add(d.id), true)));
 
         // Display entity priority: poi_id > linked_business_id > business_id.
         const getDisplayId = (d: any) => d.poi_id || d.linked_business_id || d.business_id;
