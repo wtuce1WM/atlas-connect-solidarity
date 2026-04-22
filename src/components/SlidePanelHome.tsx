@@ -1,11 +1,18 @@
 import { useEffect, useRef, useState } from "react";
-import { X, ChevronUp, ChevronDown } from "lucide-react";
+import { X, ChevronUp, ChevronDown, Instagram, Youtube } from "lucide-react";
+import { SiTiktok } from "react-icons/si";
 import { createPortal } from "react-dom";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import VideoControls from "@/components/VideoControls";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
 import { useNavigate } from "react-router-dom";
+
+interface SocialInfo {
+  platform: "instagram" | "tiktok" | "youtube";
+  account: string;
+  url: string | null;
+}
 
 interface SlidePanelHomeProps {
   open: boolean;
@@ -21,6 +28,8 @@ interface SlidePanelHomeProps {
   hasPrev?: boolean;
   hasNext?: boolean;
   owner?: { id: string; name: string; logo_url: string | null } | null;
+  social?: SocialInfo | null;
+  description?: string | null;
 }
 
 const SlidePanelHome = ({
@@ -37,6 +46,8 @@ const SlidePanelHome = ({
   hasPrev,
   hasNext,
   owner,
+  social,
+  description,
 }: SlidePanelHomeProps) => {
   const navigate = useNavigate();
   const panelRef = useRef<HTMLDivElement>(null);
