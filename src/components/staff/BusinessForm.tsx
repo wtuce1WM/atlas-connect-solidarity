@@ -1098,30 +1098,48 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     fetchTaxonomy();
   }, []);
 
-  // Backfill legacy videos: if city_ids is empty but legacy `city` field is set,
-  // resolve the city name to its ID so it appears selected in the multi-city picker.
-  // Each doc is only backfilled ONCE so the user can freely deselect afterwards.
+  // Backfill legacy videos: old entries may only carry the document `city` field,
+  // or even rely on the parent business city. Normalize them once into `city_ids`
+  // so the multi-city picker shows the right selection without blocking deselection.
   const backfilledDocIdsRef = useRef<Set<string>>(new Set());
   useEffect(() => {
     if (dbCities.length === 0) return;
     setVideoDocs(prev => {
       let changed = false;
       const next = prev.map(d => {
+        const currentCityIds = d.city_ids || [];
+
+        // Keep legacy single-city field in sync when associations already exist.
+        if (currentCityIds.length > 0 && !d.city) {
+          const firstCityName = dbCities.find(c => c.id === currentCityIds[0])?.name_fr || null;
+          if (firstCityName) {
+            changed = true;
+            return { ...d, city: firstCityName };
+          }
+        }
+
         const key = d.id || "";
         if (key && backfilledDocIdsRef.current.has(key)) return d;
-        if ((!d.city_ids || d.city_ids.length === 0) && d.city) {
-          const match = dbCities.find(c => c.name_fr === d.city);
+
+        // Legacy fallback priority:
+        // 1) document city
+        // 2) parent business city (older videos inherited the business city)
+        const fallbackCityName = d.city || business?.city || null;
+        if (currentCityIds.length === 0 && fallbackCityName) {
+          const match = dbCities.find(c => c.name_fr === fallbackCityName);
           if (match) {
             changed = true;
             if (key) backfilledDocIdsRef.current.add(key);
-            return { ...d, city_ids: [match.id] };
+            return { ...d, city_ids: [match.id], city: match.name_fr };
           }
         }
+
         return d;
       });
       return changed ? next : prev;
     });
-  }, [dbCities]);
+  }, [dbCities, business?.city]);
+
 
 
 /** Standalone sub-component to manage LiteAPI hotel mapping for a single business */
