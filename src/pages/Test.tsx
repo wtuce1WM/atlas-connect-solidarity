@@ -385,7 +385,7 @@ const Test = () => {
               business_name: biz?.name || "—",
               thumbnail_url: d.thumbnail_url,
               business: biz,
-              owner: ownerBiz ? { id: ownerBiz.id, name: ownerBiz.name, logo_url: (ownerBiz as any).logo_url ?? null } : null,
+              owner: ownerBiz ? { id: ownerBiz.id, name: ownerBiz.name, logo_url: (ownerBiz as any).logo_url ?? null, logo_bg: (ownerBiz as any).logo_bg ?? null } : null,
             };
           })
         );
