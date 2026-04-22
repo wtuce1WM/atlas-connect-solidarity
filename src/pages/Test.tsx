@@ -173,7 +173,6 @@ const Test = () => {
   }, [city]);
 
   // Document ids assigned to this city via business_document_cities (multi-city)
-  const [extraCityDocIds, setExtraCityDocIds] = useState<Set<string>>(new Set());
   useEffect(() => {
     if (!cityRowId) { setExtraCityDocIds(new Set()); return; }
     let cancelled = false;
