@@ -403,13 +403,36 @@ const Test = () => {
         // Display entity priority: poi_id > linked_business_id > business_id.
         const getDisplayId = (d: any) => d.poi_id || d.linked_business_id || d.business_id;
 
-        // Dedup: keep one video per display entity (first encountered).
-        const firstByDisplay = new Map<string, any>();
+        // Pre-fetch all businesses involved (display + owner) so we can read
+        // front_video_count to know how many vignettes are allowed per business.
+        const rawDisplayIds = [...new Set(allDocs.map(getDisplayId))];
+        const rawOwnerIds = [...new Set(allDocs.map((d: any) => d.business_id))];
+        const allBizIds = [...new Set([...rawDisplayIds, ...rawOwnerIds])];
+        const bizMap = new Map<string, SearchResultBusiness>();
+        if (allBizIds.length > 0) {
+          const batch = 300;
+          for (let i = 0; i < allBizIds.length; i += batch) {
+            const { data: bizs } = await supabase
+              .from("businesses")
+              .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, google_rating, priority_score, front_video_count")
+              .in("id", allBizIds.slice(i, i + batch));
+            (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
+          }
+        }
+
+        // Dedup: keep up to front_video_count vidéos per display entity.
+        const countByDisplay = new Map<string, number>();
+        const limited: any[] = [];
         for (const d of allDocs) {
           const displayId = getDisplayId(d);
-          if (!firstByDisplay.has(displayId)) firstByDisplay.set(displayId, d);
+          const limit = (bizMap.get(displayId) as any)?.front_video_count ?? 1;
+          const seen = countByDisplay.get(displayId) ?? 0;
+          if (seen < limit) {
+            limited.push(d);
+            countByDisplay.set(displayId, seen + 1);
+          }
         }
-        let internal = [...firstByDisplay.values()];
+        let internal = limited;
 
         // Hide POI-displayed videos when the owner business already has its own
         // (non-POI) vignette in the list.
@@ -421,23 +444,6 @@ const Test = () => {
         internal = internal.filter(
           (d: any) => !d.poi_id || !ownersWithOwnVignette.has(d.business_id)
         );
-
-        // Resolve display business: prefer poi_id, then linked_business_id, then business_id
-        const displayBizIds = [...new Set(internal.map(getDisplayId))];
-        // Also resolve owner business (business_id of the doc) when different from display
-        const ownerBizIds = [...new Set(internal.map((d: any) => d.business_id).filter((id: string) => !displayBizIds.includes(id)))];
-        const allBizIds = [...new Set([...displayBizIds, ...ownerBizIds])];
-        const bizMap = new Map<string, SearchResultBusiness>();
-        if (allBizIds.length > 0) {
-          const batch = 300;
-          for (let i = 0; i < allBizIds.length; i += batch) {
-            const { data: bizs } = await supabase
-              .from("businesses")
-              .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, google_rating, priority_score")
-              .in("id", allBizIds.slice(i, i + batch));
-            (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
-          }
-        }
 
         // Sort: verified first, then computed_rating (note interne /20) DESC, then priority_score DESC.
         internal.sort((a: any, b: any) => {
