@@ -580,6 +580,12 @@ const Test = () => {
     [videos, activeVideo, panelOpen]
   );
 
+  // Active list (used by panel navigation)
+  const activeList = useMemo(
+    () => (otherViewMode === "guide" ? guideVideos : videos),
+    [otherViewMode, guideVideos, videos]
+  );
+
 
   // Load Tarik Belasri's visible YouTube shorts when "guide" mode is selected
   useEffect(() => {
