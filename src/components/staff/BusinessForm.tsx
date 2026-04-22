@@ -541,6 +541,7 @@ interface SortableVideoCardProps {
   business: any;
   toast: any;
   onOpenDesc: () => void;
+  onOpenSocial: () => void;
   onDelete: () => void;
 }
 
@@ -557,7 +558,7 @@ const SortableDocRow = ({ id, children }: { id: string; children: React.ReactNod
   );
 };
 
-const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinessesForCity, allPoiBusinesses, dbDestinations, allBusinessesForVideo, videoBusinessSearch, setVideoBusinessSearch, dbCategories, dbSubcategories, dbServices, dbCities, dbNeighborhoods, dbEvents, dbBadges, videoEventSearch, setVideoEventSearch, business, toast, onOpenDesc, onDelete }: SortableVideoCardProps) => {
+const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinessesForCity, allPoiBusinesses, dbDestinations, allBusinessesForVideo, videoBusinessSearch, setVideoBusinessSearch, dbCategories, dbSubcategories, dbServices, dbCities, dbNeighborhoods, dbEvents, dbBadges, videoEventSearch, setVideoEventSearch, business, toast, onOpenDesc, onOpenSocial, onDelete }: SortableVideoCardProps) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1, zIndex: isDragging ? 50 : undefined };
 
@@ -571,6 +572,16 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
         <span className="text-[9px] text-muted-foreground shrink-0">{idx + 1}</span>
         <Button type="button" variant={doc.description ? "default" : "outline"} size="sm" className="h-5 px-1.5 text-[9px] shrink-0" title="Description" onClick={onOpenDesc}>
           TXT
+        </Button>
+        <Button
+          type="button"
+          variant={(doc.instagram_account || doc.instagram_url || doc.instagram_video_url || doc.tiktok_account || doc.tiktok_url || doc.tiktok_video_url || doc.youtube_account || doc.youtube_url || doc.youtube_video_url) ? "default" : "outline"}
+          size="sm"
+          className="h-5 px-1.5 text-[9px] shrink-0"
+          title="Liens sociaux"
+          onClick={onOpenSocial}
+        >
+          SOCIAL
         </Button>
         <label className="flex items-center gap-1 shrink-0 cursor-pointer" title="Ouvrir en popup">
           <Checkbox
