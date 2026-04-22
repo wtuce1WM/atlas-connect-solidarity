@@ -452,42 +452,8 @@ const Test = () => {
     setPanelOpen(false);
   }, [selectedEntryId, city]);
 
-  // Reorder videos using the same business order as the Search page "Résultats" tab.
-  // We call the business-search edge function with the subcategory name (or entry name) + city,
-  // then sort videos by the rank of their business in the search results.
-  useEffect(() => {
-    if (!selectedEntry || videos.length === 0) return;
-    if (selectedEntry.id === HOME_ID || selectedEntry.id === VLOGS_ID) return;
-
-    const subName = selectedSubId ? subcatNames[selectedSubId] : null;
-    const queryStr = [subName || selectedEntry.name, city].filter(Boolean).join(" ");
-    if (!queryStr.trim()) return;
-
-    let cancelled = false;
-    (async () => {
-      const { data } = await supabase.functions.invoke<{ businesses?: Array<{ id: string }> }>(
-        "business-search",
-        { body: { query: queryStr, pageSize: 200, offset: 0 } }
-      );
-      if (cancelled || !data?.businesses) return;
-      const rank = new Map<string, number>();
-      data.businesses.forEach((b, i) => rank.set(b.id, i));
-      setVideos((prev) => {
-        const indexed = prev.map((v, i) => ({ v, i }));
-        indexed.sort((a, b) => {
-          const ra = a.v.business?.id ? rank.get(a.v.business.id) : undefined;
-          const rb = b.v.business?.id ? rank.get(b.v.business.id) : undefined;
-          if (ra === undefined && rb === undefined) return a.i - b.i;
-          if (ra === undefined) return 1;
-          if (rb === undefined) return -1;
-          if (ra !== rb) return ra - rb;
-          return a.i - b.i;
-        });
-        return indexed.map((x) => x.v);
-      });
-    })();
-    return () => { cancelled = true; };
-  }, [selectedEntry, selectedSubId, city, subcatNames, videos.length]);
+  // Note: ordering is handled directly when videos are loaded
+  // (verified first, then computed_rating DESC, then priority_score DESC).
 
   const [panelOpen, setPanelOpen] = useState(false);
   const [guideVideos, setGuideVideos] = useState<VideoItem[]>([]);
