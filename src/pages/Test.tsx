@@ -437,32 +437,31 @@ const Test = () => {
           }
         }
 
-        // Entité d'affichage simplifiée :
-        // - si la vidéo pointe vers un POI (`poi_id`), on affiche ce POI
-        // - sinon, si le propriétaire de la vidéo est lui-même un POI, on affiche ce POI
-        // - sinon, on garde la logique linked_business_id > business_id
+        // Entité d'affichage canonique :
+        // - une vidéo avec `poi_id` appartient au POI
+        // - sinon, si le propriétaire est un POI, on garde ce POI
+        // - sinon, si l'entité liée est un POI, on garde ce POI
+        // - sinon linked_business_id > business_id
         const getDisplayId = (d: any) => {
           if (d.poi_id) return d.poi_id;
           if ((bizMap.get(d.business_id) as any)?.is_poi) return d.business_id;
+          if (d.linked_business_id && (bizMap.get(d.linked_business_id) as any)?.is_poi) return d.linked_business_id;
           return d.linked_business_id || d.business_id;
         };
 
-        // Dédup simple : 1 entité d'affichage = 1 vignette.
-        // Pour les POI, cela impose explicitement 1 POI = 1 vignette.
-        // Pour les autres entités, on conserve front_video_count.
-        const countByDisplay = new Map<string, number>();
-        const internal: any[] = [];
+        // Simplification forte : 1 entité d'affichage = 1 seule vignette.
+        // On agrège donc toutes les vidéos par entité (POI ou business) et on garde
+        // la première vidéo rencontrée comme représentante de cette entité.
+        allDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+        const representativeByDisplay = new Map<string, any>();
         for (const d of allDocs) {
           const displayId = getDisplayId(d);
-          const displayBiz = bizMap.get(displayId) as any;
-          const limit = displayBiz?.is_poi ? 1 : (displayBiz?.front_video_count ?? 1);
-          const seen = countByDisplay.get(displayId) ?? 0;
-          if (seen < limit) {
-            internal.push(d);
-            countByDisplay.set(displayId, seen + 1);
+          if (!representativeByDisplay.has(displayId)) {
+            representativeByDisplay.set(displayId, d);
           }
-        };
+        }
 
+        const internal = Array.from(representativeByDisplay.values());
 
         // Sort: verified first, then computed_rating (note interne /20) DESC, then priority_score DESC.
         internal.sort((a: any, b: any) => {
@@ -483,8 +482,6 @@ const Test = () => {
           internal.map((d: any) => {
             const displayId = getDisplayId(d);
             const biz = bizMap.get(displayId) || null;
-            // Owner logo: use the video's business_id when it differs from the
-            // display entity, otherwise fall back to the display business itself.
             const ownerBiz =
               d.business_id !== displayId
                 ? bizMap.get(d.business_id) || biz
