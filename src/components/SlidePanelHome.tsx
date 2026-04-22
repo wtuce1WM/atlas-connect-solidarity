@@ -135,7 +135,7 @@ const SlidePanelHome = ({
             {owner && (
               <div
                 key={`owner-overlay-${videoId || videoUrl}`}
-                className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-[6] flex flex-col items-center justify-center gap-3 px-4 pointer-events-none"
+                className="absolute inset-x-0 bottom-20 z-[6] flex flex-col items-center justify-center gap-3 px-4 pointer-events-none"
               >
                 {owner.logo_url && (
                   <div className="animate-logo-big-full-reveal max-w-[140px] max-h-[110px] md:max-w-[240px] md:max-h-[160px]">
