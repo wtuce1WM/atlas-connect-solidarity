@@ -1100,15 +1100,20 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
 
   // Backfill legacy videos: if city_ids is empty but legacy `city` field is set,
   // resolve the city name to its ID so it appears selected in the multi-city picker.
+  // Each doc is only backfilled ONCE so the user can freely deselect afterwards.
+  const backfilledDocIdsRef = useRef<Set<string>>(new Set());
   useEffect(() => {
     if (dbCities.length === 0) return;
     setVideoDocs(prev => {
       let changed = false;
       const next = prev.map(d => {
+        const key = d.id || "";
+        if (key && backfilledDocIdsRef.current.has(key)) return d;
         if ((!d.city_ids || d.city_ids.length === 0) && d.city) {
           const match = dbCities.find(c => c.name_fr === d.city);
           if (match) {
             changed = true;
+            if (key) backfilledDocIdsRef.current.add(key);
             return { ...d, city_ids: [match.id] };
           }
         }
@@ -1117,6 +1122,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       return changed ? next : prev;
     });
   }, [dbCities]);
+
 
 /** Standalone sub-component to manage LiteAPI hotel mapping for a single business */
 const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
