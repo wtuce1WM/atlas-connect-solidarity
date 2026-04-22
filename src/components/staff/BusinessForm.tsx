@@ -5077,6 +5077,17 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             </DialogContent>
           </Dialog>
 
+          {/* Social links dialog (per video) */}
+          <VideoSocialLinksDialog
+            open={videoSocialDialogIdx !== null}
+            onOpenChange={(o) => { if (!o) setVideoSocialDialogIdx(null); }}
+            doc={videoSocialDialogIdx !== null ? videoDocs[videoSocialDialogIdx] : null}
+            onSave={(patch) => {
+              if (videoSocialDialogIdx === null) return;
+              setVideoDocs(prev => prev.map((d, i) => i === videoSocialDialogIdx ? { ...d, ...patch } : d));
+            }}
+          />
+
           {/* Delete confirmation dialog */}
           <AlertDialog open={videoDeleteConfirmIdx !== null} onOpenChange={(open) => { if (!open) setVideoDeleteConfirmIdx(null); }}>
             <AlertDialogContent>
