@@ -404,7 +404,6 @@ const Test = () => {
           if (data.length < PAGE) break;
           offset += PAGE;
         }
-        // Include videos assigned to this city via business_document_cities (multi-city)
         const extraIds = [...extraCityDocIds].filter((id) => !allDocs.some((d) => d.id === id));
         for (let i = 0; i < extraIds.length; i += 300) {
           const chunk = extraIds.slice(i, i + 300);
@@ -416,12 +415,10 @@ const Test = () => {
             .in("id", chunk);
           if (data) allDocs.push(...data);
         }
-        // Dedup by id (a video could be returned twice if it matches both filters)
+
         const seenIds = new Set<string>();
         allDocs = allDocs.filter((d: any) => (seenIds.has(d.id) ? false : (seenIds.add(d.id), true)));
 
-        // Précharge tous les businesses référencés pour résoudre correctement
-        // l'entité d'affichage finale (POI prioritaire) et ses métadonnées.
         const allBizIds = [...new Set(
           allDocs.flatMap((d: any) => [d.business_id, d.poi_id, d.linked_business_id].filter(Boolean))
         )] as string[];
@@ -437,25 +434,20 @@ const Test = () => {
           }
         }
 
-        // Entité d'affichage canonique :
-        // - une vidéo avec `poi_id` appartient au POI
-        // - sinon, si le propriétaire est un POI, on garde ce POI
-        // - sinon, si l'entité liée est un POI, on garde ce POI
-        // - sinon linked_business_id > business_id
+        const isTouristSites = subIds.some((id) => subcatNames[id] === "Sites touristiques") || selectedEntry.name === "Sites touristiques";
+
         const getDisplayId = (d: any) => {
           if (d.poi_id) return d.poi_id;
           if ((bizMap.get(d.business_id) as any)?.is_poi) return d.business_id;
           if (d.linked_business_id && (bizMap.get(d.linked_business_id) as any)?.is_poi) return d.linked_business_id;
-          return d.linked_business_id || d.business_id;
+          return isTouristSites ? null : (d.linked_business_id || d.business_id);
         };
 
-        // Simplification forte : 1 entité d'affichage = 1 seule vignette.
-        // On agrège donc toutes les vidéos par entité (POI ou business) et on garde
-        // la première vidéo rencontrée comme représentante de cette entité.
         allDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
         const representativeByDisplay = new Map<string, any>();
         for (const d of allDocs) {
           const displayId = getDisplayId(d);
+          if (!displayId) continue;
           if (!representativeByDisplay.has(displayId)) {
             representativeByDisplay.set(displayId, d);
           }
@@ -463,10 +455,9 @@ const Test = () => {
 
         const internal = Array.from(representativeByDisplay.values());
 
-        // Sort: verified first, then computed_rating (note interne /20) DESC, then priority_score DESC.
         internal.sort((a: any, b: any) => {
-          const ba = bizMap.get(getDisplayId(a)) as any;
-          const bb = bizMap.get(getDisplayId(b)) as any;
+          const ba = bizMap.get(getDisplayId(a) as string) as any;
+          const bb = bizMap.get(getDisplayId(b) as string) as any;
           const aVerified = ba?.wtuce_status === "verified" ? 0 : 1;
           const bVerified = bb?.wtuce_status === "verified" ? 0 : 1;
           if (aVerified !== bVerified) return aVerified - bVerified;
@@ -480,7 +471,7 @@ const Test = () => {
 
         setVideos(
           internal.map((d: any) => {
-            const displayId = getDisplayId(d);
+            const displayId = getDisplayId(d) as string;
             const biz = bizMap.get(displayId) || null;
             const ownerBiz =
               d.business_id !== displayId
