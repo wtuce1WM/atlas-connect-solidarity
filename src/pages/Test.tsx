@@ -22,6 +22,7 @@ interface OwnerInfo {
   id: string;
   name: string;
   logo_url: string | null;
+  logo_bg: string | null;
 }
 
 interface VideoItem {
