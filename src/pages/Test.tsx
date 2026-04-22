@@ -124,10 +124,42 @@ const Test = () => {
   const [subsWithVideos, setSubsWithVideos] = useState<Set<string>>(new Set());
   const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
 
+  // Resolve the cities table id for the selected city (used to pull videos
+  // assigned to this city via the business_document_cities junction table,
+  // i.e. videos owned by businesses from a different city but tagged here).
+  const [cityRowId, setCityRowId] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("cities")
+        .select("id")
+        .eq("name_fr", city)
+        .maybeSingle();
+      if (!cancelled) setCityRowId((data as any)?.id || null);
+    })();
+    return () => { cancelled = true; };
+  }, [city]);
+
+  // Document ids assigned to this city via business_document_cities (multi-city)
+  const [extraCityDocIds, setExtraCityDocIds] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    if (!cityRowId) { setExtraCityDocIds(new Set()); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("business_document_cities")
+        .select("document_id")
+        .eq("city_id", cityRowId);
+      if (!cancelled) setExtraCityDocIds(new Set(((data as any[]) || []).map((r) => r.document_id)));
+    })();
+    return () => { cancelled = true; };
+  }, [cityRowId]);
+
   useEffect(() => {
     setLoading(true);
     const load = async () => {
-      // Fetch all internal video docs for the selected city
+      // Fetch all internal video docs for the selected city (own city + multi-city assigned)
       let allDocs: any[] = [];
       let offset = 0;
       const PAGE = 1000;
@@ -143,6 +175,18 @@ const Test = () => {
         allDocs.push(...data);
         if (data.length < PAGE) break;
         offset += PAGE;
+      }
+      // Add multi-city assigned docs
+      const extraIds = [...extraCityDocIds];
+      for (let i = 0; i < extraIds.length; i += 300) {
+        const chunk = extraIds.slice(i, i + 300);
+        const { data } = await supabase
+          .from("business_documents")
+          .select("id, url, subcategory_id")
+          .eq("type", "video")
+          .not("subcategory_id", "is", null)
+          .in("id", chunk);
+        if (data) allDocs.push(...data);
       }
       const subIdsWithVideos = new Set<string>();
       allDocs.forEach((d) => subIdsWithVideos.add(d.subcategory_id));
