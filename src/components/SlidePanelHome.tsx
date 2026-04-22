@@ -111,7 +111,6 @@ const SlidePanelHome = ({
                 key={videoId || videoUrl}
                 src={videoUrl}
                 controls
-                autoPlay
                 loop
                 playsInline
                 className="w-full h-full object-cover"
