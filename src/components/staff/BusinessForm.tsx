@@ -1121,7 +1121,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       });
       return changed ? next : prev;
     });
-  }, [dbCities, videoDocs.length]);
+  }, [dbCities]);
 
 
 /** Standalone sub-component to manage LiteAPI hotel mapping for a single business */
