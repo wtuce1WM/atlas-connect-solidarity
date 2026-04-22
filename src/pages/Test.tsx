@@ -25,6 +25,12 @@ interface OwnerInfo {
   logo_bg: string | null;
 }
 
+interface SocialInfo {
+  platform: "instagram" | "tiktok" | "youtube";
+  account: string;
+  url: string | null;
+}
+
 interface VideoItem {
   id: string;
   url: string;
@@ -33,6 +39,8 @@ interface VideoItem {
   business: SearchResultBusiness | null;
   /** Set only when the video's owner business differs from the display entity */
   owner: OwnerInfo | null;
+  social: SocialInfo | null;
+  description: string | null;
 }
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
@@ -43,6 +51,16 @@ function deriveThumbnail(url: string): string | null {
   if (yt) return `https://i.ytimg.com/vi/${yt[1]}/hqdefault.jpg`;
   const bunny = url.match(/iframe\.mediadelivery\.net\/embed\/(\d+)\/([\w-]+)/);
   if (bunny) return `https://vz-${bunny[1]}.b-cdn.net/${bunny[2]}/thumbnail.jpg`;
+  return null;
+}
+
+function extractSocial(d: any): SocialInfo | null {
+  const ig = (d?.instagram_account || "").trim();
+  if (ig) return { platform: "instagram", account: ig.replace(/^@+/, ""), url: d?.instagram_url || null };
+  const tt = (d?.tiktok_account || "").trim();
+  if (tt) return { platform: "tiktok", account: tt.replace(/^@+/, ""), url: d?.tiktok_url || null };
+  const yt = (d?.youtube_account || "").trim();
+  if (yt) return { platform: "youtube", account: yt.replace(/^@+/, ""), url: d?.youtube_url || null };
   return null;
 }
 
@@ -311,6 +329,8 @@ const Test = () => {
               thumbnail_url: v.thumbnail_url || deriveThumbnail(v.url),
               business: biz,
               owner: null,
+              social: extractSocial(v),
+              description: null,
             } as VideoItem;
           })
           .filter(Boolean) as VideoItem[];
@@ -338,7 +358,7 @@ const Test = () => {
           const chunk = bizIds.slice(i, i + batch);
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id")
+            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
             .eq("type", "video")
             .eq("show_on_front", true)
             .in("business_id", chunk)
@@ -351,7 +371,7 @@ const Test = () => {
           const chunk = extraIds.slice(i, i + batch);
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id")
+            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
             .eq("type", "video")
             .eq("show_on_front", true)
             .in("id", chunk);
@@ -373,7 +393,7 @@ const Test = () => {
         while (true) {
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, subcategory_id, city, sort_order, poi_id, linked_business_id, destination_id")
+            .select("id, url, thumbnail_url, business_id, subcategory_id, city, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
             .eq("type", "video")
             .in("subcategory_id", subIds)
             .eq("city", city)
@@ -390,7 +410,7 @@ const Test = () => {
           const chunk = extraIds.slice(i, i + 300);
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, subcategory_id, city, sort_order, poi_id, linked_business_id, destination_id")
+            .select("id, url, thumbnail_url, business_id, subcategory_id, city, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
             .eq("type", "video")
             .in("subcategory_id", subIds)
             .in("id", chunk);
@@ -477,6 +497,8 @@ const Test = () => {
               thumbnail_url: d.thumbnail_url,
               business: biz,
               owner: ownerBiz ? { id: ownerBiz.id, name: ownerBiz.name, logo_url: (ownerBiz as any).logo_url ?? null, logo_bg: (ownerBiz as any).logo_bg ?? null } : null,
+              social: extractSocial(d),
+              description: d.description ?? null,
             };
           })
         );
@@ -516,6 +538,8 @@ const Test = () => {
             thumbnail_url: d.thumbnail_url,
             business: biz,
             owner: ownerBiz ? { id: ownerBiz.id, name: ownerBiz.name, logo_url: (ownerBiz as any).logo_url ?? null, logo_bg: (ownerBiz as any).logo_bg ?? null } : null,
+            social: extractSocial(d),
+            description: d.description ?? null,
           };
         })
       );
@@ -596,6 +620,8 @@ const Test = () => {
         thumbnail_url: y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/hqdefault.jpg`,
         business: biz as SearchResultBusiness,
         owner: null,
+        social: null,
+        description: null,
       }));
       setGuideVideos(items);
       setLoadingGuide(false);
@@ -903,6 +929,8 @@ const Test = () => {
         businessName={activeVideo?.business_name || ""}
         isGeneric={isActiveGeneric}
         owner={activeVideo?.owner || null}
+        social={activeVideo?.social || null}
+        description={activeVideo?.description || null}
         currentTime={currentTime}
         onTimeUpdate={setCurrentTime}
         onPrev={() => {
