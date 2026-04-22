@@ -516,7 +516,7 @@ const Test = () => {
       setLoadingVideos(false);
     };
     load();
-  }, [selectedEntry, city, selectedSubId]);
+  }, [selectedEntry, city, selectedSubId, extraCityDocIds]);
 
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
 
