@@ -790,13 +790,13 @@ const Test = () => {
                           </div>
                         </div>
                         {v.owner?.logo_url && (
-                          <div className="absolute inset-x-0 bottom-7 z-[6] flex justify-center px-2 pointer-events-none">
-                            <div className="animate-logo-big-full-reveal max-w-[80px] max-h-[60px]">
+                          <div className="absolute inset-0 z-[6] flex items-center justify-center px-2 pointer-events-none">
+                            <div className="animate-logo-big-full-reveal max-w-[100px] max-h-[72px]">
                               <img
                                 key={`logo-${v.id}`}
                                 src={v.owner.logo_url}
                                 alt={v.owner.name}
-                                className="w-full h-auto max-w-full max-h-[60px] object-contain"
+                                className="w-full h-auto max-w-full max-h-[72px] object-contain"
                                 style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
                               />
                             </div>
