@@ -152,16 +152,19 @@ const SlidePanelHome = ({
               </div>
             )}
           </div>
-          <p className="text-sm font-medium text-foreground">{businessName}</p>
-
-          <PanelSearchBar
-            iconVariant="black"
-            onSearch={(params) => {
-              const sp = new URLSearchParams(params);
-              navigate(`/search?${sp.toString()}`);
-            }}
-            onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
-          />
+          <div className="absolute inset-x-0 bottom-0 z-10 p-4 flex flex-col items-center gap-2 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none">
+            <p className="text-sm font-medium text-white pointer-events-auto">{businessName}</p>
+            <div className="w-full max-w-xl pointer-events-auto">
+              <PanelSearchBar
+                iconVariant="black"
+                onSearch={(params) => {
+                  const sp = new URLSearchParams(params);
+                  navigate(`/search?${sp.toString()}`);
+                }}
+                onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>,
