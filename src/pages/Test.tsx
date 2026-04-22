@@ -345,6 +345,21 @@ const Test = () => {
             .order("front_sort_order", { ascending: true });
           if (data) allDocs.push(...data);
         }
+        // Include videos assigned to this city via business_document_cities (multi-city)
+        const extraIds = [...extraCityDocIds].filter((id) => !allDocs.some((d) => d.id === id));
+        for (let i = 0; i < extraIds.length; i += batch) {
+          const chunk = extraIds.slice(i, i + batch);
+          const { data } = await supabase
+            .from("business_documents")
+            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id")
+            .eq("type", "video")
+            .eq("show_on_front", true)
+            .in("id", chunk);
+          if (data) allDocs.push(...data);
+        }
+        // Dedup by id
+        const seen = new Set<string>();
+        allDocs = allDocs.filter((d: any) => (seen.has(d.id) ? false : (seen.add(d.id), true)));
         allDocs.sort((a: any, b: any) => (a.front_sort_order ?? 0) - (b.front_sort_order ?? 0));
       } else {
         const subIds = selectedSubId ? [selectedSubId] : selectedEntry.subcategory_ids;
