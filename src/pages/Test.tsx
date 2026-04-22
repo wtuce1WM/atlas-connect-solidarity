@@ -235,9 +235,6 @@ const Test = () => {
     if (entries.length > 0) load();
   }, [city, entries, extraCityDocIds]);
 
-  const HOME_ID = "__home__";
-  const VLOGS_ID = "__vlogs__";
-
   const visibleEntries = useMemo(() => {
     const homeEntry: FrontEntry = {
       id: HOME_ID,
