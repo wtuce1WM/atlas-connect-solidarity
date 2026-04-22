@@ -284,7 +284,83 @@ const SERVICES: Record<string, string[]> = {
   ],
 };
 
-type VideoDocEntry = { id?: string; url: string; name: string; poi_id: string | null; destination_id: string | null; linked_business_id: string | null; subcategory_id: string | null; service_id: string | null; city: string | null; neighborhood: string | null; description: string | null; price: string | null; price_type: string | null; thumbnail_url: string | null; popup: boolean; hide_logo: boolean; event_id: string | null; badge_ids: string[]; city_ids: string[]; _original_sort_order?: number; _original_front_sort_order?: number; _show_on_front?: boolean };
+type VideoDocEntry = { id?: string; url: string; name: string; poi_id: string | null; destination_id: string | null; linked_business_id: string | null; subcategory_id: string | null; service_id: string | null; city: string | null; neighborhood: string | null; description: string | null; price: string | null; price_type: string | null; thumbnail_url: string | null; popup: boolean; hide_logo: boolean; event_id: string | null; badge_ids: string[]; city_ids: string[]; instagram_account: string | null; instagram_url: string | null; instagram_video_url: string | null; tiktok_account: string | null; tiktok_url: string | null; tiktok_video_url: string | null; youtube_account: string | null; youtube_url: string | null; youtube_video_url: string | null; _original_sort_order?: number; _original_front_sort_order?: number; _show_on_front?: boolean };
+
+/* ─── Dialog d'édition des liens sociaux d'une vidéo ─── */
+const VideoSocialLinksDialog = ({
+  open,
+  onOpenChange,
+  doc,
+  onSave,
+}: {
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  doc: VideoDocEntry | null;
+  onSave: (patch: Partial<VideoDocEntry>) => void;
+}) => {
+  const [ig, setIg] = useState({ account: "", url: "", videoUrl: "" });
+  const [tt, setTt] = useState({ account: "", url: "", videoUrl: "" });
+  const [yt, setYt] = useState({ account: "", url: "", videoUrl: "" });
+
+  useEffect(() => {
+    if (open && doc) {
+      setIg({ account: doc.instagram_account || "", url: doc.instagram_url || "", videoUrl: doc.instagram_video_url || "" });
+      setTt({ account: doc.tiktok_account || "", url: doc.tiktok_url || "", videoUrl: doc.tiktok_video_url || "" });
+      setYt({ account: doc.youtube_account || "", url: doc.youtube_url || "", videoUrl: doc.youtube_video_url || "" });
+    }
+  }, [open, doc]);
+
+  if (!doc) return null;
+
+  const save = () => {
+    onSave({
+      instagram_account: ig.account || null, instagram_url: ig.url || null, instagram_video_url: ig.videoUrl || null,
+      tiktok_account: tt.account || null, tiktok_url: tt.url || null, tiktok_video_url: tt.videoUrl || null,
+      youtube_account: yt.account || null, youtube_url: yt.url || null, youtube_video_url: yt.videoUrl || null,
+    });
+    onOpenChange(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader><DialogTitle>Liens sociaux</DialogTitle></DialogHeader>
+        <div className="space-y-4">
+          <div className="space-y-2 p-3 rounded-lg border">
+            <label className="text-sm font-semibold flex items-center gap-1.5 uppercase tracking-wide">
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+              Instagram
+            </label>
+            <Input placeholder="Compte (@…)" value={ig.account} onChange={e => setIg(p => ({ ...p, account: e.target.value }))} />
+            <Input placeholder="URL du profil" value={ig.url} onChange={e => setIg(p => ({ ...p, url: e.target.value }))} />
+            <Input placeholder="URL de la vidéo Instagram" value={ig.videoUrl} onChange={e => setIg(p => ({ ...p, videoUrl: e.target.value }))} />
+          </div>
+          <div className="space-y-2 p-3 rounded-lg border">
+            <label className="text-sm font-semibold flex items-center gap-1.5 uppercase tracking-wide">
+              <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1 0-5.78c.29 0 .58.04.86.11V9a6.27 6.27 0 0 0-.86-.06A6.33 6.33 0 0 0 3.16 15.3a6.33 6.33 0 0 0 6.33 6.33c3.5 0 6.33-2.84 6.33-6.33V9.14a8.16 8.16 0 0 0 4.77 1.52V7.21a4.85 4.85 0 0 1-1-.52Z"/></svg>
+              TikTok
+            </label>
+            <Input placeholder="Compte (@…)" value={tt.account} onChange={e => setTt(p => ({ ...p, account: e.target.value }))} />
+            <Input placeholder="URL du profil" value={tt.url} onChange={e => setTt(p => ({ ...p, url: e.target.value }))} />
+            <Input placeholder="URL de la vidéo TikTok" value={tt.videoUrl} onChange={e => setTt(p => ({ ...p, videoUrl: e.target.value }))} />
+          </div>
+          <div className="space-y-2 p-3 rounded-lg border">
+            <label className="text-sm font-semibold flex items-center gap-1.5 uppercase tracking-wide">
+              <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current"><path d="M23.5 6.2a3.02 3.02 0 0 0-2.12-2.14C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.38.56A3.02 3.02 0 0 0 .5 6.2 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.8 3.02 3.02 0 0 0 2.12 2.14c1.88.56 9.38.56 9.38.56s7.5 0 9.38-.56a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.8ZM9.75 15.02V8.98L15.5 12l-5.75 3.02Z"/></svg>
+              YouTube
+            </label>
+            <Input placeholder="Nom de la chaîne" value={yt.account} onChange={e => setYt(p => ({ ...p, account: e.target.value }))} />
+            <Input placeholder="URL de la chaîne" value={yt.url} onChange={e => setYt(p => ({ ...p, url: e.target.value }))} />
+            <Input placeholder="URL de la vidéo YouTube" value={yt.videoUrl} onChange={e => setYt(p => ({ ...p, videoUrl: e.target.value }))} />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button type="button" onClick={save}>Enregistrer</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 /** Generate a JPEG thumbnail from a video URL. Returns a Blob or null. */
 async function generateVideoThumbnail(videoUrl: string): Promise<Blob | null> {
