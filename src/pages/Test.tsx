@@ -552,20 +552,11 @@ const Test = () => {
     load();
   }, [selectedEntry, city, selectedSubId, extraCityDocIds]);
 
-  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
-
   // Reset active video when entry/city changes
   useEffect(() => {
     setActiveVideoId(null);
     setPanelOpen(false);
   }, [selectedEntryId, city]);
-
-  // Note: ordering is handled directly when videos are loaded
-  // (verified first, then computed_rating DESC, then priority_score DESC).
-
-  const [panelOpen, setPanelOpen] = useState(false);
-  const [guideVideos, setGuideVideos] = useState<VideoItem[]>([]);
-  const [loadingGuide, setLoadingGuide] = useState(false);
 
   const activeVideo = useMemo(
     () => [...videos, ...guideVideos].find((v) => v.id === activeVideoId) || null,
