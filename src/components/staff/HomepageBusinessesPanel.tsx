@@ -424,6 +424,12 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
               </SelectContent>
             </Select>
           </div>
+          <div className="ml-auto">
+            <Button size="sm" onClick={handleRegenerate} disabled={regenerating}>
+              {regenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : null}
+              Régénérer le snapshot
+            </Button>
+          </div>
           {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
           {allLoaded && selectedStructure !== "none" && (
             <p className="text-xs text-muted-foreground">
