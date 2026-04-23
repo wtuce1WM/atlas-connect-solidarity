@@ -539,6 +539,7 @@ const Test = () => {
       setLoadingVideos(false);
     };
     load();
+    return () => { cancelled = true; };
   }, [selectedEntry, city, selectedSubId, extraCityDocIds]);
 
   // Reset active video when entry/city changes
