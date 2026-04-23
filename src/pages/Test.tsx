@@ -750,7 +750,20 @@ const Test = () => {
       <div className="pt-[53px] flex w-full min-h-[calc(100vh-53px)]">
         {/* Right zone 80% */}
         <main className={`p-6 overflow-y-auto transition-all duration-300 ${panelOpen ? "w-1/2" : "flex-1"}`}>
-          {!selectedEntry ? (
+          {selectedEntryId === HOME_ID ? (
+            <Tabs defaultValue={city.toLowerCase()} value={city.toLowerCase()} onValueChange={(v) => setCity((v.charAt(0).toUpperCase() + v.slice(1)) as City)}>
+              <TabsList>
+                <TabsTrigger value="marrakech">Marrakech</TabsTrigger>
+                <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
+              </TabsList>
+              <TabsContent value="marrakech">
+                <HomepageFrontStructurePreview city="Marrakech" />
+              </TabsContent>
+              <TabsContent value="essaouira">
+                <HomepageFrontStructurePreview city="Essaouira" />
+              </TabsContent>
+            </Tabs>
+          ) : !selectedEntry ? (
             <p className="text-sm text-muted-foreground">
               Sélectionne une entrée dans la colonne de gauche.
             </p>
