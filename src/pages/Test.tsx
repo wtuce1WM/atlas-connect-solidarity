@@ -293,8 +293,8 @@ const Test = () => {
           .maybeSingle();
         const destId = (dest as any)?.id;
         if (!destId) {
-          setVideos([]);
-          setLoadingVideos(false);
+          safeSetVideos([]);
+          safeSetLoadingVideos(false);
           return;
         }
         const { data: links } = await supabase
@@ -303,8 +303,8 @@ const Test = () => {
           .eq("destination_id", destId);
         const linkedIds = new Set(((links as any[]) || []).map((l) => l.generic_video_id));
         if (linkedIds.size === 0) {
-          setVideos([]);
-          setLoadingVideos(false);
+          safeSetVideos([]);
+          safeSetLoadingVideos(false);
           return;
         }
         const [vidsRes, bizLinksRes] = await Promise.all([
@@ -352,8 +352,8 @@ const Test = () => {
             } as VideoItem;
           })
           .filter(Boolean) as VideoItem[];
-        setVideos(ordered);
-        setLoadingVideos(false);
+        safeSetVideos(ordered);
+        safeSetLoadingVideos(false);
         return;
       }
 
@@ -367,8 +367,8 @@ const Test = () => {
           .eq("city", city);
         const bizIds = (cityBiz.data || []).map((b: any) => b.id);
         if (bizIds.length === 0) {
-          setVideos([]);
-          setLoadingVideos(false);
+          safeSetVideos([]);
+          safeSetLoadingVideos(false);
           return;
         }
         const batch = 300;
@@ -402,8 +402,8 @@ const Test = () => {
       } else {
         const subIds = selectedSubId ? [selectedSubId] : selectedEntry.subcategory_ids;
         if (subIds.length === 0) {
-          setVideos([]);
-          setLoadingVideos(false);
+          safeSetVideos([]);
+          safeSetLoadingVideos(false);
           return;
         }
         let offset = 0;
@@ -480,7 +480,7 @@ const Test = () => {
         limitedDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
 
-        setVideos(
+        safeSetVideos(
           limitedDocs.map((d: any) => {
             const biz = bizMap.get(d.business_id) || null;
             return {
@@ -497,7 +497,7 @@ const Test = () => {
             };
           })
         );
-        setLoadingVideos(false);
+        safeSetLoadingVideos(false);
         return;
       }
 
@@ -518,7 +518,7 @@ const Test = () => {
         }
       }
 
-      setVideos(
+      safeSetVideos(
         allDocs.map((d: any) => {
           const displayId = getDisplayId(d);
           const biz = bizMap.get(displayId) || null;
@@ -538,7 +538,7 @@ const Test = () => {
           };
         })
       );
-      setLoadingVideos(false);
+      safeSetLoadingVideos(false);
     };
     load();
     return () => { cancelled = true; };
