@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import VideoThumbnail from "@/components/VideoThumbnail";
+import VideoLightbox from "@/components/staff/VideoLightbox";
 
 interface Props {
   city: string;
