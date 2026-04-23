@@ -536,6 +536,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
     ownerName: string | null;
     videoId: string | null;
     fallbackLabel?: string;
+    badgeLabel?: string | null;
   }) => {
     const isFileVideo = !!it.videoUrl && !it.thumbnail && !/youtube|youtu\.be|vimeo|mediadelivery/i.test(it.videoUrl);
     return it.videoId ? (
@@ -548,6 +549,16 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           <div className="w-full h-full bg-muted" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
+        {it.badgeLabel && (
+          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-[7] flex items-center justify-center px-2 pointer-events-none">
+            <span
+              className="px-2.5 py-1 rounded-md bg-primary/90 text-primary-foreground text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg"
+              style={{ textShadow: "0 1px 2px hsla(0,0%,0%,0.5)" }}
+            >
+              {it.badgeLabel}
+            </span>
+          </div>
+        )}
         {it.rating != null && (
           <div className="absolute top-1.5 left-1.5 right-1.5 z-[5] flex items-center gap-1 text-[10px]">
             <Star className="h-2.5 w-2.5 text-gold fill-gold" />
@@ -602,7 +613,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground line-clamp-1">
               {it.entryName}
             </p>
-            {renderThumbBox(it)}
+            {renderThumbBox({ ...it, badgeLabel: it.entryName })}
 
             {/* Champ Établissement override */}
             <div className="relative">
@@ -671,7 +682,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
                 <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
               </button>
             </div>
-            {renderThumbBox({ ...card, videoId: card.videoId, fallbackLabel: "Choisir établissement / badge" })}
+            {renderThumbBox({ ...card, videoId: card.videoId, fallbackLabel: "Choisir établissement / badge", badgeLabel: card.title?.trim() || null })}
 
             {/* Titre */}
             <div>
