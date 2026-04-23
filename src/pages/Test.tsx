@@ -1064,8 +1064,9 @@ const Test = () => {
                             <div className="aspect-square bg-muted rounded-xl" />
                           )}
                         </div>
-                      );
-                    })}
+                        );
+                      });
+                    })()}
                   </div>
                   )}
                 </div>
