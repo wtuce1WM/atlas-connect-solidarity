@@ -356,6 +356,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
             business_id: card.business_id,
             badge_id: card.badge_id,
             badgeName,
+            video_document_id: card.video_document_id,
           };
         }
         const ownerBiz = bizMap.get(doc.business_id) || null;
@@ -379,6 +380,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           business_id: card.business_id,
           badge_id: card.badge_id,
           badgeName,
+          video_document_id: card.video_document_id,
         };
       });
 
