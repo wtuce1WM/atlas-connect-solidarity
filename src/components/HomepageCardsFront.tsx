@@ -55,23 +55,9 @@ const HomepageCardsFront = ({ city }: Props) => {
     const load = async () => {
       if (isFirstLoad.current) setLoading(true);
 
-      const { data: cityRow } = await supabase
-        .from("cities")
-        .select("id")
-        .eq("name_fr", city)
-        .maybeSingle();
-      const cityRowId = (cityRow as any)?.id || null;
-
-      let extraDocIds = new Set<string>();
-      if (cityRowId) {
-        const { data } = await supabase
-          .from("business_document_cities")
-          .select("document_id")
-          .eq("city_id", cityRowId);
-        extraDocIds = new Set(((data as any[]) || []).map((r) => r.document_id));
-      }
-
-      const [entriesRes, linksRes, overridesRes, badgesRes, extraRes] = await Promise.all([
+      // Phase 1: tout ce qui ne dépend de rien — en parallèle
+      const [cityRowRes, entriesRes, linksRes, overridesRes, badgesRes, extraRes, orderRes] = await Promise.all([
+        supabase.from("cities").select("id").eq("name_fr", city).maybeSingle(),
         supabase.from("front_structure").select("id, name, sort_order, show_in_menu").order("sort_order"),
         supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
         (supabase as any)
@@ -84,7 +70,20 @@ const HomepageCardsFront = ({ city }: Props) => {
           .select("id, city, business_id, badge_id, video_document_id, title, sort_order")
           .eq("city", city)
           .order("sort_order", { ascending: true }),
+        (supabase as any)
+          .from("front_structure_homepage_order")
+          .select("item_type, item_id, sort_order")
+          .eq("city", city)
+          .order("sort_order", { ascending: true }),
       ]);
+
+      const cityRowId = (cityRowRes.data as any)?.id || null;
+
+      // Phase 2: docs multi-cités pour cette ville (1 requête parallèle)
+      const extraDocIdsRes = cityRowId
+        ? await supabase.from("business_document_cities").select("document_id").eq("city_id", cityRowId)
+        : { data: [] as any[] };
+      const extraDocIds = new Set(((extraDocIdsRes.data as any[]) || []).map((r) => r.document_id));
 
       const linksByEntry: Record<string, string[]> = {};
       (linksRes.data || []).forEach((l: any) => {
@@ -109,105 +108,101 @@ const HomepageCardsFront = ({ city }: Props) => {
         }))
         .filter((e: FSEntry) => e.subcategory_ids.length > 0);
 
-      const firstDocByEntry: Record<string, any> = {};
-      const allBizIds = new Set<string>();
+      const extraRows: any[] = ((extraRes as any).data || []);
 
-      for (const entry of entries) {
+      // Phase 3: pour chaque entrée et chaque carte extra, lancer toutes les requêtes vidéo en parallèle
+      const entryDocPromises = entries.map(async (entry) => {
         const overrideBizId = overrideByEntry[entry.id];
-        let candidate: any = null;
-
         if (overrideBizId) {
+          const orFilter = `business_id.eq.${overrideBizId},linked_business_id.eq.${overrideBizId},poi_id.eq.${overrideBizId}`;
           const { data: ovDocs } = await supabase
             .from("business_documents")
             .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
             .eq("type", "video")
-            .or(`business_id.eq.${overrideBizId},linked_business_id.eq.${overrideBizId},poi_id.eq.${overrideBizId}`)
+            .or(orFilter)
             .in("subcategory_id", entry.subcategory_ids)
             .order("sort_order", { ascending: true })
             .limit(1);
-          candidate = (ovDocs && ovDocs[0]) || null;
+          let candidate: any = (ovDocs && ovDocs[0]) || null;
           if (!candidate) {
             const { data: anyDocs } = await supabase
               .from("business_documents")
               .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
               .eq("type", "video")
-              .or(`business_id.eq.${overrideBizId},linked_business_id.eq.${overrideBizId},poi_id.eq.${overrideBizId}`)
+              .or(orFilter)
               .order("sort_order", { ascending: true })
               .limit(1);
             candidate = (anyDocs && anyDocs[0]) || null;
           }
-          allBizIds.add(overrideBizId);
-        } else {
-          const { data: ownDocs } = await supabase
-            .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
-            .eq("type", "video")
-            .eq("city", city)
-            .in("subcategory_id", entry.subcategory_ids)
-            .order("sort_order", { ascending: true })
-            .limit(1);
-          candidate = (ownDocs && ownDocs[0]) || null;
+          return { entryId: entry.id, candidate };
+        }
 
-          if (extraDocIds.size > 0) {
-            const ids = [...extraDocIds];
-            for (let i = 0; i < ids.length; i += 300) {
-              const chunk = ids.slice(i, i + 300);
-              const { data: extras } = await supabase
-                .from("business_documents")
-                .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
-                .eq("type", "video")
-                .in("subcategory_id", entry.subcategory_ids)
-                .in("id", chunk)
-                .order("sort_order", { ascending: true })
-                .limit(1);
-              const e = (extras && extras[0]) || null;
-              if (e && (!candidate || (e.sort_order ?? 0) < (candidate.sort_order ?? 0))) {
-                candidate = e;
-              }
-            }
+        // Sans override : lance "own city" et "extra multi-city" en parallèle
+        const ownPromise = supabase
+          .from("business_documents")
+          .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
+          .eq("type", "video")
+          .eq("city", city)
+          .in("subcategory_id", entry.subcategory_ids)
+          .order("sort_order", { ascending: true })
+          .limit(1);
+
+        const extraPromises: Promise<any>[] = [];
+        if (extraDocIds.size > 0) {
+          const ids = [...extraDocIds];
+          for (let i = 0; i < ids.length; i += 300) {
+            const chunk = ids.slice(i, i + 300);
+            extraPromises.push(
+              Promise.resolve(
+                supabase
+                  .from("business_documents")
+                  .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
+                  .eq("type", "video")
+                  .in("subcategory_id", entry.subcategory_ids)
+                  .in("id", chunk)
+                  .order("sort_order", { ascending: true })
+                  .limit(1)
+              )
+            );
           }
         }
 
-        if (candidate) {
-          firstDocByEntry[entry.id] = candidate;
-          const dispId = candidate.poi_id || candidate.linked_business_id || candidate.business_id;
-          if (dispId) allBizIds.add(dispId);
-          if (candidate.business_id) allBizIds.add(candidate.business_id);
+        const [ownRes, ...extraResults] = await Promise.all([ownPromise, ...extraPromises]);
+        let candidate: any = (ownRes.data && ownRes.data[0]) || null;
+        for (const r of extraResults) {
+          const e = (r.data && r.data[0]) || null;
+          if (e && (!candidate || (e.sort_order ?? 0) < (candidate.sort_order ?? 0))) candidate = e;
         }
-      }
+        return { entryId: entry.id, candidate };
+      });
 
-      const extraRows: any[] = ((extraRes as any).data || []);
-      const extraDocByCard: Record<string, any> = {};
-      for (const card of extraRows) {
+      const extraCardPromises = extraRows.map(async (card) => {
+        // 1) Vidéo spécifique
         if (card.video_document_id) {
           const { data: vDoc } = await supabase
             .from("business_documents")
             .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
             .eq("id", card.video_document_id)
             .maybeSingle();
-          if (vDoc) {
-            extraDocByCard[card.id] = vDoc;
-            const dispId = (vDoc as any).poi_id || (vDoc as any).linked_business_id || (vDoc as any).business_id;
-            if (dispId) allBizIds.add(dispId);
-            if ((vDoc as any).business_id) allBizIds.add((vDoc as any).business_id);
-          } else {
-            const { data: gv } = await (supabase as any)
-              .from("generic_videos")
-              .select("id, url, thumbnail_url")
-              .eq("id", card.video_document_id)
-              .maybeSingle();
-            if (gv) {
-              extraDocByCard[card.id] = {
+          if (vDoc) return { cardId: card.id, doc: vDoc };
+          const { data: gv } = await (supabase as any)
+            .from("generic_videos")
+            .select("id, url, thumbnail_url")
+            .eq("id", card.video_document_id)
+            .maybeSingle();
+          if (gv) {
+            return {
+              cardId: card.id,
+              doc: {
                 id: gv.id, url: gv.url, thumbnail_url: gv.thumbnail_url,
                 business_id: card.business_id, poi_id: null, linked_business_id: null, sort_order: 0,
-              };
-            }
+              },
+            };
           }
-          if (card.business_id) allBizIds.add(card.business_id);
-          continue;
+          return { cardId: card.id, doc: null };
         }
 
-        if (!card.business_id && !card.badge_id) continue;
+        if (!card.business_id && !card.badge_id) return { cardId: card.id, doc: null };
 
         let badgeFilteredDocIds: string[] | null = null;
         if (card.badge_id) {
@@ -216,7 +211,7 @@ const HomepageCardsFront = ({ city }: Props) => {
             .select("document_id")
             .eq("badge_id", card.badge_id);
           badgeFilteredDocIds = ((badgeDocs as any[]) || []).map((r) => r.document_id);
-          if (badgeFilteredDocIds.length === 0) continue;
+          if (badgeFilteredDocIds.length === 0) return { cardId: card.id, doc: null };
         }
 
         let q = supabase
@@ -227,29 +222,56 @@ const HomepageCardsFront = ({ city }: Props) => {
           .limit(1);
         if (card.business_id) {
           q = q.or(`business_id.eq.${card.business_id},linked_business_id.eq.${card.business_id},poi_id.eq.${card.business_id}`);
-          allBizIds.add(card.business_id);
         }
         if (badgeFilteredDocIds) q = q.in("id", badgeFilteredDocIds.slice(0, 1000));
         const { data: docs } = await q;
-        const doc = (docs && docs[0]) || null;
+        return { cardId: card.id, doc: (docs && docs[0]) || null };
+      });
+
+      const [entryDocResults, extraDocResults] = await Promise.all([
+        Promise.all(entryDocPromises),
+        Promise.all(extraCardPromises),
+      ]);
+
+      const firstDocByEntry: Record<string, any> = {};
+      const allBizIds = new Set<string>();
+      for (const { entryId, candidate } of entryDocResults) {
+        if (candidate) {
+          firstDocByEntry[entryId] = candidate;
+          const dispId = candidate.poi_id || candidate.linked_business_id || candidate.business_id;
+          if (dispId) allBizIds.add(dispId);
+          if (candidate.business_id) allBizIds.add(candidate.business_id);
+        }
+        const ovId = overrideByEntry[entryId];
+        if (ovId) allBizIds.add(ovId);
+      }
+      const extraDocByCard: Record<string, any> = {};
+      for (const { cardId, doc } of extraDocResults) {
         if (doc) {
-          extraDocByCard[card.id] = doc;
+          extraDocByCard[cardId] = doc;
           const dispId = doc.poi_id || doc.linked_business_id || doc.business_id;
           if (dispId) allBizIds.add(dispId);
           if (doc.business_id) allBizIds.add(doc.business_id);
         }
       }
+      for (const card of extraRows) if (card.business_id) allBizIds.add(card.business_id);
 
+      // Phase 4 : businesses en parallèle (chunks)
       const bizMap = new Map<string, any>();
       const bizIdsArr = [...allBizIds];
+      const bizChunks: Promise<any>[] = [];
       for (let i = 0; i < bizIdsArr.length; i += 300) {
-        const chunk = bizIdsArr.slice(i, i + 300);
-        const { data } = await supabase
-          .from("businesses")
-          .select("id, name, logo_url, computed_rating, rating, total_review_count")
-          .in("id", chunk);
-        (data || []).forEach((b: any) => bizMap.set(b.id, b));
+        bizChunks.push(
+          Promise.resolve(
+            supabase
+              .from("businesses")
+              .select("id, name, logo_url, computed_rating, rating, total_review_count")
+              .in("id", bizIdsArr.slice(i, i + 300))
+          )
+        );
       }
+      const bizResults = await Promise.all(bizChunks);
+      bizResults.forEach((r) => (r.data || []).forEach((b: any) => bizMap.set(b.id, b)));
 
       const entryCards: { key: string; data: CardData }[] = entries.map((entry) => {
         const doc = firstDocByEntry[entry.id];
@@ -321,14 +343,8 @@ const HomepageCardsFront = ({ city }: Props) => {
         };
       });
 
-      const { data: orderRows } = await (supabase as any)
-        .from("front_structure_homepage_order")
-        .select("item_type, item_id, sort_order")
-        .eq("city", city)
-        .order("sort_order", { ascending: true });
-
       const orderMap = new Map<string, number>();
-      ((orderRows as any[]) || []).forEach((r) => {
+      ((orderRes as any).data || []).forEach((r: any) => {
         orderMap.set(`${r.item_type}:${r.item_id}`, r.sort_order);
       });
 
