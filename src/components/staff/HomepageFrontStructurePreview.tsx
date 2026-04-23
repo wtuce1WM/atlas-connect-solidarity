@@ -240,6 +240,25 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
             const dispId = (vDoc as any).poi_id || (vDoc as any).linked_business_id || (vDoc as any).business_id;
             if (dispId) allBizIds.add(dispId);
             if ((vDoc as any).business_id) allBizIds.add((vDoc as any).business_id);
+          } else {
+            // Fallback: generic_videos
+            const { data: gv } = await (supabase as any)
+              .from("generic_videos")
+              .select("id, url, thumbnail_url")
+              .eq("id", card.video_document_id)
+              .maybeSingle();
+            if (gv) {
+              extraDocByCard[card.id] = {
+                id: (gv as any).id,
+                url: (gv as any).url,
+                thumbnail_url: (gv as any).thumbnail_url,
+                business_id: card.business_id,
+                poi_id: null,
+                linked_business_id: null,
+                sort_order: 0,
+                __generic: true,
+              };
+            }
           }
           if (card.business_id) allBizIds.add(card.business_id);
           continue;
