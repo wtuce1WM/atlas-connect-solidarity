@@ -135,6 +135,10 @@ const HomepageCardsFront = ({ city, onLabelClick }: Props) => {
               tabIndex={0}
               onClick={(e) => {
                 e.stopPropagation();
+                if (onLabelClick) {
+                  onLabelClick(it.label!, slot.kind);
+                  return;
+                }
                 const q = slot.kind === "entry"
                   ? it.label!
                   : `${it.label} ${city}`;
@@ -144,6 +148,10 @@ const HomepageCardsFront = ({ city, onLabelClick }: Props) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
                   e.stopPropagation();
+                  if (onLabelClick) {
+                    onLabelClick(it.label!, slot.kind);
+                    return;
+                  }
                   const q = slot.kind === "entry"
                     ? it.label!
                     : `${it.label} ${city}`;
