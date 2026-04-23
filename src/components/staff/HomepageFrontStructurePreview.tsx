@@ -450,7 +450,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
     setReloadKey((k) => k + 1);
   };
 
-  const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null }) => {
+  const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null; video_document_id?: string | null }) => {
     const { error } = await (supabase as any)
       .from("front_structure_homepage_extra_cards")
       .update(patch)
