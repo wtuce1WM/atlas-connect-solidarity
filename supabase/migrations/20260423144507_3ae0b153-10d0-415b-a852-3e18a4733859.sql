@@ -1,0 +1,1 @@
+CREATE POLICY "Public can view extra cards" ON public.front_structure_homepage_extra_cards FOR SELECT USING (true);
