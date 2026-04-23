@@ -274,6 +274,7 @@ const Test = () => {
       setVideos([]);
       return;
     }
+    let cancelled = false;
     const load = async () => {
       setLoadingVideos(true);
 
