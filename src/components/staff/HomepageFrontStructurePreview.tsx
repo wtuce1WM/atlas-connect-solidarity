@@ -613,7 +613,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground line-clamp-1">
               {it.entryName}
             </p>
-            {renderThumbBox(it)}
+            {renderThumbBox({ ...it, badgeLabel: it.entryName })}
 
             {/* Champ Établissement override */}
             <div className="relative">
@@ -682,7 +682,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
                 <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
               </button>
             </div>
-            {renderThumbBox({ ...card, videoId: card.videoId, fallbackLabel: "Choisir établissement / badge" })}
+            {renderThumbBox({ ...card, videoId: card.videoId, fallbackLabel: "Choisir établissement / badge", badgeLabel: card.title?.trim() || null })}
 
             {/* Titre */}
             <div>
