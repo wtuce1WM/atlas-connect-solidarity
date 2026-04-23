@@ -107,7 +107,25 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
   const [saving, setSaving] = useState(false);
   const [allLoaded, setAllLoaded] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [regenerating, setRegenerating] = useState(false);
   const navigate = useNavigate();
+
+  const handleRegenerate = async () => {
+    setRegenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("regenerate-homepage-cards", {
+        body: { city: cityName },
+      });
+      if (error) throw error;
+      const count = data?.results?.[0]?.count ?? 0;
+      toast.success(`Snapshot régénéré : ${count} vignettes pour ${cityName}`);
+    } catch (e: any) {
+      toast.error(`Erreur : ${e.message}`);
+    } finally {
+      setRegenerating(false);
+    }
+  };
+
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
@@ -405,6 +423,12 @@ const HomepageBusinessesPanel = ({ cityName }: HomepageBusinessesPanelProps) => 
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="ml-auto">
+            <Button size="sm" onClick={handleRegenerate} disabled={regenerating}>
+              {regenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : null}
+              Régénérer le snapshot
+            </Button>
           </div>
           {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
           {allLoaded && selectedStructure !== "none" && (

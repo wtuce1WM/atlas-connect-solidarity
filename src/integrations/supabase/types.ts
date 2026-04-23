@@ -3240,6 +3240,33 @@ export type Database = {
         }
         Relationships: []
       }
+      homepage_cards_snapshots: {
+        Row: {
+          city: string
+          created_at: string
+          generated_at: string
+          id: string
+          payload: Json
+          updated_at: string
+        }
+        Insert: {
+          city: string
+          created_at?: string
+          generated_at?: string
+          id?: string
+          payload?: Json
+          updated_at?: string
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          generated_at?: string
+          id?: string
+          payload?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       homepage_selections: {
         Row: {
           business_id: string
