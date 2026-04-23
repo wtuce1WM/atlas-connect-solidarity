@@ -153,14 +153,16 @@ const HomepageCardsFront = ({ city }: Props) => {
           for (let i = 0; i < ids.length; i += 300) {
             const chunk = ids.slice(i, i + 300);
             extraPromises.push(
-              supabase
-                .from("business_documents")
-                .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
-                .eq("type", "video")
-                .in("subcategory_id", entry.subcategory_ids)
-                .in("id", chunk)
-                .order("sort_order", { ascending: true })
-                .limit(1)
+              Promise.resolve(
+                supabase
+                  .from("business_documents")
+                  .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
+                  .eq("type", "video")
+                  .in("subcategory_id", entry.subcategory_ids)
+                  .in("id", chunk)
+                  .order("sort_order", { ascending: true })
+                  .limit(1)
+              )
             );
           }
         }
