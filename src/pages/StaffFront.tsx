@@ -418,18 +418,9 @@ const StaffFront = () => {
 
 
           <TabsContent value="homepage">
-            <Tabs defaultValue="marrakech">
-              <TabsList className="mb-4">
-                <TabsTrigger value="marrakech">Marrakech</TabsTrigger>
-                <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
-              </TabsList>
-              <TabsContent value="marrakech">
-                <HomepageBusinessesPanel cityName="Marrakech" />
-              </TabsContent>
-              <TabsContent value="essaouira">
-                <HomepageBusinessesPanel cityName="Essaouira" />
-              </TabsContent>
-            </Tabs>
+            <div className="text-sm text-muted-foreground p-8 text-center border border-dashed rounded-lg">
+              Onglet réservé pour un futur usage.
+            </div>
           </TabsContent>
 
           <TabsContent value="popup">
