@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Star } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
@@ -43,7 +43,7 @@ function deriveThumbnail(url: string): string | null {
   return null;
 }
 
-const HomepageCardsFront = forwardRef<HTMLDivElement, Props>(({ city }, _ref) => {
+const HomepageCardsFront = ({ city }: Props) => {
   const [slots, setSlots] = useState<MixedSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -515,8 +515,6 @@ const HomepageCardsFront = forwardRef<HTMLDivElement, Props>(({ city }, _ref) =>
       />
     </>
   );
-});
-
-HomepageCardsFront.displayName = "HomepageCardsFront";
+};
 
 export default HomepageCardsFront;
