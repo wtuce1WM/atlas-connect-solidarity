@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Star } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
-import VideoLightbox from "@/components/staff/VideoLightbox";
+import SlidePanelHome from "@/components/SlidePanelHome";
 
 interface Props {
   city: string;
@@ -14,31 +14,24 @@ interface FSEntry {
   subcategory_ids: string[];
 }
 
-interface PreviewItem {
-  entryId: string;
-  entryName: string;
+interface CardData {
+  // unified card data
   videoId: string | null;
   videoUrl: string | null;
   thumbnail: string | null;
   businessName: string | null;
   ownerLogo: string | null;
   ownerName: string | null;
+  ownerId: string | null;
   rating: number | null;
   reviewCount: number | null;
+  label: string | null;
 }
 
-interface ExtraCardPreview {
-  cardId: string;
-  videoId: string | null;
-  videoUrl: string | null;
-  thumbnail: string | null;
-  businessName: string | null;
-  ownerLogo: string | null;
-  ownerName: string | null;
-  rating: number | null;
-  reviewCount: number | null;
-  title: string | null;
-  badgeName: string | null;
+interface MixedSlot {
+  key: string;
+  kind: "entry" | "extra";
+  data: CardData;
 }
 
 function deriveThumbnail(url: string): string | null {
@@ -50,16 +43,11 @@ function deriveThumbnail(url: string): string | null {
   return null;
 }
 
-interface MixedSlot {
-  key: string;
-  kind: "entry" | "extra";
-  data: PreviewItem | ExtraCardPreview;
-}
-
 const HomepageCardsFront = ({ city }: Props) => {
   const [slots, setSlots] = useState<MixedSlot[]>([]);
   const [loading, setLoading] = useState(true);
-  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
   const isFirstLoad = useRef(true);
 
   useEffect(() => {
@@ -67,7 +55,6 @@ const HomepageCardsFront = ({ city }: Props) => {
     const load = async () => {
       if (isFirstLoad.current) setLoading(true);
 
-      // City row id (multi-city assignments)
       const { data: cityRow } = await supabase
         .from("cities")
         .select("id")
@@ -122,7 +109,6 @@ const HomepageCardsFront = ({ city }: Props) => {
         }))
         .filter((e: FSEntry) => e.subcategory_ids.length > 0);
 
-      // Pick first video per entry (override > own city > multi-city)
       const firstDocByEntry: Record<string, any> = {};
       const allBizIds = new Set<string>();
 
@@ -190,7 +176,6 @@ const HomepageCardsFront = ({ city }: Props) => {
         }
       }
 
-      // Extra cards
       const extraRows: any[] = ((extraRes as any).data || []);
       const extraDocByCard: Record<string, any> = {};
       for (const card of extraRows) {
@@ -255,7 +240,6 @@ const HomepageCardsFront = ({ city }: Props) => {
         }
       }
 
-      // Fetch businesses
       const bizMap = new Map<string, any>();
       const bizIdsArr = [...allBizIds];
       for (let i = 0; i < bizIdsArr.length; i += 300) {
@@ -267,62 +251,76 @@ const HomepageCardsFront = ({ city }: Props) => {
         (data || []).forEach((b: any) => bizMap.set(b.id, b));
       }
 
-      const previews: PreviewItem[] = entries.map((entry) => {
+      const entryCards: { key: string; data: CardData }[] = entries.map((entry) => {
         const doc = firstDocByEntry[entry.id];
         const overrideBusinessId = overrideByEntry[entry.id] || null;
         if (!doc) {
           return {
-            entryId: entry.id, entryName: entry.name,
-            videoId: null, videoUrl: null, thumbnail: null,
-            businessName: overrideBusinessId ? (bizMap.get(overrideBusinessId)?.name || null) : null,
-            ownerLogo: null, ownerName: null, rating: null, reviewCount: null,
+            key: `entry:${entry.id}`,
+            data: {
+              videoId: null, videoUrl: null, thumbnail: null,
+              businessName: overrideBusinessId ? (bizMap.get(overrideBusinessId)?.name || null) : null,
+              ownerLogo: null, ownerName: null, ownerId: null,
+              rating: null, reviewCount: null,
+              label: entry.name,
+            },
           };
         }
         const ownerBiz = bizMap.get(doc.business_id) || null;
         const dispId = overrideBusinessId || doc.business_id;
         const dispBiz = bizMap.get(dispId) || null;
         return {
-          entryId: entry.id, entryName: entry.name,
-          videoId: doc.id, videoUrl: doc.url,
-          thumbnail: doc.thumbnail_url || deriveThumbnail(doc.url),
-          businessName: dispBiz?.name || null,
-          ownerLogo: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.logo_url : null,
-          ownerName: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.name : null,
-          rating: dispBiz?.computed_rating ?? dispBiz?.rating ?? null,
-          reviewCount: dispBiz?.total_review_count ?? null,
+          key: `entry:${entry.id}`,
+          data: {
+            videoId: doc.id, videoUrl: doc.url,
+            thumbnail: doc.thumbnail_url || deriveThumbnail(doc.url),
+            businessName: dispBiz?.name || null,
+            ownerLogo: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.logo_url : null,
+            ownerName: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.name : null,
+            ownerId: ownerBiz?.id || null,
+            rating: dispBiz?.computed_rating ?? dispBiz?.rating ?? null,
+            reviewCount: dispBiz?.total_review_count ?? null,
+            label: entry.name,
+          },
         };
       });
 
-      const extraPreviews: ExtraCardPreview[] = extraRows.map((card) => {
+      const extraPreviews: { key: string; data: CardData }[] = extraRows.map((card) => {
         const doc = extraDocByCard[card.id];
         const badgeName = card.badge_id ? (badgeMap.get(card.badge_id) || null) : null;
+        const label = card.title?.trim() || badgeName || null;
         if (!doc) {
           const biz = card.business_id ? bizMap.get(card.business_id) : null;
           return {
-            cardId: card.id,
-            videoId: null, videoUrl: null, thumbnail: null,
-            businessName: biz?.name || null, ownerLogo: null, ownerName: null,
-            rating: null, reviewCount: null,
-            title: card.title ?? null, badgeName,
+            key: `extra:${card.id}`,
+            data: {
+              videoId: null, videoUrl: null, thumbnail: null,
+              businessName: biz?.name || null,
+              ownerLogo: null, ownerName: null, ownerId: null,
+              rating: null, reviewCount: null,
+              label,
+            },
           };
         }
         const ownerBiz = bizMap.get(doc.business_id) || null;
         const dispId = card.business_id || doc.business_id;
         const dispBiz = bizMap.get(dispId) || null;
         return {
-          cardId: card.id,
-          videoId: doc.id, videoUrl: doc.url,
-          thumbnail: doc.thumbnail_url || deriveThumbnail(doc.url),
-          businessName: dispBiz?.name || null,
-          ownerLogo: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.logo_url : null,
-          ownerName: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.name : null,
-          rating: dispBiz?.computed_rating ?? dispBiz?.rating ?? null,
-          reviewCount: dispBiz?.total_review_count ?? null,
-          title: card.title ?? null, badgeName,
+          key: `extra:${card.id}`,
+          data: {
+            videoId: doc.id, videoUrl: doc.url,
+            thumbnail: doc.thumbnail_url || deriveThumbnail(doc.url),
+            businessName: dispBiz?.name || null,
+            ownerLogo: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.logo_url : null,
+            ownerName: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.name : null,
+            ownerId: ownerBiz?.id || null,
+            rating: dispBiz?.computed_rating ?? dispBiz?.rating ?? null,
+            reviewCount: dispBiz?.total_review_count ?? null,
+            label,
+          },
         };
       });
 
-      // Custom order
       const { data: orderRows } = await (supabase as any)
         .from("front_structure_homepage_order")
         .select("item_type, item_id, sort_order")
@@ -335,8 +333,8 @@ const HomepageCardsFront = ({ city }: Props) => {
       });
 
       const all: MixedSlot[] = [
-        ...previews.map((p): MixedSlot => ({ key: `entry:${p.entryId}`, kind: "entry", data: p })),
-        ...extraPreviews.map((p): MixedSlot => ({ key: `extra:${p.cardId}`, kind: "extra", data: p })),
+        ...entryCards.map((p): MixedSlot => ({ key: p.key, kind: "entry", data: p.data })),
+        ...extraPreviews.map((p): MixedSlot => ({ key: p.key, kind: "extra", data: p.data })),
       ];
 
       const ordered = all.filter((r) => orderMap.has(r.key))
@@ -354,6 +352,27 @@ const HomepageCardsFront = ({ city }: Props) => {
     return () => { cancelled = true; };
   }, [city]);
 
+  // Playable slots only (have a video)
+  const playableIndices = slots
+    .map((s, i) => (s.data.videoId ? i : -1))
+    .filter((i) => i >= 0);
+
+  const activeSlot = activeIndex !== null ? slots[activeIndex] : null;
+  const activePosInPlayable = activeIndex !== null ? playableIndices.indexOf(activeIndex) : -1;
+  const hasPrev = activePosInPlayable > 0;
+  const hasNext = activePosInPlayable >= 0 && activePosInPlayable < playableIndices.length - 1;
+
+  const goPrev = () => {
+    if (!hasPrev) return;
+    setActiveIndex(playableIndices[activePosInPlayable - 1]);
+    setCurrentTime(0);
+  };
+  const goNext = () => {
+    if (!hasNext) return;
+    setActiveIndex(playableIndices[activePosInPlayable + 1]);
+    setCurrentTime(0);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-12">
@@ -370,24 +389,25 @@ const HomepageCardsFront = ({ city }: Props) => {
     );
   }
 
-  const renderCard = (slot: MixedSlot) => {
-    const isEntry = slot.kind === "entry";
-    const it = slot.data as PreviewItem & ExtraCardPreview;
-    const label = isEntry
-      ? (slot.data as PreviewItem).entryName
-      : ((slot.data as ExtraCardPreview).title?.trim() || (slot.data as ExtraCardPreview).badgeName || null);
+  const renderCard = (slot: MixedSlot, index: number) => {
+    const it = slot.data;
     const isFileVideo = !!it.videoUrl && !it.thumbnail && !/youtube|youtu\.be|vimeo|mediadelivery/i.test(it.videoUrl);
 
     if (!it.videoId) {
       return (
         <div className="aspect-[9/16] rounded-lg bg-muted flex items-center justify-center text-xs text-muted-foreground text-center px-2">
-          {label || "Aucune vidéo"}
+          {it.label || "Aucune vidéo"}
         </div>
       );
     }
 
     return (
-      <div className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted group">
+      <button
+        type="button"
+        onClick={() => { setCurrentTime(0); setActiveIndex(index); }}
+        className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted group w-full text-left"
+        aria-label={`Lire ${it.label || it.businessName || ""}`}
+      >
         {it.thumbnail ? (
           <img src={it.thumbnail} alt={it.businessName || ""} className="w-full h-full object-cover" loading="lazy" />
         ) : isFileVideo && it.videoUrl ? (
@@ -396,10 +416,10 @@ const HomepageCardsFront = ({ city }: Props) => {
           <div className="w-full h-full bg-muted" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
-        {label && (
+        {it.label && (
           <div className="absolute inset-x-0 top-[10%] z-[7] flex items-center justify-center px-2 pointer-events-none">
             <span className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black">
-              {label}
+              {it.label}
             </span>
           </div>
         )}
@@ -412,19 +432,11 @@ const HomepageCardsFront = ({ city }: Props) => {
             )}
           </div>
         )}
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            if (it.videoUrl) setLightboxUrl(it.videoUrl);
-          }}
-          className="absolute inset-0 flex items-center justify-center"
-          aria-label="Lire la vidéo"
-        >
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-10 h-10 rounded-full bg-black/50 group-hover:bg-black/70 transition-colors flex items-center justify-center">
             <div className="w-0 h-0 border-y-[7px] border-y-transparent border-l-[11px] border-l-white ml-0.5" />
           </div>
-        </button>
+        </div>
         {it.ownerLogo && (
           <div className="absolute inset-x-0 bottom-[15%] z-[6] flex items-center justify-center px-2 pointer-events-none">
             <img
@@ -440,18 +452,39 @@ const HomepageCardsFront = ({ city }: Props) => {
             <p className="text-[10px] font-medium text-white line-clamp-1">{it.businessName}</p>
           </div>
         )}
-      </div>
+      </button>
     );
   };
 
   return (
     <>
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {slots.map((slot) => (
-          <div key={slot.key}>{renderCard(slot)}</div>
+        {slots.map((slot, index) => (
+          <div key={slot.key}>{renderCard(slot, index)}</div>
         ))}
       </div>
-      {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
+
+      <SlidePanelHome
+        open={activeSlot !== null}
+        onClose={() => setActiveIndex(null)}
+        videoUrl={activeSlot?.data.videoUrl ?? null}
+        videoId={activeSlot?.data.videoId ?? null}
+        businessName={activeSlot?.data.businessName || activeSlot?.data.label || ""}
+        isGeneric={false}
+        currentTime={currentTime}
+        onTimeUpdate={setCurrentTime}
+        onPrev={goPrev}
+        onNext={goNext}
+        hasPrev={hasPrev}
+        hasNext={hasNext}
+        owner={
+          activeSlot && activeSlot.data.ownerId
+            ? { id: activeSlot.data.ownerId, name: activeSlot.data.ownerName || "", logo_url: activeSlot.data.ownerLogo }
+            : null
+        }
+        social={null}
+        description={null}
+      />
     </>
   );
 };
