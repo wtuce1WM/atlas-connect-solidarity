@@ -2653,6 +2653,58 @@ export type Database = {
         }
         Relationships: []
       }
+      front_structure_homepage_extra_cards: {
+        Row: {
+          badge_id: string | null
+          business_id: string | null
+          city: string
+          created_at: string
+          id: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          badge_id?: string | null
+          business_id?: string | null
+          city: string
+          created_at?: string
+          id?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          badge_id?: string | null
+          business_id?: string | null
+          city?: string
+          created_at?: string
+          id?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "front_structure_homepage_extra_cards_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "front_structure_homepage_extra_cards_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "front_structure_homepage_extra_cards_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       front_structure_homepage_overrides: {
         Row: {
           business_id: string
