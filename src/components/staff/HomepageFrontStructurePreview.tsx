@@ -381,6 +381,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
             badge_id: card.badge_id,
             badgeName,
             video_document_id: card.video_document_id,
+            title: card.title,
           };
         }
         const ownerBiz = bizMap.get(doc.business_id) || null;
@@ -405,6 +406,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           badge_id: card.badge_id,
           badgeName,
           video_document_id: card.video_document_id,
+          title: card.title,
         };
       });
 
@@ -475,7 +477,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
     setExtraReloadKey((k) => k + 1);
   };
 
-  const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null; video_document_id?: string | null }) => {
+  const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null; video_document_id?: string | null; title?: string | null }) => {
       if (patch.video_document_id !== undefined && patch.video_document_id !== null) {
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
         if (!uuidRegex.test(patch.video_document_id)) {
