@@ -1,0 +1,2 @@
+ALTER TABLE public.front_structure_homepage_extra_cards
+DROP CONSTRAINT IF EXISTS front_structure_homepage_extra_cards_video_document_id_fkey;
