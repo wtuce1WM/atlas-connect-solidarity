@@ -391,11 +391,12 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         setExtraCards(extraPreviews);
         setAllBadges(badges);
         setLoading(false);
+        isFirstLoad.current = false;
       }
     };
     load();
     return () => { cancelled = true; };
-  }, [city, reloadKey]);
+  }, [city, entriesReloadKey, extraReloadKey]);
 
   // Server-side search per query (debounced)
   const [searchResults, setSearchResults] = useState<Record<string, BizLite[]>>({});
@@ -437,7 +438,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
     }
     setOpenSearchEntry(null);
     setSearchByEntry((p) => ({ ...p, [entryId]: "" }));
-    setReloadKey((k) => k + 1);
+    setEntriesReloadKey((k) => k + 1);
   };
 
   const filteredFor = (entryId: string) => searchResults[entryId] || [];
@@ -449,7 +450,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       .from("front_structure_homepage_extra_cards")
       .insert({ city, business_id: null, badge_id: null, sort_order: nextSort });
     if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
-    setReloadKey((k) => k + 1);
+    setExtraReloadKey((k) => k + 1);
   };
 
   const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null; video_document_id?: string | null }) => {
@@ -460,7 +461,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
     if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
     setOpenSearchEntry(null);
     setSearchByEntry((p) => ({ ...p, [cardId]: "" }));
-    setReloadKey((k) => k + 1);
+    setExtraReloadKey((k) => k + 1);
   };
 
   const deleteExtraCard = async (cardId: string) => {
@@ -469,7 +470,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       .delete()
       .eq("id", cardId);
     if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
-    setReloadKey((k) => k + 1);
+    setExtraReloadKey((k) => k + 1);
   };
 
   if (loading) {
