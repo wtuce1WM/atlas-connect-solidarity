@@ -241,6 +241,21 @@ const Test = () => {
     if (entries.length > 0) load();
   }, [city, entries, extraCityDocIds]);
 
+  const topLevelEntries = useMemo(() => {
+    return entries.filter((entry) => {
+      if (entry.subcategory_ids.length === 0) return true;
+
+      return !entries.some((candidate) => {
+        if (candidate.id === entry.id) return false;
+        if (candidate.subcategory_ids.length <= entry.subcategory_ids.length) return false;
+
+        return entry.subcategory_ids.every((subcategoryId) =>
+          candidate.subcategory_ids.includes(subcategoryId)
+        );
+      });
+    });
+  }, [entries]);
+
   const visibleEntries = useMemo(() => {
     const homeEntry: FrontEntry = {
       id: HOME_ID,
@@ -256,15 +271,23 @@ const Test = () => {
       subcategory_ids: [],
       service_ids: [],
     };
-    if (loading) return [homeEntry, vlogsEntry, ...entries];
-    const filtered = entries.filter((e) => entriesWithVideos.has(e.id));
+    if (loading) return [homeEntry, vlogsEntry, ...topLevelEntries];
+    const filtered = topLevelEntries.filter((e) => entriesWithVideos.has(e.id));
     return [homeEntry, vlogsEntry, ...filtered];
-  }, [entries, entriesWithVideos, loading]);
+  }, [entriesWithVideos, loading, topLevelEntries]);
 
   const selectedEntry = useMemo(
     () => visibleEntries.find((e) => e.id === selectedEntryId) || null,
     [visibleEntries, selectedEntryId]
   );
+
+  useEffect(() => {
+    if (!selectedEntryId) return;
+    if (visibleEntries.some((entry) => entry.id === selectedEntryId)) return;
+
+    setSelectedEntryId(HOME_ID);
+    setSelectedSubId(null);
+  }, [selectedEntryId, visibleEntries]);
 
   // Load videos for selected entry — same logic as backoffice FrontStructureVideosPanel:
   // match business_documents.subcategory_id ∈ entry.subcategory_ids, filter by document.city,
