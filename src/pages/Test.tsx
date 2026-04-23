@@ -757,10 +757,28 @@ const Test = () => {
                 <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
               </TabsList>
               <TabsContent value="marrakech">
-                <HomepageCardsFront city="Marrakech" />
+                <HomepageCardsFront
+                  city="Marrakech"
+                  onLabelClick={(label) => {
+                    const match = entries.find((e) => e.name.toLowerCase() === label.toLowerCase());
+                    if (match) {
+                      setSelectedEntryId(match.id);
+                      setSelectedSubId(null);
+                    }
+                  }}
+                />
               </TabsContent>
               <TabsContent value="essaouira">
-                <HomepageCardsFront city="Essaouira" />
+                <HomepageCardsFront
+                  city="Essaouira"
+                  onLabelClick={(label) => {
+                    const match = entries.find((e) => e.name.toLowerCase() === label.toLowerCase());
+                    if (match) {
+                      setSelectedEntryId(match.id);
+                      setSelectedSubId(null);
+                    }
+                  }}
+                />
               </TabsContent>
             </Tabs>
           ) : !selectedEntry ? (
