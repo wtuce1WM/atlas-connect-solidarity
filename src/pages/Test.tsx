@@ -99,6 +99,9 @@ const Test = () => {
   const [hoveredEntryId, setHoveredEntryId] = useState<string | null>(null);
   const [otherViewMode, setOtherViewMode] = useState<"details" | "videos" | "guide">("videos");
   const [currentTime, setCurrentTime] = useState(0);
+  const [badgeView, setBadgeView] = useState<{ badgeId: string; label: string; city: City } | null>(null);
+  const [badgeBusinesses, setBadgeBusinesses] = useState<SearchResultBusiness[]>([]);
+  const [loadingBadge, setLoadingBadge] = useState(false);
 
   // ============================================================
   // EFFECTS
