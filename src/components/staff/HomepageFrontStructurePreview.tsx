@@ -800,6 +800,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           <Plus className="h-3.5 w-3.5 mr-1" /> Ajouter une carte
         </Button>
       </div>
+      {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
     </div>
   );
 };
