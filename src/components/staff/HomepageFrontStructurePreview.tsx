@@ -4,6 +4,7 @@ import { Star, X, Loader2, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import VideoThumbnail from "@/components/VideoThumbnail";
 
 interface Props {
   city: string;
