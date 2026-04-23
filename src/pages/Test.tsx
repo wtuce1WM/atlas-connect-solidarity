@@ -429,9 +429,9 @@ const Test = () => {
         const seenIds = new Set<string>();
         allDocs = allDocs.filter((d: any) => (seenIds.has(d.id) ? false : (seenIds.add(d.id), true)));
 
-        const allBizIds = [...new Set(
-          allDocs.flatMap((d: any) => [d.business_id, d.poi_id, d.linked_business_id].filter(Boolean))
-        )] as string[];
+        // Same logic as SlidePanelHome: group by business_id (real owner), dedupe by URL.
+        // Single difference here: apply front_video_count per business.
+        const allBizIds = [...new Set(allDocs.map((d: any) => d.business_id).filter(Boolean))] as string[];
         const bizMap = new Map<string, SearchResultBusiness>();
         if (allBizIds.length > 0) {
           const batch = 300;
@@ -444,74 +444,44 @@ const Test = () => {
           }
         }
 
-        const getEntityId = (d: any) => {
-          if ((bizMap.get(d.business_id) as any)?.is_poi) return d.business_id;
-          if (d.poi_id) return d.poi_id;
-          if (d.linked_business_id && (bizMap.get(d.linked_business_id) as any)?.is_poi) return d.linked_business_id;
-          return d.linked_business_id || d.business_id;
-        };
+        // Dedup by URL (a same video can appear multiple times via different POI links)
+        const seenUrls = new Set<string>();
+        const uniqueDocs = allDocs.filter((d: any) => {
+          if (!d.url || seenUrls.has(d.url)) return false;
+          seenUrls.add(d.url);
+          return true;
+        });
 
-        const docsByEntity = new Map<string, any[]>();
-        const getPriority = (d: any, entityId: string) => {
-          if (d.business_id === entityId) return 0;
-          if (d.poi_id === entityId) return 1;
-          if (d.linked_business_id === entityId) return 2;
-          return 3;
-        };
-
-        for (const d of allDocs) {
-          const entityId = getEntityId(d);
-          if (!entityId) continue;
-          const arr = docsByEntity.get(entityId) || [];
+        // Group by business_id (the real owner), then keep first N per business (front_video_count)
+        const docsByBiz = new Map<string, any[]>();
+        for (const d of uniqueDocs) {
+          const arr = docsByBiz.get(d.business_id) || [];
           arr.push(d);
-          docsByEntity.set(entityId, arr);
+          docsByBiz.set(d.business_id, arr);
         }
 
-        // For each entity: sort docs by (priority asc, sort_order asc) then keep first N (front_video_count, default 1, max 9)
         const limitedDocs: any[] = [];
-        for (const [entityId, docs] of docsByEntity.entries()) {
-          const biz = bizMap.get(entityId) as any;
+        for (const [bizId, docs] of docsByBiz.entries()) {
+          const biz = bizMap.get(bizId) as any;
           const limit = Math.max(1, Math.min(9, biz?.front_video_count ?? 1));
-          const sorted = [...docs].sort((a, b) => {
-            const pa = getPriority(a, entityId);
-            const pb = getPriority(b, entityId);
-            if (pa !== pb) return pa - pb;
-            return (a.sort_order ?? 0) - (b.sort_order ?? 0);
-          });
+          const sorted = [...docs].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
           limitedDocs.push(...sorted.slice(0, limit));
         }
 
-        // Global ordering: group videos by entity (by entity's first/best sort_order), keep entity videos contiguous
-        const entityFirstSort = new Map<string, number>();
-        for (const d of limitedDocs) {
-          const eid = getEntityId(d);
-          if (!eid) continue;
-          const cur = entityFirstSort.get(eid);
-          if (cur === undefined || (d.sort_order ?? 0) < cur) entityFirstSort.set(eid, d.sort_order ?? 0);
-        }
-        const internal = limitedDocs.sort((a: any, b: any) => {
-          const ea = getEntityId(a)!;
-          const eb = getEntityId(b)!;
-          const sa = entityFirstSort.get(ea) ?? 0;
-          const sb = entityFirstSort.get(eb) ?? 0;
-          if (sa !== sb) return sa - sb;
-          if (ea !== eb) return ea.localeCompare(eb);
-          return (a.sort_order ?? 0) - (b.sort_order ?? 0);
-        });
+        // Global ordering by sort_order
+        limitedDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
         setVideos(
-          internal.map((d: any) => {
-            const entityId = getEntityId(d);
-            const biz = bizMap.get(entityId) || null;
-            const ownerBiz = (d.business_id !== entityId ? bizMap.get(d.business_id) : null) || biz;
+          limitedDocs.map((d: any) => {
+            const biz = bizMap.get(d.business_id) || null;
             return {
               id: d.id,
               url: d.url,
               business_name: biz?.name || "—",
               thumbnail_url: d.thumbnail_url,
               business: biz,
-              owner: ownerBiz
-                ? { id: ownerBiz.id, name: ownerBiz.name, logo_url: (ownerBiz as any).logo_url ?? null, logo_bg: (ownerBiz as any).logo_bg ?? null }
+              owner: biz
+                ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null }
                 : null,
               social: extractSocial(d),
               description: d.description ?? null,
