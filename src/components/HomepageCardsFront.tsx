@@ -460,7 +460,12 @@ const HomepageCardsFront = ({ city }: Props) => {
     <>
       <div className={`grid gap-4 ${activeSlot ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-3" : "grid-cols-2 md:grid-cols-4 lg:grid-cols-6"}`}>
         {slots.map((slot, index) => (
-          <div key={slot.key}>{renderCard(slot, index)}</div>
+          <div key={slot.key} className="space-y-2">
+            <p className={`text-xs font-semibold uppercase tracking-wider line-clamp-1 ${slot.kind === "extra" ? "text-primary" : "text-muted-foreground"}`}>
+              {slot.data.label || "—"}
+            </p>
+            {renderCard(slot, index)}
+          </div>
         ))}
       </div>
 
