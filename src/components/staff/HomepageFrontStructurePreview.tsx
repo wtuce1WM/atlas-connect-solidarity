@@ -37,6 +37,7 @@ interface ExtraCard {
   business_id: string | null;
   badge_id: string | null;
   video_document_id: string | null;
+  title: string | null;
   sort_order: number;
 }
 
@@ -54,6 +55,7 @@ interface ExtraCardPreview {
   badge_id: string | null;
   badgeName: string | null;
   video_document_id: string | null;
+  title: string | null;
 }
 
 interface BizLite { id: string; name: string }
@@ -124,7 +126,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         supabase.from("badges").select("id, name_fr").order("name_fr"),
         (supabase as any)
           .from("front_structure_homepage_extra_cards")
-          .select("id, city, business_id, badge_id, video_document_id, sort_order")
+          .select("id, city, business_id, badge_id, video_document_id, title, sort_order")
           .eq("city", city)
           .order("sort_order", { ascending: true }),
       ]);
@@ -224,7 +226,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       // ---- Extra cards: priority video_document_id > business+badge ----
       const extraRows: ExtraCard[] = ((extraRes as any).data || []).map((r: any) => ({
         id: r.id, city: r.city, business_id: r.business_id, badge_id: r.badge_id,
-        video_document_id: r.video_document_id, sort_order: r.sort_order,
+        video_document_id: r.video_document_id, title: r.title ?? null, sort_order: r.sort_order,
       }));
 
       const extraDocByCard: Record<string, any> = {};
@@ -379,6 +381,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
             badge_id: card.badge_id,
             badgeName,
             video_document_id: card.video_document_id,
+            title: card.title,
           };
         }
         const ownerBiz = bizMap.get(doc.business_id) || null;
@@ -403,6 +406,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           badge_id: card.badge_id,
           badgeName,
           video_document_id: card.video_document_id,
+          title: card.title,
         };
       });
 
@@ -473,7 +477,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
     setExtraReloadKey((k) => k + 1);
   };
 
-  const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null; video_document_id?: string | null }) => {
+  const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null; video_document_id?: string | null; title?: string | null }) => {
       if (patch.video_document_id !== undefined && patch.video_document_id !== null) {
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
         if (!uuidRegex.test(patch.video_document_id)) {
@@ -657,7 +661,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           <div key={card.cardId} className="space-y-2">
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold uppercase tracking-wider text-primary line-clamp-1">
-                Carte libre
+                {card.title?.trim() || "Carte libre"}
               </p>
               <button
                 type="button"
@@ -669,7 +673,22 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
             </div>
             {renderThumbBox({ ...card, videoId: card.videoId, fallbackLabel: "Choisir établissement / badge" })}
 
-            {/* Établissement */}
+            {/* Titre */}
+            <div>
+              <label className="text-[9px] text-muted-foreground">Titre</label>
+              <Input
+                defaultValue={card.title || ""}
+                onBlur={(e) => {
+                  const v = e.target.value.trim();
+                  if (v !== (card.title || "")) {
+                    updateExtraCard(card.cardId, { title: v || null });
+                  }
+                }}
+                placeholder="Titre de la carte…"
+                className="h-5 px-1 text-[9px]"
+              />
+            </div>
+
             <div className="relative">
               <label className="text-[9px] text-muted-foreground">Établissement</label>
               {card.business_id ? (

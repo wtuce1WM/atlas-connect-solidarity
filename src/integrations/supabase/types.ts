@@ -2661,6 +2661,7 @@ export type Database = {
           created_at: string
           id: string
           sort_order: number
+          title: string | null
           updated_at: string
           video_document_id: string | null
         }
@@ -2671,6 +2672,7 @@ export type Database = {
           created_at?: string
           id?: string
           sort_order?: number
+          title?: string | null
           updated_at?: string
           video_document_id?: string | null
         }
@@ -2681,6 +2683,7 @@ export type Database = {
           created_at?: string
           id?: string
           sort_order?: number
+          title?: string | null
           updated_at?: string
           video_document_id?: string | null
         }
