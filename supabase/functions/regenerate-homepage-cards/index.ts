@@ -245,6 +245,7 @@ async function buildSnapshot(supabase: any, city: string) {
           businessName: biz?.name || null,
           ownerLogo: null, ownerName: null, ownerId: null,
           rating: null, reviewCount: null, label,
+          badgeId: card.badge_id || null,
         },
       };
     }
@@ -263,6 +264,7 @@ async function buildSnapshot(supabase: any, city: string) {
         rating: dispBiz?.computed_rating ?? dispBiz?.rating ?? null,
         reviewCount: dispBiz?.total_review_count ?? null,
         label,
+        badgeId: card.badge_id || null,
       },
     };
   });

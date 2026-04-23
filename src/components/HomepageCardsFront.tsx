@@ -7,7 +7,7 @@ import SlidePanelHome from "@/components/SlidePanelHome";
 
 interface Props {
   city: string;
-  onLabelClick?: (label: string, kind: "entry" | "extra") => void;
+  onLabelClick?: (info: { label: string; kind: "entry" | "extra"; badgeId: string | null }) => void;
 }
 
 interface CardData {
@@ -21,6 +21,7 @@ interface CardData {
   rating: number | null;
   reviewCount: number | null;
   label: string | null;
+  badgeId?: string | null;
 }
 
 interface MixedSlot {
@@ -136,7 +137,7 @@ const HomepageCardsFront = ({ city, onLabelClick }: Props) => {
               onClick={(e) => {
                 e.stopPropagation();
                 if (onLabelClick) {
-                  onLabelClick(it.label!, slot.kind);
+                  onLabelClick({ label: it.label!, kind: slot.kind, badgeId: it.badgeId ?? null });
                   return;
                 }
                 const q = slot.kind === "entry"
@@ -149,7 +150,7 @@ const HomepageCardsFront = ({ city, onLabelClick }: Props) => {
                   e.preventDefault();
                   e.stopPropagation();
                   if (onLabelClick) {
-                    onLabelClick(it.label!, slot.kind);
+                    onLabelClick({ label: it.label!, kind: slot.kind, badgeId: it.badgeId ?? null });
                     return;
                   }
                   const q = slot.kind === "entry"
