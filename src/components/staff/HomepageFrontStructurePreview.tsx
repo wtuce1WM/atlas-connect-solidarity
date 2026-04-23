@@ -35,6 +35,7 @@ interface ExtraCard {
   city: string;
   business_id: string | null;
   badge_id: string | null;
+  video_document_id: string | null;
   sort_order: number;
 }
 
@@ -51,6 +52,7 @@ interface ExtraCardPreview {
   business_id: string | null;
   badge_id: string | null;
   badgeName: string | null;
+  video_document_id: string | null;
 }
 
 interface BizLite { id: string; name: string }
