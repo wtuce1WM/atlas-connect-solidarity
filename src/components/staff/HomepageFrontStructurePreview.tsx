@@ -4,6 +4,7 @@ import { Star, X, Loader2, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import VideoThumbnail from "@/components/VideoThumbnail";
 
 interface Props {
   city: string;
@@ -532,6 +533,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
 
   const renderThumbBox = (it: {
     thumbnail: string | null;
+    videoUrl?: string | null;
     businessName: string | null;
     rating: number | null;
     reviewCount: number | null;
@@ -539,11 +541,14 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
     ownerName: string | null;
     videoId: string | null;
     fallbackLabel?: string;
-  }) => (
-    it.videoId ? (
+  }) => {
+    const isFileVideo = !!it.videoUrl && !it.thumbnail && !/youtube|youtu\.be|vimeo|mediadelivery/i.test(it.videoUrl);
+    return it.videoId ? (
       <div className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted">
         {it.thumbnail ? (
           <img src={it.thumbnail} alt={it.businessName || ""} className="w-full h-full object-cover" loading="lazy" />
+        ) : isFileVideo && it.videoUrl ? (
+          <VideoThumbnail src={it.videoUrl} alt={it.businessName || ""} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-muted" />
         )}
@@ -582,8 +587,8 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       <div className="aspect-[9/16] rounded-lg bg-muted flex items-center justify-center text-[10px] text-muted-foreground text-center px-2">
         {it.fallbackLabel || "Aucune vidéo"}
       </div>
-    )
-  );
+    );
+  };
 
   return (
     <div ref={containerRef} className="space-y-4">
