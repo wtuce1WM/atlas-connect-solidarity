@@ -762,25 +762,13 @@ const Test = () => {
               <TabsContent value="marrakech">
                 <HomepageCardsFront
                   city="Marrakech"
-                  onLabelClick={(label) => {
-                    const match = entries.find((e) => e.name.toLowerCase() === label.toLowerCase());
-                    if (match) {
-                      setSelectedEntryId(match.id);
-                      setSelectedSubId(null);
-                    }
-                  }}
+                  onLabelClick={(info) => handleHomeLabelClick(info, "Marrakech")}
                 />
               </TabsContent>
               <TabsContent value="essaouira">
                 <HomepageCardsFront
                   city="Essaouira"
-                  onLabelClick={(label) => {
-                    const match = entries.find((e) => e.name.toLowerCase() === label.toLowerCase());
-                    if (match) {
-                      setSelectedEntryId(match.id);
-                      setSelectedSubId(null);
-                    }
-                  }}
+                  onLabelClick={(info) => handleHomeLabelClick(info, "Essaouira")}
                 />
               </TabsContent>
             </Tabs>
@@ -788,6 +776,30 @@ const Test = () => {
             <p className="text-sm text-muted-foreground">
               Sélectionne une entrée dans la colonne de gauche.
             </p>
+          ) : badgeView ? (
+            <div>
+              <button
+                type="button"
+                onClick={() => setBadgeView(null)}
+                className="text-xs text-muted-foreground hover:text-foreground mb-3"
+              >
+                ← Retour
+              </button>
+              <h3 className="text-sm font-semibold mb-3">
+                {badgeView.label} — {badgeView.city} ({badgeBusinesses.length})
+              </h3>
+              {loadingBadge ? (
+                <p className="text-sm text-muted-foreground">Chargement…</p>
+              ) : badgeBusinesses.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Aucun établissement trouvé.</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {badgeBusinesses.map((b) => (
+                    <SearchResultCard key={b.id} business={b} />
+                  ))}
+                </div>
+              )}
+            </div>
           ) : loadingVideos ? (
             <p className="text-sm text-muted-foreground">Chargement des vidéos…</p>
           ) : videos.length === 0 ? (
