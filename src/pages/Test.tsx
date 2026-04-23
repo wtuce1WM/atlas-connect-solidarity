@@ -276,7 +276,9 @@ const Test = () => {
     }
     let cancelled = false;
     const load = async () => {
-      setLoadingVideos(true);
+      const safeSetVideos = (v: VideoItem[]) => { if (!cancelled) setVideos(v); };
+      const safeSetLoadingVideos = (b: boolean) => { if (!cancelled) setLoadingVideos(b); };
+      safeSetLoadingVideos(true);
 
       const isHome = selectedEntry.id === HOME_ID;
       const isVlogs = selectedEntry.id === VLOGS_ID;
