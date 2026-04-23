@@ -339,13 +339,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           };
         }
         const ownerBiz = bizMap.get(doc.business_id) || null;
-        const dispId = (() => {
-          if (overrideBusinessId) return overrideBusinessId;
-          if (ownerBiz?.is_poi) return doc.business_id;
-          if (doc.poi_id) return doc.poi_id;
-          if (doc.linked_business_id && bizMap.get(doc.linked_business_id)?.is_poi) return doc.linked_business_id;
-          return doc.linked_business_id || doc.business_id;
-        })();
+        const dispId = overrideBusinessId || doc.business_id;
         const dispBiz = bizMap.get(dispId) || null;
 
         return {
@@ -387,12 +381,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           };
         }
         const ownerBiz = bizMap.get(doc.business_id) || null;
-        const dispId = (() => {
-          if (card.business_id) return card.business_id;
-          if (ownerBiz?.is_poi) return doc.business_id;
-          if (doc.poi_id) return doc.poi_id;
-          return doc.linked_business_id || doc.business_id;
-        })();
+        const dispId = card.business_id || doc.business_id;
         const dispBiz = bizMap.get(dispId) || null;
         return {
           cardId: card.id,
