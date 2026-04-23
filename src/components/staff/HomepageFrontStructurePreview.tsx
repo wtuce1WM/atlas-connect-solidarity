@@ -37,6 +37,7 @@ interface ExtraCard {
   business_id: string | null;
   badge_id: string | null;
   video_document_id: string | null;
+  title: string | null;
   sort_order: number;
 }
 
