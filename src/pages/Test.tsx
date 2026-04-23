@@ -444,18 +444,59 @@ const Test = () => {
           }
         }
 
-        allDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+        const getEntityId = (d: any) => {
+          if ((bizMap.get(d.business_id) as any)?.is_poi) return d.business_id;
+          if (d.poi_id) return d.poi_id;
+          if (d.linked_business_id && (bizMap.get(d.linked_business_id) as any)?.is_poi) return d.linked_business_id;
+          return d.linked_business_id || d.business_id;
+        };
+
+        const representativeByEntity = new Map<string, any>();
+        const getPriority = (d: any, entityId: string) => {
+          if (d.business_id === entityId) return 0;
+          if (d.poi_id === entityId) return 1;
+          if (d.linked_business_id === entityId) return 2;
+          return 3;
+        };
+
+        for (const d of allDocs) {
+          const entityId = getEntityId(d);
+          if (!entityId) continue;
+
+          const current = representativeByEntity.get(entityId);
+          if (!current) {
+            representativeByEntity.set(entityId, d);
+            continue;
+          }
+
+          const currentPriority = getPriority(current, entityId);
+          const nextPriority = getPriority(d, entityId);
+          if (
+            nextPriority < currentPriority ||
+            (nextPriority === currentPriority && (d.sort_order ?? 0) < (current.sort_order ?? 0))
+          ) {
+            representativeByEntity.set(entityId, d);
+          }
+        }
+
+        const internal = Array.from(representativeByEntity.values()).sort(
+          (a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0)
+        );
 
         setVideos(
-          allDocs.map((d: any) => {
-            const biz = bizMap.get(d.business_id) || null;
+          internal.map((d: any) => {
+            const entityId = getEntityId(d);
+            const biz = bizMap.get(entityId) || null;
+            const ownerBiz = d.business_id !== entityId ? bizMap.get(d.business_id) || null : null;
             return {
               id: d.id,
               url: d.url,
               business_name: biz?.name || "—",
               thumbnail_url: d.thumbnail_url,
               business: biz,
-              owner: null,
+              owner: ownerBiz
+                ? { id: ownerBiz.id, name: ownerBiz.name, logo_url: (ownerBiz as any).logo_url ?? null, logo_bg: (ownerBiz as any).logo_bg ?? null }
+                : null,
               social: extractSocial(d),
               description: d.description ?? null,
             };
