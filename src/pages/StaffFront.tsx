@@ -418,9 +418,22 @@ const StaffFront = () => {
 
 
           <TabsContent value="homepage">
-            <div className="text-sm text-muted-foreground p-8 text-center border border-dashed rounded-lg">
-              Onglet réservé pour un futur usage.
-            </div>
+            <Tabs defaultValue="marrakech">
+              <TabsList className="mb-4">
+                <TabsTrigger value="marrakech">Marrakech</TabsTrigger>
+                <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
+              </TabsList>
+              <TabsContent value="marrakech">
+                <div className="text-sm text-muted-foreground p-8 text-center border border-dashed rounded-lg">
+                  Contenu à définir pour Marrakech.
+                </div>
+              </TabsContent>
+              <TabsContent value="essaouira">
+                <div className="text-sm text-muted-foreground p-8 text-center border border-dashed rounded-lg">
+                  Contenu à définir pour Essaouira.
+                </div>
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
           <TabsContent value="popup">
