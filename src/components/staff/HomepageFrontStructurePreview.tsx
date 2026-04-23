@@ -536,6 +536,140 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
     setExtraReloadKey((k) => k + 1);
   };
 
+  const refreshExtraCard = async (cardId: string) => {
+    const { data: row, error: rowError } = await (supabase as any)
+      .from("front_structure_homepage_extra_cards")
+      .select("id, city, business_id, badge_id, video_document_id, title, sort_order, popular_search_id")
+      .eq("id", cardId)
+      .maybeSingle();
+
+    if (rowError || !row) return;
+
+    const card: ExtraCard = {
+      id: row.id,
+      city: row.city,
+      business_id: row.business_id,
+      badge_id: row.badge_id,
+      video_document_id: row.video_document_id,
+      title: row.title ?? null,
+      sort_order: row.sort_order,
+      popular_search_id: row.popular_search_id ?? null,
+    };
+
+    const badgeName = card.badge_id
+      ? (allBadges.find((badge) => badge.id === card.badge_id)?.name_fr || null)
+      : null;
+
+    let doc: any = null;
+    let badgeFilteredDocIds: string[] | null = null;
+
+    if (card.video_document_id) {
+      const [{ data: vDoc }, { data: gv }] = await Promise.all([
+        supabase
+          .from("business_documents")
+          .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
+          .eq("id", card.video_document_id)
+          .maybeSingle(),
+        (supabase as any)
+          .from("generic_videos")
+          .select("id, url, thumbnail_url")
+          .eq("id", card.video_document_id)
+          .maybeSingle(),
+      ]);
+
+      if (vDoc) {
+        doc = vDoc;
+      } else if (gv) {
+        doc = {
+          id: gv.id,
+          url: gv.url,
+          thumbnail_url: gv.thumbnail_url,
+          business_id: card.business_id,
+          poi_id: null,
+          linked_business_id: null,
+          sort_order: 0,
+          __generic: true,
+        };
+      }
+    } else if (card.business_id || card.badge_id) {
+      if (card.badge_id) {
+        const { data: badgeDocs } = await supabase
+          .from("business_document_badges")
+          .select("document_id")
+          .eq("badge_id", card.badge_id);
+        badgeFilteredDocIds = ((badgeDocs as any[]) || []).map((r) => r.document_id);
+      }
+
+      let q = supabase
+        .from("business_documents")
+        .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
+        .eq("type", "video")
+        .order("sort_order", { ascending: true })
+        .limit(1);
+
+      if (card.business_id) {
+        q = q.or(`business_id.eq.${card.business_id},linked_business_id.eq.${card.business_id},poi_id.eq.${card.business_id}`);
+      }
+      if (badgeFilteredDocIds) {
+        if (badgeFilteredDocIds.length === 0) {
+          doc = null;
+        } else {
+          q = q.in("id", badgeFilteredDocIds.slice(0, 1000));
+        }
+      }
+
+      if (doc === null && (!badgeFilteredDocIds || badgeFilteredDocIds.length > 0)) {
+        const { data: docs } = await q;
+        doc = (docs && docs[0]) || null;
+      }
+    }
+
+    const businessIds = new Set<string>();
+    if (card.business_id) businessIds.add(card.business_id);
+    if (doc?.business_id) businessIds.add(doc.business_id);
+    const displayBusinessId = card.business_id || doc?.business_id || null;
+    if (displayBusinessId) businessIds.add(displayBusinessId);
+    const ownerBusinessId = doc?.poi_id || doc?.linked_business_id || doc?.business_id || null;
+    if (ownerBusinessId) businessIds.add(ownerBusinessId);
+
+    const bizMap = new Map<string, any>();
+    const ids = [...businessIds];
+    if (ids.length > 0) {
+      const { data: bizRows } = await supabase
+        .from("businesses")
+        .select("id, name, logo_url, computed_rating, rating, total_review_count")
+        .in("id", ids);
+      (bizRows || []).forEach((biz: any) => bizMap.set(biz.id, biz));
+      setAllBusinesses((prev) => {
+        const merged = new Map(prev.map((biz) => [biz.id, biz]));
+        (bizRows || []).forEach((biz: any) => merged.set(biz.id, { id: biz.id, name: biz.name }));
+        return [...merged.values()];
+      });
+    }
+
+    const ownerBiz = doc?.business_id ? (bizMap.get(doc.business_id) || null) : null;
+    const dispBiz = displayBusinessId ? (bizMap.get(displayBusinessId) || null) : null;
+
+    setExtraCards((prev) => prev.map((existing) => existing.cardId !== cardId ? existing : {
+      ...existing,
+      cardId: card.id,
+      videoId: doc?.id || null,
+      videoUrl: doc?.url || null,
+      thumbnail: doc ? (doc.thumbnail_url || deriveThumbnail(doc.url)) : null,
+      businessName: dispBiz?.name || null,
+      ownerLogo: ownerBiz && ownerBiz.id !== displayBusinessId ? ownerBiz.logo_url : null,
+      ownerName: ownerBiz && ownerBiz.id !== displayBusinessId ? ownerBiz.name : null,
+      rating: dispBiz?.computed_rating ?? dispBiz?.rating ?? null,
+      reviewCount: dispBiz?.total_review_count ?? null,
+      business_id: card.business_id,
+      badge_id: card.badge_id,
+      badgeName,
+      video_document_id: card.video_document_id,
+      title: card.title,
+      popular_search_id: card.popular_search_id,
+    }));
+  };
+
   const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null; video_document_id?: string | null; title?: string | null; popular_search_id?: string | null }) => {
       if (patch.video_document_id !== undefined && patch.video_document_id !== null) {
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -559,7 +693,27 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
     if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
     setOpenSearchEntry(null);
     setSearchByEntry((p) => ({ ...p, [cardId]: "" }));
-    setExtraReloadKey((k) => k + 1);
+    setExtraCards((prev) => prev.map((card) => {
+      if (card.cardId !== cardId) return card;
+      const nextBusinessId = patch.business_id !== undefined ? patch.business_id : card.business_id;
+      const nextBadgeId = patch.badge_id !== undefined ? patch.badge_id : card.badge_id;
+      const nextVideoDocumentId = patch.video_document_id !== undefined ? patch.video_document_id : card.video_document_id;
+      const nextTitle = patch.title !== undefined ? patch.title : card.title;
+      const nextPopularSearchId = patch.popular_search_id !== undefined ? patch.popular_search_id : card.popular_search_id;
+      const nextBusiness = nextBusinessId ? allBusinesses.find((b) => b.id === nextBusinessId) : null;
+
+      return {
+        ...card,
+        business_id: nextBusinessId,
+        badge_id: nextBadgeId,
+        badgeName: nextBadgeId ? (allBadges.find((b) => b.id === nextBadgeId)?.name_fr || null) : null,
+        video_document_id: nextVideoDocumentId,
+        title: nextTitle,
+        popular_search_id: nextPopularSearchId,
+        businessName: nextBusiness?.name || (patch.business_id !== undefined ? null : card.businessName),
+      };
+    }));
+    await refreshExtraCard(cardId);
   };
 
   const deleteExtraCard = async (cardId: string) => {
