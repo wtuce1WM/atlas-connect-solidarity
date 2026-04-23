@@ -471,6 +471,15 @@ const Test = () => {
         // Global ordering by sort_order
         limitedDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
+        // DEBUG
+        const counts: Record<string, number> = {};
+        limitedDocs.forEach((d: any) => {
+          const n = bizMap.get(d.business_id)?.name || d.business_id;
+          counts[n] = (counts[n] || 0) + 1;
+        });
+        console.log("[Test] limitedDocs by business:", counts, "total:", limitedDocs.length);
+        console.log("[Test] allDocs raw:", allDocs.length, "uniqueDocs (by URL):", uniqueDocs.length);
+
         setVideos(
           limitedDocs.map((d: any) => {
             const biz = bizMap.get(d.business_id) || null;
