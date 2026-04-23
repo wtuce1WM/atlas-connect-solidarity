@@ -689,26 +689,8 @@ const Test = () => {
       ) : (
         <ul className="space-y-1">
           {visibleEntries.map((e) => {
-            const isActive = e.id === selectedEntryId;
-            const isHovered = e.id === hoveredEntryId;
-            const showChildren = isActive || isHovered;
-            const children = showChildren
-              ? [
-                  ...e.subcategory_ids
-                    .filter((id) => subsWithVideos.has(id))
-                    .map((id) => ({ id, name: subcatNames[id], type: "sub" as const }))
-                    .filter((c) => c.name),
-                  ...e.service_ids
-                    .map((id) => ({ id, name: serviceNames[id], type: "svc" as const }))
-                    .filter((c) => c.name),
-                ]
-              : [];
             return (
-              <li
-                key={e.id}
-                onMouseEnter={() => setHoveredEntryId(e.id)}
-                onMouseLeave={() => setHoveredEntryId((prev) => (prev === e.id ? null : prev))}
-              >
+              <li key={e.id}>
                 <div
                   onClick={() => {
                     setSelectedEntryId(e.id);
@@ -725,33 +707,6 @@ const Test = () => {
                 >
                   {e.name}
                 </div>
-                {children.length > 0 && (
-                  <ul className="mt-1 ml-3 border-l border-border pl-3 space-y-0.5">
-                    {children.map((c) => {
-                      const isSubActive = c.type === "sub" && selectedSubId === c.id;
-                      return (
-                        <li
-                          key={`${c.type}-${c.id}`}
-                          onClick={(ev) => {
-                            ev.stopPropagation();
-                            if (c.type === "sub") {
-                              setSelectedEntryId(e.id);
-                              setSelectedSubId(c.id);
-                              setMenuOpen(false);
-                            }
-                          }}
-                          className={`px-2 py-1 text-xs rounded transition-colors ${
-                            isSubActive
-                              ? "bg-primary text-primary-foreground"
-                              : "text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer"
-                          }`}
-                        >
-                          {c.type === "svc" ? "🔧 " : ""}{c.name}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
               </li>
             );
           })}
