@@ -29,7 +29,7 @@ interface MixedSlot {
   data: CardData;
 }
 
-const HomepageCardsFront = ({ city }: Props) => {
+const HomepageCardsFront = ({ city, onLabelClick }: Props) => {
   const navigate = useNavigate();
   const [slots, setSlots] = useState<MixedSlot[]>([]);
   const [loading, setLoading] = useState(true);
