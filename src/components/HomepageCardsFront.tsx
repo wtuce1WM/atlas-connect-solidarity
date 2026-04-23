@@ -262,10 +262,12 @@ const HomepageCardsFront = ({ city }: Props) => {
       const bizChunks: Promise<any>[] = [];
       for (let i = 0; i < bizIdsArr.length; i += 300) {
         bizChunks.push(
-          supabase
-            .from("businesses")
-            .select("id, name, logo_url, computed_rating, rating, total_review_count")
-            .in("id", bizIdsArr.slice(i, i + 300))
+          Promise.resolve(
+            supabase
+              .from("businesses")
+              .select("id, name, logo_url, computed_rating, rating, total_review_count")
+              .in("id", bizIdsArr.slice(i, i + 300))
+          )
         );
       }
       const bizResults = await Promise.all(bizChunks);
