@@ -451,7 +451,7 @@ const Test = () => {
           return d.linked_business_id || d.business_id;
         };
 
-        const representativeByEntity = new Map<string, any>();
+        const docsByEntity = new Map<string, any[]>();
         const getPriority = (d: any, entityId: string) => {
           if (d.business_id === entityId) return 0;
           if (d.poi_id === entityId) return 1;
@@ -462,26 +462,42 @@ const Test = () => {
         for (const d of allDocs) {
           const entityId = getEntityId(d);
           if (!entityId) continue;
-
-          const current = representativeByEntity.get(entityId);
-          if (!current) {
-            representativeByEntity.set(entityId, d);
-            continue;
-          }
-
-          const currentPriority = getPriority(current, entityId);
-          const nextPriority = getPriority(d, entityId);
-          if (
-            nextPriority < currentPriority ||
-            (nextPriority === currentPriority && (d.sort_order ?? 0) < (current.sort_order ?? 0))
-          ) {
-            representativeByEntity.set(entityId, d);
-          }
+          const arr = docsByEntity.get(entityId) || [];
+          arr.push(d);
+          docsByEntity.set(entityId, arr);
         }
 
-        const internal = Array.from(representativeByEntity.values()).sort(
-          (a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0)
-        );
+        // For each entity: sort docs by (priority asc, sort_order asc) then keep first N (front_video_count, default 1, max 9)
+        const limitedDocs: any[] = [];
+        for (const [entityId, docs] of docsByEntity.entries()) {
+          const biz = bizMap.get(entityId) as any;
+          const limit = Math.max(1, Math.min(9, biz?.front_video_count ?? 1));
+          const sorted = [...docs].sort((a, b) => {
+            const pa = getPriority(a, entityId);
+            const pb = getPriority(b, entityId);
+            if (pa !== pb) return pa - pb;
+            return (a.sort_order ?? 0) - (b.sort_order ?? 0);
+          });
+          limitedDocs.push(...sorted.slice(0, limit));
+        }
+
+        // Global ordering: group videos by entity (by entity's first/best sort_order), keep entity videos contiguous
+        const entityFirstSort = new Map<string, number>();
+        for (const d of limitedDocs) {
+          const eid = getEntityId(d);
+          if (!eid) continue;
+          const cur = entityFirstSort.get(eid);
+          if (cur === undefined || (d.sort_order ?? 0) < cur) entityFirstSort.set(eid, d.sort_order ?? 0);
+        }
+        const internal = limitedDocs.sort((a: any, b: any) => {
+          const ea = getEntityId(a)!;
+          const eb = getEntityId(b)!;
+          const sa = entityFirstSort.get(ea) ?? 0;
+          const sb = entityFirstSort.get(eb) ?? 0;
+          if (sa !== sb) return sa - sb;
+          if (ea !== eb) return ea.localeCompare(eb);
+          return (a.sort_order ?? 0) - (b.sort_order ?? 0);
+        });
 
         setVideos(
           internal.map((d: any) => {
