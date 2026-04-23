@@ -454,7 +454,16 @@ const Test = () => {
         };
 
         allDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-        const internal = allDocs.filter((d: any) => getDisplayId(d) !== null);
+        const representativeByDisplay = new Map<string, any>();
+        for (const d of allDocs) {
+          const displayId = getDisplayId(d);
+          if (!displayId) continue;
+          if (!representativeByDisplay.has(displayId)) {
+            representativeByDisplay.set(displayId, d);
+          }
+        }
+
+        const internal = Array.from(representativeByDisplay.values());
 
         internal.sort((a: any, b: any) => {
           const ba = bizMap.get(getDisplayId(a) as string) as any;
