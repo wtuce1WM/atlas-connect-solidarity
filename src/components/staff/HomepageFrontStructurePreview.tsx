@@ -862,6 +862,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
                     </label>
                     <div className="flex items-center gap-0.5">
                       <Input
+                        key={`vid-${card.cardId}-${card.video_document_id || ""}`}
                         defaultValue={card.video_document_id || ""}
                         onBlur={(e) => {
                           const v = e.target.value.trim();
