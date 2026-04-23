@@ -256,6 +256,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       const extraRows: ExtraCard[] = ((extraRes as any).data || []).map((r: any) => ({
         id: r.id, city: r.city, business_id: r.business_id, badge_id: r.badge_id,
         video_document_id: r.video_document_id, title: r.title ?? null, sort_order: r.sort_order,
+        popular_search_id: r.popular_search_id ?? null,
       }));
 
       const extraDocByCard: Record<string, any> = {};
