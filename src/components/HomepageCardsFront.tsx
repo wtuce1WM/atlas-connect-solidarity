@@ -7,7 +7,7 @@ import SlidePanelHome from "@/components/SlidePanelHome";
 
 interface Props {
   city: string;
-  onLabelClick?: (label: string, kind: "entry" | "extra") => void;
+  onLabelClick?: (info: { label: string; kind: "entry" | "extra"; badgeId: string | null }) => void;
 }
 
 interface CardData {
@@ -21,6 +21,7 @@ interface CardData {
   rating: number | null;
   reviewCount: number | null;
   label: string | null;
+  badgeId?: string | null;
 }
 
 interface MixedSlot {
