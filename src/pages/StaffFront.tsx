@@ -425,14 +425,10 @@ const StaffFront = () => {
                 <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
               </TabsList>
               <TabsContent value="marrakech">
-                <div className="text-sm text-muted-foreground p-8 text-center border border-dashed rounded-lg">
-                  Contenu à définir pour Marrakech.
-                </div>
+                <HomepageFrontStructurePreview city="Marrakech" />
               </TabsContent>
               <TabsContent value="essaouira">
-                <div className="text-sm text-muted-foreground p-8 text-center border border-dashed rounded-lg">
-                  Contenu à définir pour Essaouira.
-                </div>
+                <HomepageFrontStructurePreview city="Essaouira" />
               </TabsContent>
             </Tabs>
           </TabsContent>
