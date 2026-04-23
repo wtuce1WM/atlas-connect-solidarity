@@ -425,16 +425,12 @@ const StaffFront = () => {
                 <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
               </TabsList>
               <TabsContent value="marrakech">
-                <HomepageBusinessesPanel cityName="Marrakech" />
-                <div className="mt-6">
-                  <HomepageFrontStructurePreview city="Marrakech" />
-                </div>
+                <RegenerateHomepageSnapshotButton cityName="Marrakech" />
+                <HomepageFrontStructurePreview city="Marrakech" />
               </TabsContent>
               <TabsContent value="essaouira">
-                <HomepageBusinessesPanel cityName="Essaouira" />
-                <div className="mt-6">
-                  <HomepageFrontStructurePreview city="Essaouira" />
-                </div>
+                <RegenerateHomepageSnapshotButton cityName="Essaouira" />
+                <HomepageFrontStructurePreview city="Essaouira" />
               </TabsContent>
             </Tabs>
           </TabsContent>
