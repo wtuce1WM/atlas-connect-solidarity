@@ -1000,15 +1000,6 @@ const Test = () => {
                           const thumb = v.thumbnail_url || deriveThumbnail(v.url);
                           const isFile = /\.(mp4|webm|mov)(\?|$)/i.test(v.url);
                           return (
-                      const handlePick = () => {
-                        setActiveVideo(v);
-                        setActiveVideoId(v.id);
-                        setPanelOpen(true);
-                      };
-                      if (isThumbMode) {
-                        const thumb = v.thumbnail_url || deriveThumbnail(v.url);
-                        const isFile = /\.(mp4|webm|mov)(\?|$)/i.test(v.url);
-                        return (
                       <div
                         key={v.id}
                         onClick={handlePick}
