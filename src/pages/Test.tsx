@@ -471,22 +471,6 @@ const Test = () => {
         // Global ordering by sort_order
         limitedDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
-        // DEBUG
-        const counts: Record<string, number> = {};
-        limitedDocs.forEach((d: any) => {
-          const n = bizMap.get(d.business_id)?.name || d.business_id;
-          counts[n] = (counts[n] || 0) + 1;
-        });
-        console.warn("🔴 ROOFTOP DEBUG", {
-          entry: selectedEntry?.name,
-          subId: selectedSubId,
-          subIds_used: subIds,
-          allDocs: allDocs.length,
-          uniqueDocsByUrl: uniqueDocs.length,
-          limitedDocs: limitedDocs.length,
-          countsByBusiness: counts,
-          rooftopDocs: allDocs.filter((d: any) => d.business_id === '1dd305ae-4e89-4bfb-b77b-22dbe27e5b61').map((d: any) => ({ id: d.id, url: d.url, sub: d.subcategory_id, poi: d.poi_id })),
-        });
 
         setVideos(
           limitedDocs.map((d: any) => {
