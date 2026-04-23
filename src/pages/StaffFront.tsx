@@ -310,6 +310,7 @@ import logoGold from "@/assets/logoGOLDsimple.webp";
 import FrontStructureManagement from "@/components/staff/FrontStructureManagement";
 import DestinationVideosPanel from "@/components/staff/DestinationVideosPanel";
 import HomepageBusinessesPanel from "@/components/staff/HomepageBusinessesPanel";
+import HomepageFrontStructurePreview from "@/components/staff/HomepageFrontStructurePreview";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import DisplayPanel from "@/components/staff/DisplayPanel";
 import CountryVideosPanel from "@/components/staff/CountryVideosPanel";
