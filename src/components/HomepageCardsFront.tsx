@@ -7,6 +7,7 @@ import SlidePanelHome from "@/components/SlidePanelHome";
 
 interface Props {
   city: string;
+  onLabelClick?: (label: string, kind: "entry" | "extra") => void;
 }
 
 interface CardData {
@@ -28,7 +29,7 @@ interface MixedSlot {
   data: CardData;
 }
 
-const HomepageCardsFront = ({ city }: Props) => {
+const HomepageCardsFront = ({ city, onLabelClick }: Props) => {
   const navigate = useNavigate();
   const [slots, setSlots] = useState<MixedSlot[]>([]);
   const [loading, setLoading] = useState(true);
@@ -134,6 +135,10 @@ const HomepageCardsFront = ({ city }: Props) => {
               tabIndex={0}
               onClick={(e) => {
                 e.stopPropagation();
+                if (onLabelClick) {
+                  onLabelClick(it.label!, slot.kind);
+                  return;
+                }
                 const q = slot.kind === "entry"
                   ? it.label!
                   : `${it.label} ${city}`;
@@ -143,6 +148,10 @@ const HomepageCardsFront = ({ city }: Props) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
                   e.stopPropagation();
+                  if (onLabelClick) {
+                    onLabelClick(it.label!, slot.kind);
+                    return;
+                  }
                   const q = slot.kind === "entry"
                     ? it.label!
                     : `${it.label} ${city}`;
