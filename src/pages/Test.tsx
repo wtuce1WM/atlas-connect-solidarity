@@ -955,7 +955,51 @@ const Test = () => {
                     <p className="text-sm text-muted-foreground">Aucune vidéo disponible.</p>
                   ) : (
                   <div className={`grid gap-4 ${isThumbMode ? (panelOpen ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-3" : "grid-cols-2 md:grid-cols-4 lg:grid-cols-6") : (panelOpen ? "grid-cols-1 md:grid-cols-2" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6")}`}>
-                    {displayList.map((v, idx) => {
+                    {(() => {
+                      const items: Array<{ kind: "video"; v: VideoItem; idx: number } | { kind: "children" }> =
+                        displayList.map((v, idx) => ({ kind: "video" as const, v, idx }));
+                      if (showChildrenTile) {
+                        const insertAt = Math.min(childrenTileIndex, items.length);
+                        items.splice(insertAt, 0, { kind: "children" });
+                      }
+                      return items.map((entry, i) => {
+                        if (entry.kind === "children") {
+                          return (
+                            <div
+                              key="children-tile"
+                              className="aspect-[9/16] rounded-lg overflow-hidden bg-card border border-border p-2 flex flex-col"
+                            >
+                              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1.5 px-1">
+                                Sous-catégories
+                              </p>
+                              <div className="flex-1 overflow-y-auto flex flex-col gap-1">
+                                {childItems.map((c) => (
+                                  <button
+                                    key={c.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedSubId(c.id);
+                                    }}
+                                    className="text-left text-xs px-2 py-1.5 rounded bg-muted hover:bg-primary hover:text-primary-foreground transition-colors line-clamp-2"
+                                  >
+                                    {c.name}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        }
+                        const v = entry.v;
+                        const idx = entry.idx;
+                        const handlePick = () => {
+                          setActiveVideo(v);
+                          setActiveVideoId(v.id);
+                          setPanelOpen(true);
+                        };
+                        if (isThumbMode) {
+                          const thumb = v.thumbnail_url || deriveThumbnail(v.url);
+                          const isFile = /\.(mp4|webm|mov)(\?|$)/i.test(v.url);
+                          return (
                       const handlePick = () => {
                         setActiveVideo(v);
                         setActiveVideoId(v.id);
