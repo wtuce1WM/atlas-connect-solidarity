@@ -536,6 +536,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
     ownerName: string | null;
     videoId: string | null;
     fallbackLabel?: string;
+    badgeLabel?: string | null;
   }) => {
     const isFileVideo = !!it.videoUrl && !it.thumbnail && !/youtube|youtu\.be|vimeo|mediadelivery/i.test(it.videoUrl);
     return it.videoId ? (
