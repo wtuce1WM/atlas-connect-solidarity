@@ -701,193 +701,161 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
 
   return (
     <div ref={containerRef} className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {items.map((it) => (
-          <div key={it.entryId} className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground line-clamp-1">
-              {it.entryName}
-            </p>
-            {renderThumbBox({ ...it, badgeLabel: it.entryName })}
-
-            {/* Champ Établissement override */}
-            <div className="relative">
-              <label className="text-[9px] text-muted-foreground">
-                Établissement {it.isOverride && <span className="text-primary">(forcé)</span>}
-              </label>
-              {it.overrideBusinessId ? (
-                <div className="flex items-center gap-0.5 h-5 px-1 border rounded-md bg-background">
-                  <span className="text-[9px] truncate flex-1">
-                    {allBusinesses.find((b) => b.id === it.overrideBusinessId)?.name || it.businessName || "…"}
-                  </span>
-                  <button
-                    type="button"
-                    className="shrink-0"
-                    onClick={() => setOverride(it.entryId, null)}
-                    title="Retirer l'override"
-                  >
-                    <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <Input
-                    value={searchByEntry[it.entryId] || ""}
-                    onChange={(e) => setSearchByEntry((p) => ({ ...p, [it.entryId]: e.target.value }))}
-                    onFocus={() => setOpenSearchEntry(it.entryId)}
-                    placeholder="Rechercher…"
-                    className="h-5 px-1 text-[9px]"
-                  />
-                  {openSearchEntry === it.entryId && (
-                    <div className="absolute z-20 left-0 right-0 mt-0.5 max-h-48 overflow-auto border rounded-md bg-popover shadow-md">
-                      {filteredFor(it.entryId).length === 0 ? (
-                        <div className="px-1.5 py-1 text-[9px] text-muted-foreground">Aucun résultat</div>
-                      ) : (
-                        filteredFor(it.entryId).map((b) => (
-                          <button
-                            key={b.id}
-                            type="button"
-                            className="w-full text-left px-1.5 py-0.5 text-[9px] hover:bg-accent truncate"
-                            onClick={() => setOverride(it.entryId, b.id)}
-                          >
-                            {b.name}
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <SortableContext items={mixedOrder} strategy={rectSortingStrategy}>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {mixedOrder.map((key) => {
+              const slot = itemsById.get(key);
+              if (!slot) return null;
+              if (slot.kind === "entry") {
+                const it = slot.data as PreviewItem;
+                return (
+                  <SortableCell key={key} id={key}>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground line-clamp-1">
+                      {it.entryName}
+                    </p>
+                    {renderThumbBox({ ...it, badgeLabel: it.entryName })}
+                    <div className="relative">
+                      <label className="text-[9px] text-muted-foreground">
+                        Établissement {it.isOverride && <span className="text-primary">(forcé)</span>}
+                      </label>
+                      {it.overrideBusinessId ? (
+                        <div className="flex items-center gap-0.5 h-5 px-1 border rounded-md bg-background">
+                          <span className="text-[9px] truncate flex-1">
+                            {allBusinesses.find((b) => b.id === it.overrideBusinessId)?.name || it.businessName || "…"}
+                          </span>
+                          <button type="button" className="shrink-0" onClick={() => setOverride(it.entryId, null)} title="Retirer l'override">
+                            <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
                           </button>
-                        ))
+                        </div>
+                      ) : (
+                        <>
+                          <Input
+                            value={searchByEntry[it.entryId] || ""}
+                            onChange={(e) => setSearchByEntry((p) => ({ ...p, [it.entryId]: e.target.value }))}
+                            onFocus={() => setOpenSearchEntry(it.entryId)}
+                            placeholder="Rechercher…"
+                            className="h-5 px-1 text-[9px]"
+                          />
+                          {openSearchEntry === it.entryId && (
+                            <div className="absolute z-20 left-0 right-0 mt-0.5 max-h-48 overflow-auto border rounded-md bg-popover shadow-md">
+                              {filteredFor(it.entryId).length === 0 ? (
+                                <div className="px-1.5 py-1 text-[9px] text-muted-foreground">Aucun résultat</div>
+                              ) : (
+                                filteredFor(it.entryId).map((b) => (
+                                  <button key={b.id} type="button" className="w-full text-left px-1.5 py-0.5 text-[9px] hover:bg-accent truncate" onClick={() => setOverride(it.entryId, b.id)}>
+                                    {b.name}
+                                  </button>
+                                ))
+                              )}
+                            </div>
+                          )}
+                        </>
                       )}
                     </div>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-        ))}
-
-        {/* Cartes additionnelles */}
-        {extraCards.map((card) => (
-          <div key={card.cardId} className="space-y-2">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold uppercase tracking-wider text-primary line-clamp-1">
-                {card.title?.trim() || "Carte libre"}
-              </p>
-              <button
-                type="button"
-                onClick={() => deleteExtraCard(card.cardId)}
-                title="Supprimer cette carte"
-              >
-                <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
-              </button>
-            </div>
-            {renderThumbBox({ ...card, videoId: card.videoId, fallbackLabel: "Choisir établissement / badge", badgeLabel: card.title?.trim() || null })}
-
-            {/* Titre */}
-            <div>
-              <label className="text-[9px] text-muted-foreground">Titre</label>
-              <Input
-                defaultValue={card.title || ""}
-                onBlur={(e) => {
-                  const v = e.target.value.trim();
-                  if (v !== (card.title || "")) {
-                    updateExtraCard(card.cardId, { title: v || null });
-                  }
-                }}
-                placeholder="Titre de la carte…"
-                className="h-5 px-1 text-[9px]"
-              />
-            </div>
-
-            <div className="relative">
-              <label className="text-[9px] text-muted-foreground">Établissement</label>
-              {card.business_id ? (
-                <div className="flex items-center gap-0.5 h-5 px-1 border rounded-md bg-background">
-                  <span className="text-[9px] truncate flex-1">
-                    {allBusinesses.find((b) => b.id === card.business_id)?.name || card.businessName || "…"}
-                  </span>
-                  <button
-                    type="button"
-                    className="shrink-0"
-                    onClick={() => updateExtraCard(card.cardId, { business_id: null })}
-                    title="Retirer"
-                  >
-                    <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <Input
-                    value={searchByEntry[card.cardId] || ""}
-                    onChange={(e) => setSearchByEntry((p) => ({ ...p, [card.cardId]: e.target.value }))}
-                    onFocus={() => setOpenSearchEntry(card.cardId)}
-                    placeholder="Rechercher…"
-                    className="h-5 px-1 text-[9px]"
-                  />
-                  {openSearchEntry === card.cardId && (
-                    <div className="absolute z-20 left-0 right-0 mt-0.5 max-h-48 overflow-auto border rounded-md bg-popover shadow-md">
-                      {filteredFor(card.cardId).length === 0 ? (
-                        <div className="px-1.5 py-1 text-[9px] text-muted-foreground">Aucun résultat</div>
-                      ) : (
-                        filteredFor(card.cardId).map((b) => (
-                          <button
-                            key={b.id}
-                            type="button"
-                            className="w-full text-left px-1.5 py-0.5 text-[9px] hover:bg-accent truncate"
-                            onClick={() => updateExtraCard(card.cardId, { business_id: b.id })}
-                          >
-                            {b.name}
-                          </button>
-                        ))
+                  </SortableCell>
+                );
+              }
+              const card = slot.data as ExtraCardPreview;
+              return (
+                <SortableCell key={key} id={key}>
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-primary line-clamp-1">
+                      {card.title?.trim() || "Carte libre"}
+                    </p>
+                    <button type="button" onClick={() => deleteExtraCard(card.cardId)} title="Supprimer cette carte">
+                      <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                    </button>
+                  </div>
+                  {renderThumbBox({ ...card, videoId: card.videoId, fallbackLabel: "Choisir établissement / badge", badgeLabel: card.title?.trim() || null })}
+                  <div>
+                    <label className="text-[9px] text-muted-foreground">Titre</label>
+                    <Input
+                      defaultValue={card.title || ""}
+                      onBlur={(e) => {
+                        const v = e.target.value.trim();
+                        if (v !== (card.title || "")) updateExtraCard(card.cardId, { title: v || null });
+                      }}
+                      placeholder="Titre de la carte…"
+                      className="h-5 px-1 text-[9px]"
+                    />
+                  </div>
+                  <div className="relative">
+                    <label className="text-[9px] text-muted-foreground">Établissement</label>
+                    {card.business_id ? (
+                      <div className="flex items-center gap-0.5 h-5 px-1 border rounded-md bg-background">
+                        <span className="text-[9px] truncate flex-1">
+                          {allBusinesses.find((b) => b.id === card.business_id)?.name || card.businessName || "…"}
+                        </span>
+                        <button type="button" className="shrink-0" onClick={() => updateExtraCard(card.cardId, { business_id: null })} title="Retirer">
+                          <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <Input
+                          value={searchByEntry[card.cardId] || ""}
+                          onChange={(e) => setSearchByEntry((p) => ({ ...p, [card.cardId]: e.target.value }))}
+                          onFocus={() => setOpenSearchEntry(card.cardId)}
+                          placeholder="Rechercher…"
+                          className="h-5 px-1 text-[9px]"
+                        />
+                        {openSearchEntry === card.cardId && (
+                          <div className="absolute z-20 left-0 right-0 mt-0.5 max-h-48 overflow-auto border rounded-md bg-popover shadow-md">
+                            {filteredFor(card.cardId).length === 0 ? (
+                              <div className="px-1.5 py-1 text-[9px] text-muted-foreground">Aucun résultat</div>
+                            ) : (
+                              filteredFor(card.cardId).map((b) => (
+                                <button key={b.id} type="button" className="w-full text-left px-1.5 py-0.5 text-[9px] hover:bg-accent truncate" onClick={() => updateExtraCard(card.cardId, { business_id: b.id })}>
+                                  {b.name}
+                                </button>
+                              ))
+                            )}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-[9px] text-muted-foreground">Badge</label>
+                    <select
+                      value={card.badge_id || ""}
+                      onChange={(e) => updateExtraCard(card.cardId, { badge_id: e.target.value || null })}
+                      className="h-5 w-full px-1 text-[9px] border rounded-md bg-background"
+                    >
+                      <option value="">— Aucun —</option>
+                      {allBadges.map((b) => (
+                        <option key={b.id} value={b.id}>{b.name_fr}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[9px] text-muted-foreground">
+                      ID vidéo {card.video_document_id && <span className="text-primary">(prioritaire)</span>}
+                    </label>
+                    <div className="flex items-center gap-0.5">
+                      <Input
+                        defaultValue={card.video_document_id || ""}
+                        onBlur={(e) => {
+                          const v = e.target.value.trim();
+                          if (v !== (card.video_document_id || "")) updateExtraCard(card.cardId, { video_document_id: v || null });
+                        }}
+                        placeholder="UUID vidéo…"
+                        className="h-5 px-1 text-[9px] font-mono"
+                      />
+                      {card.video_document_id && (
+                        <button type="button" className="shrink-0" onClick={() => updateExtraCard(card.cardId, { video_document_id: null })} title="Retirer">
+                          <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
+                        </button>
                       )}
                     </div>
-                  )}
-                </>
-              )}
-            </div>
-
-            {/* Badge */}
-            <div>
-              <label className="text-[9px] text-muted-foreground">Badge</label>
-              <select
-                value={card.badge_id || ""}
-                onChange={(e) => updateExtraCard(card.cardId, { badge_id: e.target.value || null })}
-                className="h-5 w-full px-1 text-[9px] border rounded-md bg-background"
-              >
-                <option value="">— Aucun —</option>
-                {allBadges.map((b) => (
-                  <option key={b.id} value={b.id}>{b.name_fr}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* ID vidéo (priorité absolue) */}
-            <div>
-              <label className="text-[9px] text-muted-foreground">
-                ID vidéo {card.video_document_id && <span className="text-primary">(prioritaire)</span>}
-              </label>
-              <div className="flex items-center gap-0.5">
-                <Input
-                  defaultValue={card.video_document_id || ""}
-                  onBlur={(e) => {
-                    const v = e.target.value.trim();
-                    if (v !== (card.video_document_id || "")) {
-                      updateExtraCard(card.cardId, { video_document_id: v || null });
-                    }
-                  }}
-                  placeholder="UUID vidéo…"
-                  className="h-5 px-1 text-[9px] font-mono"
-                />
-                {card.video_document_id && (
-                  <button
-                    type="button"
-                    className="shrink-0"
-                    onClick={() => updateExtraCard(card.cardId, { video_document_id: null })}
-                    title="Retirer"
-                  >
-                    <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
-                  </button>
-                )}
-              </div>
-            </div>
+                  </div>
+                </SortableCell>
+              );
+            })}
           </div>
-        ))}
-      </div>
+        </SortableContext>
+      </DndContext>
 
       <div className="flex justify-center">
         <Button size="sm" variant="outline" onClick={addExtraCard}>
@@ -895,6 +863,31 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         </Button>
       </div>
       {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
+    </div>
+  );
+};
+
+const SortableCell = ({ id, children }: { id: string; children: React.ReactNode }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+    zIndex: isDragging ? 10 : undefined,
+  };
+  return (
+    <div ref={setNodeRef} style={style} className="relative space-y-2">
+      <button
+        type="button"
+        {...attributes}
+        {...listeners}
+        className="absolute -top-1 -left-1 z-30 h-6 w-6 rounded-md bg-background/90 border shadow flex items-center justify-center cursor-grab active:cursor-grabbing hover:bg-accent"
+        title="Glisser pour réordonner"
+        aria-label="Poignée de tri"
+      >
+        <GripVertical className="h-3.5 w-3.5 text-muted-foreground" />
+      </button>
+      {children}
     </div>
   );
 };
