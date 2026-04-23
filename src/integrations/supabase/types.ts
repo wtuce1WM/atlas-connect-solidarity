@@ -2653,6 +2653,55 @@ export type Database = {
         }
         Relationships: []
       }
+      front_structure_homepage_overrides: {
+        Row: {
+          business_id: string
+          city: string
+          created_at: string
+          front_structure_id: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          city: string
+          created_at?: string
+          front_structure_id: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          city?: string
+          created_at?: string
+          front_structure_id?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "front_structure_homepage_overrides_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "front_structure_homepage_overrides_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "front_structure_homepage_overrides_front_structure_id_fkey"
+            columns: ["front_structure_id"]
+            isOneToOne: false
+            referencedRelation: "front_structure"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       front_structure_services: {
         Row: {
           created_at: string
