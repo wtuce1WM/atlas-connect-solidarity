@@ -353,6 +353,13 @@ const HomepageCardsFront = ({ city }: Props) => {
         ...extraPreviews.map((p): MixedSlot => ({ key: p.key, kind: "extra", data: p.data })),
       ];
 
+      console.log("[HomepageCardsFront]", city, {
+        entries: entryCards.length,
+        extras: extraPreviews.length,
+        total: all.length,
+        orderRows: ((orderRes as any).data || []).length,
+      });
+
       const ordered = all.filter((r) => orderMap.has(r.key))
         .sort((a, b) => orderMap.get(a.key)! - orderMap.get(b.key)!);
       const remaining = all.filter((r) => !orderMap.has(r.key));
