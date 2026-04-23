@@ -858,45 +858,6 @@ const Test = () => {
             <p className="text-sm text-muted-foreground">
               Sélectionne une entrée dans la colonne de gauche.
             </p>
-          ) : false ? (
-            <div>
-              <button
-                type="button"
-                onClick={() => setBadgeView(null)}
-                className="text-xs text-muted-foreground hover:text-foreground mb-3"
-              >
-                ← Retour
-              </button>
-              <h3 className="text-sm font-semibold mb-3">
-                {badgeView.label} — {badgeView.city} ({badgeBusinesses.length})
-              </h3>
-              {loadingBadge ? (
-                <p className="text-sm text-muted-foreground">Chargement…</p>
-              ) : badgeBusinesses.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Aucun établissement trouvé.</p>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                  {badgeBusinesses.map((b) => (
-                    <button
-                      key={b.id}
-                      type="button"
-                      onClick={() => navigate(`/fiche/${(b as any).slug || b.id}`)}
-                      className="text-left rounded-lg overflow-hidden bg-card border border-border hover:border-primary transition-colors"
-                    >
-                      <div className="aspect-video bg-muted overflow-hidden">
-                        {(b.images && b.images[0]) ? (
-                          <img src={b.images[0]} alt={b.name} className="w-full h-full object-cover" loading="lazy" />
-                        ) : null}
-                      </div>
-                      <div className="p-2">
-                        <p className="text-sm font-medium line-clamp-1">{b.name}</p>
-                        {b.neighborhood && <p className="text-xs text-muted-foreground line-clamp-1">{b.neighborhood}</p>}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
           ) : loadingVideos ? (
             <p className="text-sm text-muted-foreground">Chargement des vidéos…</p>
           ) : videos.length === 0 ? (
