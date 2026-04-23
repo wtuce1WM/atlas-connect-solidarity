@@ -661,7 +661,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           <div key={card.cardId} className="space-y-2">
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold uppercase tracking-wider text-primary line-clamp-1">
-                Carte libre
+                {card.title?.trim() || "Carte libre"}
               </p>
               <button
                 type="button"
@@ -673,7 +673,22 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
             </div>
             {renderThumbBox({ ...card, videoId: card.videoId, fallbackLabel: "Choisir établissement / badge" })}
 
-            {/* Établissement */}
+            {/* Titre */}
+            <div>
+              <label className="text-[9px] text-muted-foreground">Titre</label>
+              <Input
+                defaultValue={card.title || ""}
+                onBlur={(e) => {
+                  const v = e.target.value.trim();
+                  if (v !== (card.title || "")) {
+                    updateExtraCard(card.cardId, { title: v || null });
+                  }
+                }}
+                placeholder="Titre de la carte…"
+                className="h-5 px-1 text-[9px]"
+              />
+            </div>
+
             <div className="relative">
               <label className="text-[9px] text-muted-foreground">Établissement</label>
               {card.business_id ? (
