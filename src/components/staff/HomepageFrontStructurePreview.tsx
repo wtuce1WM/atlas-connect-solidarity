@@ -126,7 +126,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         supabase.from("badges").select("id, name_fr").order("name_fr"),
         (supabase as any)
           .from("front_structure_homepage_extra_cards")
-          .select("id, city, business_id, badge_id, video_document_id, sort_order")
+          .select("id, city, business_id, badge_id, video_document_id, title, sort_order")
           .eq("city", city)
           .order("sort_order", { ascending: true }),
       ]);
@@ -226,7 +226,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       // ---- Extra cards: priority video_document_id > business+badge ----
       const extraRows: ExtraCard[] = ((extraRes as any).data || []).map((r: any) => ({
         id: r.id, city: r.city, business_id: r.business_id, badge_id: r.badge_id,
-        video_document_id: r.video_document_id, sort_order: r.sort_order,
+        video_document_id: r.video_document_id, title: r.title ?? null, sort_order: r.sort_order,
       }));
 
       const extraDocByCard: Record<string, any> = {};
