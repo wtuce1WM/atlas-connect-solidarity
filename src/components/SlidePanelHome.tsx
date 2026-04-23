@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X, ChevronUp, ChevronDown, Instagram, Youtube } from "lucide-react";
 import { SiTiktok } from "react-icons/si";
 import { createPortal } from "react-dom";
@@ -32,7 +32,7 @@ interface SlidePanelHomeProps {
   description?: string | null;
 }
 
-const SlidePanelHome = forwardRef<HTMLDivElement, SlidePanelHomeProps>(({
+const SlidePanelHome = ({
   open,
   onClose,
   videoUrl,
@@ -48,7 +48,7 @@ const SlidePanelHome = forwardRef<HTMLDivElement, SlidePanelHomeProps>(({
   owner,
   social,
   description,
-}, _ref) => {
+}: SlidePanelHomeProps) => {
   const navigate = useNavigate();
   const panelRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -256,8 +256,6 @@ const SlidePanelHome = forwardRef<HTMLDivElement, SlidePanelHomeProps>(({
     </div>,
     document.body,
   );
-});
-
-SlidePanelHome.displayName = "SlidePanelHome";
+};
 
 export default SlidePanelHome;
