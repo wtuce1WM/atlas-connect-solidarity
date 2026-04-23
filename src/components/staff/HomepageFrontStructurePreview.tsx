@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import VideoThumbnail from "@/components/VideoThumbnail";
+import VideoLightbox from "@/components/staff/VideoLightbox";
 
 interface Props {
   city: string;
@@ -80,6 +81,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
   const [openSearchEntry, setOpenSearchEntry] = useState<string | null>(null);
   const [entriesReloadKey, setEntriesReloadKey] = useState(0);
   const [extraReloadKey, setExtraReloadKey] = useState(0);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const isFirstLoad = useRef(true);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -566,11 +568,20 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
             )}
           </div>
         )}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-8 h-8 rounded-full bg-black/50 flex items-center justify-center">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (it.videoUrl) setLightboxUrl(it.videoUrl);
+          }}
+          disabled={!it.videoUrl}
+          className="absolute inset-0 flex items-center justify-center group/play disabled:cursor-not-allowed"
+          aria-label="Lire la vidéo"
+        >
+          <div className="w-8 h-8 rounded-full bg-black/50 group-hover/play:bg-black/70 transition-colors flex items-center justify-center">
             <div className="w-0 h-0 border-y-[6px] border-y-transparent border-l-[9px] border-l-white ml-0.5" />
           </div>
-        </div>
+        </button>
         {it.ownerLogo && (
           <div className="absolute inset-x-0 bottom-[15%] z-[6] flex items-center justify-center px-2 pointer-events-none">
             <img
@@ -789,6 +800,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           <Plus className="h-3.5 w-3.5 mr-1" /> Ajouter une carte
         </Button>
       </div>
+      {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
     </div>
   );
 };
