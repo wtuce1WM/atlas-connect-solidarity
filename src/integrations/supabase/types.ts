@@ -2711,6 +2711,36 @@ export type Database = {
           },
         ]
       }
+      front_structure_homepage_order: {
+        Row: {
+          city: string
+          created_at: string
+          id: string
+          item_id: string
+          item_type: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          city: string
+          created_at?: string
+          id?: string
+          item_id: string
+          item_type: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          id?: string
+          item_id?: string
+          item_type?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       front_structure_homepage_overrides: {
         Row: {
           business_id: string
