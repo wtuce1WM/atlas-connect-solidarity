@@ -218,13 +218,31 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         }
       }
 
-      // ---- Extra cards: 1ère vidéo de l'établissement portant ce badge (toutes villes) ----
+      // ---- Extra cards: priority video_document_id > business+badge ----
       const extraRows: ExtraCard[] = ((extraRes as any).data || []).map((r: any) => ({
-        id: r.id, city: r.city, business_id: r.business_id, badge_id: r.badge_id, sort_order: r.sort_order,
+        id: r.id, city: r.city, business_id: r.business_id, badge_id: r.badge_id,
+        video_document_id: r.video_document_id, sort_order: r.sort_order,
       }));
 
       const extraDocByCard: Record<string, any> = {};
       for (const card of extraRows) {
+        // 1) If a specific video is set, use it directly
+        if (card.video_document_id) {
+          const { data: vDoc } = await supabase
+            .from("business_documents")
+            .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
+            .eq("id", card.video_document_id)
+            .maybeSingle();
+          if (vDoc) {
+            extraDocByCard[card.id] = vDoc;
+            const dispId = (vDoc as any).poi_id || (vDoc as any).linked_business_id || (vDoc as any).business_id;
+            if (dispId) allBizIds.add(dispId);
+            if ((vDoc as any).business_id) allBizIds.add((vDoc as any).business_id);
+          }
+          if (card.business_id) allBizIds.add(card.business_id);
+          continue;
+        }
+
         if (!card.business_id && !card.badge_id) continue;
 
         // Build candidate doc ids filtered by badge if needed
@@ -250,7 +268,6 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           allBizIds.add(card.business_id);
         }
         if (badgeFilteredDocIds) {
-          // chunk safety (badge match count usually small)
           q = q.in("id", badgeFilteredDocIds.slice(0, 1000));
         }
 
