@@ -444,61 +444,18 @@ const Test = () => {
           }
         }
 
-        const isTouristSites = subIds.some((id) => subcatNames[id] === "Sites touristiques") || selectedEntry.name === "Sites touristiques";
-
-        const getDisplayId = (d: any) => {
-          if (d.poi_id) return d.poi_id;
-          if ((bizMap.get(d.business_id) as any)?.is_poi) return d.business_id;
-          if (d.linked_business_id && (bizMap.get(d.linked_business_id) as any)?.is_poi) return d.linked_business_id;
-          return isTouristSites ? null : (d.linked_business_id || d.business_id);
-        };
-
         allDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-        const representativeByDisplay = new Map<string, any>();
-        for (const d of allDocs) {
-          const displayId = getDisplayId(d);
-          if (!displayId) continue;
-          if (!representativeByDisplay.has(displayId)) {
-            representativeByDisplay.set(displayId, d);
-          }
-        }
-
-        const internal = Array.from(representativeByDisplay.values());
-
-        internal.sort((a: any, b: any) => {
-          const ba = bizMap.get(getDisplayId(a) as string) as any;
-          const bb = bizMap.get(getDisplayId(b) as string) as any;
-          const aVerified = ba?.wtuce_status === "verified" ? 0 : 1;
-          const bVerified = bb?.wtuce_status === "verified" ? 0 : 1;
-          if (aVerified !== bVerified) return aVerified - bVerified;
-          const aRating = ba?.computed_rating ?? -1;
-          const bRating = bb?.computed_rating ?? -1;
-          if (aRating !== bRating) return bRating - aRating;
-          const aPrio = ba?.priority_score ?? 0;
-          const bPrio = bb?.priority_score ?? 0;
-          return bPrio - aPrio;
-        });
 
         setVideos(
-          internal.map((d: any) => {
-            const displayId = getDisplayId(d) as string;
-            const biz = bizMap.get(displayId) || null;
-            // Owner = the KP establishment behind the video (not the POI itself).
-            // Priority: business_id if distinct from POI, else linked_business_id.
-            const ownerId =
-              d.business_id && d.business_id !== displayId
-                ? d.business_id
-                : d.linked_business_id && d.linked_business_id !== displayId
-                  ? d.linked_business_id
-                  : null;
-            const ownerBiz = ownerId ? bizMap.get(ownerId) || null : null;
+          allDocs.map((d: any) => {
+            const biz = bizMap.get(d.business_id) || null;
             return {
               id: d.id,
               url: d.url,
               business_name: biz?.name || "—",
               thumbnail_url: d.thumbnail_url,
               business: biz,
-              owner: ownerBiz ? { id: ownerBiz.id, name: ownerBiz.name, logo_url: (ownerBiz as any).logo_url ?? null, logo_bg: (ownerBiz as any).logo_bg ?? null } : null,
+              owner: null,
               social: extractSocial(d),
               description: d.description ?? null,
             };
