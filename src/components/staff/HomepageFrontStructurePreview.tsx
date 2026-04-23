@@ -81,6 +81,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
   const [openSearchEntry, setOpenSearchEntry] = useState<string | null>(null);
   const [entriesReloadKey, setEntriesReloadKey] = useState(0);
   const [extraReloadKey, setExtraReloadKey] = useState(0);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const isFirstLoad = useRef(true);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
