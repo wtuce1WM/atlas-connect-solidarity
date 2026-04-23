@@ -309,7 +309,7 @@ const PopupPanel = () => {
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import FrontStructureManagement from "@/components/staff/FrontStructureManagement";
 import DestinationVideosPanel from "@/components/staff/DestinationVideosPanel";
-import HomepageBusinessesPanel from "@/components/staff/HomepageBusinessesPanel";
+import RegenerateHomepageSnapshotButton from "@/components/staff/RegenerateHomepageSnapshotButton";
 import HomepageFrontStructurePreview from "@/components/staff/HomepageFrontStructurePreview";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import DisplayPanel from "@/components/staff/DisplayPanel";
@@ -425,16 +425,12 @@ const StaffFront = () => {
                 <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
               </TabsList>
               <TabsContent value="marrakech">
-                <HomepageBusinessesPanel cityName="Marrakech" />
-                <div className="mt-6">
-                  <HomepageFrontStructurePreview city="Marrakech" />
-                </div>
+                <RegenerateHomepageSnapshotButton cityName="Marrakech" />
+                <HomepageFrontStructurePreview city="Marrakech" />
               </TabsContent>
               <TabsContent value="essaouira">
-                <HomepageBusinessesPanel cityName="Essaouira" />
-                <div className="mt-6">
-                  <HomepageFrontStructurePreview city="Essaouira" />
-                </div>
+                <RegenerateHomepageSnapshotButton cityName="Essaouira" />
+                <HomepageFrontStructurePreview city="Essaouira" />
               </TabsContent>
             </Tabs>
           </TabsContent>
