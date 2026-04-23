@@ -689,6 +689,7 @@ const Test = () => {
       ) : (
         <ul className="space-y-1">
           {visibleEntries.map((e) => {
+            const isActive = e.id === selectedEntryId;
             return (
               <li key={e.id}>
                 <div
