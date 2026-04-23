@@ -621,6 +621,44 @@ const Test = () => {
     [activeVideo, selectedEntryId]
   );
 
+  const handleHomeLabelClick = async (
+    info: { label: string; kind: "entry" | "extra"; badgeId: string | null },
+    clickedCity: City
+  ) => {
+    if (info.kind === "entry") {
+      const match = entries.find((e) => e.name.toLowerCase() === info.label.toLowerCase());
+      if (match) {
+        setBadgeView(null);
+        setSelectedEntryId(match.id);
+        setSelectedSubId(null);
+      }
+      return;
+    }
+    // Extra (manual) card → list businesses in this city using the badge
+    if (!info.badgeId) return;
+    setSelectedEntryId(HOME_ID);
+    setBadgeView({ badgeId: info.badgeId, label: info.label, city: clickedCity });
+    setLoadingBadge(true);
+    setBadgeBusinesses([]);
+    const { data: links } = await supabase
+      .from("business_badges")
+      .select("business_id")
+      .eq("badge_id", info.badgeId);
+    const ids = ((links as any[]) || []).map((l) => l.business_id);
+    if (ids.length === 0) {
+      setLoadingBadge(false);
+      return;
+    }
+    const { data: bizs } = await supabase
+      .from("businesses")
+      .select("id, name, slug, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+      .in("id", ids)
+      .eq("city", clickedCity)
+      .eq("is_active", true);
+    setBadgeBusinesses(((bizs as any[]) || []) as SearchResultBusiness[]);
+    setLoadingBadge(false);
+  };
+
   const structureList = (
     <>
       <div className="mb-4">
