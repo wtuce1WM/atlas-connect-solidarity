@@ -689,6 +689,36 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
                 ))}
               </select>
             </div>
+
+            {/* ID vidéo (priorité absolue) */}
+            <div>
+              <label className="text-[9px] text-muted-foreground">
+                ID vidéo {card.video_document_id && <span className="text-primary">(prioritaire)</span>}
+              </label>
+              <div className="flex items-center gap-0.5">
+                <Input
+                  defaultValue={card.video_document_id || ""}
+                  onBlur={(e) => {
+                    const v = e.target.value.trim();
+                    if (v !== (card.video_document_id || "")) {
+                      updateExtraCard(card.cardId, { video_document_id: v || null });
+                    }
+                  }}
+                  placeholder="UUID vidéo…"
+                  className="h-5 px-1 text-[9px] font-mono"
+                />
+                {card.video_document_id && (
+                  <button
+                    type="button"
+                    className="shrink-0"
+                    onClick={() => updateExtraCard(card.cardId, { video_document_id: null })}
+                    title="Retirer"
+                  >
+                    <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         ))}
       </div>
