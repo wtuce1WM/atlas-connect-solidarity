@@ -55,6 +55,7 @@ interface ExtraCardPreview {
   badge_id: string | null;
   badgeName: string | null;
   video_document_id: string | null;
+  title: string | null;
 }
 
 interface BizLite { id: string; name: string }
