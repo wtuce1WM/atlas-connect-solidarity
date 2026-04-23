@@ -57,6 +57,7 @@ interface ExtraCard {
   video_document_id: string | null;
   title: string | null;
   sort_order: number;
+  popular_search_id: string | null;
 }
 
 interface ExtraCardPreview {
@@ -74,10 +75,12 @@ interface ExtraCardPreview {
   badgeName: string | null;
   video_document_id: string | null;
   title: string | null;
+  popular_search_id: string | null;
 }
 
 interface BizLite { id: string; name: string }
 interface BadgeLite { id: string; name_fr: string }
+interface PopularSearchLite { id: string; query: string }
 
 function deriveThumbnail(url: string): string | null {
   if (!url) return null;
