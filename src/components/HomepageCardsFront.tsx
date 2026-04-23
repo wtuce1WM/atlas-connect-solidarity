@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Star } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
@@ -28,6 +29,7 @@ interface MixedSlot {
 }
 
 const HomepageCardsFront = ({ city }: Props) => {
+  const navigate = useNavigate();
   const [slots, setSlots] = useState<MixedSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -126,8 +128,29 @@ const HomepageCardsFront = ({ city }: Props) => {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
         {it.label && (
-          <div className="absolute inset-x-0 top-[10%] z-[7] flex items-center justify-center px-2 pointer-events-none">
-            <span className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black">
+          <div className="absolute inset-x-0 top-[10%] z-[7] flex items-center justify-center px-2">
+            <span
+              role="link"
+              tabIndex={0}
+              onClick={(e) => {
+                e.stopPropagation();
+                const q = slot.kind === "entry"
+                  ? it.label!
+                  : `${it.label} ${city}`;
+                navigate(`/search?q=${encodeURIComponent(q)}&_t=${Date.now()}`);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const q = slot.kind === "entry"
+                    ? it.label!
+                    : `${it.label} ${city}`;
+                  navigate(`/search?q=${encodeURIComponent(q)}&_t=${Date.now()}`);
+                }
+              }}
+              className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black cursor-pointer hover:bg-gold/90 transition-colors"
+            >
               {it.label}
             </span>
           </div>
