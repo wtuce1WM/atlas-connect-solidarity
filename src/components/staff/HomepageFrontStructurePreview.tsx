@@ -454,6 +454,22 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
   };
 
   const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null; video_document_id?: string | null }) => {
+    if (patch.video_document_id !== undefined && patch.video_document_id !== null) {
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(patch.video_document_id)) {
+        toast({ title: "ID invalide", description: "L'ID vidéo doit être un UUID valide.", variant: "destructive" });
+        return;
+      }
+      const { data: exists } = await supabase
+        .from("business_documents")
+        .select("id")
+        .eq("id", patch.video_document_id)
+        .maybeSingle();
+      if (!exists) {
+        toast({ title: "Vidéo introuvable", description: "Aucun document avec cet ID dans business_documents.", variant: "destructive" });
+        return;
+      }
+    }
     const { error } = await (supabase as any)
       .from("front_structure_homepage_extra_cards")
       .update(patch)
