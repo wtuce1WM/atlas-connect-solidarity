@@ -2660,6 +2660,7 @@ export type Database = {
           city: string
           created_at: string
           id: string
+          popular_search_id: string | null
           sort_order: number
           title: string | null
           updated_at: string
@@ -2671,6 +2672,7 @@ export type Database = {
           city: string
           created_at?: string
           id?: string
+          popular_search_id?: string | null
           sort_order?: number
           title?: string | null
           updated_at?: string
@@ -2682,6 +2684,7 @@ export type Database = {
           city?: string
           created_at?: string
           id?: string
+          popular_search_id?: string | null
           sort_order?: number
           title?: string | null
           updated_at?: string
@@ -2707,6 +2710,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "front_structure_homepage_extra_cards_popular_search_id_fkey"
+            columns: ["popular_search_id"]
+            isOneToOne: false
+            referencedRelation: "popular_searches"
             referencedColumns: ["id"]
           },
         ]
