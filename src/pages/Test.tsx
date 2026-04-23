@@ -9,6 +9,8 @@ import PanelSearchBar from "@/components/PanelSearchBar";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
 import SlidePanelHome from "@/components/SlidePanelHome";
 import { Menu as MenuIcon, X, Star } from "lucide-react";
+import HomepageFrontStructurePreview from "@/components/staff/HomepageFrontStructurePreview";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 interface FrontEntry {
   id: string;
