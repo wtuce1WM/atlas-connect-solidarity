@@ -96,6 +96,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
   const [extraCards, setExtraCards] = useState<ExtraCardPreview[]>([]);
   const [mixedOrder, setMixedOrder] = useState<string[]>([]);
   const [allBadges, setAllBadges] = useState<BadgeLite[]>([]);
+  const [allPopularSearches, setAllPopularSearches] = useState<PopularSearchLite[]>([]);
   const [loading, setLoading] = useState(true);
   const [allBusinesses, setAllBusinesses] = useState<BizLite[]>([]);
   const [searchByEntry, setSearchByEntry] = useState<Record<string, string>>({});
