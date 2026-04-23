@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Star, X, Loader2 } from "lucide-react";
+import { Star, X, Loader2, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 
 interface Props {
@@ -29,7 +30,31 @@ interface PreviewItem {
   isOverride: boolean;
 }
 
+interface ExtraCard {
+  id: string;
+  city: string;
+  business_id: string | null;
+  badge_id: string | null;
+  sort_order: number;
+}
+
+interface ExtraCardPreview {
+  cardId: string;
+  videoId: string | null;
+  videoUrl: string | null;
+  thumbnail: string | null;
+  businessName: string | null;
+  ownerLogo: string | null;
+  ownerName: string | null;
+  rating: number | null;
+  reviewCount: number | null;
+  business_id: string | null;
+  badge_id: string | null;
+  badgeName: string | null;
+}
+
 interface BizLite { id: string; name: string }
+interface BadgeLite { id: string; name_fr: string }
 
 function deriveThumbnail(url: string): string | null {
   if (!url) return null;
@@ -42,6 +67,8 @@ function deriveThumbnail(url: string): string | null {
 
 const HomepageFrontStructurePreview = ({ city }: Props) => {
   const [items, setItems] = useState<PreviewItem[]>([]);
+  const [extraCards, setExtraCards] = useState<ExtraCardPreview[]>([]);
+  const [allBadges, setAllBadges] = useState<BadgeLite[]>([]);
   const [loading, setLoading] = useState(true);
   const [allBusinesses, setAllBusinesses] = useState<BizLite[]>([]);
   const [searchByEntry, setSearchByEntry] = useState<Record<string, string>>({});
@@ -81,14 +108,20 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         extraDocIds = new Set(((data as any[]) || []).map((r) => r.document_id));
       }
 
-      // FS entries
-      const [entriesRes, linksRes, overridesRes] = await Promise.all([
+      // FS entries + badges + extra cards
+      const [entriesRes, linksRes, overridesRes, badgesRes, extraRes] = await Promise.all([
         supabase.from("front_structure").select("id, name, sort_order, show_in_menu").order("sort_order"),
         supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
         (supabase as any)
           .from("front_structure_homepage_overrides")
           .select("front_structure_id, business_id")
           .eq("city", city),
+        supabase.from("badges").select("id, name_fr").order("name_fr"),
+        (supabase as any)
+          .from("front_structure_homepage_extra_cards")
+          .select("id, city, business_id, badge_id, sort_order")
+          .eq("city", city)
+          .order("sort_order", { ascending: true }),
       ]);
 
       const linksByEntry: Record<string, string[]> = {};
@@ -100,6 +133,9 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       ((overridesRes as any).data || []).forEach((o: any) => {
         overrideByEntry[o.front_structure_id] = o.business_id;
       });
+
+      const badges: BadgeLite[] = ((badgesRes.data as any[]) || []).map((b) => ({ id: b.id, name_fr: b.name_fr }));
+      const badgeMap = new Map(badges.map((b) => [b.id, b]));
 
       const entries: FSEntry[] = (entriesRes.data || [])
         .filter((e: any) => e.show_in_menu !== false)
@@ -119,7 +155,6 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         let candidate: any = null;
 
         if (overrideBizId) {
-          // Pick first video (in matching subcategories) belonging to this business, regardless of city
           const { data: ovDocs } = await supabase
             .from("business_documents")
             .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
@@ -131,7 +166,6 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           candidate = (ovDocs && ovDocs[0]) || null;
 
           if (!candidate) {
-            // fallback: any video for this business
             const { data: anyDocs } = await supabase
               .from("business_documents")
               .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
@@ -179,6 +213,52 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           const dispId = candidate.poi_id || candidate.linked_business_id || candidate.business_id;
           if (dispId) allBizIds.add(dispId);
           if (candidate.business_id) allBizIds.add(candidate.business_id);
+        }
+      }
+
+      // ---- Extra cards: 1ère vidéo de l'établissement portant ce badge (toutes villes) ----
+      const extraRows: ExtraCard[] = ((extraRes as any).data || []).map((r: any) => ({
+        id: r.id, city: r.city, business_id: r.business_id, badge_id: r.badge_id, sort_order: r.sort_order,
+      }));
+
+      const extraDocByCard: Record<string, any> = {};
+      for (const card of extraRows) {
+        if (!card.business_id && !card.badge_id) continue;
+
+        // Build candidate doc ids filtered by badge if needed
+        let badgeFilteredDocIds: string[] | null = null;
+        if (card.badge_id) {
+          const { data: badgeDocs } = await supabase
+            .from("business_document_badges")
+            .select("document_id")
+            .eq("badge_id", card.badge_id);
+          badgeFilteredDocIds = ((badgeDocs as any[]) || []).map((r) => r.document_id);
+          if (badgeFilteredDocIds.length === 0) continue;
+        }
+
+        let q = supabase
+          .from("business_documents")
+          .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
+          .eq("type", "video")
+          .order("sort_order", { ascending: true })
+          .limit(1);
+
+        if (card.business_id) {
+          q = q.or(`business_id.eq.${card.business_id},linked_business_id.eq.${card.business_id},poi_id.eq.${card.business_id}`);
+          allBizIds.add(card.business_id);
+        }
+        if (badgeFilteredDocIds) {
+          // chunk safety (badge match count usually small)
+          q = q.in("id", badgeFilteredDocIds.slice(0, 1000));
+        }
+
+        const { data: docs } = await q;
+        const doc = (docs && docs[0]) || null;
+        if (doc) {
+          extraDocByCard[card.id] = doc;
+          const dispId = doc.poi_id || doc.linked_business_id || doc.business_id;
+          if (dispId) allBizIds.add(dispId);
+          if (doc.business_id) allBizIds.add(doc.business_id);
         }
       }
 
@@ -239,8 +319,54 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         };
       });
 
+      const extraPreviews: ExtraCardPreview[] = extraRows.map((card) => {
+        const doc = extraDocByCard[card.id];
+        const badgeName = card.badge_id ? (badgeMap.get(card.badge_id)?.name_fr || null) : null;
+        if (!doc) {
+          const biz = card.business_id ? bizMap.get(card.business_id) : null;
+          return {
+            cardId: card.id,
+            videoId: null,
+            videoUrl: null,
+            thumbnail: null,
+            businessName: biz?.name || null,
+            ownerLogo: null,
+            ownerName: null,
+            rating: null,
+            reviewCount: null,
+            business_id: card.business_id,
+            badge_id: card.badge_id,
+            badgeName,
+          };
+        }
+        const ownerBiz = bizMap.get(doc.business_id) || null;
+        const dispId = (() => {
+          if (card.business_id) return card.business_id;
+          if (ownerBiz?.is_poi) return doc.business_id;
+          if (doc.poi_id) return doc.poi_id;
+          return doc.linked_business_id || doc.business_id;
+        })();
+        const dispBiz = bizMap.get(dispId) || null;
+        return {
+          cardId: card.id,
+          videoId: doc.id,
+          videoUrl: doc.url,
+          thumbnail: doc.thumbnail_url || deriveThumbnail(doc.url),
+          businessName: dispBiz?.name || null,
+          ownerLogo: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.logo_url : null,
+          ownerName: ownerBiz && ownerBiz.id !== dispId ? ownerBiz.name : null,
+          rating: dispBiz?.computed_rating ?? dispBiz?.rating ?? null,
+          reviewCount: dispBiz?.total_review_count ?? null,
+          business_id: card.business_id,
+          badge_id: card.badge_id,
+          badgeName,
+        };
+      });
+
       if (!cancelled) {
         setItems(previews);
+        setExtraCards(extraPreviews);
+        setAllBadges(badges);
         setLoading(false);
       }
     };
@@ -260,7 +386,6 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       const { data } = await query;
       const rows = ((data as any[]) || []).map((b) => ({ id: b.id, name: b.name }));
       setSearchResults((p) => ({ ...p, [entryId]: rows }));
-      // Merge into allBusinesses so override label resolution works
       setAllBusinesses((prev) => {
         const map = new Map(prev.map((b) => [b.id, b]));
         rows.forEach((b) => map.set(b.id, b));
@@ -294,6 +419,36 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
 
   const filteredFor = (entryId: string) => searchResults[entryId] || [];
 
+  // Extra cards CRUD
+  const addExtraCard = async () => {
+    const nextSort = (extraCards.reduce((m, c) => Math.max(m, 0), 0)) + extraCards.length + 1;
+    const { error } = await (supabase as any)
+      .from("front_structure_homepage_extra_cards")
+      .insert({ city, business_id: null, badge_id: null, sort_order: nextSort });
+    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    setReloadKey((k) => k + 1);
+  };
+
+  const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null }) => {
+    const { error } = await (supabase as any)
+      .from("front_structure_homepage_extra_cards")
+      .update(patch)
+      .eq("id", cardId);
+    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    setOpenSearchEntry(null);
+    setSearchByEntry((p) => ({ ...p, [cardId]: "" }));
+    setReloadKey((k) => k + 1);
+  };
+
+  const deleteExtraCard = async (cardId: string) => {
+    const { error } = await (supabase as any)
+      .from("front_structure_homepage_extra_cards")
+      .delete()
+      .eq("id", cardId);
+    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    setReloadKey((k) => k + 1);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-12">
@@ -302,116 +457,226 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
     );
   }
 
-  if (items.length === 0) {
+  if (items.length === 0 && extraCards.length === 0) {
     return (
-      <div className="text-sm text-muted-foreground p-8 text-center border border-dashed rounded-lg">
-        Aucune entrée Structure du Front visible.
+      <div className="space-y-3">
+        <div className="text-sm text-muted-foreground p-8 text-center border border-dashed rounded-lg">
+          Aucune entrée Structure du Front visible.
+        </div>
+        <div className="flex justify-center">
+          <Button size="sm" variant="outline" onClick={addExtraCard}>
+            <Plus className="h-3.5 w-3.5 mr-1" /> Ajouter une carte
+          </Button>
+        </div>
       </div>
     );
   }
 
-  return (
-    <div ref={containerRef} className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-      {items.map((it) => (
-        <div key={it.entryId} className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground line-clamp-1">
-            {it.entryName}
-          </p>
-          {it.videoId ? (
-            <div className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted">
-              {it.thumbnail ? (
-                <img src={it.thumbnail} alt={it.businessName || it.entryName} className="w-full h-full object-cover" loading="lazy" />
-              ) : (
-                <div className="w-full h-full bg-muted" />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
-              {it.rating != null && (
-                <div className="absolute top-1.5 left-1.5 right-1.5 z-[5] flex items-center gap-1 text-[10px]">
-                  <Star className="h-2.5 w-2.5 text-gold fill-gold" />
-                  <span className="font-medium text-white">{it.rating}/20</span>
-                  {(it.reviewCount ?? 0) > 0 && (
-                    <span className="text-white/70">· {it.reviewCount} avis</span>
-                  )}
-                </div>
-              )}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-8 h-8 rounded-full bg-black/50 flex items-center justify-center">
-                  <div className="w-0 h-0 border-y-[6px] border-y-transparent border-l-[9px] border-l-white ml-0.5" />
-                </div>
-              </div>
-              {it.ownerLogo && (
-                <div className="absolute inset-x-0 bottom-[15%] z-[6] flex items-center justify-center px-2 pointer-events-none">
-                  <img
-                    src={it.ownerLogo}
-                    alt={it.ownerName || ""}
-                    className="max-w-[100px] max-h-[72px] object-contain"
-                    style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))" }}
-                  />
-                </div>
-              )}
-              {it.businessName && (
-                <div className="absolute bottom-0 left-0 right-0 p-1.5">
-                  <p className="text-[10px] font-medium text-white line-clamp-1">{it.businessName}</p>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="aspect-[9/16] rounded-lg bg-muted flex items-center justify-center text-[10px] text-muted-foreground text-center px-2">
-              Aucune vidéo
-            </div>
-          )}
-
-          {/* Champ Établissement override */}
-          <div className="relative">
-            <label className="text-[9px] text-muted-foreground">
-              Établissement {it.isOverride && <span className="text-primary">(forcé)</span>}
-            </label>
-            {it.overrideBusinessId ? (
-              <div className="flex items-center gap-0.5 h-5 px-1 border rounded-md bg-background">
-                <span className="text-[9px] truncate flex-1">
-                  {allBusinesses.find((b) => b.id === it.overrideBusinessId)?.name || it.businessName || "…"}
-                </span>
-                <button
-                  type="button"
-                  className="shrink-0"
-                  onClick={() => setOverride(it.entryId, null)}
-                  title="Retirer l'override"
-                >
-                  <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
-                </button>
-              </div>
-            ) : (
-              <>
-                <Input
-                  value={searchByEntry[it.entryId] || ""}
-                  onChange={(e) => setSearchByEntry((p) => ({ ...p, [it.entryId]: e.target.value }))}
-                  onFocus={() => setOpenSearchEntry(it.entryId)}
-                  placeholder="Rechercher…"
-                  className="h-5 px-1 text-[9px]"
-                />
-                {openSearchEntry === it.entryId && (
-                  <div className="absolute z-20 left-0 right-0 mt-0.5 max-h-48 overflow-auto border rounded-md bg-popover shadow-md">
-                    {filteredFor(it.entryId).length === 0 ? (
-                      <div className="px-1.5 py-1 text-[9px] text-muted-foreground">Aucun résultat</div>
-                    ) : (
-                      filteredFor(it.entryId).map((b) => (
-                        <button
-                          key={b.id}
-                          type="button"
-                          className="w-full text-left px-1.5 py-0.5 text-[9px] hover:bg-accent truncate"
-                          onClick={() => setOverride(it.entryId, b.id)}
-                        >
-                          {b.name}
-                        </button>
-                      ))
-                    )}
-                  </div>
-                )}
-              </>
+  const renderThumbBox = (it: {
+    thumbnail: string | null;
+    businessName: string | null;
+    rating: number | null;
+    reviewCount: number | null;
+    ownerLogo: string | null;
+    ownerName: string | null;
+    videoId: string | null;
+    fallbackLabel?: string;
+  }) => (
+    it.videoId ? (
+      <div className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted">
+        {it.thumbnail ? (
+          <img src={it.thumbnail} alt={it.businessName || ""} className="w-full h-full object-cover" loading="lazy" />
+        ) : (
+          <div className="w-full h-full bg-muted" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
+        {it.rating != null && (
+          <div className="absolute top-1.5 left-1.5 right-1.5 z-[5] flex items-center gap-1 text-[10px]">
+            <Star className="h-2.5 w-2.5 text-gold fill-gold" />
+            <span className="font-medium text-white">{it.rating}/20</span>
+            {(it.reviewCount ?? 0) > 0 && (
+              <span className="text-white/70">· {it.reviewCount} avis</span>
             )}
           </div>
+        )}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full bg-black/50 flex items-center justify-center">
+            <div className="w-0 h-0 border-y-[6px] border-y-transparent border-l-[9px] border-l-white ml-0.5" />
+          </div>
         </div>
-      ))}
+        {it.ownerLogo && (
+          <div className="absolute inset-x-0 bottom-[15%] z-[6] flex items-center justify-center px-2 pointer-events-none">
+            <img
+              src={it.ownerLogo}
+              alt={it.ownerName || ""}
+              className="max-w-[100px] max-h-[72px] object-contain"
+              style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))" }}
+            />
+          </div>
+        )}
+        {it.businessName && (
+          <div className="absolute bottom-0 left-0 right-0 p-1.5">
+            <p className="text-[10px] font-medium text-white line-clamp-1">{it.businessName}</p>
+          </div>
+        )}
+      </div>
+    ) : (
+      <div className="aspect-[9/16] rounded-lg bg-muted flex items-center justify-center text-[10px] text-muted-foreground text-center px-2">
+        {it.fallbackLabel || "Aucune vidéo"}
+      </div>
+    )
+  );
+
+  return (
+    <div ref={containerRef} className="space-y-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        {items.map((it) => (
+          <div key={it.entryId} className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground line-clamp-1">
+              {it.entryName}
+            </p>
+            {renderThumbBox(it)}
+
+            {/* Champ Établissement override */}
+            <div className="relative">
+              <label className="text-[9px] text-muted-foreground">
+                Établissement {it.isOverride && <span className="text-primary">(forcé)</span>}
+              </label>
+              {it.overrideBusinessId ? (
+                <div className="flex items-center gap-0.5 h-5 px-1 border rounded-md bg-background">
+                  <span className="text-[9px] truncate flex-1">
+                    {allBusinesses.find((b) => b.id === it.overrideBusinessId)?.name || it.businessName || "…"}
+                  </span>
+                  <button
+                    type="button"
+                    className="shrink-0"
+                    onClick={() => setOverride(it.entryId, null)}
+                    title="Retirer l'override"
+                  >
+                    <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <Input
+                    value={searchByEntry[it.entryId] || ""}
+                    onChange={(e) => setSearchByEntry((p) => ({ ...p, [it.entryId]: e.target.value }))}
+                    onFocus={() => setOpenSearchEntry(it.entryId)}
+                    placeholder="Rechercher…"
+                    className="h-5 px-1 text-[9px]"
+                  />
+                  {openSearchEntry === it.entryId && (
+                    <div className="absolute z-20 left-0 right-0 mt-0.5 max-h-48 overflow-auto border rounded-md bg-popover shadow-md">
+                      {filteredFor(it.entryId).length === 0 ? (
+                        <div className="px-1.5 py-1 text-[9px] text-muted-foreground">Aucun résultat</div>
+                      ) : (
+                        filteredFor(it.entryId).map((b) => (
+                          <button
+                            key={b.id}
+                            type="button"
+                            className="w-full text-left px-1.5 py-0.5 text-[9px] hover:bg-accent truncate"
+                            onClick={() => setOverride(it.entryId, b.id)}
+                          >
+                            {b.name}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        ))}
+
+        {/* Cartes additionnelles */}
+        {extraCards.map((card) => (
+          <div key={card.cardId} className="space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold uppercase tracking-wider text-primary line-clamp-1">
+                Carte libre
+              </p>
+              <button
+                type="button"
+                onClick={() => deleteExtraCard(card.cardId)}
+                title="Supprimer cette carte"
+              >
+                <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+              </button>
+            </div>
+            {renderThumbBox({ ...card, videoId: card.videoId, fallbackLabel: "Choisir établissement / badge" })}
+
+            {/* Établissement */}
+            <div className="relative">
+              <label className="text-[9px] text-muted-foreground">Établissement</label>
+              {card.business_id ? (
+                <div className="flex items-center gap-0.5 h-5 px-1 border rounded-md bg-background">
+                  <span className="text-[9px] truncate flex-1">
+                    {allBusinesses.find((b) => b.id === card.business_id)?.name || card.businessName || "…"}
+                  </span>
+                  <button
+                    type="button"
+                    className="shrink-0"
+                    onClick={() => updateExtraCard(card.cardId, { business_id: null })}
+                    title="Retirer"
+                  >
+                    <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <Input
+                    value={searchByEntry[card.cardId] || ""}
+                    onChange={(e) => setSearchByEntry((p) => ({ ...p, [card.cardId]: e.target.value }))}
+                    onFocus={() => setOpenSearchEntry(card.cardId)}
+                    placeholder="Rechercher…"
+                    className="h-5 px-1 text-[9px]"
+                  />
+                  {openSearchEntry === card.cardId && (
+                    <div className="absolute z-20 left-0 right-0 mt-0.5 max-h-48 overflow-auto border rounded-md bg-popover shadow-md">
+                      {filteredFor(card.cardId).length === 0 ? (
+                        <div className="px-1.5 py-1 text-[9px] text-muted-foreground">Aucun résultat</div>
+                      ) : (
+                        filteredFor(card.cardId).map((b) => (
+                          <button
+                            key={b.id}
+                            type="button"
+                            className="w-full text-left px-1.5 py-0.5 text-[9px] hover:bg-accent truncate"
+                            onClick={() => updateExtraCard(card.cardId, { business_id: b.id })}
+                          >
+                            {b.name}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Badge */}
+            <div>
+              <label className="text-[9px] text-muted-foreground">Badge</label>
+              <select
+                value={card.badge_id || ""}
+                onChange={(e) => updateExtraCard(card.cardId, { badge_id: e.target.value || null })}
+                className="h-5 w-full px-1 text-[9px] border rounded-md bg-background"
+              >
+                <option value="">— Aucun —</option>
+                {allBadges.map((b) => (
+                  <option key={b.id} value={b.id}>{b.name_fr}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex justify-center">
+        <Button size="sm" variant="outline" onClick={addExtraCard}>
+          <Plus className="h-3.5 w-3.5 mr-1" /> Ajouter une carte
+        </Button>
+      </div>
     </div>
   );
 };
