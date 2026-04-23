@@ -248,19 +248,27 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
     return () => { cancelled = true; };
   }, [city, reloadKey]);
 
-  // Load business list for picker (lazy on first open)
+  // Server-side search per query (debounced)
+  const [searchResults, setSearchResults] = useState<Record<string, BizLite[]>>({});
   useEffect(() => {
-    if (allBusinesses.length > 0 || openSearchEntry === null) return;
-    (async () => {
-      const { data } = await supabase
-        .from("businesses")
-        .select("id, name")
-        .eq("is_active", true)
-        .order("name")
-        .limit(2000);
-      setAllBusinesses(((data as any[]) || []).map((b) => ({ id: b.id, name: b.name })));
-    })();
-  }, [openSearchEntry, allBusinesses.length]);
+    if (!openSearchEntry) return;
+    const q = (searchByEntry[openSearchEntry] || "").trim();
+    const entryId = openSearchEntry;
+    const handle = setTimeout(async () => {
+      let query = supabase.from("businesses").select("id, name").eq("is_active", true).order("name").limit(50);
+      if (q) query = query.ilike("name", `%${q}%`);
+      const { data } = await query;
+      const rows = ((data as any[]) || []).map((b) => ({ id: b.id, name: b.name }));
+      setSearchResults((p) => ({ ...p, [entryId]: rows }));
+      // Merge into allBusinesses so override label resolution works
+      setAllBusinesses((prev) => {
+        const map = new Map(prev.map((b) => [b.id, b]));
+        rows.forEach((b) => map.set(b.id, b));
+        return [...map.values()];
+      });
+    }, 200);
+    return () => clearTimeout(handle);
+  }, [openSearchEntry, searchByEntry]);
 
   const setOverride = async (entryId: string, businessId: string | null) => {
     if (businessId) {
@@ -284,13 +292,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
     setReloadKey((k) => k + 1);
   };
 
-  const filteredFor = useMemo(() => {
-    return (entryId: string) => {
-      const q = (searchByEntry[entryId] || "").trim().toLowerCase();
-      if (!q) return allBusinesses.slice(0, 50);
-      return allBusinesses.filter((b) => b.name.toLowerCase().includes(q)).slice(0, 50);
-    };
-  }, [searchByEntry, allBusinesses]);
+  const filteredFor = (entryId: string) => searchResults[entryId] || [];
 
   if (loading) {
     return (
