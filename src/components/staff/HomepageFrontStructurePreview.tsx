@@ -292,13 +292,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
     setReloadKey((k) => k + 1);
   };
 
-  const filteredFor = useMemo(() => {
-    return (entryId: string) => {
-      const q = (searchByEntry[entryId] || "").trim().toLowerCase();
-      if (!q) return allBusinesses.slice(0, 50);
-      return allBusinesses.filter((b) => b.name.toLowerCase().includes(q)).slice(0, 50);
-    };
-  }, [searchByEntry, allBusinesses]);
+  const filteredFor = (entryId: string) => searchResults[entryId] || [];
 
   if (loading) {
     return (
