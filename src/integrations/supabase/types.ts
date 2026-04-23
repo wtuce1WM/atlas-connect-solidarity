@@ -2662,6 +2662,7 @@ export type Database = {
           id: string
           sort_order: number
           updated_at: string
+          video_document_id: string | null
         }
         Insert: {
           badge_id?: string | null
@@ -2671,6 +2672,7 @@ export type Database = {
           id?: string
           sort_order?: number
           updated_at?: string
+          video_document_id?: string | null
         }
         Update: {
           badge_id?: string | null
@@ -2680,6 +2682,7 @@ export type Database = {
           id?: string
           sort_order?: number
           updated_at?: string
+          video_document_id?: string | null
         }
         Relationships: [
           {
@@ -2701,6 +2704,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "front_structure_homepage_extra_cards_video_document_id_fkey"
+            columns: ["video_document_id"]
+            isOneToOne: false
+            referencedRelation: "business_documents"
             referencedColumns: ["id"]
           },
         ]

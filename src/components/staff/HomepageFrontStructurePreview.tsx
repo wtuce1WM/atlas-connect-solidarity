@@ -35,6 +35,7 @@ interface ExtraCard {
   city: string;
   business_id: string | null;
   badge_id: string | null;
+  video_document_id: string | null;
   sort_order: number;
 }
 
@@ -51,6 +52,7 @@ interface ExtraCardPreview {
   business_id: string | null;
   badge_id: string | null;
   badgeName: string | null;
+  video_document_id: string | null;
 }
 
 interface BizLite { id: string; name: string }
@@ -119,7 +121,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         supabase.from("badges").select("id, name_fr").order("name_fr"),
         (supabase as any)
           .from("front_structure_homepage_extra_cards")
-          .select("id, city, business_id, badge_id, sort_order")
+          .select("id, city, business_id, badge_id, video_document_id, sort_order")
           .eq("city", city)
           .order("sort_order", { ascending: true }),
       ]);
@@ -216,13 +218,31 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         }
       }
 
-      // ---- Extra cards: 1ère vidéo de l'établissement portant ce badge (toutes villes) ----
+      // ---- Extra cards: priority video_document_id > business+badge ----
       const extraRows: ExtraCard[] = ((extraRes as any).data || []).map((r: any) => ({
-        id: r.id, city: r.city, business_id: r.business_id, badge_id: r.badge_id, sort_order: r.sort_order,
+        id: r.id, city: r.city, business_id: r.business_id, badge_id: r.badge_id,
+        video_document_id: r.video_document_id, sort_order: r.sort_order,
       }));
 
       const extraDocByCard: Record<string, any> = {};
       for (const card of extraRows) {
+        // 1) If a specific video is set, use it directly
+        if (card.video_document_id) {
+          const { data: vDoc } = await supabase
+            .from("business_documents")
+            .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
+            .eq("id", card.video_document_id)
+            .maybeSingle();
+          if (vDoc) {
+            extraDocByCard[card.id] = vDoc;
+            const dispId = (vDoc as any).poi_id || (vDoc as any).linked_business_id || (vDoc as any).business_id;
+            if (dispId) allBizIds.add(dispId);
+            if ((vDoc as any).business_id) allBizIds.add((vDoc as any).business_id);
+          }
+          if (card.business_id) allBizIds.add(card.business_id);
+          continue;
+        }
+
         if (!card.business_id && !card.badge_id) continue;
 
         // Build candidate doc ids filtered by badge if needed
@@ -248,7 +268,6 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           allBizIds.add(card.business_id);
         }
         if (badgeFilteredDocIds) {
-          // chunk safety (badge match count usually small)
           q = q.in("id", badgeFilteredDocIds.slice(0, 1000));
         }
 
@@ -337,6 +356,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
             business_id: card.business_id,
             badge_id: card.badge_id,
             badgeName,
+            video_document_id: card.video_document_id,
           };
         }
         const ownerBiz = bizMap.get(doc.business_id) || null;
@@ -360,6 +380,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           business_id: card.business_id,
           badge_id: card.badge_id,
           badgeName,
+          video_document_id: card.video_document_id,
         };
       });
 
@@ -429,7 +450,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
     setReloadKey((k) => k + 1);
   };
 
-  const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null }) => {
+  const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null; video_document_id?: string | null }) => {
     const { error } = await (supabase as any)
       .from("front_structure_homepage_extra_cards")
       .update(patch)
@@ -667,6 +688,36 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
                   <option key={b.id} value={b.id}>{b.name_fr}</option>
                 ))}
               </select>
+            </div>
+
+            {/* ID vidéo (priorité absolue) */}
+            <div>
+              <label className="text-[9px] text-muted-foreground">
+                ID vidéo {card.video_document_id && <span className="text-primary">(prioritaire)</span>}
+              </label>
+              <div className="flex items-center gap-0.5">
+                <Input
+                  defaultValue={card.video_document_id || ""}
+                  onBlur={(e) => {
+                    const v = e.target.value.trim();
+                    if (v !== (card.video_document_id || "")) {
+                      updateExtraCard(card.cardId, { video_document_id: v || null });
+                    }
+                  }}
+                  placeholder="UUID vidéo…"
+                  className="h-5 px-1 text-[9px] font-mono"
+                />
+                {card.video_document_id && (
+                  <button
+                    type="button"
+                    className="shrink-0"
+                    onClick={() => updateExtraCard(card.cardId, { video_document_id: null })}
+                    title="Retirer"
+                  >
+                    <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         ))}
