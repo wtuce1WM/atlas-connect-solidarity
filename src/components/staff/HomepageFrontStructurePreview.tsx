@@ -240,6 +240,25 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
             const dispId = (vDoc as any).poi_id || (vDoc as any).linked_business_id || (vDoc as any).business_id;
             if (dispId) allBizIds.add(dispId);
             if ((vDoc as any).business_id) allBizIds.add((vDoc as any).business_id);
+          } else {
+            // Fallback: generic_videos
+            const { data: gv } = await (supabase as any)
+              .from("generic_videos")
+              .select("id, url, thumbnail_url")
+              .eq("id", card.video_document_id)
+              .maybeSingle();
+            if (gv) {
+              extraDocByCard[card.id] = {
+                id: (gv as any).id,
+                url: (gv as any).url,
+                thumbnail_url: (gv as any).thumbnail_url,
+                business_id: card.business_id,
+                poi_id: null,
+                linked_business_id: null,
+                sort_order: 0,
+                __generic: true,
+              };
+            }
           }
           if (card.business_id) allBizIds.add(card.business_id);
           continue;
@@ -454,22 +473,21 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
   };
 
   const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null; video_document_id?: string | null }) => {
-    if (patch.video_document_id !== undefined && patch.video_document_id !== null) {
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-      if (!uuidRegex.test(patch.video_document_id)) {
-        toast({ title: "ID invalide", description: "L'ID vidéo doit être un UUID valide.", variant: "destructive" });
-        return;
+      if (patch.video_document_id !== undefined && patch.video_document_id !== null) {
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (!uuidRegex.test(patch.video_document_id)) {
+          toast({ title: "ID invalide", description: "L'ID vidéo doit être un UUID valide.", variant: "destructive" });
+          return;
+        }
+        const [{ data: bd }, { data: gv }] = await Promise.all([
+          supabase.from("business_documents").select("id").eq("id", patch.video_document_id).maybeSingle(),
+          (supabase as any).from("generic_videos").select("id").eq("id", patch.video_document_id).maybeSingle(),
+        ]);
+        if (!bd && !gv) {
+          toast({ title: "Vidéo introuvable", description: "Aucune vidéo avec cet ID (ni business_documents, ni generic_videos).", variant: "destructive" });
+          return;
+        }
       }
-      const { data: exists } = await supabase
-        .from("business_documents")
-        .select("id")
-        .eq("id", patch.video_document_id)
-        .maybeSingle();
-      if (!exists) {
-        toast({ title: "Vidéo introuvable", description: "Aucun document avec cet ID dans business_documents.", variant: "destructive" });
-        return;
-      }
-    }
     const { error } = await (supabase as any)
       .from("front_structure_homepage_extra_cards")
       .update(patch)
