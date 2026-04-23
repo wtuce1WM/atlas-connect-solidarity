@@ -418,9 +418,46 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         };
       });
 
+      // Load custom order for this city (mixes entries + extra cards)
+      const { data: orderRows } = await (supabase as any)
+        .from("front_structure_homepage_order")
+        .select("item_type, item_id, sort_order")
+        .eq("city", city)
+        .order("sort_order", { ascending: true });
+
+      const orderMap = new Map<string, number>();
+      ((orderRows as any[]) || []).forEach((r) => {
+        orderMap.set(`${r.item_type}:${r.item_id}`, r.sort_order);
+      });
+
+      const sortByCustom = <T extends { __key: string }>(arr: T[]): T[] => {
+        return [...arr].sort((a, b) => {
+          const oa = orderMap.has(a.__key) ? (orderMap.get(a.__key) as number) : Number.MAX_SAFE_INTEGER;
+          const ob = orderMap.has(b.__key) ? (orderMap.get(b.__key) as number) : Number.MAX_SAFE_INTEGER;
+          return oa - ob;
+        });
+      };
+
+      const previewsKeyed = previews.map((p) => ({ ...p, __key: `entry:${p.entryId}` }));
+      const extrasKeyed = extraPreviews.map((p) => ({ ...p, __key: `extra:${p.cardId}` }));
+
+      // Build a single mixed ordered list
+      const mixed: Array<{ kind: "entry" | "extra"; key: string; payload: any }> = [];
+      const remaining = [
+        ...previewsKeyed.map((p) => ({ kind: "entry" as const, key: p.__key, payload: p })),
+        ...extrasKeyed.map((p) => ({ kind: "extra" as const, key: p.__key, payload: p })),
+      ];
+      // First: items present in orderMap, in order
+      const ordered = [...remaining].filter((r) => orderMap.has(r.key));
+      ordered.sort((a, b) => (orderMap.get(a.key)! - orderMap.get(b.key)!));
+      mixed.push(...ordered);
+      // Then: new items not yet ordered (preserve original order: entries first, extras after)
+      remaining.filter((r) => !orderMap.has(r.key)).forEach((r) => mixed.push(r));
+
       if (!cancelled) {
-        setItems(previews);
-        setExtraCards(extraPreviews);
+        setItems(sortByCustom(previewsKeyed) as any);
+        setExtraCards(sortByCustom(extrasKeyed) as any);
+        setMixedOrder(mixed.map((m) => m.key));
         setAllBadges(badges);
         setLoading(false);
         isFirstLoad.current = false;
