@@ -8,14 +8,7 @@ interface Props {
   city: string;
 }
 
-interface FSEntry {
-  id: string;
-  name: string;
-  subcategory_ids: string[];
-}
-
 interface CardData {
-  // unified card data
   videoId: string | null;
   videoUrl: string | null;
   thumbnail: string | null;
@@ -32,15 +25,6 @@ interface MixedSlot {
   key: string;
   kind: "entry" | "extra";
   data: CardData;
-}
-
-function deriveThumbnail(url: string): string | null {
-  if (!url) return null;
-  const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
-  if (yt) return `https://i.ytimg.com/vi/${yt[1]}/hqdefault.jpg`;
-  const bunny = url.match(/iframe\.mediadelivery\.net\/embed\/(\d+)\/([\w-]+)/);
-  if (bunny) return `https://vz-${bunny[1]}.b-cdn.net/${bunny[2]}/thumbnail.jpg`;
-  return null;
 }
 
 const HomepageCardsFront = ({ city }: Props) => {
