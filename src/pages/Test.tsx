@@ -503,7 +503,7 @@ const Test = () => {
           internal.map((d: any) => {
             const entityId = getEntityId(d);
             const biz = bizMap.get(entityId) || null;
-            const ownerBiz = d.business_id !== entityId ? bizMap.get(d.business_id) || null : null;
+            const ownerBiz = (d.business_id !== entityId ? bizMap.get(d.business_id) : null) || biz;
             return {
               id: d.id,
               url: d.url,
