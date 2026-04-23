@@ -91,6 +91,7 @@ function deriveThumbnail(url: string): string | null {
 const HomepageFrontStructurePreview = ({ city }: Props) => {
   const [items, setItems] = useState<PreviewItem[]>([]);
   const [extraCards, setExtraCards] = useState<ExtraCardPreview[]>([]);
+  const [mixedOrder, setMixedOrder] = useState<string[]>([]);
   const [allBadges, setAllBadges] = useState<BadgeLite[]>([]);
   const [loading, setLoading] = useState(true);
   const [allBusinesses, setAllBusinesses] = useState<BizLite[]>([]);
