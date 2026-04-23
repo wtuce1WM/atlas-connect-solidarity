@@ -93,7 +93,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
-      setLoading(true);
+      if (isFirstLoad.current) setLoading(true);
 
       // City row id
       const { data: cityRow } = await supabase
