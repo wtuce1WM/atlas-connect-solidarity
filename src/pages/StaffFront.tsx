@@ -310,6 +310,7 @@ import logoGold from "@/assets/logoGOLDsimple.webp";
 import FrontStructureManagement from "@/components/staff/FrontStructureManagement";
 import DestinationVideosPanel from "@/components/staff/DestinationVideosPanel";
 import HomepageBusinessesPanel from "@/components/staff/HomepageBusinessesPanel";
+import HomepageFrontStructurePreview from "@/components/staff/HomepageFrontStructurePreview";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import DisplayPanel from "@/components/staff/DisplayPanel";
 import CountryVideosPanel from "@/components/staff/CountryVideosPanel";
@@ -424,14 +425,10 @@ const StaffFront = () => {
                 <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
               </TabsList>
               <TabsContent value="marrakech">
-                <div className="text-sm text-muted-foreground p-8 text-center border border-dashed rounded-lg">
-                  Contenu à définir pour Marrakech.
-                </div>
+                <HomepageFrontStructurePreview city="Marrakech" />
               </TabsContent>
               <TabsContent value="essaouira">
-                <div className="text-sm text-muted-foreground p-8 text-center border border-dashed rounded-lg">
-                  Contenu à définir pour Essaouira.
-                </div>
+                <HomepageFrontStructurePreview city="Essaouira" />
               </TabsContent>
             </Tabs>
           </TabsContent>
