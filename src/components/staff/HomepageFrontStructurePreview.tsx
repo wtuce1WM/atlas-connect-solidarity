@@ -550,7 +550,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
         {it.badgeLabel && (
-          <div className="absolute inset-x-0 top-1/4 -translate-y-1/2 z-[7] flex items-center justify-center px-2 pointer-events-none">
+          <div className="absolute inset-x-0 top-[10%] z-[7] flex items-center justify-center px-2 pointer-events-none">
             <span className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg">
               {it.badgeLabel}
             </span>
