@@ -75,7 +75,9 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
   const [allBusinesses, setAllBusinesses] = useState<BizLite[]>([]);
   const [searchByEntry, setSearchByEntry] = useState<Record<string, string>>({});
   const [openSearchEntry, setOpenSearchEntry] = useState<string | null>(null);
-  const [reloadKey, setReloadKey] = useState(0);
+  const [entriesReloadKey, setEntriesReloadKey] = useState(0);
+  const [extraReloadKey, setExtraReloadKey] = useState(0);
+  const isFirstLoad = useRef(true);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   // Close dropdown on outside click
