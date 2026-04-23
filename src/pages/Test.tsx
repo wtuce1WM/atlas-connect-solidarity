@@ -872,6 +872,21 @@ const Test = () => {
             const isGuide = otherViewMode === "guide";
             const displayList = isGuide ? guideVideos : otherVideos;
             const isThumbMode = otherViewMode === "videos" || isGuide;
+            const isParentEntry =
+              !!selectedEntry &&
+              selectedEntry.id !== HOME_ID &&
+              selectedEntry.id !== VLOGS_ID &&
+              !selectedSubId;
+            const childItems = isParentEntry
+              ? selectedEntry.subcategory_ids
+                  .filter((id) => subsWithVideos.has(id))
+                  .map((id) => ({ id, name: subcatNames[id] }))
+                  .filter((c) => c.name)
+                  .sort((a, b) => a.name.localeCompare(b.name, "fr", { sensitivity: "base" }))
+              : [];
+            const showChildrenTile =
+              isParentEntry && !isGuide && otherViewMode === "videos" && childItems.length >= 2;
+            const childrenTileIndex = 2; // position 3
             return (
             <div className="flex gap-6 items-start">
               {(displayList.length > 0 || isGuide) && (
