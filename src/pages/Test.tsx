@@ -9,7 +9,7 @@ import PanelSearchBar from "@/components/PanelSearchBar";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
 import SlidePanelHome from "@/components/SlidePanelHome";
 import { Menu as MenuIcon, X, Star } from "lucide-react";
-import HomepageFrontStructurePreview from "@/components/staff/HomepageFrontStructurePreview";
+import HomepageCardsFront from "@/components/HomepageCardsFront";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 interface FrontEntry {
@@ -757,10 +757,10 @@ const Test = () => {
                 <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
               </TabsList>
               <TabsContent value="marrakech">
-                <HomepageFrontStructurePreview city="Marrakech" />
+                <HomepageCardsFront city="Marrakech" />
               </TabsContent>
               <TabsContent value="essaouira">
-                <HomepageFrontStructurePreview city="Essaouira" />
+                <HomepageCardsFront city="Essaouira" />
               </TabsContent>
             </Tabs>
           ) : !selectedEntry ? (
