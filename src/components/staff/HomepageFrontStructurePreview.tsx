@@ -558,6 +558,48 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
     setExtraReloadKey((k) => k + 1);
   };
 
+  // Drag & drop
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const persistOrder = async (newOrder: string[]) => {
+    const rows = newOrder.map((key, idx) => {
+      const [item_type, item_id] = key.split(":");
+      return { city, item_type, item_id, sort_order: idx };
+    });
+    const { error: delErr } = await (supabase as any)
+      .from("front_structure_homepage_order")
+      .delete()
+      .eq("city", city);
+    if (delErr) { toast({ title: "Erreur", description: delErr.message, variant: "destructive" }); return; }
+    if (rows.length > 0) {
+      const { error: insErr } = await (supabase as any)
+        .from("front_structure_homepage_order")
+        .insert(rows);
+      if (insErr) { toast({ title: "Erreur", description: insErr.message, variant: "destructive" }); return; }
+    }
+  };
+
+  const onDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = mixedOrder.indexOf(active.id as string);
+    const newIndex = mixedOrder.indexOf(over.id as string);
+    if (oldIndex < 0 || newIndex < 0) return;
+    const next = arrayMove(mixedOrder, oldIndex, newIndex);
+    setMixedOrder(next);
+    void persistOrder(next);
+  };
+
+  const itemsById = useMemo(() => {
+    const m = new Map<string, { kind: "entry" | "extra"; data: any }>();
+    items.forEach((it) => m.set(`entry:${it.entryId}`, { kind: "entry", data: it }));
+    extraCards.forEach((c) => m.set(`extra:${c.cardId}`, { kind: "extra", data: c }));
+    return m;
+  }, [items, extraCards]);
+
   if (loading) {
     return (
       <div className="flex justify-center py-12">
