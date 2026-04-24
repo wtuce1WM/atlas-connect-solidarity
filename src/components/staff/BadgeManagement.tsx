@@ -58,6 +58,7 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [badgeSubcategories, setBadgeSubcategories] = useState<BadgeSubcategory[]>([]);
   const [badgeCounts, setBadgeCounts] = useState<Record<string, number>>({});
+  const [badgeVideoCounts, setBadgeVideoCounts] = useState<Record<string, number>>({});
   const [badgeBusinesses, setBadgeBusinesses] = useState<Record<string, BadgeBusiness[]>>({});
   const [expandedBadges, setExpandedBadges] = useState<Set<string>>(new Set());
   const badgeRefs = useRef<Record<string, HTMLTableRowElement | null>>({});
