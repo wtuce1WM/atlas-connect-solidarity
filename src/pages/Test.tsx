@@ -906,6 +906,17 @@ const Test = () => {
                         <span>Suivez le guide ({displayList.length})</span>
                       ) : selectedSubId && subcatNames[selectedSubId] ? (
                         <>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedEntryId(HOME_ID);
+                              setSelectedSubId(null);
+                            }}
+                            className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors"
+                          >
+                            Page d'accueil
+                          </button>
+                          <span className="text-muted-foreground font-normal">›</span>
                           {subcatParents[selectedSubId] && (
                             <>
                               <button
