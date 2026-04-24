@@ -452,8 +452,16 @@ const Test = () => {
           }
         }
         uniqueDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+        // Keep only one video per business: the first one (lowest sort_order)
+        const seenBizIds = new Set<string>();
+        const dedupedByBiz = uniqueDocs.filter((d: any) => {
+          if (!d.business_id) return true;
+          if (seenBizIds.has(d.business_id)) return false;
+          seenBizIds.add(d.business_id);
+          return true;
+        });
         safeSetVideos(
-          uniqueDocs.map((d: any) => {
+          dedupedByBiz.map((d: any) => {
             const biz = bizMap.get(d.business_id) || null;
             return {
               id: d.id,
