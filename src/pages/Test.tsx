@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
@@ -180,6 +180,7 @@ const Test = () => {
   const [loadingBadge, setLoadingBadge] = useState(false);
   const [videoBadgeFilter, setVideoBadgeFilter] = useState<{ badgeId: string; label: string } | null>(null);
   const [videoBadgeDocIds, setVideoBadgeDocIds] = useState<Set<string> | null>(null);
+  const badgeResultsRef = useRef<HTMLDivElement | null>(null);
 
   // Load doc ids matching the active video badge filter
   useEffect(() => {
@@ -755,6 +756,16 @@ const Test = () => {
     setCurrentTime(0);
   }, [activeVideo?.id]);
 
+  useEffect(() => {
+    if (!badgeView) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      badgeResultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [badgeView, loadingBadge, badgeBusinesses.length]);
+
   const isActiveGeneric = useMemo(
     () => !!activeVideo && selectedEntryId === VLOGS_ID,
     [activeVideo, selectedEntryId]
@@ -972,7 +983,7 @@ const Test = () => {
                 </TabsContent>
               </Tabs>
               {badgeView && (
-                <div className="mt-6">
+                <div ref={badgeResultsRef} className="mt-6 scroll-mt-24">
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-sm font-semibold">
                       {badgeView.label} — {badgeView.city} ({badgeBusinesses.length})
