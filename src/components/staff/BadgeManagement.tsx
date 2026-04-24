@@ -76,13 +76,15 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
 
   const fetchData = async () => {
     setLoading(true);
-    const [badgesRes, subcatsRes, badgeSubcatsRes, businessBadgesRes, categoriesRes, businessesRes] = await Promise.all([
+    const [badgesRes, subcatsRes, badgeSubcatsRes, businessBadgesRes, categoriesRes, businessesRes, videosRes, videoBadgesRes] = await Promise.all([
       supabase.from("badges").select("*").order("name_fr", { ascending: true }),
       supabase.from("subcategories").select("id, name_fr, name_en, name_ar, category_id").order("name_fr"),
       supabase.from("badge_subcategories").select("badge_id, subcategory_id"),
       supabase.from("business_badges" as any).select("business_id, badge_id, is_default"),
       supabase.from("categories").select("id, name_fr"),
       supabase.from("businesses").select("id, name, city, badge_id, categories").eq("is_active", true),
+      supabase.from("business_youtube_videos").select("id, business_id").eq("is_visible", true),
+      supabase.from("business_youtube_video_badges").select("youtube_video_id, badge_id"),
     ]);
 
     if (badgesRes.error) {
