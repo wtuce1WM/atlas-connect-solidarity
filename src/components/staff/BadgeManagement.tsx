@@ -83,7 +83,7 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
       supabase.from("business_badges" as any).select("business_id, badge_id, is_default"),
       supabase.from("categories").select("id, name_fr"),
       supabase.from("businesses").select("id, name, city, badge_id, categories").eq("is_active", true),
-      supabase.from("business_youtube_videos").select("id, business_id").eq("is_visible", true),
+      supabase.from("business_youtube_videos").select("id, business_id"),
       supabase.from("business_youtube_video_badges").select("youtube_video_id, badge_id"),
     ]);
 
