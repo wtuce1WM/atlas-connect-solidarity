@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchAllRows } from "@/lib/fetchAllRows";
+import { isInternalVideoUrl } from "@/lib/videoSourceFilter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -76,15 +78,29 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
 
   const fetchData = async () => {
     setLoading(true);
-    const [badgesRes, subcatsRes, badgeSubcatsRes, businessBadgesRes, categoriesRes, businessesRes, videosRes, videoBadgesRes] = await Promise.all([
+
+    const [
+      badgesRes,
+      subcatsRes,
+      badgeSubcatsRes,
+      businessBadgesRes,
+      categoriesRes,
+      businessesRes,
+      businessVideoDocs,
+      genericVideos,
+      businessVideoBadgeLinks,
+      genericVideoBadgeLinks,
+    ] = await Promise.all([
       supabase.from("badges").select("*").order("name_fr", { ascending: true }),
       supabase.from("subcategories").select("id, name_fr, name_en, name_ar, category_id").order("name_fr"),
       supabase.from("badge_subcategories").select("badge_id, subcategory_id"),
       supabase.from("business_badges" as any).select("business_id, badge_id, is_default"),
       supabase.from("categories").select("id, name_fr"),
       supabase.from("businesses").select("id, name, city, badge_id, categories").eq("is_active", true),
-      supabase.from("business_youtube_videos").select("id, business_id"),
-      supabase.from("business_youtube_video_badges").select("youtube_video_id, badge_id"),
+      fetchAllRows<{ id: string; url: string | null }>("business_documents", "id, url", "created_at"),
+      fetchAllRows<{ id: string; url: string | null }>("generic_videos", "id, url", "created_at"),
+      fetchAllRows<{ document_id: string; badge_id: string }>("business_document_badges", "document_id, badge_id", "created_at"),
+      fetchAllRows<{ generic_video_id: string; badge_id: string }>("generic_video_badges", "generic_video_id, badge_id", "created_at"),
     ]);
 
     if (badgesRes.error) {
@@ -93,7 +109,6 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
       setBadges(badgesRes.data || []);
     }
 
-    // Map subcategories with their category name
     const catMap = new Map((categoriesRes.data || []).map(c => [c.id, c.name_fr]));
     const subcatsRaw = (subcatsRes.data || []) as any[];
     const enrichedSubcats = subcatsRaw.map(sc => ({
@@ -111,8 +126,6 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
       businessMap[b.id] = { id: b.id, name: b.name, city: b.city || "" };
     });
 
-    // Build badge -> subcategory names map (FR/EN/AR) for inheritance lookup
-    // For each badge, build a Map<businessId, { sources, is_default }>
     const perBadge: Record<string, Map<string, { sources: Set<"manual" | "primary">; is_default: boolean }>> = {};
     const ensure = (badgeId: string, bizId: string) => {
       if (!perBadge[badgeId]) perBadge[badgeId] = new Map();
@@ -120,15 +133,13 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
       return perBadge[badgeId].get(bizId)!;
     };
 
-    // Source 1: business_badges (manual links)
     bbData.forEach((bb: any) => {
-      if (!businessMap[bb.business_id]) return; // ignore inactive
+      if (!businessMap[bb.business_id]) return;
       const entry = ensure(bb.badge_id, bb.business_id);
       entry.sources.add("manual");
       if (bb.is_default) entry.is_default = true;
     });
 
-    // Source 2: businesses.badge_id (primary badge)
     allBusinesses.forEach((b: any) => {
       if (!b.badge_id) return;
       ensure(b.badge_id, b.id).sources.add("primary");
@@ -152,24 +163,22 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
         })
         .sort((a, b) => a.name.localeCompare(b.name));
     });
-    // Compute video counts per badge:
-    //  - direct: business_youtube_video_badges
-    //  - indirect: videos whose business has the badge (any of the 3 sources)
-    const allVideos = (videosRes.data || []) as Array<{ id: string; business_id: string }>;
-    const directVideoBadges = (videoBadgesRes.data || []) as Array<{ youtube_video_id: string; badge_id: string }>;
-    const videosByBusiness = new Map<string, string[]>();
-    allVideos.forEach(v => {
-      if (!videosByBusiness.has(v.business_id)) videosByBusiness.set(v.business_id, []);
-      videosByBusiness.get(v.business_id)!.push(v.id);
-    });
+
+    const internalBusinessVideoIds = new Set(
+      (businessVideoDocs || []).filter((video) => isInternalVideoUrl(video.url)).map((video) => video.id)
+    );
+    const internalGenericVideoIds = new Set(
+      (genericVideos || []).filter((video) => isInternalVideoUrl(video.url)).map((video) => video.id)
+    );
+
     const videoCounts: Record<string, number> = {};
-    Object.entries(perBadge).forEach(([badgeId, bizMap]) => {
-      const videoIds = new Set<string>();
-      bizMap.forEach((_info, bizId) => {
-        (videosByBusiness.get(bizId) || []).forEach(vid => videoIds.add(vid));
-      });
-      directVideoBadges.filter(vb => vb.badge_id === badgeId).forEach(vb => videoIds.add(vb.youtube_video_id));
-      videoCounts[badgeId] = videoIds.size;
+    (businessVideoBadgeLinks || []).forEach((link) => {
+      if (!internalBusinessVideoIds.has(link.document_id)) return;
+      videoCounts[link.badge_id] = (videoCounts[link.badge_id] || 0) + 1;
+    });
+    (genericVideoBadgeLinks || []).forEach((link) => {
+      if (!internalGenericVideoIds.has(link.generic_video_id)) return;
+      videoCounts[link.badge_id] = (videoCounts[link.badge_id] || 0) + 1;
     });
 
     setBadgeCounts(counts);
