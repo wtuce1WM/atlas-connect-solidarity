@@ -686,6 +686,38 @@ const EventManagement = () => {
           </div>
         )}
 
+        {/* Badges */}
+        <div className="space-y-2">
+          <Label>Badges ({selectedBadgeIds.length} sélectionné{selectedBadgeIds.length > 1 ? "s" : ""})</Label>
+          {allBadges.length === 0 ? (
+            <p className="text-xs text-muted-foreground">Aucun badge disponible.</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {allBadges.map(badge => {
+                const isSelected = selectedBadgeIds.includes(badge.id);
+                return (
+                  <button
+                    key={badge.id}
+                    type="button"
+                    onClick={() => toggleBadge(badge.id)}
+                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
+                      isSelected
+                        ? "border-transparent shadow-sm"
+                        : "border-border bg-background text-muted-foreground hover:border-primary hover:text-foreground opacity-60"
+                    }`}
+                    style={isSelected ? {
+                      backgroundColor: badge.color_hex || "hsl(var(--primary))",
+                      color: badge.text_color_hex || "hsl(var(--primary-foreground))",
+                    } : undefined}
+                  >
+                    {badge.name_fr}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
         {/* Full-width: Google Maps, Description, Images, Videos */}
         <div className="space-y-6">
           {/* Google Maps row */}
