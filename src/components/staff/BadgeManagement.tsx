@@ -58,6 +58,7 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [badgeSubcategories, setBadgeSubcategories] = useState<BadgeSubcategory[]>([]);
   const [badgeCounts, setBadgeCounts] = useState<Record<string, number>>({});
+  const [badgeVideoCounts, setBadgeVideoCounts] = useState<Record<string, number>>({});
   const [badgeBusinesses, setBadgeBusinesses] = useState<Record<string, BadgeBusiness[]>>({});
   const [expandedBadges, setExpandedBadges] = useState<Set<string>>(new Set());
   const badgeRefs = useRef<Record<string, HTMLTableRowElement | null>>({});
@@ -75,13 +76,15 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
 
   const fetchData = async () => {
     setLoading(true);
-    const [badgesRes, subcatsRes, badgeSubcatsRes, businessBadgesRes, categoriesRes, businessesRes] = await Promise.all([
+    const [badgesRes, subcatsRes, badgeSubcatsRes, businessBadgesRes, categoriesRes, businessesRes, videosRes, videoBadgesRes] = await Promise.all([
       supabase.from("badges").select("*").order("name_fr", { ascending: true }),
       supabase.from("subcategories").select("id, name_fr, name_en, name_ar, category_id").order("name_fr"),
       supabase.from("badge_subcategories").select("badge_id, subcategory_id"),
       supabase.from("business_badges" as any).select("business_id, badge_id, is_default"),
       supabase.from("categories").select("id, name_fr"),
       supabase.from("businesses").select("id, name, city, badge_id, categories").eq("is_active", true),
+      supabase.from("business_youtube_videos").select("id, business_id").eq("is_visible", true),
+      supabase.from("business_youtube_video_badges").select("youtube_video_id, badge_id"),
     ]);
 
     if (badgesRes.error) {
@@ -172,7 +175,28 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
         })
         .sort((a, b) => a.name.localeCompare(b.name));
     });
+    // Compute video counts per badge:
+    //  - direct: business_youtube_video_badges
+    //  - indirect: videos whose business has the badge (any of the 3 sources)
+    const allVideos = (videosRes.data || []) as Array<{ id: string; business_id: string }>;
+    const directVideoBadges = (videoBadgesRes.data || []) as Array<{ youtube_video_id: string; badge_id: string }>;
+    const videosByBusiness = new Map<string, string[]>();
+    allVideos.forEach(v => {
+      if (!videosByBusiness.has(v.business_id)) videosByBusiness.set(v.business_id, []);
+      videosByBusiness.get(v.business_id)!.push(v.id);
+    });
+    const videoCounts: Record<string, number> = {};
+    Object.entries(perBadge).forEach(([badgeId, bizMap]) => {
+      const videoIds = new Set<string>();
+      bizMap.forEach((_info, bizId) => {
+        (videosByBusiness.get(bizId) || []).forEach(vid => videoIds.add(vid));
+      });
+      directVideoBadges.filter(vb => vb.badge_id === badgeId).forEach(vb => videoIds.add(vb.youtube_video_id));
+      videoCounts[badgeId] = videoIds.size;
+    });
+
     setBadgeCounts(counts);
+    setBadgeVideoCounts(videoCounts);
     setBadgeBusinesses(grouped);
     setLoading(false);
   };
@@ -403,19 +427,21 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
               <TableHead>Nom (EN)</TableHead>
               <TableHead>Sous-catégories associées</TableHead>
               <TableHead className="text-center">Établissements</TableHead>
+              <TableHead className="text-center">Vidéos</TableHead>
               <TableHead className="text-center">Activé sur le front</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
-              <TableRow><TableCell colSpan={9} className="text-center py-8">Chargement...</TableCell></TableRow>
+              <TableRow><TableCell colSpan={10} className="text-center py-8">Chargement...</TableCell></TableRow>
             ) : badges.length === 0 ? (
-              <TableRow><TableCell colSpan={9} className="text-center py-8">Aucun badge défini.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={10} className="text-center py-8">Aucun badge défini.</TableCell></TableRow>
             ) : (
               badges.map(badge => {
                 const isExpanded = expandedBadges.has(badge.id);
                 const count = badgeCounts[badge.id] || 0;
+                const videoCount = badgeVideoCounts[badge.id] || 0;
                 const businesses = badgeBusinesses[badge.id] || [];
                 return (
                   <React.Fragment key={badge.id}>
@@ -462,6 +488,9 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
                       <TableCell className="text-center">
                         <Badge variant="outline">{count}</Badge>
                       </TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="outline">{videoCount}</Badge>
+                      </TableCell>
                       <TableCell className="text-center" onClick={e => e.stopPropagation()}>
                         <Switch
                           checked={!!badge.is_active_on_front}
@@ -484,7 +513,7 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
                     </TableRow>
                     {isExpanded && businesses.length > 0 && (
                       <TableRow>
-                        <TableCell colSpan={9} className="bg-muted/30 p-0">
+                        <TableCell colSpan={10} className="bg-muted/30 p-0">
                           <div className="px-8 py-3 space-y-1">
                             {businesses.map(b => (
                               <div key={b.id} className="flex items-center justify-between py-1.5 px-3 rounded hover:bg-background transition-colors">
