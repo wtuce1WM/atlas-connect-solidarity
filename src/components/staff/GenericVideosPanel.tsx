@@ -1356,15 +1356,19 @@ const GenericVideosPanel = () => {
                         poiCount={videoPoiCounts[video.id] || 0}
                         bizCount={videoBizCounts[video.id] || 0}
                         destCount={videoDestCounts[video.id] || 0}
+                        badgeCount={videoBadgeCounts[video.id] || 0}
+                        subcatCount={videoSubcatCounts[video.id] || 0}
+                        cityCount={videoCityCounts[video.id] || 0}
                         hasTimeframes={!!videoHasTimeframes[video.id]}
                         isSelected={selectedVideo?.id === video.id}
                         onSelect={handleSelectVideo}
                         onPreview={setLightboxUrl}
                         onEditSocial={setSocialVideo}
                         onEditDescription={setDescVideo}
-                        onEditPois={(v) => { setSelectedVideo(null); setBusinessVideo(null); setDestinationVideo(null); setPoiVideo(v); }}
-                        onEditBusinesses={(v) => { setSelectedVideo(null); setPoiVideo(null); setDestinationVideo(null); setBusinessVideo(v); }}
-                        onEditDestinations={(v) => { setSelectedVideo(null); setPoiVideo(null); setBusinessVideo(null); setDestinationVideo(v); }}
+                        onEditPois={(v) => { setSelectedVideo(null); setBusinessVideo(null); setDestinationVideo(null); setTagsVideo(null); setPoiVideo(v); }}
+                        onEditBusinesses={(v) => { setSelectedVideo(null); setPoiVideo(null); setDestinationVideo(null); setTagsVideo(null); setBusinessVideo(v); }}
+                        onEditDestinations={(v) => { setSelectedVideo(null); setPoiVideo(null); setBusinessVideo(null); setTagsVideo(null); setDestinationVideo(v); }}
+                        onEditTags={(v) => { setSelectedVideo(null); setPoiVideo(null); setBusinessVideo(null); setDestinationVideo(null); setTagsVideo(v); }}
                         onPreviewOverlay={setPreviewOverlayVideo}
                       />
                     </div>
