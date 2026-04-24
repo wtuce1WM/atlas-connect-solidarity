@@ -1060,7 +1060,18 @@ const Test = () => {
                         <span>{selectedEntry.name} ({displayList.length})</span>
                       )}
                     </h3>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {videoBadgeFilter && (
+                        <button
+                          type="button"
+                          onClick={() => setVideoBadgeFilter(null)}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide border-2 border-black hover:bg-gold/90 transition-colors"
+                          title="Retirer le filtre"
+                        >
+                          <span>{videoBadgeFilter.label}</span>
+                          <X className="h-3 w-3" />
+                        </button>
+                      )}
                       <div className="inline-flex rounded-md border border-border overflow-hidden text-xs">
                         {CITIES.map((c, idx) => (
                           <button
