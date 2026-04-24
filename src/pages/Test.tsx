@@ -78,6 +78,7 @@ const Test = () => {
   const [city, setCity] = useState<City>("Marrakech");
   const [entries, setEntries] = useState<FrontEntry[]>([]);
   const [subcatNames, setSubcatNames] = useState<Record<string, string>>({});
+  const [subcatParents, setSubcatParents] = useState<Record<string, string>>({});
   const [serviceNames, setServiceNames] = useState<Record<string, string>>({});
   const [citySubcats, setCitySubcats] = useState<Set<string>>(new Set());
   const [cityServices, setCityServices] = useState<Set<string>>(new Set());
@@ -128,13 +129,23 @@ const Test = () => {
         supabase.from("front_structure").select("*").order("sort_order"),
         supabase.from("front_structure_subcategories").select("*"),
         supabase.from("front_structure_services" as any).select("*"),
-        supabase.from("subcategories").select("id, name_fr"),
+        supabase.from("subcategories").select("id, name_fr, category_id"),
         supabase.from("services").select("id, name_fr").eq("is_active", true),
       ]);
 
+      // Load category names to build subcategory → parent category map
+      const { data: catsData } = await supabase.from("categories").select("id, name_fr");
+      const catNameById: Record<string, string> = {};
+      (catsData || []).forEach((c: any) => { catNameById[c.id] = c.name_fr; });
+
       const subMap: Record<string, string> = {};
-      (subsRes.data || []).forEach((s: any) => { subMap[s.id] = s.name_fr; });
+      const parentMap: Record<string, string> = {};
+      (subsRes.data || []).forEach((s: any) => {
+        subMap[s.id] = s.name_fr;
+        if (s.category_id && catNameById[s.category_id]) parentMap[s.id] = catNameById[s.category_id];
+      });
       setSubcatNames(subMap);
+      setSubcatParents(parentMap);
 
       const svcMap: Record<string, string> = {};
       (servicesRes.data || []).forEach((s: any) => { svcMap[s.id] = s.name_fr; });
@@ -890,8 +901,23 @@ const Test = () => {
               {(displayList.length > 0 || isGuide) && (
                 <div className="w-full min-w-0">
                   <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
-                    <h3 className="text-sm font-semibold text-foreground">
-                      {isGuide ? "Suivez le guide" : ((selectedSubId && subcatNames[selectedSubId]) || selectedEntry.name)} ({displayList.length})
+                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5 flex-wrap">
+                      {isGuide ? (
+                        <span>Suivez le guide ({displayList.length})</span>
+                      ) : selectedSubId && subcatNames[selectedSubId] ? (
+                        <>
+                          {subcatParents[selectedSubId] && (
+                            <>
+                              <span className="text-muted-foreground font-normal">{subcatParents[selectedSubId]}</span>
+                              <span className="text-muted-foreground font-normal">›</span>
+                            </>
+                          )}
+                          <span>{subcatNames[selectedSubId]}</span>
+                          <span className="text-muted-foreground font-normal">({displayList.length})</span>
+                        </>
+                      ) : (
+                        <span>{selectedEntry.name} ({displayList.length})</span>
+                      )}
                     </h3>
                     <div className="flex items-center gap-2">
                       <div className="inline-flex rounded-md border border-border overflow-hidden text-xs">
