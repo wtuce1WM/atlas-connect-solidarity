@@ -762,29 +762,66 @@ const Test = () => {
 
   const resolveTargetEntryForBadge = async (badgeId: string, label: string, targetCity: City) => {
     const normalizedLabel = label.trim().toLowerCase();
-    const labelMatch = entries.find((e) => e.name.trim().toLowerCase() === normalizedLabel) || null;
-    if (labelMatch) return labelMatch;
+    const directVisibleEntry = visibleEntries.find(
+      (entry) =>
+        entry.id !== HOME_ID &&
+        entry.id !== VLOGS_ID &&
+        entry.name.trim().toLowerCase() === normalizedLabel
+    );
+
+    if (directVisibleEntry) {
+      return { entryId: directVisibleEntry.id, subcategoryId: null as string | null };
+    }
+
+    const directSubcategoryId = Object.entries(subcatNames).find(
+      ([, name]) => name.trim().toLowerCase() === normalizedLabel
+    )?.[0] || null;
 
     const { data: badgeDocs } = await supabase
       .from("business_document_badges")
       .select("business_documents!inner(subcategory_id, city)")
       .eq("badge_id", badgeId);
 
-    const badgeSubcategoryIds = new Set(
-      (((badgeDocs as any[]) || []) as any[]).flatMap((row) => {
-        const document = Array.isArray(row.business_documents)
-          ? row.business_documents[0]
-          : row.business_documents;
+    const matchedSubcategoryIds = new Set<string>();
 
-        if (!document?.subcategory_id) return [];
-        if (document.city && document.city !== targetCity) return [];
-        return [document.subcategory_id as string];
-      })
+    if (directSubcategoryId) {
+      matchedSubcategoryIds.add(directSubcategoryId);
+    }
+
+    (((badgeDocs as any[]) || []) as any[]).forEach((row) => {
+      const document = Array.isArray(row.business_documents)
+        ? row.business_documents[0]
+        : row.business_documents;
+
+      if (!document?.subcategory_id) return;
+      if (document.city && document.city !== targetCity) return;
+      matchedSubcategoryIds.add(document.subcategory_id as string);
+    });
+
+    if (matchedSubcategoryIds.size === 0) return null;
+
+    const candidateEntries = topLevelEntries.filter((entry) =>
+      entry.subcategory_ids.some((subcategoryId) => matchedSubcategoryIds.has(subcategoryId))
     );
 
-    if (badgeSubcategoryIds.size === 0) return null;
+    if (candidateEntries.length === 0) return null;
 
-    return entries.find((entry) => entry.subcategory_ids.some((subcategoryId) => badgeSubcategoryIds.has(subcategoryId))) || null;
+    const bestEntry =
+      candidateEntries.find((entry) => entry.name.trim().toLowerCase() === normalizedLabel) ||
+      [...candidateEntries].sort((a, b) => a.subcategory_ids.length - b.subcategory_ids.length)[0];
+
+    const matchingSubcategories = bestEntry.subcategory_ids.filter((subcategoryId) =>
+      matchedSubcategoryIds.has(subcategoryId)
+    );
+
+    const resolvedSubcategoryId =
+      directSubcategoryId && matchingSubcategories.includes(directSubcategoryId)
+        ? directSubcategoryId
+        : matchingSubcategories.length === 1
+          ? matchingSubcategories[0]
+          : null;
+
+    return { entryId: bestEntry.id, subcategoryId: resolvedSubcategoryId };
   };
 
   const activateVideoBadgeFilter = async (badgeId: string, label: string, targetCity: City) => {
@@ -797,7 +834,6 @@ const Test = () => {
     setActiveVideo(null);
     setPanelOpen(false);
     setCurrentTime(0);
-    setSelectedSubId(null);
     setVideoBadgeFilter({ badgeId, label });
 
     if (city !== targetCity) {
@@ -805,9 +841,12 @@ const Test = () => {
     }
 
     if (targetEntry) {
-      setSelectedEntryId(targetEntry.id);
+      setSelectedEntryId(targetEntry.entryId);
+      setSelectedSubId(targetEntry.subcategoryId);
       return true;
     }
+
+    setSelectedSubId(null);
 
     return false;
   };
