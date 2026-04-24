@@ -1338,6 +1338,11 @@ const Test = () => {
                             </button>
                           </div>
                         )}
+                        {v.business?.engagements?.includes("Logistique:Commandez en ligne et recevez votre colis chez vous") && (
+                          <div className="absolute top-1.5 right-1.5 z-[6] px-1.5 py-0.5 rounded text-[9px] font-bold text-white shadow-md" style={{ backgroundColor: "#C04F17" }}>
+                            Commandez en ligne
+                          </div>
+                        )}
                         {v.business && (v.business.computed_rating ?? v.business.rating) != null && (
                           <div className="absolute top-1.5 left-1.5 right-1.5 z-[5] flex items-center gap-1 text-[10px]">
                             <Star className="h-2.5 w-2.5 text-gold fill-gold" />
