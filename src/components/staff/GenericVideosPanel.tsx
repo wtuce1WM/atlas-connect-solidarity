@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Play, Upload, Copy, Check, FileText, Instagram, X, MapPin, MapPinned, Building2, Search, GripVertical, Clock, Globe } from "lucide-react";
+import { Loader2, Play, Upload, Copy, Check, FileText, Instagram, X, MapPin, MapPinned, Building2, Search, GripVertical, Clock, Globe, Tag, Layers } from "lucide-react";
 import VideoIdSearchInput from "./VideoIdSearchInput";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -562,6 +562,248 @@ const InlineDestinationCityAssignment = ({ video, onClose, onSaved }: { video: G
   );
 };
 
+/* ─── Inline Badges + Subcategories + Cities Assignment ─── */
+interface BadgeItem { id: string; name_fr: string; color_hex: string | null; }
+interface SubcatItem { id: string; name_fr: string; category_id: string | null; }
+interface CityItem { id: string; name_fr: string; }
+
+const InlineBadgeSubcatCityAssignment = ({ video, onClose, onSaved }: { video: GenericVideo; onClose: () => void; onSaved: () => void; }) => {
+  const [allBadges, setAllBadges] = useState<BadgeItem[]>([]);
+  const [allSubcats, setAllSubcats] = useState<SubcatItem[]>([]);
+  const [allCities, setAllCities] = useState<CityItem[]>([]);
+  const [categories, setCategories] = useState<Record<string, string>>({});
+
+  const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>([]);
+  const [initialBadgeIds, setInitialBadgeIds] = useState<string[]>([]);
+  const [selectedSubcatIds, setSelectedSubcatIds] = useState<string[]>([]);
+  const [initialSubcatIds, setInitialSubcatIds] = useState<string[]>([]);
+  const [selectedCityIds, setSelectedCityIds] = useState<string[]>([]);
+  const [initialCityIds, setInitialCityIds] = useState<string[]>([]);
+
+  const [subcatSearch, setSubcatSearch] = useState("");
+  const [citySearch, setCitySearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const [
+        { data: badges },
+        { data: subcats },
+        { data: cities },
+        { data: cats },
+        { data: badgeLinks },
+        { data: subcatLinks },
+        { data: cityLinks },
+      ] = await Promise.all([
+        supabase.from("badges").select("id, name_fr, color_hex").order("sort_order").order("name_fr"),
+        supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
+        supabase.from("cities").select("id, name_fr").order("name_fr"),
+        supabase.from("categories" as any).select("id, name_fr") as any,
+        supabase.from("generic_video_badges" as any).select("badge_id").eq("generic_video_id", video.id) as unknown as { data: any[] | null },
+        supabase.from("generic_video_subcategories" as any).select("subcategory_id").eq("generic_video_id", video.id) as unknown as { data: any[] | null },
+        supabase.from("generic_video_cities" as any).select("city_id").eq("generic_video_id", video.id) as unknown as { data: any[] | null },
+      ]);
+      setAllBadges((badges as BadgeItem[]) || []);
+      setAllSubcats((subcats as SubcatItem[]) || []);
+      setAllCities((cities as CityItem[]) || []);
+      const cMap: Record<string, string> = {};
+      ((cats as any[]) || []).forEach((c: any) => { cMap[c.id] = c.name_fr; });
+      setCategories(cMap);
+      const bIds = (badgeLinks || []).map((l: any) => l.badge_id);
+      const sIds = (subcatLinks || []).map((l: any) => l.subcategory_id);
+      const ciIds = (cityLinks || []).map((l: any) => l.city_id);
+      setSelectedBadgeIds(bIds); setInitialBadgeIds(bIds);
+      setSelectedSubcatIds(sIds); setInitialSubcatIds(sIds);
+      setSelectedCityIds(ciIds); setInitialCityIds(ciIds);
+      setLoading(false);
+    };
+    load();
+  }, [video.id]);
+
+  const toggleBadge = (id: string) => setSelectedBadgeIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
+  const toggleSubcat = (id: string) => setSelectedSubcatIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
+  const toggleCity = (id: string) => setSelectedCityIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
+
+  const sortedKey = (a: string[]) => JSON.stringify([...a].sort());
+  const isBadgeDirty = sortedKey(selectedBadgeIds) !== sortedKey(initialBadgeIds);
+  const isSubcatDirty = sortedKey(selectedSubcatIds) !== sortedKey(initialSubcatIds);
+  const isCityDirty = sortedKey(selectedCityIds) !== sortedKey(initialCityIds);
+  const isDirty = isBadgeDirty || isSubcatDirty || isCityDirty;
+
+  const save = async () => {
+    setSaving(true);
+    if (isBadgeDirty) {
+      const toAdd = selectedBadgeIds.filter(id => !initialBadgeIds.includes(id));
+      const toRemove = initialBadgeIds.filter(id => !selectedBadgeIds.includes(id));
+      if (toRemove.length > 0) await supabase.from("generic_video_badges" as any).delete().eq("generic_video_id", video.id).in("badge_id", toRemove);
+      if (toAdd.length > 0) await supabase.from("generic_video_badges" as any).insert(toAdd.map(badge_id => ({ generic_video_id: video.id, badge_id })) as any);
+    }
+    if (isSubcatDirty) {
+      const toAdd = selectedSubcatIds.filter(id => !initialSubcatIds.includes(id));
+      const toRemove = initialSubcatIds.filter(id => !selectedSubcatIds.includes(id));
+      if (toRemove.length > 0) await supabase.from("generic_video_subcategories" as any).delete().eq("generic_video_id", video.id).in("subcategory_id", toRemove);
+      if (toAdd.length > 0) await supabase.from("generic_video_subcategories" as any).insert(toAdd.map(subcategory_id => ({ generic_video_id: video.id, subcategory_id })) as any);
+    }
+    if (isCityDirty) {
+      const toAdd = selectedCityIds.filter(id => !initialCityIds.includes(id));
+      const toRemove = initialCityIds.filter(id => !selectedCityIds.includes(id));
+      if (toRemove.length > 0) await supabase.from("generic_video_cities" as any).delete().eq("generic_video_id", video.id).in("city_id", toRemove);
+      if (toAdd.length > 0) await supabase.from("generic_video_cities" as any).insert(toAdd.map(city_id => ({ generic_video_id: video.id, city_id })) as any);
+    }
+    toast.success("Affectations enregistrées");
+    setInitialBadgeIds([...selectedBadgeIds]);
+    setInitialSubcatIds([...selectedSubcatIds]);
+    setInitialCityIds([...selectedCityIds]);
+    onSaved(); onClose(); setSaving(false);
+  };
+
+  const filteredSubcats = useMemo(() => {
+    if (!subcatSearch.trim()) return allSubcats;
+    const q = subcatSearch.toLowerCase();
+    return allSubcats.filter(s => s.name_fr.toLowerCase().includes(q));
+  }, [allSubcats, subcatSearch]);
+
+  const subcatsByCategory = useMemo(() => {
+    const m: Record<string, SubcatItem[]> = {};
+    filteredSubcats.forEach(s => {
+      const cat = (s.category_id && categories[s.category_id]) || "Sans catégorie";
+      if (!m[cat]) m[cat] = [];
+      m[cat].push(s);
+    });
+    return Object.entries(m).sort(([a], [b]) => a.localeCompare(b));
+  }, [filteredSubcats, categories]);
+
+  const filteredCities = useMemo(() => {
+    if (!citySearch.trim()) return allCities;
+    const q = citySearch.toLowerCase();
+    return allCities.filter(c => c.name_fr.toLowerCase().includes(q));
+  }, [allCities, citySearch]);
+
+  const isStorageVideo = video.url.includes("supabase.co/storage");
+
+  return (
+    <div className="h-full flex flex-col">
+      <div className="flex items-center justify-between p-3 border-b bg-muted/30">
+        <h3 className="text-sm font-semibold flex items-center gap-2"><Tag className="h-4 w-4" />Badges, Sous-catégories & Villes</h3>
+        <Button variant="ghost" size="sm" onClick={onClose}>✕</Button>
+      </div>
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="relative bg-black rounded-lg overflow-hidden" style={{ aspectRatio: "16/9" }}>
+          {isStorageVideo ? (
+            <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" controls />
+          ) : video.thumbnail_url ? (
+            <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-muted flex items-center justify-center"><Play className="h-8 w-8 text-muted-foreground" /></div>
+          )}
+        </div>
+        <Button size="sm" onClick={save} disabled={!isDirty || saving} className="w-full">
+          {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+          Enregistrer
+        </Button>
+        <div className="space-y-1">
+          {video.name && <p className="text-sm font-semibold">{video.name}</p>}
+          <p className="text-xs text-muted-foreground font-mono">{video.id}</p>
+        </div>
+
+        {loading ? <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin" /></div> : (
+          <div className="space-y-5">
+            {/* Badges */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Tag className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-xs font-medium text-muted-foreground">Badges ({selectedBadgeIds.length})</span>
+              </div>
+              {allBadges.length === 0 ? (
+                <p className="text-xs text-muted-foreground">Aucun badge disponible</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {allBadges.map(b => {
+                    const selected = selectedBadgeIds.includes(b.id);
+                    return (
+                      <Badge
+                        key={b.id}
+                        variant={selected ? "default" : "outline"}
+                        className="cursor-pointer transition-colors"
+                        onClick={() => toggleBadge(b.id)}
+                      >
+                        {b.name_fr}
+                      </Badge>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <Separator />
+
+            {/* Subcategories */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Layers className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-xs font-medium text-muted-foreground">Sous-catégories ({selectedSubcatIds.length})</span>
+                </div>
+                <Input placeholder="Rechercher…" value={subcatSearch} onChange={e => setSubcatSearch(e.target.value)} className="h-7 text-xs max-w-[180px]" />
+              </div>
+              {subcatsByCategory.length === 0 ? (
+                <p className="text-xs text-muted-foreground text-center py-3">Aucune sous-catégorie</p>
+              ) : (
+                <div className="space-y-3">
+                  {subcatsByCategory.map(([catName, items]) => (
+                    <div key={catName}>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">{catName}</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {items.map(s => (
+                          <Badge
+                            key={s.id}
+                            variant={selectedSubcatIds.includes(s.id) ? "default" : "outline"}
+                            className="cursor-pointer transition-colors text-[10px]"
+                            onClick={() => toggleSubcat(s.id)}
+                          >
+                            {s.name_fr}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <Separator />
+
+            {/* Cities */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <MapPinned className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-xs font-medium text-muted-foreground">Villes ({selectedCityIds.length})</span>
+                </div>
+                <Input placeholder="Rechercher…" value={citySearch} onChange={e => setCitySearch(e.target.value)} className="h-7 text-xs max-w-[180px]" />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {filteredCities.map(c => (
+                  <Badge
+                    key={c.id}
+                    variant={selectedCityIds.includes(c.id) ? "default" : "outline"}
+                    className="cursor-pointer transition-colors"
+                    onClick={() => toggleCity(c.id)}
+                  >
+                    {c.name_fr}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 /* ─── Right panel: linked items with DnD + timeframes ─── */
 interface LinkedItemWithTime { id: string; name: string; type: "poi" | "business" | "destination"; start_time: number | null; end_time: number | null; sort_order: number; }
 
@@ -765,6 +1007,9 @@ const SortableVideoCard = ({
   poiCount,
   bizCount,
   destCount,
+  badgeCount,
+  subcatCount,
+  cityCount,
   hasTimeframes,
   isSelected,
   onSelect,
@@ -774,12 +1019,16 @@ const SortableVideoCard = ({
   onEditPois,
   onEditBusinesses,
   onEditDestinations,
+  onEditTags,
   onPreviewOverlay,
 }: {
   video: GenericVideo;
   poiCount: number;
   bizCount: number;
   destCount: number;
+  badgeCount: number;
+  subcatCount: number;
+  cityCount: number;
   hasTimeframes: boolean;
   isSelected: boolean;
   onSelect: (v: GenericVideo) => void;
@@ -789,6 +1038,7 @@ const SortableVideoCard = ({
   onEditPois: (v: GenericVideo) => void;
   onEditBusinesses: (v: GenericVideo) => void;
   onEditDestinations: (v: GenericVideo) => void;
+  onEditTags: (v: GenericVideo) => void;
   onPreviewOverlay: (v: GenericVideo) => void;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: video.id });
@@ -854,6 +1104,7 @@ const SortableVideoCard = ({
           <button type="button" onClick={(e) => { e.stopPropagation(); onEditPois(video); }} className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-medium transition-colors", poiCount > 0 ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/25" : "text-muted-foreground hover:text-foreground hover:underline")}>{poiCount > 0 ? `✓ ${poiCount} POI` : "+ POI"}</button>
           <button type="button" onClick={(e) => { e.stopPropagation(); onEditBusinesses(video); }} className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-medium transition-colors", bizCount > 0 ? "bg-amber-500/15 text-amber-700 dark:text-amber-400 hover:bg-amber-500/25" : "text-muted-foreground hover:text-foreground hover:underline")}>{bizCount > 0 ? `✓ ${bizCount} Étab.` : "+ Étab."}</button>
           <button type="button" onClick={(e) => { e.stopPropagation(); onEditDestinations(video); }} className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-medium transition-colors", destCount > 0 ? "bg-rose-500/15 text-rose-700 dark:text-rose-400 hover:bg-rose-500/25" : "text-muted-foreground hover:text-foreground hover:underline")}>{destCount > 0 ? `✓ ${destCount} Dest.` : "+ Dest."}</button>
+          <button type="button" onClick={(e) => { e.stopPropagation(); onEditTags(video); }} className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-medium transition-colors", (badgeCount + subcatCount + cityCount) > 0 ? "bg-cyan-500/15 text-cyan-700 dark:text-cyan-400 hover:bg-cyan-500/25" : "text-muted-foreground hover:text-foreground hover:underline")}>{(badgeCount + subcatCount + cityCount) > 0 ? `✓ ${badgeCount}B/${subcatCount}SC/${cityCount}V` : "+ Tags"}</button>
         </div>
       </div>
 
@@ -874,6 +1125,7 @@ const GenericVideosPanel = () => {
   const [poiVideo, setPoiVideo] = useState<GenericVideo | null>(null);
   const [businessVideo, setBusinessVideo] = useState<GenericVideo | null>(null);
   const [destinationVideo, setDestinationVideo] = useState<GenericVideo | null>(null);
+  const [tagsVideo, setTagsVideo] = useState<GenericVideo | null>(null);
   const [previewOverlayVideo, setPreviewOverlayVideo] = useState<GenericVideo | null>(null);
 
   // Selected video for right panel
@@ -888,6 +1140,9 @@ const GenericVideosPanel = () => {
   const [videoPoiCounts, setVideoPoiCounts] = useState<Record<string, number>>({});
   const [videoBizCounts, setVideoBizCounts] = useState<Record<string, number>>({});
   const [videoDestCounts, setVideoDestCounts] = useState<Record<string, number>>({});
+  const [videoBadgeCounts, setVideoBadgeCounts] = useState<Record<string, number>>({});
+  const [videoSubcatCounts, setVideoSubcatCounts] = useState<Record<string, number>>({});
+  const [videoCityCounts, setVideoCityCounts] = useState<Record<string, number>>({});
   const [videoHasTimeframes, setVideoHasTimeframes] = useState<Record<string, boolean>>({});
 
   const sensors = useSensors(
@@ -903,10 +1158,13 @@ const GenericVideosPanel = () => {
   }, []);
 
   const loadCounts = useCallback(async () => {
-    const [{ data: poiLinks }, { data: bizLinks }, { data: destLinks }] = await Promise.all([
+    const [{ data: poiLinks }, { data: bizLinks }, { data: destLinks }, { data: badgeLinks }, { data: subcatLinks }, { data: cityLinks }] = await Promise.all([
       supabase.from("generic_video_pois" as any).select("generic_video_id, start_time, end_time") as any,
       supabase.from("generic_video_businesses" as any).select("generic_video_id, start_time, end_time") as any,
       supabase.from("generic_video_destinations" as any).select("generic_video_id, start_time, end_time") as any,
+      supabase.from("generic_video_badges" as any).select("generic_video_id") as any,
+      supabase.from("generic_video_subcategories" as any).select("generic_video_id") as any,
+      supabase.from("generic_video_cities" as any).select("generic_video_id") as any,
     ]);
     const pc: Record<string, number> = {};
     const tf: Record<string, boolean> = {};
@@ -918,6 +1176,15 @@ const GenericVideosPanel = () => {
     const dc: Record<string, number> = {};
     ((destLinks as any[]) || []).forEach((l: any) => { dc[l.generic_video_id] = (dc[l.generic_video_id] || 0) + 1; if (l.start_time != null || l.end_time != null) tf[l.generic_video_id] = true; });
     setVideoDestCounts(dc);
+    const bad: Record<string, number> = {};
+    ((badgeLinks as any[]) || []).forEach((l: any) => { bad[l.generic_video_id] = (bad[l.generic_video_id] || 0) + 1; });
+    setVideoBadgeCounts(bad);
+    const sc: Record<string, number> = {};
+    ((subcatLinks as any[]) || []).forEach((l: any) => { sc[l.generic_video_id] = (sc[l.generic_video_id] || 0) + 1; });
+    setVideoSubcatCounts(sc);
+    const cc: Record<string, number> = {};
+    ((cityLinks as any[]) || []).forEach((l: any) => { cc[l.generic_video_id] = (cc[l.generic_video_id] || 0) + 1; });
+    setVideoCityCounts(cc);
     setVideoHasTimeframes(tf);
   }, []);
 
@@ -1036,13 +1303,14 @@ const GenericVideosPanel = () => {
     setPanelSaving(false);
   }, [selectedVideo, panelItems]);
 
-  const hasRightPanel = !!(selectedVideo || poiVideo || businessVideo || destinationVideo);
+  const hasRightPanel = !!(selectedVideo || poiVideo || businessVideo || destinationVideo || tagsVideo);
 
   const closeAllPanels = useCallback(() => {
     setSelectedVideo(null);
     setPoiVideo(null);
     setBusinessVideo(null);
     setDestinationVideo(null);
+    setTagsVideo(null);
   }, []);
 
   return (
@@ -1088,15 +1356,19 @@ const GenericVideosPanel = () => {
                         poiCount={videoPoiCounts[video.id] || 0}
                         bizCount={videoBizCounts[video.id] || 0}
                         destCount={videoDestCounts[video.id] || 0}
+                        badgeCount={videoBadgeCounts[video.id] || 0}
+                        subcatCount={videoSubcatCounts[video.id] || 0}
+                        cityCount={videoCityCounts[video.id] || 0}
                         hasTimeframes={!!videoHasTimeframes[video.id]}
                         isSelected={selectedVideo?.id === video.id}
                         onSelect={handleSelectVideo}
                         onPreview={setLightboxUrl}
                         onEditSocial={setSocialVideo}
                         onEditDescription={setDescVideo}
-                        onEditPois={(v) => { setSelectedVideo(null); setBusinessVideo(null); setDestinationVideo(null); setPoiVideo(v); }}
-                        onEditBusinesses={(v) => { setSelectedVideo(null); setPoiVideo(null); setDestinationVideo(null); setBusinessVideo(v); }}
-                        onEditDestinations={(v) => { setSelectedVideo(null); setPoiVideo(null); setBusinessVideo(null); setDestinationVideo(v); }}
+                        onEditPois={(v) => { setSelectedVideo(null); setBusinessVideo(null); setDestinationVideo(null); setTagsVideo(null); setPoiVideo(v); }}
+                        onEditBusinesses={(v) => { setSelectedVideo(null); setPoiVideo(null); setDestinationVideo(null); setTagsVideo(null); setBusinessVideo(v); }}
+                        onEditDestinations={(v) => { setSelectedVideo(null); setPoiVideo(null); setBusinessVideo(null); setTagsVideo(null); setDestinationVideo(v); }}
+                        onEditTags={(v) => { setSelectedVideo(null); setPoiVideo(null); setBusinessVideo(null); setDestinationVideo(null); setTagsVideo(v); }}
                         onPreviewOverlay={setPreviewOverlayVideo}
                       />
                     </div>
@@ -1143,6 +1415,11 @@ const GenericVideosPanel = () => {
       {destinationVideo && (
         <div className="w-1/2 sticky top-0 h-full overflow-hidden border-l bg-card">
           <InlineDestinationCityAssignment video={destinationVideo} onClose={() => setDestinationVideo(null)} onSaved={() => { loadCounts(); }} />
+        </div>
+      )}
+      {tagsVideo && (
+        <div className="w-1/2 sticky top-0 h-full overflow-hidden border-l bg-card">
+          <InlineBadgeSubcatCityAssignment video={tagsVideo} onClose={() => setTagsVideo(null)} onSaved={() => { loadCounts(); }} />
         </div>
       )}
 
