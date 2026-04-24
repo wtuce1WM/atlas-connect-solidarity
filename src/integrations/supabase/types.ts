@@ -2395,6 +2395,42 @@ export type Database = {
         }
         Relationships: []
       }
+      event_badges: {
+        Row: {
+          badge_id: string
+          created_at: string
+          event_id: string
+          id: string
+        }
+        Insert: {
+          badge_id: string
+          created_at?: string
+          event_id: string
+          id?: string
+        }
+        Update: {
+          badge_id?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_badges_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_businesses: {
         Row: {
           business_id: string

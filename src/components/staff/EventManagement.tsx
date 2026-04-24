@@ -205,6 +205,33 @@ const EventManagement = () => {
   // List view: event businesses names map
   const [eventBizNames, setEventBizNames] = useState<Record<string, string[]>>({});
 
+  // Badges
+  const [allBadges, setAllBadges] = useState<{ id: string; name_fr: string; color_hex: string | null; text_color_hex: string | null }[]>([]);
+  const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>([]);
+
+  const fetchBadges = async () => {
+    const { data } = await supabase
+      .from("badges")
+      .select("id, name_fr, color_hex, text_color_hex")
+      .order("sort_order", { ascending: true })
+      .order("name_fr");
+    if (data) setAllBadges(data as any);
+  };
+
+  const fetchEventBadges = async (eventId: string) => {
+    const { data } = await supabase
+      .from("event_badges" as any)
+      .select("badge_id")
+      .eq("event_id", eventId);
+    setSelectedBadgeIds((data as any[] || []).map(r => r.badge_id));
+  };
+
+  const toggleBadge = (badgeId: string) => {
+    setSelectedBadgeIds(prev =>
+      prev.includes(badgeId) ? prev.filter(id => id !== badgeId) : [...prev, badgeId]
+    );
+  };
+
   const fetchEventTypes = async () => {
     const { data } = await supabase.from("event_types").select("name").order("name");
     if (data) setEventTypes(data.map(d => (d as any).name));
@@ -255,7 +282,7 @@ const EventManagement = () => {
     if (data) setNeighborhoods(data as any[]);
   };
 
-  useEffect(() => { fetchEvents(); fetchEventTypes(); fetchCities(); fetchNeighborhoods(); }, []);
+  useEffect(() => { fetchEvents(); fetchEventTypes(); fetchCities(); fetchNeighborhoods(); fetchBadges(); }, []);
 
   const fetchLinkedBusinesses = async (eventId: string) => {
     const { data } = await supabase
@@ -313,6 +340,7 @@ const EventManagement = () => {
     setKpInput("");
     setLinkedBusinessIds([]);
     setLinkedBusinesses([]);
+    setSelectedBadgeIds([]);
     setBizSearchQuery("");
     setBizSearchResults([]);
     setShowForm(true);
@@ -352,6 +380,7 @@ const EventManagement = () => {
     setBizSearchQuery("");
     setBizSearchResults([]);
     fetchLinkedBusinesses(ev.id);
+    fetchEventBadges(ev.id);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: "instant" });
   };
@@ -415,6 +444,15 @@ const EventManagement = () => {
       if (linkedBusinessIds.length > 0) {
         const rows = linkedBusinessIds.map(bizId => ({ event_id: savedId, business_id: bizId }));
         await supabase.from("event_businesses" as any).insert(rows);
+      }
+    }
+
+    // Save badges
+    if (savedId) {
+      await supabase.from("event_badges" as any).delete().eq("event_id", savedId);
+      if (selectedBadgeIds.length > 0) {
+        const badgeRows = selectedBadgeIds.map(badgeId => ({ event_id: savedId, badge_id: badgeId }));
+        await supabase.from("event_badges" as any).insert(badgeRows);
       }
     }
 
@@ -647,6 +685,38 @@ const EventManagement = () => {
             ))}
           </div>
         )}
+
+        {/* Badges */}
+        <div className="space-y-2">
+          <Label>Badges ({selectedBadgeIds.length} sélectionné{selectedBadgeIds.length > 1 ? "s" : ""})</Label>
+          {allBadges.length === 0 ? (
+            <p className="text-xs text-muted-foreground">Aucun badge disponible.</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {allBadges.map(badge => {
+                const isSelected = selectedBadgeIds.includes(badge.id);
+                return (
+                  <button
+                    key={badge.id}
+                    type="button"
+                    onClick={() => toggleBadge(badge.id)}
+                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
+                      isSelected
+                        ? "border-transparent shadow-sm"
+                        : "border-border bg-background text-muted-foreground hover:border-primary hover:text-foreground opacity-60"
+                    }`}
+                    style={isSelected ? {
+                      backgroundColor: badge.color_hex || "hsl(var(--primary))",
+                      color: badge.text_color_hex || "hsl(var(--primary-foreground))",
+                    } : undefined}
+                  >
+                    {badge.name_fr}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
         {/* Full-width: Google Maps, Description, Images, Videos */}
         <div className="space-y-6">
