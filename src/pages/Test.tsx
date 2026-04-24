@@ -760,6 +760,58 @@ const Test = () => {
     [activeVideo, selectedEntryId]
   );
 
+  const resolveTargetEntryForBadge = async (badgeId: string, label: string, targetCity: City) => {
+    const normalizedLabel = label.trim().toLowerCase();
+    const labelMatch = entries.find((e) => e.name.trim().toLowerCase() === normalizedLabel) || null;
+    if (labelMatch) return labelMatch;
+
+    const { data: badgeDocs } = await supabase
+      .from("business_document_badges")
+      .select("business_documents!inner(subcategory_id, city)")
+      .eq("badge_id", badgeId);
+
+    const badgeSubcategoryIds = new Set(
+      (((badgeDocs as any[]) || []) as any[]).flatMap((row) => {
+        const document = Array.isArray(row.business_documents)
+          ? row.business_documents[0]
+          : row.business_documents;
+
+        if (!document?.subcategory_id) return [];
+        if (document.city && document.city !== targetCity) return [];
+        return [document.subcategory_id as string];
+      })
+    );
+
+    if (badgeSubcategoryIds.size === 0) return null;
+
+    return entries.find((entry) => entry.subcategory_ids.some((subcategoryId) => badgeSubcategoryIds.has(subcategoryId))) || null;
+  };
+
+  const activateVideoBadgeFilter = async (badgeId: string, label: string, targetCity: City) => {
+    const targetEntry = await resolveTargetEntryForBadge(badgeId, label, targetCity);
+
+    setBadgeView(null);
+    setLoadingBadge(false);
+    setBadgeBusinesses([]);
+    setOtherViewMode("videos");
+    setActiveVideo(null);
+    setPanelOpen(false);
+    setCurrentTime(0);
+    setSelectedSubId(null);
+    setVideoBadgeFilter({ badgeId, label });
+
+    if (city !== targetCity) {
+      setCity(targetCity);
+    }
+
+    if (targetEntry) {
+      setSelectedEntryId(targetEntry.id);
+      return true;
+    }
+
+    return false;
+  };
+
   const handleHomeLabelClick = async (
     info: { label: string; kind: "entry" | "extra"; badgeId: string | null },
     clickedCity: City
@@ -777,41 +829,8 @@ const Test = () => {
 
     if (!info.badgeId) return;
 
-    const normalizedLabel = info.label.trim().toLowerCase();
-    let targetEntry = entries.find((e) => e.name.trim().toLowerCase() === normalizedLabel) || null;
-
-    if (!targetEntry) {
-      const { data: badgeDocs } = await supabase
-        .from("business_document_badges")
-        .select("document_id, business_documents!inner(subcategory_id, city)")
-        .eq("badge_id", info.badgeId);
-
-      const badgeSubcategoryIds = new Set(
-        (((badgeDocs as any[]) || []) as any[])
-          .flatMap((row) => {
-            const document = Array.isArray(row.business_documents)
-              ? row.business_documents[0]
-              : row.business_documents;
-            if (!document?.subcategory_id) return [];
-            if (document.city && document.city !== clickedCity) return [];
-            return [document.subcategory_id as string];
-          })
-      );
-
-      targetEntry =
-        entries.find((entry) => entry.subcategory_ids.some((subcategoryId) => badgeSubcategoryIds.has(subcategoryId))) || null;
-    }
-
-    if (targetEntry) {
-      setBadgeView(null);
-      setLoadingBadge(false);
-      setBadgeBusinesses([]);
-      setOtherViewMode("videos");
-      setSelectedEntryId(targetEntry.id);
-      setSelectedSubId(null);
-      setVideoBadgeFilter({ badgeId: info.badgeId, label: info.label });
-      return;
-    }
+    const activated = await activateVideoBadgeFilter(info.badgeId, info.label, clickedCity);
+    if (activated) return;
 
     setSelectedEntryId(HOME_ID);
     setBadgeView({ badgeId: info.badgeId, label: info.label, city: clickedCity });
