@@ -1303,13 +1303,14 @@ const GenericVideosPanel = () => {
     setPanelSaving(false);
   }, [selectedVideo, panelItems]);
 
-  const hasRightPanel = !!(selectedVideo || poiVideo || businessVideo || destinationVideo);
+  const hasRightPanel = !!(selectedVideo || poiVideo || businessVideo || destinationVideo || tagsVideo);
 
   const closeAllPanels = useCallback(() => {
     setSelectedVideo(null);
     setPoiVideo(null);
     setBusinessVideo(null);
     setDestinationVideo(null);
+    setTagsVideo(null);
   }, []);
 
   return (
