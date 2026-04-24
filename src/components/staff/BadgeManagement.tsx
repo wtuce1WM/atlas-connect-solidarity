@@ -488,9 +488,12 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
                           <div className="px-8 py-3 space-y-1">
                             {businesses.map(b => (
                               <div key={b.id} className="flex items-center justify-between py-1.5 px-3 rounded hover:bg-background transition-colors">
-                                <span className="text-sm">
-                                  {b.is_default && <span className="text-amber-600 mr-1" title="Badge par défaut">★</span>}
-                                  {b.name} <span className="text-muted-foreground">— {b.city}</span>
+                                <span className="text-sm flex items-center gap-2 flex-wrap">
+                                  {b.is_default && <span className="text-amber-600" title="Badge par défaut">★</span>}
+                                  <span>{b.name} <span className="text-muted-foreground">— {b.city}</span></span>
+                                  {b.sources.includes("manual") && <Badge variant="outline" className="text-[10px] py-0 h-4">Manuel</Badge>}
+                                  {b.sources.includes("primary") && <Badge variant="outline" className="text-[10px] py-0 h-4">Principal</Badge>}
+                                  {b.sources.includes("subcategory") && <Badge variant="outline" className="text-[10px] py-0 h-4">Sous-catégorie</Badge>}
                                 </span>
                                 {onEditBusiness && (
                                   <Button variant="ghost" size="sm" onClick={() => onEditBusiness(b.id)} className="h-7 text-xs gap-1">
