@@ -213,8 +213,7 @@ const EventManagement = () => {
     const { data } = await supabase
       .from("badges")
       .select("id, name_fr, color_hex, text_color_hex")
-      .order("sort_order", { ascending: true })
-      .order("name_fr");
+      .order("name_fr", { ascending: true });
     if (data) setAllBadges(data as any);
   };
 
