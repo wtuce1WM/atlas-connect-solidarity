@@ -160,7 +160,7 @@ const StaffBackoffice = () => {
   const fetchBusinesses = async () => {
     setLoading(true);
     try {
-      const data = await fetchAllRows<Business>("businesses", "*", "updated_at");
+      const data = await fetchAllRows<Business>("businesses", LIST_COLUMNS, "updated_at");
       // fetchAllRows orders ascending; reverse for newest first
       setBusinesses(data.reverse());
     } catch (error) {
