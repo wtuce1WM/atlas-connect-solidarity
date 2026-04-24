@@ -746,7 +746,7 @@ const Test = () => {
     };
     load();
     return () => { cancelled = true; };
-  }, [selectedEntry, city, selectedSubId, extraCityDocIds]);
+  }, [selectedEntry, city, selectedSubId, extraCityDocIds, videoBadgeFilter]);
 
   // Reset active video when entry/city changes
   useEffect(() => {
