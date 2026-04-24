@@ -1240,10 +1240,7 @@ const Test = () => {
                           const clickedManualBadge = target?.closest("[data-manual-badge='true']");
 
                           if (clickedManualBadge && v.manualCard?.badgeId) {
-                            setVideoBadgeFilter({
-                              badgeId: v.manualCard.badgeId,
-                              label: v.manualCard.label,
-                            });
+                            void activateVideoBadgeFilter(v.manualCard.badgeId, v.manualCard.label, city);
                             return;
                           }
 
@@ -1272,10 +1269,7 @@ const Test = () => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 if (v.manualCard?.badgeId) {
-                                  setVideoBadgeFilter({
-                                    badgeId: v.manualCard.badgeId,
-                                    label: v.manualCard.label,
-                                  });
+                                  void activateVideoBadgeFilter(v.manualCard.badgeId, v.manualCard.label, city);
                                 }
                               }}
                               className="pointer-events-auto px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black cursor-pointer hover:bg-gold/90 transition-colors"
