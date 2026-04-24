@@ -1065,7 +1065,7 @@ const Test = () => {
                 </div>
               )}
             </>
-          ) : !selectedEntry ? (
+          ) : !selectedEntry && !videoBadgeFilter ? (
             <p className="text-sm text-muted-foreground">
               Sélectionne une entrée dans la colonne de gauche.
             </p>
@@ -1073,14 +1073,12 @@ const Test = () => {
             <p className="text-sm text-muted-foreground">Chargement des vidéos…</p>
           ) : videos.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Aucune vidéo trouvée pour « {selectedEntry.name} » à {city}.
+              Aucune vidéo trouvée{videoBadgeFilter ? ` pour « ${videoBadgeFilter.label} »` : selectedEntry ? ` pour « ${selectedEntry.name} »` : ""} à {city}.
             </p>
           ) : (() => {
             const isGuide = otherViewMode === "guide";
             const baseList = isGuide ? guideVideos : otherVideos;
-            const displayList = videoBadgeFilter && videoBadgeDocIds
-              ? baseList.filter((v) => videoBadgeDocIds.has(v.id))
-              : baseList;
+            const displayList = baseList;
             const isThumbMode = otherViewMode === "videos" || isGuide;
             const isParentEntry =
               !!selectedEntry &&
