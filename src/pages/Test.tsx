@@ -399,7 +399,7 @@ const Test = () => {
   // match business_documents.subcategory_id ∈ entry.subcategory_ids, filter by document.city,
   // keep only internal videos, sort by sort_order, take first 15.
   useEffect(() => {
-    if (!selectedEntry) {
+    if (!selectedEntry && !videoBadgeFilter) {
       setVideos([]);
       return;
     }
@@ -408,6 +408,76 @@ const Test = () => {
       const safeSetVideos = (v: VideoItem[]) => { if (!cancelled) setVideos(v); };
       const safeSetLoadingVideos = (b: boolean) => { if (!cancelled) setLoadingVideos(b); };
       safeSetLoadingVideos(true);
+
+      // Badge filter takes precedence: load videos by badge for the current city
+      if (videoBadgeFilter) {
+        const { data: badgeDocs } = await supabase
+          .from("business_document_badges")
+          .select("document_id")
+          .eq("badge_id", videoBadgeFilter.badgeId);
+        const docIds = ((badgeDocs as any[]) || []).map((r) => r.document_id);
+        if (docIds.length === 0) {
+          safeSetVideos([]);
+          safeSetLoadingVideos(false);
+          return;
+        }
+        const allDocs: any[] = [];
+        const batch = 300;
+        for (let i = 0; i < docIds.length; i += batch) {
+          const chunk = docIds.slice(i, i + batch);
+          const { data } = await supabase
+            .from("business_documents")
+            .select("id, url, thumbnail_url, business_id, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, city")
+            .eq("type", "video")
+            .in("id", chunk);
+          if (data) allDocs.push(...data);
+        }
+        // Filter by current city (allow null city for multi-city via business_document_cities)
+        const cityFiltered = allDocs.filter((d: any) => !d.city || d.city === city || extraCityDocIds.has(d.id));
+        const seenUrls = new Set<string>();
+        const uniqueDocs = cityFiltered.filter((d: any) => {
+          if (!d.url || seenUrls.has(d.url)) return false;
+          seenUrls.add(d.url);
+          return true;
+        });
+        const allBizIds = [...new Set(uniqueDocs.map((d: any) => d.business_id).filter(Boolean))] as string[];
+        const bizMap = new Map<string, SearchResultBusiness>();
+        if (allBizIds.length > 0) {
+          for (let i = 0; i < allBizIds.length; i += batch) {
+            const { data: bizs } = await supabase
+              .from("businesses")
+              .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+              .in("id", allBizIds.slice(i, i + batch));
+            (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
+          }
+        }
+        uniqueDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+        safeSetVideos(
+          uniqueDocs.map((d: any) => {
+            const biz = bizMap.get(d.business_id) || null;
+            return {
+              id: d.id,
+              url: d.url,
+              business_name: biz?.name || "—",
+              thumbnail_url: d.thumbnail_url,
+              business: biz,
+              owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
+              social: extractSocial(d),
+              description: d.description ?? null,
+              manualCard: null,
+            } as VideoItem;
+          })
+        );
+        safeSetLoadingVideos(false);
+        return;
+      }
+
+      if (!selectedEntry) {
+        safeSetVideos([]);
+        safeSetLoadingVideos(false);
+        return;
+      }
+
 
       const isHome = selectedEntry.id === HOME_ID;
       const isVlogs = selectedEntry.id === VLOGS_ID;
@@ -676,7 +746,7 @@ const Test = () => {
     };
     load();
     return () => { cancelled = true; };
-  }, [selectedEntry, city, selectedSubId, extraCityDocIds]);
+  }, [selectedEntry, city, selectedSubId, extraCityDocIds, videoBadgeFilter]);
 
   // Reset active video when entry/city changes
   useEffect(() => {
