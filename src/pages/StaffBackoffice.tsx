@@ -263,8 +263,16 @@ const StaffBackoffice = () => {
   };
 
   const handleDuplicate = async (business: Business) => {
+    // Refetch the full row — the listing only contains a subset of columns for performance.
+    const { data: fullRow } = await supabase
+      .from("businesses")
+      .select("*")
+      .eq("id", business.id)
+      .single();
+    const sourceBusiness = (fullRow as Business | null) || business;
+
     // Create a copy of the business without id and timestamps
-    const { id, created_at, updated_at, search_vector, slug, ...businessData } = business;
+    const { id, created_at, updated_at, search_vector, slug, ...businessData } = sourceBusiness;
     
     // Use a temporary slug placeholder — the real slug will be generated
     // when the user saves with the correct name
