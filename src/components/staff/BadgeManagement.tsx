@@ -112,21 +112,8 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
     });
 
     // Build badge -> subcategory names map (FR/EN/AR) for inheritance lookup
-    const subcatById = new Map<string, { name_fr: string; name_en: string | null; name_ar: string | null }>();
-    subcatsRaw.forEach(sc => subcatById.set(sc.id, { name_fr: sc.name_fr, name_en: sc.name_en, name_ar: sc.name_ar }));
-    const badgeToSubcatNames = new Map<string, Set<string>>();
-    (badgeSubcatsRes.data || []).forEach((bs: any) => {
-      const sc = subcatById.get(bs.subcategory_id);
-      if (!sc) return;
-      if (!badgeToSubcatNames.has(bs.badge_id)) badgeToSubcatNames.set(bs.badge_id, new Set());
-      const set = badgeToSubcatNames.get(bs.badge_id)!;
-      if (sc.name_fr) set.add(sc.name_fr);
-      if (sc.name_en) set.add(sc.name_en);
-      if (sc.name_ar) set.add(sc.name_ar);
-    });
-
     // For each badge, build a Map<businessId, { sources, is_default }>
-    const perBadge: Record<string, Map<string, { sources: Set<"manual" | "primary" | "subcategory">; is_default: boolean }>> = {};
+    const perBadge: Record<string, Map<string, { sources: Set<"manual" | "primary">; is_default: boolean }>> = {};
     const ensure = (badgeId: string, bizId: string) => {
       if (!perBadge[badgeId]) perBadge[badgeId] = new Map();
       if (!perBadge[badgeId].has(bizId)) perBadge[badgeId].set(bizId, { sources: new Set(), is_default: false });
@@ -145,16 +132,6 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
     allBusinesses.forEach((b: any) => {
       if (!b.badge_id) return;
       ensure(b.badge_id, b.id).sources.add("primary");
-    });
-
-    // Source 3: badge_subcategories inheritance via business.categories
-    badgeToSubcatNames.forEach((names, badgeId) => {
-      allBusinesses.forEach((b: any) => {
-        const cats: string[] = b.categories || [];
-        if (cats.some(c => names.has(c))) {
-          ensure(badgeId, b.id).sources.add("subcategory");
-        }
-      });
     });
 
     const counts: Record<string, number> = {};
