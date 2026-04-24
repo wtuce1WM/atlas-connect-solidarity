@@ -3174,6 +3174,42 @@ export type Database = {
           },
         ]
       }
+      generic_video_subcategories: {
+        Row: {
+          created_at: string
+          generic_video_id: string
+          id: string
+          subcategory_id: string
+        }
+        Insert: {
+          created_at?: string
+          generic_video_id: string
+          id?: string
+          subcategory_id: string
+        }
+        Update: {
+          created_at?: string
+          generic_video_id?: string
+          id?: string
+          subcategory_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generic_video_subcategories_generic_video_id_fkey"
+            columns: ["generic_video_id"]
+            isOneToOne: false
+            referencedRelation: "generic_videos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generic_video_subcategories_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "subcategories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       generic_videos: {
         Row: {
           city: string | null
