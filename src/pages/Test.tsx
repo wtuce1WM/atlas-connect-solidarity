@@ -1338,7 +1338,7 @@ const Test = () => {
                             </button>
                           </div>
                         )}
-                        {v.business?.engagements?.includes("Logistique:Commandez en ligne et recevez votre colis chez vous") && (
+                        {selectedEntry?.id !== HOME_ID && v.business?.engagements?.includes("Logistique:Commandez en ligne et recevez votre colis chez vous") && (
                           <div className="absolute top-1.5 right-1.5 z-[6] px-1.5 py-0.5 rounded text-[9px] font-bold text-white shadow-md" style={{ backgroundColor: "#C04F17" }}>
                             Commandez en ligne
                           </div>
