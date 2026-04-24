@@ -1198,14 +1198,12 @@ const Test = () => {
                                 if (e.key !== "Enter" && e.key !== " ") return;
                                 e.preventDefault();
                                 e.stopPropagation();
-                                void handleHomeLabelClick(
-                                  {
-                                    label: v.manualCard.label,
-                                    kind: "extra",
+                                if (v.manualCard?.badgeId) {
+                                  setVideoBadgeFilter({
                                     badgeId: v.manualCard.badgeId,
-                                  },
-                                  city
-                                );
+                                    label: v.manualCard.label,
+                                  });
+                                }
                               }}
                               className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black cursor-pointer hover:bg-gold/90 transition-colors"
                             >
