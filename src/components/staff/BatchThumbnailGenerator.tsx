@@ -91,7 +91,10 @@ const BatchThumbnailGenerator = () => {
     setSucceeded(0);
     setFailed(0);
 
-    // Fetch all video docs without thumbnail that are NOT youtube/vimeo
+    const isExternalHosted = (url: string) =>
+      !/youtube\.com|youtu\.be|vimeo\.com/i.test(url);
+
+    // 1) business_documents sans thumbnail (hors YT/Vimeo)
     const { data: docs, error } = await supabase
       .from("business_documents")
       .select("id, url")
@@ -103,14 +106,34 @@ const BatchThumbnailGenerator = () => {
       .order("created_at", { ascending: true })
       .limit(5000);
 
-    if (error || !docs) {
-      toast({ variant: "destructive", title: "Erreur", description: error?.message || "Impossible de charger les vidéos." });
+    if (error) {
+      toast({ variant: "destructive", title: "Erreur", description: error.message });
       setRunning(false);
       return;
     }
 
-    setTotal(docs.length);
-    if (docs.length === 0) {
+    // 2) generic_videos sans thumbnail (hors YT/Vimeo)
+    const { data: gvs, error: gvErr } = await (supabase as any)
+      .from("generic_videos")
+      .select("id, url")
+      .is("thumbnail_url", null)
+      .order("created_at", { ascending: true })
+      .limit(5000);
+
+    if (gvErr) {
+      toast({ variant: "destructive", title: "Erreur", description: gvErr.message });
+      setRunning(false);
+      return;
+    }
+
+    type Job = { id: string; url: string; table: "business_documents" | "generic_videos" };
+    const jobs: Job[] = [
+      ...(docs || []).filter(d => isExternalHosted(d.url)).map(d => ({ id: d.id, url: d.url, table: "business_documents" as const })),
+      ...((gvs as any[]) || []).filter(g => isExternalHosted(g.url)).map(g => ({ id: g.id, url: g.url, table: "generic_videos" as const })),
+    ];
+
+    setTotal(jobs.length);
+    if (jobs.length === 0) {
       toast({ title: "Terminé", description: "Toutes les vignettes sont déjà générées !" });
       setRunning(false);
       return;
@@ -119,13 +142,13 @@ const BatchThumbnailGenerator = () => {
     let ok = 0, fail = 0;
     const CONCURRENCY = 4;
 
-    const processOne = async (doc: { id: string; url: string }) => {
+    const processOne = async (job: Job) => {
       if (cancelRef.current) return;
       try {
-        const blob = await generateVideoThumbnail(doc.url);
+        const blob = await generateVideoThumbnail(job.url);
         if (!blob) { fail++; setFailed(f => f + 1); setProcessed(p => p + 1); return; }
 
-        const thumbName = `thumbs/batch-${doc.id}-${Date.now()}.jpg`;
+        const thumbName = `thumbs/batch-${job.table}-${job.id}-${Date.now()}.jpg`;
         const { error: upErr } = await supabase.storage
           .from("business-images")
           .upload(thumbName, blob, { cacheControl: "31536000", upsert: true, contentType: "image/jpeg" });
@@ -134,7 +157,7 @@ const BatchThumbnailGenerator = () => {
 
         const { data: urlData } = supabase.storage.from("business-images").getPublicUrl(thumbName);
         if (urlData?.publicUrl) {
-          await supabase.from("business_documents").update({ thumbnail_url: urlData.publicUrl }).eq("id", doc.id);
+          await (supabase as any).from(job.table).update({ thumbnail_url: urlData.publicUrl }).eq("id", job.id);
           ok++;
           setSucceeded(s => s + 1);
         } else {
@@ -148,16 +171,15 @@ const BatchThumbnailGenerator = () => {
       setProcessed(p => p + 1);
     };
 
-    // Process in parallel batches
-    for (let i = 0; i < docs.length; i += CONCURRENCY) {
+    for (let i = 0; i < jobs.length; i += CONCURRENCY) {
       if (cancelRef.current) break;
-      const batch = docs.slice(i, i + CONCURRENCY);
+      const batch = jobs.slice(i, i + CONCURRENCY);
       await Promise.all(batch.map(processOne));
     }
 
     toast({
       title: cancelRef.current ? "Interrompu" : "Terminé",
-      description: `${ok} vignettes générées, ${fail} échecs sur ${docs.length} vidéos.`,
+      description: `${ok} vignettes générées, ${fail} échecs sur ${jobs.length} vidéos.`,
     });
     setRunning(false);
   }, [toast]);
