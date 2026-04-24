@@ -1203,13 +1203,15 @@ const Test = () => {
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
                         {v.manualCard?.label && (
-                          <div className="absolute inset-x-0 top-[10%] z-[8] flex items-center justify-center px-2">
-                            <div
-                              role="button"
-                              tabIndex={0}
+                          <div className="absolute inset-x-0 top-[10%] z-20 flex items-center justify-center px-2 pointer-events-none">
+                            <button
+                              type="button"
                               data-manual-badge="true"
-                              onKeyDown={(e) => {
-                                if (e.key !== "Enter" && e.key !== " ") return;
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                              }}
+                              onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 if (v.manualCard?.badgeId) {
@@ -1219,10 +1221,10 @@ const Test = () => {
                                   });
                                 }
                               }}
-                              className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black cursor-pointer hover:bg-gold/90 transition-colors"
+                              className="pointer-events-auto px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black cursor-pointer hover:bg-gold/90 transition-colors"
                             >
                               {v.manualCard.label}
-                            </div>
+                            </button>
                           </div>
                         )}
                         {v.business && (v.business.computed_rating ?? v.business.rating) != null && (
