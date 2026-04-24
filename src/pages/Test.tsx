@@ -893,16 +893,20 @@ const Test = () => {
                   <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
                 </TabsList>
                 <TabsContent value="marrakech">
-                  <HomepageCardsFront
-                    city="Marrakech"
-                    onLabelClick={(info) => handleHomeLabelClick(info, "Marrakech")}
-                  />
+                  <div>
+                    <HomepageCardsFront
+                      city="Marrakech"
+                      onLabelClick={(info) => handleHomeLabelClick(info, "Marrakech")}
+                    />
+                  </div>
                 </TabsContent>
                 <TabsContent value="essaouira">
-                  <HomepageCardsFront
-                    city="Essaouira"
-                    onLabelClick={(info) => handleHomeLabelClick(info, "Essaouira")}
-                  />
+                  <div>
+                    <HomepageCardsFront
+                      city="Essaouira"
+                      onLabelClick={(info) => handleHomeLabelClick(info, "Essaouira")}
+                    />
+                  </div>
                 </TabsContent>
               </Tabs>
               {badgeView && (
@@ -1140,7 +1144,24 @@ const Test = () => {
                           return (
                       <div
                         key={v.id}
-                        onClick={handlePick}
+                        onClick={(e) => {
+                          const target = e.target as HTMLElement | null;
+                          const clickedManualBadge = target?.closest("[data-manual-badge='true']");
+
+                          if (clickedManualBadge && v.manualCard) {
+                            void handleHomeLabelClick(
+                              {
+                                label: v.manualCard.label,
+                                kind: "extra",
+                                badgeId: v.manualCard.badgeId,
+                              },
+                              city
+                            );
+                            return;
+                          }
+
+                          handlePick();
+                        }}
                         className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted cursor-pointer"
                       >
                         {thumb ? (
@@ -1156,18 +1177,7 @@ const Test = () => {
                             <div
                               role="button"
                               tabIndex={0}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                void handleHomeLabelClick(
-                                  {
-                                    label: v.manualCard.label,
-                                    kind: "extra",
-                                    badgeId: v.manualCard.badgeId,
-                                  },
-                                  city
-                                );
-                              }}
+                              data-manual-badge="true"
                               onKeyDown={(e) => {
                                 if (e.key !== "Enter" && e.key !== " ") return;
                                 e.preventDefault();
