@@ -1046,7 +1046,7 @@ const GenericVideosPanel = () => {
   }, []);
 
   return (
-    <div className="flex" style={{ height: "calc(100vh - 100px)" }}>
+    <div className="flex" style={{ height: "100vh" }}>
       {/* Left: video grid */}
       <div
         className={cn("flex-1 space-y-6 pt-4 pr-4 overflow-y-auto", hasRightPanel && "w-1/2")}
