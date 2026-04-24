@@ -835,50 +835,7 @@ const Test = () => {
     }
 
     if (!info.badgeId) return;
-
-    const activated = await activateVideoBadgeFilter(info.badgeId, info.label, clickedCity);
-    if (activated) return;
-
-    setSelectedEntryId(HOME_ID);
-    setBadgeView({ badgeId: info.badgeId, label: info.label, city: clickedCity });
-    setLoadingBadge(true);
-    setBadgeBusinesses([]);
-    const [{ data: businessLinks }, { data: documentLinks }] = await Promise.all([
-      supabase
-        .from("business_badges")
-        .select("business_id")
-        .eq("badge_id", info.badgeId),
-      supabase
-        .from("business_document_badges")
-        .select("document_id, business_documents!inner(business_id, linked_business_id, poi_id)")
-        .eq("badge_id", info.badgeId),
-    ]);
-
-    const ids = Array.from(
-      new Set([
-        ...(((businessLinks as any[]) || []).map((link) => link.business_id)),
-        ...(((documentLinks as any[]) || []).flatMap((link: any) => {
-          const document = Array.isArray(link.business_documents)
-            ? link.business_documents[0]
-            : link.business_documents;
-
-          return [document?.poi_id, document?.linked_business_id, document?.business_id].filter(Boolean);
-        })),
-      ])
-    );
-
-    if (ids.length === 0) {
-      setLoadingBadge(false);
-      return;
-    }
-    const { data: bizs } = await supabase
-      .from("businesses")
-      .select("id, name, slug, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
-      .in("id", ids)
-      .eq("city", clickedCity)
-      .eq("is_active", true);
-    setBadgeBusinesses(((bizs as any[]) || []) as SearchResultBusiness[]);
-    setLoadingBadge(false);
+    await activateVideoBadgeFilter(info.badgeId, info.label, clickedCity);
   };
 
   const structureList = (
