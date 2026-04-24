@@ -932,6 +932,22 @@ const Test = () => {
                           <span>{subcatNames[selectedSubId]}</span>
                           <span className="text-muted-foreground font-normal">({displayList.length})</span>
                         </>
+                      ) : isParentEntry ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedEntryId(HOME_ID);
+                              setSelectedSubId(null);
+                            }}
+                            className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors"
+                          >
+                            Page d'accueil
+                          </button>
+                          <span className="text-muted-foreground font-normal">›</span>
+                          <span>{selectedEntry.name}</span>
+                          <span className="text-muted-foreground font-normal">({displayList.length})</span>
+                        </>
                       ) : (
                         <span>{selectedEntry.name} ({displayList.length})</span>
                       )}
