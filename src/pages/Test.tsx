@@ -1078,9 +1078,7 @@ const Test = () => {
           ) : (() => {
             const isGuide = otherViewMode === "guide";
             const baseList = isGuide ? guideVideos : otherVideos;
-            const displayList = videoBadgeFilter && videoBadgeDocIds
-              ? baseList.filter((v) => videoBadgeDocIds.has(v.id))
-              : baseList;
+            const displayList = baseList;
             const isThumbMode = otherViewMode === "videos" || isGuide;
             const isParentEntry =
               !!selectedEntry &&
