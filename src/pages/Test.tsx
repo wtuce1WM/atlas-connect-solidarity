@@ -432,8 +432,9 @@ const Test = () => {
             .in("id", chunk);
           if (data) allDocs.push(...data);
         }
-        // Filter by current city (allow null city for multi-city via business_document_cities)
-        const cityFiltered = allDocs.filter((d: any) => !d.city || d.city === city || extraCityDocIds.has(d.id));
+        // Filter by current city: only videos explicitly assigned to this city
+        // (either via document.city, or via business_document_cities multi-city links)
+        const cityFiltered = allDocs.filter((d: any) => d.city === city || extraCityDocIds.has(d.id));
         const seenUrls = new Set<string>();
         const uniqueDocs = cityFiltered.filter((d: any) => {
           if (!d.url || seenUrls.has(d.url)) return false;
