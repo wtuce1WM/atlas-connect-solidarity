@@ -434,13 +434,14 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
           </TableHeader>
           <TableBody>
             {loading ? (
-              <TableRow><TableCell colSpan={9} className="text-center py-8">Chargement...</TableCell></TableRow>
+              <TableRow><TableCell colSpan={10} className="text-center py-8">Chargement...</TableCell></TableRow>
             ) : badges.length === 0 ? (
-              <TableRow><TableCell colSpan={9} className="text-center py-8">Aucun badge défini.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={10} className="text-center py-8">Aucun badge défini.</TableCell></TableRow>
             ) : (
               badges.map(badge => {
                 const isExpanded = expandedBadges.has(badge.id);
                 const count = badgeCounts[badge.id] || 0;
+                const videoCount = badgeVideoCounts[badge.id] || 0;
                 const businesses = badgeBusinesses[badge.id] || [];
                 return (
                   <React.Fragment key={badge.id}>
