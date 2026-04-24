@@ -23,7 +23,7 @@ interface BadgeBusiness {
   city: string;
   badge_id: string;
   is_default: boolean;
-  sources: Array<"manual" | "primary" | "subcategory">;
+  sources: Array<"manual" | "primary">;
 }
 
 interface Subcategory {
