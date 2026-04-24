@@ -1168,15 +1168,11 @@ const Test = () => {
                           const target = e.target as HTMLElement | null;
                           const clickedManualBadge = target?.closest("[data-manual-badge='true']");
 
-                          if (clickedManualBadge && v.manualCard) {
-                            void handleHomeLabelClick(
-                              {
-                                label: v.manualCard.label,
-                                kind: "extra",
-                                badgeId: v.manualCard.badgeId,
-                              },
-                              city
-                            );
+                          if (clickedManualBadge && v.manualCard?.badgeId) {
+                            setVideoBadgeFilter({
+                              badgeId: v.manualCard.badgeId,
+                              label: v.manualCard.label,
+                            });
                             return;
                           }
 
