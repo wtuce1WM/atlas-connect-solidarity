@@ -1125,6 +1125,7 @@ const GenericVideosPanel = () => {
   const [poiVideo, setPoiVideo] = useState<GenericVideo | null>(null);
   const [businessVideo, setBusinessVideo] = useState<GenericVideo | null>(null);
   const [destinationVideo, setDestinationVideo] = useState<GenericVideo | null>(null);
+  const [tagsVideo, setTagsVideo] = useState<GenericVideo | null>(null);
   const [previewOverlayVideo, setPreviewOverlayVideo] = useState<GenericVideo | null>(null);
 
   // Selected video for right panel
@@ -1139,6 +1140,9 @@ const GenericVideosPanel = () => {
   const [videoPoiCounts, setVideoPoiCounts] = useState<Record<string, number>>({});
   const [videoBizCounts, setVideoBizCounts] = useState<Record<string, number>>({});
   const [videoDestCounts, setVideoDestCounts] = useState<Record<string, number>>({});
+  const [videoBadgeCounts, setVideoBadgeCounts] = useState<Record<string, number>>({});
+  const [videoSubcatCounts, setVideoSubcatCounts] = useState<Record<string, number>>({});
+  const [videoCityCounts, setVideoCityCounts] = useState<Record<string, number>>({});
   const [videoHasTimeframes, setVideoHasTimeframes] = useState<Record<string, boolean>>({});
 
   const sensors = useSensors(
@@ -1154,10 +1158,13 @@ const GenericVideosPanel = () => {
   }, []);
 
   const loadCounts = useCallback(async () => {
-    const [{ data: poiLinks }, { data: bizLinks }, { data: destLinks }] = await Promise.all([
+    const [{ data: poiLinks }, { data: bizLinks }, { data: destLinks }, { data: badgeLinks }, { data: subcatLinks }, { data: cityLinks }] = await Promise.all([
       supabase.from("generic_video_pois" as any).select("generic_video_id, start_time, end_time") as any,
       supabase.from("generic_video_businesses" as any).select("generic_video_id, start_time, end_time") as any,
       supabase.from("generic_video_destinations" as any).select("generic_video_id, start_time, end_time") as any,
+      supabase.from("generic_video_badges" as any).select("generic_video_id") as any,
+      supabase.from("generic_video_subcategories" as any).select("generic_video_id") as any,
+      supabase.from("generic_video_cities" as any).select("generic_video_id") as any,
     ]);
     const pc: Record<string, number> = {};
     const tf: Record<string, boolean> = {};
@@ -1169,6 +1176,15 @@ const GenericVideosPanel = () => {
     const dc: Record<string, number> = {};
     ((destLinks as any[]) || []).forEach((l: any) => { dc[l.generic_video_id] = (dc[l.generic_video_id] || 0) + 1; if (l.start_time != null || l.end_time != null) tf[l.generic_video_id] = true; });
     setVideoDestCounts(dc);
+    const bad: Record<string, number> = {};
+    ((badgeLinks as any[]) || []).forEach((l: any) => { bad[l.generic_video_id] = (bad[l.generic_video_id] || 0) + 1; });
+    setVideoBadgeCounts(bad);
+    const sc: Record<string, number> = {};
+    ((subcatLinks as any[]) || []).forEach((l: any) => { sc[l.generic_video_id] = (sc[l.generic_video_id] || 0) + 1; });
+    setVideoSubcatCounts(sc);
+    const cc: Record<string, number> = {};
+    ((cityLinks as any[]) || []).forEach((l: any) => { cc[l.generic_video_id] = (cc[l.generic_video_id] || 0) + 1; });
+    setVideoCityCounts(cc);
     setVideoHasTimeframes(tf);
   }, []);
 
