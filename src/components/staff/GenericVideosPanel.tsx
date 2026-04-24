@@ -1417,6 +1417,11 @@ const GenericVideosPanel = () => {
           <InlineDestinationCityAssignment video={destinationVideo} onClose={() => setDestinationVideo(null)} onSaved={() => { loadCounts(); }} />
         </div>
       )}
+      {tagsVideo && (
+        <div className="w-1/2 sticky top-0 h-full overflow-hidden border-l bg-card">
+          <InlineBadgeSubcatCityAssignment video={tagsVideo} onClose={() => setTagsVideo(null)} onSaved={() => { loadCounts(); }} />
+        </div>
+      )}
 
       {lightboxUrl && <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
       {socialVideo && <SocialLinksDialog video={socialVideo} open={!!socialVideo} onOpenChange={(o) => !o && setSocialVideo(null)} onSaved={loadVideos} />}
