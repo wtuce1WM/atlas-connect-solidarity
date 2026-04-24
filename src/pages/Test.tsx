@@ -998,7 +998,7 @@ const Test = () => {
       <div className="pt-[53px] flex w-full min-h-[calc(100vh-53px)]">
         {/* Right zone 80% */}
         <main className={`p-6 overflow-y-auto transition-all duration-300 ${panelOpen ? "w-1/2" : "flex-1"}`}>
-          {selectedEntryId === HOME_ID ? (
+          {selectedEntryId === HOME_ID && !videoBadgeFilter ? (
             <>
               <Tabs defaultValue={city.toLowerCase()} value={city.toLowerCase()} onValueChange={(v) => { setCity((v.charAt(0).toUpperCase() + v.slice(1)) as City); setBadgeView(null); }}>
                 <TabsList>
@@ -1103,6 +1103,8 @@ const Test = () => {
                     <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5 flex-wrap">
                       {isGuide ? (
                         <span>Suivez le guide ({displayList.length})</span>
+                      ) : videoBadgeFilter ? (
+                        <span>{videoBadgeFilter.label} ({displayList.length})</span>
                       ) : selectedSubId && subcatNames[selectedSubId] ? (
                         <>
                           <button
