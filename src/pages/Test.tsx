@@ -760,6 +760,58 @@ const Test = () => {
     [activeVideo, selectedEntryId]
   );
 
+  const resolveTargetEntryForBadge = async (badgeId: string, label: string, targetCity: City) => {
+    const normalizedLabel = label.trim().toLowerCase();
+    const labelMatch = entries.find((e) => e.name.trim().toLowerCase() === normalizedLabel) || null;
+    if (labelMatch) return labelMatch;
+
+    const { data: badgeDocs } = await supabase
+      .from("business_document_badges")
+      .select("business_documents!inner(subcategory_id, city)")
+      .eq("badge_id", badgeId);
+
+    const badgeSubcategoryIds = new Set(
+      (((badgeDocs as any[]) || []) as any[]).flatMap((row) => {
+        const document = Array.isArray(row.business_documents)
+          ? row.business_documents[0]
+          : row.business_documents;
+
+        if (!document?.subcategory_id) return [];
+        if (document.city && document.city !== targetCity) return [];
+        return [document.subcategory_id as string];
+      })
+    );
+
+    if (badgeSubcategoryIds.size === 0) return null;
+
+    return entries.find((entry) => entry.subcategory_ids.some((subcategoryId) => badgeSubcategoryIds.has(subcategoryId))) || null;
+  };
+
+  const activateVideoBadgeFilter = async (badgeId: string, label: string, targetCity: City) => {
+    const targetEntry = await resolveTargetEntryForBadge(badgeId, label, targetCity);
+
+    setBadgeView(null);
+    setLoadingBadge(false);
+    setBadgeBusinesses([]);
+    setOtherViewMode("videos");
+    setActiveVideo(null);
+    setPanelOpen(false);
+    setCurrentTime(0);
+    setSelectedSubId(null);
+    setVideoBadgeFilter({ badgeId, label });
+
+    if (city !== targetCity) {
+      setCity(targetCity);
+    }
+
+    if (targetEntry) {
+      setSelectedEntryId(targetEntry.id);
+      return true;
+    }
+
+    return false;
+  };
+
   const handleHomeLabelClick = async (
     info: { label: string; kind: "entry" | "extra"; badgeId: string | null },
     clickedCity: City
@@ -768,13 +820,18 @@ const Test = () => {
       const match = entries.find((e) => e.name.toLowerCase() === info.label.toLowerCase());
       if (match) {
         setBadgeView(null);
+        setVideoBadgeFilter(null);
         setSelectedEntryId(match.id);
         setSelectedSubId(null);
       }
       return;
     }
-    // Extra (manual) card → list businesses in this city using the badge
+
     if (!info.badgeId) return;
+
+    const activated = await activateVideoBadgeFilter(info.badgeId, info.label, clickedCity);
+    if (activated) return;
+
     setSelectedEntryId(HOME_ID);
     setBadgeView({ badgeId: info.badgeId, label: info.label, city: clickedCity });
     setLoadingBadge(true);
@@ -1183,10 +1240,7 @@ const Test = () => {
                           const clickedManualBadge = target?.closest("[data-manual-badge='true']");
 
                           if (clickedManualBadge && v.manualCard?.badgeId) {
-                            setVideoBadgeFilter({
-                              badgeId: v.manualCard.badgeId,
-                              label: v.manualCard.label,
-                            });
+                            void activateVideoBadgeFilter(v.manualCard.badgeId, v.manualCard.label, city);
                             return;
                           }
 
@@ -1215,10 +1269,7 @@ const Test = () => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 if (v.manualCard?.badgeId) {
-                                  setVideoBadgeFilter({
-                                    badgeId: v.manualCard.badgeId,
-                                    label: v.manualCard.label,
-                                  });
+                                  void activateVideoBadgeFilter(v.manualCard.badgeId, v.manualCard.label, city);
                                 }
                               }}
                               className="pointer-events-auto px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black cursor-pointer hover:bg-gold/90 transition-colors"
