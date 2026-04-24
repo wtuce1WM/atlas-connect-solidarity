@@ -41,6 +41,38 @@ type Business = Tables<"businesses">;
 
 type Gamme = { id: string; name_fr: string; color_hex: string | null; text_color_hex: string | null };
 
+// Lightweight column list for the backoffice list view.
+// Excludes very heavy fields (search_vector, ai_review_summary, vacation_dates,
+// opening_hours, long descriptions, etc.) that are NOT needed in the listing.
+// Full row is refetched on demand when opening the editor or duplicating.
+const LIST_COLUMNS = [
+  "id", "name", "slug", "city", "region", "neighborhood", "country",
+  "main_category", "categories", "services", "default_service",
+  "gamme_id", "badge_id", "affiliate_id", "kp_regroupement", "kp_regroupement_2",
+  "rating", "computed_rating", "total_review_count",
+  "google_rating", "google_review_count",
+  "tripadvisor_rating", "tripadvisor_review_count",
+  "restaurant_guru_rating", "restaurant_guru_review_count",
+  "getyourguide_rating", "getyourguide_review_count",
+  "viator_rating", "viator_review_count",
+  "avis_verifies_rating", "avis_verifies_review_count",
+  "trustpilot_rating", "trustpilot_review_count",
+  "kayak_rating", "kayak_review_count",
+  "tourradar_rating", "tourradar_review_count",
+  "wtuce_status", "is_active", "is_poi", "is_featured", "is_master",
+  "phone", "email", "whatsapp",
+  "website", "facebook_url", "instagram_url", "youtube_url", "linkedin_url",
+  "twitter_url", "tiktok_url", "pinterest_url", "vimeo_url",
+  "tripadvisor_url", "restaurant_guru_url", "google_maps_url", "google_reviews_url",
+  "tripadvisor_review_url", "booking_url", "airbnb_url", "hotels_com_url",
+  "trivago_url", "reserve_now_url", "online_shop_url", "menu_url",
+  "other_booking_url", "video_1_url", "glovo_url",
+  "images", "logo_url", "pdf_url", "pdf_2_url", "pdf_3_url", "label1_url",
+  "engagements", "keywords", "hook_fr",
+  "latitude", "longitude",
+  "created_at", "updated_at",
+].join(",");
+
 const hasBackofficeAccess = (roles: Array<{ role: string }> | null | undefined) =>
   !!roles?.some((r) => r.role === "admin" || r.role === "staff");
 
