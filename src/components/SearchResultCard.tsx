@@ -127,6 +127,11 @@ export default function SearchResultCard({ business, index, labelLogos, distance
         {subcat && (
           <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-gold text-gold-foreground">{subcat}</span>
         )}
+        {engs.includes("Logistique:Commandez en ligne et recevez votre colis chez vous") && (
+          <span className="px-1.5 py-0.5 rounded text-[10px] font-medium text-white" style={{ backgroundColor: "#C04F17" }}>
+            Commandez en ligne
+          </span>
+        )}
         {business.default_service && (
           <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-black text-white border border-white/20">{business.default_service}</span>
         )}
