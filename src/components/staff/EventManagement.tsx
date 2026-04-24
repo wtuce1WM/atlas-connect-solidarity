@@ -205,6 +205,33 @@ const EventManagement = () => {
   // List view: event businesses names map
   const [eventBizNames, setEventBizNames] = useState<Record<string, string[]>>({});
 
+  // Badges
+  const [allBadges, setAllBadges] = useState<{ id: string; name_fr: string; color_hex: string | null; text_color_hex: string | null }[]>([]);
+  const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>([]);
+
+  const fetchBadges = async () => {
+    const { data } = await supabase
+      .from("badges")
+      .select("id, name_fr, color_hex, text_color_hex")
+      .order("sort_order", { ascending: true })
+      .order("name_fr");
+    if (data) setAllBadges(data as any);
+  };
+
+  const fetchEventBadges = async (eventId: string) => {
+    const { data } = await supabase
+      .from("event_badges" as any)
+      .select("badge_id")
+      .eq("event_id", eventId);
+    setSelectedBadgeIds((data as any[] || []).map(r => r.badge_id));
+  };
+
+  const toggleBadge = (badgeId: string) => {
+    setSelectedBadgeIds(prev =>
+      prev.includes(badgeId) ? prev.filter(id => id !== badgeId) : [...prev, badgeId]
+    );
+  };
+
   const fetchEventTypes = async () => {
     const { data } = await supabase.from("event_types").select("name").order("name");
     if (data) setEventTypes(data.map(d => (d as any).name));
