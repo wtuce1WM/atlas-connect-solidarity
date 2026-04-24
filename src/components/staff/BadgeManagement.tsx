@@ -499,7 +499,7 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
                                   <span>{b.name} <span className="text-muted-foreground">— {b.city}</span></span>
                                   {b.sources.includes("manual") && <Badge variant="outline" className="text-[10px] py-0 h-4">Manuel</Badge>}
                                   {b.sources.includes("primary") && <Badge variant="outline" className="text-[10px] py-0 h-4">Principal</Badge>}
-                                  {b.sources.includes("subcategory") && <Badge variant="outline" className="text-[10px] py-0 h-4">Sous-catégorie</Badge>}
+                                  
                                 </span>
                                 {onEditBusiness && (
                                   <Button variant="ghost" size="sm" onClick={() => onEditBusiness(b.id)} className="h-7 text-xs gap-1">
