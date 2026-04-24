@@ -507,9 +507,7 @@ const StaffFront = () => {
           </TabsContent>
 
           <TabsContent value="video-id">
-            <div className="text-sm text-muted-foreground p-4 border rounded-lg">
-              Onglet "Vidéo ID" — contenu à définir.
-            </div>
+            <VideoThumbnailLocker />
           </TabsContent>
 
           <TabsContent value="test">
