@@ -1104,7 +1104,22 @@ const Test = () => {
                       {isGuide ? (
                         <span>Suivez le guide ({displayList.length})</span>
                       ) : videoBadgeFilter ? (
-                        <span>{videoBadgeFilter.label} ({displayList.length})</span>
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setVideoBadgeFilter(null);
+                              setSelectedEntryId(HOME_ID);
+                              setSelectedSubId(null);
+                            }}
+                            className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors"
+                          >
+                            Page d'accueil
+                          </button>
+                          <span className="text-muted-foreground font-normal">›</span>
+                          <span>{videoBadgeFilter.label}</span>
+                          <span className="text-muted-foreground font-normal">({displayList.length})</span>
+                        </>
                       ) : selectedSubId && subcatNames[selectedSubId] ? (
                         <>
                           <button
@@ -1154,17 +1169,6 @@ const Test = () => {
                       )}
                     </h3>
                     <div className="flex items-center gap-2 flex-wrap">
-                      {videoBadgeFilter && (
-                        <button
-                          type="button"
-                          onClick={() => setVideoBadgeFilter(null)}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide border-2 border-black hover:bg-gold/90 transition-colors"
-                          title="Retirer le filtre"
-                        >
-                          <span>{videoBadgeFilter.label}</span>
-                          <X className="h-3 w-3" />
-                        </button>
-                      )}
                       <div className="inline-flex rounded-md border border-border overflow-hidden text-xs">
                         {CITIES.map((c, idx) => (
                           <button
