@@ -178,6 +178,26 @@ const Test = () => {
   const [badgeView, setBadgeView] = useState<{ badgeId: string; label: string; city: City } | null>(null);
   const [badgeBusinesses, setBadgeBusinesses] = useState<SearchResultBusiness[]>([]);
   const [loadingBadge, setLoadingBadge] = useState(false);
+  const [videoBadgeFilter, setVideoBadgeFilter] = useState<{ badgeId: string; label: string } | null>(null);
+  const [videoBadgeDocIds, setVideoBadgeDocIds] = useState<Set<string> | null>(null);
+
+  // Load doc ids matching the active video badge filter
+  useEffect(() => {
+    if (!videoBadgeFilter) {
+      setVideoBadgeDocIds(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("business_document_badges")
+        .select("document_id")
+        .eq("badge_id", videoBadgeFilter.badgeId);
+      if (cancelled) return;
+      setVideoBadgeDocIds(new Set(((data as any[]) || []).map((r) => r.document_id)));
+    })();
+    return () => { cancelled = true; };
+  }, [videoBadgeFilter]);
 
   // ============================================================
   // EFFECTS
@@ -964,7 +984,10 @@ const Test = () => {
             </p>
           ) : (() => {
             const isGuide = otherViewMode === "guide";
-            const displayList = isGuide ? guideVideos : otherVideos;
+            const baseList = isGuide ? guideVideos : otherVideos;
+            const displayList = videoBadgeFilter && videoBadgeDocIds
+              ? baseList.filter((v) => videoBadgeDocIds.has(v.id))
+              : baseList;
             const isThumbMode = otherViewMode === "videos" || isGuide;
             const isParentEntry =
               !!selectedEntry &&
@@ -1037,7 +1060,18 @@ const Test = () => {
                         <span>{selectedEntry.name} ({displayList.length})</span>
                       )}
                     </h3>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {videoBadgeFilter && (
+                        <button
+                          type="button"
+                          onClick={() => setVideoBadgeFilter(null)}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide border-2 border-black hover:bg-gold/90 transition-colors"
+                          title="Retirer le filtre"
+                        >
+                          <span>{videoBadgeFilter.label}</span>
+                          <X className="h-3 w-3" />
+                        </button>
+                      )}
                       <div className="inline-flex rounded-md border border-border overflow-hidden text-xs">
                         {CITIES.map((c, idx) => (
                           <button
@@ -1148,15 +1182,11 @@ const Test = () => {
                           const target = e.target as HTMLElement | null;
                           const clickedManualBadge = target?.closest("[data-manual-badge='true']");
 
-                          if (clickedManualBadge && v.manualCard) {
-                            void handleHomeLabelClick(
-                              {
-                                label: v.manualCard.label,
-                                kind: "extra",
-                                badgeId: v.manualCard.badgeId,
-                              },
-                              city
-                            );
+                          if (clickedManualBadge && v.manualCard?.badgeId) {
+                            setVideoBadgeFilter({
+                              badgeId: v.manualCard.badgeId,
+                              label: v.manualCard.label,
+                            });
                             return;
                           }
 
@@ -1182,14 +1212,12 @@ const Test = () => {
                                 if (e.key !== "Enter" && e.key !== " ") return;
                                 e.preventDefault();
                                 e.stopPropagation();
-                                void handleHomeLabelClick(
-                                  {
-                                    label: v.manualCard.label,
-                                    kind: "extra",
+                                if (v.manualCard?.badgeId) {
+                                  setVideoBadgeFilter({
                                     badgeId: v.manualCard.badgeId,
-                                  },
-                                  city
-                                );
+                                    label: v.manualCard.label,
+                                  });
+                                }
                               }}
                               className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black cursor-pointer hover:bg-gold/90 transition-colors"
                             >
