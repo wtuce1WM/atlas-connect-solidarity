@@ -178,6 +178,26 @@ const Test = () => {
   const [badgeView, setBadgeView] = useState<{ badgeId: string; label: string; city: City } | null>(null);
   const [badgeBusinesses, setBadgeBusinesses] = useState<SearchResultBusiness[]>([]);
   const [loadingBadge, setLoadingBadge] = useState(false);
+  const [videoBadgeFilter, setVideoBadgeFilter] = useState<{ badgeId: string; label: string } | null>(null);
+  const [videoBadgeDocIds, setVideoBadgeDocIds] = useState<Set<string> | null>(null);
+
+  // Load doc ids matching the active video badge filter
+  useEffect(() => {
+    if (!videoBadgeFilter) {
+      setVideoBadgeDocIds(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("business_document_badges")
+        .select("document_id")
+        .eq("badge_id", videoBadgeFilter.badgeId);
+      if (cancelled) return;
+      setVideoBadgeDocIds(new Set(((data as any[]) || []).map((r) => r.document_id)));
+    })();
+    return () => { cancelled = true; };
+  }, [videoBadgeFilter]);
 
   // ============================================================
   // EFFECTS
