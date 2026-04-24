@@ -340,6 +340,7 @@ const EventManagement = () => {
     setKpInput("");
     setLinkedBusinessIds([]);
     setLinkedBusinesses([]);
+    setSelectedBadgeIds([]);
     setBizSearchQuery("");
     setBizSearchResults([]);
     setShowForm(true);
