@@ -447,6 +447,15 @@ const EventManagement = () => {
       }
     }
 
+    // Save badges
+    if (savedId) {
+      await supabase.from("event_badges" as any).delete().eq("event_id", savedId);
+      if (selectedBadgeIds.length > 0) {
+        const badgeRows = selectedBadgeIds.map(badgeId => ({ event_id: savedId, badge_id: badgeId }));
+        await supabase.from("event_badges" as any).insert(badgeRows);
+      }
+    }
+
     toast({ title: editingId ? "Événement mis à jour" : "Événement créé" });
     setShowForm(false);
     setEditingId(null);
