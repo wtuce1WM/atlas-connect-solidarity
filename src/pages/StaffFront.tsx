@@ -311,6 +311,7 @@ import FrontStructureManagement from "@/components/staff/FrontStructureManagemen
 import DestinationVideosPanel from "@/components/staff/DestinationVideosPanel";
 import RegenerateHomepageSnapshotButton from "@/components/staff/RegenerateHomepageSnapshotButton";
 import HomepageFrontStructurePreview from "@/components/staff/HomepageFrontStructurePreview";
+import HomepageCardsFront from "@/components/HomepageCardsFront";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import DisplayPanel from "@/components/staff/DisplayPanel";
 import CountryVideosPanel from "@/components/staff/CountryVideosPanel";
@@ -426,11 +427,11 @@ const StaffFront = () => {
               </TabsList>
               <TabsContent value="marrakech">
                 <RegenerateHomepageSnapshotButton cityName="Marrakech" />
-                <HomepageFrontStructurePreview city="Marrakech" />
+                <HomepageCardsFront city="Marrakech" />
               </TabsContent>
               <TabsContent value="essaouira">
                 <RegenerateHomepageSnapshotButton cityName="Essaouira" />
-                <HomepageFrontStructurePreview city="Essaouira" />
+                <HomepageCardsFront city="Essaouira" />
               </TabsContent>
             </Tabs>
           </TabsContent>
