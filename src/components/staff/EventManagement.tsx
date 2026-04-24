@@ -380,6 +380,7 @@ const EventManagement = () => {
     setBizSearchQuery("");
     setBizSearchResults([]);
     fetchLinkedBusinesses(ev.id);
+    fetchEventBadges(ev.id);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: "instant" });
   };
