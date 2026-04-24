@@ -893,16 +893,20 @@ const Test = () => {
                   <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
                 </TabsList>
                 <TabsContent value="marrakech">
-                  <HomepageCardsFront
-                    city="Marrakech"
-                    onLabelClick={(info) => handleHomeLabelClick(info, "Marrakech")}
-                  />
+                  <div>
+                    <HomepageCardsFront
+                      city="Marrakech"
+                      onLabelClick={(info) => handleHomeLabelClick(info, "Marrakech")}
+                    />
+                  </div>
                 </TabsContent>
                 <TabsContent value="essaouira">
-                  <HomepageCardsFront
-                    city="Essaouira"
-                    onLabelClick={(info) => handleHomeLabelClick(info, "Essaouira")}
-                  />
+                  <div>
+                    <HomepageCardsFront
+                      city="Essaouira"
+                      onLabelClick={(info) => handleHomeLabelClick(info, "Essaouira")}
+                    />
+                  </div>
                 </TabsContent>
               </Tabs>
               {badgeView && (
@@ -1140,7 +1144,24 @@ const Test = () => {
                           return (
                       <div
                         key={v.id}
-                        onClick={handlePick}
+                        onClick={(e) => {
+                          const target = e.target as HTMLElement | null;
+                          const clickedManualBadge = target?.closest("[data-manual-badge='true']");
+
+                          if (clickedManualBadge && v.manualCard) {
+                            void handleHomeLabelClick(
+                              {
+                                label: v.manualCard.label,
+                                kind: "extra",
+                                badgeId: v.manualCard.badgeId,
+                              },
+                              city
+                            );
+                            return;
+                          }
+
+                          handlePick();
+                        }}
                         className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted cursor-pointer"
                       >
                         {thumb ? (
@@ -1153,13 +1174,12 @@ const Test = () => {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
                         {v.manualCard?.label && (
                           <div className="absolute inset-x-0 top-[10%] z-[8] flex items-center justify-center px-2">
-                            <button
-                              type="button"
-                              onMouseDown={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                              }}
-                              onClick={(e) => {
+                            <div
+                              role="button"
+                              tabIndex={0}
+                              data-manual-badge="true"
+                              onKeyDown={(e) => {
+                                if (e.key !== "Enter" && e.key !== " ") return;
                                 e.preventDefault();
                                 e.stopPropagation();
                                 void handleHomeLabelClick(
@@ -1174,7 +1194,7 @@ const Test = () => {
                               className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black cursor-pointer hover:bg-gold/90 transition-colors"
                             >
                               {v.manualCard.label}
-                            </button>
+                            </div>
                           </div>
                         )}
                         {v.business && (v.business.computed_rating ?? v.business.rating) != null && (

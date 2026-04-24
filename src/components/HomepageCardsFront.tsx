@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Star } from "lucide-react";
@@ -30,7 +30,7 @@ interface MixedSlot {
   data: CardData;
 }
 
-const HomepageCardsFront = ({ city, onLabelClick }: Props) => {
+const HomepageCardsFront = forwardRef<HTMLDivElement, Props>(({ city, onLabelClick }, ref) => {
   const navigate = useNavigate();
   const [slots, setSlots] = useState<MixedSlot[]>([]);
   const [loading, setLoading] = useState(true);
@@ -208,7 +208,7 @@ const HomepageCardsFront = ({ city, onLabelClick }: Props) => {
   };
 
   return (
-    <>
+    <div ref={ref}>
       <div className={`grid gap-4 ${activeSlot ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-3" : "grid-cols-2 md:grid-cols-4 lg:grid-cols-6"}`}>
         {slots.map((slot, index) => (
           <div key={slot.key}>
@@ -238,8 +238,10 @@ const HomepageCardsFront = ({ city, onLabelClick }: Props) => {
         social={null}
         description={null}
       />
-    </>
+    </div>
   );
-};
+});
+
+HomepageCardsFront.displayName = "HomepageCardsFront";
 
 export default HomepageCardsFront;
