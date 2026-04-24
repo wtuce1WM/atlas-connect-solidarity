@@ -157,7 +157,12 @@ const BatchThumbnailGenerator = () => {
 
         const { data: urlData } = supabase.storage.from("business-images").getPublicUrl(thumbName);
         if (urlData?.publicUrl) {
-          await (supabase as any).from(job.table).update({ thumbnail_url: urlData.publicUrl }).eq("id", job.id);
+          // Never overwrite a locked thumbnail (defensive — query already excludes non-null thumbnails)
+          await (supabase as any)
+            .from(job.table)
+            .update({ thumbnail_url: urlData.publicUrl })
+            .eq("id", job.id)
+            .eq("thumbnail_locked", false);
           ok++;
           setSucceeded(s => s + 1);
         } else {

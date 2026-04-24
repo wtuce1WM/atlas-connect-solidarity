@@ -1,0 +1,2 @@
+ALTER TABLE public.business_documents ADD COLUMN IF NOT EXISTS thumbnail_locked boolean NOT NULL DEFAULT false;
+ALTER TABLE public.generic_videos ADD COLUMN IF NOT EXISTS thumbnail_locked boolean NOT NULL DEFAULT false;

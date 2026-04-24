@@ -7,6 +7,7 @@ import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Hom
 import VideoThumbnail from "@/components/VideoThumbnail";
 import VideoLightbox from "@/components/staff/VideoLightbox";
 import YouTubeBackofficePanel from "@/components/staff/YouTubeBackofficePanel";
+import VideoThumbnailLocker from "@/components/staff/VideoThumbnailLocker";
 
 interface FrontVideo {
   id: string;
@@ -507,9 +508,7 @@ const StaffFront = () => {
           </TabsContent>
 
           <TabsContent value="video-id">
-            <div className="text-sm text-muted-foreground p-4 border rounded-lg">
-              Onglet "Vidéo ID" — contenu à définir.
-            </div>
+            <VideoThumbnailLocker />
           </TabsContent>
 
           <TabsContent value="test">

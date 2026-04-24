@@ -592,6 +592,7 @@ export type Database = {
           sort_order: number
           start_date: string | null
           subcategory_id: string | null
+          thumbnail_locked: boolean
           thumbnail_url: string | null
           tiktok_account: string | null
           tiktok_url: string | null
@@ -631,6 +632,7 @@ export type Database = {
           sort_order?: number
           start_date?: string | null
           subcategory_id?: string | null
+          thumbnail_locked?: boolean
           thumbnail_url?: string | null
           tiktok_account?: string | null
           tiktok_url?: string | null
@@ -670,6 +672,7 @@ export type Database = {
           sort_order?: number
           start_date?: string | null
           subcategory_id?: string | null
+          thumbnail_locked?: boolean
           thumbnail_url?: string | null
           tiktok_account?: string | null
           tiktok_url?: string | null
@@ -3222,6 +3225,7 @@ export type Database = {
           name: string | null
           neighborhood: string | null
           sort_order: number
+          thumbnail_locked: boolean
           thumbnail_url: string | null
           tiktok_account: string | null
           tiktok_url: string | null
@@ -3243,6 +3247,7 @@ export type Database = {
           name?: string | null
           neighborhood?: string | null
           sort_order?: number
+          thumbnail_locked?: boolean
           thumbnail_url?: string | null
           tiktok_account?: string | null
           tiktok_url?: string | null
@@ -3264,6 +3269,7 @@ export type Database = {
           name?: string | null
           neighborhood?: string | null
           sort_order?: number
+          thumbnail_locked?: boolean
           thumbnail_url?: string | null
           tiktok_account?: string | null
           tiktok_url?: string | null
