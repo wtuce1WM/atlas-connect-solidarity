@@ -488,6 +488,9 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
                       <TableCell className="text-center">
                         <Badge variant="outline">{count}</Badge>
                       </TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="outline">{videoCount}</Badge>
+                      </TableCell>
                       <TableCell className="text-center" onClick={e => e.stopPropagation()}>
                         <Switch
                           checked={!!badge.is_active_on_front}
