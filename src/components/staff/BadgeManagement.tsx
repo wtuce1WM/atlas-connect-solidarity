@@ -427,6 +427,7 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
               <TableHead>Nom (EN)</TableHead>
               <TableHead>Sous-catégories associées</TableHead>
               <TableHead className="text-center">Établissements</TableHead>
+              <TableHead className="text-center">Vidéos</TableHead>
               <TableHead className="text-center">Activé sur le front</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
