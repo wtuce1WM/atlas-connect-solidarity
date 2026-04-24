@@ -388,6 +388,10 @@ const StaffFront = () => {
               <Youtube className="h-4 w-4" />
               YouTube
             </TabsTrigger>
+            <TabsTrigger value="video-id" className="gap-2">
+              <Video className="h-4 w-4" />
+              Vidéo ID
+            </TabsTrigger>
             <TabsTrigger value="test" className="gap-2">
               <FlaskConical className="h-4 w-4" />
               Badgées
