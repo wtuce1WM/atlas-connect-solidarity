@@ -43,6 +43,7 @@ interface VideoItem {
   owner: OwnerInfo | null;
   social: SocialInfo | null;
   description: string | null;
+  manualCard: { label: string; badgeId: string | null } | null;
 }
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
@@ -64,6 +65,80 @@ function extractSocial(d: any): SocialInfo | null {
   const yt = (d?.youtube_account || "").trim();
   if (yt) return { platform: "youtube", account: yt.replace(/^@+/, ""), url: d?.youtube_url || null };
   return null;
+}
+
+async function getManualCardMap(city: City, docs: any[]) {
+  const manualMap = new Map<string, { label: string; badgeId: string | null }>();
+
+  if (docs.length === 0) return manualMap;
+
+  const { data: extraRows } = await (supabase as any)
+    .from("front_structure_homepage_extra_cards")
+    .select("id, business_id, badge_id, video_document_id, title, sort_order")
+    .eq("city", city)
+    .order("sort_order", { ascending: true });
+
+  const cards = ((extraRows as any[]) || []) as Array<{
+    id: string;
+    business_id: string | null;
+    badge_id: string | null;
+    video_document_id: string | null;
+    title: string | null;
+    sort_order: number | null;
+  }>;
+
+  if (cards.length === 0) return manualMap;
+
+  const badgeIds = Array.from(new Set(cards.map((card) => card.badge_id).filter(Boolean))) as string[];
+
+  const [{ data: badges }, { data: badgeLinks }] = await Promise.all([
+    badgeIds.length > 0
+      ? supabase.from("badges").select("id, name_fr").in("id", badgeIds)
+      : Promise.resolve({ data: [] }),
+    badgeIds.length > 0
+      ? supabase.from("business_document_badges").select("badge_id, document_id").in("badge_id", badgeIds)
+      : Promise.resolve({ data: [] }),
+  ]);
+
+  const badgeNameById = new Map<string, string>(((badges as any[]) || []).map((badge) => [badge.id, badge.name_fr]));
+  const docIdsByBadgeId = new Map<string, Set<string>>();
+  ((badgeLinks as any[]) || []).forEach((link) => {
+    const current = docIdsByBadgeId.get(link.badge_id) || new Set<string>();
+    current.add(link.document_id);
+    docIdsByBadgeId.set(link.badge_id, current);
+  });
+
+  const pickLabel = (card: { title: string | null; badge_id: string | null }) => {
+    const trimmedTitle = card.title?.trim();
+    return trimmedTitle || (card.badge_id ? badgeNameById.get(card.badge_id) || null : null);
+  };
+
+  cards.forEach((card) => {
+    const label = pickLabel(card);
+    if (!label) return;
+
+    if (card.video_document_id) {
+      if (!manualMap.has(card.video_document_id)) {
+        manualMap.set(card.video_document_id, { label, badgeId: card.badge_id });
+      }
+      return;
+    }
+
+    const matchingDocs = docs.filter((doc) => {
+      const matchesBusiness = !card.business_id || [doc.business_id, doc.linked_business_id, doc.poi_id].includes(card.business_id);
+      const matchesBadge = !card.badge_id || docIdsByBadgeId.get(card.badge_id)?.has(doc.id);
+      return matchesBusiness && matchesBadge;
+    });
+
+    if (matchingDocs.length === 0) return;
+
+    const selectedDoc = [...matchingDocs].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0];
+    if (selectedDoc && !manualMap.has(selectedDoc.id)) {
+      manualMap.set(selectedDoc.id, { label, badgeId: card.badge_id });
+    }
+  });
+
+  return manualMap;
 }
 
 const HOME_ID = "__home__";
@@ -383,6 +458,7 @@ const Test = () => {
               owner: null,
               social: extractSocial(v),
               description: null,
+              manualCard: null,
             } as VideoItem;
           })
           .filter(Boolean) as VideoItem[];
@@ -514,6 +590,8 @@ const Test = () => {
         limitedDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
 
+        const manualCardMap = !selectedSubId ? await getManualCardMap(city, limitedDocs) : new Map<string, { label: string; badgeId: string | null }>();
+
         safeSetVideos(
           limitedDocs.map((d: any) => {
             const biz = bizMap.get(d.business_id) || null;
@@ -528,6 +606,7 @@ const Test = () => {
                 : null,
               social: extractSocial(d),
               description: d.description ?? null,
+              manualCard: manualCardMap.get(d.id) || null,
             };
           })
         );
@@ -569,6 +648,7 @@ const Test = () => {
             owner: ownerBiz ? { id: ownerBiz.id, name: ownerBiz.name, logo_url: (ownerBiz as any).logo_url ?? null, logo_bg: (ownerBiz as any).logo_bg ?? null } : null,
             social: extractSocial(d),
             description: d.description ?? null,
+            manualCard: null,
           };
         })
       );
@@ -641,6 +721,7 @@ const Test = () => {
         owner: null,
         social: null,
         description: null,
+        manualCard: null,
       }));
       setGuideVideos(items);
       setLoadingGuide(false);
@@ -1070,6 +1151,32 @@ const Test = () => {
                           <div className="w-full h-full bg-muted" />
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
+                        {v.manualCard?.label && (
+                          <div className="absolute inset-x-0 top-[10%] z-[8] flex items-center justify-center px-2">
+                            <button
+                              type="button"
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                              }}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                void handleHomeLabelClick(
+                                  {
+                                    label: v.manualCard.label,
+                                    kind: "extra",
+                                    badgeId: v.manualCard.badgeId,
+                                  },
+                                  city
+                                );
+                              }}
+                              className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black cursor-pointer hover:bg-gold/90 transition-colors"
+                            >
+                              {v.manualCard.label}
+                            </button>
+                          </div>
+                        )}
                         {v.business && (v.business.computed_rating ?? v.business.rating) != null && (
                           <div className="absolute top-1.5 left-1.5 right-1.5 z-[5] flex items-center gap-1 text-[10px]">
                             <Star className="h-2.5 w-2.5 text-gold fill-gold" />
