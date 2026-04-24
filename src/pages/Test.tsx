@@ -762,7 +762,7 @@ const Test = () => {
 
   // Clic sur badge d'une carte manuelle : on liste simplement les établissements
   // qui ont ce badge dans la ville courante. Pas de résolution de sous-catégorie.
-  const activateVideoBadgeFilter = async (badgeId: string, label: string, targetCity: City) => {
+  const activateVideoBadgeFilter = async (rawBadgeId: string | null, label: string, targetCity: City) => {
     setVideoBadgeFilter(null);
     setOtherViewMode("videos");
     setActiveVideo(null);
@@ -775,48 +775,70 @@ const Test = () => {
 
     setSelectedEntryId(HOME_ID);
     setSelectedSubId(null);
-    setBadgeView({ badgeId, label, city: targetCity });
+    setBadgeView({ badgeId: rawBadgeId || label, label, city: targetCity });
     setLoadingBadge(true);
     setBadgeBusinesses([]);
 
-    const [{ data: businessLinks }, { data: documentLinks }] = await Promise.all([
-      supabase
-        .from("business_badges")
-        .select("business_id")
-        .eq("badge_id", badgeId),
-      supabase
-        .from("business_document_badges")
-        .select("document_id, business_documents!inner(business_id, linked_business_id, poi_id)")
-        .eq("badge_id", badgeId),
-    ]);
+    try {
+      let badgeId = rawBadgeId;
 
-    const ids = Array.from(
-      new Set([
-        ...(((businessLinks as any[]) || []).map((link) => link.business_id)),
-        ...(((documentLinks as any[]) || []).flatMap((link: any) => {
-          const document = Array.isArray(link.business_documents)
-            ? link.business_documents[0]
-            : link.business_documents;
-          return [document?.poi_id, document?.linked_business_id, document?.business_id].filter(Boolean);
-        })),
-      ])
-    );
+      if (!badgeId) {
+        const { data: matchedBadge } = await supabase
+          .from("badges")
+          .select("id")
+          .ilike("name_fr", label.trim())
+          .maybeSingle();
 
-    if (ids.length === 0) {
-      setLoadingBadge(false);
+        badgeId = (matchedBadge as { id: string } | null)?.id || null;
+      }
+
+      if (!badgeId) {
+        setBadgeBusinesses([]);
+        return false;
+      }
+
+      const [{ data: businessLinks }, { data: documentLinks }] = await Promise.all([
+        supabase
+          .from("business_badges")
+          .select("business_id")
+          .eq("badge_id", badgeId),
+        supabase
+          .from("business_document_badges")
+          .select("document_id, business_documents!inner(business_id)")
+          .eq("badge_id", badgeId),
+      ]);
+
+      const ids = Array.from(
+        new Set([
+          ...(((businessLinks as any[]) || []).map((link) => link.business_id)),
+          ...(((documentLinks as any[]) || []).map((link: any) => {
+            const document = Array.isArray(link.business_documents)
+              ? link.business_documents[0]
+              : link.business_documents;
+            return document?.business_id;
+          }).filter(Boolean)),
+        ])
+      );
+
+      if (ids.length === 0) {
+        setBadgeBusinesses([]);
+        return true;
+      }
+
+      const { data: bizs } = await supabase
+        .from("businesses")
+        .select("id, name, slug, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+        .in("id", ids)
+        .eq("city", targetCity)
+        .eq("is_active", true)
+        .order("name", { ascending: true });
+
+      setBadgeView({ badgeId, label, city: targetCity });
+      setBadgeBusinesses(((bizs as any[]) || []) as SearchResultBusiness[]);
       return true;
+    } finally {
+      setLoadingBadge(false);
     }
-
-    const { data: bizs } = await supabase
-      .from("businesses")
-      .select("id, name, slug, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
-      .in("id", ids)
-      .eq("city", targetCity)
-      .eq("is_active", true);
-
-    setBadgeBusinesses(((bizs as any[]) || []) as SearchResultBusiness[]);
-    setLoadingBadge(false);
-    return true;
   };
 
   const handleHomeLabelClick = async (
@@ -834,7 +856,6 @@ const Test = () => {
       return;
     }
 
-    if (!info.badgeId) return;
     await activateVideoBadgeFilter(info.badgeId, info.label, clickedCity);
   };
 
