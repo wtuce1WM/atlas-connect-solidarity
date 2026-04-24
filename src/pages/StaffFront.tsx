@@ -7,6 +7,7 @@ import { ArrowLeft, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Hom
 import VideoThumbnail from "@/components/VideoThumbnail";
 import VideoLightbox from "@/components/staff/VideoLightbox";
 import YouTubeBackofficePanel from "@/components/staff/YouTubeBackofficePanel";
+import VideoThumbnailLocker from "@/components/staff/VideoThumbnailLocker";
 
 interface FrontVideo {
   id: string;
