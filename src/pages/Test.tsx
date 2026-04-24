@@ -768,13 +768,51 @@ const Test = () => {
       const match = entries.find((e) => e.name.toLowerCase() === info.label.toLowerCase());
       if (match) {
         setBadgeView(null);
+        setVideoBadgeFilter(null);
         setSelectedEntryId(match.id);
         setSelectedSubId(null);
       }
       return;
     }
-    // Extra (manual) card → list businesses in this city using the badge
+
     if (!info.badgeId) return;
+
+    const normalizedLabel = info.label.trim().toLowerCase();
+    let targetEntry = entries.find((e) => e.name.trim().toLowerCase() === normalizedLabel) || null;
+
+    if (!targetEntry) {
+      const { data: badgeDocs } = await supabase
+        .from("business_document_badges")
+        .select("document_id, business_documents!inner(subcategory_id, city)")
+        .eq("badge_id", info.badgeId);
+
+      const badgeSubcategoryIds = new Set(
+        (((badgeDocs as any[]) || []) as any[])
+          .flatMap((row) => {
+            const document = Array.isArray(row.business_documents)
+              ? row.business_documents[0]
+              : row.business_documents;
+            if (!document?.subcategory_id) return [];
+            if (document.city && document.city !== clickedCity) return [];
+            return [document.subcategory_id as string];
+          })
+      );
+
+      targetEntry =
+        entries.find((entry) => entry.subcategory_ids.some((subcategoryId) => badgeSubcategoryIds.has(subcategoryId))) || null;
+    }
+
+    if (targetEntry) {
+      setBadgeView(null);
+      setLoadingBadge(false);
+      setBadgeBusinesses([]);
+      setOtherViewMode("videos");
+      setSelectedEntryId(targetEntry.id);
+      setSelectedSubId(null);
+      setVideoBadgeFilter({ badgeId: info.badgeId, label: info.label });
+      return;
+    }
+
     setSelectedEntryId(HOME_ID);
     setBadgeView({ badgeId: info.badgeId, label: info.label, city: clickedCity });
     setLoadingBadge(true);
