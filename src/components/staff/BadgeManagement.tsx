@@ -175,7 +175,28 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
         })
         .sort((a, b) => a.name.localeCompare(b.name));
     });
+    // Compute video counts per badge:
+    //  - direct: business_youtube_video_badges
+    //  - indirect: videos whose business has the badge (any of the 3 sources)
+    const allVideos = (videosRes.data || []) as Array<{ id: string; business_id: string }>;
+    const directVideoBadges = (videoBadgesRes.data || []) as Array<{ youtube_video_id: string; badge_id: string }>;
+    const videosByBusiness = new Map<string, string[]>();
+    allVideos.forEach(v => {
+      if (!videosByBusiness.has(v.business_id)) videosByBusiness.set(v.business_id, []);
+      videosByBusiness.get(v.business_id)!.push(v.id);
+    });
+    const videoCounts: Record<string, number> = {};
+    Object.entries(perBadge).forEach(([badgeId, bizMap]) => {
+      const videoIds = new Set<string>();
+      bizMap.forEach((_info, bizId) => {
+        (videosByBusiness.get(bizId) || []).forEach(vid => videoIds.add(vid));
+      });
+      directVideoBadges.filter(vb => vb.badge_id === badgeId).forEach(vb => videoIds.add(vb.youtube_video_id));
+      videoCounts[badgeId] = videoIds.size;
+    });
+
     setBadgeCounts(counts);
+    setBadgeVideoCounts(videoCounts);
     setBadgeBusinesses(grouped);
     setLoading(false);
   };
