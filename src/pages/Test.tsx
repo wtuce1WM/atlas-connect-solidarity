@@ -1224,8 +1224,8 @@ const Test = () => {
                           const target = e.target as HTMLElement | null;
                           const clickedManualBadge = target?.closest("[data-manual-badge='true']");
 
-                          if (clickedManualBadge && v.manualCard?.badgeId) {
-                            void activateVideoBadgeFilter(v.manualCard.badgeId, v.manualCard.label, city);
+                          if (clickedManualBadge && v.manualCard?.label) {
+                            void activateVideoBadgeFilter(v.manualCard.badgeId ?? null, v.manualCard.label, city);
                             return;
                           }
 
@@ -1253,8 +1253,8 @@ const Test = () => {
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                if (v.manualCard?.badgeId) {
-                                  void activateVideoBadgeFilter(v.manualCard.badgeId, v.manualCard.label, city);
+                                if (v.manualCard?.label) {
+                                  void activateVideoBadgeFilter(v.manualCard.badgeId ?? null, v.manualCard.label, city);
                                 }
                               }}
                               className="pointer-events-auto px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black cursor-pointer hover:bg-gold/90 transition-colors"
