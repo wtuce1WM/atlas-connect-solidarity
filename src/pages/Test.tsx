@@ -908,7 +908,13 @@ const Test = () => {
                         <>
                           {subcatParents[selectedSubId] && (
                             <>
-                              <span className="text-muted-foreground font-normal">{subcatParents[selectedSubId]}</span>
+                              <button
+                                type="button"
+                                onClick={() => setSelectedSubId(null)}
+                                className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors"
+                              >
+                                {subcatParents[selectedSubId]}
+                              </button>
                               <span className="text-muted-foreground font-normal">›</span>
                             </>
                           )}
