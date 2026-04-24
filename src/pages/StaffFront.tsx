@@ -506,6 +506,12 @@ const StaffFront = () => {
             <YouTubeBackofficePanel />
           </TabsContent>
 
+          <TabsContent value="video-id">
+            <div className="text-sm text-muted-foreground p-4 border rounded-lg">
+              Onglet "Vidéo ID" — contenu à définir.
+            </div>
+          </TabsContent>
+
           <TabsContent value="test">
             <TestNoteViewer />
           </TabsContent>
