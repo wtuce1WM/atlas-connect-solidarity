@@ -458,6 +458,7 @@ const Test = () => {
               owner: null,
               social: extractSocial(v),
               description: null,
+              manualCard: null,
             } as VideoItem;
           })
           .filter(Boolean) as VideoItem[];
@@ -1150,6 +1151,32 @@ const Test = () => {
                           <div className="w-full h-full bg-muted" />
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
+                        {v.manualCard?.label && (
+                          <div className="absolute inset-x-0 top-[10%] z-[8] flex items-center justify-center px-2">
+                            <button
+                              type="button"
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                              }}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                void handleHomeLabelClick(
+                                  {
+                                    label: v.manualCard.label,
+                                    kind: "extra",
+                                    badgeId: v.manualCard.badgeId,
+                                  },
+                                  city
+                                );
+                              }}
+                              className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black cursor-pointer hover:bg-gold/90 transition-colors"
+                            >
+                              {v.manualCard.label}
+                            </button>
+                          </div>
+                        )}
                         {v.business && (v.business.computed_rating ?? v.business.rating) != null && (
                           <div className="absolute top-1.5 left-1.5 right-1.5 z-[5] flex items-center gap-1 text-[10px]">
                             <Star className="h-2.5 w-2.5 text-gold fill-gold" />
