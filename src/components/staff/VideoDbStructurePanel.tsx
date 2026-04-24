@@ -52,10 +52,15 @@ const VideoDbStructurePanel = () => {
     const docs = allDocs.filter(d => isInternalVideoUrl(d.url));
 
     const bizIds = [...new Set((docs as any[] || []).map(d => d.business_id))];
-    const { data: businesses } = bizIds.length > 0
-      ? await supabase.from("businesses").select("id, name").in("id", bizIds)
-      : { data: [] };
-    const nameMap = new Map((businesses || []).map(b => [b.id, b.name]));
+    // Fetch business names in chunks to avoid 1000-row limit and overly long URLs
+    const allBusinesses: { id: string; name: string }[] = [];
+    const chunkSize = 200;
+    for (let i = 0; i < bizIds.length; i += chunkSize) {
+      const chunk = bizIds.slice(i, i + chunkSize);
+      const { data } = await supabase.from("businesses").select("id, name").in("id", chunk);
+      if (data) allBusinesses.push(...(data as any));
+    }
+    const nameMap = new Map(allBusinesses.map(b => [b.id, b.name]));
 
     const bizRows: VideoRow[] = (docs as any[] || []).map(d => ({
       id: d.id,
