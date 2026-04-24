@@ -1007,6 +1007,9 @@ const SortableVideoCard = ({
   poiCount,
   bizCount,
   destCount,
+  badgeCount,
+  subcatCount,
+  cityCount,
   hasTimeframes,
   isSelected,
   onSelect,
@@ -1016,12 +1019,16 @@ const SortableVideoCard = ({
   onEditPois,
   onEditBusinesses,
   onEditDestinations,
+  onEditTags,
   onPreviewOverlay,
 }: {
   video: GenericVideo;
   poiCount: number;
   bizCount: number;
   destCount: number;
+  badgeCount: number;
+  subcatCount: number;
+  cityCount: number;
   hasTimeframes: boolean;
   isSelected: boolean;
   onSelect: (v: GenericVideo) => void;
@@ -1031,6 +1038,7 @@ const SortableVideoCard = ({
   onEditPois: (v: GenericVideo) => void;
   onEditBusinesses: (v: GenericVideo) => void;
   onEditDestinations: (v: GenericVideo) => void;
+  onEditTags: (v: GenericVideo) => void;
   onPreviewOverlay: (v: GenericVideo) => void;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: video.id });
