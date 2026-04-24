@@ -562,6 +562,248 @@ const InlineDestinationCityAssignment = ({ video, onClose, onSaved }: { video: G
   );
 };
 
+/* ─── Inline Badges + Subcategories + Cities Assignment ─── */
+interface BadgeItem { id: string; name_fr: string; color_hex: string | null; }
+interface SubcatItem { id: string; name_fr: string; category_id: string | null; }
+interface CityItem { id: string; name_fr: string; }
+
+const InlineBadgeSubcatCityAssignment = ({ video, onClose, onSaved }: { video: GenericVideo; onClose: () => void; onSaved: () => void; }) => {
+  const [allBadges, setAllBadges] = useState<BadgeItem[]>([]);
+  const [allSubcats, setAllSubcats] = useState<SubcatItem[]>([]);
+  const [allCities, setAllCities] = useState<CityItem[]>([]);
+  const [categories, setCategories] = useState<Record<string, string>>({});
+
+  const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>([]);
+  const [initialBadgeIds, setInitialBadgeIds] = useState<string[]>([]);
+  const [selectedSubcatIds, setSelectedSubcatIds] = useState<string[]>([]);
+  const [initialSubcatIds, setInitialSubcatIds] = useState<string[]>([]);
+  const [selectedCityIds, setSelectedCityIds] = useState<string[]>([]);
+  const [initialCityIds, setInitialCityIds] = useState<string[]>([]);
+
+  const [subcatSearch, setSubcatSearch] = useState("");
+  const [citySearch, setCitySearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const [
+        { data: badges },
+        { data: subcats },
+        { data: cities },
+        { data: cats },
+        { data: badgeLinks },
+        { data: subcatLinks },
+        { data: cityLinks },
+      ] = await Promise.all([
+        supabase.from("badges").select("id, name_fr, color_hex").order("sort_order").order("name_fr"),
+        supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
+        supabase.from("cities").select("id, name_fr").order("name_fr"),
+        supabase.from("categories" as any).select("id, name_fr") as any,
+        supabase.from("generic_video_badges" as any).select("badge_id").eq("generic_video_id", video.id) as unknown as { data: any[] | null },
+        supabase.from("generic_video_subcategories" as any).select("subcategory_id").eq("generic_video_id", video.id) as unknown as { data: any[] | null },
+        supabase.from("generic_video_cities" as any).select("city_id").eq("generic_video_id", video.id) as unknown as { data: any[] | null },
+      ]);
+      setAllBadges((badges as BadgeItem[]) || []);
+      setAllSubcats((subcats as SubcatItem[]) || []);
+      setAllCities((cities as CityItem[]) || []);
+      const cMap: Record<string, string> = {};
+      ((cats as any[]) || []).forEach((c: any) => { cMap[c.id] = c.name_fr; });
+      setCategories(cMap);
+      const bIds = (badgeLinks || []).map((l: any) => l.badge_id);
+      const sIds = (subcatLinks || []).map((l: any) => l.subcategory_id);
+      const ciIds = (cityLinks || []).map((l: any) => l.city_id);
+      setSelectedBadgeIds(bIds); setInitialBadgeIds(bIds);
+      setSelectedSubcatIds(sIds); setInitialSubcatIds(sIds);
+      setSelectedCityIds(ciIds); setInitialCityIds(ciIds);
+      setLoading(false);
+    };
+    load();
+  }, [video.id]);
+
+  const toggleBadge = (id: string) => setSelectedBadgeIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
+  const toggleSubcat = (id: string) => setSelectedSubcatIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
+  const toggleCity = (id: string) => setSelectedCityIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
+
+  const sortedKey = (a: string[]) => JSON.stringify([...a].sort());
+  const isBadgeDirty = sortedKey(selectedBadgeIds) !== sortedKey(initialBadgeIds);
+  const isSubcatDirty = sortedKey(selectedSubcatIds) !== sortedKey(initialSubcatIds);
+  const isCityDirty = sortedKey(selectedCityIds) !== sortedKey(initialCityIds);
+  const isDirty = isBadgeDirty || isSubcatDirty || isCityDirty;
+
+  const save = async () => {
+    setSaving(true);
+    if (isBadgeDirty) {
+      const toAdd = selectedBadgeIds.filter(id => !initialBadgeIds.includes(id));
+      const toRemove = initialBadgeIds.filter(id => !selectedBadgeIds.includes(id));
+      if (toRemove.length > 0) await supabase.from("generic_video_badges" as any).delete().eq("generic_video_id", video.id).in("badge_id", toRemove);
+      if (toAdd.length > 0) await supabase.from("generic_video_badges" as any).insert(toAdd.map(badge_id => ({ generic_video_id: video.id, badge_id })) as any);
+    }
+    if (isSubcatDirty) {
+      const toAdd = selectedSubcatIds.filter(id => !initialSubcatIds.includes(id));
+      const toRemove = initialSubcatIds.filter(id => !selectedSubcatIds.includes(id));
+      if (toRemove.length > 0) await supabase.from("generic_video_subcategories" as any).delete().eq("generic_video_id", video.id).in("subcategory_id", toRemove);
+      if (toAdd.length > 0) await supabase.from("generic_video_subcategories" as any).insert(toAdd.map(subcategory_id => ({ generic_video_id: video.id, subcategory_id })) as any);
+    }
+    if (isCityDirty) {
+      const toAdd = selectedCityIds.filter(id => !initialCityIds.includes(id));
+      const toRemove = initialCityIds.filter(id => !selectedCityIds.includes(id));
+      if (toRemove.length > 0) await supabase.from("generic_video_cities" as any).delete().eq("generic_video_id", video.id).in("city_id", toRemove);
+      if (toAdd.length > 0) await supabase.from("generic_video_cities" as any).insert(toAdd.map(city_id => ({ generic_video_id: video.id, city_id })) as any);
+    }
+    toast.success("Affectations enregistrées");
+    setInitialBadgeIds([...selectedBadgeIds]);
+    setInitialSubcatIds([...selectedSubcatIds]);
+    setInitialCityIds([...selectedCityIds]);
+    onSaved(); onClose(); setSaving(false);
+  };
+
+  const filteredSubcats = useMemo(() => {
+    if (!subcatSearch.trim()) return allSubcats;
+    const q = subcatSearch.toLowerCase();
+    return allSubcats.filter(s => s.name_fr.toLowerCase().includes(q));
+  }, [allSubcats, subcatSearch]);
+
+  const subcatsByCategory = useMemo(() => {
+    const m: Record<string, SubcatItem[]> = {};
+    filteredSubcats.forEach(s => {
+      const cat = (s.category_id && categories[s.category_id]) || "Sans catégorie";
+      if (!m[cat]) m[cat] = [];
+      m[cat].push(s);
+    });
+    return Object.entries(m).sort(([a], [b]) => a.localeCompare(b));
+  }, [filteredSubcats, categories]);
+
+  const filteredCities = useMemo(() => {
+    if (!citySearch.trim()) return allCities;
+    const q = citySearch.toLowerCase();
+    return allCities.filter(c => c.name_fr.toLowerCase().includes(q));
+  }, [allCities, citySearch]);
+
+  const isStorageVideo = video.url.includes("supabase.co/storage");
+
+  return (
+    <div className="h-full flex flex-col">
+      <div className="flex items-center justify-between p-3 border-b bg-muted/30">
+        <h3 className="text-sm font-semibold flex items-center gap-2"><Tag className="h-4 w-4" />Badges, Sous-catégories & Villes</h3>
+        <Button variant="ghost" size="sm" onClick={onClose}>✕</Button>
+      </div>
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="relative bg-black rounded-lg overflow-hidden" style={{ aspectRatio: "16/9" }}>
+          {isStorageVideo ? (
+            <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" controls />
+          ) : video.thumbnail_url ? (
+            <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-muted flex items-center justify-center"><Play className="h-8 w-8 text-muted-foreground" /></div>
+          )}
+        </div>
+        <Button size="sm" onClick={save} disabled={!isDirty || saving} className="w-full">
+          {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+          Enregistrer
+        </Button>
+        <div className="space-y-1">
+          {video.name && <p className="text-sm font-semibold">{video.name}</p>}
+          <p className="text-xs text-muted-foreground font-mono">{video.id}</p>
+        </div>
+
+        {loading ? <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin" /></div> : (
+          <div className="space-y-5">
+            {/* Badges */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Tag className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-xs font-medium text-muted-foreground">Badges ({selectedBadgeIds.length})</span>
+              </div>
+              {allBadges.length === 0 ? (
+                <p className="text-xs text-muted-foreground">Aucun badge disponible</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {allBadges.map(b => {
+                    const selected = selectedBadgeIds.includes(b.id);
+                    return (
+                      <Badge
+                        key={b.id}
+                        variant={selected ? "default" : "outline"}
+                        className="cursor-pointer transition-colors"
+                        onClick={() => toggleBadge(b.id)}
+                      >
+                        {b.name_fr}
+                      </Badge>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <Separator />
+
+            {/* Subcategories */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Layers className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-xs font-medium text-muted-foreground">Sous-catégories ({selectedSubcatIds.length})</span>
+                </div>
+                <Input placeholder="Rechercher…" value={subcatSearch} onChange={e => setSubcatSearch(e.target.value)} className="h-7 text-xs max-w-[180px]" />
+              </div>
+              {subcatsByCategory.length === 0 ? (
+                <p className="text-xs text-muted-foreground text-center py-3">Aucune sous-catégorie</p>
+              ) : (
+                <div className="space-y-3">
+                  {subcatsByCategory.map(([catName, items]) => (
+                    <div key={catName}>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">{catName}</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {items.map(s => (
+                          <Badge
+                            key={s.id}
+                            variant={selectedSubcatIds.includes(s.id) ? "default" : "outline"}
+                            className="cursor-pointer transition-colors text-[10px]"
+                            onClick={() => toggleSubcat(s.id)}
+                          >
+                            {s.name_fr}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <Separator />
+
+            {/* Cities */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <MapPinned className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-xs font-medium text-muted-foreground">Villes ({selectedCityIds.length})</span>
+                </div>
+                <Input placeholder="Rechercher…" value={citySearch} onChange={e => setCitySearch(e.target.value)} className="h-7 text-xs max-w-[180px]" />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {filteredCities.map(c => (
+                  <Badge
+                    key={c.id}
+                    variant={selectedCityIds.includes(c.id) ? "default" : "outline"}
+                    className="cursor-pointer transition-colors"
+                    onClick={() => toggleCity(c.id)}
+                  >
+                    {c.name_fr}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 /* ─── Right panel: linked items with DnD + timeframes ─── */
 interface LinkedItemWithTime { id: string; name: string; type: "poi" | "business" | "destination"; start_time: number | null; end_time: number | null; sort_order: number; }
 
