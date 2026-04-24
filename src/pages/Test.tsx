@@ -285,15 +285,26 @@ const Test = () => {
   }, [city]);
 
   // Document ids assigned to this city via business_document_cities (multi-city)
+  // Paginate to bypass PostgREST 1000-row limit.
   useEffect(() => {
     if (!cityRowId) { setExtraCityDocIds(new Set()); return; }
     let cancelled = false;
     (async () => {
-      const { data } = await supabase
-        .from("business_document_cities")
-        .select("document_id")
-        .eq("city_id", cityRowId);
-      if (!cancelled) setExtraCityDocIds(new Set(((data as any[]) || []).map((r) => r.document_id)));
+      const all: string[] = [];
+      const PAGE = 1000;
+      let offset = 0;
+      while (true) {
+        const { data } = await supabase
+          .from("business_document_cities")
+          .select("document_id")
+          .eq("city_id", cityRowId)
+          .range(offset, offset + PAGE - 1);
+        const rows = (data as any[]) || [];
+        all.push(...rows.map((r) => r.document_id));
+        if (rows.length < PAGE) break;
+        offset += PAGE;
+      }
+      if (!cancelled) setExtraCityDocIds(new Set(all));
     })();
     return () => { cancelled = true; };
   }, [cityRowId]);
