@@ -282,7 +282,7 @@ const EventManagement = () => {
     if (data) setNeighborhoods(data as any[]);
   };
 
-  useEffect(() => { fetchEvents(); fetchEventTypes(); fetchCities(); fetchNeighborhoods(); }, []);
+  useEffect(() => { fetchEvents(); fetchEventTypes(); fetchCities(); fetchNeighborhoods(); fetchBadges(); }, []);
 
   const fetchLinkedBusinesses = async (eventId: string) => {
     const { data } = await supabase
