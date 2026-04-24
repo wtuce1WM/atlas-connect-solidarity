@@ -760,95 +760,63 @@ const Test = () => {
     [activeVideo, selectedEntryId]
   );
 
-  const resolveTargetEntryForBadge = async (badgeId: string, label: string, targetCity: City) => {
-    const normalizedLabel = label.trim().toLowerCase();
-    const directVisibleEntry = visibleEntries.find(
-      (entry) =>
-        entry.id !== HOME_ID &&
-        entry.id !== VLOGS_ID &&
-        entry.name.trim().toLowerCase() === normalizedLabel
-    );
-
-    if (directVisibleEntry) {
-      return { entryId: directVisibleEntry.id, subcategoryId: null as string | null };
-    }
-
-    const directSubcategoryId = Object.entries(subcatNames).find(
-      ([, name]) => name.trim().toLowerCase() === normalizedLabel
-    )?.[0] || null;
-
-    const { data: badgeDocs } = await supabase
-      .from("business_document_badges")
-      .select("business_documents!inner(subcategory_id, city)")
-      .eq("badge_id", badgeId);
-
-    const matchedSubcategoryIds = new Set<string>();
-
-    if (directSubcategoryId) {
-      matchedSubcategoryIds.add(directSubcategoryId);
-    }
-
-    (((badgeDocs as any[]) || []) as any[]).forEach((row) => {
-      const document = Array.isArray(row.business_documents)
-        ? row.business_documents[0]
-        : row.business_documents;
-
-      if (!document?.subcategory_id) return;
-      if (document.city && document.city !== targetCity) return;
-      matchedSubcategoryIds.add(document.subcategory_id as string);
-    });
-
-    if (matchedSubcategoryIds.size === 0) return null;
-
-    const candidateEntries = topLevelEntries.filter((entry) =>
-      entry.subcategory_ids.some((subcategoryId) => matchedSubcategoryIds.has(subcategoryId))
-    );
-
-    if (candidateEntries.length === 0) return null;
-
-    const bestEntry =
-      candidateEntries.find((entry) => entry.name.trim().toLowerCase() === normalizedLabel) ||
-      [...candidateEntries].sort((a, b) => a.subcategory_ids.length - b.subcategory_ids.length)[0];
-
-    const matchingSubcategories = bestEntry.subcategory_ids.filter((subcategoryId) =>
-      matchedSubcategoryIds.has(subcategoryId)
-    );
-
-    const resolvedSubcategoryId =
-      directSubcategoryId && matchingSubcategories.includes(directSubcategoryId)
-        ? directSubcategoryId
-        : matchingSubcategories.length === 1
-          ? matchingSubcategories[0]
-          : null;
-
-    return { entryId: bestEntry.id, subcategoryId: resolvedSubcategoryId };
-  };
-
+  // Clic sur badge d'une carte manuelle : on liste simplement les établissements
+  // qui ont ce badge dans la ville courante. Pas de résolution de sous-catégorie.
   const activateVideoBadgeFilter = async (badgeId: string, label: string, targetCity: City) => {
-    const targetEntry = await resolveTargetEntryForBadge(badgeId, label, targetCity);
-
-    setBadgeView(null);
-    setLoadingBadge(false);
-    setBadgeBusinesses([]);
+    setVideoBadgeFilter(null);
     setOtherViewMode("videos");
     setActiveVideo(null);
     setPanelOpen(false);
     setCurrentTime(0);
-    setVideoBadgeFilter({ badgeId, label });
 
     if (city !== targetCity) {
       setCity(targetCity);
     }
 
-    if (targetEntry) {
-      setSelectedEntryId(targetEntry.entryId);
-      setSelectedSubId(targetEntry.subcategoryId);
+    setSelectedEntryId(HOME_ID);
+    setSelectedSubId(null);
+    setBadgeView({ badgeId, label, city: targetCity });
+    setLoadingBadge(true);
+    setBadgeBusinesses([]);
+
+    const [{ data: businessLinks }, { data: documentLinks }] = await Promise.all([
+      supabase
+        .from("business_badges")
+        .select("business_id")
+        .eq("badge_id", badgeId),
+      supabase
+        .from("business_document_badges")
+        .select("document_id, business_documents!inner(business_id, linked_business_id, poi_id)")
+        .eq("badge_id", badgeId),
+    ]);
+
+    const ids = Array.from(
+      new Set([
+        ...(((businessLinks as any[]) || []).map((link) => link.business_id)),
+        ...(((documentLinks as any[]) || []).flatMap((link: any) => {
+          const document = Array.isArray(link.business_documents)
+            ? link.business_documents[0]
+            : link.business_documents;
+          return [document?.poi_id, document?.linked_business_id, document?.business_id].filter(Boolean);
+        })),
+      ])
+    );
+
+    if (ids.length === 0) {
+      setLoadingBadge(false);
       return true;
     }
 
-    setSelectedSubId(null);
+    const { data: bizs } = await supabase
+      .from("businesses")
+      .select("id, name, slug, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+      .in("id", ids)
+      .eq("city", targetCity)
+      .eq("is_active", true);
 
-    return false;
+    setBadgeBusinesses(((bizs as any[]) || []) as SearchResultBusiness[]);
+    setLoadingBadge(false);
+    return true;
   };
 
   const handleHomeLabelClick = async (
@@ -867,50 +835,7 @@ const Test = () => {
     }
 
     if (!info.badgeId) return;
-
-    const activated = await activateVideoBadgeFilter(info.badgeId, info.label, clickedCity);
-    if (activated) return;
-
-    setSelectedEntryId(HOME_ID);
-    setBadgeView({ badgeId: info.badgeId, label: info.label, city: clickedCity });
-    setLoadingBadge(true);
-    setBadgeBusinesses([]);
-    const [{ data: businessLinks }, { data: documentLinks }] = await Promise.all([
-      supabase
-        .from("business_badges")
-        .select("business_id")
-        .eq("badge_id", info.badgeId),
-      supabase
-        .from("business_document_badges")
-        .select("document_id, business_documents!inner(business_id, linked_business_id, poi_id)")
-        .eq("badge_id", info.badgeId),
-    ]);
-
-    const ids = Array.from(
-      new Set([
-        ...(((businessLinks as any[]) || []).map((link) => link.business_id)),
-        ...(((documentLinks as any[]) || []).flatMap((link: any) => {
-          const document = Array.isArray(link.business_documents)
-            ? link.business_documents[0]
-            : link.business_documents;
-
-          return [document?.poi_id, document?.linked_business_id, document?.business_id].filter(Boolean);
-        })),
-      ])
-    );
-
-    if (ids.length === 0) {
-      setLoadingBadge(false);
-      return;
-    }
-    const { data: bizs } = await supabase
-      .from("businesses")
-      .select("id, name, slug, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
-      .in("id", ids)
-      .eq("city", clickedCity)
-      .eq("is_active", true);
-    setBadgeBusinesses(((bizs as any[]) || []) as SearchResultBusiness[]);
-    setLoadingBadge(false);
+    await activateVideoBadgeFilter(info.badgeId, info.label, clickedCity);
   };
 
   const structureList = (
