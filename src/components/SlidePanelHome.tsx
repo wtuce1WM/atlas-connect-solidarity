@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { X, ChevronUp, ChevronDown, Instagram, Youtube } from "lucide-react";
 import { SiTiktok } from "react-icons/si";
 import { createPortal } from "react-dom";
@@ -30,7 +31,26 @@ interface SlidePanelHomeProps {
   owner?: { id: string; name: string; logo_url: string | null } | null;
   social?: SocialInfo | null;
   description?: string | null;
+  /** When set, displays the list of events for this city (Agenda card) */
+  agendaCity?: string | null;
 }
+
+interface AgendaEvent {
+  id: string;
+  name: string;
+  start_date: string | null;
+  end_date: string | null;
+  hook: string | null;
+  logo_url: string | null;
+}
+
+const formatDateRange = (start: string | null, end: string | null) => {
+  const fmt = (d: string) => new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
+  if (start && end && start !== end) return `${fmt(start)} → ${fmt(end)}`;
+  if (start) return fmt(start);
+  if (end) return fmt(end);
+  return "Date à confirmer";
+};
 
 const SlidePanelHome = ({
   open,
@@ -48,11 +68,38 @@ const SlidePanelHome = ({
   owner,
   social,
   description,
+  agendaCity,
 }: SlidePanelHomeProps) => {
   const navigate = useNavigate();
   const panelRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [agendaEvents, setAgendaEvents] = useState<AgendaEvent[]>([]);
+
+  useEffect(() => {
+    if (!open || !agendaCity) {
+      setAgendaEvents([]);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const { data: cityRow } = await supabase
+        .from("cities")
+        .select("id")
+        .eq("name_fr", agendaCity)
+        .maybeSingle();
+      if (cancelled || !cityRow?.id) return;
+      const today = new Date().toISOString().slice(0, 10);
+      const { data } = await (supabase as any)
+        .from("events")
+        .select("id, name, start_date, end_date, hook, logo_url")
+        .eq("city_id", cityRow.id)
+        .or(`end_date.gte.${today},and(end_date.is.null,start_date.gte.${today}),and(start_date.is.null,end_date.is.null)`)
+        .order("start_date", { ascending: true, nullsFirst: false });
+      if (!cancelled) setAgendaEvents((data as AgendaEvent[]) || []);
+    })();
+    return () => { cancelled = true; };
+  }, [open, agendaCity]);
 
   const [filePaused, setFilePaused] = useState(true);
   const [fileMuted, setFileMuted] = useState(false);
@@ -212,6 +259,43 @@ const SlidePanelHome = ({
                   <span className="text-xs font-medium text-white select-text" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                     {owner.name} <span className="text-base">©</span>
                   </span>
+                </div>
+              </div>
+            )}
+            {agendaCity && (
+              <div className="absolute inset-x-0 top-16 bottom-32 z-[7] flex justify-center px-4 pointer-events-none">
+                <div className="pointer-events-auto w-full max-w-md bg-black/70 backdrop-blur-md rounded-xl border border-white/15 overflow-hidden flex flex-col">
+                  <div className="px-4 py-3 border-b border-white/10">
+                    <h3 className="text-white font-bold text-lg" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                      Agenda · {agendaCity}
+                    </h3>
+                    <p className="text-white/60 text-xs">{agendaEvents.length} événement{agendaEvents.length > 1 ? "s" : ""} à venir</p>
+                  </div>
+                  <div className="overflow-y-auto flex-1 divide-y divide-white/10">
+                    {agendaEvents.length === 0 ? (
+                      <p className="p-4 text-white/70 text-sm text-center">Aucun événement à venir.</p>
+                    ) : (
+                      agendaEvents.map((ev) => (
+                        <button
+                          key={ev.id}
+                          type="button"
+                          onClick={() => navigate(`/search?q=${encodeURIComponent(ev.name)}`)}
+                          className="w-full flex items-start gap-3 p-3 text-left hover:bg-white/5 transition-colors"
+                        >
+                          {ev.logo_url ? (
+                            <img src={ev.logo_url} alt="" className="w-12 h-12 rounded object-cover flex-shrink-0 bg-white/5" />
+                          ) : (
+                            <div className="w-12 h-12 rounded bg-gold/20 flex-shrink-0" />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-white text-sm font-semibold line-clamp-2">{ev.name}</p>
+                            <p className="text-gold text-xs mt-0.5">{formatDateRange(ev.start_date, ev.end_date)}</p>
+                            {ev.hook && <p className="text-white/60 text-xs mt-1 line-clamp-2">{ev.hook}</p>}
+                          </div>
+                        </button>
+                      ))
+                    )}
+                  </div>
                 </div>
               </div>
             )}
