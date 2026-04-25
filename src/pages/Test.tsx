@@ -1289,7 +1289,7 @@ const Test = () => {
         <main className={`p-6 overflow-y-auto transition-all duration-300 ${panelOpen ? "w-1/2" : "flex-1"}`}>
           {selectedEntryId === HOME_ID && !videoBadgeFilter ? (
             <>
-              <Tabs defaultValue={city.toLowerCase()} value={city.toLowerCase()} onValueChange={(v) => { setCity((v.charAt(0).toUpperCase() + v.slice(1)) as City); setBadgeView(null); }}>
+              <Tabs defaultValue={city.toLowerCase()} value={city.toLowerCase()} onValueChange={(v) => { setCity((v.charAt(0).toUpperCase() + v.slice(1)) as City); setBadgeView(null); setAgendaView(null); }}>
                 <TabsList>
                   <TabsTrigger value="marrakech">Marrakech</TabsTrigger>
                   <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
