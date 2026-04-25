@@ -1114,16 +1114,25 @@ const Test = () => {
     setBadgeView(null);
     setLoadingBadge(false);
     setBadgeBusinesses([]);
-    setOtherViewMode("videos");
     setActiveVideo(null);
     setPanelOpen(false);
     setCurrentTime(0);
     setSelectedSubId(null);
-    setVideoBadgeFilter({ badgeId, label });
 
     if (city !== targetCity) {
       setCity(targetCity);
     }
+
+    if (isAgendaLabel(label)) {
+      setVideoBadgeFilter(null);
+      setSelectedEntryId(HOME_ID);
+      setAgendaView({ label, city: targetCity });
+      return true;
+    }
+
+    setAgendaView(null);
+    setOtherViewMode("videos");
+    setVideoBadgeFilter({ badgeId, label });
 
     return true;
   };
