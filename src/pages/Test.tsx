@@ -420,6 +420,7 @@ const Test = () => {
       const safeSetVideos = (v: VideoItem[]) => { if (!cancelled) setVideos(v); };
       const safeSetLoadingVideos = (b: boolean) => { if (!cancelled) setLoadingVideos(b); };
       safeSetLoadingVideos(true);
+      console.log("[Test load]", { selectedEntryId: selectedEntry?.id, selectedEntryName: selectedEntry?.name, videoBadgeFilter, city });
 
       // Badge filter takes precedence: load videos by badge for the current city
       if (videoBadgeFilter) {
@@ -686,6 +687,7 @@ const Test = () => {
           (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
         }
         const vids = ((vidsRes as any).data as any[]) || [];
+        console.log("[Vlogs debug]", { city, destId, linkedIds: [...linkedIds], vidsCount: vids.length, vidsErr: (vidsRes as any).error });
         const vidIds = vids.map((v: any) => v.id);
         const ordered = vidIds
           .map((vid) => {
