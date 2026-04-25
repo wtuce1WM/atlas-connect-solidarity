@@ -1400,16 +1400,6 @@ const Test = () => {
                   )}
                 </div>
               )}
-              {agendaView && (
-                <div className="mt-6">
-                  <AgendaGrid
-                    agendaView={agendaView}
-                    events={agendaEvents}
-                    loading={loadingAgenda}
-                    onClose={() => setAgendaView(null)}
-                  />
-                </div>
-              )}
             </>
           ) : !selectedEntry && !videoBadgeFilter ? (
             <p className="text-sm text-muted-foreground">
