@@ -1176,13 +1176,6 @@ const Test = () => {
       setCity(targetCity);
     }
 
-    if (isAgendaLabel(label)) {
-      setVideoBadgeFilter(null);
-      setSelectedEntryId(HOME_ID);
-      setAgendaView({ label, city: targetCity });
-      return true;
-    }
-
     setAgendaView(null);
     setOtherViewMode("videos");
     setVideoBadgeFilter({ badgeId, label });
