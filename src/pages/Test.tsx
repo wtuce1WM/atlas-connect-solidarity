@@ -67,6 +67,16 @@ function deriveThumbnail(url: string): string | null {
   return null;
 }
 
+const isAgendaLabel = (label: string) => label.trim().toLowerCase() === "agenda";
+
+const formatEventDateRange = (start: string | null, end: string | null) => {
+  const fmt = (d: string) => new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
+  if (start && end && start !== end) return `${fmt(start)} → ${fmt(end)}`;
+  if (start) return fmt(start);
+  if (end) return fmt(end);
+  return "Date à confirmer";
+};
+
 function extractSocial(d: any): SocialInfo | null {
   const ig = (d?.instagram_account || "").trim();
   if (ig) return { platform: "instagram", account: ig.replace(/^@+/, ""), url: d?.instagram_url || null };
