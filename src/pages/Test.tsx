@@ -11,6 +11,7 @@ import SlidePanelHome from "@/components/SlidePanelHome";
 import { Menu as MenuIcon, X, Star } from "lucide-react";
 import HomepageCardsFront from "@/components/HomepageCardsFront";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { toast } from "sonner";
 
 interface FrontEntry {
   id: string;
@@ -1316,6 +1317,19 @@ const Test = () => {
                           <div className="w-full h-full bg-muted" />
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            navigator.clipboard.writeText(v.id);
+                            toast.success(`ID copié : ${v.id.slice(0, 8)}…`);
+                          }}
+                          title={`Copier l'ID : ${v.id}`}
+                          className="absolute top-1.5 right-1.5 z-30 px-1.5 py-0.5 rounded bg-black/70 hover:bg-black/90 text-white font-mono text-[9px] leading-none transition-colors"
+                        >
+                          {v.id.slice(0, 8)}
+                        </button>
                         {v.manualCard?.label && (
                           <div className="absolute inset-x-0 top-[10%] z-20 flex items-center justify-center px-2 pointer-events-none">
                             <button
