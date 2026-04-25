@@ -689,10 +689,12 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       video_document_id: card.video_document_id,
       title: card.title,
       popular_search_id: card.popular_search_id,
+      event_id: card.event_id,
+      eventName,
     }));
   };
 
-  const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null; video_document_id?: string | null; title?: string | null; popular_search_id?: string | null }) => {
+  const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null; video_document_id?: string | null; title?: string | null; popular_search_id?: string | null; event_id?: string | null }) => {
       if (patch.video_document_id !== undefined && patch.video_document_id !== null) {
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
         if (!uuidRegex.test(patch.video_document_id)) {
@@ -722,7 +724,9 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       const nextVideoDocumentId = patch.video_document_id !== undefined ? patch.video_document_id : card.video_document_id;
       const nextTitle = patch.title !== undefined ? patch.title : card.title;
       const nextPopularSearchId = patch.popular_search_id !== undefined ? patch.popular_search_id : card.popular_search_id;
+      const nextEventId = patch.event_id !== undefined ? patch.event_id : card.event_id;
       const nextBusiness = nextBusinessId ? allBusinesses.find((b) => b.id === nextBusinessId) : null;
+      const nextEvent = nextEventId ? allEvents.find((e) => e.id === nextEventId) : null;
 
       return {
         ...card,
@@ -732,6 +736,8 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         video_document_id: nextVideoDocumentId,
         title: nextTitle,
         popular_search_id: nextPopularSearchId,
+        event_id: nextEventId,
+        eventName: nextEvent?.name || (patch.event_id !== undefined ? null : card.eventName),
         businessName: nextBusiness?.name || (patch.business_id !== undefined ? null : card.businessName),
       };
     }));
