@@ -837,24 +837,100 @@ const Test = () => {
 
         const manualCardMap = !selectedSubId ? await getManualCardMap(city, limitedDocs) : new Map<string, { label: string; badgeId: string | null }>();
 
-        safeSetVideos(
-          limitedDocs.map((d: any) => {
-            const biz = bizMap.get(d.business_id) || null;
-            return {
-              id: d.id,
-              url: d.url,
-              business_name: biz?.name || "—",
-              thumbnail_url: d.thumbnail_url,
-              business: biz,
-              owner: biz
-                ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null }
-                : null,
-              social: extractSocial(d),
-              description: d.description ?? null,
-              manualCard: manualCardMap.get(d.id) || null,
-            };
-          })
-        );
+        const docItems: VideoItem[] = limitedDocs.map((d: any) => {
+          const biz = bizMap.get(d.business_id) || null;
+          return {
+            id: d.id,
+            url: d.url,
+            business_name: biz?.name || "—",
+            thumbnail_url: d.thumbnail_url,
+            business: biz,
+            owner: biz
+              ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null }
+              : null,
+            social: extractSocial(d),
+            description: d.description ?? null,
+            manualCard: manualCardMap.get(d.id) || null,
+          } as VideoItem;
+        });
+
+        // Also include generic_videos linked to one of the selected subcategories
+        // and matching the current city (via generic_videos.city or generic_video_cities).
+        let genericSubItems: VideoItem[] = [];
+        try {
+          const { data: gvSubLinks } = await supabase
+            .from("generic_video_subcategories" as any)
+            .select("generic_video_id")
+            .in("subcategory_id", subIds);
+          const gvIds = [...new Set(((gvSubLinks as any[]) || []).map((l: any) => l.generic_video_id))];
+          if (gvIds.length > 0) {
+            const { data: cityRow } = await supabase
+              .from("cities")
+              .select("id")
+              .eq("name_fr", city)
+              .maybeSingle();
+            const cityId = (cityRow as any)?.id ?? null;
+
+            const [{ data: extraCityLinks }, { data: gvs }] = await Promise.all([
+              cityId
+                ? supabase
+                    .from("generic_video_cities" as any)
+                    .select("generic_video_id")
+                    .eq("city_id", cityId)
+                    .in("generic_video_id", gvIds)
+                : Promise.resolve({ data: [] as any[] } as any),
+              supabase
+                .from("generic_videos" as any)
+                .select("id, url, name, thumbnail_url, city, sort_order, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
+                .in("id", gvIds)
+                .order("sort_order", { ascending: true }),
+            ]);
+            const extraIds = new Set(((extraCityLinks as any[]) || []).map((l: any) => l.generic_video_id));
+            const gvFiltered = ((gvs as any[]) || []).filter((v: any) => v.city === city || extraIds.has(v.id));
+
+            const { data: gvBizLinks } = await supabase
+              .from("generic_video_businesses" as any)
+              .select("generic_video_id, business_id")
+              .in("generic_video_id", gvFiltered.map((v: any) => v.id));
+            const firstBizByGv: Record<string, string> = {};
+            (((gvBizLinks as any[]) || [])).forEach((l: any) => {
+              if (!firstBizByGv[l.generic_video_id]) firstBizByGv[l.generic_video_id] = l.business_id;
+            });
+            const gvBizIds = [...new Set(Object.values(firstBizByGv))];
+            const gvBizMap = new Map<string, SearchResultBusiness>();
+            if (gvBizIds.length > 0) {
+              const { data: gvBizs } = await supabase
+                .from("businesses")
+                .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+                .in("id", gvBizIds);
+              (gvBizs || []).forEach((b: any) => gvBizMap.set(b.id, b as SearchResultBusiness));
+            }
+
+            const seenUrlsGv = new Set<string>(docItems.map((i) => i.url).filter(Boolean) as string[]);
+            genericSubItems = gvFiltered
+              .filter((v: any) => v.url && !seenUrlsGv.has(v.url) && (seenUrlsGv.add(v.url), true))
+              .map((v: any) => {
+                const bizId = firstBizByGv[v.id];
+                const biz = bizId ? gvBizMap.get(bizId) || null : null;
+                const acct = (v.instagram_account || v.tiktok_account || v.youtube_account || "").replace(/^@+/, "");
+                return {
+                  id: v.id,
+                  url: v.url,
+                  business_name: v.name || (acct ? `@${acct}` : (biz?.name || "—")),
+                  thumbnail_url: v.thumbnail_url || deriveThumbnail(v.url),
+                  business: biz,
+                  owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
+                  social: extractSocial(v),
+                  description: v.description ?? null,
+                  manualCard: null,
+                } as VideoItem;
+              });
+          }
+        } catch (e) {
+          console.warn("[Test sub generic_videos] failed", e);
+        }
+
+        safeSetVideos([...docItems, ...genericSubItems]);
         safeSetLoadingVideos(false);
         return;
       }
