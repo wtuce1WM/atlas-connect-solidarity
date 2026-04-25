@@ -200,6 +200,9 @@ const Test = () => {
   const [loadingBadge, setLoadingBadge] = useState(false);
   const [videoBadgeFilter, setVideoBadgeFilter] = useState<{ badgeId: string; label: string } | null>(null);
   const [videoBadgeDocIds, setVideoBadgeDocIds] = useState<Set<string> | null>(null);
+  const [agendaView, setAgendaView] = useState<{ label: string; city: City } | null>(null);
+  const [agendaEvents, setAgendaEvents] = useState<AgendaEvent[]>([]);
+  const [loadingAgenda, setLoadingAgenda] = useState(false);
 
   // Load doc ids matching the active video badge filter
   useEffect(() => {
