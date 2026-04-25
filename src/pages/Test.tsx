@@ -430,7 +430,7 @@ const Test = () => {
   // match business_documents.subcategory_id ∈ entry.subcategory_ids, filter by document.city,
   // keep only internal videos, sort by sort_order, take first 15.
   useEffect(() => {
-    if (!selectedEntry && !videoBadgeFilter) {
+    if (!selectedEntry && !videoBadgeFilter && !videoEventFilter) {
       setVideos([]);
       return;
     }
@@ -439,7 +439,67 @@ const Test = () => {
       const safeSetVideos = (v: VideoItem[]) => { if (!cancelled) setVideos(v); };
       const safeSetLoadingVideos = (b: boolean) => { if (!cancelled) setLoadingVideos(b); };
       safeSetLoadingVideos(true);
-      console.log("[Test load]", { selectedEntryId: selectedEntry?.id, selectedEntryName: selectedEntry?.name, videoBadgeFilter, city });
+      console.log("[Test load]", { selectedEntryId: selectedEntry?.id, selectedEntryName: selectedEntry?.name, videoBadgeFilter, videoEventFilter, city });
+
+      // Event filter takes precedence for Agenda: load the same video result grid,
+      // using videos linked to the event or to businesses attached to the event.
+      if (videoEventFilter) {
+        const batch = 300;
+        const { data: eventBizLinks } = await (supabase as any)
+          .from("event_businesses")
+          .select("business_id")
+          .eq("event_id", videoEventFilter.eventId);
+        const eventBizIds = [...new Set(((eventBizLinks as any[]) || []).map((r: any) => r.business_id).filter(Boolean))] as string[];
+
+        const eventDocsRes = await supabase
+          .from("business_documents")
+          .select("id, url, thumbnail_url, business_id, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, city, event_id")
+          .eq("type", "video")
+          .eq("event_id", videoEventFilter.eventId);
+
+        const businessDocs: any[] = [];
+        for (let i = 0; i < eventBizIds.length; i += batch) {
+          const { data } = await supabase
+            .from("business_documents")
+            .select("id, url, thumbnail_url, business_id, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, city, event_id")
+            .eq("type", "video")
+            .eq("city", city)
+            .in("business_id", eventBizIds.slice(i, i + batch));
+          if (data) businessDocs.push(...data);
+        }
+
+        const docsById = new Map<string, any>();
+        ([...(((eventDocsRes as any).data as any[]) || []), ...businessDocs] as any[])
+          .filter((d) => d.city === city || extraCityDocIds.has(d.id))
+          .forEach((d) => docsById.set(d.id, d));
+        const uniqueDocs = [...docsById.values()].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+        const allBizIds = [...new Set(uniqueDocs.map((d: any) => d.business_id).filter(Boolean))] as string[];
+        const bizMap = new Map<string, SearchResultBusiness>();
+        for (let i = 0; i < allBizIds.length; i += batch) {
+          const { data: bizs } = await supabase
+            .from("businesses")
+            .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+            .in("id", allBizIds.slice(i, i + batch));
+          (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
+        }
+
+        safeSetVideos(uniqueDocs.map((d: any) => {
+          const biz = bizMap.get(d.business_id) || null;
+          return {
+            id: d.id,
+            url: d.url,
+            business_name: biz?.name || videoEventFilter.label,
+            thumbnail_url: d.thumbnail_url,
+            business: biz,
+            owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
+            social: extractSocial(d),
+            description: d.description ?? null,
+            manualCard: null,
+          } as VideoItem;
+        }));
+        safeSetLoadingVideos(false);
+        return;
+      }
 
       // Badge filter takes precedence: load videos by badge for the current city
       if (videoBadgeFilter) {
