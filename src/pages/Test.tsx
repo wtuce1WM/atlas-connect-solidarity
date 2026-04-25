@@ -465,14 +465,19 @@ const Test = () => {
           }
         }
         uniqueDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+        // Exception: for the manual "Suivez le guide" card (badge "Guide"),
+        // show every video tagged in this city without grouping by business.
+        const isGuideBadge = /^(suivez le guide|guide)$/i.test(videoBadgeFilter.label.trim());
         // Keep only one video per business: the first one (lowest sort_order)
         const seenBizIds = new Set<string>();
-        const dedupedByBiz = uniqueDocs.filter((d: any) => {
-          if (!d.business_id) return true;
-          if (seenBizIds.has(d.business_id)) return false;
-          seenBizIds.add(d.business_id);
-          return true;
-        });
+        const dedupedByBiz = isGuideBadge
+          ? uniqueDocs
+          : uniqueDocs.filter((d: any) => {
+              if (!d.business_id) return true;
+              if (seenBizIds.has(d.business_id)) return false;
+              seenBizIds.add(d.business_id);
+              return true;
+            });
         safeSetVideos(
           dedupedByBiz.map((d: any) => {
             const biz = bizMap.get(d.business_id) || null;
