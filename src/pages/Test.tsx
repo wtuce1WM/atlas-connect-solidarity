@@ -1356,36 +1356,18 @@ const Test = () => {
                 </TabsList>
                 <TabsContent value="marrakech">
                   <div>
-                    {agendaView && agendaView.city === "Marrakech" ? (
-                      <AgendaGrid
-                        agendaView={agendaView}
-                        events={agendaEvents}
-                        loading={loadingAgenda}
-                        onClose={() => setAgendaView(null)}
-                      />
-                    ) : (
-                      <HomepageCardsFront
-                        city="Marrakech"
-                        onLabelClick={(info) => handleHomeLabelClick(info, "Marrakech")}
-                      />
-                    )}
+                    <HomepageCardsFront
+                      city="Marrakech"
+                      onLabelClick={(info) => handleHomeLabelClick(info, "Marrakech")}
+                    />
                   </div>
                 </TabsContent>
                 <TabsContent value="essaouira">
                   <div>
-                    {agendaView && agendaView.city === "Essaouira" ? (
-                      <AgendaGrid
-                        agendaView={agendaView}
-                        events={agendaEvents}
-                        loading={loadingAgenda}
-                        onClose={() => setAgendaView(null)}
-                      />
-                    ) : (
-                      <HomepageCardsFront
-                        city="Essaouira"
-                        onLabelClick={(info) => handleHomeLabelClick(info, "Essaouira")}
-                      />
-                    )}
+                    <HomepageCardsFront
+                      city="Essaouira"
+                      onLabelClick={(info) => handleHomeLabelClick(info, "Essaouira")}
+                    />
                   </div>
                 </TabsContent>
               </Tabs>
@@ -1429,6 +1411,16 @@ const Test = () => {
                       ))}
                     </div>
                   )}
+                </div>
+              )}
+              {agendaView && (
+                <div className="mt-6">
+                  <AgendaGrid
+                    agendaView={agendaView}
+                    events={agendaEvents}
+                    loading={loadingAgenda}
+                    onClose={() => setAgendaView(null)}
+                  />
                 </div>
               )}
             </>
