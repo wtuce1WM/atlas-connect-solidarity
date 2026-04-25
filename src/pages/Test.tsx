@@ -1176,13 +1176,6 @@ const Test = () => {
       setCity(targetCity);
     }
 
-    if (isAgendaLabel(label)) {
-      setVideoBadgeFilter(null);
-      setSelectedEntryId(HOME_ID);
-      setAgendaView({ label, city: targetCity });
-      return true;
-    }
-
     setAgendaView(null);
     setOtherViewMode("videos");
     setVideoBadgeFilter({ badgeId, label });
@@ -1194,12 +1187,6 @@ const Test = () => {
     info: { label: string; kind: "entry" | "extra"; badgeId: string | null },
     clickedCity: City
   ) => {
-    console.log("[handleHomeLabelClick]", { info, clickedCity, isAgenda: isAgendaLabel(info.label) });
-    // Agenda: always show city events list, regardless of kind/badgeId
-    if (isAgendaLabel(info.label)) {
-      await activateVideoBadgeFilter(info.badgeId ?? "", info.label, clickedCity);
-      return;
-    }
 
     if (info.kind === "entry") {
       const match = entries.find((e) => e.name.toLowerCase() === info.label.toLowerCase());
@@ -1411,16 +1398,6 @@ const Test = () => {
                       ))}
                     </div>
                   )}
-                </div>
-              )}
-              {agendaView && (
-                <div className="mt-6">
-                  <AgendaGrid
-                    agendaView={agendaView}
-                    events={agendaEvents}
-                    loading={loadingAgenda}
-                    onClose={() => setAgendaView(null)}
-                  />
                 </div>
               )}
             </>
