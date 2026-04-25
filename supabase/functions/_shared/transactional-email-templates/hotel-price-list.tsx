@@ -25,7 +25,7 @@ const HotelPriceListEmail = ({
 }: HotelPriceListProps) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Liste des prix hôteliers — {prices.length} établissements</Preview>
+    <Preview>{`Liste des prix hôteliers — ${prices.length} établissements`}</Preview>
     <Body style={main}>
       <Container style={container}>
         <Heading style={h1}>🏨 Prix par nuit — {date || new Date().toLocaleDateString('fr-FR')}</Heading>

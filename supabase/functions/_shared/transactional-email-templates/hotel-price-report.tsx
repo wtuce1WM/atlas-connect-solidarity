@@ -25,7 +25,7 @@ const HotelPriceReportEmail = ({
 }: HotelPriceReportProps) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Rapport prix hôtels — {refreshed} mis à jour</Preview>
+    <Preview>{`Rapport prix hôtels — ${refreshed} mis à jour`}</Preview>
     <Body style={main}>
       <Container style={container}>
         <Heading style={h1}>🏨 Rapport quotidien des prix hôtels</Heading>
