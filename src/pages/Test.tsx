@@ -887,7 +887,6 @@ const Test = () => {
             ]);
             const extraIds = new Set(((extraCityLinks as any[]) || []).map((l: any) => l.generic_video_id));
             const gvFiltered = ((gvs as any[]) || []).filter((v: any) => v.city === city || extraIds.has(v.id));
-            console.log("[Test sub generic] gvs=", (gvs as any[])?.length, "gvFiltered=", gvFiltered.length, "extraIds=", [...extraIds]);
 
             const { data: gvBizLinks } = await supabase
               .from("generic_video_businesses" as any)
