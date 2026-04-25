@@ -501,7 +501,7 @@ const Test = () => {
         // with the same badge and assigned to the current city (either via
         // generic_videos.city or via generic_video_cities multi-city links).
         let genericVideoItems: VideoItem[] = [];
-        if (isGuideBadge) {
+        if (includeExtraSources) {
           const { data: gvBadgeLinks } = await supabase
             .from("generic_video_badges" as any)
             .select("generic_video_id")
