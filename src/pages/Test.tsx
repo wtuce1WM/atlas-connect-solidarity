@@ -136,7 +136,7 @@ async function getManualCardMap(city: City, docs: any[]) {
 
     if (card.video_document_id) {
       if (!manualMap.has(card.video_document_id)) {
-        manualMap.set(card.video_document_id, { label, badgeId: card.badge_id });
+        manualMap.set(card.video_document_id, { label, badgeId: card.badge_id, eventId: card.event_id ?? null });
       }
       return;
     }
@@ -144,14 +144,15 @@ async function getManualCardMap(city: City, docs: any[]) {
     const matchingDocs = docs.filter((doc) => {
       const matchesBusiness = !card.business_id || [doc.business_id, doc.linked_business_id, doc.poi_id].includes(card.business_id);
       const matchesBadge = !card.badge_id || docIdsByBadgeId.get(card.badge_id)?.has(doc.id);
-      return matchesBusiness && matchesBadge;
+      const matchesEvent = !card.event_id || doc.event_id === card.event_id;
+      return matchesBusiness && matchesBadge && matchesEvent;
     });
 
     if (matchingDocs.length === 0) return;
 
     const selectedDoc = [...matchingDocs].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0];
     if (selectedDoc && !manualMap.has(selectedDoc.id)) {
-      manualMap.set(selectedDoc.id, { label, badgeId: card.badge_id });
+      manualMap.set(selectedDoc.id, { label, badgeId: card.badge_id, eventId: card.event_id ?? null });
     }
   });
 
