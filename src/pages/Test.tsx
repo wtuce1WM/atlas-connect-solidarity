@@ -1303,18 +1303,36 @@ const Test = () => {
                 </TabsList>
                 <TabsContent value="marrakech">
                   <div>
-                    <HomepageCardsFront
-                      city="Marrakech"
-                      onLabelClick={(info) => handleHomeLabelClick(info, "Marrakech")}
-                    />
+                    {agendaView && agendaView.city === "Marrakech" ? (
+                      <AgendaGrid
+                        agendaView={agendaView}
+                        events={agendaEvents}
+                        loading={loadingAgenda}
+                        onClose={() => setAgendaView(null)}
+                      />
+                    ) : (
+                      <HomepageCardsFront
+                        city="Marrakech"
+                        onLabelClick={(info) => handleHomeLabelClick(info, "Marrakech")}
+                      />
+                    )}
                   </div>
                 </TabsContent>
                 <TabsContent value="essaouira">
                   <div>
-                    <HomepageCardsFront
-                      city="Essaouira"
-                      onLabelClick={(info) => handleHomeLabelClick(info, "Essaouira")}
-                    />
+                    {agendaView && agendaView.city === "Essaouira" ? (
+                      <AgendaGrid
+                        agendaView={agendaView}
+                        events={agendaEvents}
+                        loading={loadingAgenda}
+                        onClose={() => setAgendaView(null)}
+                      />
+                    ) : (
+                      <HomepageCardsFront
+                        city="Essaouira"
+                        onLabelClick={(info) => handleHomeLabelClick(info, "Essaouira")}
+                      />
+                    )}
                   </div>
                 </TabsContent>
               </Tabs>
