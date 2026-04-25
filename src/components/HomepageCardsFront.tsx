@@ -237,6 +237,7 @@ const HomepageCardsFront = ({ city, onLabelClick }: Props) => {
         }
         social={null}
         description={null}
+        agendaCity={activeSlot?.data.badgeId === "50472b39-d364-497f-afe7-d2aa46eb92c9" ? city : null}
       />
     </div>
   );
