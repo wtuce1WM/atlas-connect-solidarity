@@ -443,8 +443,15 @@ const Test = () => {
         // Filter by current city: only videos explicitly assigned to this city
         // (either via document.city, or via business_document_cities multi-city links)
         const cityFiltered = allDocs.filter((d: any) => d.city === city || extraCityDocIds.has(d.id));
+        // Prefer the doc whose own city matches the current city (over multi-city links)
+        // so the displayed id matches what staff sees in the backoffice for this city.
+        const sortedForDedup = [...cityFiltered].sort((a: any, b: any) => {
+          const aOwn = a.city === city ? 0 : 1;
+          const bOwn = b.city === city ? 0 : 1;
+          return aOwn - bOwn;
+        });
         const seenUrls = new Set<string>();
-        const uniqueDocs = cityFiltered.filter((d: any) => {
+        const uniqueDocs = sortedForDedup.filter((d: any) => {
           if (!d.url || seenUrls.has(d.url)) return false;
           seenUrls.add(d.url);
           return true;
@@ -808,8 +815,15 @@ const Test = () => {
         }
 
         // Dedup by URL (a same video can appear multiple times via different POI links)
+        // Prefer the doc whose own city matches the current city so the displayed id
+        // matches what staff sees in the backoffice for this city.
+        const sortedForDedup = [...allDocs].sort((a: any, b: any) => {
+          const aOwn = a.city === city ? 0 : 1;
+          const bOwn = b.city === city ? 0 : 1;
+          return aOwn - bOwn;
+        });
         const seenUrls = new Set<string>();
-        const uniqueDocs = allDocs.filter((d: any) => {
+        const uniqueDocs = sortedForDedup.filter((d: any) => {
           if (!d.url || seenUrls.has(d.url)) return false;
           seenUrls.add(d.url);
           return true;
