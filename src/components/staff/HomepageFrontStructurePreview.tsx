@@ -145,7 +145,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       }
 
       // FS entries + badges + extra cards
-      const [entriesRes, linksRes, overridesRes, badgesRes, extraRes, popSearchRes] = await Promise.all([
+      const [entriesRes, linksRes, overridesRes, badgesRes, extraRes, popSearchRes, eventsRes] = await Promise.all([
         supabase.from("front_structure").select("id, name, sort_order, show_in_menu").order("sort_order"),
         supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
         (supabase as any)
@@ -155,7 +155,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         supabase.from("badges").select("id, name_fr").order("name_fr"),
         (supabase as any)
           .from("front_structure_homepage_extra_cards")
-          .select("id, city, business_id, badge_id, video_document_id, title, sort_order, popular_search_id")
+          .select("id, city, business_id, badge_id, video_document_id, title, sort_order, popular_search_id, event_id")
           .eq("city", city)
           .order("sort_order", { ascending: true }),
         supabase
@@ -163,6 +163,10 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           .select("id, query")
           .eq("is_active", true)
           .order("query", { ascending: true }),
+        supabase
+          .from("events")
+          .select("id, name")
+          .order("name", { ascending: true }),
       ]);
 
       const linksByEntry: Record<string, string[]> = {};
