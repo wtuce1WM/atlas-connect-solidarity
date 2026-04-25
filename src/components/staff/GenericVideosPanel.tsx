@@ -597,7 +597,7 @@ const InlineBadgeSubcatCityAssignment = ({ video, onClose, onSaved }: { video: G
         { data: subcatLinks },
         { data: cityLinks },
       ] = await Promise.all([
-        supabase.from("badges").select("id, name_fr, color_hex").order("sort_order").order("name_fr"),
+        supabase.from("badges").select("id, name_fr, color_hex").order("name_fr"),
         supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
         supabase.from("cities").select("id, name_fr").order("name_fr"),
         supabase.from("categories" as any).select("id, name_fr") as any,
