@@ -31,7 +31,26 @@ interface SlidePanelHomeProps {
   owner?: { id: string; name: string; logo_url: string | null } | null;
   social?: SocialInfo | null;
   description?: string | null;
+  /** When set, displays the list of events for this city (Agenda card) */
+  agendaCity?: string | null;
 }
+
+interface AgendaEvent {
+  id: string;
+  name: string;
+  start_date: string | null;
+  end_date: string | null;
+  hook: string | null;
+  logo_url: string | null;
+}
+
+const formatDateRange = (start: string | null, end: string | null) => {
+  const fmt = (d: string) => new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
+  if (start && end && start !== end) return `${fmt(start)} → ${fmt(end)}`;
+  if (start) return fmt(start);
+  if (end) return fmt(end);
+  return "Date à confirmer";
+};
 
 const SlidePanelHome = ({
   open,
