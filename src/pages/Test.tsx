@@ -1148,8 +1148,29 @@ const Test = () => {
     return true;
   };
 
+  const activateVideoEventFilter = async (eventId: string, label: string, targetCity: City) => {
+    setBadgeView(null);
+    setLoadingBadge(false);
+    setBadgeBusinesses([]);
+    setActiveVideo(null);
+    setPanelOpen(false);
+    setCurrentTime(0);
+    setSelectedSubId(null);
+
+    if (city !== targetCity) {
+      setCity(targetCity);
+    }
+
+    setVideoBadgeFilter(null);
+    setOtherViewMode("videos");
+    setSelectedEntryId(HOME_ID);
+    setVideoEventFilter({ eventId, label });
+
+    return true;
+  };
+
   const handleHomeLabelClick = async (
-    info: { label: string; kind: "entry" | "extra"; badgeId: string | null },
+    info: { label: string; kind: "entry" | "extra"; badgeId: string | null; eventId?: string | null },
     clickedCity: City
   ) => {
 
