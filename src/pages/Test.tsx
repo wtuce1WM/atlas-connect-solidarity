@@ -574,7 +574,7 @@ const Test = () => {
         // (Shorts and standard) tagged with the same badge whose owner business
         // is located in the current city.
         let youtubeVideoItems: VideoItem[] = [];
-        if (isGuideBadge) {
+        if (includeExtraSources) {
           const { data: ytBadgeLinks } = await supabase
             .from("business_youtube_video_badges")
             .select("youtube_video_id")
