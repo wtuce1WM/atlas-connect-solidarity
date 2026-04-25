@@ -266,6 +266,7 @@ async function buildSnapshot(supabase: any, city: string) {
         reviewCount: dispBiz?.total_review_count ?? null,
         label,
         badgeId: card.badge_id || null,
+        eventId: card.event_id || null,
       },
     };
   });
