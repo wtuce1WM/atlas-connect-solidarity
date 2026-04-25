@@ -57,7 +57,38 @@ const HomepageCardsFront = ({ city, onLabelClick }: Props) => {
         setSlots([]);
       } else {
         const payload = (data?.payload as MixedSlot[] | null) || [];
-        setSlots(payload);
+        const eventIds = [...new Set(payload.map((slot) => slot.data.eventId).filter(Boolean))] as string[];
+
+        if (eventIds.length === 0) {
+          setSlots(payload);
+        } else {
+          const { data: events } = await (supabase as any)
+            .from("events")
+            .select("id, name, images, logo_url")
+            .in("id", eventIds);
+
+          const eventMap = new Map<string, any>(((events as any[]) || []).map((event) => [event.id, event]));
+          setSlots(payload.map((slot) => {
+            const event = slot.data.eventId ? eventMap.get(slot.data.eventId) : null;
+            if (!event) return slot;
+
+            return {
+              ...slot,
+              data: {
+                ...slot.data,
+                videoId: null,
+                videoUrl: null,
+                thumbnail: event.images?.[0] || event.logo_url || null,
+                businessName: event.name || slot.data.businessName,
+                ownerLogo: null,
+                ownerName: null,
+                ownerId: null,
+                rating: null,
+                reviewCount: null,
+              },
+            };
+          }));
+        }
       }
       setLoading(false);
       isFirstLoad.current = false;
