@@ -1044,7 +1044,7 @@ const Test = () => {
     };
     load();
     return () => { cancelled = true; };
-  }, [selectedEntry, city, selectedSubId, extraCityDocIds, videoBadgeFilter]);
+  }, [selectedEntry, city, selectedSubId, extraCityDocIds, videoBadgeFilter, videoEventFilter]);
 
   // Reset active video when entry/city changes
   useEffect(() => {
@@ -1141,7 +1141,7 @@ const Test = () => {
       setCity(targetCity);
     }
 
-    setAgendaView(null);
+    setVideoEventFilter(null);
     setOtherViewMode("videos");
     setVideoBadgeFilter({ badgeId, label });
 
@@ -1299,9 +1299,9 @@ const Test = () => {
       <div className="pt-[53px] flex w-full min-h-[calc(100vh-53px)]">
         {/* Right zone 80% */}
         <main className={`p-6 overflow-y-auto transition-all duration-300 ${panelOpen ? "w-1/2" : "flex-1"}`}>
-          {selectedEntryId === HOME_ID && !videoBadgeFilter ? (
+          {selectedEntryId === HOME_ID && !videoBadgeFilter && !videoEventFilter ? (
             <>
-              <Tabs defaultValue={city.toLowerCase()} value={city.toLowerCase()} onValueChange={(v) => { setCity((v.charAt(0).toUpperCase() + v.slice(1)) as City); setBadgeView(null); setAgendaView(null); }}>
+              <Tabs defaultValue={city.toLowerCase()} value={city.toLowerCase()} onValueChange={(v) => { setCity((v.charAt(0).toUpperCase() + v.slice(1)) as City); setBadgeView(null); setVideoBadgeFilter(null); setVideoEventFilter(null); }}>
                 <TabsList>
                   <TabsTrigger value="marrakech">Marrakech</TabsTrigger>
                   <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
