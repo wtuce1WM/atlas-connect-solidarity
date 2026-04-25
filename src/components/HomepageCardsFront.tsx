@@ -64,7 +64,7 @@ const HomepageCardsFront = ({ city, onLabelClick }: Props) => {
         } else {
           const { data: events } = await (supabase as any)
             .from("events")
-            .select("id, name, images, logo_url")
+            .select("id, name, images")
             .in("id", eventIds);
 
           const eventMap = new Map<string, any>(((events as any[]) || []).map((event) => [event.id, event]));
