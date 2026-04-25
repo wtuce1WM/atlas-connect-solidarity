@@ -44,16 +44,12 @@ interface VideoItem {
   owner: OwnerInfo | null;
   social: SocialInfo | null;
   description: string | null;
-  manualCard: { label: string; badgeId: string | null } | null;
+  manualCard: { label: string; badgeId: string | null; eventId?: string | null } | null;
 }
 
-interface AgendaEvent {
-  id: string;
-  name: string;
-  start_date: string | null;
-  end_date: string | null;
-  hook: string | null;
-  logo_url: string | null;
+interface VideoEventFilter {
+  eventId: string;
+  label: string;
 }
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
@@ -88,13 +84,13 @@ function extractSocial(d: any): SocialInfo | null {
 }
 
 async function getManualCardMap(city: City, docs: any[]) {
-  const manualMap = new Map<string, { label: string; badgeId: string | null }>();
+  const manualMap = new Map<string, { label: string; badgeId: string | null; eventId?: string | null }>();
 
   if (docs.length === 0) return manualMap;
 
   const { data: extraRows } = await (supabase as any)
     .from("front_structure_homepage_extra_cards")
-    .select("id, business_id, badge_id, video_document_id, title, sort_order")
+    .select("id, business_id, badge_id, video_document_id, title, sort_order, event_id")
     .eq("city", city)
     .order("sort_order", { ascending: true });
 
@@ -105,6 +101,7 @@ async function getManualCardMap(city: City, docs: any[]) {
     video_document_id: string | null;
     title: string | null;
     sort_order: number | null;
+    event_id?: string | null;
   }>;
 
   if (cards.length === 0) return manualMap;
@@ -139,7 +136,7 @@ async function getManualCardMap(city: City, docs: any[]) {
 
     if (card.video_document_id) {
       if (!manualMap.has(card.video_document_id)) {
-        manualMap.set(card.video_document_id, { label, badgeId: card.badge_id });
+        manualMap.set(card.video_document_id, { label, badgeId: card.badge_id, eventId: card.event_id ?? null });
       }
       return;
     }
@@ -147,14 +144,15 @@ async function getManualCardMap(city: City, docs: any[]) {
     const matchingDocs = docs.filter((doc) => {
       const matchesBusiness = !card.business_id || [doc.business_id, doc.linked_business_id, doc.poi_id].includes(card.business_id);
       const matchesBadge = !card.badge_id || docIdsByBadgeId.get(card.badge_id)?.has(doc.id);
-      return matchesBusiness && matchesBadge;
+      const matchesEvent = !card.event_id || doc.event_id === card.event_id;
+      return matchesBusiness && matchesBadge && matchesEvent;
     });
 
     if (matchingDocs.length === 0) return;
 
     const selectedDoc = [...matchingDocs].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0];
     if (selectedDoc && !manualMap.has(selectedDoc.id)) {
-      manualMap.set(selectedDoc.id, { label, badgeId: card.badge_id });
+      manualMap.set(selectedDoc.id, { label, badgeId: card.badge_id, eventId: card.event_id ?? null });
     }
   });
 
@@ -163,59 +161,6 @@ async function getManualCardMap(city: City, docs: any[]) {
 
 const HOME_ID = "__home__";
 const VLOGS_ID = "__vlogs__";
-
-interface AgendaGridProps {
-  agendaView: { label: string; city: string };
-  events: AgendaEvent[];
-  loading: boolean;
-  onClose: () => void;
-}
-
-const AgendaGrid = ({ agendaView, events, loading, onClose }: AgendaGridProps) => {
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold">
-          {agendaView.label} — {agendaView.city} ({events.length})
-        </h3>
-        <button
-          type="button"
-          onClick={onClose}
-          className="text-xs text-muted-foreground hover:text-foreground"
-        >
-          Fermer ×
-        </button>
-      </div>
-      {loading ? (
-        <p className="text-sm text-muted-foreground">Chargement…</p>
-      ) : events.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Aucun événement trouvé.</p>
-      ) : (
-        <div className="grid gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
-          {events.map((event) => (
-            <div key={event.id} className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted group w-full">
-              {event.logo_url ? (
-                <img src={event.logo_url} alt={event.name} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
-              ) : (
-                <div className="absolute inset-0 bg-muted" />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/40" />
-              <div className="absolute inset-x-0 top-[10%] z-[8] flex items-center justify-center px-2">
-                <span className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black">
-                  {formatEventDateRange(event.start_date, event.end_date)}
-                </span>
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 p-1.5">
-                <p className="text-[11px] font-semibold text-white line-clamp-2">{event.name}</p>
-                {event.hook && <p className="text-[10px] text-white/80 line-clamp-2 mt-0.5">{event.hook}</p>}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
 
 const Test = () => {
   const navigate = useNavigate();
@@ -252,10 +197,8 @@ const Test = () => {
   const [badgeBusinesses, setBadgeBusinesses] = useState<SearchResultBusiness[]>([]);
   const [loadingBadge, setLoadingBadge] = useState(false);
   const [videoBadgeFilter, setVideoBadgeFilter] = useState<{ badgeId: string; label: string } | null>(null);
+  const [videoEventFilter, setVideoEventFilter] = useState<VideoEventFilter | null>(null);
   const [videoBadgeDocIds, setVideoBadgeDocIds] = useState<Set<string> | null>(null);
-  const [agendaView, setAgendaView] = useState<{ label: string; city: City } | null>(null);
-  const [agendaEvents, setAgendaEvents] = useState<AgendaEvent[]>([]);
-  const [loadingAgenda, setLoadingAgenda] = useState(false);
 
   // Load doc ids matching the active video badge filter
   useEffect(() => {
@@ -274,44 +217,6 @@ const Test = () => {
     })();
     return () => { cancelled = true; };
   }, [videoBadgeFilter]);
-  useEffect(() => {
-    if (!agendaView) {
-      setAgendaEvents([]);
-      setLoadingAgenda(false);
-      return;
-    }
-
-    let cancelled = false;
-    (async () => {
-      setLoadingAgenda(true);
-      const { data: cityRow } = await supabase
-        .from("cities")
-        .select("id")
-        .eq("name_fr", agendaView.city)
-        .maybeSingle();
-
-      if (cancelled) return;
-
-      if (!(cityRow as any)?.id) {
-        setAgendaEvents([]);
-        setLoadingAgenda(false);
-        return;
-      }
-
-      const { data } = await (supabase as any)
-        .from("events")
-        .select("id, name, start_date, end_date, hook, logo_url")
-        .eq("city_id", (cityRow as any).id)
-        .order("start_date", { ascending: true, nullsFirst: false });
-
-      if (!cancelled) {
-        setAgendaEvents(((data as any[]) || []) as AgendaEvent[]);
-        setLoadingAgenda(false);
-      }
-    })();
-
-    return () => { cancelled = true; };
-  }, [agendaView]);
 
 
   // ============================================================
@@ -525,7 +430,7 @@ const Test = () => {
   // match business_documents.subcategory_id ∈ entry.subcategory_ids, filter by document.city,
   // keep only internal videos, sort by sort_order, take first 15.
   useEffect(() => {
-    if (!selectedEntry && !videoBadgeFilter) {
+    if (!selectedEntry && !videoBadgeFilter && !videoEventFilter) {
       setVideos([]);
       return;
     }
@@ -534,7 +439,67 @@ const Test = () => {
       const safeSetVideos = (v: VideoItem[]) => { if (!cancelled) setVideos(v); };
       const safeSetLoadingVideos = (b: boolean) => { if (!cancelled) setLoadingVideos(b); };
       safeSetLoadingVideos(true);
-      console.log("[Test load]", { selectedEntryId: selectedEntry?.id, selectedEntryName: selectedEntry?.name, videoBadgeFilter, city });
+      console.log("[Test load]", { selectedEntryId: selectedEntry?.id, selectedEntryName: selectedEntry?.name, videoBadgeFilter, videoEventFilter, city });
+
+      // Event filter takes precedence for Agenda: load the same video result grid,
+      // using videos linked to the event or to businesses attached to the event.
+      if (videoEventFilter) {
+        const batch = 300;
+        const { data: eventBizLinks } = await (supabase as any)
+          .from("event_businesses")
+          .select("business_id")
+          .eq("event_id", videoEventFilter.eventId);
+        const eventBizIds = [...new Set(((eventBizLinks as any[]) || []).map((r: any) => r.business_id).filter(Boolean))] as string[];
+
+        const eventDocsRes = await supabase
+          .from("business_documents")
+          .select("id, url, thumbnail_url, business_id, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, city, event_id")
+          .eq("type", "video")
+          .eq("event_id", videoEventFilter.eventId);
+
+        const businessDocs: any[] = [];
+        for (let i = 0; i < eventBizIds.length; i += batch) {
+          const { data } = await supabase
+            .from("business_documents")
+            .select("id, url, thumbnail_url, business_id, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, city, event_id")
+            .eq("type", "video")
+            .eq("city", city)
+            .in("business_id", eventBizIds.slice(i, i + batch));
+          if (data) businessDocs.push(...data);
+        }
+
+        const docsById = new Map<string, any>();
+        ([...(((eventDocsRes as any).data as any[]) || []), ...businessDocs] as any[])
+          .filter((d) => d.city === city || extraCityDocIds.has(d.id))
+          .forEach((d) => docsById.set(d.id, d));
+        const uniqueDocs = [...docsById.values()].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+        const allBizIds = [...new Set(uniqueDocs.map((d: any) => d.business_id).filter(Boolean))] as string[];
+        const bizMap = new Map<string, SearchResultBusiness>();
+        for (let i = 0; i < allBizIds.length; i += batch) {
+          const { data: bizs } = await supabase
+            .from("businesses")
+            .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+            .in("id", allBizIds.slice(i, i + batch));
+          (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
+        }
+
+        safeSetVideos(uniqueDocs.map((d: any) => {
+          const biz = bizMap.get(d.business_id) || null;
+          return {
+            id: d.id,
+            url: d.url,
+            business_name: biz?.name || videoEventFilter.label,
+            thumbnail_url: d.thumbnail_url,
+            business: biz,
+            owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
+            social: extractSocial(d),
+            description: d.description ?? null,
+            manualCard: null,
+          } as VideoItem;
+        }));
+        safeSetLoadingVideos(false);
+        return;
+      }
 
       // Badge filter takes precedence: load videos by badge for the current city
       if (videoBadgeFilter) {
@@ -838,7 +803,7 @@ const Test = () => {
           const chunk = bizIds.slice(i, i + batch);
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
+            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, event_id")
             .eq("type", "video")
             .eq("show_on_front", true)
             .in("business_id", chunk)
@@ -851,7 +816,7 @@ const Test = () => {
           const chunk = extraIds.slice(i, i + batch);
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
+            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, event_id")
             .eq("type", "video")
             .eq("show_on_front", true)
             .in("id", chunk);
@@ -937,7 +902,7 @@ const Test = () => {
         limitedDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
 
-        const manualCardMap = !selectedSubId ? await getManualCardMap(city, limitedDocs) : new Map<string, { label: string; badgeId: string | null }>();
+        const manualCardMap = !selectedSubId ? await getManualCardMap(city, limitedDocs) : new Map<string, { label: string; badgeId: string | null; eventId?: string | null }>();
 
         const docItems: VideoItem[] = limitedDocs.map((d: any) => {
           const biz = bizMap.get(d.business_id) || null;
@@ -1079,7 +1044,7 @@ const Test = () => {
     };
     load();
     return () => { cancelled = true; };
-  }, [selectedEntry, city, selectedSubId, extraCityDocIds, videoBadgeFilter]);
+  }, [selectedEntry, city, selectedSubId, extraCityDocIds, videoBadgeFilter, videoEventFilter]);
 
   // Reset active video when entry/city changes
   useEffect(() => {
@@ -1176,15 +1141,36 @@ const Test = () => {
       setCity(targetCity);
     }
 
-    setAgendaView(null);
+    setVideoEventFilter(null);
     setOtherViewMode("videos");
     setVideoBadgeFilter({ badgeId, label });
 
     return true;
   };
 
+  const activateVideoEventFilter = async (eventId: string, label: string, targetCity: City) => {
+    setBadgeView(null);
+    setLoadingBadge(false);
+    setBadgeBusinesses([]);
+    setActiveVideo(null);
+    setPanelOpen(false);
+    setCurrentTime(0);
+    setSelectedSubId(null);
+
+    if (city !== targetCity) {
+      setCity(targetCity);
+    }
+
+    setVideoBadgeFilter(null);
+    setOtherViewMode("videos");
+    setSelectedEntryId(HOME_ID);
+    setVideoEventFilter({ eventId, label });
+
+    return true;
+  };
+
   const handleHomeLabelClick = async (
-    info: { label: string; kind: "entry" | "extra"; badgeId: string | null },
+    info: { label: string; kind: "entry" | "extra"; badgeId: string | null; eventId?: string | null },
     clickedCity: City
   ) => {
 
@@ -1197,6 +1183,27 @@ const Test = () => {
         setSelectedSubId(null);
       }
       return;
+    }
+
+    if (info.eventId) {
+      await activateVideoEventFilter(info.eventId, info.label, clickedCity);
+      return;
+    }
+
+    if (isAgendaLabel(info.label)) {
+      const { data: agendaCard } = await (supabase as any)
+        .from("front_structure_homepage_extra_cards")
+        .select("event_id")
+        .eq("city", clickedCity)
+        .ilike("title", "Agenda")
+        .not("event_id", "is", null)
+        .maybeSingle();
+
+      const eventId = (agendaCard as any)?.event_id;
+      if (eventId) {
+        await activateVideoEventFilter(eventId, info.label, clickedCity);
+        return;
+      }
     }
 
     if (!info.badgeId) return;
@@ -1334,9 +1341,9 @@ const Test = () => {
       <div className="pt-[53px] flex w-full min-h-[calc(100vh-53px)]">
         {/* Right zone 80% */}
         <main className={`p-6 overflow-y-auto transition-all duration-300 ${panelOpen ? "w-1/2" : "flex-1"}`}>
-          {selectedEntryId === HOME_ID && !videoBadgeFilter ? (
+          {selectedEntryId === HOME_ID && !videoBadgeFilter && !videoEventFilter ? (
             <>
-              <Tabs defaultValue={city.toLowerCase()} value={city.toLowerCase()} onValueChange={(v) => { setCity((v.charAt(0).toUpperCase() + v.slice(1)) as City); setBadgeView(null); setAgendaView(null); }}>
+              <Tabs defaultValue={city.toLowerCase()} value={city.toLowerCase()} onValueChange={(v) => { setCity((v.charAt(0).toUpperCase() + v.slice(1)) as City); setBadgeView(null); setVideoBadgeFilter(null); setVideoEventFilter(null); }}>
                 <TabsList>
                   <TabsTrigger value="marrakech">Marrakech</TabsTrigger>
                   <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
@@ -1409,7 +1416,7 @@ const Test = () => {
             <p className="text-sm text-muted-foreground">Chargement des vidéos…</p>
           ) : videos.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Aucune vidéo trouvée{videoBadgeFilter ? ` pour « ${videoBadgeFilter.label} »` : selectedEntry ? ` pour « ${selectedEntry.name} »` : ""} à {city}.
+              Aucune vidéo trouvée{videoEventFilter ? ` pour « ${videoEventFilter.label} »` : videoBadgeFilter ? ` pour « ${videoBadgeFilter.label} »` : selectedEntry ? ` pour « ${selectedEntry.name} »` : ""} à {city}.
             </p>
           ) : (() => {
             const isGuide = otherViewMode === "guide";
