@@ -57,7 +57,38 @@ const HomepageCardsFront = ({ city, onLabelClick }: Props) => {
         setSlots([]);
       } else {
         const payload = (data?.payload as MixedSlot[] | null) || [];
-        setSlots(payload);
+        const eventIds = [...new Set(payload.map((slot) => slot.data.eventId).filter(Boolean))] as string[];
+
+        if (eventIds.length === 0) {
+          setSlots(payload);
+        } else {
+          const { data: events } = await (supabase as any)
+            .from("events")
+            .select("id, name, images")
+            .in("id", eventIds);
+
+          const eventMap = new Map<string, any>(((events as any[]) || []).map((event) => [event.id, event]));
+          setSlots(payload.map((slot) => {
+            const event = slot.data.eventId ? eventMap.get(slot.data.eventId) : null;
+            if (!event) return slot;
+
+            return {
+              ...slot,
+              data: {
+                ...slot.data,
+                videoId: null,
+                videoUrl: null,
+                thumbnail: event.images?.[0] || null,
+                businessName: event.name || slot.data.businessName,
+                ownerLogo: null,
+                ownerName: null,
+                ownerId: null,
+                rating: null,
+                reviewCount: null,
+              },
+            };
+          }));
+        }
       }
       setLoading(false);
       isFirstLoad.current = false;
@@ -123,7 +154,14 @@ const HomepageCardsFront = ({ city, onLabelClick }: Props) => {
     if (!it.videoId) {
       return (
         <div className="relative aspect-[9/16] rounded-lg bg-muted overflow-hidden flex items-center justify-center text-xs text-muted-foreground text-center px-2">
-          <span>{it.label || "Aucune vidéo"}</span>
+          {it.thumbnail ? (
+            <>
+              <img src={it.thumbnail} alt={it.businessName || it.label || ""} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
+            </>
+          ) : (
+            <span>{it.label || "Aucune vidéo"}</span>
+          )}
           {it.label && (
             <div className="absolute inset-x-0 top-[10%] z-[8] flex items-center justify-center px-2">
               <button
@@ -133,6 +171,11 @@ const HomepageCardsFront = ({ city, onLabelClick }: Props) => {
               >
                 {it.label}
               </button>
+            </div>
+          )}
+          {it.businessName && it.thumbnail && (
+            <div className="absolute bottom-0 left-0 right-0 p-1.5">
+              <p className="text-[10px] font-medium text-white line-clamp-1">{it.businessName}</p>
             </div>
           )}
         </div>
