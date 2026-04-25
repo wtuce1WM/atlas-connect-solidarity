@@ -263,8 +263,8 @@ const SlidePanelHome = ({
               </div>
             )}
             {agendaCity && (
-              <div className="absolute inset-x-0 top-16 bottom-32 z-[7] flex justify-center px-4 pointer-events-none">
-                <div className="pointer-events-auto w-full max-w-md bg-black/70 backdrop-blur-md rounded-xl border border-white/15 overflow-hidden flex flex-col">
+              <div className="absolute inset-0 z-[20] flex justify-center px-4 py-16 bg-black/85 backdrop-blur-sm">
+                <div className="w-full max-w-md bg-black/70 backdrop-blur-md rounded-xl border border-white/15 overflow-hidden flex flex-col">
                   <div className="px-4 py-3 border-b border-white/10">
                     <h3 className="text-white font-bold text-lg" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                       Agenda · {agendaCity}
