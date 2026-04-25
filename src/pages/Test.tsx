@@ -440,22 +440,8 @@ const Test = () => {
             .in("id", chunk);
           if (data) allDocs.push(...data);
         }
-        // Filter by current city: only videos explicitly assigned to this city
-        // (either via document.city, or via business_document_cities multi-city links)
-        const cityFiltered = allDocs.filter((d: any) => d.city === city || extraCityDocIds.has(d.id));
-        // Prefer the doc whose own city matches the current city (over multi-city links)
-        // so the displayed id matches what staff sees in the backoffice for this city.
-        const sortedForDedup = [...cityFiltered].sort((a: any, b: any) => {
-          const aOwn = a.city === city ? 0 : 1;
-          const bOwn = b.city === city ? 0 : 1;
-          return aOwn - bOwn;
-        });
-        const seenUrls = new Set<string>();
-        const uniqueDocs = sortedForDedup.filter((d: any) => {
-          if (!d.url || seenUrls.has(d.url)) return false;
-          seenUrls.add(d.url);
-          return true;
-        });
+        // Filter by current city: keep the exact backoffice video document rows.
+        const uniqueDocs = allDocs.filter((d: any) => d.city === city || extraCityDocIds.has(d.id));
         const allBizIds = [...new Set(uniqueDocs.map((d: any) => d.business_id).filter(Boolean))] as string[];
         const bizMap = new Map<string, SearchResultBusiness>();
         if (allBizIds.length > 0) {
