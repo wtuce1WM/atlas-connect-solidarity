@@ -887,6 +887,7 @@ const Test = () => {
             ]);
             const extraIds = new Set(((extraCityLinks as any[]) || []).map((l: any) => l.generic_video_id));
             const gvFiltered = ((gvs as any[]) || []).filter((v: any) => v.city === city || extraIds.has(v.id));
+            console.log("[Test sub gv DEBUG]", { city, cityId, gvIdsCount: gvIds.length, hasTarget: gvIds.includes("b97ee7f2-0bbe-4563-b59e-2ca493582041"), gvsCount: (gvs as any[])?.length, extraIdsArr: [...extraIds], gvFilteredIds: gvFiltered.map((v:any)=>v.id) });
 
             const { data: gvBizLinks } = await supabase
               .from("generic_video_businesses" as any)
