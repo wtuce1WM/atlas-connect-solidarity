@@ -800,20 +800,8 @@ const Test = () => {
           }
         }
 
-        // Dedup by URL (a same video can appear multiple times via different POI links)
-        // Prefer the doc whose own city matches the current city so the displayed id
-        // matches what staff sees in the backoffice for this city.
-        const sortedForDedup = [...allDocs].sort((a: any, b: any) => {
-          const aOwn = a.city === city ? 0 : 1;
-          const bOwn = b.city === city ? 0 : 1;
-          return aOwn - bOwn;
-        });
-        const seenUrls = new Set<string>();
-        const uniqueDocs = sortedForDedup.filter((d: any) => {
-          if (!d.url || seenUrls.has(d.url)) return false;
-          seenUrls.add(d.url);
-          return true;
-        });
+        // Keep the exact backoffice video document rows; do not deduplicate by URL.
+        const uniqueDocs = allDocs;
 
         // Group by business_id (the real owner), then keep first N per business (front_video_count)
         const docsByBiz = new Map<string, any[]>();
