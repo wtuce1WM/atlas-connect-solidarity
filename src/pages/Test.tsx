@@ -429,11 +429,6 @@ const Test = () => {
           .select("document_id")
           .eq("badge_id", videoBadgeFilter.badgeId);
         const docIds = ((badgeDocs as any[]) || []).map((r) => r.document_id);
-        if (docIds.length === 0) {
-          safeSetVideos([]);
-          safeSetLoadingVideos(false);
-          return;
-        }
         const allDocs: any[] = [];
         const batch = 300;
         for (let i = 0; i < docIds.length; i += batch) {
