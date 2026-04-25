@@ -125,7 +125,7 @@ const YouTubeBackofficePanel = () => {
       supabase.from("cities").select("id, name_fr").order("name_fr"),
       supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
       supabase.from("categories").select("id, name_fr"),
-      supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("sort_order", { ascending: true }).order("name_fr"),
+      supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("name_fr"),
       supabase.from("business_youtube_video_badges").select("youtube_video_id, badge_id") as any,
     ]);
 
