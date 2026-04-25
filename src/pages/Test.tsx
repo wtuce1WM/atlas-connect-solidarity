@@ -101,6 +101,7 @@ async function getManualCardMap(city: City, docs: any[]) {
     video_document_id: string | null;
     title: string | null;
     sort_order: number | null;
+    event_id?: string | null;
   }>;
 
   if (cards.length === 0) return manualMap;
