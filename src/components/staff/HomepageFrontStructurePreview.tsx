@@ -401,6 +401,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       const extraPreviews: ExtraCardPreview[] = extraRows.map((card) => {
         const doc = extraDocByCard[card.id];
         const badgeName = card.badge_id ? (badgeMap.get(card.badge_id)?.name_fr || null) : null;
+        const eventName = card.event_id ? (eventMap.get(card.event_id)?.name || null) : null;
         if (!doc) {
           const biz = card.business_id ? bizMap.get(card.business_id) : null;
           return {
@@ -419,6 +420,8 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
             video_document_id: card.video_document_id,
             title: card.title,
             popular_search_id: card.popular_search_id,
+            event_id: card.event_id,
+            eventName,
           };
         }
         const ownerBiz = bizMap.get(doc.business_id) || null;
@@ -440,6 +443,8 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           video_document_id: card.video_document_id,
           title: card.title,
           popular_search_id: card.popular_search_id,
+          event_id: card.event_id,
+          eventName,
         };
       });
 
