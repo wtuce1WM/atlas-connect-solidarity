@@ -44,16 +44,12 @@ interface VideoItem {
   owner: OwnerInfo | null;
   social: SocialInfo | null;
   description: string | null;
-  manualCard: { label: string; badgeId: string | null } | null;
+  manualCard: { label: string; badgeId: string | null; eventId?: string | null } | null;
 }
 
-interface AgendaEvent {
-  id: string;
-  name: string;
-  start_date: string | null;
-  end_date: string | null;
-  hook: string | null;
-  logo_url: string | null;
+interface VideoEventFilter {
+  eventId: string;
+  label: string;
 }
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
