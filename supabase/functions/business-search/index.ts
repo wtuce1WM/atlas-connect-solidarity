@@ -184,6 +184,8 @@ interface Business {
   computed_rating: number | null;
   total_review_count: number | null;
   main_category: string | null;
+  engagements?: string[] | null;
+  keywords?: string[] | null;
 }
 
 interface SearchResult {
@@ -203,6 +205,7 @@ interface SearchResult {
   disambiguationType?: "needs_category" | "needs_city" | null;
   synonymUsed?: boolean;
   preciseMatch?: boolean;
+  exactNameMatchIsolation?: boolean;
 }
 
 // Synonyms and noise words are now loaded from DB (search_synonyms, search_noise_words)
@@ -1275,7 +1278,7 @@ serve(async (req) => {
     const { data: allServicesForSynCheck } = await supabase.from("services").select("name_fr");
     // Helper: check if synonym key is part of a more specific multi-word service matching the query
     const synonymKeyMatchesMultiWordService = (key: string): boolean => {
-      const qLowerFull = effectiveQuery.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim();
+      const qLowerFull = (effectiveQuery ?? "").toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim();
       const qWordsFull = qLowerFull.split(/\s+/).filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
       if (qWordsFull.length < 2 || !allServicesForSynCheck) return false;
       const normSyn = (w: string): string => stripAccentsGlobal(w.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim());
@@ -1566,7 +1569,7 @@ serve(async (req) => {
     //   → "Hôtel" subcategory auto-detected, but user never said "hôtel"
     //   → clear lock so Riads, Maisons d'hôtes etc. also appear
     if (detectedSubcategory && intentCategory && effectiveQuery !== query) {
-      const originalLower = query.toLowerCase();
+      const originalLower = (query ?? "").toLowerCase();
       const subcatLower = detectedSubcategory.toLowerCase();
       const subcatWords = subcatLower.split(/[\s/]+/).filter((w: string) => w.length > 2);
       const originalWords = originalLower.split(/\s+/);
@@ -1637,7 +1640,7 @@ serve(async (req) => {
                 const scName = (sc.name_fr || "").toLowerCase();
                 const scKws: string[] = ((sc as any).keywords || []).map((k: string) => k.toLowerCase());
                 const scNameWords = scName.split(/\s+/).filter((w: string) => w.length > 1);
-                const nameMatch = qWords.some(qw => scNameWords.some(nw => normalizeWordRe(qw) === normalizeWordRe(nw)));
+                const nameMatch = qWords.some((qw: string) => scNameWords.some((nw: string) => normalizeWordRe(qw) === normalizeWordRe(nw)));
                 const kwMatch = qWords.some(qw => scKws.some(k => {
                   if (k.includes(" ")) {
                     const kWords = k.split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
@@ -2361,7 +2364,7 @@ serve(async (req) => {
         // Keep only services where at least one name token matches a query word exactly (accent/plural-insensitive).
         const validatedByName = (matchingByName || []).filter(svc => {
           const nameTokens = svc.name_fr.toLowerCase().split(/[\s/\-]+/).map((t: string) => normalizeWordKw(t)).filter((t: string) => t.length > 1);
-          return nameTokens.some(t => allQueryWordsForNameSearch.some(w => normalizeWordKw(w) === t));
+          return nameTokens.some((t: string) => allQueryWordsForNameSearch.some((w: string) => normalizeWordKw(w) === t));
         });
 
         const allMatched = new Map<string, any>();
@@ -2370,7 +2373,7 @@ serve(async (req) => {
         for (const s of [...validatedByName, ...keywordMatches, ...nameMatchesAccentInsensitive]) {
           const normKey = normalizeServiceKey(s.name_fr);
           // Extract subcategory name from joined data
-          const sSubcat = s.subcategories?.name_fr || null;
+          const sSubcat = (s.subcategories as any)?.name_fr || null;
           const existing = allMatched.get(normKey);
           if (existing) {
             const mergedKws = [...new Set([...(existing.keywords || []), ...(s.keywords || [])])];
@@ -2440,7 +2443,7 @@ serve(async (req) => {
               for (const sw of svcContentWords) {
                 // For hyphenated words, also try matching individual parts
                 const candidates = sw.includes("-")
-                  ? [sw, ...sw.split("-").filter(p => p.length > 1 && !FRENCH_STOP_WORDS.has(p))]
+                  ? [sw, ...sw.split("-").filter((p: string) => p.length > 1 && !FRENCH_STOP_WORDS.has(p))]
                   : [sw];
                 for (const cand of candidates) {
                   const matchedQw = allQueryWordsForNameSearch.find(qw => !usedQueryWords.has(qw) && normalizeWordKw(qw) === normalizeWordKw(cand));
@@ -2685,7 +2688,7 @@ serve(async (req) => {
         .eq("name_fr", detectedService);
       if (svcParents && svcParents.length > 0) {
         // If detected subcategory exists, prefer the parent that matches it
-        let bestParent: { name: string; config: typeof subcategorySearchConfig } | null = null;
+        let bestParent: { name: string; config: { search_mode: string; max_results: number | null; boost_weight: number; synonyms: string[] } } | null = null;
         for (const sp of svcParents) {
           const parentName = (sp as any).subcategories?.name_fr;
           const parentCategoryName = (sp as any).subcategories?.categories?.name_fr;
@@ -2715,7 +2718,7 @@ serve(async (req) => {
         }
         if (bestParent) {
           subcategorySearchConfig = bestParent.config;
-          console.log(`Resolved search config from service "${detectedService}" parent subcategory "${bestParent.name}": mode=${bestParent.config!.search_mode}`);
+          console.log(`Resolved search config from service "${detectedService}" parent subcategory "${bestParent.name}": mode=${bestParent.config.search_mode}`);
         }
       }
     }
@@ -2737,7 +2740,7 @@ serve(async (req) => {
 
     // When a service was detected, build a clean query for tsquery matching.
     // Remove noise words (like "achat") that don't exist in search vectors, keep service name + city etc.
-    let queryForExpansion = effectiveQuery;
+    let queryForExpansion: string | null | undefined = effectiveQuery;
 
     // Strip detected neighborhood from queryForExpansion — neighborhood filtering is handled
     // by post-filter (filterByNeighborhood) which handles accent variants (médina/medina, guéliz/gueliz).
@@ -3877,7 +3880,7 @@ serve(async (req) => {
             const beforeCount = businesses.length;
             const filtered = businesses.filter((b: any) => {
               const bCategories = (b.categories || []).map((c: string) => c.toLowerCase());
-              return bCategories.some(c => c.includes(detectedSubcategory!.toLowerCase()) || detectedSubcategory!.toLowerCase().includes(c));
+              return bCategories.some((c: string) => c.includes(detectedSubcategory!.toLowerCase()) || detectedSubcategory!.toLowerCase().includes(c));
             });
             if (filtered.length > 0) {
               businesses = filtered;
@@ -3897,7 +3900,7 @@ serve(async (req) => {
               return detectedServices.every((ds) => {
                 const normalizedDetected = normalizeMatchingText(ds);
                 // Use prefix matching: "Cours" matches "cours débutant", "cours collectifs", etc.
-                return businessServices.some((serviceName) => serviceName === normalizedDetected || serviceName.startsWith(normalizedDetected + " "));
+                return businessServices.some((serviceName: string) => serviceName === normalizedDetected || serviceName.startsWith(normalizedDetected + " "));
               });
             });
             console.log(`Multi-service AND post-filter [${detectedServices.join(", ")}]: ${beforeCount} → ${businesses.length}`);
@@ -4486,7 +4489,7 @@ serve(async (req) => {
         .in("id", nameMatchedBusinessIds)
         .eq("is_active", true);
       if (nameMatchData) {
-        const qNorm = stripAccentsGlobal(effectiveQuery.toLowerCase().trim());
+        const qNorm = stripAccentsGlobal((effectiveQuery ?? "").toLowerCase().trim());
         const relevantIds = nameMatchData.filter((b: any) => {
           // For keyword-pinned businesses: when specific services are detected,
           // require the business to have at least one of those services.
@@ -4496,7 +4499,7 @@ serve(async (req) => {
             if (detectedServices.length > 0) {
               const bSvcs = (b.services || []).map((s: string) => s.toLowerCase());
               const hasDetectedService = detectedServices.some(ds => 
-                bSvcs.some(bs => bs.includes(ds.toLowerCase()) || ds.toLowerCase().includes(bs))
+                bSvcs.some((bs: string) => bs.includes(ds.toLowerCase()) || ds.toLowerCase().includes(bs))
               );
               if (!hasDetectedService) return false;
             }
@@ -4514,9 +4517,9 @@ serve(async (req) => {
           const bCats = (b.categories || []).map((c: string) => c.toLowerCase());
           const bSvcs = (b.services || []).map((s: string) => s.toLowerCase());
           // Check if business has the detected subcategory in its categories
-          if (detectedSubcategory && bCats.some(c => c.includes(detectedSubcategory!.toLowerCase()) || detectedSubcategory!.toLowerCase().includes(c))) return true;
+          if (detectedSubcategory && bCats.some((c: string) => c.includes(detectedSubcategory!.toLowerCase()) || detectedSubcategory!.toLowerCase().includes(c))) return true;
           // Check if business has any of the detected services
-          if (detectedServices.length > 0 && detectedServices.some(ds => bSvcs.some(bs => bs.includes(ds.toLowerCase()) || ds.toLowerCase().includes(bs)))) return true;
+          if (detectedServices.length > 0 && detectedServices.some(ds => bSvcs.some((bs: string) => bs.includes(ds.toLowerCase()) || ds.toLowerCase().includes(bs)))) return true;
           return false;
         }).map((b: any) => b.id);
         const removedNames = nameMatchData.filter((b: any) => !relevantIds.includes(b.id));
@@ -4692,7 +4695,7 @@ serve(async (req) => {
                 return longer.includes(shorter) && shorter.length / longer.length >= 0.8;
               });
               // Multi-word term: all term words must match a query word (exact only for short words)
-              return termWords.every(tw => queryWords.some(qw => {
+              return termWords.every((tw: string) => queryWords.some((qw: string) => {
                 if (qw === tw) return true;
                 if (qw.length <= 3 || tw.length <= 3) return false;
                 const shorter = qw.length <= tw.length ? qw : tw;
@@ -4934,7 +4937,7 @@ serve(async (req) => {
       detectedService: detectedService || null,
       intentSubcategoryConflict,
       searchMode: serviceShortcutActivated ? "service_shortcut" : "broad",
-      bundleTimeSlots: (typeof bundleTimeSlots !== 'undefined' && bundleTimeSlots.length > 0) ? bundleTimeSlots : undefined,
+      // bundleTimeSlots is declared in an inner scope and not accessible here
       disambiguationType,
       synonymUsed: synonymWasUsed || undefined,
       preciseMatch: preciseMatch || undefined,

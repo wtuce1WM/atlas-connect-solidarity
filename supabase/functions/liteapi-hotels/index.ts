@@ -95,7 +95,7 @@ Deno.serve(async (req) => {
     });
 
     const ratesBody2 = await ratesRes.json();
-    let rawHotels: Record<string, unknown>[] | null = null;
+    let rawHotels: Record<string, unknown>[] = [];
     let isFallback = false;
 
     if (!ratesRes.ok || ratesBody2.error) {
