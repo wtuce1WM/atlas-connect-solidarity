@@ -47,6 +47,15 @@ interface VideoItem {
   manualCard: { label: string; badgeId: string | null } | null;
 }
 
+interface AgendaEvent {
+  id: string;
+  name: string;
+  start_date: string | null;
+  end_date: string | null;
+  hook: string | null;
+  logo_url: string | null;
+}
+
 const CITIES = ["Marrakech", "Essaouira"] as const;
 type City = typeof CITIES[number];
 
