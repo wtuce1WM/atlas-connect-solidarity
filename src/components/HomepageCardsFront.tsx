@@ -78,7 +78,7 @@ const HomepageCardsFront = ({ city, onLabelClick }: Props) => {
                 ...slot.data,
                 videoId: null,
                 videoUrl: null,
-                thumbnail: event.images?.[0] || event.logo_url || null,
+                thumbnail: event.images?.[0] || null,
                 businessName: event.name || slot.data.businessName,
                 ownerLogo: null,
                 ownerName: null,
