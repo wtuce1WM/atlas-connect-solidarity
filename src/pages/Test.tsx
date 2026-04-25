@@ -221,6 +221,45 @@ const Test = () => {
     })();
     return () => { cancelled = true; };
   }, [videoBadgeFilter]);
+  useEffect(() => {
+    if (!agendaView) {
+      setAgendaEvents([]);
+      setLoadingAgenda(false);
+      return;
+    }
+
+    let cancelled = false;
+    (async () => {
+      setLoadingAgenda(true);
+      const { data: cityRow } = await supabase
+        .from("cities")
+        .select("id")
+        .eq("name_fr", agendaView.city)
+        .maybeSingle();
+
+      if (cancelled) return;
+
+      if (!(cityRow as any)?.id) {
+        setAgendaEvents([]);
+        setLoadingAgenda(false);
+        return;
+      }
+
+      const { data } = await (supabase as any)
+        .from("events")
+        .select("id, name, start_date, end_date, hook, logo_url")
+        .eq("city_id", (cityRow as any).id)
+        .order("start_date", { ascending: true, nullsFirst: false });
+
+      if (!cancelled) {
+        setAgendaEvents(((data as any[]) || []) as AgendaEvent[]);
+        setLoadingAgenda(false);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [agendaView]);
+
 
   // ============================================================
   // EFFECTS
