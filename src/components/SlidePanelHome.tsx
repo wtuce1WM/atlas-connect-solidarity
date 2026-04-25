@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { X, ChevronUp, ChevronDown, Instagram, Youtube } from "lucide-react";
 import { SiTiktok } from "react-icons/si";
 import { createPortal } from "react-dom";
