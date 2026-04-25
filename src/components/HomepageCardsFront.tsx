@@ -108,7 +108,7 @@ const HomepageCardsFront = ({ city, onLabelClick }: Props) => {
     if (!label) return;
 
     if (onLabelClick) {
-      onLabelClick({ label, kind: slot.kind, badgeId: slot.data.badgeId ?? null });
+      onLabelClick({ label, kind: slot.kind, badgeId: slot.data.badgeId ?? null, eventId: slot.data.eventId ?? null });
       return;
     }
 
