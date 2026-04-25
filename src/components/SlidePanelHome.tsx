@@ -276,11 +276,9 @@ const SlidePanelHome = ({
                       <p className="p-4 text-white/70 text-sm text-center">Aucun événement à venir.</p>
                     ) : (
                       agendaEvents.map((ev) => (
-                        <button
+                        <div
                           key={ev.id}
-                          type="button"
-                          onClick={() => navigate(`/search?q=${encodeURIComponent(ev.name)}`)}
-                          className="w-full flex items-start gap-3 p-3 text-left hover:bg-white/5 transition-colors"
+                          className="w-full flex items-start gap-3 p-3 text-left"
                         >
                           {ev.logo_url ? (
                             <img src={ev.logo_url} alt="" className="w-12 h-12 rounded object-cover flex-shrink-0 bg-white/5" />
@@ -292,7 +290,7 @@ const SlidePanelHome = ({
                             <p className="text-gold text-xs mt-0.5">{formatDateRange(ev.start_date, ev.end_date)}</p>
                             {ev.hook && <p className="text-white/60 text-xs mt-1 line-clamp-2">{ev.hook}</p>}
                           </div>
-                        </button>
+                        </div>
                       ))
                     )}
                   </div>
