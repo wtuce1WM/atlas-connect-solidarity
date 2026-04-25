@@ -469,6 +469,9 @@ const Test = () => {
         // Exception: for the manual "Suivez le guide" card (badge "Guide"),
         // show every video tagged in this city without grouping by business.
         const isGuideBadge = /^(suivez le guide|guide)$/i.test(videoBadgeFilter.label.trim());
+        // For all badge filters, also pull in generic_videos and YouTube videos
+        // tagged with the same badge (not only the Guide badge).
+        const includeExtraSources = true;
         // Keep only one video per business: the first one (lowest sort_order)
         const seenBizIds = new Set<string>();
         const dedupedByBiz = isGuideBadge
@@ -498,7 +501,7 @@ const Test = () => {
         // with the same badge and assigned to the current city (either via
         // generic_videos.city or via generic_video_cities multi-city links).
         let genericVideoItems: VideoItem[] = [];
-        if (isGuideBadge) {
+        if (includeExtraSources) {
           const { data: gvBadgeLinks } = await supabase
             .from("generic_video_badges" as any)
             .select("generic_video_id")
@@ -571,7 +574,7 @@ const Test = () => {
         // (Shorts and standard) tagged with the same badge whose owner business
         // is located in the current city.
         let youtubeVideoItems: VideoItem[] = [];
-        if (isGuideBadge) {
+        if (includeExtraSources) {
           const { data: ytBadgeLinks } = await supabase
             .from("business_youtube_video_badges")
             .select("youtube_video_id")
