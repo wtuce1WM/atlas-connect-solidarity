@@ -566,7 +566,63 @@ const Test = () => {
           }
         }
 
-        safeSetVideos([...docVideoItems, ...genericVideoItems]);
+        // For "Suivez le guide" (Guide badge): also include YouTube videos
+        // (Shorts and standard) tagged with the same badge whose owner business
+        // is located in the current city.
+        let youtubeVideoItems: VideoItem[] = [];
+        if (isGuideBadge) {
+          const { data: ytBadgeLinks } = await supabase
+            .from("business_youtube_video_badges")
+            .select("youtube_video_id")
+            .eq("badge_id", videoBadgeFilter.badgeId);
+          const ytIds = [...new Set(((ytBadgeLinks as any[]) || []).map((l: any) => l.youtube_video_id))];
+          if (ytIds.length > 0) {
+            const ytRows: any[] = [];
+            for (let i = 0; i < ytIds.length; i += batch) {
+              const { data } = await supabase
+                .from("business_youtube_videos")
+                .select("id, video_id, title, thumbnail, is_short, is_visible, sort_order, business_id")
+                .eq("is_visible", true)
+                .in("id", ytIds.slice(i, i + batch))
+                .order("sort_order", { ascending: true });
+              if (data) ytRows.push(...data);
+            }
+            const ytBizIds = [...new Set(ytRows.map((y: any) => y.business_id).filter(Boolean))] as string[];
+            const ytBizMap = new Map<string, SearchResultBusiness>();
+            if (ytBizIds.length > 0) {
+              for (let i = 0; i < ytBizIds.length; i += batch) {
+                const { data: bizs } = await supabase
+                  .from("businesses")
+                  .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+                  .in("id", ytBizIds.slice(i, i + batch));
+                (bizs || []).forEach((b: any) => ytBizMap.set(b.id, b as SearchResultBusiness));
+              }
+            }
+            // Filter by current city via the owner business's city
+            const ytFiltered = ytRows.filter((y: any) => {
+              const biz = y.business_id ? ytBizMap.get(y.business_id) : null;
+              return biz?.city === city;
+            });
+            youtubeVideoItems = ytFiltered.map((y: any) => {
+              const biz = ytBizMap.get(y.business_id) || null;
+              return {
+                id: y.id,
+                url: y.is_short
+                  ? `https://www.youtube.com/shorts/${y.video_id}`
+                  : `https://www.youtube.com/watch?v=${y.video_id}`,
+                business_name: y.title || biz?.name || "—",
+                thumbnail_url: y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/hqdefault.jpg`,
+                business: biz,
+                owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
+                social: null,
+                description: null,
+                manualCard: null,
+              } as VideoItem;
+            });
+          }
+        }
+
+        safeSetVideos([...docVideoItems, ...genericVideoItems, ...youtubeVideoItems]);
         safeSetLoadingVideos(false);
         return;
       }
