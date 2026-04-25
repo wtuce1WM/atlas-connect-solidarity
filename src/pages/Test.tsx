@@ -803,7 +803,7 @@ const Test = () => {
           const chunk = bizIds.slice(i, i + batch);
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
+            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, event_id")
             .eq("type", "video")
             .eq("show_on_front", true)
             .in("business_id", chunk)
@@ -816,7 +816,7 @@ const Test = () => {
           const chunk = extraIds.slice(i, i + batch);
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
+            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, event_id")
             .eq("type", "video")
             .eq("show_on_front", true)
             .in("id", chunk);
@@ -902,7 +902,7 @@ const Test = () => {
         limitedDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
 
-        const manualCardMap = !selectedSubId ? await getManualCardMap(city, limitedDocs) : new Map<string, { label: string; badgeId: string | null }>();
+        const manualCardMap = !selectedSubId ? await getManualCardMap(city, limitedDocs) : new Map<string, { label: string; badgeId: string | null; eventId?: string | null }>();
 
         const docItems: VideoItem[] = limitedDocs.map((d: any) => {
           const biz = bizMap.get(d.business_id) || null;
@@ -1400,7 +1400,7 @@ const Test = () => {
             <p className="text-sm text-muted-foreground">Chargement des vidéos…</p>
           ) : videos.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Aucune vidéo trouvée{videoBadgeFilter ? ` pour « ${videoBadgeFilter.label} »` : selectedEntry ? ` pour « ${selectedEntry.name} »` : ""} à {city}.
+              Aucune vidéo trouvée{videoEventFilter ? ` pour « ${videoEventFilter.label} »` : videoBadgeFilter ? ` pour « ${videoBadgeFilter.label} »` : selectedEntry ? ` pour « ${selectedEntry.name} »` : ""} à {city}.
             </p>
           ) : (() => {
             const isGuide = otherViewMode === "guide";
