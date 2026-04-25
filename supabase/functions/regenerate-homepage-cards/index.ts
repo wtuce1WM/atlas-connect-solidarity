@@ -246,6 +246,7 @@ async function buildSnapshot(supabase: any, city: string) {
           ownerLogo: null, ownerName: null, ownerId: null,
           rating: null, reviewCount: null, label,
           badgeId: card.badge_id || null,
+          eventId: card.event_id || null,
         },
       };
     }
