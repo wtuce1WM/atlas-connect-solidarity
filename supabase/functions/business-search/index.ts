@@ -4937,7 +4937,7 @@ serve(async (req) => {
       detectedService: detectedService || null,
       intentSubcategoryConflict,
       searchMode: serviceShortcutActivated ? "service_shortcut" : "broad",
-      bundleTimeSlots: (typeof bundleTimeSlots !== 'undefined' && bundleTimeSlots.length > 0) ? bundleTimeSlots : undefined,
+      // bundleTimeSlots is declared in an inner scope and not accessible here
       disambiguationType,
       synonymUsed: synonymWasUsed || undefined,
       preciseMatch: preciseMatch || undefined,
