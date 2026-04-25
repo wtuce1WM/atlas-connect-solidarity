@@ -1013,6 +1013,28 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
                     )}
                   </div>
                   <div>
+                    <label className="text-[9px] text-muted-foreground">
+                      Événement {card.event_id && <span className="text-primary">(lié)</span>}
+                    </label>
+                    <div className="flex items-center gap-0.5">
+                      <select
+                        value={card.event_id || ""}
+                        onChange={(e) => updateExtraCard(card.cardId, { event_id: e.target.value || null })}
+                        className="h-5 w-full px-1 text-[9px] border rounded-md bg-background"
+                      >
+                        <option value="">— Aucun —</option>
+                        {allEvents.map((ev) => (
+                          <option key={ev.id} value={ev.id}>{ev.name}</option>
+                        ))}
+                      </select>
+                      {card.event_id && (
+                        <button type="button" className="shrink-0" onClick={() => updateExtraCard(card.cardId, { event_id: null })} title="Retirer">
+                          <X className="h-2.5 w-2.5 text-muted-foreground hover:text-destructive" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <div>
                     <label className="text-[9px] text-muted-foreground">Suggestion de recherche</label>
                     <select
                       value={card.popular_search_id || ""}
