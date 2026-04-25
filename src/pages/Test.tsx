@@ -1379,21 +1379,23 @@ const Test = () => {
                   ) : agendaEvents.length === 0 ? (
                     <p className="text-sm text-muted-foreground">Aucun événement trouvé.</p>
                   ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    <div className="grid gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
                       {agendaEvents.map((event) => (
-                        <div
-                          key={event.id}
-                          className="text-left rounded-lg overflow-hidden bg-card border border-border"
-                        >
-                          <div className="aspect-video bg-muted overflow-hidden">
-                            {event.logo_url ? (
-                              <img src={event.logo_url} alt={event.name} className="w-full h-full object-cover" loading="lazy" />
-                            ) : null}
+                        <div key={event.id} className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted group w-full">
+                          {event.logo_url ? (
+                            <img src={event.logo_url} alt={event.name} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+                          ) : (
+                            <div className="absolute inset-0 bg-muted" />
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/40" />
+                          <div className="absolute inset-x-0 top-[10%] z-[8] flex items-center justify-center px-2">
+                            <span className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black">
+                              {formatEventDateRange(event.start_date, event.end_date)}
+                            </span>
                           </div>
-                          <div className="p-2">
-                            <p className="text-sm font-medium line-clamp-2">{event.name}</p>
-                            <p className="text-xs text-gold mt-0.5">{formatEventDateRange(event.start_date, event.end_date)}</p>
-                            {event.hook && <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{event.hook}</p>}
+                          <div className="absolute bottom-0 left-0 right-0 p-1.5">
+                            <p className="text-[11px] font-semibold text-white line-clamp-2">{event.name}</p>
+                            {event.hook && <p className="text-[10px] text-white/80 line-clamp-2 mt-0.5">{event.hook}</p>}
                           </div>
                         </div>
                       ))}
