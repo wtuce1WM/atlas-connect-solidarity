@@ -1352,6 +1352,46 @@ const Test = () => {
                     </div>
                   )}
                 </div>
+              {agendaView && (
+                <div className="mt-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-semibold">
+                      {agendaView.label} — {agendaView.city} ({agendaEvents.length})
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => setAgendaView(null)}
+                      className="text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      Fermer ×
+                    </button>
+                  </div>
+                  {loadingAgenda ? (
+                    <p className="text-sm text-muted-foreground">Chargement…</p>
+                  ) : agendaEvents.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Aucun événement trouvé.</p>
+                  ) : (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                      {agendaEvents.map((event) => (
+                        <div
+                          key={event.id}
+                          className="text-left rounded-lg overflow-hidden bg-card border border-border"
+                        >
+                          <div className="aspect-video bg-muted overflow-hidden">
+                            {event.logo_url ? (
+                              <img src={event.logo_url} alt={event.name} className="w-full h-full object-cover" loading="lazy" />
+                            ) : null}
+                          </div>
+                          <div className="p-2">
+                            <p className="text-sm font-medium line-clamp-2">{event.name}</p>
+                            <p className="text-xs text-gold mt-0.5">{formatEventDateRange(event.start_date, event.end_date)}</p>
+                            {event.hook && <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{event.hook}</p>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               )}
             </>
           ) : !selectedEntry && !videoBadgeFilter ? (
