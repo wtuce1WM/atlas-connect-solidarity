@@ -47,6 +47,15 @@ interface VideoItem {
   manualCard: { label: string; badgeId: string | null } | null;
 }
 
+interface AgendaEvent {
+  id: string;
+  name: string;
+  start_date: string | null;
+  end_date: string | null;
+  hook: string | null;
+  logo_url: string | null;
+}
+
 const CITIES = ["Marrakech", "Essaouira"] as const;
 type City = typeof CITIES[number];
 
@@ -57,6 +66,16 @@ function deriveThumbnail(url: string): string | null {
   if (bunny) return `https://vz-${bunny[1]}.b-cdn.net/${bunny[2]}/thumbnail.jpg`;
   return null;
 }
+
+const isAgendaLabel = (label: string) => label.trim().toLowerCase() === "agenda";
+
+const formatEventDateRange = (start: string | null, end: string | null) => {
+  const fmt = (d: string) => new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
+  if (start && end && start !== end) return `${fmt(start)} → ${fmt(end)}`;
+  if (start) return fmt(start);
+  if (end) return fmt(end);
+  return "Date à confirmer";
+};
 
 function extractSocial(d: any): SocialInfo | null {
   const ig = (d?.instagram_account || "").trim();
@@ -181,6 +200,9 @@ const Test = () => {
   const [loadingBadge, setLoadingBadge] = useState(false);
   const [videoBadgeFilter, setVideoBadgeFilter] = useState<{ badgeId: string; label: string } | null>(null);
   const [videoBadgeDocIds, setVideoBadgeDocIds] = useState<Set<string> | null>(null);
+  const [agendaView, setAgendaView] = useState<{ label: string; city: City } | null>(null);
+  const [agendaEvents, setAgendaEvents] = useState<AgendaEvent[]>([]);
+  const [loadingAgenda, setLoadingAgenda] = useState(false);
 
   // Load doc ids matching the active video badge filter
   useEffect(() => {
@@ -199,6 +221,45 @@ const Test = () => {
     })();
     return () => { cancelled = true; };
   }, [videoBadgeFilter]);
+  useEffect(() => {
+    if (!agendaView) {
+      setAgendaEvents([]);
+      setLoadingAgenda(false);
+      return;
+    }
+
+    let cancelled = false;
+    (async () => {
+      setLoadingAgenda(true);
+      const { data: cityRow } = await supabase
+        .from("cities")
+        .select("id")
+        .eq("name_fr", agendaView.city)
+        .maybeSingle();
+
+      if (cancelled) return;
+
+      if (!(cityRow as any)?.id) {
+        setAgendaEvents([]);
+        setLoadingAgenda(false);
+        return;
+      }
+
+      const { data } = await (supabase as any)
+        .from("events")
+        .select("id, name, start_date, end_date, hook, logo_url")
+        .eq("city_id", (cityRow as any).id)
+        .order("start_date", { ascending: true, nullsFirst: false });
+
+      if (!cancelled) {
+        setAgendaEvents(((data as any[]) || []) as AgendaEvent[]);
+        setLoadingAgenda(false);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [agendaView]);
+
 
   // ============================================================
   // EFFECTS
@@ -1053,16 +1114,25 @@ const Test = () => {
     setBadgeView(null);
     setLoadingBadge(false);
     setBadgeBusinesses([]);
-    setOtherViewMode("videos");
     setActiveVideo(null);
     setPanelOpen(false);
     setCurrentTime(0);
     setSelectedSubId(null);
-    setVideoBadgeFilter({ badgeId, label });
 
     if (city !== targetCity) {
       setCity(targetCity);
     }
+
+    if (isAgendaLabel(label)) {
+      setVideoBadgeFilter(null);
+      setSelectedEntryId(HOME_ID);
+      setAgendaView({ label, city: targetCity });
+      return true;
+    }
+
+    setAgendaView(null);
+    setOtherViewMode("videos");
+    setVideoBadgeFilter({ badgeId, label });
 
     return true;
   };
@@ -1219,7 +1289,7 @@ const Test = () => {
         <main className={`p-6 overflow-y-auto transition-all duration-300 ${panelOpen ? "w-1/2" : "flex-1"}`}>
           {selectedEntryId === HOME_ID && !videoBadgeFilter ? (
             <>
-              <Tabs defaultValue={city.toLowerCase()} value={city.toLowerCase()} onValueChange={(v) => { setCity((v.charAt(0).toUpperCase() + v.slice(1)) as City); setBadgeView(null); }}>
+              <Tabs defaultValue={city.toLowerCase()} value={city.toLowerCase()} onValueChange={(v) => { setCity((v.charAt(0).toUpperCase() + v.slice(1)) as City); setBadgeView(null); setAgendaView(null); }}>
                 <TabsList>
                   <TabsTrigger value="marrakech">Marrakech</TabsTrigger>
                   <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
@@ -1278,6 +1348,47 @@ const Test = () => {
                             {b.neighborhood && <p className="text-xs text-muted-foreground line-clamp-1">{b.neighborhood}</p>}
                           </div>
                         </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              {agendaView && (
+                <div className="mt-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-semibold">
+                      {agendaView.label} — {agendaView.city} ({agendaEvents.length})
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => setAgendaView(null)}
+                      className="text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      Fermer ×
+                    </button>
+                  </div>
+                  {loadingAgenda ? (
+                    <p className="text-sm text-muted-foreground">Chargement…</p>
+                  ) : agendaEvents.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Aucun événement trouvé.</p>
+                  ) : (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                      {agendaEvents.map((event) => (
+                        <div
+                          key={event.id}
+                          className="text-left rounded-lg overflow-hidden bg-card border border-border"
+                        >
+                          <div className="aspect-video bg-muted overflow-hidden">
+                            {event.logo_url ? (
+                              <img src={event.logo_url} alt={event.name} className="w-full h-full object-cover" loading="lazy" />
+                            ) : null}
+                          </div>
+                          <div className="p-2">
+                            <p className="text-sm font-medium line-clamp-2">{event.name}</p>
+                            <p className="text-xs text-gold mt-0.5">{formatEventDateRange(event.start_date, event.end_date)}</p>
+                            {event.hook && <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{event.hook}</p>}
+                          </div>
+                        </div>
                       ))}
                     </div>
                   )}
