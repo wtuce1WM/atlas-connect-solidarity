@@ -11,6 +11,7 @@ import SlidePanelHome from "@/components/SlidePanelHome";
 import { Menu as MenuIcon, X, Star } from "lucide-react";
 import HomepageCardsFront from "@/components/HomepageCardsFront";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { toast } from "sonner";
 
 interface FrontEntry {
   id: string;
