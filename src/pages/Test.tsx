@@ -1190,6 +1190,22 @@ const Test = () => {
       return;
     }
 
+    if (isAgendaLabel(info.label)) {
+      const { data: agendaCard } = await (supabase as any)
+        .from("front_structure_homepage_extra_cards")
+        .select("event_id")
+        .eq("city", clickedCity)
+        .ilike("title", "Agenda")
+        .not("event_id", "is", null)
+        .maybeSingle();
+
+      const eventId = (agendaCard as any)?.event_id;
+      if (eventId) {
+        await activateVideoEventFilter(eventId, info.label, clickedCity);
+        return;
+      }
+    }
+
     if (!info.badgeId) return;
 
     const activated = await activateVideoBadgeFilter(info.badgeId, info.label, clickedCity);
