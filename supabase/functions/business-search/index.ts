@@ -184,6 +184,8 @@ interface Business {
   computed_rating: number | null;
   total_review_count: number | null;
   main_category: string | null;
+  engagements?: string[] | null;
+  keywords?: string[] | null;
 }
 
 interface SearchResult {
@@ -203,6 +205,7 @@ interface SearchResult {
   disambiguationType?: "needs_category" | "needs_city" | null;
   synonymUsed?: boolean;
   preciseMatch?: boolean;
+  exactNameMatchIsolation?: boolean;
 }
 
 // Synonyms and noise words are now loaded from DB (search_synonyms, search_noise_words)
