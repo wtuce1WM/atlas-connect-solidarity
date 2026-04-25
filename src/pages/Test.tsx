@@ -84,13 +84,13 @@ function extractSocial(d: any): SocialInfo | null {
 }
 
 async function getManualCardMap(city: City, docs: any[]) {
-  const manualMap = new Map<string, { label: string; badgeId: string | null }>();
+  const manualMap = new Map<string, { label: string; badgeId: string | null; eventId?: string | null }>();
 
   if (docs.length === 0) return manualMap;
 
   const { data: extraRows } = await (supabase as any)
     .from("front_structure_homepage_extra_cards")
-    .select("id, business_id, badge_id, video_document_id, title, sort_order")
+    .select("id, business_id, badge_id, video_document_id, title, sort_order, event_id")
     .eq("city", city)
     .order("sort_order", { ascending: true });
 
