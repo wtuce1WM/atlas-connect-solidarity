@@ -1141,6 +1141,7 @@ const Test = () => {
     info: { label: string; kind: "entry" | "extra"; badgeId: string | null },
     clickedCity: City
   ) => {
+    console.log("[handleHomeLabelClick]", { info, clickedCity, isAgenda: isAgendaLabel(info.label) });
     // Agenda: always show city events list, regardless of kind/badgeId
     if (isAgendaLabel(info.label)) {
       await activateVideoBadgeFilter(info.badgeId ?? "", info.label, clickedCity);
