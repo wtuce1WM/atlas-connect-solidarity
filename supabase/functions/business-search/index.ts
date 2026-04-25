@@ -2688,7 +2688,7 @@ serve(async (req) => {
         .eq("name_fr", detectedService);
       if (svcParents && svcParents.length > 0) {
         // If detected subcategory exists, prefer the parent that matches it
-        let bestParent: { name: string; config: NonNullable<typeof subcategorySearchConfig> } | null = null;
+        let bestParent: { name: string; config: { search_mode: string; max_results: number | null; boost_weight: number; synonyms: string[] } } | null = null;
         for (const sp of svcParents) {
           const parentName = (sp as any).subcategories?.name_fr;
           const parentCategoryName = (sp as any).subcategories?.categories?.name_fr;
