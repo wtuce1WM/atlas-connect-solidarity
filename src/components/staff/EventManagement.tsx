@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Save, ArrowLeft, X, Link, GripVertical, MapPinned, Search, Star } from "lucide-react";
+import { Plus, Edit, Trash2, Save, ArrowLeft, X, Link, GripVertical, MapPinned, Search, Star, Copy, Check } from "lucide-react";
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -81,6 +81,39 @@ const EMPTY_FORM = {
 const SortableVideoItem = ({ id, url, index, setForm, toast }: { id: string; url: string; index: number; setForm: React.Dispatch<React.SetStateAction<typeof EMPTY_FORM>>; toast: any }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
+  const [videoDocId, setVideoDocId] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!url) {
+      setVideoDocId(null);
+      return;
+    }
+    (async () => {
+      const { data } = await supabase
+        .from("business_documents")
+        .select("id")
+        .eq("url", url)
+        .eq("type", "video")
+        .maybeSingle();
+      if (!cancelled) setVideoDocId((data as any)?.id || null);
+    })();
+    return () => { cancelled = true; };
+  }, [url]);
+
+  const handleCopy = async () => {
+    if (!videoDocId) return;
+    try {
+      await navigator.clipboard.writeText(videoDocId);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+      toast({ title: "ID copié ✓", description: videoDocId });
+    } catch {
+      toast({ variant: "destructive", title: "Copie impossible" });
+    }
+  };
+
   return (
     <div ref={setNodeRef} style={style} className="space-y-1 w-64 shrink-0">
       <div className="flex items-center gap-2">
@@ -98,6 +131,22 @@ const SortableVideoItem = ({ id, url, index, setForm, toast }: { id: string; url
           <X className="h-4 w-4 text-destructive" />
         </Button>
       </div>
+      {url && videoDocId && (
+        <div className="flex items-center gap-1 ml-8 group">
+          <span className="text-[10px] text-muted-foreground shrink-0">ID :</span>
+          <code className="text-[10px] font-mono text-muted-foreground truncate flex-1" title={videoDocId}>{videoDocId}</code>
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            className="h-5 w-5 shrink-0"
+            onClick={handleCopy}
+            title="Copier l'ID"
+          >
+            {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+          </Button>
+        </div>
+      )}
       {!url && (
         <div className="flex items-center gap-1 ml-8">
           <Link className="h-3 w-3 text-muted-foreground" />
