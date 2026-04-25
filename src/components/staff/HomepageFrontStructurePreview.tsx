@@ -956,13 +956,13 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
                 <SortableCell key={key} id={key}>
                   <div className="flex items-center justify-between">
                     <p className="text-xs font-semibold uppercase tracking-wider text-primary line-clamp-1">
-                      {card.title?.trim() || "Carte libre"}
+                      {card.title?.trim() || card.eventName || "Carte libre"}
                     </p>
                     <button type="button" onClick={() => deleteExtraCard(card.cardId)} title="Supprimer cette carte">
                       <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
                     </button>
                   </div>
-                  {renderThumbBox({ ...card, videoId: card.videoId, fallbackLabel: "Choisir établissement / badge", badgeLabel: card.title?.trim() || null })}
+                  {renderThumbBox({ ...card, videoId: card.videoId, fallbackLabel: "Choisir établissement / événement / badge", badgeLabel: card.title?.trim() || card.eventName || null })}
                   <div>
                     <label className="text-[9px] text-muted-foreground">Titre</label>
                     <Input
