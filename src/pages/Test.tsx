@@ -863,6 +863,7 @@ const Test = () => {
             .select("generic_video_id")
             .in("subcategory_id", subIds);
           const gvIds = [...new Set(((gvSubLinks as any[]) || []).map((l: any) => l.generic_video_id))];
+          console.log("[Test sub generic] subIds=", subIds, "city=", city, "gvIds=", gvIds);
           if (gvIds.length > 0) {
             const { data: cityRow } = await supabase
               .from("cities")
