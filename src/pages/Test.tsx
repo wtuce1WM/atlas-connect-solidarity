@@ -478,22 +478,95 @@ const Test = () => {
               seenBizIds.add(d.business_id);
               return true;
             });
-        safeSetVideos(
-          dedupedByBiz.map((d: any) => {
-            const biz = bizMap.get(d.business_id) || null;
-            return {
-              id: d.id,
-              url: d.url,
-              business_name: biz?.name || "—",
-              thumbnail_url: d.thumbnail_url,
-              business: biz,
-              owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
-              social: extractSocial(d),
-              description: d.description ?? null,
-              manualCard: null,
-            } as VideoItem;
-          })
-        );
+        const docVideoItems: VideoItem[] = dedupedByBiz.map((d: any) => {
+          const biz = bizMap.get(d.business_id) || null;
+          return {
+            id: d.id,
+            url: d.url,
+            business_name: biz?.name || "—",
+            thumbnail_url: d.thumbnail_url,
+            business: biz,
+            owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
+            social: extractSocial(d),
+            description: d.description ?? null,
+            manualCard: null,
+          } as VideoItem;
+        });
+
+        // For "Suivez le guide" (Guide badge): also include generic videos tagged
+        // with the same badge and assigned to the current city (either via
+        // generic_videos.city or via generic_video_cities multi-city links).
+        let genericVideoItems: VideoItem[] = [];
+        if (isGuideBadge) {
+          const { data: gvBadgeLinks } = await supabase
+            .from("generic_video_badges" as any)
+            .select("generic_video_id")
+            .eq("badge_id", videoBadgeFilter.badgeId);
+          const gvIds = [...new Set(((gvBadgeLinks as any[]) || []).map((l: any) => l.generic_video_id))];
+          if (gvIds.length > 0) {
+            const { data: cityRow } = await supabase
+              .from("cities")
+              .select("id")
+              .eq("name_fr", city)
+              .maybeSingle();
+            const cityId = (cityRow as any)?.id ?? null;
+
+            const [{ data: extraCityLinks }, { data: gvs }] = await Promise.all([
+              cityId
+                ? supabase
+                    .from("generic_video_cities" as any)
+                    .select("generic_video_id")
+                    .eq("city_id", cityId)
+                    .in("generic_video_id", gvIds)
+                : Promise.resolve({ data: [] as any[] } as any),
+              supabase
+                .from("generic_videos" as any)
+                .select("id, url, name, thumbnail_url, city, sort_order, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
+                .in("id", gvIds)
+                .order("sort_order", { ascending: true }),
+            ]);
+            const extraIds = new Set(((extraCityLinks as any[]) || []).map((l: any) => l.generic_video_id));
+            const gvFiltered = ((gvs as any[]) || []).filter((v: any) => v.city === city || extraIds.has(v.id));
+
+            // Resolve first linked business (for owner display) — best effort
+            const { data: gvBizLinks } = await supabase
+              .from("generic_video_businesses" as any)
+              .select("generic_video_id, business_id")
+              .in("generic_video_id", gvFiltered.map((v: any) => v.id));
+            const firstBizByGv: Record<string, string> = {};
+            (((gvBizLinks as any[]) || [])).forEach((l: any) => {
+              if (!firstBizByGv[l.generic_video_id]) firstBizByGv[l.generic_video_id] = l.business_id;
+            });
+            const gvBizIds = [...new Set(Object.values(firstBizByGv))];
+            const gvBizMap = new Map<string, SearchResultBusiness>();
+            if (gvBizIds.length > 0) {
+              const { data: gvBizs } = await supabase
+                .from("businesses")
+                .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+                .in("id", gvBizIds);
+              (gvBizs || []).forEach((b: any) => gvBizMap.set(b.id, b as SearchResultBusiness));
+            }
+
+            genericVideoItems = gvFiltered.map((v: any) => {
+              const bizId = firstBizByGv[v.id];
+              const biz = bizId ? gvBizMap.get(bizId) || null : null;
+              const acct = (v.instagram_account || v.tiktok_account || v.youtube_account || "").replace(/^@+/, "");
+              return {
+                id: v.id,
+                url: v.url,
+                business_name: v.name || (acct ? `@${acct}` : (biz?.name || "—")),
+                thumbnail_url: v.thumbnail_url || deriveThumbnail(v.url),
+                business: biz,
+                owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
+                social: extractSocial(v),
+                description: v.description ?? null,
+                manualCard: null,
+              } as VideoItem;
+            });
+          }
+        }
+
+        safeSetVideos([...docVideoItems, ...genericVideoItems]);
         safeSetLoadingVideos(false);
         return;
       }
