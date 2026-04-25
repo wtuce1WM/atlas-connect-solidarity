@@ -686,6 +686,7 @@ const Test = () => {
           (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
         }
         const vids = ((vidsRes as any).data as any[]) || [];
+        console.log("[Vlogs debug]", { city, destId, linkedIds: [...linkedIds], vidsCount: vids.length, vidsErr: (vidsRes as any).error });
         const vidIds = vids.map((v: any) => v.id);
         const ordered = vidIds
           .map((vid) => {
