@@ -863,7 +863,6 @@ const Test = () => {
             .select("generic_video_id")
             .in("subcategory_id", subIds);
           const gvIds = [...new Set(((gvSubLinks as any[]) || []).map((l: any) => l.generic_video_id))];
-          console.log("[Test sub generic] subIds=", subIds, "city=", city, "gvIds=", gvIds);
           if (gvIds.length > 0) {
             const { data: cityRow } = await supabase
               .from("cities")
@@ -888,7 +887,6 @@ const Test = () => {
             ]);
             const extraIds = new Set(((extraCityLinks as any[]) || []).map((l: any) => l.generic_video_id));
             const gvFiltered = ((gvs as any[]) || []).filter((v: any) => v.city === city || extraIds.has(v.id));
-            console.log("[Test sub generic] gvs=", (gvs as any[])?.length, "gvFiltered=", gvFiltered.length, "extraIds=", [...extraIds]);
 
             const { data: gvBizLinks } = await supabase
               .from("generic_video_businesses" as any)
