@@ -420,6 +420,7 @@ const Test = () => {
       const safeSetVideos = (v: VideoItem[]) => { if (!cancelled) setVideos(v); };
       const safeSetLoadingVideos = (b: boolean) => { if (!cancelled) setLoadingVideos(b); };
       safeSetLoadingVideos(true);
+      console.log("[Test load]", { selectedEntryId: selectedEntry?.id, selectedEntryName: selectedEntry?.name, videoBadgeFilter, city });
 
       // Badge filter takes precedence: load videos by badge for the current city
       if (videoBadgeFilter) {
