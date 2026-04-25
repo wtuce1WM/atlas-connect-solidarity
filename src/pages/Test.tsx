@@ -1185,6 +1185,11 @@ const Test = () => {
       return;
     }
 
+    if (info.eventId) {
+      await activateVideoEventFilter(info.eventId, info.label, clickedCity);
+      return;
+    }
+
     if (!info.badgeId) return;
 
     const activated = await activateVideoBadgeFilter(info.badgeId, info.label, clickedCity);
