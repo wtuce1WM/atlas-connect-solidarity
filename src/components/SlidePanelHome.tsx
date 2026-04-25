@@ -68,11 +68,38 @@ const SlidePanelHome = ({
   owner,
   social,
   description,
+  agendaCity,
 }: SlidePanelHomeProps) => {
   const navigate = useNavigate();
   const panelRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [agendaEvents, setAgendaEvents] = useState<AgendaEvent[]>([]);
+
+  useEffect(() => {
+    if (!open || !agendaCity) {
+      setAgendaEvents([]);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const { data: cityRow } = await supabase
+        .from("cities")
+        .select("id")
+        .eq("name_fr", agendaCity)
+        .maybeSingle();
+      if (cancelled || !cityRow?.id) return;
+      const today = new Date().toISOString().slice(0, 10);
+      const { data } = await (supabase as any)
+        .from("events")
+        .select("id, name, start_date, end_date, hook, logo_url")
+        .eq("city_id", cityRow.id)
+        .or(`end_date.gte.${today},and(end_date.is.null,start_date.gte.${today}),and(start_date.is.null,end_date.is.null)`)
+        .order("start_date", { ascending: true, nullsFirst: false });
+      if (!cancelled) setAgendaEvents((data as AgendaEvent[]) || []);
+    })();
+    return () => { cancelled = true; };
+  }, [open, agendaCity]);
 
   const [filePaused, setFilePaused] = useState(true);
   const [fileMuted, setFileMuted] = useState(false);
