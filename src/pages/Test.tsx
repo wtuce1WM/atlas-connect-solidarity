@@ -1655,7 +1655,7 @@ const Test = () => {
                             <div className="w-0 h-0 border-y-[6px] border-y-transparent border-l-[9px] border-l-white ml-0.5" />
                           </div>
                         </div>
-                        {v.owner?.logo_url && (
+                        {!isVlogThumb && v.owner?.logo_url && (
                           <div className="absolute inset-x-0 bottom-[15%] z-[6] flex items-center justify-center px-2 pointer-events-none">
                             <div className="animate-logo-big-full-reveal max-w-[100px] max-h-[72px]">
                               <img
@@ -1668,9 +1668,9 @@ const Test = () => {
                             </div>
                           </div>
                         )}
-                        {(v.owner?.name || v.business_name) && (
+                        {((isVlogThumb ? v.business_name : v.owner?.name || v.business_name)) && (
                           <div className="absolute bottom-0 left-0 right-0 p-1.5">
-                            <p className="text-[10px] font-medium text-white line-clamp-1">{v.owner?.name || v.business_name}</p>
+                            <p className="text-[10px] font-medium text-white line-clamp-1">{isVlogThumb ? v.business_name : v.owner?.name || v.business_name}</p>
                           </div>
                         )}
                       </div>
