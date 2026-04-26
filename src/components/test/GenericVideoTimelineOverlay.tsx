@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { collectRatingSources, computeWeightedRatingOn20, formatRating } from "@/lib/ratingUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
+import ClubAuthForm from "@/components/club/ClubAuthForm";
 
 const clubTranslations = {
   fr: {
@@ -84,6 +85,8 @@ interface Props {
 const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => {
   const [items, setItems] = useState<TimelineItem[]>([]);
   const [clubOpen, setClubOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<"signup" | "login">("signup");
+  const [showAuth, setShowAuth] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set());
   const [savingId, setSavingId] = useState<string | null>(null);
@@ -339,30 +342,39 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
             </div>
 
             {!isLoggedIn ? (
-              <div className="bg-card p-6 text-center">
-                <h3 className="text-lg font-semibold text-card-foreground mb-3 !font-sans">
-                  {t.memberTitle}
-                </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-6">{t.memberDesc}</p>
-                <button
-                  type="button"
-                  onClick={() => setClubOpen(false)}
-                  style={{ backgroundColor: "#6050DC" }}
-                  className="inline-block rounded-full px-8 py-3 text-white font-semibold text-sm hover:opacity-90 transition-colors shadow-md"
-                >
-                  {t.joinBtn}
-                </button>
-                <p className="mt-4 text-sm text-muted-foreground">
-                  {t.alreadyMember}{" "}
-                  <button
-                    type="button"
-                    onClick={() => setClubOpen(false)}
-                    style={{ color: "#6050DC" }}
-                    className="font-medium hover:underline bg-transparent"
-                  >
-                    {t.login}
-                  </button>
-                </p>
+              <div className="bg-card p-6">
+                {!showAuth ? (
+                  <div className="text-center">
+                    <h3 className="text-lg font-semibold text-card-foreground mb-3 !font-sans">
+                      {t.memberTitle}
+                    </h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed mb-6">{t.memberDesc}</p>
+                    <button
+                      type="button"
+                      onClick={() => { setAuthMode("signup"); setShowAuth(true); }}
+                      style={{ backgroundColor: "#6050DC" }}
+                      className="inline-block rounded-full px-8 py-3 text-white font-semibold text-sm hover:opacity-90 transition-colors shadow-md"
+                    >
+                      {t.joinBtn}
+                    </button>
+                    <p className="mt-4 text-sm text-muted-foreground">
+                      {t.alreadyMember}{" "}
+                      <button
+                        type="button"
+                        onClick={() => { setAuthMode("login"); setShowAuth(true); }}
+                        style={{ color: "#6050DC" }}
+                        className="font-medium hover:underline bg-transparent"
+                      >
+                        {t.login}
+                      </button>
+                    </p>
+                  </div>
+                ) : (
+                  <ClubAuthForm
+                    defaultMode={authMode}
+                    onSuccess={() => setShowAuth(false)}
+                  />
+                )}
               </div>
             ) : (
               <div className="bg-card p-6">
