@@ -190,9 +190,7 @@ const SlidePanelHome = ({
         )}
 
         {social && description && (
-          <div className="absolute top-16 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 px-4 max-w-[90%] pointer-events-none">
-            <DescriptionCollapsible html={description} />
-          </div>
+          <DescriptionPlusButton html={description} businessName={businessName} />
         )}
 
         <div className="relative w-full h-full">
