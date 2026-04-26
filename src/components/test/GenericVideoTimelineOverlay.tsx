@@ -1,8 +1,42 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Crown } from "lucide-react";
+import { Crown, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { collectRatingSources, computeWeightedRatingOn20, formatRating } from "@/lib/ratingUtils";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+const clubTranslations = {
+  fr: {
+    club: "Le Club",
+    welcome: "Bienvenue dans",
+    clubName: "le Club OWM",
+    memberTitle: "Devenir membre",
+    memberDesc: "Découvrez de nouvelles manières de profiter du meilleur du Maroc et accédez à des avantages exclusifs.",
+    joinBtn: "Je m'inscris",
+    alreadyMember: "Vous avez déjà un compte ?",
+    login: "Connectez-vous",
+  },
+  en: {
+    club: "The Club",
+    welcome: "Welcome to",
+    clubName: "the OWM Club",
+    memberTitle: "Become a member",
+    memberDesc: "Discover new ways to enjoy the best of Morocco and access exclusive benefits.",
+    joinBtn: "Join now",
+    alreadyMember: "Already have an account?",
+    login: "Log in",
+  },
+  ar: {
+    club: "النادي",
+    welcome: "مرحباً بكم في",
+    clubName: "نادي OWM",
+    memberTitle: "كن عضواً",
+    memberDesc: "اكتشف طرقاً جديدة للاستمتاع بأفضل ما في المغرب والحصول على مزايا حصرية.",
+    joinBtn: "سجّل الآن",
+    alreadyMember: "لديك حساب بالفعل؟",
+    login: "سجّل الدخول",
+  },
+} as const;
 
 interface TimelineItem {
   id: string;
@@ -21,6 +55,9 @@ interface Props {
 
 const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => {
   const [items, setItems] = useState<TimelineItem[]>([]);
+  const [clubOpen, setClubOpen] = useState(false);
+  const { language } = useLanguage();
+  const t = clubTranslations[language] || clubTranslations.fr;
 
   useEffect(() => {
     let cancelled = false;
@@ -155,15 +192,60 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
           })}
         </div>
       )}
-      {showClubButton && (
-        <Link
-          to="/club"
+      {showClubButton && !clubOpen && (
+        <button
+          type="button"
+          onClick={() => setClubOpen(true)}
           style={{ backgroundColor: "#6050DC" }}
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 flex items-center gap-2 rounded-full px-6 py-3 text-white shadow-2xl animate-in fade-in zoom-in-50 duration-500 hover:opacity-90 hover:scale-105 transition-all"
         >
           <Crown className="h-5 w-5" />
           <span className="font-semibold text-sm tracking-wide">LE CLUB</span>
-        </Link>
+        </button>
+      )}
+      {clubOpen && (
+        <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setClubOpen(false)}>
+          <div
+            className="w-[90%] max-w-md rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ backgroundColor: "#6050DC" }} className="p-6 text-white relative">
+              <button
+                type="button"
+                onClick={() => setClubOpen(false)}
+                className="absolute top-3 right-3 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/40 text-white transition-colors"
+                aria-label="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <p className="text-sm opacity-90">{t.welcome}</p>
+              <h2 className="text-2xl font-bold mt-1 !font-sans !not-italic">{t.clubName}</h2>
+            </div>
+            <div className="bg-card p-6 text-center">
+              <h3 className="text-lg font-semibold text-card-foreground mb-3 !font-sans">{t.memberTitle}</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed mb-6">{t.memberDesc}</p>
+              <Link
+                to="/club"
+                onClick={() => setClubOpen(false)}
+                style={{ backgroundColor: "#6050DC" }}
+                className="inline-block rounded-full px-8 py-3 text-white font-semibold text-sm hover:opacity-90 transition-colors shadow-md"
+              >
+                {t.joinBtn}
+              </Link>
+              <p className="mt-4 text-sm text-muted-foreground">
+                {t.alreadyMember}{" "}
+                <Link
+                  to="/club"
+                  onClick={() => setClubOpen(false)}
+                  style={{ color: "#6050DC" }}
+                  className="font-medium hover:underline"
+                >
+                  {t.login}
+                </Link>
+              </p>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
