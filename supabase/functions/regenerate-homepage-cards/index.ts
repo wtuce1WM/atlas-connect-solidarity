@@ -34,10 +34,15 @@ async function buildSnapshot(supabase: any, city: string) {
   ]);
 
   const cityRowId = (cityRowRes.data as any)?.id || null;
-  const extraDocIdsRes = cityRowId
+  const linkedDocIdsRes = cityRowId
     ? await supabase.from("business_document_cities").select("document_id").eq("city_id", cityRowId)
     : { data: [] as any[] };
-  const extraDocIds = new Set(((extraDocIdsRes.data as any[]) || []).map((r) => r.document_id));
+  const linkedDocIds = new Set(((linkedDocIdsRes.data as any[]) || []).map((r) => r.document_id));
+
+  // Documents that are linked to ANY city via business_document_cities (source of truth).
+  // For these, the legacy `city` field on business_documents must be ignored.
+  const allLinkedDocIdsRes = await supabase.from("business_document_cities").select("document_id");
+  const allLinkedDocIds = new Set(((allLinkedDocIdsRes.data as any[]) || []).map((r) => r.document_id));
 
   const linksByEntry: Record<string, string[]> = {};
   (linksRes.data || []).forEach((l: any) => {
@@ -82,16 +87,24 @@ async function buildSnapshot(supabase: any, city: string) {
       return { entryId: entry.id, candidate };
     }
 
-    const ownPromise = supabase
+    // Own videos: city field matches AND no explicit liaison exists (legacy fallback only).
+    // Documents with any business_document_cities entry must come from that liaison, not from city field.
+    const linkedIdsArr = [...allLinkedDocIds];
+    let ownQuery = supabase
       .from("business_documents")
       .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
       .eq("type", "video").eq("city", city)
       .in("subcategory_id", entry.subcategory_ids)
       .order("sort_order", { ascending: true }).limit(1);
+    // Exclude documents that have explicit city liaisons (those are handled below)
+    if (linkedIdsArr.length > 0 && linkedIdsArr.length < 1000) {
+      ownQuery = ownQuery.not("id", "in", `(${linkedIdsArr.join(",")})`);
+    }
+    const ownPromise = ownQuery;
 
     const extraPromises: Promise<any>[] = [];
-    if (extraDocIds.size > 0) {
-      const ids = [...extraDocIds];
+    if (linkedDocIds.size > 0) {
+      const ids = [...linkedDocIds];
       for (let i = 0; i < ids.length; i += 300) {
         const chunk = ids.slice(i, i + 300);
         extraPromises.push(
