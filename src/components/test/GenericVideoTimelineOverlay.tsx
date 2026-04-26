@@ -317,19 +317,6 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
           </span>
         </button>
       )}
-      {showClubButton && !clubOpen && !isLoggedIn && (
-        <button
-          type="button"
-          onClick={() => setClubOpen(true)}
-          style={{ backgroundColor: "#6050DC" }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 flex items-center gap-2 rounded-full px-6 py-3 text-white shadow-2xl animate-in fade-in zoom-in-50 duration-500 hover:opacity-90 hover:scale-105 transition-all"
-        >
-          <Crown className="h-5 w-5" />
-          <span className="font-semibold text-sm tracking-wide">
-            {t.clubBtn}
-          </span>
-        </button>
-      )}
       {clubOpen && (
         <div
           className="absolute inset-0 z-40 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
