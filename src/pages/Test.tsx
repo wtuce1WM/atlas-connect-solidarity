@@ -1313,27 +1313,45 @@ const Test = () => {
       return;
     }
 
-    // Resolve target with priority: explicit target > legacy fields
-    const target = info.target ??
-      (info.eventId ? { type: "event" as const, id: info.eventId } :
-       info.popularSearchId ? { type: "popular_search" as const, id: info.popularSearchId } :
-       info.badgeId ? { type: "badge" as const, id: info.badgeId } : null);
-
-    // Special-case: Agenda card with no explicit target — find the event linked to it
-    if (!target && isAgendaLabel(info.label)) {
+    // Special-case: any card titled "Agenda" → always open the events agenda for the city,
+    // ignoring badge/business links it might have in the backoffice.
+    if (isAgendaLabel(info.label)) {
+      // 1. Try the explicit event_id on the Agenda card if any
       const { data: agendaCard } = await (supabase as any)
         .from("front_structure_homepage_extra_cards")
         .select("event_id")
         .eq("city", clickedCity)
         .ilike("title", "Agenda")
-        .not("event_id", "is", null)
         .maybeSingle();
-      const eventId = (agendaCard as any)?.event_id;
+      let eventId = (agendaCard as any)?.event_id as string | null;
+
+      // 2. Fallback: pick the next upcoming event in this city
+      if (!eventId) {
+        const today = new Date().toISOString().slice(0, 10);
+        const { data: upcoming } = await (supabase as any)
+          .from("events")
+          .select("id, start_date")
+          .ilike("city", clickedCity)
+          .gte("end_date", today)
+          .order("start_date", { ascending: true })
+          .limit(1)
+          .maybeSingle();
+        eventId = (upcoming as any)?.id || null;
+      }
+
       if (eventId) {
         await activateVideoEventFilter(eventId, info.label, clickedCity);
         return;
       }
+      // No event found → silently no-op rather than falling back to badge listing
+      return;
     }
+
+    // Resolve target with priority: explicit target > legacy fields
+    const target = info.target ??
+      (info.eventId ? { type: "event" as const, id: info.eventId } :
+       info.popularSearchId ? { type: "popular_search" as const, id: info.popularSearchId } :
+       info.badgeId ? { type: "badge" as const, id: info.badgeId } : null);
 
     if (!target) return;
 
