@@ -1119,6 +1119,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         />
       )}
 
+      {/* SoundCloud Overlay */}
+      {showSoundCloudOverlay && business?.soundcloud_url && (
+        <SoundCloudOverlay
+          url={business.soundcloud_url}
+          businessName={business.name}
+          language={language}
+          onClose={() => setShowSoundCloudOverlay(false)}
+        />
+      )}
+
       {/* YouTube Overlay */}
       {showYoutubeOverlay && (
         <YouTubeOverlay
