@@ -234,7 +234,7 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
       supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
       supabase.from("categories").select("id, name_fr"),
       supabase.from("services").select("id, name_fr, subcategory_id").eq("is_active", true).order("name_fr"),
-      supabase.from("badges").select("id, name_fr").order("sort_order").order("name_fr"),
+      supabase.from("badges").select("id, name_fr").order("name_fr"),
     ]);
 
     const catMap: Record<string, string> = {};
