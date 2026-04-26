@@ -624,7 +624,8 @@ const EventManagement = () => {
     setKpInput("");
     setLinkedBusinessIds([]);
     setLinkedBusinesses([]);
-    setSelectedBadgeIds([]);
+    const agendaBadge = allBadges.find(b => b.name_fr.toLowerCase() === "agenda");
+    setSelectedBadgeIds(agendaBadge ? [agendaBadge.id] : []);
     setBizSearchQuery("");
     setBizSearchResults([]);
     setShowForm(true);
