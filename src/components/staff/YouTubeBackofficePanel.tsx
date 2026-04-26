@@ -395,7 +395,18 @@ const YouTubeBackofficePanel = () => {
                 <div className="flex items-center gap-3 text-left">
                   <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
                   <div>
-                    <p className="font-semibold text-sm">{business.name}</p>
+                    <p
+                      className="font-semibold text-sm hover:text-primary cursor-copy"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        navigator.clipboard.writeText(business.name);
+                        toast.success(`Nom copié : ${business.name}`);
+                      }}
+                      title="Cliquer pour copier le nom"
+                    >
+                      {business.name}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       {business.city || "—"} · {videos.length} vidéo{videos.length > 1 ? "s" : ""}
                       {videos.length > 0 && (
