@@ -429,6 +429,7 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
 
   const getSubName = (id: string) => subcategories.find(s => s.id === id)?.name_fr || "?";
   const getServiceName = (id: string) => services.find(s => s.id === id)?.name_fr || "?";
+  const getBadgeName = (id: string) => badges.find(b => b.id === id)?.name_fr || "?";
 
   const filteredSubs = subcategories.filter(s => {
     if (!searchFilter) return true;
