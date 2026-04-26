@@ -117,39 +117,55 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
     }
   }, [activeId]);
 
-  if (reachedItems.length === 0) return null;
+  const showClubButton = currentTime >= 10;
+
+  if (reachedItems.length === 0 && !showClubButton) return null;
 
   return (
-    <div
-      ref={scrollRef}
-      className="absolute top-3 left-3 right-3 z-20 flex flex-row gap-2 overflow-x-auto scrollbar-hide pb-1"
-      style={{ scrollbarWidth: "none" }}
-    >
-      {reachedItems.map((it) => {
-        const isActive = it.id === activeId;
-        return (
-          <div
-            key={it.id}
-            ref={isActive ? activeRef : undefined}
-            className={`shrink-0 w-[33%] min-w-[180px] rounded-md bg-black/65 backdrop-blur-sm px-3 py-2 text-white shadow-lg animate-in fade-in slide-in-from-left-2 duration-300 transition-colors ${
-              isActive ? "border-2 border-gold" : "border border-white/10"
-            }`}
-          >
-            <p className="text-sm font-semibold leading-tight break-words">{it.name}</p>
-            {it.hook && (
-              <p className="text-[11px] text-white/85 leading-snug mt-0.5 break-words">
-                {it.hook}
-              </p>
-            )}
-            {it.ratingOn20 != null && (
-              <p className="text-xs font-bold text-gold mt-1">
-                {formatRating(it.ratingOn20)}/20
-              </p>
-            )}
-          </div>
-        );
-      })}
-    </div>
+    <>
+      {reachedItems.length > 0 && (
+        <div
+          ref={scrollRef}
+          className="absolute top-3 left-3 right-3 z-20 flex flex-row gap-2 overflow-x-auto scrollbar-hide pb-1"
+          style={{ scrollbarWidth: "none" }}
+        >
+          {reachedItems.map((it) => {
+            const isActive = it.id === activeId;
+            return (
+              <div
+                key={it.id}
+                ref={isActive ? activeRef : undefined}
+                className={`shrink-0 w-[33%] min-w-[180px] rounded-md bg-black/65 backdrop-blur-sm px-3 py-2 text-white shadow-lg animate-in fade-in slide-in-from-left-2 duration-300 transition-colors ${
+                  isActive ? "border-2 border-gold" : "border border-white/10"
+                }`}
+              >
+                <p className="text-sm font-semibold leading-tight break-words">{it.name}</p>
+                {it.hook && (
+                  <p className="text-[11px] text-white/85 leading-snug mt-0.5 break-words">
+                    {it.hook}
+                  </p>
+                )}
+                {it.ratingOn20 != null && (
+                  <p className="text-xs font-bold text-gold mt-1">
+                    {formatRating(it.ratingOn20)}/20
+                  </p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+      {showClubButton && (
+        <Link
+          to="/club"
+          style={{ backgroundColor: "#6050DC" }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 flex items-center gap-2 rounded-full px-6 py-3 text-white shadow-2xl animate-in fade-in zoom-in-50 duration-500 hover:opacity-90 hover:scale-105 transition-all"
+        >
+          <Crown className="h-5 w-5" />
+          <span className="font-semibold text-sm tracking-wide">LE CLUB</span>
+        </Link>
+      )}
+    </>
   );
 };
 
