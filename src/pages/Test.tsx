@@ -1223,6 +1223,7 @@ const Test = () => {
     }
 
     setVideoEventFilter(null);
+    setVideoPopularSearchFilter(null);
     setOtherViewMode("videos");
     setVideoBadgeFilter({ badgeId, label });
 
