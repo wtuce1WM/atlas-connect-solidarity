@@ -198,6 +198,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [searchOverlayActive, setSearchOverlayActive] = useState(false);
   const [showAvailabilitySearch, setShowAvailabilitySearch] = useState(false);
   const [showHoursOverlay, setShowHoursOverlay] = useState(false);
+  const [showSpotifyOverlay, setShowSpotifyOverlay] = useState(false);
   const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
 
