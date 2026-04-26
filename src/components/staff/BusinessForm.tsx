@@ -62,6 +62,7 @@ import {
   SkypeIcon,
   VimeoIcon,
   SnapchatIcon,
+  SoundCloudIcon,
 } from "./SocialMediaIcons";
 import {
   AlertDialog,
@@ -5307,6 +5308,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               { key: "pinterest_url", label: "Pinterest", icon: <PinterestIcon className="text-[#E60023]" />, placeholder: "https://pinterest.com/..." },
               { key: "vimeo_url", label: "Vimeo", icon: <VimeoIcon className="text-[#1AB7EA]" />, placeholder: "https://vimeo.com/..." },
               { key: "snapchat_url", label: "Snapchat", icon: <SnapchatIcon className="text-[#FFFC00]" />, placeholder: "https://snapchat.com/add/..." },
+              { key: "soundcloud_url", label: "SoundCloud", icon: <SoundCloudIcon className="text-[#FF5500]" />, placeholder: "https://soundcloud.com/..." },
             ].map(({ key, label, icon, placeholder }) => (
               <div key={key} className="space-y-1">
                 <Label className="flex items-center gap-2 text-sm">
@@ -6075,7 +6077,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Non</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => { handleChange("facebook_url", ""); handleChange("instagram_url", ""); handleChange("twitter_url", ""); handleChange("linkedin_url", ""); handleChange("youtube_url", ""); handleChange("tiktok_url", ""); handleChange("pinterest_url", ""); handleChange("vimeo_url", ""); handleChange("snapchat_url", ""); toast({ title: "Réseaux sociaux effacés" }); }}>Oui, effacer</AlertDialogAction>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => { handleChange("facebook_url", ""); handleChange("instagram_url", ""); handleChange("twitter_url", ""); handleChange("linkedin_url", ""); handleChange("youtube_url", ""); handleChange("tiktok_url", ""); handleChange("pinterest_url", ""); handleChange("vimeo_url", ""); handleChange("snapchat_url", ""); handleChange("soundcloud_url", ""); toast({ title: "Réseaux sociaux effacés" }); }}>Oui, effacer</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

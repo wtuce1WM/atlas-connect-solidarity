@@ -1407,6 +1407,7 @@ export type Database = {
           skype: string | null
           slug: string
           snapchat_url: string | null
+          soundcloud_url: string | null
           telegram: string | null
           tiktok_url: string | null
           total_review_count: number | null
@@ -1576,6 +1577,7 @@ export type Database = {
           skype?: string | null
           slug: string
           snapchat_url?: string | null
+          soundcloud_url?: string | null
           telegram?: string | null
           tiktok_url?: string | null
           total_review_count?: number | null
@@ -1745,6 +1747,7 @@ export type Database = {
           skype?: string | null
           slug?: string
           snapchat_url?: string | null
+          soundcloud_url?: string | null
           telegram?: string | null
           tiktok_url?: string | null
           total_review_count?: number | null
@@ -5575,6 +5578,7 @@ export type Database = {
               skype: string | null
               slug: string
               snapchat_url: string | null
+              soundcloud_url: string | null
               telegram: string | null
               tiktok_url: string | null
               total_review_count: number | null
@@ -5760,6 +5764,7 @@ export type Database = {
               skype: string | null
               slug: string
               snapchat_url: string | null
+              soundcloud_url: string | null
               telegram: string | null
               tiktok_url: string | null
               total_review_count: number | null

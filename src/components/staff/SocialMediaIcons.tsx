@@ -95,6 +95,12 @@ export const VimeoIcon = ({ className }: IconProps) => (
   </svg>
 );
 
+export const SoundCloudIcon = ({ className }: IconProps) => (
+  <svg className={cn("h-5 w-5", className)} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M11.56 8.87V17h8.76c1.85-.13 3.32-1.67 3.32-3.55 0-1.96-1.59-3.55-3.55-3.55-.49 0-.95.1-1.37.27C18.4 6.85 15.54 4.5 12.13 4.5c-.83 0-1.63.14-2.38.4-.29.1-.37.19-.37.45v3.34c.06.07.12.1.18.18zM8.5 17h2.06V9.21c-.32-.13-.66-.21-1.03-.21-.36 0-.71.08-1.03.21V17zm-2.55 0h2.06V9.84c-.55.32-1 .8-1.31 1.36-.5.03-.75.41-.75.95V17zm-2.55 0h2.06v-4.61c-.66.34-1.13.99-1.21 1.76-.46.07-.85.45-.85.92V17zm-2.34 0h1.85v-3.16c-.55.07-.99.5-1.1 1.05-.42.13-.75.51-.75.93V17z"/>
+  </svg>
+);
+
 export const SnapchatIcon = ({ className }: IconProps) => {
   const hasSize = /h-(\d+|\[.*?\])/.test(className || "");
   return (
