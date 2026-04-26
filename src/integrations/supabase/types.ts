@@ -2698,6 +2698,45 @@ export type Database = {
         }
         Relationships: []
       }
+      front_structure_badges: {
+        Row: {
+          badge_id: string
+          created_at: string
+          front_structure_id: string
+          id: string
+          sort_order: number
+        }
+        Insert: {
+          badge_id: string
+          created_at?: string
+          front_structure_id: string
+          id?: string
+          sort_order?: number
+        }
+        Update: {
+          badge_id?: string
+          created_at?: string
+          front_structure_id?: string
+          id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "front_structure_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "front_structure_badges_front_structure_id_fkey"
+            columns: ["front_structure_id"]
+            isOneToOne: false
+            referencedRelation: "front_structure"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       front_structure_homepage_extra_cards: {
         Row: {
           badge_id: string | null

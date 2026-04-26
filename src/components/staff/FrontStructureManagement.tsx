@@ -49,12 +49,18 @@ interface FrontEntry {
   sort_order: number;
   subcategory_ids: string[];
   service_ids: string[];
+  badge_ids: string[];
 }
 
 interface Subcategory {
   id: string;
   name_fr: string;
   category_name: string;
+}
+
+interface BadgeItem {
+  id: string;
+  name_fr: string;
 }
 
 interface Service {
@@ -69,9 +75,10 @@ interface SortableEntryCardProps {
   onDelete: (id: string) => void;
   getSubName: (id: string) => string;
   getServiceName: (id: string) => string;
+  getBadgeName: (id: string) => string;
 }
 
-const SortableEntryCard = ({ entry, onEdit, onDelete, getSubName, getServiceName }: SortableEntryCardProps) => {
+const SortableEntryCard = ({ entry, onEdit, onDelete, getSubName, getServiceName, getBadgeName }: SortableEntryCardProps) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: entry.id });
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -122,7 +129,7 @@ const SortableEntryCard = ({ entry, onEdit, onDelete, getSubName, getServiceName
             </div>
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {entry.subcategory_ids.length === 0 && entry.service_ids.length === 0 && (
+            {entry.subcategory_ids.length === 0 && entry.service_ids.length === 0 && entry.badge_ids.length === 0 && (
               <span className="text-xs text-muted-foreground italic">Aucune liaison</span>
             )}
             {entry.subcategory_ids.map(sid => (
@@ -131,8 +138,13 @@ const SortableEntryCard = ({ entry, onEdit, onDelete, getSubName, getServiceName
               </Badge>
             ))}
             {entry.service_ids.map(sid => (
-              <Badge key={sid} variant="outline" className="text-xs bg-blue-50 border-blue-200 text-blue-700">
+              <Badge key={`svc-${sid}`} variant="outline" className="text-xs bg-blue-50 border-blue-200 text-blue-700">
                 🔧 {getServiceName(sid)}
+              </Badge>
+            ))}
+            {entry.badge_ids.map(bid => (
+              <Badge key={`bdg-${bid}`} variant="outline" className="text-xs bg-amber-50 border-amber-200 text-amber-700">
+                🏅 {getBadgeName(bid)}
               </Badge>
             ))}
           </div>
@@ -148,10 +160,11 @@ interface SortableEntriesListProps {
   onDelete: (id: string) => void;
   getSubName: (id: string) => string;
   getServiceName: (id: string) => string;
+  getBadgeName: (id: string) => string;
   onReorder: (entries: FrontEntry[]) => void;
 }
 
-const SortableEntriesList = ({ entries, onEdit, onDelete, getSubName, getServiceName, onReorder }: SortableEntriesListProps) => {
+const SortableEntriesList = ({ entries, onEdit, onDelete, getSubName, getServiceName, getBadgeName, onReorder }: SortableEntriesListProps) => {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -178,6 +191,7 @@ const SortableEntriesList = ({ entries, onEdit, onDelete, getSubName, getService
               onDelete={onDelete}
               getSubName={getSubName}
               getServiceName={getServiceName}
+              getBadgeName={getBadgeName}
             />
           ))}
         </div>
@@ -196,26 +210,31 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
   const [entries, setEntries] = useState<FrontEntry[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [services, setServices] = useState<Service[]>([]);
+  const [badges, setBadges] = useState<BadgeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editSortOrder, setEditSortOrder] = useState(0);
   const [editSubIds, setEditSubIds] = useState<Set<string>>(new Set());
   const [editServiceIds, setEditServiceIds] = useState<Set<string>>(new Set());
+  const [editBadgeIds, setEditBadgeIds] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [searchFilter, setSearchFilter] = useState("");
   const [serviceSearchFilter, setServiceSearchFilter] = useState("");
+  const [badgeSearchFilter, setBadgeSearchFilter] = useState("");
 
   const load = async () => {
     setLoading(true);
-    const [entriesRes, linksRes, svcLinksRes, subsRes, catsRes, servicesRes] = await Promise.all([
+    const [entriesRes, linksRes, svcLinksRes, badgeLinksRes, subsRes, catsRes, servicesRes, badgesRes] = await Promise.all([
       supabase.from("front_structure").select("*").order("sort_order"),
       supabase.from("front_structure_subcategories").select("*"),
       supabase.from("front_structure_services" as any).select("*"),
+      supabase.from("front_structure_badges" as any).select("*"),
       supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
       supabase.from("categories").select("id, name_fr"),
       supabase.from("services").select("id, name_fr, subcategory_id").eq("is_active", true).order("name_fr"),
+      supabase.from("badges").select("id, name_fr").order("sort_order").order("name_fr"),
     ]);
 
     const catMap: Record<string, string> = {};
@@ -240,6 +259,10 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
       }))
     );
 
+    setBadges(
+      ((badgesRes.data || []) as any[]).map((b: any) => ({ id: b.id, name_fr: b.name_fr }))
+    );
+
     const linksByEntry: Record<string, string[]> = {};
     (linksRes.data || []).forEach((l: any) => {
       if (!linksByEntry[l.front_structure_id]) linksByEntry[l.front_structure_id] = [];
@@ -252,6 +275,12 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
       svcLinksByEntry[l.front_structure_id].push(l.service_id);
     });
 
+    const badgeLinksByEntry: Record<string, string[]> = {};
+    ((badgeLinksRes.data || []) as any[]).forEach((l: any) => {
+      if (!badgeLinksByEntry[l.front_structure_id]) badgeLinksByEntry[l.front_structure_id] = [];
+      badgeLinksByEntry[l.front_structure_id].push(l.badge_id);
+    });
+
     setEntries(
       (entriesRes.data || []).map((e: any) => ({
         id: e.id,
@@ -259,6 +288,7 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
         sort_order: e.sort_order,
         subcategory_ids: linksByEntry[e.id] || [],
         service_ids: svcLinksByEntry[e.id] || [],
+        badge_ids: badgeLinksByEntry[e.id] || [],
       }))
     );
     setLoading(false);
@@ -274,6 +304,7 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
     setEditSortOrder(entries.length);
     setEditSubIds(new Set());
     setEditServiceIds(new Set());
+    setEditBadgeIds(new Set());
     setShowForm(true);
   };
 
@@ -283,6 +314,7 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
     setEditSortOrder(entry.sort_order);
     setEditSubIds(new Set(entry.subcategory_ids));
     setEditServiceIds(new Set(entry.service_ids));
+    setEditBadgeIds(new Set(entry.badge_ids));
     setShowForm(true);
   };
 
@@ -291,6 +323,7 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
     setEditingId(null);
     setSearchFilter("");
     setServiceSearchFilter("");
+    setBadgeSearchFilter("");
   };
 
   const toggleSub = (id: string) => {
@@ -304,6 +337,15 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
 
   const toggleService = (id: string) => {
     setEditServiceIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleBadge = (id: string) => {
+    setEditBadgeIds(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
@@ -344,6 +386,15 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
             svcIds.map((sid, i) => ({ front_structure_id: entryId!, service_id: sid, sort_order: i }))
           ) as any);
         }
+
+        // Sync badges
+        await (supabase.from("front_structure_badges" as any).delete().eq("front_structure_id", entryId) as any);
+        const bIds = Array.from(editBadgeIds);
+        if (bIds.length > 0) {
+          await (supabase.from("front_structure_badges" as any).insert(
+            bIds.map((bid, i) => ({ front_structure_id: entryId!, badge_id: bid, sort_order: i }))
+          ) as any);
+        }
       }
 
       toast.success(editingId ? "Entrée modifiée" : "Entrée créée");
@@ -378,6 +429,7 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
 
   const getSubName = (id: string) => subcategories.find(s => s.id === id)?.name_fr || "?";
   const getServiceName = (id: string) => services.find(s => s.id === id)?.name_fr || "?";
+  const getBadgeName = (id: string) => badges.find(b => b.id === id)?.name_fr || "?";
 
   const filteredSubs = subcategories.filter(s => {
     if (!searchFilter) return true;
@@ -459,6 +511,9 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
                       <TabsTrigger value="services" className="flex-1">
                         Services ({editServiceIds.size})
                       </TabsTrigger>
+                      <TabsTrigger value="badges" className="flex-1">
+                        Badges ({editBadgeIds.size})
+                      </TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="subcategories" className="mt-2">
@@ -514,6 +569,30 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
                         ))}
                       </div>
                     </TabsContent>
+
+                    <TabsContent value="badges" className="mt-2">
+                      <Input
+                        placeholder="Filtrer les badges..."
+                        value={badgeSearchFilter}
+                        onChange={e => setBadgeSearchFilter(e.target.value)}
+                        className="mb-2"
+                      />
+                      <div className="max-h-[250px] overflow-y-auto border rounded-md p-2">
+                        <div className="grid grid-cols-2 gap-1">
+                          {badges
+                            .filter(b => !badgeSearchFilter || b.name_fr.toLowerCase().includes(badgeSearchFilter.toLowerCase()))
+                            .map(b => (
+                              <label key={b.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 rounded px-1 py-0.5">
+                                <Checkbox
+                                  checked={editBadgeIds.has(b.id)}
+                                  onCheckedChange={() => toggleBadge(b.id)}
+                                />
+                                {b.name_fr}
+                              </label>
+                            ))}
+                        </div>
+                      </div>
+                    </TabsContent>
                   </Tabs>
 
                   <div className="flex gap-2">
@@ -541,6 +620,7 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
               onDelete={deleteEntry}
               getSubName={getSubName}
               getServiceName={getServiceName}
+              getBadgeName={getBadgeName}
               onReorder={handleReorder}
             />
           </div>
