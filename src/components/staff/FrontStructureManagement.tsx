@@ -129,7 +129,7 @@ const SortableEntryCard = ({ entry, onEdit, onDelete, getSubName, getServiceName
             </div>
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {entry.subcategory_ids.length === 0 && entry.service_ids.length === 0 && (
+            {entry.subcategory_ids.length === 0 && entry.service_ids.length === 0 && entry.badge_ids.length === 0 && (
               <span className="text-xs text-muted-foreground italic">Aucune liaison</span>
             )}
             {entry.subcategory_ids.map(sid => (
@@ -138,8 +138,13 @@ const SortableEntryCard = ({ entry, onEdit, onDelete, getSubName, getServiceName
               </Badge>
             ))}
             {entry.service_ids.map(sid => (
-              <Badge key={sid} variant="outline" className="text-xs bg-blue-50 border-blue-200 text-blue-700">
+              <Badge key={`svc-${sid}`} variant="outline" className="text-xs bg-blue-50 border-blue-200 text-blue-700">
                 🔧 {getServiceName(sid)}
+              </Badge>
+            ))}
+            {entry.badge_ids.map(bid => (
+              <Badge key={`bdg-${bid}`} variant="outline" className="text-xs bg-amber-50 border-amber-200 text-amber-700">
+                🏅 {getBadgeName(bid)}
               </Badge>
             ))}
           </div>
