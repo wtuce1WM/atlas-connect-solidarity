@@ -301,7 +301,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
           })}
         </div>
       )}
-      {reachedItems.length > 0 && (!isLoggedIn || unsavedCount > 0) && (
+      {reachedItems.length > 0 && (
         <button
           type="button"
           onClick={() => setClubOpen(true)}
