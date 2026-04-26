@@ -1181,9 +1181,26 @@ const EventManagement = () => {
         </Button>
       </div>
 
-      {loading ? (
+      <div className="flex items-center gap-2">
+        <Label className="text-sm text-muted-foreground">Filtrer par ville :</Label>
+        <Select value={filterCityId} onValueChange={setFilterCityId}>
+          <SelectTrigger className="w-[240px] h-9">
+            <SelectValue placeholder="Toutes les villes" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Toutes les villes</SelectItem>
+            {cities.map(c => (
+              <SelectItem key={c.id} value={c.id}>{c.name_fr}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {(() => {
+        const filteredEvents = filterCityId === "all" ? events : events.filter(ev => ev.city_id === filterCityId);
+        return loading ? (
         <p className="text-muted-foreground text-sm">Chargement...</p>
-      ) : events.length === 0 ? (
+      ) : filteredEvents.length === 0 ? (
         <p className="text-muted-foreground text-sm text-center py-8">Aucun événement.</p>
       ) : (
         <Table>
@@ -1201,7 +1218,7 @@ const EventManagement = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {events.map(ev => (
+            {filteredEvents.map(ev => (
               <TableRow key={ev.id}>
                 <TableCell>
                   <Button size="icon" variant="ghost" onClick={() => openEdit(ev)}>
