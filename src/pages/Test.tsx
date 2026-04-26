@@ -1007,7 +1007,7 @@ const Test = () => {
     };
     load();
     return () => { cancelled = true; };
-  }, [selectedEntry, city, selectedSubId, extraCityDocIds, videoBadgeFilter, videoEventFilter]);
+  }, [selectedEntry, city, selectedSubId, extraCityDocIds, videoBadgeFilter, videoEventFilter, videoPopularSearchFilter]);
 
   // Reset active video when entry/city changes
   useEffect(() => {
