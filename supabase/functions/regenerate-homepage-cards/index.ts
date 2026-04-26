@@ -34,10 +34,15 @@ async function buildSnapshot(supabase: any, city: string) {
   ]);
 
   const cityRowId = (cityRowRes.data as any)?.id || null;
-  const extraDocIdsRes = cityRowId
+  const linkedDocIdsRes = cityRowId
     ? await supabase.from("business_document_cities").select("document_id").eq("city_id", cityRowId)
     : { data: [] as any[] };
-  const extraDocIds = new Set(((extraDocIdsRes.data as any[]) || []).map((r) => r.document_id));
+  const linkedDocIds = new Set(((linkedDocIdsRes.data as any[]) || []).map((r) => r.document_id));
+
+  // Documents that are linked to ANY city via business_document_cities (source of truth).
+  // For these, the legacy `city` field on business_documents must be ignored.
+  const allLinkedDocIdsRes = await supabase.from("business_document_cities").select("document_id");
+  const allLinkedDocIds = new Set(((allLinkedDocIdsRes.data as any[]) || []).map((r) => r.document_id));
 
   const linksByEntry: Record<string, string[]> = {};
   (linksRes.data || []).forEach((l: any) => {
