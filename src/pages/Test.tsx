@@ -1260,6 +1260,9 @@ const Test = () => {
       .eq("is_active", true);
     setBadgeBusinesses(((bizs as any[]) || []) as SearchResultBusiness[]);
     setLoadingBadge(false);
+        return;
+      }
+    }
   };
 
   const structureList = (
