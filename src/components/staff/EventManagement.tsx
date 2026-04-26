@@ -1259,7 +1259,8 @@ const EventManagement = () => {
             ))}
           </TableBody>
         </Table>
-      )}
+      );
+      })()}
     </div>
   );
 };
