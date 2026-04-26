@@ -189,25 +189,9 @@ const SlidePanelHome = ({
           </div>
         )}
 
-        {social && (
+        {social && description && (
           <div className="absolute top-16 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 px-4 max-w-[90%] pointer-events-none">
-            <a
-              href={social.url || undefined}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="pointer-events-auto flex flex-col items-center gap-2 text-white"
-              style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
-            >
-              {social.platform === "instagram" && <Instagram className="h-12 w-12" />}
-              {social.platform === "youtube" && <Youtube className="h-12 w-12" />}
-              {social.platform === "tiktok" && <SiTiktok className="h-11 w-11" />}
-              <span className="text-sm font-semibold" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                Follow @{social.account}
-              </span>
-            </a>
-            {description && (
-              <DescriptionCollapsible html={description} />
-            )}
+            <DescriptionCollapsible html={description} />
           </div>
         )}
 
