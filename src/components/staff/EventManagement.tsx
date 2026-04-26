@@ -960,7 +960,7 @@ const EventManagement = () => {
 
           <div>
             <Label className="text-base font-semibold">Vidéos ({form.videos.length}/10)</Label>
-            <VideosDndList form={form} setForm={setForm} toast={toast} />
+            <VideosDndList form={form} setForm={setForm} toast={toast} eventId={editingId} />
           </div>
 
           {/* Linked businesses */}
