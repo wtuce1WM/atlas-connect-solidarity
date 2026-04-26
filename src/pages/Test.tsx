@@ -1598,6 +1598,23 @@ const Test = () => {
                           <span>{videoBadgeFilter.label}</span>
                           <span className="text-muted-foreground font-normal">({displayList.length})</span>
                         </>
+                      ) : videoPopularSearchFilter ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setVideoPopularSearchFilter(null);
+                              setSelectedEntryId(HOME_ID);
+                              setSelectedSubId(null);
+                            }}
+                            className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors"
+                          >
+                            Page d'accueil
+                          </button>
+                          <span className="text-muted-foreground font-normal">›</span>
+                          <span>{videoPopularSearchFilter.label}</span>
+                          <span className="text-muted-foreground font-normal">({displayList.length})</span>
+                        </>
                       ) : selectedSubId && subcatNames[selectedSubId] ? (
                         <>
                           <button
