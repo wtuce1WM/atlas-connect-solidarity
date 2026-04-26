@@ -365,8 +365,8 @@ const DescriptionPlusButton = ({ html, businessName }: { html: string; businessN
           </span>
         </button>
       </div>
-      {open && createPortal(
-        <div className="fixed inset-0 z-[100] flex flex-col bg-black/90 backdrop-blur-sm animate-fade-in">
+      {open && (
+        <div className="absolute inset-0 z-[40] flex flex-col bg-black/90 backdrop-blur-sm animate-fade-in pointer-events-auto">
           <div className="relative z-10 shrink-0 flex items-center gap-3 px-4 py-3 bg-transparent border-b border-white/10">
             <button
               type="button"
@@ -386,8 +386,7 @@ const DescriptionPlusButton = ({ html, businessName }: { html: string; businessN
               dangerouslySetInnerHTML={{ __html: html }}
             />
           </div>
-        </div>,
-        document.body,
+        </div>
       )}
     </>
   );
