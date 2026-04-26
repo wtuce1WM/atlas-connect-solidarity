@@ -937,17 +937,18 @@ const Test = () => {
               .filter((v: any) => v.url && !seenUrlsGv.has(v.url) && (seenUrlsGv.add(v.url), true))
               .map((v: any) => {
                 const bizId = firstBizByGv[v.id];
-                const biz = isVlogsBadge ? null : (bizId ? gvBizMap.get(bizId) || null : null);
+                const isVlogsContext = selectedEntry?.id === VLOGS_ID;
+                const biz = isVlogsContext ? null : (bizId ? gvBizMap.get(bizId) || null : null);
                 const acct = (v.instagram_account || v.tiktok_account || v.youtube_account || "").replace(/^@+/, "");
                 return {
                   id: v.id,
                   url: v.url,
-                  business_name: isVlogsBadge
+                  business_name: isVlogsContext
                     ? (acct ? `@${acct}` : (v.name || "—"))
                     : (v.name || (acct ? `@${acct}` : (biz?.name || "—"))),
                   thumbnail_url: v.thumbnail_url || deriveThumbnail(v.url),
-                  business: isVlogsBadge ? null : biz,
-                  owner: isVlogsBadge ? null : (biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null),
+                  business: isVlogsContext ? null : biz,
+                  owner: isVlogsContext ? null : (biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null),
                   social: extractSocial(v),
                   description: v.description ?? null,
                   manualCard: null,
