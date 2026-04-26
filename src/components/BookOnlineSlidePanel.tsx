@@ -1088,7 +1088,33 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           setBookingOverlayTitle={setBookingOverlayTitle}
           setActiveBusinessId={setActiveBusinessId}
         />
+
+        {/* Spotify floating button — visible when business has a Spotify URL */}
+        {business?.spotify_url && !cardsHidden && !anyOverlay && (
+          <button
+            type="button"
+            onClick={() => setShowSpotifyOverlay(true)}
+            aria-label={language === "en" ? "Listen on Spotify" : "Écouter sur Spotify"}
+            title={language === "en" ? "Sound atmosphere" : "Ambiance musicale"}
+            className="absolute right-4 bottom-[140px] md:bottom-[120px] z-[78] h-11 w-11 rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform animate-fade-in pointer-events-auto"
+            style={{ backgroundColor: "#1DB954" }}
+          >
+            <svg viewBox="0 0 24 24" className="h-5 w-5 text-black" fill="currentColor" aria-hidden="true">
+              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.521 17.34c-.224.364-.704.479-1.068.255-2.928-1.789-6.612-2.193-10.95-1.203-.42.096-.84-.168-.936-.588-.096-.42.168-.84.588-.936 4.752-1.085 8.832-.62 12.108 1.404.36.224.479.704.258 1.068zm1.473-3.272c-.282.456-.879.6-1.335.318-3.348-2.058-8.454-2.652-12.42-1.452-.51.156-1.05-.132-1.206-.642-.156-.51.132-1.05.642-1.206 4.53-1.374 10.155-.708 14.022 1.668.456.282.6.879.297 1.314zm.129-3.408c-4.014-2.382-10.638-2.604-14.466-1.44-.612.186-1.26-.162-1.446-.774-.186-.612.162-1.26.774-1.446 4.392-1.332 11.706-1.074 16.32 1.668.546.324.726 1.032.402 1.578-.324.546-1.032.726-1.584.414z"/>
+            </svg>
+          </button>
+        )}
       </div>
+
+      {/* Spotify Overlay */}
+      {showSpotifyOverlay && business?.spotify_url && (
+        <SpotifyOverlay
+          url={business.spotify_url}
+          businessName={business.name}
+          language={language}
+          onClose={() => setShowSpotifyOverlay(false)}
+        />
+      )}
 
       {/* YouTube Overlay */}
       {showYoutubeOverlay && (
