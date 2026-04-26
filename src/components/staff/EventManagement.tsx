@@ -386,6 +386,7 @@ const EventManagement = () => {
   const [eventTypes, setEventTypes] = useState<string[]>([]);
   const [cities, setCities] = useState<{ id: string; name_fr: string }[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<{ id: string; name: string; city_id: string }[]>([]);
+  const [filterCityId, setFilterCityId] = useState<string>("all");
   const [newTypeInput, setNewTypeInput] = useState("");
   const [showNewType, setShowNewType] = useState(false);
 
