@@ -1320,37 +1320,61 @@ const Test = () => {
       return;
     }
 
-    // Special-case: any card titled "Agenda" → always open the events agenda for the city,
-    // ignoring badge/business links it might have in the backoffice.
+    // Special-case: any card titled "Agenda" → show ALL events tagged with the "Agenda" badge
+    // for the current city, ignoring whatever badge/business links the card may have.
     if (isAgendaLabel(info.label)) {
-      // 1. Try the explicit event_id on the Agenda card if any
-      const { data: agendaCard } = await (supabase as any)
-        .from("front_structure_homepage_extra_cards")
-        .select("event_id")
-        .eq("city", clickedCity)
-        .ilike("title", "Agenda")
+      // 1. Find the "Agenda" badge id
+      const { data: agendaBadge } = await (supabase as any)
+        .from("badges")
+        .select("id")
+        .ilike("name_fr", "Agenda")
         .maybeSingle();
-      let eventId = (agendaCard as any)?.event_id as string | null;
+      const agendaBadgeId = (agendaBadge as any)?.id as string | null;
 
-      // 2. Fallback: pick the next upcoming event in this city
-      if (!eventId) {
-        const today = new Date().toISOString().slice(0, 10);
-        const { data: upcoming } = await (supabase as any)
-          .from("events")
-          .select("id, start_date")
-          .ilike("city", clickedCity)
-          .gte("end_date", today)
-          .order("start_date", { ascending: true })
-          .limit(1)
-          .maybeSingle();
-        eventId = (upcoming as any)?.id || null;
+      let eventIds: string[] = [];
+      if (agendaBadgeId) {
+        // 2. Find all events tagged with that badge
+        const { data: links } = await (supabase as any)
+          .from("event_badges")
+          .select("event_id")
+          .eq("badge_id", agendaBadgeId);
+        const candidateIds = ((links as any[]) || []).map((l) => l.event_id).filter(Boolean);
+
+        if (candidateIds.length > 0) {
+          // 3. Restrict to events of the clicked city that are not finished
+          const today = new Date().toISOString().slice(0, 10);
+          const { data: events } = await (supabase as any)
+            .from("events")
+            .select("id, city_id, end_date, cities!inner(name)")
+            .in("id", candidateIds)
+            .or(`end_date.gte.${today},end_date.is.null`);
+          eventIds = ((events as any[]) || [])
+            .filter((ev) => {
+              const evCity = ev.cities?.name || "";
+              return evCity.toLowerCase() === clickedCity.toLowerCase();
+            })
+            .map((ev) => ev.id);
+        }
       }
 
-      if (eventId) {
-        await activateVideoEventFilter(eventId, info.label, clickedCity);
+      if (eventIds.length > 0) {
+        // Activate multi-event filter
+        setBadgeView(null);
+        setLoadingBadge(false);
+        setBadgeBusinesses([]);
+        setActiveVideo(null);
+        setPanelOpen(false);
+        setCurrentTime(0);
+        setSelectedSubId(null);
+        if (city !== clickedCity) setCity(clickedCity);
+        setVideoBadgeFilter(null);
+        setVideoPopularSearchFilter(null);
+        setOtherViewMode("videos");
+        setSelectedEntryId(HOME_ID);
+        setVideoEventFilter({ eventId: eventIds[0], eventIds, label: info.label });
         return;
       }
-      // No event found → silently no-op rather than falling back to badge listing
+      // No agenda events found → silently no-op
       return;
     }
 
