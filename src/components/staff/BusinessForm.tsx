@@ -5314,6 +5314,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               { key: "vimeo_url", label: "Vimeo", icon: <VimeoIcon className="text-[#1AB7EA]" />, placeholder: "https://vimeo.com/..." },
               { key: "snapchat_url", label: "Snapchat", icon: <SnapchatIcon className="text-[#FFFC00]" />, placeholder: "https://snapchat.com/add/..." },
               { key: "soundcloud_url", label: "SoundCloud", icon: <SoundCloudIcon className="text-[#FF5500]" />, placeholder: "https://soundcloud.com/..." },
+              { key: "spotify_url", label: "Spotify", icon: <SpotifyIcon className="text-[#1DB954]" />, placeholder: "https://open.spotify.com/..." },
             ].map(({ key, label, icon, placeholder }) => (
               <div key={key} className="space-y-1">
                 <Label className="flex items-center gap-2 text-sm">
