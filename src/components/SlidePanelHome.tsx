@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { X, ChevronUp, ChevronDown, Instagram, Youtube } from "lucide-react";
+import { X, ChevronUp, ChevronDown, Youtube } from "lucide-react";
+import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { SiTiktok } from "react-icons/si";
 import { createPortal } from "react-dom";
 import { getVideoEmbed } from "@/lib/videoEmbed";
@@ -252,7 +253,7 @@ const SlidePanelHome = ({
                   className="animate-logo-big-full-reveal pointer-events-auto flex flex-col items-center gap-2 text-white"
                   style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
                 >
-                  {social.platform === "instagram" && <Instagram className="h-16 w-16 md:h-20 md:w-20" />}
+                  {social.platform === "instagram" && <InstagramIcon className="h-16 w-16 md:h-20 md:w-20" />}
                   {social.platform === "youtube" && <Youtube className="h-16 w-16 md:h-20 md:w-20" />}
                   {social.platform === "tiktok" && <SiTiktok className="h-14 w-14 md:h-[72px] md:w-[72px]" />}
                 </a>
