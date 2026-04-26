@@ -178,7 +178,7 @@ const SortableVideoItem = ({ id, url, index, setForm, toast, eventId }: { id: st
 };
 
 /* ── Videos DnD list ── */
-const VideosDndList = ({ form, setForm, toast }: { form: typeof EMPTY_FORM; setForm: React.Dispatch<React.SetStateAction<typeof EMPTY_FORM>>; toast: any }) => {
+const VideosDndList = ({ form, setForm, toast, eventId }: { form: typeof EMPTY_FORM; setForm: React.Dispatch<React.SetStateAction<typeof EMPTY_FORM>>; toast: any; eventId: string | null }) => {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const videoIds = form.videos.map((_, i) => `evt-vid-${i}`);
 
@@ -196,7 +196,7 @@ const VideosDndList = ({ form, setForm, toast }: { form: typeof EMPTY_FORM; setF
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={videoIds} strategy={verticalListSortingStrategy}>
             {form.videos.map((url, i) => (
-              <SortableVideoItem key={videoIds[i]} id={videoIds[i]} url={url} index={i} setForm={setForm} toast={toast} />
+              <SortableVideoItem key={videoIds[i]} id={videoIds[i]} url={url} index={i} setForm={setForm} toast={toast} eventId={eventId} />
             ))}
           </SortableContext>
         </DndContext>
