@@ -1244,6 +1244,7 @@ const Test = () => {
     }
 
     setVideoBadgeFilter(null);
+    setVideoPopularSearchFilter(null);
     setOtherViewMode("videos");
     setSelectedEntryId(HOME_ID);
     setVideoEventFilter({ eventId, label });
