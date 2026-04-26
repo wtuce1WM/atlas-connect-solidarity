@@ -48,8 +48,9 @@ interface VideoItem {
 }
 
 interface VideoEventFilter {
-  eventId: string;
+  eventId: string;            // primary event id (kept for backward-compat / single-event activation)
   label: string;
+  eventIds?: string[];        // when set, the filter shows MULTIPLE events (e.g. Agenda badge)
 }
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
@@ -444,39 +445,45 @@ const Test = () => {
 
       // Event filter (Agenda): show ONE card per event, using event.images[0] as thumbnail.
       if (videoEventFilter) {
-        const { data: eventRow } = await (supabase as any)
+        const ids = videoEventFilter.eventIds && videoEventFilter.eventIds.length > 0
+          ? videoEventFilter.eventIds
+          : [videoEventFilter.eventId];
+
+        const { data: eventRows } = await (supabase as any)
           .from("events")
-          .select("id, name, images, default_business_id")
-          .eq("id", videoEventFilter.eventId)
-          .maybeSingle();
+          .select("id, name, images, default_business_id, start_date")
+          .in("id", ids)
+          .order("start_date", { ascending: true });
 
-        const ev = eventRow as any;
-        const image = ev?.images?.[0] || null;
+        const events = ((eventRows as any[]) || []).filter((ev) => ev?.images?.[0]);
 
-        let biz: SearchResultBusiness | null = null;
-        if (ev?.default_business_id) {
-          const { data: bizRow } = await supabase
+        const bizIds = events.map((ev) => ev.default_business_id).filter(Boolean) as string[];
+        const bizMap = new Map<string, any>();
+        if (bizIds.length > 0) {
+          const { data: bizRows } = await supabase
             .from("businesses")
             .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
-            .eq("id", ev.default_business_id)
-            .maybeSingle();
-          biz = (bizRow as any) || null;
+            .in("id", bizIds);
+          ((bizRows as any[]) || []).forEach((b) => bizMap.set(b.id, b));
         }
 
-        if (!ev || !image) {
+        if (events.length === 0) {
           safeSetVideos([]);
         } else {
-          safeSetVideos([{
-            id: `event:${ev.id}`,
-            url: "",
-            business_name: ev.name || videoEventFilter.label,
-            thumbnail_url: image,
-            business: biz,
-            owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
-            social: null,
-            description: null,
-            manualCard: { label: ev.name || videoEventFilter.label, badgeId: null, eventId: ev.id },
-          } as VideoItem]);
+          safeSetVideos(events.map((ev) => {
+            const biz = ev.default_business_id ? bizMap.get(ev.default_business_id) || null : null;
+            return {
+              id: `event:${ev.id}`,
+              url: "",
+              business_name: ev.name || videoEventFilter.label,
+              thumbnail_url: ev.images[0],
+              business: biz,
+              owner: biz ? { id: biz.id, name: biz.name, logo_url: biz.logo_url ?? null, logo_bg: biz.logo_bg ?? null } : null,
+              social: null,
+              description: null,
+              manualCard: { label: ev.name || videoEventFilter.label, badgeId: null, eventId: ev.id },
+            } as VideoItem;
+          }));
         }
         safeSetLoadingVideos(false);
         return;
@@ -1313,37 +1320,61 @@ const Test = () => {
       return;
     }
 
-    // Special-case: any card titled "Agenda" → always open the events agenda for the city,
-    // ignoring badge/business links it might have in the backoffice.
+    // Special-case: any card titled "Agenda" → show ALL events tagged with the "Agenda" badge
+    // for the current city, ignoring whatever badge/business links the card may have.
     if (isAgendaLabel(info.label)) {
-      // 1. Try the explicit event_id on the Agenda card if any
-      const { data: agendaCard } = await (supabase as any)
-        .from("front_structure_homepage_extra_cards")
-        .select("event_id")
-        .eq("city", clickedCity)
-        .ilike("title", "Agenda")
+      // 1. Find the "Agenda" badge id
+      const { data: agendaBadge } = await (supabase as any)
+        .from("badges")
+        .select("id")
+        .ilike("name_fr", "Agenda")
         .maybeSingle();
-      let eventId = (agendaCard as any)?.event_id as string | null;
+      const agendaBadgeId = (agendaBadge as any)?.id as string | null;
 
-      // 2. Fallback: pick the next upcoming event in this city
-      if (!eventId) {
-        const today = new Date().toISOString().slice(0, 10);
-        const { data: upcoming } = await (supabase as any)
-          .from("events")
-          .select("id, start_date")
-          .ilike("city", clickedCity)
-          .gte("end_date", today)
-          .order("start_date", { ascending: true })
-          .limit(1)
-          .maybeSingle();
-        eventId = (upcoming as any)?.id || null;
+      let eventIds: string[] = [];
+      if (agendaBadgeId) {
+        // 2. Find all events tagged with that badge
+        const { data: links } = await (supabase as any)
+          .from("event_badges")
+          .select("event_id")
+          .eq("badge_id", agendaBadgeId);
+        const candidateIds = ((links as any[]) || []).map((l) => l.event_id).filter(Boolean);
+
+        if (candidateIds.length > 0) {
+          // 3. Restrict to events of the clicked city that are not finished
+          const today = new Date().toISOString().slice(0, 10);
+          const { data: events } = await (supabase as any)
+            .from("events")
+            .select("id, city_id, end_date, cities!inner(name_fr)")
+            .in("id", candidateIds)
+            .or(`end_date.gte.${today},end_date.is.null`);
+          eventIds = ((events as any[]) || [])
+            .filter((ev) => {
+              const evCity = ev.cities?.name_fr || "";
+              return evCity.toLowerCase() === clickedCity.toLowerCase();
+            })
+            .map((ev) => ev.id);
+        }
       }
 
-      if (eventId) {
-        await activateVideoEventFilter(eventId, info.label, clickedCity);
+      if (eventIds.length > 0) {
+        // Activate multi-event filter
+        setBadgeView(null);
+        setLoadingBadge(false);
+        setBadgeBusinesses([]);
+        setActiveVideo(null);
+        setPanelOpen(false);
+        setCurrentTime(0);
+        setSelectedSubId(null);
+        if (city !== clickedCity) setCity(clickedCity);
+        setVideoBadgeFilter(null);
+        setVideoPopularSearchFilter(null);
+        setOtherViewMode("videos");
+        setSelectedEntryId(HOME_ID);
+        setVideoEventFilter({ eventId: eventIds[0], eventIds, label: info.label });
         return;
       }
-      // No event found → silently no-op rather than falling back to badge listing
+      // No agenda events found → silently no-op
       return;
     }
 
