@@ -1278,6 +1278,7 @@ const Test = () => {
     setOtherViewMode("videos");
 
     // Pre-set the filter with empty businessIds so the videos area renders the loading state
+    setLoadingVideos(true);
     setVideoPopularSearchFilter({ popularSearchId, label, businessIds: [] });
 
     try {
