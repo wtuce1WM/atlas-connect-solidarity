@@ -7,7 +7,7 @@ import SlidePanelHome from "@/components/SlidePanelHome";
 
 interface Props {
   city: string;
-  onLabelClick?: (info: { label: string; kind: "entry" | "extra"; badgeId: string | null; eventId?: string | null }) => void;
+  onLabelClick?: (info: { label: string; kind: "entry" | "extra"; badgeId: string | null; eventId?: string | null; popularSearchId?: string | null }) => void;
 }
 
 interface CardData {
@@ -23,6 +23,7 @@ interface CardData {
   label: string | null;
   badgeId?: string | null;
   eventId?: string | null;
+  popularSearchId?: string | null;
 }
 
 interface MixedSlot {
@@ -139,7 +140,7 @@ const HomepageCardsFront = ({ city, onLabelClick }: Props) => {
     if (!label) return;
 
     if (onLabelClick) {
-      onLabelClick({ label, kind: slot.kind, badgeId: slot.data.badgeId ?? null, eventId: slot.data.eventId ?? null });
+      onLabelClick({ label, kind: slot.kind, badgeId: slot.data.badgeId ?? null, eventId: slot.data.eventId ?? null, popularSearchId: slot.data.popularSearchId ?? null });
       return;
     }
 

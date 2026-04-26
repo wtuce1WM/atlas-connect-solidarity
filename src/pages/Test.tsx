@@ -1144,7 +1144,7 @@ const Test = () => {
   };
 
   const handleHomeLabelClick = async (
-    info: { label: string; kind: "entry" | "extra"; badgeId: string | null; eventId?: string | null },
+    info: { label: string; kind: "entry" | "extra"; badgeId: string | null; eventId?: string | null; popularSearchId?: string | null },
     clickedCity: City
   ) => {
 
@@ -1176,6 +1176,34 @@ const Test = () => {
       const eventId = (agendaCard as any)?.event_id;
       if (eventId) {
         await activateVideoEventFilter(eventId, info.label, clickedCity);
+        return;
+      }
+    }
+
+    if (!info.badgeId && info.popularSearchId) {
+      const { data: ps } = await (supabase as any)
+        .from("popular_searches")
+        .select("query")
+        .eq("id", info.popularSearchId)
+        .maybeSingle();
+      const query = (ps as any)?.query as string | undefined;
+      if (query) {
+        setSelectedEntryId(HOME_ID);
+        setBadgeView({ badgeId: `ps:${info.popularSearchId}`, label: info.label, city: clickedCity });
+        setLoadingBadge(true);
+        setBadgeBusinesses([]);
+        try {
+          const { data, error } = await supabase.functions.invoke("business-search", {
+            body: { query, city: clickedCity, language: "fr" },
+          });
+          if (!error) {
+            const list = ((data as any)?.businesses || []) as SearchResultBusiness[];
+            setBadgeBusinesses(list);
+          }
+        } catch (e) {
+          console.error("[handleHomeLabelClick] popular_search invoke failed", e);
+        }
+        setLoadingBadge(false);
         return;
       }
     }

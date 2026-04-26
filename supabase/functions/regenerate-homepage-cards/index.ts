@@ -23,7 +23,7 @@ async function buildSnapshot(supabase: any, city: string) {
     supabase.from("badges").select("id, name_fr"),
     supabase
       .from("front_structure_homepage_extra_cards")
-      .select("id, city, business_id, badge_id, video_document_id, title, sort_order, event_id")
+      .select("id, city, business_id, badge_id, video_document_id, title, sort_order, event_id, popular_search_id")
       .eq("city", city)
       .order("sort_order", { ascending: true }),
     supabase
@@ -247,6 +247,7 @@ async function buildSnapshot(supabase: any, city: string) {
           rating: null, reviewCount: null, label,
           badgeId: card.badge_id || null,
           eventId: card.event_id || null,
+          popularSearchId: card.popular_search_id || null,
         },
       };
     }
@@ -267,6 +268,7 @@ async function buildSnapshot(supabase: any, city: string) {
         label,
         badgeId: card.badge_id || null,
         eventId: card.event_id || null,
+        popularSearchId: card.popular_search_id || null,
       },
     };
   });
