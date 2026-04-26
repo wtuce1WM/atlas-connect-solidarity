@@ -1345,12 +1345,12 @@ const Test = () => {
           const today = new Date().toISOString().slice(0, 10);
           const { data: events } = await (supabase as any)
             .from("events")
-            .select("id, city_id, end_date, cities!inner(name)")
+            .select("id, city_id, end_date, cities!inner(name_fr)")
             .in("id", candidateIds)
             .or(`end_date.gte.${today},end_date.is.null`);
           eventIds = ((events as any[]) || [])
             .filter((ev) => {
-              const evCity = ev.cities?.name || "";
+              const evCity = ev.cities?.name_fr || "";
               return evCity.toLowerCase() === clickedCity.toLowerCase();
             })
             .map((ev) => ev.id);
