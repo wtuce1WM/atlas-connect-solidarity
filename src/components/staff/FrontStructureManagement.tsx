@@ -386,6 +386,15 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
             svcIds.map((sid, i) => ({ front_structure_id: entryId!, service_id: sid, sort_order: i }))
           ) as any);
         }
+
+        // Sync badges
+        await (supabase.from("front_structure_badges" as any).delete().eq("front_structure_id", entryId) as any);
+        const bIds = Array.from(editBadgeIds);
+        if (bIds.length > 0) {
+          await (supabase.from("front_structure_badges" as any).insert(
+            bIds.map((bid, i) => ({ front_structure_id: entryId!, badge_id: bid, sort_order: i }))
+          ) as any);
+        }
       }
 
       toast.success(editingId ? "Entrée modifiée" : "Entrée créée");
