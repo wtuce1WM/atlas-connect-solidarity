@@ -1152,22 +1152,38 @@ const Test = () => {
       .maybeSingle();
     const query = (ps as any)?.query as string | undefined;
     if (!query) return;
-    setSelectedEntryId(HOME_ID);
-    setBadgeView({ badgeId: `ps:${popularSearchId}`, label, city: clickedCity });
-    setLoadingBadge(true);
+
+    // Reset other filters / views
+    setBadgeView(null);
     setBadgeBusinesses([]);
+    setVideoBadgeFilter(null);
+    setVideoEventFilter(null);
+    setActiveVideo(null);
+    setPanelOpen(false);
+    setCurrentTime(0);
+    setSelectedSubId(null);
+    setSelectedEntryId(HOME_ID);
+
+    if (city !== clickedCity) {
+      setCity(clickedCity);
+    }
+    setOtherViewMode("videos");
+
+    // Pre-set the filter with empty businessIds so the videos area renders the loading state
+    setVideoPopularSearchFilter({ popularSearchId, label, businessIds: [] });
+
     try {
       const { data, error } = await supabase.functions.invoke("business-search", {
         body: { query, city: clickedCity, language: "fr" },
       });
       if (!error) {
         const list = ((data as any)?.businesses || []) as SearchResultBusiness[];
-        setBadgeBusinesses(list);
+        const ids = list.map((b: any) => b.id).filter(Boolean);
+        setVideoPopularSearchFilter({ popularSearchId, label, businessIds: ids });
       }
     } catch (e) {
       console.error("[runPopularSearch] failed", e);
     }
-    setLoadingBadge(false);
   };
 
   const handleHomeLabelClick = async (
