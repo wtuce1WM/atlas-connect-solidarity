@@ -1304,6 +1304,8 @@ const Test = () => {
       if (match) {
         setBadgeView(null);
         setVideoBadgeFilter(null);
+        setVideoEventFilter(null);
+        setVideoPopularSearchFilter(null);
         setSelectedEntryId(match.id);
         setSelectedSubId(null);
       }
