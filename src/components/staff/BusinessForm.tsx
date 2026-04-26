@@ -62,6 +62,7 @@ import {
   SkypeIcon,
   VimeoIcon,
   SnapchatIcon,
+  SoundCloudIcon,
 } from "./SocialMediaIcons";
 import {
   AlertDialog,
