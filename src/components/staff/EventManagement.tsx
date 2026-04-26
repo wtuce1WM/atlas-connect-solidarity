@@ -1251,11 +1251,11 @@ const EventManagement = () => {
         </div>
 
         {/* Save bar */}
-        <div className="flex justify-end gap-2 border-t pt-4">
-          <Button variant="outline" onClick={handleCancel}>Annuler</Button>
+        <div className="flex justify-start gap-2 border-t pt-4">
           <Button onClick={handleSave} disabled={saving} className="gap-2">
             <Save className="h-4 w-4" /> {saving ? "Enregistrement..." : "Enregistrer"}
           </Button>
+          <Button variant="outline" onClick={handleCancel}>Annuler</Button>
         </div>
       </div>
     );
