@@ -435,7 +435,7 @@ const EventManagement = () => {
     const { data, error } = await supabase
       .from("events")
       .select("*")
-      .order("start_date", { ascending: false });
+      .order("updated_at", { ascending: false });
     if (!error && data) {
       setEvents(data as unknown as EventRow[]);
       // fetch biz names for list
