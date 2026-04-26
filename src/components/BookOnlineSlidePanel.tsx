@@ -46,6 +46,7 @@ import DocumentOverlay from "@/components/overlays/DocumentOverlay";
 import FallbackHotelsPanel from "@/components/overlays/FallbackHotelsPanel";
 import OverlayShell from "@/components/overlays/OverlayShell";
 import SpotifyOverlay from "@/components/overlays/SpotifyOverlay";
+import SoundCloudOverlay from "@/components/overlays/SoundCloudOverlay";
 import SerpApiHotelOverlay from "@/components/SerpApiHotelOverlay";
 import PanelSearchBar from "@/components/PanelSearchBar";
 
@@ -199,6 +200,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
   const [showAvailabilitySearch, setShowAvailabilitySearch] = useState(false);
   const [showHoursOverlay, setShowHoursOverlay] = useState(false);
   const [showSpotifyOverlay, setShowSpotifyOverlay] = useState(false);
+  const [showSoundCloudOverlay, setShowSoundCloudOverlay] = useState(false);
   const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
 
@@ -801,6 +803,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               </svg>
             </div>
           )}
+          {business?.soundcloud_url && (
+            <div onClick={() => setShowSoundCloudOverlay(true)} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
+              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[100px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">SoundCloud</span>
+              <svg viewBox="0 0 24 24" className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" fill="#FF5500" aria-hidden="true">
+                <path d="M11.56 8.87V17h8.76c1.85-.13 3.68-1.5 3.68-3.92 0-2.6-2.13-3.96-4-3.96-.55 0-1.06.1-1.55.27-.55-2.7-2.85-4.4-5.55-4.4-.45 0-.94.07-1.34.18zm-1.5.43c-.36-.13-.74-.2-1.13-.2-.5 0-.96.1-1.4.27V17h2.53V9.3zm-3.92.7c-.27-.07-.55-.1-.84-.1-.3 0-.58.04-.84.1V17h1.68V10zm-2.86.66c-.2-.04-.4-.07-.6-.07-.2 0-.42.03-.62.07V17h1.22v-6.34zM.78 12c-.32.13-.56.5-.56.93 0 .43.24.8.56.93V12zm21.66-2.88z"/>
+              </svg>
+            </div>
+          )}
           {hasYoutubeBottomCarousel && (
             <div onClick={() => {
               if (hasYoutubeChannel) {
@@ -1106,6 +1116,16 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           businessName={business.name}
           language={language}
           onClose={() => setShowSpotifyOverlay(false)}
+        />
+      )}
+
+      {/* SoundCloud Overlay */}
+      {showSoundCloudOverlay && business?.soundcloud_url && (
+        <SoundCloudOverlay
+          url={business.soundcloud_url}
+          businessName={business.name}
+          language={language}
+          onClose={() => setShowSoundCloudOverlay(false)}
         />
       )}
 
