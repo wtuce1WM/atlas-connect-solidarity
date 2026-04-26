@@ -473,11 +473,13 @@ const Test = () => {
         } else {
           safeSetVideos(events.map((ev) => {
             const biz = ev.default_business_id ? bizMap.get(ev.default_business_id) || null : null;
+            const firstVideo: string | null = ev.videos?.[0] ?? null;
+            const firstImage: string | null = ev.images?.[0] ?? null;
             return {
               id: `event:${ev.id}`,
-              url: "",
+              url: firstVideo || "",
               business_name: ev.name || videoEventFilter.label,
-              thumbnail_url: ev.images[0],
+              thumbnail_url: firstImage || firstVideo || "",
               business: biz,
               owner: biz ? { id: biz.id, name: biz.name, logo_url: biz.logo_url ?? null, logo_bg: biz.logo_bg ?? null } : null,
               social: null,
