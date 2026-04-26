@@ -23,6 +23,7 @@ interface CardData {
   label: string | null;
   badgeId?: string | null;
   eventId?: string | null;
+  popularSearchId?: string | null;
 }
 
 interface MixedSlot {
