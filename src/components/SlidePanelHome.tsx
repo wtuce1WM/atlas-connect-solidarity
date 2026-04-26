@@ -206,11 +206,7 @@ const SlidePanelHome = ({
               </span>
             </a>
             {description && (
-              <div
-                className="pointer-events-auto text-white text-lg md:text-xl text-center leading-snug max-w-xl select-text"
-                style={{ textShadow: "0 1px 2px hsla(0,0%,0%,0.9), 0 2px 8px hsla(0,0%,0%,0.7)" }}
-                dangerouslySetInnerHTML={{ __html: description }}
-              />
+              <DescriptionCollapsible html={description} />
             )}
           </div>
         )}
@@ -337,6 +333,30 @@ const SlidePanelHome = ({
       </div>
     </div>,
     document.body,
+  );
+};
+
+const DescriptionCollapsible = ({ html }: { html: string }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="pointer-events-auto max-w-xl w-full flex flex-col items-center gap-2">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="px-3 py-1.5 rounded-md bg-black/60 hover:bg-black/80 text-white text-xs font-semibold uppercase tracking-wide flex items-center gap-1.5 transition-colors"
+        style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+      >
+        {open ? "Masquer le texte" : "Lire le texte"}
+        {open ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+      </button>
+      {open && (
+        <div
+          className="text-white text-lg md:text-xl text-center leading-snug select-text"
+          style={{ textShadow: "0 1px 2px hsla(0,0%,0%,0.9), 0 2px 8px hsla(0,0%,0%,0.7)" }}
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      )}
+    </div>
   );
 };
 
