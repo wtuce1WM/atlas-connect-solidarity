@@ -451,11 +451,12 @@ const Test = () => {
 
         const { data: eventRows } = await (supabase as any)
           .from("events")
-          .select("id, name, images, default_business_id, start_date")
+          .select("id, name, images, videos, default_business_id, start_date")
           .in("id", ids)
           .order("start_date", { ascending: true });
 
-        const events = ((eventRows as any[]) || []).filter((ev) => ev?.images?.[0]);
+        // Keep events that have either an image OR a video (used as media for the card)
+        const events = ((eventRows as any[]) || []).filter((ev) => ev?.images?.[0] || ev?.videos?.[0]);
 
         const bizIds = events.map((ev) => ev.default_business_id).filter(Boolean) as string[];
         const bizMap = new Map<string, any>();
@@ -472,11 +473,13 @@ const Test = () => {
         } else {
           safeSetVideos(events.map((ev) => {
             const biz = ev.default_business_id ? bizMap.get(ev.default_business_id) || null : null;
+            const firstVideo: string | null = ev.videos?.[0] ?? null;
+            const firstImage: string | null = ev.images?.[0] ?? null;
             return {
               id: `event:${ev.id}`,
-              url: "",
+              url: firstVideo || "",
               business_name: ev.name || videoEventFilter.label,
-              thumbnail_url: ev.images[0],
+              thumbnail_url: firstImage || firstVideo || "",
               business: biz,
               owner: biz ? { id: biz.id, name: biz.name, logo_url: biz.logo_url ?? null, logo_bg: biz.logo_bg ?? null } : null,
               social: null,
