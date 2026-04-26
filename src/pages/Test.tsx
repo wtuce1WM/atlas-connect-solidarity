@@ -451,11 +451,12 @@ const Test = () => {
 
         const { data: eventRows } = await (supabase as any)
           .from("events")
-          .select("id, name, images, default_business_id, start_date")
+          .select("id, name, images, videos, default_business_id, start_date")
           .in("id", ids)
           .order("start_date", { ascending: true });
 
-        const events = ((eventRows as any[]) || []).filter((ev) => ev?.images?.[0]);
+        // Keep events that have either an image OR a video (used as media for the card)
+        const events = ((eventRows as any[]) || []).filter((ev) => ev?.images?.[0] || ev?.videos?.[0]);
 
         const bizIds = events.map((ev) => ev.default_business_id).filter(Boolean) as string[];
         const bizMap = new Map<string, any>();
