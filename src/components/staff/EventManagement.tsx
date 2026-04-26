@@ -78,7 +78,7 @@ const EMPTY_FORM = {
 };
 
 /* ── Sortable video item ── */
-const SortableVideoItem = ({ id, url, index, setForm, toast }: { id: string; url: string; index: number; setForm: React.Dispatch<React.SetStateAction<typeof EMPTY_FORM>>; toast: any }) => {
+const SortableVideoItem = ({ id, url, index, setForm, toast, eventId }: { id: string; url: string; index: number; setForm: React.Dispatch<React.SetStateAction<typeof EMPTY_FORM>>; toast: any; eventId: string | null }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
   const [videoDocId, setVideoDocId] = useState<string | null>(null);
@@ -91,16 +91,21 @@ const SortableVideoItem = ({ id, url, index, setForm, toast }: { id: string; url
       return;
     }
     (async () => {
+      // Une même URL peut exister dans plusieurs lignes business_documents
+      // (vidéo partagée entre établissements). maybeSingle() échouait dans ce cas.
+      // On récupère toutes les lignes et on privilégie celle rattachée à l'événement.
       const { data } = await supabase
         .from("business_documents")
-        .select("id")
+        .select("id, event_id")
         .eq("url", url)
-        .eq("type", "video")
-        .maybeSingle();
-      if (!cancelled) setVideoDocId((data as any)?.id || null);
+        .eq("type", "video");
+      if (cancelled) return;
+      const rows = (data as any[]) || [];
+      const preferred = rows.find(r => r.event_id === eventId) || rows[0];
+      setVideoDocId(preferred?.id || null);
     })();
     return () => { cancelled = true; };
-  }, [url]);
+  }, [url, eventId]);
 
   const handleCopy = async () => {
     if (!videoDocId) return;
