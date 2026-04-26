@@ -629,7 +629,17 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
               <X className="h-2.5 w-2.5" />
             </button>
           </div>
-          {doc.id && <p className="text-[8px] text-muted-foreground/60 truncate font-mono cursor-pointer hover:text-primary" title={`Cliquer pour copier: ${doc.id}`} onClick={() => { navigator.clipboard.writeText(doc.id); toast({ title: "ID copié", description: doc.id }); }}>ID: {doc.id.substring(0, 8)}</p>}
+          {doc.id && (
+            <button
+              type="button"
+              className="flex items-center gap-1 w-full px-1 py-0.5 rounded bg-muted/50 hover:bg-primary/10 hover:text-primary transition-colors group/id"
+              title={`Copier l'ID: ${doc.id}`}
+              onClick={() => { navigator.clipboard.writeText(doc.id); toast({ title: "ID vidéo copié ✓", description: doc.id }); }}
+            >
+              <Copy className="h-2.5 w-2.5 shrink-0" />
+              <span className="text-[9px] font-mono truncate flex-1 text-left">{doc.id}</span>
+            </button>
+          )}
         </div>
       ) : (
         <div className="space-y-1">
