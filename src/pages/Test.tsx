@@ -1144,7 +1144,7 @@ const Test = () => {
   };
 
   const handleHomeLabelClick = async (
-    info: { label: string; kind: "entry" | "extra"; badgeId: string | null; eventId?: string | null },
+    info: { label: string; kind: "entry" | "extra"; badgeId: string | null; eventId?: string | null; popularSearchId?: string | null },
     clickedCity: City
   ) => {
 
