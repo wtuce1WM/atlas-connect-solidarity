@@ -1652,6 +1652,23 @@ const Test = () => {
                     <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5 flex-wrap">
                       {isGuide ? (
                         <span>Suivez le guide ({displayList.length})</span>
+                      ) : videoEventFilter ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setVideoEventFilter(null);
+                              setSelectedEntryId(HOME_ID);
+                              setSelectedSubId(null);
+                            }}
+                            className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors"
+                          >
+                            Page d'accueil
+                          </button>
+                          <span className="text-muted-foreground font-normal">›</span>
+                          <span>{videoEventFilter.label}</span>
+                          <span className="text-muted-foreground font-normal">({displayList.length})</span>
+                        </>
                       ) : videoBadgeFilter ? (
                         <>
                           <button
