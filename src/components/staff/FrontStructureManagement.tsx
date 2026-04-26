@@ -620,6 +620,7 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
               onDelete={deleteEntry}
               getSubName={getSubName}
               getServiceName={getServiceName}
+              getBadgeName={getBadgeName}
               onReorder={handleReorder}
             />
           </div>
