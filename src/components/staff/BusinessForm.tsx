@@ -63,6 +63,7 @@ import {
   VimeoIcon,
   SnapchatIcon,
   SoundCloudIcon,
+  SpotifyIcon,
 } from "./SocialMediaIcons";
 import {
   AlertDialog,
@@ -1321,6 +1322,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     vimeo_url: (business as any)?.vimeo_url || "",
     snapchat_url: (business as any)?.snapchat_url || "",
     soundcloud_url: (business as any)?.soundcloud_url || "",
+    spotify_url: (business as any)?.spotify_url || "",
     images: (business as any)?.images || [] as string[],
     popup_image_url: (business as any)?.popup_image_url || "",
     _initialImages: (business as any)?.images || [] as string[], // track original images for cleanup
@@ -2274,6 +2276,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       vimeo_url: formData.vimeo_url || null,
       snapchat_url: (formData as any).snapchat_url || null,
       soundcloud_url: (formData as any).soundcloud_url || null,
+      spotify_url: (formData as any).spotify_url || null,
       images: formData.images.length > 0 ? formData.images : [],
       popup_image_url: (formData as any).popup_image_url || null,
       pdf_url: formData.pdf_url || null,
@@ -5311,6 +5314,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               { key: "vimeo_url", label: "Vimeo", icon: <VimeoIcon className="text-[#1AB7EA]" />, placeholder: "https://vimeo.com/..." },
               { key: "snapchat_url", label: "Snapchat", icon: <SnapchatIcon className="text-[#FFFC00]" />, placeholder: "https://snapchat.com/add/..." },
               { key: "soundcloud_url", label: "SoundCloud", icon: <SoundCloudIcon className="text-[#FF5500]" />, placeholder: "https://soundcloud.com/..." },
+              { key: "spotify_url", label: "Spotify", icon: <SpotifyIcon className="text-[#1DB954]" />, placeholder: "https://open.spotify.com/..." },
             ].map(({ key, label, icon, placeholder }) => (
               <div key={key} className="space-y-1">
                 <Label className="flex items-center gap-2 text-sm">
@@ -6079,7 +6083,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Non</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => { handleChange("facebook_url", ""); handleChange("instagram_url", ""); handleChange("twitter_url", ""); handleChange("linkedin_url", ""); handleChange("youtube_url", ""); handleChange("tiktok_url", ""); handleChange("pinterest_url", ""); handleChange("vimeo_url", ""); handleChange("snapchat_url", ""); handleChange("soundcloud_url", ""); toast({ title: "Réseaux sociaux effacés" }); }}>Oui, effacer</AlertDialogAction>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => { handleChange("facebook_url", ""); handleChange("instagram_url", ""); handleChange("twitter_url", ""); handleChange("linkedin_url", ""); handleChange("youtube_url", ""); handleChange("tiktok_url", ""); handleChange("pinterest_url", ""); handleChange("vimeo_url", ""); handleChange("snapchat_url", ""); handleChange("soundcloud_url", ""); handleChange("spotify_url", ""); toast({ title: "Réseaux sociaux effacés" }); }}>Oui, effacer</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
