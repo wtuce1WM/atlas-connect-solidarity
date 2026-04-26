@@ -344,24 +344,24 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
                   {t.memberTitle}
                 </h3>
                 <p className="text-muted-foreground text-sm leading-relaxed mb-6">{t.memberDesc}</p>
-                <Link
-                  to="/club"
+                <button
+                  type="button"
                   onClick={() => setClubOpen(false)}
                   style={{ backgroundColor: "#6050DC" }}
                   className="inline-block rounded-full px-8 py-3 text-white font-semibold text-sm hover:opacity-90 transition-colors shadow-md"
                 >
                   {t.joinBtn}
-                </Link>
+                </button>
                 <p className="mt-4 text-sm text-muted-foreground">
                   {t.alreadyMember}{" "}
-                  <Link
-                    to="/club"
+                  <button
+                    type="button"
                     onClick={() => setClubOpen(false)}
                     style={{ color: "#6050DC" }}
-                    className="font-medium hover:underline"
+                    className="font-medium hover:underline bg-transparent"
                   >
                     {t.login}
-                  </Link>
+                  </button>
                 </p>
               </div>
             ) : (
