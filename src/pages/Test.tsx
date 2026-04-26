@@ -48,8 +48,9 @@ interface VideoItem {
 }
 
 interface VideoEventFilter {
-  eventId: string;
+  eventId: string;            // primary event id (kept for backward-compat / single-event activation)
   label: string;
+  eventIds?: string[];        // when set, the filter shows MULTIPLE events (e.g. Agenda badge)
 }
 
 const CITIES = ["Marrakech", "Essaouira"] as const;
