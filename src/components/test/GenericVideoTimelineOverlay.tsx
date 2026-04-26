@@ -1,8 +1,42 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Crown } from "lucide-react";
+import { Crown, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { collectRatingSources, computeWeightedRatingOn20, formatRating } from "@/lib/ratingUtils";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+const clubTranslations = {
+  fr: {
+    club: "Le Club",
+    welcome: "Bienvenue dans",
+    clubName: "le Club OWM",
+    memberTitle: "Devenir membre",
+    memberDesc: "Découvrez de nouvelles manières de profiter du meilleur du Maroc et accédez à des avantages exclusifs.",
+    joinBtn: "Je m'inscris",
+    alreadyMember: "Vous avez déjà un compte ?",
+    login: "Connectez-vous",
+  },
+  en: {
+    club: "The Club",
+    welcome: "Welcome to",
+    clubName: "the OWM Club",
+    memberTitle: "Become a member",
+    memberDesc: "Discover new ways to enjoy the best of Morocco and access exclusive benefits.",
+    joinBtn: "Join now",
+    alreadyMember: "Already have an account?",
+    login: "Log in",
+  },
+  ar: {
+    club: "النادي",
+    welcome: "مرحباً بكم في",
+    clubName: "نادي OWM",
+    memberTitle: "كن عضواً",
+    memberDesc: "اكتشف طرقاً جديدة للاستمتاع بأفضل ما في المغرب والحصول على مزايا حصرية.",
+    joinBtn: "سجّل الآن",
+    alreadyMember: "لديك حساب بالفعل؟",
+    login: "سجّل الدخول",
+  },
+} as const;
 
 interface TimelineItem {
   id: string;
