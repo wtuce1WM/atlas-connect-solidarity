@@ -1320,6 +1320,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     skype: (business as any)?.skype || "",
     vimeo_url: (business as any)?.vimeo_url || "",
     snapchat_url: (business as any)?.snapchat_url || "",
+    soundcloud_url: (business as any)?.soundcloud_url || "",
     images: (business as any)?.images || [] as string[],
     popup_image_url: (business as any)?.popup_image_url || "",
     _initialImages: (business as any)?.images || [] as string[], // track original images for cleanup
@@ -2272,6 +2273,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       skype: formData.skype || null,
       vimeo_url: formData.vimeo_url || null,
       snapchat_url: (formData as any).snapchat_url || null,
+      soundcloud_url: (formData as any).soundcloud_url || null,
       images: formData.images.length > 0 ? formData.images : [],
       popup_image_url: (formData as any).popup_image_url || null,
       pdf_url: formData.pdf_url || null,
