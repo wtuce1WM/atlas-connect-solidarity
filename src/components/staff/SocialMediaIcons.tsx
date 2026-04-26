@@ -13,12 +13,12 @@ export const FacebookIcon = ({ className }: IconProps) => (
 );
 
 export const InstagramIcon = ({ className }: IconProps) => {
-  const sizeClass = className?.includes("h-4") ? "h-4 w-4" : "h-5 w-5";
+  const hasSize = /h-(\d+|\[.*?\])/.test(className || "");
   return (
     <img
       src={instagramIcon}
       alt="Instagram"
-      className={cn(sizeClass, "object-contain", className?.replace(/h-\d+ w-\d+/g, "").replace(/text-\[.*?\]/g, ""))}
+      className={cn(!hasSize && "h-5 w-5", "object-contain", className?.replace(/text-\[.*?\]/g, ""))}
     />
   );
 };
@@ -96,12 +96,12 @@ export const VimeoIcon = ({ className }: IconProps) => (
 );
 
 export const SnapchatIcon = ({ className }: IconProps) => {
-  const sizeClass = className?.includes("h-4") ? "h-4 w-4" : "h-5 w-5";
+  const hasSize = /h-(\d+|\[.*?\])/.test(className || "");
   return (
     <img
       src={snapchatIcon}
       alt="Snapchat"
-      className={cn(sizeClass, "object-contain", className?.replace(/h-\d+ w-\d+/g, "").replace(/text-\[.*?\]/g, ""))}
+      className={cn(!hasSize && "h-5 w-5", "object-contain", className?.replace(/text-\[.*?\]/g, ""))}
     />
   );
 };
