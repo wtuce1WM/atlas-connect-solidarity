@@ -75,9 +75,10 @@ interface SortableEntryCardProps {
   onDelete: (id: string) => void;
   getSubName: (id: string) => string;
   getServiceName: (id: string) => string;
+  getBadgeName: (id: string) => string;
 }
 
-const SortableEntryCard = ({ entry, onEdit, onDelete, getSubName, getServiceName }: SortableEntryCardProps) => {
+const SortableEntryCard = ({ entry, onEdit, onDelete, getSubName, getServiceName, getBadgeName }: SortableEntryCardProps) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: entry.id });
   const style = {
     transform: CSS.Transform.toString(transform),
