@@ -322,6 +322,9 @@ const SortableVideoItem = ({ id, url, index, setForm, toast, eventId, ownerBusin
 const VideosDndList = ({ form, setForm, toast, eventId, ownerBusinessId, eventName }: { form: typeof EMPTY_FORM; setForm: React.Dispatch<React.SetStateAction<typeof EMPTY_FORM>>; toast: any; eventId: string | null; ownerBusinessId: string | null; eventName: string }) => {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const videoIds = form.videos.map((_, i) => `evt-vid-${i}`);
+  const [uploading, setUploading] = useState(false);
+  const maxVideos = 10;
+  const maxSizeMB = 100;
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -331,21 +334,107 @@ const VideosDndList = ({ form, setForm, toast, eventId, ownerBusinessId, eventNa
     setForm(p => ({ ...p, videos: arrayMove(p.videos, oldIndex, newIndex) }));
   };
 
+  const uploadFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const remaining = maxVideos - form.videos.length;
+    const list = Array.from(files).slice(0, remaining);
+    setUploading(true);
+    try {
+      const newUrls: string[] = [];
+      for (const file of list) {
+        if (!file.type.startsWith("video/")) {
+          toast({ variant: "destructive", title: "Type invalide", description: `${file.name} n'est pas une vidéo.` });
+          continue;
+        }
+        if (file.size > maxSizeMB * 1024 * 1024) {
+          toast({ variant: "destructive", title: "Fichier trop volumineux", description: `${file.name} dépasse ${maxSizeMB}MB.` });
+          continue;
+        }
+        const ext = file.name.split(".").pop()?.toLowerCase() || "mp4";
+        const fileName = `${ownerBusinessId || "event"}-${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+        const filePath = `businesses/${fileName}`;
+        const { error } = await supabase.storage.from("business-videos").upload(filePath, file, { cacheControl: "3600", upsert: false });
+        if (error) {
+          toast({ variant: "destructive", title: "Erreur upload", description: error.message });
+          continue;
+        }
+        const { data: pub } = supabase.storage.from("business-videos").getPublicUrl(filePath);
+        if (pub?.publicUrl) newUrls.push(pub.publicUrl);
+      }
+      if (newUrls.length > 0) {
+        setForm(p => ({ ...p, videos: [...p.videos, ...newUrls] }));
+        toast({ title: "Vidéo(s) ajoutée(s) ✓", description: `${newUrls.length} vidéo(s) uploadée(s).` });
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    uploadFiles(e.dataTransfer.files);
+  };
+
+  const inputId = `event-video-upload-${eventId || "new"}`;
+
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap gap-3">
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={videoIds} strategy={verticalListSortingStrategy}>
-            {form.videos.map((url, i) => (
-              <SortableVideoItem key={videoIds[i]} id={videoIds[i]} url={url} index={i} setForm={setForm} toast={toast} eventId={eventId} ownerBusinessId={ownerBusinessId} eventName={eventName} />
-            ))}
-          </SortableContext>
-        </DndContext>
-      </div>
-      {form.videos.length < 10 && (
-        <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => setForm(p => ({ ...p, videos: [...p.videos, ""] }))}>
-          <Plus className="h-4 w-4" /> Ajouter une vidéo
-        </Button>
+      {form.videos.length > 0 && (
+        <div className="flex flex-wrap gap-3">
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={videoIds} strategy={verticalListSortingStrategy}>
+              {form.videos.map((url, i) => (
+                <SortableVideoItem key={videoIds[i]} id={videoIds[i]} url={url} index={i} setForm={setForm} toast={toast} eventId={eventId} ownerBusinessId={ownerBusinessId} eventName={eventName} />
+              ))}
+            </SortableContext>
+          </DndContext>
+        </div>
+      )}
+
+      {form.videos.length < maxVideos && (
+        <div
+          onDrop={handleDrop}
+          onDragOver={(e) => e.preventDefault()}
+          className={cn(
+            "border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer hover:border-primary/50",
+            uploading && "pointer-events-none opacity-50"
+          )}
+        >
+          <input
+            type="file"
+            id={inputId}
+            multiple
+            accept="video/mp4,video/webm,video/quicktime"
+            onChange={(e) => uploadFiles(e.target.files)}
+            className="hidden"
+            disabled={uploading}
+          />
+          <label htmlFor={inputId} className="cursor-pointer">
+            <div className="flex flex-col items-center gap-2">
+              {uploading ? (
+                <Loader2 className="h-10 w-10 text-muted-foreground animate-spin" />
+              ) : (
+                <div className="p-3 bg-primary/10 rounded-full">
+                  <VideoIcon className="h-6 w-6 text-primary" />
+                </div>
+              )}
+              <div>
+                <p className="font-medium">
+                  {uploading ? "Upload en cours..." : "Cliquez ou glissez-déposez"}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {form.videos.length}/{maxVideos} vidéos • Max {maxSizeMB}MB par vidéo
+                </p>
+              </div>
+            </div>
+          </label>
+        </div>
+      )}
+
+      {form.videos.length >= maxVideos && (
+        <p className="text-sm text-muted-foreground text-center">
+          Nombre maximum de vidéos atteint ({maxVideos})
+        </p>
       )}
     </div>
   );
