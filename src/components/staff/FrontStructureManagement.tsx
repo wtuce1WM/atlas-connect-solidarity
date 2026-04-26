@@ -323,6 +323,7 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
     setEditingId(null);
     setSearchFilter("");
     setServiceSearchFilter("");
+    setBadgeSearchFilter("");
   };
 
   const toggleSub = (id: string) => {
@@ -336,6 +337,15 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
 
   const toggleService = (id: string) => {
     setEditServiceIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleBadge = (id: string) => {
+    setEditBadgeIds(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
