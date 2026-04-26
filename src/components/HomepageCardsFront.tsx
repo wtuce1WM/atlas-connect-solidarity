@@ -143,7 +143,12 @@ const HomepageCardsFront = ({ city, onLabelClick }: Props) => {
     if (!label) return;
 
     if (onLabelClick) {
-      onLabelClick({ label, kind: slot.kind, badgeId: slot.data.badgeId ?? null, eventId: slot.data.eventId ?? null, popularSearchId: slot.data.popularSearchId ?? null });
+      const target: HomeCardTarget =
+        slot.data.target ??
+        (slot.data.eventId ? { type: "event", id: slot.data.eventId } :
+         slot.data.popularSearchId ? { type: "popular_search", id: slot.data.popularSearchId } :
+         slot.data.badgeId ? { type: "badge", id: slot.data.badgeId } : null);
+      onLabelClick({ label, kind: slot.kind, target, badgeId: slot.data.badgeId ?? null, eventId: slot.data.eventId ?? null, popularSearchId: slot.data.popularSearchId ?? null });
       return;
     }
 
