@@ -431,7 +431,7 @@ const Test = () => {
   // match business_documents.subcategory_id ∈ entry.subcategory_ids, filter by document.city,
   // keep only internal videos, sort by sort_order, take first 15.
   useEffect(() => {
-    if (!selectedEntry && !videoBadgeFilter && !videoEventFilter) {
+    if (!selectedEntry && !videoBadgeFilter && !videoEventFilter && !videoPopularSearchFilter) {
       setVideos([]);
       return;
     }
