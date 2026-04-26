@@ -516,6 +516,7 @@ const Test = () => {
         // Exception: for the manual "Suivez le guide" card (badge "Guide"),
         // show every video tagged in this city without grouping by business.
         const isGuideBadge = /^(suivez le guide|guide)$/i.test(videoBadgeFilter.label.trim());
+        const isVlogsBadge = /^#?\s*vlogs?$/i.test(videoBadgeFilter.label.trim());
         // For all badge filters, also pull in generic_videos and YouTube videos
         // tagged with the same badge (not only the Guide badge).
         const includeExtraSources = true;
