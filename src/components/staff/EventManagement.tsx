@@ -77,8 +77,140 @@ const EMPTY_FORM = {
   default_business_id: "",
 };
 
+type EventVideoDoc = {
+  id: string;
+  url: string;
+  event_id: string | null;
+  thumbnail_url: string | null;
+  thumbnail_locked: boolean | null;
+};
+
+const generateVideoThumbnail = (videoUrl: string): Promise<Blob | null> => {
+  return new Promise((resolve) => {
+    const video = document.createElement("video");
+    video.crossOrigin = "anonymous";
+    video.muted = true;
+    video.preload = "auto";
+    video.playsInline = true;
+    video.src = videoUrl;
+
+    const timeout = window.setTimeout(() => {
+      video.remove();
+      resolve(null);
+    }, 12000);
+
+    const finish = (blob: Blob | null) => {
+      window.clearTimeout(timeout);
+      video.remove();
+      resolve(blob);
+    };
+
+    const capture = () => {
+      try {
+        const thumbW = 1280;
+        const thumbH = 720;
+        const naturalW = video.videoWidth || thumbW;
+        const naturalH = video.videoHeight || thumbH;
+        const scale = Math.min(thumbW / naturalW, thumbH / naturalH, 1);
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(naturalW * scale);
+        canvas.height = Math.round(naturalH * scale);
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return finish(null);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob((blob) => finish(blob), "image/jpeg", 0.75);
+      } catch {
+        finish(null);
+      }
+    };
+
+    video.addEventListener("loadeddata", () => {
+      const targetTime = Number.isFinite(video.duration) ? Math.min(3, Math.max(0, video.duration * 0.2)) : 0;
+      if (targetTime > 0) video.currentTime = targetTime;
+      else capture();
+    }, { once: true });
+    video.addEventListener("seeked", capture, { once: true });
+    video.addEventListener("error", () => finish(null), { once: true });
+  });
+};
+
+const createVideoSnapshot = async (docId: string, videoUrl: string) => {
+  const blob = await generateVideoThumbnail(videoUrl);
+  if (!blob) return null;
+
+  const thumbName = `thumbs/event-business_documents-${docId}-${Date.now()}.jpg`;
+  const { error: uploadError } = await supabase.storage
+    .from("business-images")
+    .upload(thumbName, blob, { cacheControl: "31536000", upsert: true, contentType: "image/jpeg" });
+  if (uploadError) return null;
+
+  const { data: urlData } = supabase.storage.from("business-images").getPublicUrl(thumbName);
+  const publicUrl = urlData?.publicUrl || null;
+  if (!publicUrl) return null;
+
+  await supabase
+    .from("business_documents")
+    .update({ thumbnail_url: publicUrl })
+    .eq("id", docId)
+    .eq("thumbnail_locked", false);
+
+  return publicUrl;
+};
+
+const ensureEventVideoDocument = async ({
+  url,
+  eventId,
+  ownerBusinessId,
+  eventName,
+}: {
+  url: string;
+  eventId: string;
+  ownerBusinessId: string;
+  eventName: string;
+}) => {
+  const { data: existingDocs } = await supabase
+    .from("business_documents")
+    .select("id, url, event_id, thumbnail_url, thumbnail_locked")
+    .eq("url", url)
+    .eq("type", "video");
+
+  const rows = ((existingDocs as EventVideoDoc[] | null) || []);
+  let doc = rows.find(row => row.event_id === eventId) || rows[0] || null;
+
+  if (doc) {
+    const { data: updated } = await supabase
+      .from("business_documents")
+      .update({ event_id: eventId, business_id: ownerBusinessId, name: eventName.trim() || null })
+      .eq("id", doc.id)
+      .select("id, url, event_id, thumbnail_url, thumbnail_locked")
+      .single();
+    doc = (updated as EventVideoDoc | null) || doc;
+  } else {
+    const { data: inserted } = await supabase
+      .from("business_documents")
+      .insert({
+        business_id: ownerBusinessId,
+        type: "video",
+        url,
+        name: eventName.trim() || null,
+        event_id: eventId,
+        show_on_front: false,
+      })
+      .select("id, url, event_id, thumbnail_url, thumbnail_locked")
+      .single();
+    doc = inserted as EventVideoDoc | null;
+  }
+
+  if (doc && !doc.thumbnail_url && !doc.thumbnail_locked) {
+    const thumbnailUrl = await createVideoSnapshot(doc.id, url);
+    if (thumbnailUrl) doc = { ...doc, thumbnail_url: thumbnailUrl };
+  }
+
+  return doc;
+};
+
 /* ── Sortable video item ── */
-const SortableVideoItem = ({ id, url, index, setForm, toast, eventId }: { id: string; url: string; index: number; setForm: React.Dispatch<React.SetStateAction<typeof EMPTY_FORM>>; toast: any; eventId: string | null }) => {
+const SortableVideoItem = ({ id, url, index, setForm, toast, eventId, ownerBusinessId, eventName }: { id: string; url: string; index: number; setForm: React.Dispatch<React.SetStateAction<typeof EMPTY_FORM>>; toast: any; eventId: string | null; ownerBusinessId: string | null; eventName: string }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
   const [videoDocId, setVideoDocId] = useState<string | null>(null);
