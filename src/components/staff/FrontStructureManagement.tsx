@@ -210,26 +210,31 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
   const [entries, setEntries] = useState<FrontEntry[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [services, setServices] = useState<Service[]>([]);
+  const [badges, setBadges] = useState<BadgeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editSortOrder, setEditSortOrder] = useState(0);
   const [editSubIds, setEditSubIds] = useState<Set<string>>(new Set());
   const [editServiceIds, setEditServiceIds] = useState<Set<string>>(new Set());
+  const [editBadgeIds, setEditBadgeIds] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [searchFilter, setSearchFilter] = useState("");
   const [serviceSearchFilter, setServiceSearchFilter] = useState("");
+  const [badgeSearchFilter, setBadgeSearchFilter] = useState("");
 
   const load = async () => {
     setLoading(true);
-    const [entriesRes, linksRes, svcLinksRes, subsRes, catsRes, servicesRes] = await Promise.all([
+    const [entriesRes, linksRes, svcLinksRes, badgeLinksRes, subsRes, catsRes, servicesRes, badgesRes] = await Promise.all([
       supabase.from("front_structure").select("*").order("sort_order"),
       supabase.from("front_structure_subcategories").select("*"),
       supabase.from("front_structure_services" as any).select("*"),
+      supabase.from("front_structure_badges" as any).select("*"),
       supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
       supabase.from("categories").select("id, name_fr"),
       supabase.from("services").select("id, name_fr, subcategory_id").eq("is_active", true).order("name_fr"),
+      supabase.from("badges").select("id, name_fr").order("sort_order").order("name_fr"),
     ]);
 
     const catMap: Record<string, string> = {};
@@ -254,6 +259,10 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
       }))
     );
 
+    setBadges(
+      ((badgesRes.data || []) as any[]).map((b: any) => ({ id: b.id, name_fr: b.name_fr }))
+    );
+
     const linksByEntry: Record<string, string[]> = {};
     (linksRes.data || []).forEach((l: any) => {
       if (!linksByEntry[l.front_structure_id]) linksByEntry[l.front_structure_id] = [];
@@ -266,6 +275,12 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
       svcLinksByEntry[l.front_structure_id].push(l.service_id);
     });
 
+    const badgeLinksByEntry: Record<string, string[]> = {};
+    ((badgeLinksRes.data || []) as any[]).forEach((l: any) => {
+      if (!badgeLinksByEntry[l.front_structure_id]) badgeLinksByEntry[l.front_structure_id] = [];
+      badgeLinksByEntry[l.front_structure_id].push(l.badge_id);
+    });
+
     setEntries(
       (entriesRes.data || []).map((e: any) => ({
         id: e.id,
@@ -273,6 +288,7 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
         sort_order: e.sort_order,
         subcategory_ids: linksByEntry[e.id] || [],
         service_ids: svcLinksByEntry[e.id] || [],
+        badge_ids: badgeLinksByEntry[e.id] || [],
       }))
     );
     setLoading(false);
@@ -288,6 +304,7 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
     setEditSortOrder(entries.length);
     setEditSubIds(new Set());
     setEditServiceIds(new Set());
+    setEditBadgeIds(new Set());
     setShowForm(true);
   };
 
@@ -297,6 +314,7 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
     setEditSortOrder(entry.sort_order);
     setEditSubIds(new Set(entry.subcategory_ids));
     setEditServiceIds(new Set(entry.service_ids));
+    setEditBadgeIds(new Set(entry.badge_ids));
     setShowForm(true);
   };
 
