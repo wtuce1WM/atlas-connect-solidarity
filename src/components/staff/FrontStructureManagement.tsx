@@ -511,6 +511,9 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
                       <TabsTrigger value="services" className="flex-1">
                         Services ({editServiceIds.size})
                       </TabsTrigger>
+                      <TabsTrigger value="badges" className="flex-1">
+                        Badges ({editBadgeIds.size})
+                      </TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="subcategories" className="mt-2">
@@ -564,6 +567,30 @@ const FrontStructureManagement = ({ open, onOpenChange, inline = false }: Props)
                             </div>
                           </div>
                         ))}
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="badges" className="mt-2">
+                      <Input
+                        placeholder="Filtrer les badges..."
+                        value={badgeSearchFilter}
+                        onChange={e => setBadgeSearchFilter(e.target.value)}
+                        className="mb-2"
+                      />
+                      <div className="max-h-[250px] overflow-y-auto border rounded-md p-2">
+                        <div className="grid grid-cols-2 gap-1">
+                          {badges
+                            .filter(b => !badgeSearchFilter || b.name_fr.toLowerCase().includes(badgeSearchFilter.toLowerCase()))
+                            .map(b => (
+                              <label key={b.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 rounded px-1 py-0.5">
+                                <Checkbox
+                                  checked={editBadgeIds.has(b.id)}
+                                  onCheckedChange={() => toggleBadge(b.id)}
+                                />
+                                {b.name_fr}
+                              </label>
+                            ))}
+                        </div>
                       </div>
                     </TabsContent>
                   </Tabs>
