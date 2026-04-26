@@ -19,14 +19,13 @@ function buildSoundCloudEmbedUrl(rawUrl: string): string | null {
   if (!/soundcloud\.com\//i.test(url)) return null;
   const params = new URLSearchParams({
     url,
-    color: "#1DB954",
+    color: "#ff5500",
     auto_play: "false",
     hide_related: "true",
     show_comments: "false",
     show_user: "true",
     show_reposts: "false",
     show_teaser: "false",
-    visual: "true",
   });
   return `https://w.soundcloud.com/player/?${params.toString()}`;
 }
