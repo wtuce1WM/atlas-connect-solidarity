@@ -196,7 +196,7 @@ const SlidePanelHome = ({
               target="_blank"
               rel="noopener noreferrer"
               className="pointer-events-auto flex flex-col items-center gap-2 text-white"
-              style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.6))" }}
+              style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
             >
               {social.platform === "instagram" && <Instagram className="h-12 w-12" />}
               {social.platform === "youtube" && <Youtube className="h-12 w-12" />}
