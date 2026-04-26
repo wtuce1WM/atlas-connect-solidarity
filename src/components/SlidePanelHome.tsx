@@ -258,11 +258,16 @@ const SlidePanelHome = ({
                   {social.platform === "youtube" && <Youtube className="h-16 w-16 md:h-20 md:w-20" />}
                   {social.platform === "tiktok" && <SiTiktok className="h-14 w-14 md:h-[72px] md:w-[72px]" />}
                 </a>
-                <div className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto select-text">
-                  <span className="text-xs font-medium text-white select-text" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                <a
+                  href={social.url || undefined}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto hover:bg-black/80 transition-colors"
+                >
+                  <span className="text-xs font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                     Follow @{social.account}
                   </span>
-                </div>
+                </a>
               </div>
             )}
             {agendaCity && (
