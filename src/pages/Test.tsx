@@ -1569,6 +1569,7 @@ const Test = () => {
                           setPanelOpen(true);
                         };
                         if (isThumbMode) {
+                          const isVlogThumb = selectedEntry?.id === VLOGS_ID;
                           const thumb = v.thumbnail_url || deriveThumbnail(v.url);
                           const isFile = /\.(mp4|webm|mov)(\?|$)/i.test(v.url);
                           return (
