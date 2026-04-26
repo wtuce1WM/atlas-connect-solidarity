@@ -190,9 +190,7 @@ const SlidePanelHome = ({
         )}
 
         {social && description && (
-          <div className="absolute top-16 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 px-4 max-w-[90%] pointer-events-none">
-            <DescriptionCollapsible html={description} />
-          </div>
+          <DescriptionPlusButton html={description} businessName={businessName} />
         )}
 
         <div className="relative w-full h-full">
@@ -348,27 +346,50 @@ const SlidePanelHome = ({
   );
 };
 
-const DescriptionCollapsible = ({ html }: { html: string }) => {
+const DescriptionPlusButton = ({ html, businessName }: { html: string; businessName: string }) => {
   const [open, setOpen] = useState(false);
   return (
-    <div className="pointer-events-auto max-w-xl w-full flex flex-col items-center gap-2">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="px-3 py-1.5 rounded-md bg-black/60 hover:bg-black/80 text-white text-xs font-semibold uppercase tracking-wide flex items-center gap-1.5 transition-colors"
-        style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-      >
-        {open ? "Masquer le texte" : "Lire le texte"}
-        {open ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-      </button>
-      {open && (
-        <div
-          className="text-white text-lg md:text-xl text-center leading-snug select-text"
-          style={{ textShadow: "0 1px 2px hsla(0,0%,0%,0.9), 0 2px 8px hsla(0,0%,0%,0.7)" }}
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
+    <>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-auto">
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="group flex flex-col items-center gap-2"
+          aria-label="Voir la description"
+        >
+          <span
+            className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
+            style={{ backgroundColor: '#25D366' }}
+          >
+            <span className="text-2xl text-white font-light leading-none">+</span>
+          </span>
+        </button>
+      </div>
+      {open && createPortal(
+        <div className="fixed inset-0 z-[100] flex flex-col bg-black/90 backdrop-blur-sm animate-fade-in">
+          <div className="relative z-10 shrink-0 flex items-center gap-3 px-4 py-3 bg-transparent border-b border-white/10">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0"
+              aria-label="Fermer"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <h2 className="text-sm font-bold uppercase truncate text-white flex-1" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+              {businessName}
+            </h2>
+          </div>
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 md:px-8 py-6">
+            <div
+              className="prose prose-invert max-w-3xl mx-auto text-white text-base md:text-lg leading-relaxed select-text"
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          </div>
+        </div>,
+        document.body,
       )}
-    </div>
+    </>
   );
 };
 
