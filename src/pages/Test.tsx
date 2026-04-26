@@ -1085,9 +1085,21 @@ const Test = () => {
     setCurrentTime(0);
   }, [activeVideo?.id]);
 
+  // Detect if the active video is a generic video by checking generic_videos table.
+  // (Don't rely solely on selectedEntryId — generic videos can be opened from badges, events, etc.)
+  const [genericVideoIds, setGenericVideoIds] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await (supabase as any).from("generic_videos").select("id");
+      if (!cancelled && data) setGenericVideoIds(new Set((data as any[]).map((r) => r.id)));
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   const isActiveGeneric = useMemo(
-    () => !!activeVideo && selectedEntryId === VLOGS_ID,
-    [activeVideo, selectedEntryId]
+    () => !!activeVideo && (selectedEntryId === VLOGS_ID || genericVideoIds.has(activeVideo.id)),
+    [activeVideo, selectedEntryId, genericVideoIds]
   );
 
   const activateVideoBadgeFilter = async (badgeId: string, label: string, targetCity: City) => {
