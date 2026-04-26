@@ -301,7 +301,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
           })}
         </div>
       )}
-      {isLoggedIn && reachedItems.length > 0 && unsavedCount > 0 && (
+      {reachedItems.length > 0 && (!isLoggedIn || unsavedCount > 0) && (
         <button
           type="button"
           onClick={() => setClubOpen(true)}
@@ -312,9 +312,11 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
           <span className="text-[11px] font-semibold tracking-wide">
             {t.saveBtn}
           </span>
-          <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-white text-[10px] font-bold" style={{ color: "#6050DC" }}>
-            {unsavedCount}
-          </span>
+          {isLoggedIn && unsavedCount > 0 && (
+            <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-white text-[10px] font-bold" style={{ color: "#6050DC" }}>
+              {unsavedCount}
+            </span>
+          )}
         </button>
       )}
       {clubOpen && (
