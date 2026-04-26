@@ -45,6 +45,7 @@ import { isExternalVideoUrl } from "@/lib/videoSourceFilter";
 import DocumentOverlay from "@/components/overlays/DocumentOverlay";
 import FallbackHotelsPanel from "@/components/overlays/FallbackHotelsPanel";
 import OverlayShell from "@/components/overlays/OverlayShell";
+import SpotifyOverlay from "@/components/overlays/SpotifyOverlay";
 import SerpApiHotelOverlay from "@/components/SerpApiHotelOverlay";
 import PanelSearchBar from "@/components/PanelSearchBar";
 
