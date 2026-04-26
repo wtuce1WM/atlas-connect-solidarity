@@ -87,16 +87,24 @@ async function buildSnapshot(supabase: any, city: string) {
       return { entryId: entry.id, candidate };
     }
 
-    const ownPromise = supabase
+    // Own videos: city field matches AND no explicit liaison exists (legacy fallback only).
+    // Documents with any business_document_cities entry must come from that liaison, not from city field.
+    const linkedIdsArr = [...allLinkedDocIds];
+    let ownQuery = supabase
       .from("business_documents")
       .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
       .eq("type", "video").eq("city", city)
       .in("subcategory_id", entry.subcategory_ids)
       .order("sort_order", { ascending: true }).limit(1);
+    // Exclude documents that have explicit city liaisons (those are handled below)
+    if (linkedIdsArr.length > 0 && linkedIdsArr.length < 1000) {
+      ownQuery = ownQuery.not("id", "in", `(${linkedIdsArr.join(",")})`);
+    }
+    const ownPromise = ownQuery;
 
     const extraPromises: Promise<any>[] = [];
-    if (extraDocIds.size > 0) {
-      const ids = [...extraDocIds];
+    if (linkedDocIds.size > 0) {
+      const ids = [...linkedDocIds];
       for (let i = 0; i < ids.length; i += 300) {
         const chunk = ids.slice(i, i + 300);
         extraPromises.push(
