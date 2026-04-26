@@ -712,46 +712,22 @@ const Test = () => {
           safeSetLoadingVideos(false);
           return;
         }
-        const [vidsRes, bizLinksRes] = await Promise.all([
-          supabase
-            .from("generic_videos" as any)
-            .select("id, url, name, thumbnail_url, instagram_account, tiktok_account, youtube_account, sort_order")
-            .in("id", [...linkedIds])
-            .order("sort_order", { ascending: true }),
-          supabase
-            .from("generic_video_businesses" as any)
-            .select("generic_video_id, business_id")
-            .in("generic_video_id", [...linkedIds]),
-        ]);
-        const firstBizByVid: Record<string, string> = {};
-        (((bizLinksRes as any).data as any[]) || []).forEach((l: any) => {
-          if (!firstBizByVid[l.generic_video_id]) firstBizByVid[l.generic_video_id] = l.business_id;
-        });
-        const bizIds = [...new Set(Object.values(firstBizByVid))];
-        const bizMap = new Map<string, SearchResultBusiness>();
-        if (bizIds.length > 0) {
-          const { data: bizs } = await supabase
-            .from("businesses")
-            .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
-            .in("id", bizIds);
-          (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
-        }
-        const vids = ((vidsRes as any).data as any[]) || [];
-        console.log("[Vlogs debug]", { city, destId, linkedIds: [...linkedIds], vidsCount: vids.length, vidsErr: (vidsRes as any).error });
-        const vidIds = vids.map((v: any) => v.id);
-        const ordered = vidIds
-          .map((vid) => {
-            const v = vids.find((x: any) => x.id === vid);
-            if (!v) return null;
-            const bizId = firstBizByVid[vid];
-            const biz = bizId ? bizMap.get(bizId) || null : null;
+        const { data: vidsData, error: vidsErr } = await supabase
+          .from("generic_videos" as any)
+          .select("id, url, name, thumbnail_url, instagram_account, tiktok_account, youtube_account, sort_order")
+          .in("id", [...linkedIds])
+          .order("sort_order", { ascending: true });
+        const vids = (vidsData as any[]) || [];
+        console.log("[Vlogs debug]", { city, destId, linkedIds: [...linkedIds], vidsCount: vids.length, vidsErr });
+        const ordered = vids
+          .map((v: any) => {
             const acct = (v.instagram_account || v.tiktok_account || v.youtube_account || "").replace(/^@+/, "");
             return {
               id: v.id,
               url: v.url,
-              business_name: v.name || (acct ? `@${acct}` : (biz?.name || "—")),
+              business_name: acct ? `@${acct}` : (v.name || "—"),
               thumbnail_url: v.thumbnail_url || deriveThumbnail(v.url),
-              business: biz,
+              business: null,
               owner: null,
               social: extractSocial(v),
               description: null,
