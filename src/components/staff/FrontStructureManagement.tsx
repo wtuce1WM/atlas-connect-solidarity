@@ -49,12 +49,18 @@ interface FrontEntry {
   sort_order: number;
   subcategory_ids: string[];
   service_ids: string[];
+  badge_ids: string[];
 }
 
 interface Subcategory {
   id: string;
   name_fr: string;
   category_name: string;
+}
+
+interface BadgeItem {
+  id: string;
+  name_fr: string;
 }
 
 interface Service {
