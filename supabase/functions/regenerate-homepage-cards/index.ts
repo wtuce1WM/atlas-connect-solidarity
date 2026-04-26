@@ -232,10 +232,18 @@ async function buildSnapshot(supabase: any, city: string) {
     };
   });
 
+  const computeTarget = (card: any) => {
+    if (card.event_id) return { type: "event", id: card.event_id };
+    if (card.popular_search_id) return { type: "popular_search", id: card.popular_search_id };
+    if (card.badge_id) return { type: "badge", id: card.badge_id };
+    return null;
+  };
+
   const extraPreviews = extraRows.map((card) => {
     const doc = extraDocByCard[card.id];
     const badgeName = card.badge_id ? (badgeMap.get(card.badge_id) || null) : null;
     const label = card.title?.trim() || badgeName || null;
+    const target = computeTarget(card);
     if (!doc) {
       const biz = card.business_id ? bizMap.get(card.business_id) : null;
       return {
