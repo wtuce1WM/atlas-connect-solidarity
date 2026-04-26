@@ -1143,8 +1143,34 @@ const Test = () => {
     return true;
   };
 
+  const runPopularSearch = async (popularSearchId: string, label: string, clickedCity: City) => {
+    const { data: ps } = await (supabase as any)
+      .from("popular_searches")
+      .select("query")
+      .eq("id", popularSearchId)
+      .maybeSingle();
+    const query = (ps as any)?.query as string | undefined;
+    if (!query) return;
+    setSelectedEntryId(HOME_ID);
+    setBadgeView({ badgeId: `ps:${popularSearchId}`, label, city: clickedCity });
+    setLoadingBadge(true);
+    setBadgeBusinesses([]);
+    try {
+      const { data, error } = await supabase.functions.invoke("business-search", {
+        body: { query, city: clickedCity, language: "fr" },
+      });
+      if (!error) {
+        const list = ((data as any)?.businesses || []) as SearchResultBusiness[];
+        setBadgeBusinesses(list);
+      }
+    } catch (e) {
+      console.error("[runPopularSearch] failed", e);
+    }
+    setLoadingBadge(false);
+  };
+
   const handleHomeLabelClick = async (
-    info: { label: string; kind: "entry" | "extra"; badgeId: string | null; eventId?: string | null; popularSearchId?: string | null },
+    info: { label: string; kind: "entry" | "extra"; target?: { type: "badge" | "event" | "popular_search"; id: string } | null; badgeId: string | null; eventId?: string | null; popularSearchId?: string | null },
     clickedCity: City
   ) => {
 
@@ -1159,12 +1185,14 @@ const Test = () => {
       return;
     }
 
-    if (info.eventId) {
-      await activateVideoEventFilter(info.eventId, info.label, clickedCity);
-      return;
-    }
+    // Resolve target with priority: explicit target > legacy fields
+    const target = info.target ??
+      (info.eventId ? { type: "event" as const, id: info.eventId } :
+       info.popularSearchId ? { type: "popular_search" as const, id: info.popularSearchId } :
+       info.badgeId ? { type: "badge" as const, id: info.badgeId } : null);
 
-    if (isAgendaLabel(info.label)) {
+    // Special-case: Agenda card with no explicit target — find the event linked to it
+    if (!target && isAgendaLabel(info.label)) {
       const { data: agendaCard } = await (supabase as any)
         .from("front_structure_homepage_extra_cards")
         .select("event_id")
@@ -1172,7 +1200,6 @@ const Test = () => {
         .ilike("title", "Agenda")
         .not("event_id", "is", null)
         .maybeSingle();
-
       const eventId = (agendaCard as any)?.event_id;
       if (eventId) {
         await activateVideoEventFilter(eventId, info.label, clickedCity);
@@ -1180,53 +1207,33 @@ const Test = () => {
       }
     }
 
-    if (!info.badgeId && info.popularSearchId) {
-      const { data: ps } = await (supabase as any)
-        .from("popular_searches")
-        .select("query")
-        .eq("id", info.popularSearchId)
-        .maybeSingle();
-      const query = (ps as any)?.query as string | undefined;
-      if (query) {
+    if (!target) return;
+
+    switch (target.type) {
+      case "event":
+        await activateVideoEventFilter(target.id, info.label, clickedCity);
+        return;
+      case "popular_search":
+        await runPopularSearch(target.id, info.label, clickedCity);
+        return;
+      case "badge": {
+        const activated = await activateVideoBadgeFilter(target.id, info.label, clickedCity);
+        if (activated) return;
+
         setSelectedEntryId(HOME_ID);
-        setBadgeView({ badgeId: `ps:${info.popularSearchId}`, label: info.label, city: clickedCity });
+        setBadgeView({ badgeId: target.id, label: info.label, city: clickedCity });
         setLoadingBadge(true);
         setBadgeBusinesses([]);
-        try {
-          const { data, error } = await supabase.functions.invoke("business-search", {
-            body: { query, city: clickedCity, language: "fr" },
-          });
-          if (!error) {
-            const list = ((data as any)?.businesses || []) as SearchResultBusiness[];
-            setBadgeBusinesses(list);
-          }
-        } catch (e) {
-          console.error("[handleHomeLabelClick] popular_search invoke failed", e);
-        }
-        setLoadingBadge(false);
-        return;
-      }
-    }
-
-    if (!info.badgeId) return;
-
-    const activated = await activateVideoBadgeFilter(info.badgeId, info.label, clickedCity);
-    if (activated) return;
-
-    setSelectedEntryId(HOME_ID);
-    setBadgeView({ badgeId: info.badgeId, label: info.label, city: clickedCity });
-    setLoadingBadge(true);
-    setBadgeBusinesses([]);
-    const [{ data: businessLinks }, { data: documentLinks }] = await Promise.all([
-      supabase
-        .from("business_badges")
-        .select("business_id")
-        .eq("badge_id", info.badgeId),
-      supabase
-        .from("business_document_badges")
-        .select("document_id, business_documents!inner(business_id, linked_business_id, poi_id)")
-        .eq("badge_id", info.badgeId),
-    ]);
+        const [{ data: businessLinks }, { data: documentLinks }] = await Promise.all([
+          supabase
+            .from("business_badges")
+            .select("business_id")
+            .eq("badge_id", target.id),
+          supabase
+            .from("business_document_badges")
+            .select("document_id, business_documents!inner(business_id, linked_business_id, poi_id)")
+            .eq("badge_id", target.id),
+        ]);
 
     const ids = Array.from(
       new Set([
@@ -1253,6 +1260,9 @@ const Test = () => {
       .eq("is_active", true);
     setBadgeBusinesses(((bizs as any[]) || []) as SearchResultBusiness[]);
     setLoadingBadge(false);
+        return;
+      }
+    }
   };
 
   const structureList = (

@@ -5,9 +5,11 @@ import { Loader2, Star } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import SlidePanelHome from "@/components/SlidePanelHome";
 
+export type HomeCardTarget = { type: "badge" | "event" | "popular_search"; id: string } | null;
+
 interface Props {
   city: string;
-  onLabelClick?: (info: { label: string; kind: "entry" | "extra"; badgeId: string | null; eventId?: string | null; popularSearchId?: string | null }) => void;
+  onLabelClick?: (info: { label: string; kind: "entry" | "extra"; target: HomeCardTarget; badgeId: string | null; eventId?: string | null; popularSearchId?: string | null }) => void;
 }
 
 interface CardData {
@@ -24,6 +26,7 @@ interface CardData {
   badgeId?: string | null;
   eventId?: string | null;
   popularSearchId?: string | null;
+  target?: HomeCardTarget;
 }
 
 interface MixedSlot {
@@ -140,7 +143,12 @@ const HomepageCardsFront = ({ city, onLabelClick }: Props) => {
     if (!label) return;
 
     if (onLabelClick) {
-      onLabelClick({ label, kind: slot.kind, badgeId: slot.data.badgeId ?? null, eventId: slot.data.eventId ?? null, popularSearchId: slot.data.popularSearchId ?? null });
+      const target: HomeCardTarget =
+        slot.data.target ??
+        (slot.data.eventId ? { type: "event", id: slot.data.eventId } :
+         slot.data.popularSearchId ? { type: "popular_search", id: slot.data.popularSearchId } :
+         slot.data.badgeId ? { type: "badge", id: slot.data.badgeId } : null);
+      onLabelClick({ label, kind: slot.kind, target, badgeId: slot.data.badgeId ?? null, eventId: slot.data.eventId ?? null, popularSearchId: slot.data.popularSearchId ?? null });
       return;
     }
 
