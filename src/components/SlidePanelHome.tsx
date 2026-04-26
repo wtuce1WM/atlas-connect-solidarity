@@ -350,7 +350,7 @@ const DescriptionPlusButton = ({ html, businessName }: { html: string; businessN
   const [open, setOpen] = useState(false);
   return (
     <>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-auto">
+      <div className="absolute left-1/2 -translate-x-1/2 bottom-[19rem] z-20 pointer-events-auto">
         <button
           type="button"
           onClick={() => setOpen(true)}
