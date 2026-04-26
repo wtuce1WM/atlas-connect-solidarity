@@ -55,6 +55,9 @@ interface Props {
 
 const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => {
   const [items, setItems] = useState<TimelineItem[]>([]);
+  const [clubOpen, setClubOpen] = useState(false);
+  const { language } = useLanguage();
+  const t = clubTranslations[language] || clubTranslations.fr;
 
   useEffect(() => {
     let cancelled = false;
