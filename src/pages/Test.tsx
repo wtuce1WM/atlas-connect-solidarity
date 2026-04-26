@@ -471,22 +471,55 @@ const Test = () => {
         if (events.length === 0) {
           safeSetVideos([]);
         } else {
-          safeSetVideos(events.map((ev) => {
+          // Look up thumbnails from business_documents matching the video URLs
+          const allVideoUrls = events.flatMap((ev) => (ev.videos || []) as string[]).filter(Boolean);
+          const thumbByUrl = new Map<string, string>();
+          if (allVideoUrls.length > 0) {
+            const { data: docs } = await supabase
+              .from("business_documents")
+              .select("url, thumbnail_url")
+              .in("url", allVideoUrls);
+            ((docs as any[]) || []).forEach((d) => {
+              if (d.url && d.thumbnail_url) thumbByUrl.set(d.url, d.thumbnail_url);
+            });
+          }
+
+          const items: VideoItem[] = [];
+          events.forEach((ev) => {
             const biz = ev.default_business_id ? bizMap.get(ev.default_business_id) || null : null;
-            const firstVideo: string | null = ev.videos?.[0] ?? null;
-            const firstImage: string | null = ev.images?.[0] ?? null;
-            return {
-              id: `event:${ev.id}`,
-              url: firstVideo || "",
-              business_name: ev.name || videoEventFilter.label,
-              thumbnail_url: firstImage || firstVideo || "",
-              business: biz,
-              owner: biz ? { id: biz.id, name: biz.name, logo_url: biz.logo_url ?? null, logo_bg: biz.logo_bg ?? null } : null,
-              social: null,
-              description: null,
-              manualCard: { label: ev.name || videoEventFilter.label, badgeId: null, eventId: ev.id },
-            } as VideoItem;
-          }));
+            const owner = biz ? { id: biz.id, name: biz.name, logo_url: biz.logo_url ?? null, logo_bg: biz.logo_bg ?? null } : null;
+            const vids: string[] = (ev.videos || []).filter(Boolean);
+            const imgs: string[] = (ev.images || []).filter(Boolean);
+
+            if (vids.length > 0) {
+              vids.forEach((vurl, idx) => {
+                items.push({
+                  id: `event:${ev.id}:v${idx}`,
+                  url: vurl,
+                  business_name: ev.name || videoEventFilter.label,
+                  thumbnail_url: thumbByUrl.get(vurl) || imgs[0] || vurl,
+                  business: biz,
+                  owner,
+                  social: null,
+                  description: null,
+                  manualCard: { label: ev.name || videoEventFilter.label, badgeId: null, eventId: ev.id },
+                } as VideoItem);
+              });
+            } else if (imgs[0]) {
+              items.push({
+                id: `event:${ev.id}`,
+                url: "",
+                business_name: ev.name || videoEventFilter.label,
+                thumbnail_url: imgs[0],
+                business: biz,
+                owner,
+                social: null,
+                description: null,
+                manualCard: { label: ev.name || videoEventFilter.label, badgeId: null, eventId: ev.id },
+              } as VideoItem);
+            }
+          });
+          safeSetVideos(items);
         }
         safeSetLoadingVideos(false);
         return;
