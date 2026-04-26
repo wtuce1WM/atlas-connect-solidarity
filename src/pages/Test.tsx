@@ -601,15 +601,17 @@ const Test = () => {
 
             genericVideoItems = gvFiltered.map((v: any) => {
               const bizId = firstBizByGv[v.id];
-              const biz = bizId ? gvBizMap.get(bizId) || null : null;
+              const biz = isVlogsBadge ? null : (bizId ? gvBizMap.get(bizId) || null : null);
               const acct = (v.instagram_account || v.tiktok_account || v.youtube_account || "").replace(/^@+/, "");
               return {
                 id: v.id,
                 url: v.url,
-                business_name: v.name || (acct ? `@${acct}` : (biz?.name || "—")),
+                business_name: isVlogsBadge
+                  ? (acct ? `@${acct}` : (v.name || "—"))
+                  : (v.name || (acct ? `@${acct}` : (biz?.name || "—"))),
                 thumbnail_url: v.thumbnail_url || deriveThumbnail(v.url),
-                business: biz,
-                owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
+                business: isVlogsBadge ? null : biz,
+                owner: isVlogsBadge ? null : (biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null),
                 social: extractSocial(v),
                 description: v.description ?? null,
                 manualCard: null,
