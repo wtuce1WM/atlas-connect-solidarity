@@ -793,6 +793,14 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               <Film className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
           )}
+          {business?.spotify_url && (
+            <div onClick={() => setShowSpotifyOverlay(true)} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
+              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[140px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Ambiance musicale</span>
+              <svg viewBox="0 0 24 24" className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" fill="#1DB954" aria-hidden="true">
+                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.521 17.34c-.224.364-.704.479-1.068.255-2.928-1.789-6.612-2.193-10.95-1.203-.42.096-.84-.168-.936-.588-.096-.42.168-.84.588-.936 4.752-1.085 8.832-.62 12.108 1.404.36.224.479.704.258 1.068zm1.473-3.272c-.282.456-.879.6-1.335.318-3.348-2.058-8.454-2.652-12.42-1.452-.51.156-1.05-.132-1.206-.642-.156-.51.132-1.05.642-1.206 4.53-1.374 10.155-.708 14.022 1.668.456.282.6.879.297 1.314zm.129-3.408c-4.014-2.382-10.638-2.604-14.466-1.44-.612.186-1.26-.162-1.446-.774-.186-.612.162-1.26.774-1.446 4.392-1.332 11.706-1.074 16.32 1.668.546.324.726 1.032.402 1.578-.324.546-1.032.726-1.584.414z"/>
+              </svg>
+            </div>
+          )}
           {hasYoutubeBottomCarousel && (
             <div onClick={() => {
               if (hasYoutubeChannel) {
