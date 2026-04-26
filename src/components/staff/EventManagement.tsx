@@ -504,6 +504,38 @@ const EventManagement = () => {
       }
     }
 
+    // Ensure each event video has a business_documents entry (so an ID can be copied
+    // and a custom thumbnail can be assigned via the backoffice).
+    if (savedId && form.videos.length > 0) {
+      const ownerBusinessId = form.default_business_id || linkedBusinessIds[0] || null;
+      if (ownerBusinessId) {
+        const { data: existingDocs } = await supabase
+          .from("business_documents")
+          .select("url")
+          .in("url", form.videos.filter(Boolean))
+          .eq("type", "video");
+        const existingUrls = new Set((existingDocs as any[] || []).map(d => d.url));
+        const toCreate = form.videos
+          .filter(url => url && !existingUrls.has(url))
+          .map(url => ({
+            business_id: ownerBusinessId,
+            type: "video",
+            url,
+            name: form.name.trim(),
+            event_id: savedId,
+            show_on_front: false,
+          }));
+        if (toCreate.length > 0) {
+          await supabase.from("business_documents").insert(toCreate);
+        }
+      } else {
+        toast({
+          title: "Vidéos sans ID",
+          description: "Liez un établissement à l'événement pour générer des IDs vidéo copiables.",
+        });
+      }
+    }
+
     toast({ title: editingId ? "Événement mis à jour" : "Événement créé" });
     setShowForm(false);
     setEditingId(null);
