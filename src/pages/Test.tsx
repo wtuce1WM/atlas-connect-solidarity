@@ -1543,7 +1543,7 @@ const Test = () => {
                 </div>
               )}
             </>
-          ) : !selectedEntry && !videoBadgeFilter ? (
+          ) : !selectedEntry && !videoBadgeFilter && !videoPopularSearchFilter ? (
             <p className="text-sm text-muted-foreground">
               Sélectionne une entrée dans la colonne de gauche.
             </p>
@@ -1551,7 +1551,7 @@ const Test = () => {
             <p className="text-sm text-muted-foreground">Chargement des vidéos…</p>
           ) : videos.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Aucune vidéo trouvée{videoEventFilter ? ` pour « ${videoEventFilter.label} »` : videoBadgeFilter ? ` pour « ${videoBadgeFilter.label} »` : selectedEntry ? ` pour « ${selectedEntry.name} »` : ""} à {city}.
+              Aucune vidéo trouvée{videoEventFilter ? ` pour « ${videoEventFilter.label} »` : videoPopularSearchFilter ? ` pour « ${videoPopularSearchFilter.label} »` : videoBadgeFilter ? ` pour « ${videoBadgeFilter.label} »` : selectedEntry ? ` pour « ${selectedEntry.name} »` : ""} à {city}.
             </p>
           ) : (() => {
             const isGuide = otherViewMode === "guide";
