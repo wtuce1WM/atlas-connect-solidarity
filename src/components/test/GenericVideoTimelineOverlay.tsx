@@ -301,6 +301,22 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
           })}
         </div>
       )}
+      {isLoggedIn && reachedItems.length > 0 && unsavedCount > 0 && (
+        <button
+          type="button"
+          onClick={() => setClubOpen(true)}
+          style={{ backgroundColor: "#6050DC" }}
+          className="absolute top-[88px] left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 rounded-full px-3 py-1 text-white shadow-lg animate-in fade-in slide-in-from-top-2 duration-300 hover:opacity-90 transition-opacity"
+        >
+          <Heart className="h-3.5 w-3.5" />
+          <span className="text-[11px] font-semibold tracking-wide">
+            {t.saveBtn}
+          </span>
+          <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-white text-[10px] font-bold" style={{ color: "#6050DC" }}>
+            {unsavedCount}
+          </span>
+        </button>
+      )}
       {showClubButton && !clubOpen && (
         <button
           type="button"
