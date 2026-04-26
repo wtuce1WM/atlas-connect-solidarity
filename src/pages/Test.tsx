@@ -482,6 +482,112 @@ const Test = () => {
         return;
       }
 
+      // Popular search filter: load videos belonging to the businesses returned by the search
+      if (videoPopularSearchFilter) {
+        const bizIds = videoPopularSearchFilter.businessIds;
+        if (bizIds.length === 0) {
+          safeSetVideos([]);
+          safeSetLoadingVideos(false);
+          return;
+        }
+        const batch = 300;
+        const allDocs: any[] = [];
+        for (let i = 0; i < bizIds.length; i += batch) {
+          const chunk = bizIds.slice(i, i + batch);
+          const { data } = await supabase
+            .from("business_documents")
+            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
+            .eq("type", "video")
+            .in("business_id", chunk)
+            .order("front_sort_order", { ascending: true });
+          if (data) allDocs.push(...data);
+        }
+        const bizMap = new Map<string, SearchResultBusiness>();
+        for (let i = 0; i < bizIds.length; i += batch) {
+          const { data: bizs } = await supabase
+            .from("businesses")
+            .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+            .in("id", bizIds.slice(i, i + batch));
+          (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
+        }
+        // Keep one video per business (the first), preserving the search ranking order
+        const seen = new Set<string>();
+        const docByBiz = new Map<string, any>();
+        for (const d of allDocs) {
+          if (!d.business_id || seen.has(d.business_id)) continue;
+          seen.add(d.business_id);
+          docByBiz.set(d.business_id, d);
+        }
+        const docVideoItems: VideoItem[] = bizIds
+          .map((bid) => {
+            const d = docByBiz.get(bid);
+            const biz = bizMap.get(bid) || null;
+            if (!d || !biz) return null;
+            return {
+              id: d.id,
+              url: d.url,
+              business_name: biz.name,
+              thumbnail_url: d.thumbnail_url,
+              business: biz,
+              owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
+              social: extractSocial(d),
+              description: d.description ?? null,
+              manualCard: null,
+            } as VideoItem;
+          })
+          .filter(Boolean) as VideoItem[];
+
+        // For businesses without a business_document video, fall back to their first visible YouTube video
+        const missingBizIds = bizIds.filter((bid) => !docByBiz.has(bid));
+        let ytVideoItems: VideoItem[] = [];
+        if (missingBizIds.length > 0) {
+          const ytRows: any[] = [];
+          for (let i = 0; i < missingBizIds.length; i += batch) {
+            const { data } = await supabase
+              .from("business_youtube_videos")
+              .select("id, video_id, title, thumbnail, is_short, is_visible, sort_order, business_id")
+              .eq("is_visible", true)
+              .in("business_id", missingBizIds.slice(i, i + batch))
+              .order("sort_order", { ascending: true });
+            if (data) ytRows.push(...data);
+          }
+          const ytByBiz = new Map<string, any>();
+          for (const y of ytRows) {
+            if (!y.business_id || ytByBiz.has(y.business_id)) continue;
+            ytByBiz.set(y.business_id, y);
+          }
+          ytVideoItems = missingBizIds
+            .map((bid) => {
+              const y = ytByBiz.get(bid);
+              const biz = bizMap.get(bid) || null;
+              if (!y || !biz) return null;
+              return {
+                id: y.id,
+                url: y.is_short
+                  ? `https://www.youtube.com/shorts/${y.video_id}`
+                  : `https://www.youtube.com/watch?v=${y.video_id}`,
+                business_name: biz.name,
+                thumbnail_url: y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/hqdefault.jpg`,
+                business: biz,
+                owner: { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null },
+                social: null,
+                description: null,
+                manualCard: null,
+              } as VideoItem;
+            })
+            .filter(Boolean) as VideoItem[];
+        }
+
+        // Preserve search ranking: interleave by bizIds order
+        const finalById = new Map<string, VideoItem>();
+        for (const it of [...docVideoItems, ...ytVideoItems]) finalById.set((it.business as any)?.id, it);
+        const ordered = bizIds.map((bid) => finalById.get(bid)).filter(Boolean) as VideoItem[];
+
+        safeSetVideos(ordered);
+        safeSetLoadingVideos(false);
+        return;
+      }
+
       // Badge filter takes precedence: load videos by badge for the current city
       if (videoBadgeFilter) {
         const { data: badgeDocs } = await supabase
