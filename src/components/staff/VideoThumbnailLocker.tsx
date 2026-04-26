@@ -204,7 +204,7 @@ const VideoThumbnailLocker = () => {
             <div className="md:col-span-3 break-all"><span className="text-muted-foreground">URL :</span> {video.url}</div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 lg:[grid-template-columns:5%_50%_1fr]">
+          <div className="grid grid-cols-1 gap-4 lg:[grid-template-columns:50%_50%]">
             {/* Lecteur vidéo + capture */}
             <div className="space-y-2 min-w-0">
               <Label className="text-xs">Lecteur vidéo — naviguer puis capturer</Label>
