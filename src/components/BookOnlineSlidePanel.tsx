@@ -809,6 +809,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               </svg>
             </div>
           )}
+          {hasYoutubeBottomCarousel && (
             <div onClick={() => {
               if (hasYoutubeChannel) {
                 const firstShort = allYoutubeVideos.find(v => v.isShort) || allYoutubeVideos[0] || null;
