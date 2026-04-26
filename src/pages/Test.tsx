@@ -445,39 +445,45 @@ const Test = () => {
 
       // Event filter (Agenda): show ONE card per event, using event.images[0] as thumbnail.
       if (videoEventFilter) {
-        const { data: eventRow } = await (supabase as any)
+        const ids = videoEventFilter.eventIds && videoEventFilter.eventIds.length > 0
+          ? videoEventFilter.eventIds
+          : [videoEventFilter.eventId];
+
+        const { data: eventRows } = await (supabase as any)
           .from("events")
-          .select("id, name, images, default_business_id")
-          .eq("id", videoEventFilter.eventId)
-          .maybeSingle();
+          .select("id, name, images, default_business_id, start_date")
+          .in("id", ids)
+          .order("start_date", { ascending: true });
 
-        const ev = eventRow as any;
-        const image = ev?.images?.[0] || null;
+        const events = ((eventRows as any[]) || []).filter((ev) => ev?.images?.[0]);
 
-        let biz: SearchResultBusiness | null = null;
-        if (ev?.default_business_id) {
-          const { data: bizRow } = await supabase
+        const bizIds = events.map((ev) => ev.default_business_id).filter(Boolean) as string[];
+        const bizMap = new Map<string, any>();
+        if (bizIds.length > 0) {
+          const { data: bizRows } = await supabase
             .from("businesses")
             .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
-            .eq("id", ev.default_business_id)
-            .maybeSingle();
-          biz = (bizRow as any) || null;
+            .in("id", bizIds);
+          ((bizRows as any[]) || []).forEach((b) => bizMap.set(b.id, b));
         }
 
-        if (!ev || !image) {
+        if (events.length === 0) {
           safeSetVideos([]);
         } else {
-          safeSetVideos([{
-            id: `event:${ev.id}`,
-            url: "",
-            business_name: ev.name || videoEventFilter.label,
-            thumbnail_url: image,
-            business: biz,
-            owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
-            social: null,
-            description: null,
-            manualCard: { label: ev.name || videoEventFilter.label, badgeId: null, eventId: ev.id },
-          } as VideoItem]);
+          safeSetVideos(events.map((ev) => {
+            const biz = ev.default_business_id ? bizMap.get(ev.default_business_id) || null : null;
+            return {
+              id: `event:${ev.id}`,
+              url: "",
+              business_name: ev.name || videoEventFilter.label,
+              thumbnail_url: ev.images[0],
+              business: biz,
+              owner: biz ? { id: biz.id, name: biz.name, logo_url: biz.logo_url ?? null, logo_bg: biz.logo_bg ?? null } : null,
+              social: null,
+              description: null,
+              manualCard: { label: ev.name || videoEventFilter.label, badgeId: null, eventId: ev.id },
+            } as VideoItem;
+          }));
         }
         safeSetLoadingVideos(false);
         return;
