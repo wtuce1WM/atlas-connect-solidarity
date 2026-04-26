@@ -1180,6 +1180,34 @@ const Test = () => {
       }
     }
 
+    if (!info.badgeId && info.popularSearchId) {
+      const { data: ps } = await (supabase as any)
+        .from("popular_searches")
+        .select("query")
+        .eq("id", info.popularSearchId)
+        .maybeSingle();
+      const query = (ps as any)?.query as string | undefined;
+      if (query) {
+        setSelectedEntryId(HOME_ID);
+        setBadgeView({ badgeId: `ps:${info.popularSearchId}`, label: info.label, city: clickedCity });
+        setLoadingBadge(true);
+        setBadgeBusinesses([]);
+        try {
+          const { data, error } = await supabase.functions.invoke("business-search", {
+            body: { query, city: clickedCity, language: "fr" },
+          });
+          if (!error) {
+            const list = ((data as any)?.businesses || []) as SearchResultBusiness[];
+            setBadgeBusinesses(list);
+          }
+        } catch (e) {
+          console.error("[handleHomeLabelClick] popular_search invoke failed", e);
+        }
+        setLoadingBadge(false);
+        return;
+      }
+    }
+
     if (!info.badgeId) return;
 
     const activated = await activateVideoBadgeFilter(info.badgeId, info.label, clickedCity);
