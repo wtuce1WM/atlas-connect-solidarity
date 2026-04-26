@@ -509,19 +509,31 @@ const EventManagement = () => {
       }
     }
 
-    // Ensure each event video has a business_documents entry (so an ID can be copied
-    // and a custom thumbnail can be assigned via the backoffice).
+    // Ensure each event video has a business_documents entry linked to this event.
+    // - Existing rows (same URL, type=video) get their event_id updated to savedId
+    // - Missing rows are inserted with event_id = savedId
     if (savedId && form.videos.length > 0) {
       const ownerBusinessId = form.default_business_id || linkedBusinessIds[0] || null;
       if (ownerBusinessId) {
+        const urls = form.videos.filter(Boolean);
         const { data: existingDocs } = await supabase
           .from("business_documents")
-          .select("url")
-          .in("url", form.videos.filter(Boolean))
+          .select("id, url")
+          .in("url", urls)
           .eq("type", "video");
         const existingUrls = new Set((existingDocs as any[] || []).map(d => d.url));
-        const toCreate = form.videos
-          .filter(url => url && !existingUrls.has(url))
+
+        // Link all existing rows for these URLs to the current event
+        if ((existingDocs as any[] || []).length > 0) {
+          await supabase
+            .from("business_documents")
+            .update({ event_id: savedId })
+            .in("url", urls)
+            .eq("type", "video");
+        }
+
+        const toCreate = urls
+          .filter(url => !existingUrls.has(url))
           .map(url => ({
             business_id: ownerBusinessId,
             type: "video",
