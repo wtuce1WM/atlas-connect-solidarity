@@ -160,10 +160,11 @@ interface SortableEntriesListProps {
   onDelete: (id: string) => void;
   getSubName: (id: string) => string;
   getServiceName: (id: string) => string;
+  getBadgeName: (id: string) => string;
   onReorder: (entries: FrontEntry[]) => void;
 }
 
-const SortableEntriesList = ({ entries, onEdit, onDelete, getSubName, getServiceName, onReorder }: SortableEntriesListProps) => {
+const SortableEntriesList = ({ entries, onEdit, onDelete, getSubName, getServiceName, getBadgeName, onReorder }: SortableEntriesListProps) => {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -190,6 +191,7 @@ const SortableEntriesList = ({ entries, onEdit, onDelete, getSubName, getService
               onDelete={onDelete}
               getSubName={getSubName}
               getServiceName={getServiceName}
+              getBadgeName={getBadgeName}
             />
           ))}
         </div>
