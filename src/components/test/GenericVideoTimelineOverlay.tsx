@@ -85,6 +85,8 @@ interface Props {
 const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => {
   const [items, setItems] = useState<TimelineItem[]>([]);
   const [clubOpen, setClubOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<"signup" | "login">("signup");
+  const [showAuth, setShowAuth] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set());
   const [savingId, setSavingId] = useState<string | null>(null);
