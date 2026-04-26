@@ -2276,6 +2276,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       vimeo_url: formData.vimeo_url || null,
       snapchat_url: (formData as any).snapchat_url || null,
       soundcloud_url: (formData as any).soundcloud_url || null,
+      spotify_url: (formData as any).spotify_url || null,
       images: formData.images.length > 0 ? formData.images : [],
       popup_image_url: (formData as any).popup_image_url || null,
       pdf_url: formData.pdf_url || null,
