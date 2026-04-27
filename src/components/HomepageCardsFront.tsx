@@ -29,6 +29,8 @@ interface CardData {
   eventId?: string | null;
   popularSearchId?: string | null;
   target?: HomeCardTarget;
+  price?: string | null;
+  priceType?: string | null;
 }
 
 interface MixedSlot {
