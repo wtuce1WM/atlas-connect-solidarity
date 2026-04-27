@@ -19,6 +19,7 @@ interface FrontEntry {
   sort_order: number;
   subcategory_ids: string[];
   service_ids: string[];
+  badge_ids: string[];
 }
 
 interface OwnerInfo {
