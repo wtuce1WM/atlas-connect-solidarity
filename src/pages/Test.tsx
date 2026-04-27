@@ -690,6 +690,7 @@ const Test = () => {
             manualCard: null,
             subcategory_id: d.subcategory_id ?? null,
             service_id: d.service_id ?? null,
+            service_name: d.service_id ? badgeServiceNameById.get(d.service_id) ?? null : null,
           } as VideoItem;
         });
 
