@@ -45,6 +45,7 @@ interface VideoItem {
   social: SocialInfo | null;
   description: string | null;
   manualCard: { label: string; badgeId: string | null; eventId?: string | null } | null;
+  subcategory_id?: string | null;
 }
 
 interface VideoEventFilter {
