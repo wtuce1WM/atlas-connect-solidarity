@@ -1,0 +1,15 @@
+{
+  "rewrites": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|Slackbot|TelegramBot|Pinterest|redditbot|Discordbot|Applebot|Googlebot|bingbot|DuckDuckBot|YandexBot|Embedly|vkShare|W3C_Validator|SkypeUriPreview|Iframely|Snapchat).*"
+        }
+      ],
+      "destination": "https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/og-meta?path=/:path*"
+    }
+  ]
+}
