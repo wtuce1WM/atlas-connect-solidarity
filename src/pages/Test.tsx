@@ -1443,12 +1443,19 @@ const Test = () => {
       params.set("popularSearchId", videoPopularSearchFilter.popularSearchId);
       params.set("popularSearchLabel", videoPopularSearchFilter.label);
       if (videoPopularSearchFilter.businessIds.length) params.set("popularSearchBusinessIds", videoPopularSearchFilter.businessIds.join(","));
+    } else if (badgeView) {
+      params.set("badgeView", badgeView.badgeId);
+      params.set("badgeViewLabel", badgeView.label);
     } else {
       if (selectedEntryId) params.set("entry", selectedEntryId);
       if (selectedSubId) params.set("sub", selectedSubId);
     }
+    // Always include sub-category when set (even alongside badge/event filters)
+    if (selectedSubId && !params.has("sub")) params.set("sub", selectedSubId);
+    // Persist view mode when not the default
+    if (otherViewMode && otherViewMode !== "videos") params.set("view", otherViewMode);
     return params.toString();
-  }, [city, selectedEntryId, selectedSubId, videoBadgeFilter, videoEventFilter, videoPopularSearchFilter]);
+  }, [city, selectedEntryId, selectedSubId, videoBadgeFilter, videoEventFilter, videoPopularSearchFilter, badgeView, otherViewMode]);
 
   // Reflect current navigation state in the URL so it's shareable (WhatsApp, etc.)
   useEffect(() => {
