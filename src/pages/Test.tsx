@@ -463,7 +463,7 @@ const Test = () => {
 
         const { data: eventRows } = await (supabase as any)
           .from("events")
-          .select("id, name, images, videos, default_business_id, start_date")
+          .select("id, name, type, images, videos, default_business_id, start_date")
           .in("id", ids)
           .order("start_date", { ascending: true });
 
