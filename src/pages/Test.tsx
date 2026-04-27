@@ -46,6 +46,7 @@ interface VideoItem {
   description: string | null;
   manualCard: { label: string; badgeId: string | null; eventId?: string | null } | null;
   subcategory_id?: string | null;
+  service_id?: string | null;
 }
 
 interface VideoEventFilter {
@@ -1010,6 +1011,7 @@ const Test = () => {
             description: d.description ?? null,
             manualCard: manualCardMap.get(d.id) || null,
             subcategory_id: d.subcategory_id ?? null,
+            service_id: d.service_id ?? null,
           } as VideoItem;
         });
 
@@ -1956,11 +1958,16 @@ const Test = () => {
                         )}
                         {((isVlogThumb ? v.business_name : v.owner?.name || v.business_name)) && (
                           <div className="absolute bottom-0 left-0 right-0 p-1.5 space-y-0.5">
-                            {selectedEntry?.id !== HOME_ID && v.subcategory_id && subcatNames[v.subcategory_id] && (
-                              <p className="text-[10px] font-bold uppercase tracking-wide text-gold line-clamp-1">
-                                {subcatNames[v.subcategory_id]}
-                              </p>
-                            )}
+                            {selectedEntry?.id !== HOME_ID && (() => {
+                              const label = (v.service_id && serviceNames[v.service_id])
+                                || (v.subcategory_id && subcatNames[v.subcategory_id])
+                                || null;
+                              return label ? (
+                                <p className="text-[10px] font-bold uppercase tracking-wide text-gold line-clamp-1">
+                                  {label}
+                                </p>
+                              ) : null;
+                            })()}
                             <p className="text-[10px] font-medium text-white line-clamp-1">{isVlogThumb ? v.business_name : v.owner?.name || v.business_name}</p>
                           </div>
                         )}
