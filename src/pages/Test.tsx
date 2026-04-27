@@ -2336,7 +2336,7 @@ const Test = () => {
         businessName={activeVideo?.business_name || ""}
         isGeneric={isActiveGeneric}
         owner={activeVideo?.owner || null}
-        social={isActiveGeneric ? (activeVideo?.social || null) : null}
+        social={isActiveGeneric && activeVideo?.owner ? (activeVideo?.social || null) : null}
         description={activeVideo?.description || null}
         currentTime={currentTime}
         onTimeUpdate={setCurrentTime}
