@@ -407,6 +407,22 @@ const SlidePanelHome = ({
             </div>
           </div>
         </div>
+        {directionsBusiness && (
+          <Suspense fallback={null}>
+            <LazyDirectionsOverlay
+              business={{
+                name: directionsBusiness.name,
+                address: directionsBusiness.address,
+                latitude: directionsBusiness.latitude,
+                longitude: directionsBusiness.longitude,
+                phone: directionsBusiness.phone,
+                city: directionsBusiness.city,
+                logo_url: directionsBusiness.logo_url,
+              }}
+              onClose={() => setDirectionsBusiness(null)}
+            />
+          </Suspense>
+        )}
       </div>
     </div>,
     document.body,
