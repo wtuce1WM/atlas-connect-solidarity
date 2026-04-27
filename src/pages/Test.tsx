@@ -2256,8 +2256,8 @@ const Test = () => {
                                   onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    if (!displayName) return;
-                                    void navigator.clipboard.writeText(displayName).catch(() => {});
+                                    if (!v.id) return;
+                                    void navigator.clipboard.writeText(v.id).catch(() => {});
                                   }}
                                   className="block w-full text-left text-[10px] font-medium text-white line-clamp-1 cursor-pointer hover:underline"
                                 >
