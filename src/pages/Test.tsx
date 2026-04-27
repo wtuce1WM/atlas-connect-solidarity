@@ -911,7 +911,7 @@ const Test = () => {
           const chunk = bizIds.slice(i, i + batch);
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, event_id")
+            .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, event_id")
             .eq("type", "video")
             .eq("show_on_front", true)
             .in("business_id", chunk)
@@ -924,7 +924,7 @@ const Test = () => {
           const chunk = extraIds.slice(i, i + batch);
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, event_id")
+            .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, event_id")
             .eq("type", "video")
             .eq("show_on_front", true)
             .in("id", chunk);
@@ -1984,7 +1984,7 @@ const Test = () => {
                         )}
                         {((isVlogThumb ? v.business_name : v.owner?.name || v.business_name)) && (
                           <div className="absolute bottom-0 left-0 right-0 p-1.5 space-y-0.5">
-                            {selectedEntry?.id !== HOME_ID && (() => {
+                            {(selectedEntry?.id !== HOME_ID || !!videoBadgeFilter) && (() => {
                               const label = v.service_name
                                 || (v.service_id && serviceNames[v.service_id])
                                 || (v.subcategory_id && subcatNames[v.subcategory_id])
