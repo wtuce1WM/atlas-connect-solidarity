@@ -101,6 +101,8 @@ const formatTimeRange = (start: string | null, end: string | null): string | nul
   if (start && end) return `${start} → ${end}`;
   return start || end;
 };
+
+function extractSocial(d: any): SocialInfo | null {
   const ig = (d?.instagram_account || "").trim();
   if (ig) return { platform: "instagram", account: ig.replace(/^@+/, ""), url: d?.instagram_url || null };
   const tt = (d?.tiktok_account || "").trim();
