@@ -59,6 +59,8 @@ interface VideoItem {
     start_time: string | null;
     end_time: string | null;
   } | null;
+  price?: string | null;
+  priceType?: string | null;
 }
 
 interface VideoEventFilter {
@@ -1164,7 +1166,7 @@ const Test = () => {
         while (true) {
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, city, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
+            .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, city, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, price, price_type")
             .eq("type", "video")
             .or(orFilter)
             .eq("city", city)
@@ -1180,7 +1182,7 @@ const Test = () => {
           const chunk = extraIds.slice(i, i + 300);
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, city, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
+            .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, city, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, price, price_type")
             .eq("type", "video")
             .or(orFilter)
             .in("id", chunk);
@@ -1256,6 +1258,8 @@ const Test = () => {
             subcategory_id: d.subcategory_id ?? null,
             service_id: d.service_id ?? null,
             service_name: d.service_id ? serviceNameById.get(d.service_id) ?? null : null,
+            price: d.price ?? null,
+            priceType: d.price_type ?? null,
           } as VideoItem;
         });
 
@@ -2280,6 +2284,20 @@ const Test = () => {
                             <div className="w-0 h-0 border-y-[6px] border-y-transparent border-l-[9px] border-l-white ml-0.5" />
                           </div>
                         </div>
+                        {selectedEntry?.name?.trim().toLowerCase() === "immobilier" && (v.price || v.priceType) && (
+                          <div className="absolute inset-x-0 bottom-[8%] z-[9] flex flex-col items-center gap-1 px-2 pointer-events-none">
+                            {v.price && (
+                              <span className="px-2 py-0.5 rounded bg-black/80 text-white text-[11px] font-bold leading-tight max-w-full truncate">
+                                {v.price}
+                              </span>
+                            )}
+                            {v.priceType && (
+                              <span className="px-2 py-0.5 rounded bg-gold text-black text-[10px] font-bold uppercase tracking-wide leading-tight">
+                                {v.priceType.toLowerCase() === "location" ? "Location" : v.priceType.toLowerCase() === "vente" ? "Vente" : v.priceType}
+                              </span>
+                            )}
+                          </div>
+                        )}
                         {!isVlogThumb && v.owner?.logo_url && (
                           <div className="absolute inset-x-0 bottom-[15%] z-[6] flex items-center justify-center px-2 pointer-events-none">
                             <div className="animate-logo-big-full-reveal max-w-[100px] max-h-[72px]">
