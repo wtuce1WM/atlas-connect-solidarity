@@ -26,6 +26,7 @@ interface OwnerInfo {
   name: string;
   logo_url: string | null;
   logo_bg: string | null;
+  affiliate_id?: string | null;
 }
 
 interface SocialInfo {
@@ -43,7 +44,7 @@ interface VideoItem {
   /** Set only when the video's owner business differs from the display entity */
   owner: OwnerInfo | null;
   social: SocialInfo | null;
-  showSocialBadge: boolean;
+  showSocialBadge?: boolean;
   description: string | null;
   manualCard: { label: string; badgeId: string | null; eventId?: string | null } | null;
   subcategory_id?: string | null;
