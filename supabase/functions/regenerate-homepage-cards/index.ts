@@ -67,7 +67,7 @@ async function buildSnapshot(supabase: any, city: string) {
       const orFilter = `business_id.eq.${overrideBizId},linked_business_id.eq.${overrideBizId},poi_id.eq.${overrideBizId}`;
       const { data: ovDocs } = await supabase
         .from("business_documents")
-        .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order, price, price_type")
+        .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
         .eq("type", "video").or(orFilter)
         .in("subcategory_id", entry.subcategory_ids)
         .order("sort_order", { ascending: true }).limit(1);
@@ -75,7 +75,7 @@ async function buildSnapshot(supabase: any, city: string) {
       if (!candidate) {
         const { data: anyDocs } = await supabase
           .from("business_documents")
-          .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order, price, price_type")
+          .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
           .eq("type", "video").or(orFilter)
           .order("sort_order", { ascending: true }).limit(1);
         candidate = (anyDocs && anyDocs[0]) || null;
@@ -96,7 +96,7 @@ async function buildSnapshot(supabase: any, city: string) {
       queries.push(
         supabase
           .from("business_documents")
-          .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order, price, price_type")
+          .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
           .eq("type", "video")
           .in("subcategory_id", entry.subcategory_ids)
           .in("id", chunk)
@@ -117,7 +117,7 @@ async function buildSnapshot(supabase: any, city: string) {
     if (card.video_document_id) {
       const { data: vDoc } = await supabase
         .from("business_documents")
-        .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order, price, price_type")
+        .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
         .eq("id", card.video_document_id).maybeSingle();
       if (vDoc) return { cardId: card.id, doc: vDoc };
       const { data: gv } = await supabase
@@ -145,7 +145,7 @@ async function buildSnapshot(supabase: any, city: string) {
 
     let q = supabase
       .from("business_documents")
-      .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order, price, price_type")
+      .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
       .eq("type", "video").order("sort_order", { ascending: true }).limit(1);
     if (card.business_id) {
       q = q.or(`business_id.eq.${card.business_id},linked_business_id.eq.${card.business_id},poi_id.eq.${card.business_id}`);
