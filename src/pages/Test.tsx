@@ -1334,6 +1334,27 @@ const Test = () => {
     [otherViewMode, guideVideos, videos]
   );
 
+  const returnContext = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set("city", city);
+    if (videoEventFilter) {
+      params.set("eventId", videoEventFilter.eventId);
+      params.set("eventLabel", videoEventFilter.label);
+      if (videoEventFilter.eventIds?.length) params.set("eventIds", videoEventFilter.eventIds.join(","));
+    } else if (videoBadgeFilter) {
+      params.set("badgeId", videoBadgeFilter.badgeId);
+      params.set("badgeLabel", videoBadgeFilter.label);
+    } else if (videoPopularSearchFilter) {
+      params.set("popularSearchId", videoPopularSearchFilter.popularSearchId);
+      params.set("popularSearchLabel", videoPopularSearchFilter.label);
+      if (videoPopularSearchFilter.businessIds.length) params.set("popularSearchBusinessIds", videoPopularSearchFilter.businessIds.join(","));
+    } else {
+      if (selectedEntryId) params.set("entry", selectedEntryId);
+      if (selectedSubId) params.set("sub", selectedSubId);
+    }
+    return params.toString();
+  }, [city, selectedEntryId, selectedSubId, videoBadgeFilter, videoEventFilter, videoPopularSearchFilter]);
+
 
   // Load Tarik Belasri's visible YouTube shorts when "guide" mode is selected
   useEffect(() => {
