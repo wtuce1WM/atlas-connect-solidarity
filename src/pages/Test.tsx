@@ -1642,7 +1642,7 @@ const Test = () => {
 
     // Pre-set the filter with empty businessIds so the videos area renders the loading state
     setLoadingVideos(true);
-    setVideoPopularSearchFilter({ popularSearchId, label, businessIds: [] });
+    setVideoPopularSearchFilter({ popularSearchId, label, businessIds: [], resolved: false });
 
     try {
       const { data, error } = await supabase.functions.invoke("business-search", {
@@ -1651,20 +1651,13 @@ const Test = () => {
       if (!error) {
         const list = ((data as any)?.businesses || []) as SearchResultBusiness[];
         const ids = list.map((b: any) => b.id).filter(Boolean);
-        if (ids.length === 0) {
-          // No business matched the popular search → show empty state explicitly
-          setVideos([]);
-          setLoadingVideos(false);
-          setVideoPopularSearchFilter({ popularSearchId, label, businessIds: [] });
-        } else {
-          setVideoPopularSearchFilter({ popularSearchId, label, businessIds: ids });
-        }
+        setVideoPopularSearchFilter({ popularSearchId, label, businessIds: ids, resolved: true });
       } else {
-        setLoadingVideos(false);
+        setVideoPopularSearchFilter({ popularSearchId, label, businessIds: [], resolved: true });
       }
     } catch (e) {
       console.error("[runPopularSearch] failed", e);
-      setLoadingVideos(false);
+      setVideoPopularSearchFilter({ popularSearchId, label, businessIds: [], resolved: true });
     }
   };
 
