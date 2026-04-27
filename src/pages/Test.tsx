@@ -2257,10 +2257,7 @@ const Test = () => {
                                     e.preventDefault();
                                     e.stopPropagation();
                                     if (!displayName) return;
-                                    void navigator.clipboard.writeText(displayName).then(
-                                      () => toast.success(`« ${displayName} » copié`),
-                                      () => toast.error("Impossible de copier")
-                                    );
+                                    void navigator.clipboard.writeText(displayName).catch(() => {});
                                   }}
                                   className="block w-full text-left text-[10px] font-medium text-white line-clamp-1 cursor-pointer hover:underline"
                                 >
