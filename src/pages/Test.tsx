@@ -629,7 +629,7 @@ const Test = () => {
           const chunk = docIds.slice(i, i + batch);
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, city")
+            .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, city")
             .eq("type", "video")
             .in("id", chunk);
           if (data) allDocs.push(...data);
