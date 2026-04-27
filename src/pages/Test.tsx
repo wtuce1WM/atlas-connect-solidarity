@@ -423,7 +423,7 @@ const Test = () => {
   const [loadingBadge, setLoadingBadge] = useState(false);
   const [videoBadgeFilter, setVideoBadgeFilter] = useState<{ badgeId: string; label: string } | null>(null);
   const [videoEventFilter, setVideoEventFilter] = useState<VideoEventFilter | null>(null);
-  const [videoPopularSearchFilter, setVideoPopularSearchFilter] = useState<{ popularSearchId: string; label: string; businessIds: string[] } | null>(null);
+  const [videoPopularSearchFilter, setVideoPopularSearchFilter] = useState<{ popularSearchId: string; label: string; businessIds: string[]; resolved?: boolean } | null>(null);
   const [videoBadgeDocIds, setVideoBadgeDocIds] = useState<Set<string> | null>(null);
 
   // Load doc ids matching the active video badge filter
