@@ -47,6 +47,7 @@ interface VideoItem {
   manualCard: { label: string; badgeId: string | null; eventId?: string | null } | null;
   subcategory_id?: string | null;
   service_id?: string | null;
+  service_name?: string | null;
 }
 
 interface VideoEventFilter {
