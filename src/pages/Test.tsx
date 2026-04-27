@@ -2284,18 +2284,19 @@ const Test = () => {
                             <div className="w-0 h-0 border-y-[6px] border-y-transparent border-l-[9px] border-l-white ml-0.5" />
                           </div>
                         </div>
-                        {selectedEntry?.name?.trim().toLowerCase() === "immobilier" && (v.price || v.priceType) && (
-                          <div className="absolute inset-x-0 top-[10%] z-[20] flex flex-col items-center gap-3 px-2 pointer-events-none">
-                            {v.priceType && (
-                              <span className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black">
-                                {v.priceType.toLowerCase() === "location" ? "Location" : v.priceType.toLowerCase() === "vente" ? "Vente" : v.priceType}
-                              </span>
-                            )}
-                            {v.price && (
-                              <span className="px-2 py-0.5 rounded bg-black/85 text-white text-[11px] font-bold leading-tight max-w-full truncate shadow-lg">
-                                Prix : {v.price}
-                              </span>
-                            )}
+                        {selectedEntry?.name?.trim().toLowerCase() === "immobilier" && v.priceType && (
+                          <div className="absolute inset-x-0 top-[10%] z-[20] flex items-center justify-center px-2 pointer-events-none">
+                            <span className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black">
+                              {v.priceType.toLowerCase() === "location" ? "Location" : v.priceType.toLowerCase() === "vente" ? "Vente" : v.priceType}
+                            </span>
+                          </div>
+                        )}
+                        {selectedEntry?.name?.trim().toLowerCase() === "immobilier" && v.price && (
+                          <div
+                            className="absolute inset-x-0 bottom-[8%] z-20 flex flex-col items-center gap-1 px-3 pointer-events-none text-center text-white"
+                            style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
+                          >
+                            <p className="text-xs font-semibold">Prix : {v.price}</p>
                           </div>
                         )}
                         {!isVlogThumb && v.owner?.logo_url && (
