@@ -94,8 +94,11 @@ const SlidePanelHome = ({
   const [agendaEvents, setAgendaEvents] = useState<AgendaEvent[]>([]);
   const [directionsBusiness, setDirectionsBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
+  const [ownerBusiness, setOwnerBusiness] = useState<AgendaEvent["business"] | null>(null);
 
-  // Load linked business for a single event (via event_businesses)
+  // Resolve a business for the CTA bar:
+  // - If `eventId` is set, take the first linked business via event_businesses (eventBusiness).
+  // - Otherwise, fall back to the video owner (owner.id is a business id for non-generic videos).
   useEffect(() => {
     if (!open || !eventId) {
       setEventBusiness(null);
@@ -122,6 +125,27 @@ const SlidePanelHome = ({
     })();
     return () => { cancelled = true; };
   }, [open, eventId]);
+
+  // Fallback owner-based business lookup (used when no eventId is provided)
+  useEffect(() => {
+    if (!open || eventId || isGeneric || !owner?.id) {
+      setOwnerBusiness(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const { data: bizRow } = await supabase
+        .from("businesses")
+        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url")
+        .eq("id", owner.id)
+        .maybeSingle();
+      if (cancelled) return;
+      setOwnerBusiness((bizRow as any) || null);
+    })();
+    return () => { cancelled = true; };
+  }, [open, eventId, isGeneric, owner?.id]);
+
+  const ctaBusiness = eventBusiness || ownerBusiness;
 
   useEffect(() => {
     if (!open || !agendaCity) {
@@ -424,9 +448,9 @@ const SlidePanelHome = ({
             )}
           </div>
           <div className="absolute inset-x-0 bottom-0 top-0 z-10 p-4 flex flex-col items-center justify-end gap-3 pointer-events-none">
-            {eventBusiness && (
+            {ctaBusiness && (
               <>
-                <p className="text-sm font-medium text-white pointer-events-auto text-center">{businessName}</p>
+                <p className="text-sm font-medium text-white pointer-events-auto text-center">{ctaBusiness.name || businessName}</p>
                 <div className="w-4/5 max-w-md pointer-events-auto flex gap-2">
                   <button
                     type="button"
@@ -434,7 +458,7 @@ const SlidePanelHome = ({
                       try {
                         if (videoId) sessionStorage.setItem("returnToTestVideoId", videoId);
                       } catch {}
-                      navigate(businessUrl(eventBusiness));
+                      navigate(businessUrl(ctaBusiness));
                     }}
                     className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-white text-black font-medium text-xs shadow-lg hover:bg-white/90 transition-colors normal-case tracking-normal h-9"
                     style={{ fontFamily: "'Josefin Sans', sans-serif" }}
@@ -442,10 +466,10 @@ const SlidePanelHome = ({
                     <ExternalLink className="h-3.5 w-3.5" />
                     <span className="truncate">En savoir +</span>
                   </button>
-                  {eventBusiness.latitude && eventBusiness.longitude && (
+                  {ctaBusiness.latitude && ctaBusiness.longitude && (
                     <button
                       type="button"
-                      onClick={() => setDirectionsBusiness(eventBusiness)}
+                      onClick={() => setDirectionsBusiness(ctaBusiness)}
                       className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-gold text-gold-foreground font-medium text-xs shadow-lg hover:bg-gold/90 transition-colors normal-case tracking-normal h-9"
                       style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                     >
