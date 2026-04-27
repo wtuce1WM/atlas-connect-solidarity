@@ -115,11 +115,11 @@ async function resolveMeta(supabase: any, path: string, params: URLSearchParams)
     if (city) {
       const { data: c } = await supabase
         .from("cities")
-        .select("name, image_url")
-        .ilike("name", city)
+        .select("name_fr, image_url")
+        .ilike("name_fr", city)
         .maybeSingle();
       cityImage = c?.image_url || null;
-      cityName = c?.name || city;
+      cityName = c?.name_fr || city;
     }
 
     let subName: string | null = null;
@@ -127,11 +127,11 @@ async function resolveMeta(supabase: any, path: string, params: URLSearchParams)
     if (subId) {
       const { data: s } = await supabase
         .from("subcategories")
-        .select("name_fr, image_url")
+        .select("name_fr, og_image_url")
         .eq("id", subId)
         .maybeSingle();
       subName = s?.name_fr || null;
-      subImage = s?.image_url || null;
+      subImage = s?.og_image_url || null;
     }
 
     let entryName: string | null = null;
@@ -139,11 +139,11 @@ async function resolveMeta(supabase: any, path: string, params: URLSearchParams)
     if (entryId && entryId !== "__home__") {
       const { data: e } = await supabase
         .from("categories")
-        .select("name_fr, image_url")
+        .select("name_fr, og_image_url")
         .eq("id", entryId)
         .maybeSingle();
       entryName = e?.name_fr || null;
-      entryImage = e?.image_url || null;
+      entryImage = e?.og_image_url || null;
     }
 
     // Construction du titre/description
