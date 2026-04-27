@@ -1987,7 +1987,29 @@ const Test = () => {
                         >
                           {v.id.slice(0, 8)}
                         </button>
-                        {v.manualCard?.label && (
+                        {v.eventInfo ? (
+                          (() => {
+                            const ei = v.eventInfo;
+                            const dateStr = formatEventDateRange(ei.start_date, ei.end_date);
+                            const daysStr = formatDaysOfWeek(ei.days_of_week);
+                            const timeStr = formatTimeRange(ei.start_time, ei.end_time);
+                            return (
+                              <div
+                                className="absolute inset-x-0 top-[8%] z-20 flex flex-col items-center justify-center gap-1 px-3 pointer-events-none text-center text-white"
+                                style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
+                              >
+                                {ei.hook && (
+                                  <p className="text-sm font-bold uppercase tracking-wide line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                                    {ei.hook}
+                                  </p>
+                                )}
+                                {dateStr && <p className="text-xs font-semibold">{dateStr}</p>}
+                                {daysStr && <p className="text-[11px]">{daysStr}</p>}
+                                {timeStr && <p className="text-[11px]">{timeStr}</p>}
+                              </div>
+                            );
+                          })()
+                        ) : v.manualCard?.label && (
                           <div className="absolute inset-x-0 top-[10%] z-20 flex items-center justify-center px-2 pointer-events-none">
                             <button
                               type="button"
