@@ -214,6 +214,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
               <p className="text-[10px] font-medium text-white line-clamp-1">{it.businessName}</p>
             </div>
           )}
+          {immoBadge}
         </div>
       );
     }
