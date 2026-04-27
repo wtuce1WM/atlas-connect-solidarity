@@ -1894,7 +1894,7 @@ const Test = () => {
                     <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5 flex-wrap">
                       {isGuide ? (
                         <>
-                          <span className="text-muted-foreground font-normal">{city}</span>
+                          <button type="button" onClick={() => { setVideoEventFilter(null); setVideoBadgeFilter(null); setVideoPopularSearchFilter(null); setSelectedEntryId(HOME_ID); setSelectedSubId(null); }} className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors">{city}</button>
                           <span className="text-muted-foreground font-normal">›</span>
                           <span>Suivez le guide ({displayList.length})</span>
                         </>
@@ -1912,7 +1912,7 @@ const Test = () => {
                             Page d'accueil
                           </button>
                           <span className="text-muted-foreground font-normal">›</span>
-                          <span className="text-muted-foreground font-normal">{city}</span>
+                          <button type="button" onClick={() => { setVideoEventFilter(null); setVideoBadgeFilter(null); setVideoPopularSearchFilter(null); setSelectedEntryId(HOME_ID); setSelectedSubId(null); }} className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors">{city}</button>
                           <span className="text-muted-foreground font-normal">›</span>
                           <span>{videoEventFilter.label}</span>
                           <span className="text-muted-foreground font-normal">({displayList.length})</span>
@@ -1931,7 +1931,7 @@ const Test = () => {
                             Page d'accueil
                           </button>
                           <span className="text-muted-foreground font-normal">›</span>
-                          <span className="text-muted-foreground font-normal">{city}</span>
+                          <button type="button" onClick={() => { setVideoEventFilter(null); setVideoBadgeFilter(null); setVideoPopularSearchFilter(null); setSelectedEntryId(HOME_ID); setSelectedSubId(null); }} className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors">{city}</button>
                           <span className="text-muted-foreground font-normal">›</span>
                           <span>{videoBadgeFilter.label}</span>
                           <span className="text-muted-foreground font-normal">({displayList.length})</span>
@@ -1950,7 +1950,7 @@ const Test = () => {
                             Page d'accueil
                           </button>
                           <span className="text-muted-foreground font-normal">›</span>
-                          <span className="text-muted-foreground font-normal">{city}</span>
+                          <button type="button" onClick={() => { setVideoEventFilter(null); setVideoBadgeFilter(null); setVideoPopularSearchFilter(null); setSelectedEntryId(HOME_ID); setSelectedSubId(null); }} className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors">{city}</button>
                           <span className="text-muted-foreground font-normal">›</span>
                           <span>{videoPopularSearchFilter.label}</span>
                           <span className="text-muted-foreground font-normal">({displayList.length})</span>
@@ -1968,7 +1968,7 @@ const Test = () => {
                             Page d'accueil
                           </button>
                           <span className="text-muted-foreground font-normal">›</span>
-                          <span className="text-muted-foreground font-normal">{city}</span>
+                          <button type="button" onClick={() => { setVideoEventFilter(null); setVideoBadgeFilter(null); setVideoPopularSearchFilter(null); setSelectedEntryId(HOME_ID); setSelectedSubId(null); }} className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors">{city}</button>
                           <span className="text-muted-foreground font-normal">›</span>
                           {subcatParents[selectedSubId] && (
                             <>
@@ -1998,14 +1998,14 @@ const Test = () => {
                             Page d'accueil
                           </button>
                           <span className="text-muted-foreground font-normal">›</span>
-                          <span className="text-muted-foreground font-normal">{city}</span>
+                          <button type="button" onClick={() => { setVideoEventFilter(null); setVideoBadgeFilter(null); setVideoPopularSearchFilter(null); setSelectedEntryId(HOME_ID); setSelectedSubId(null); }} className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors">{city}</button>
                           <span className="text-muted-foreground font-normal">›</span>
                           <span>{selectedEntry.name}</span>
                           <span className="text-muted-foreground font-normal">({displayList.length})</span>
                         </>
                       ) : (
                         <>
-                          <span className="text-muted-foreground font-normal">{city}</span>
+                          <button type="button" onClick={() => { setVideoEventFilter(null); setVideoBadgeFilter(null); setVideoPopularSearchFilter(null); setSelectedEntryId(HOME_ID); setSelectedSubId(null); }} className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors">{city}</button>
                           <span className="text-muted-foreground font-normal">›</span>
                           <span>{selectedEntry.name} ({displayList.length})</span>
                         </>
