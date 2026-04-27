@@ -2285,7 +2285,7 @@ const Test = () => {
                           </div>
                         </div>
                         {selectedEntry?.name?.trim().toLowerCase() === "immobilier" && (v.price || v.priceType) && (
-                          <div className="absolute inset-x-0 top-[10%] z-[20] flex flex-col items-center gap-1 px-2 pointer-events-none">
+                          <div className="absolute inset-x-0 top-[10%] z-[20] flex flex-col items-center gap-3 px-2 pointer-events-none">
                             {v.priceType && (
                               <span className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black">
                                 {v.priceType.toLowerCase() === "location" ? "Location" : v.priceType.toLowerCase() === "vente" ? "Vente" : v.priceType}
