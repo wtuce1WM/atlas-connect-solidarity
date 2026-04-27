@@ -2085,15 +2085,32 @@ const Test = () => {
                         onClick={(e) => {
                           const target = e.target as HTMLElement | null;
                           const clickedManualBadge = target?.closest("[data-manual-badge='true']");
+                          const isHome = selectedEntry?.id === HOME_ID;
+
+                          // On the homepage, the entire thumbnail behaves like the manual badge:
+                          // it activates the badge/event filter instead of opening SlidePanelHome.
+                          if (isHome && v.manualCard?.eventId) {
+                            void activateVideoEventFilter(v.manualCard.eventId, v.manualCard.label, city);
+                            return;
+                          }
+                          if (isHome && v.manualCard?.badgeId) {
+                            void activateVideoBadgeFilter(v.manualCard.badgeId, v.manualCard.label, city);
+                            return;
+                          }
 
                           if (clickedManualBadge && v.manualCard?.badgeId) {
                             void activateVideoBadgeFilter(v.manualCard.badgeId, v.manualCard.label, city);
                             return;
                           }
 
+                          if (isHome) {
+                            // No manual mapping on homepage → do nothing (click disabled)
+                            return;
+                          }
+
                           handlePick();
                         }}
-                        className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted cursor-pointer"
+                        className={`relative aspect-[9/16] rounded-lg overflow-hidden bg-muted ${selectedEntry?.id === HOME_ID && !v.manualCard?.badgeId && !v.manualCard?.eventId ? "" : "cursor-pointer"}`}
                       >
                         {thumb ? (
                           <img src={thumb} alt={v.business_name} className="w-full h-full object-cover" loading="lazy" />
