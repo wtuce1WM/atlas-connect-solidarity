@@ -85,6 +85,7 @@ const SlidePanelHome = ({
   social,
   description,
   agendaCity,
+  eventId,
 }: SlidePanelHomeProps) => {
   const navigate = useNavigate();
   const panelRef = useRef<HTMLDivElement>(null);
