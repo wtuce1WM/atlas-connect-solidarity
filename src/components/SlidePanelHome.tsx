@@ -33,6 +33,7 @@ interface SlidePanelHomeProps {
   hasNext?: boolean;
   owner?: { id: string; name: string; logo_url: string | null } | null;
   social?: SocialInfo | null;
+  showSocialBadge?: boolean;
   description?: string | null;
   /** When set, displays the list of events for this city (Agenda card) */
   agendaCity?: string | null;
@@ -85,6 +86,7 @@ const SlidePanelHome = ({
   hasNext,
   owner,
   social,
+  showSocialBadge = false,
   description,
   agendaCity,
   eventId,
@@ -254,6 +256,8 @@ const SlidePanelHome = ({
 
   if (!open || !videoUrl) return null;
 
+  const visibleSocial = showSocialBadge ? social : null;
+
   const embed = getVideoEmbed(videoUrl, window.location.origin, { autoplay: false, defaultSoundOn: true });
   let embedUrl = embed.embedUrl;
   if (embed.type === "youtube") {
@@ -307,7 +311,7 @@ const SlidePanelHome = ({
           </div>
         )}
 
-        {social && description && (
+        {visibleSocial && description && (
           <DescriptionPlusButton html={description} businessName={businessName} />
         )}
 
@@ -407,7 +411,7 @@ const SlidePanelHome = ({
             )}
           </div>
           <div className="absolute inset-x-0 bottom-0 top-0 z-10 p-4 flex flex-col items-center justify-end gap-3 pointer-events-none">
-            {owner && !social && (
+            {owner && !visibleSocial && (
               <div
                 key={`owner-overlay-${videoId || videoUrl}`}
                 className="flex flex-col items-center justify-center gap-3 px-4 pointer-events-none"
@@ -429,30 +433,30 @@ const SlidePanelHome = ({
                 </div>
               </div>
             )}
-            {social && (
+            {visibleSocial && (
               <div
                 key={`social-overlay-${videoId || videoUrl}`}
                 className="flex flex-col items-center justify-center gap-3 px-4 pointer-events-none"
               >
                 <a
-                  href={social.url || undefined}
+                  href={visibleSocial.url || undefined}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="animate-logo-big-full-reveal pointer-events-auto flex flex-col items-center gap-2 text-white"
                   style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
                 >
-                  {social.platform === "instagram" && <InstagramIcon className="h-16 w-16 md:h-20 md:w-20" />}
-                  {social.platform === "youtube" && <Youtube className="h-16 w-16 md:h-20 md:w-20" />}
-                  {social.platform === "tiktok" && <SiTiktok className="h-14 w-14 md:h-[72px] md:w-[72px]" />}
+                  {visibleSocial.platform === "instagram" && <InstagramIcon className="h-16 w-16 md:h-20 md:w-20" />}
+                  {visibleSocial.platform === "youtube" && <Youtube className="h-16 w-16 md:h-20 md:w-20" />}
+                  {visibleSocial.platform === "tiktok" && <SiTiktok className="h-14 w-14 md:h-[72px] md:w-[72px]" />}
                 </a>
                 <a
-                  href={social.url || undefined}
+                  href={visibleSocial.url || undefined}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto hover:bg-black/80 transition-colors"
                 >
                   <span className="text-xs font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                    Follow @{social.account}
+                    Follow @{visibleSocial.account}
                   </span>
                 </a>
               </div>

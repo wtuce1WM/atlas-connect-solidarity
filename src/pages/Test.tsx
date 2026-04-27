@@ -26,6 +26,7 @@ interface OwnerInfo {
   name: string;
   logo_url: string | null;
   logo_bg: string | null;
+  affiliate_id?: string | null;
 }
 
 interface SocialInfo {
@@ -43,6 +44,7 @@ interface VideoItem {
   /** Set only when the video's owner business differs from the display entity */
   owner: OwnerInfo | null;
   social: SocialInfo | null;
+  showSocialBadge?: boolean;
   description: string | null;
   manualCard: { label: string; badgeId: string | null; eventId?: string | null } | null;
   subcategory_id?: string | null;
@@ -111,6 +113,30 @@ function extractSocial(d: any): SocialInfo | null {
   const yt = (d?.youtube_account || "").trim();
   if (yt) return { platform: "youtube", account: yt.replace(/^@+/, ""), url: d?.youtube_url || null };
   return null;
+}
+
+function normalizeSocialAccount(value?: string | null): string {
+  const raw = (value || "").trim().toLowerCase();
+  if (!raw) return "";
+  try {
+    const url = raw.startsWith("http") ? new URL(raw) : null;
+    const path = url ? url.pathname : raw;
+    return path.split("/").filter(Boolean)[0]?.replace(/^@+/, "") || "";
+  } catch {
+    return raw.split(/[/?#]/)[0].replace(/^@+/, "");
+  }
+}
+
+function isDifferentDisplayedBusinessSocial(social: SocialInfo | null | undefined, business: SearchResultBusiness | null | undefined): boolean {
+  if (!social || !business) return false;
+  const businessUrl = social.platform === "instagram"
+    ? (business as any).instagram_url
+    : social.platform === "tiktok"
+      ? (business as any).tiktok_url
+      : (business as any).youtube_url;
+  const videoAccount = normalizeSocialAccount(social.account);
+  const displayedAccount = normalizeSocialAccount(businessUrl);
+  return !!videoAccount && !!displayedAccount && videoAccount !== displayedAccount;
 }
 
 async function getManualCardMap(city: City, docs: any[]) {
@@ -321,7 +347,7 @@ const Test = () => {
       const { data: biz } = displayId
         ? await supabase
             .from("businesses")
-            .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
             .eq("id", displayId)
             .maybeSingle()
         : { data: null } as any;
@@ -624,7 +650,7 @@ const Test = () => {
         if (bizIds.length > 0) {
           const { data: bizRows } = await supabase
             .from("businesses")
-            .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
             .in("id", bizIds);
           ((bizRows as any[]) || []).forEach((b) => bizMap.set(b.id, b));
         }
@@ -700,7 +726,7 @@ const Test = () => {
         for (let i = 0; i < bizIds.length; i += batch) {
           const { data: bizs } = await supabase
             .from("businesses")
-            .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
             .in("id", bizIds.slice(i, i + batch));
           (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
         }
@@ -810,7 +836,7 @@ const Test = () => {
           for (let i = 0; i < allBizIds.length; i += batch) {
             const { data: bizs } = await supabase
               .from("businesses")
-              .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+              .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
               .in("id", allBizIds.slice(i, i + batch));
             (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
           }
@@ -910,7 +936,7 @@ const Test = () => {
             if (gvBizIds.length > 0) {
               const { data: gvBizs } = await supabase
                 .from("businesses")
-                .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+                .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
                 .in("id", gvBizIds);
               (gvBizs || []).forEach((b: any) => gvBizMap.set(b.id, b as SearchResultBusiness));
             }
@@ -919,6 +945,7 @@ const Test = () => {
               const bizId = firstBizByGv[v.id];
               const biz = isVlogsBadge ? null : (bizId ? gvBizMap.get(bizId) || null : null);
               const acct = (v.instagram_account || v.tiktok_account || v.youtube_account || "").replace(/^@+/, "");
+              const social = extractSocial(v);
               return {
                 id: v.id,
                 url: v.url,
@@ -928,7 +955,8 @@ const Test = () => {
                 thumbnail_url: v.thumbnail_url || deriveThumbnail(v.url),
                 business: isVlogsBadge ? null : biz,
                 owner: isVlogsBadge ? null : (biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null),
-                social: extractSocial(v),
+                social,
+                showSocialBadge: isDifferentDisplayedBusinessSocial(social, biz),
                 description: v.description ?? null,
                 manualCard: null,
               } as VideoItem;
@@ -963,7 +991,7 @@ const Test = () => {
               for (let i = 0; i < ytBizIds.length; i += batch) {
                 const { data: bizs } = await supabase
                   .from("businesses")
-                  .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+                  .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
                   .in("id", ytBizIds.slice(i, i + batch));
                 (bizs || []).forEach((b: any) => ytBizMap.set(b.id, b as SearchResultBusiness));
               }
@@ -1171,7 +1199,7 @@ const Test = () => {
           for (let i = 0; i < allBizIds.length; i += batch) {
             const { data: bizs } = await supabase
               .from("businesses")
-              .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, google_rating, priority_score, front_video_count, is_poi")
+              .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, google_rating, priority_score, front_video_count, is_poi")
               .in("id", allBizIds.slice(i, i + batch));
             (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
           }
@@ -1278,7 +1306,7 @@ const Test = () => {
             if (gvBizIds.length > 0) {
               const { data: gvBizs } = await supabase
                 .from("businesses")
-                .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+                .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
                 .in("id", gvBizIds);
               (gvBizs || []).forEach((b: any) => gvBizMap.set(b.id, b as SearchResultBusiness));
             }
@@ -1291,6 +1319,7 @@ const Test = () => {
                 const isVlogsContext = selectedEntry?.id === VLOGS_ID;
                 const biz = isVlogsContext ? null : (bizId ? gvBizMap.get(bizId) || null : null);
                 const acct = (v.instagram_account || v.tiktok_account || v.youtube_account || "").replace(/^@+/, "");
+                const social = extractSocial(v);
                 return {
                   id: v.id,
                   url: v.url,
@@ -1300,7 +1329,8 @@ const Test = () => {
                   thumbnail_url: v.thumbnail_url || deriveThumbnail(v.url),
                   business: isVlogsContext ? null : biz,
                   owner: isVlogsContext ? null : (biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null),
-                  social: extractSocial(v),
+                  social,
+                  showSocialBadge: isDifferentDisplayedBusinessSocial(social, biz),
                   description: v.description ?? null,
                   manualCard: null,
                 } as VideoItem;
@@ -1326,7 +1356,7 @@ const Test = () => {
         for (let i = 0; i < allBizIds.length; i += batch) {
           const { data: bizs } = await supabase
             .from("businesses")
-            .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
             .in("id", allBizIds.slice(i, i + batch));
           (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
         }
@@ -2336,7 +2366,8 @@ const Test = () => {
         businessName={activeVideo?.business_name || ""}
         isGeneric={isActiveGeneric}
         owner={activeVideo?.owner || null}
-        social={isActiveGeneric && activeVideo?.owner ? (activeVideo?.social || null) : null}
+        social={activeVideo?.social || null}
+        showSocialBadge={isActiveGeneric && !!activeVideo?.showSocialBadge}
         description={activeVideo?.description || null}
         currentTime={currentTime}
         onTimeUpdate={setCurrentTime}
