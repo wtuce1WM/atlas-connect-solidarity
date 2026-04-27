@@ -2323,7 +2323,12 @@ const Test = () => {
                                 style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
                               />
                             </div>
-                            {(["immobilier", "villas"].includes(selectedEntry?.name?.trim().toLowerCase() ?? "")) && v.price && (
+                            {(() => {
+                              const targets = ["immobilier", "villas"];
+                              const entryName = selectedEntry?.name?.trim().toLowerCase() ?? "";
+                              const subName = selectedSubId ? (subcatNames[selectedSubId] || "").trim().toLowerCase() : "";
+                              return targets.includes(entryName) || targets.includes(subName);
+                            })() && v.price && (
                               <p
                                 className="text-base font-semibold text-white text-center"
                                 style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
