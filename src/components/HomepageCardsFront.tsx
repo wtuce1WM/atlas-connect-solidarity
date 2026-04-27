@@ -10,6 +10,8 @@ export type HomeCardTarget = { type: "badge" | "event" | "popular_search"; id: s
 interface Props {
   city: string;
   onLabelClick?: (info: { label: string; kind: "entry" | "extra"; target: HomeCardTarget; badgeId: string | null; eventId?: string | null; popularSearchId?: string | null }) => void;
+  /** If true, clicking a labeled video card triggers the label filter instead of opening the video panel. Used on the Test homepage. */
+  labelTakesPriority?: boolean;
 }
 
 interface CardData {
