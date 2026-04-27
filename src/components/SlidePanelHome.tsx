@@ -487,9 +487,6 @@ const SlidePanelHome = ({
                 </div>
               </>
             )}
-            {!eventBusiness && (
-              <p className="text-sm font-medium text-white pointer-events-auto">{businessName}</p>
-            )}
             {embed.type === "file" && (
               <div className="pointer-events-auto mb-4">
                 <VideoControls
