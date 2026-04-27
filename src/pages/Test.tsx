@@ -1450,6 +1450,16 @@ const Test = () => {
     return params.toString();
   }, [city, selectedEntryId, selectedSubId, videoBadgeFilter, videoEventFilter, videoPopularSearchFilter]);
 
+  // Reflect current navigation state in the URL so it's shareable (WhatsApp, etc.)
+  useEffect(() => {
+    if (panelOpen) return; // don't overwrite while a video panel rewrites the URL
+    const current = window.location.search.replace(/^\?/, "");
+    if (current !== returnContext) {
+      const newUrl = `${window.location.pathname}${returnContext ? `?${returnContext}` : ""}${window.location.hash}`;
+      window.history.replaceState(null, "", newUrl);
+    }
+  }, [returnContext, panelOpen]);
+
 
   // Load Tarik Belasri's visible YouTube shorts when "guide" mode is selected
   useEffect(() => {
