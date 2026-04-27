@@ -419,6 +419,33 @@ const SlidePanelHome = ({
             )}
           </div>
           <div className="absolute inset-x-0 bottom-0 top-0 z-10 p-4 flex flex-col items-center justify-end gap-3 pointer-events-none">
+            {eventBusiness && (
+              <>
+                <p className="text-sm font-medium text-white pointer-events-auto text-center">{businessName}</p>
+                <div className="w-4/5 max-w-md pointer-events-auto flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => navigate(businessUrl(eventBusiness))}
+                    className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-white text-black font-medium text-xs shadow-lg hover:bg-white/90 transition-colors normal-case tracking-normal h-9"
+                    style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    <span className="truncate">En savoir +</span>
+                  </button>
+                  {eventBusiness.latitude && eventBusiness.longitude && (
+                    <button
+                      type="button"
+                      onClick={() => setDirectionsBusiness(eventBusiness)}
+                      className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-gold text-gold-foreground font-medium text-xs shadow-lg hover:bg-gold/90 transition-colors normal-case tracking-normal h-9"
+                      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                    >
+                      <MapPin className="h-3.5 w-3.5" />
+                      <span className="truncate">Itinéraire</span>
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
             {embed.type === "file" && (
               <div className="pointer-events-auto">
                 <VideoControls
@@ -441,30 +468,8 @@ const SlidePanelHome = ({
                 />
               </div>
             )}
-            <p className="text-sm font-medium text-white pointer-events-auto">{businessName}</p>
-            {eventBusiness && (
-              <div className="w-4/5 max-w-md pointer-events-auto flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => navigate(businessUrl(eventBusiness))}
-                  className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-white text-black font-medium text-xs shadow-lg hover:bg-white/90 transition-colors normal-case tracking-normal h-9"
-                  style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-                >
-                  <ExternalLink className="h-3.5 w-3.5" />
-                  <span className="truncate">En savoir +</span>
-                </button>
-                {eventBusiness.latitude && eventBusiness.longitude && (
-                  <button
-                    type="button"
-                    onClick={() => setDirectionsBusiness(eventBusiness)}
-                    className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-gold text-gold-foreground font-medium text-xs shadow-lg hover:bg-gold/90 transition-colors normal-case tracking-normal h-9"
-                    style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-                  >
-                    <MapPin className="h-3.5 w-3.5" />
-                    <span className="truncate">Itinéraire</span>
-                  </button>
-                )}
-              </div>
+            {!eventBusiness && (
+              <p className="text-sm font-medium text-white pointer-events-auto">{businessName}</p>
             )}
             <div className="w-full max-w-xl pointer-events-auto">
               <PanelSearchBar
