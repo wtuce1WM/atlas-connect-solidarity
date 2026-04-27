@@ -463,7 +463,7 @@ const Test = () => {
 
         const { data: eventRows } = await (supabase as any)
           .from("events")
-          .select("id, name, images, videos, default_business_id, start_date")
+          .select("id, name, type, images, videos, default_business_id, start_date")
           .in("id", ids)
           .order("start_date", { ascending: true });
 
@@ -510,7 +510,7 @@ const Test = () => {
               owner: biz ? { id: biz.id, name: biz.name, logo_url: biz.logo_url ?? null, logo_bg: biz.logo_bg ?? null } : null,
               social: null,
               description: null,
-              manualCard: { label: ev.name || videoEventFilter.label, badgeId: null, eventId: ev.id },
+              manualCard: { label: (ev.type && String(ev.type).trim()) || ev.name || videoEventFilter.label, badgeId: null, eventId: ev.id },
             } as VideoItem;
           }));
         }
