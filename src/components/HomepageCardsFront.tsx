@@ -198,7 +198,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
         <button
           type="button"
           onClick={() => {
-            if (it.label) {
+            if (it.label && labelTakesPriority) {
               handleLabelActivate(slot);
             } else {
               setCurrentTime(0);
