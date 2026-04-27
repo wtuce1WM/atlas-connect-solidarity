@@ -113,7 +113,23 @@ const SlidePanelHome = ({
         .order("start_date", { ascending: true, nullsFirst: false });
       if (cancelled) return;
       const rows = (data as any[]) || [];
-      const bizIds = Array.from(new Set(rows.map((r) => r.default_business_id).filter(Boolean)));
+      // Fallback: for events without default_business_id, use the first linked business from event_businesses
+      const eventIdsNeedingFallback = rows.filter((r) => !r.default_business_id).map((r) => r.id);
+      const fallbackByEvent = new Map<string, string>();
+      if (eventIdsNeedingFallback.length > 0) {
+        const { data: ebRows } = await (supabase as any)
+          .from("event_businesses")
+          .select("event_id, business_id, created_at")
+          .in("event_id", eventIdsNeedingFallback)
+          .order("created_at", { ascending: true });
+        ((ebRows as any[]) || []).forEach((eb) => {
+          if (!fallbackByEvent.has(eb.event_id)) fallbackByEvent.set(eb.event_id, eb.business_id);
+        });
+      }
+      const bizIds = Array.from(new Set([
+        ...rows.map((r) => r.default_business_id).filter(Boolean),
+        ...Array.from(fallbackByEvent.values()),
+      ]));
       const bizMap = new Map<string, AgendaEvent["business"]>();
       if (bizIds.length > 0) {
         const { data: bizRows } = await supabase
@@ -124,15 +140,18 @@ const SlidePanelHome = ({
       }
       if (cancelled) return;
       setAgendaEvents(
-        rows.map((r) => ({
-          id: r.id,
-          name: r.name,
-          start_date: r.start_date,
-          end_date: r.end_date,
-          hook: r.hook,
-          logo_url: r.logo_url,
-          business: r.default_business_id ? bizMap.get(r.default_business_id) || null : null,
-        })),
+        rows.map((r) => {
+          const bizId = r.default_business_id || fallbackByEvent.get(r.id) || null;
+          return {
+            id: r.id,
+            name: r.name,
+            start_date: r.start_date,
+            end_date: r.end_date,
+            hook: r.hook,
+            logo_url: r.logo_url,
+            business: bizId ? bizMap.get(bizId) || null : null,
+          };
+        }),
       );
     })();
     return () => { cancelled = true; };
