@@ -2247,9 +2247,27 @@ const Test = () => {
                                 </p>
                               ) : null;
                             })()}
-                            {!v.eventInfo?.name && (
-                              <p className="text-[10px] font-medium text-white line-clamp-1">{isVlogThumb ? v.business_name : v.owner?.name || v.business_name}</p>
-                            )}
+                            {!v.eventInfo?.name && (() => {
+                              const displayName = isVlogThumb ? v.business_name : v.owner?.name || v.business_name;
+                              return (
+                                <button
+                                  type="button"
+                                  onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (!displayName) return;
+                                    void navigator.clipboard.writeText(displayName).then(
+                                      () => toast.success(`« ${displayName} » copié`),
+                                      () => toast.error("Impossible de copier")
+                                    );
+                                  }}
+                                  className="block w-full text-left text-[10px] font-medium text-white line-clamp-1 cursor-pointer hover:underline"
+                                >
+                                  {displayName}
+                                </button>
+                              );
+                            })()}
                           </div>
                         )}
                       </div>
