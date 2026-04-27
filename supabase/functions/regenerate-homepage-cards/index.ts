@@ -277,8 +277,6 @@ async function buildSnapshot(supabase: any, city: string) {
         eventId: card.event_id || null,
         popularSearchId: card.popular_search_id || null,
         target,
-        price: doc.price || null,
-        priceType: doc.price_type || null,
       },
     };
   });
