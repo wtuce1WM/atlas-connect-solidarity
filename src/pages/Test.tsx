@@ -1984,7 +1984,7 @@ const Test = () => {
                         )}
                         {((isVlogThumb ? v.business_name : v.owner?.name || v.business_name)) && (
                           <div className="absolute bottom-0 left-0 right-0 p-1.5 space-y-0.5">
-                            {selectedEntry?.id !== HOME_ID && (() => {
+                            {(selectedEntry?.id !== HOME_ID || !!videoBadgeFilter) && (() => {
                               const label = v.service_name
                                 || (v.service_id && serviceNames[v.service_id])
                                 || (v.subcategory_id && subcatNames[v.subcategory_id])
