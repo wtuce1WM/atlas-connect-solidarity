@@ -45,6 +45,17 @@ interface AgendaEvent {
   end_date: string | null;
   hook: string | null;
   logo_url: string | null;
+  business: {
+    id: string;
+    slug: string | null;
+    name: string;
+    address: string | null;
+    latitude: number | null;
+    longitude: number | null;
+    phone: string | null;
+    city: string | null;
+    logo_url: string | null;
+  } | null;
 }
 
 const formatDateRange = (start: string | null, end: string | null) => {
