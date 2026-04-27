@@ -945,6 +945,7 @@ const Test = () => {
               const bizId = firstBizByGv[v.id];
               const biz = isVlogsBadge ? null : (bizId ? gvBizMap.get(bizId) || null : null);
               const acct = (v.instagram_account || v.tiktok_account || v.youtube_account || "").replace(/^@+/, "");
+              const social = extractSocial(v);
               return {
                 id: v.id,
                 url: v.url,
@@ -954,7 +955,8 @@ const Test = () => {
                 thumbnail_url: v.thumbnail_url || deriveThumbnail(v.url),
                 business: isVlogsBadge ? null : biz,
                 owner: isVlogsBadge ? null : (biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null),
-                social: extractSocial(v),
+                social,
+                showSocialBadge: isDifferentDisplayedBusinessSocial(social, biz),
                 description: v.description ?? null,
                 manualCard: null,
               } as VideoItem;
@@ -1317,6 +1319,7 @@ const Test = () => {
                 const isVlogsContext = selectedEntry?.id === VLOGS_ID;
                 const biz = isVlogsContext ? null : (bizId ? gvBizMap.get(bizId) || null : null);
                 const acct = (v.instagram_account || v.tiktok_account || v.youtube_account || "").replace(/^@+/, "");
+                const social = extractSocial(v);
                 return {
                   id: v.id,
                   url: v.url,
@@ -1326,7 +1329,8 @@ const Test = () => {
                   thumbnail_url: v.thumbnail_url || deriveThumbnail(v.url),
                   business: isVlogsContext ? null : biz,
                   owner: isVlogsContext ? null : (biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null),
-                  social: extractSocial(v),
+                  social,
+                  showSocialBadge: isDifferentDisplayedBusinessSocial(social, biz),
                   description: v.description ?? null,
                   manualCard: null,
                 } as VideoItem;
