@@ -50,6 +50,7 @@ interface VideoItem {
   service_id?: string | null;
   service_name?: string | null;
   eventInfo?: {
+    name: string | null;
     hook: string | null;
     start_date: string | null;
     end_date: string | null;
@@ -536,6 +537,7 @@ const Test = () => {
               description: null,
               manualCard: { label: (ev.type && String(ev.type).trim()) || ev.name || videoEventFilter.label, badgeId: null, eventId: ev.id },
               eventInfo: {
+                name: ev.name ?? null,
                 hook: ev.hook ?? null,
                 start_date: ev.start_date ?? null,
                 end_date: ev.end_date ?? null,
@@ -2015,7 +2017,7 @@ const Test = () => {
                                       {v.manualCard.label}
                                     </button>
                                   )}
-                                  {ei.hook && (
+                                  {ei.name && (
                                     <p
                                       className="text-sm font-bold uppercase tracking-wide text-white"
                                       style={{
@@ -2023,7 +2025,7 @@ const Test = () => {
                                         filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 5px hsla(0,0%,0%,0.95)) drop-shadow(0 0 10px hsla(0,0%,0%,0.85)) drop-shadow(0 2px 6px hsla(0,0%,0%,0.8)) drop-shadow(0 4px 16px hsla(0,0%,0%,0.7)) drop-shadow(0 6px 28px hsla(0,0%,0%,0.5))",
                                       }}
                                     >
-                                      {ei.hook}
+                                      {ei.name}
                                     </p>
                                   )}
                                 </div>
