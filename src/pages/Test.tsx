@@ -2259,6 +2259,7 @@ const Test = () => {
           return i >= 0 && i < activeList.length - 1;
         })()}
         eventId={activeVideo?.id?.startsWith("event:") ? activeVideo.id.slice(6) : (activeVideo?.manualCard?.eventId || null)}
+        returnContext={returnContext}
       />
     </div>
   );
