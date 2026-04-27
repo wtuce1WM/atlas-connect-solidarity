@@ -66,6 +66,7 @@ import type { Business, SearchResult } from "@/pages/search/types";
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { language } = useLanguage();
   const { toast } = useToast();
   const { saveSearch } = useSearchHistory();
@@ -436,7 +437,16 @@ const SearchPage = () => {
         setCompactPanelBusiness(null);
         setIsCompactPanelExpanded(false);
         setIsNestedMosaicOpen(false);
-      }, []);
+        // Return-to-Test flow: if user came from SlidePanelHome (Test page),
+        // navigate back to /test and reopen the original video panel.
+        try {
+          const returnVideoId = sessionStorage.getItem("returnToTestVideoId");
+          if (returnVideoId) {
+            sessionStorage.removeItem("returnToTestVideoId");
+            navigate(`/test?openVideo=${encodeURIComponent(returnVideoId)}`);
+          }
+        } catch {}
+      }, [navigate]);
 
       const handleCompactPanelClose = useCallback(() => {
         // If panel is in expanded/mosaic mode, collapse back to the panel instead of closing
@@ -1802,7 +1812,7 @@ const SearchPage = () => {
 
   const t = translations[language] || translations.fr;
 
-  const navigate = useNavigate();
+
 
   const handleCityChange = (city: string) => {
     setSelectedCity(city);
