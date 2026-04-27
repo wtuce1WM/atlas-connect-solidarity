@@ -1338,8 +1338,8 @@ const Test = () => {
           const biz = bizMap.get(displayId) || null;
           const ownerBiz =
             d.business_id !== displayId
-              ? bizMap.get(d.business_id) || biz
-              : biz;
+              ? bizMap.get(d.business_id) || null
+              : null;
           return {
             id: d.id,
             url: d.url,
