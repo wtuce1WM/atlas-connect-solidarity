@@ -89,6 +89,7 @@ const SlidePanelHome = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [agendaEvents, setAgendaEvents] = useState<AgendaEvent[]>([]);
+  const [directionsBusiness, setDirectionsBusiness] = useState<AgendaEvent["business"] | null>(null);
 
   useEffect(() => {
     if (!open || !agendaCity) {
@@ -106,11 +107,33 @@ const SlidePanelHome = ({
       const today = new Date().toISOString().slice(0, 10);
       const { data } = await (supabase as any)
         .from("events")
-        .select("id, name, start_date, end_date, hook, logo_url")
+        .select("id, name, start_date, end_date, hook, logo_url, default_business_id")
         .eq("city_id", cityRow.id)
         .or(`end_date.gte.${today},and(end_date.is.null,start_date.gte.${today}),and(start_date.is.null,end_date.is.null)`)
         .order("start_date", { ascending: true, nullsFirst: false });
-      if (!cancelled) setAgendaEvents((data as AgendaEvent[]) || []);
+      if (cancelled) return;
+      const rows = (data as any[]) || [];
+      const bizIds = Array.from(new Set(rows.map((r) => r.default_business_id).filter(Boolean)));
+      const bizMap = new Map<string, AgendaEvent["business"]>();
+      if (bizIds.length > 0) {
+        const { data: bizRows } = await supabase
+          .from("businesses")
+          .select("id, slug, name, address, latitude, longitude, phone, city, logo_url")
+          .in("id", bizIds);
+        ((bizRows as any[]) || []).forEach((b) => bizMap.set(b.id, b as any));
+      }
+      if (cancelled) return;
+      setAgendaEvents(
+        rows.map((r) => ({
+          id: r.id,
+          name: r.name,
+          start_date: r.start_date,
+          end_date: r.end_date,
+          hook: r.hook,
+          logo_url: r.logo_url,
+          business: r.default_business_id ? bizMap.get(r.default_business_id) || null : null,
+        })),
+      );
     })();
     return () => { cancelled = true; };
   }, [open, agendaCity]);
