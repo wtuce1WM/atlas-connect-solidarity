@@ -487,8 +487,11 @@ const SlidePanelHome = ({
                 </div>
               </>
             )}
+            {!eventBusiness && (
+              <p className="text-sm font-medium text-white pointer-events-auto">{businessName}</p>
+            )}
             {embed.type === "file" && (
-              <div className="pointer-events-auto mb-16">
+              <div className="pointer-events-auto">
                 <VideoControls
                   type="file"
                   videoRef={videoRef}
@@ -498,7 +501,7 @@ const SlidePanelHome = ({
               </div>
             )}
             {embed.type === "youtube" && (
-              <div className="pointer-events-auto mb-16">
+              <div className="pointer-events-auto">
                 <VideoControls
                   type="youtube"
                   iframeRef={iframeRef}
@@ -508,9 +511,6 @@ const SlidePanelHome = ({
                   onMutedChange={setYtMuted}
                 />
               </div>
-            )}
-            {!eventBusiness && (
-              <p className="text-sm font-medium text-white pointer-events-auto">{businessName}</p>
             )}
             <div className="w-full max-w-xl pointer-events-auto">
               <PanelSearchBar
