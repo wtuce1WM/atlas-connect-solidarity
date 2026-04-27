@@ -36,6 +36,8 @@ interface SlidePanelHomeProps {
   description?: string | null;
   /** When set, displays the list of events for this city (Agenda card) */
   agendaCity?: string | null;
+  /** When set, displays CTAs for the event's linked business (via event_businesses) */
+  eventId?: string | null;
 }
 
 interface AgendaEvent {
@@ -83,6 +85,7 @@ const SlidePanelHome = ({
   social,
   description,
   agendaCity,
+  eventId,
 }: SlidePanelHomeProps) => {
   const navigate = useNavigate();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -90,6 +93,35 @@ const SlidePanelHome = ({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [agendaEvents, setAgendaEvents] = useState<AgendaEvent[]>([]);
   const [directionsBusiness, setDirectionsBusiness] = useState<AgendaEvent["business"] | null>(null);
+  const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
+
+  // Load linked business for a single event (via event_businesses)
+  useEffect(() => {
+    if (!open || !eventId) {
+      setEventBusiness(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const { data: ebRows } = await (supabase as any)
+        .from("event_businesses")
+        .select("business_id, created_at")
+        .eq("event_id", eventId)
+        .order("created_at", { ascending: true })
+        .limit(1);
+      if (cancelled) return;
+      const bizId = ((ebRows as any[]) || [])[0]?.business_id;
+      if (!bizId) { setEventBusiness(null); return; }
+      const { data: bizRow } = await supabase
+        .from("businesses")
+        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url")
+        .eq("id", bizId)
+        .maybeSingle();
+      if (cancelled) return;
+      setEventBusiness((bizRow as any) || null);
+    })();
+    return () => { cancelled = true; };
+  }, [open, eventId]);
 
   useEffect(() => {
     if (!open || !agendaCity) {
@@ -107,29 +139,25 @@ const SlidePanelHome = ({
       const today = new Date().toISOString().slice(0, 10);
       const { data } = await (supabase as any)
         .from("events")
-        .select("id, name, start_date, end_date, hook, logo_url, default_business_id")
+        .select("id, name, start_date, end_date, hook, logo_url")
         .eq("city_id", cityRow.id)
         .or(`end_date.gte.${today},and(end_date.is.null,start_date.gte.${today}),and(start_date.is.null,end_date.is.null)`)
         .order("start_date", { ascending: true, nullsFirst: false });
       if (cancelled) return;
       const rows = (data as any[]) || [];
-      // Fallback: for events without default_business_id, use the first linked business from event_businesses
-      const eventIdsNeedingFallback = rows.filter((r) => !r.default_business_id).map((r) => r.id);
-      const fallbackByEvent = new Map<string, string>();
-      if (eventIdsNeedingFallback.length > 0) {
+      // Always use event_businesses (take first linked business per event)
+      const bizByEvent = new Map<string, string>();
+      if (rows.length > 0) {
         const { data: ebRows } = await (supabase as any)
           .from("event_businesses")
           .select("event_id, business_id, created_at")
-          .in("event_id", eventIdsNeedingFallback)
+          .in("event_id", rows.map((r) => r.id))
           .order("created_at", { ascending: true });
         ((ebRows as any[]) || []).forEach((eb) => {
-          if (!fallbackByEvent.has(eb.event_id)) fallbackByEvent.set(eb.event_id, eb.business_id);
+          if (!bizByEvent.has(eb.event_id)) bizByEvent.set(eb.event_id, eb.business_id);
         });
       }
-      const bizIds = Array.from(new Set([
-        ...rows.map((r) => r.default_business_id).filter(Boolean),
-        ...Array.from(fallbackByEvent.values()),
-      ]));
+      const bizIds = Array.from(new Set(Array.from(bizByEvent.values())));
       const bizMap = new Map<string, AgendaEvent["business"]>();
       if (bizIds.length > 0) {
         const { data: bizRows } = await supabase
@@ -141,7 +169,7 @@ const SlidePanelHome = ({
       if (cancelled) return;
       setAgendaEvents(
         rows.map((r) => {
-          const bizId = r.default_business_id || fallbackByEvent.get(r.id) || null;
+          const bizId = bizByEvent.get(r.id) || null;
           return {
             id: r.id,
             name: r.name,
@@ -414,6 +442,30 @@ const SlidePanelHome = ({
               </div>
             )}
             <p className="text-sm font-medium text-white pointer-events-auto">{businessName}</p>
+            {eventBusiness && (
+              <div className="w-4/5 max-w-md pointer-events-auto flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => navigate(businessUrl(eventBusiness))}
+                  className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-white text-black font-medium text-xs shadow-lg hover:bg-white/90 transition-colors normal-case tracking-normal h-9"
+                  style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  <span className="truncate">En savoir +</span>
+                </button>
+                {eventBusiness.latitude && eventBusiness.longitude && (
+                  <button
+                    type="button"
+                    onClick={() => setDirectionsBusiness(eventBusiness)}
+                    className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-gold text-gold-foreground font-medium text-xs shadow-lg hover:bg-gold/90 transition-colors normal-case tracking-normal h-9"
+                    style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                  >
+                    <MapPin className="h-3.5 w-3.5" />
+                    <span className="truncate">Itinéraire</span>
+                  </button>
+                )}
+              </div>
+            )}
             <div className="w-full max-w-xl pointer-events-auto">
               <PanelSearchBar
                 iconVariant="black"

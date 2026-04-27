@@ -2172,6 +2172,7 @@ const Test = () => {
           const i = activeList.findIndex((v) => v.id === activeVideo?.id);
           return i >= 0 && i < activeList.length - 1;
         })()}
+        eventId={activeVideo?.id?.startsWith("event:") ? activeVideo.id.slice(6) : (activeVideo?.manualCard?.eventId || null)}
       />
     </div>
   );
