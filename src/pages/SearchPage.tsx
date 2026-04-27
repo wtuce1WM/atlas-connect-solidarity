@@ -436,7 +436,16 @@ const SearchPage = () => {
         setCompactPanelBusiness(null);
         setIsCompactPanelExpanded(false);
         setIsNestedMosaicOpen(false);
-      }, []);
+        // Return-to-Test flow: if user came from SlidePanelHome (Test page),
+        // navigate back to /test and reopen the original video panel.
+        try {
+          const returnVideoId = sessionStorage.getItem("returnToTestVideoId");
+          if (returnVideoId) {
+            sessionStorage.removeItem("returnToTestVideoId");
+            navigate(`/test?openVideo=${encodeURIComponent(returnVideoId)}`);
+          }
+        } catch {}
+      }, [navigate]);
 
       const handleCompactPanelClose = useCallback(() => {
         // If panel is in expanded/mosaic mode, collapse back to the panel instead of closing
