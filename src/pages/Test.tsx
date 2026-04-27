@@ -61,6 +61,7 @@ interface VideoItem {
   } | null;
   price?: string | null;
   priceType?: string | null;
+  videoTitle?: string | null;
 }
 
 interface VideoEventFilter {
