@@ -221,14 +221,18 @@ const Test = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const autoOpenedRef = useRef<string | null>(null);
   const pendingOpenVideoRef = useRef<string | null>(null);
+  const restoredOpenContextRef = useRef<string | null>(null);
   // Auto-reopen the SlidePanelHome on the original video when returning from a business panel
   useEffect(() => {
     const wantedId = searchParams.get("openVideo");
     if (!wantedId || autoOpenedRef.current === wantedId) return;
     pendingOpenVideoRef.current = wantedId;
 
+    const shouldRestoreContext = restoredOpenContextRef.current !== wantedId;
+    if (shouldRestoreContext) restoredOpenContextRef.current = wantedId;
+
     const cityParam = searchParams.get("city") as City | null;
-    if (cityParam && CITIES.includes(cityParam) && city !== cityParam) setCity(cityParam);
+    if (shouldRestoreContext && cityParam && CITIES.includes(cityParam) && city !== cityParam) setCity(cityParam);
 
     const entryParam = searchParams.get("entry");
     const subParam = searchParams.get("sub");
@@ -241,26 +245,26 @@ const Test = () => {
     const popularSearchLabel = searchParams.get("popularSearchLabel");
     const popularSearchBusinessIds = searchParams.get("popularSearchBusinessIds");
 
-    setOtherViewMode("videos");
-    if (eventId && eventLabel) {
+    if (shouldRestoreContext) setOtherViewMode("videos");
+    if (shouldRestoreContext && eventId && eventLabel) {
       setVideoBadgeFilter(null);
       setVideoPopularSearchFilter(null);
       setSelectedEntryId(HOME_ID);
       setSelectedSubId(null);
       setVideoEventFilter({ eventId, label: eventLabel, eventIds: eventIds ? eventIds.split(",").filter(Boolean) : undefined });
-    } else if (badgeId && badgeLabel) {
+    } else if (shouldRestoreContext && badgeId && badgeLabel) {
       setVideoEventFilter(null);
       setVideoPopularSearchFilter(null);
       setSelectedEntryId(HOME_ID);
       setSelectedSubId(null);
       setVideoBadgeFilter({ badgeId, label: badgeLabel });
-    } else if (popularSearchId && popularSearchLabel) {
+    } else if (shouldRestoreContext && popularSearchId && popularSearchLabel) {
       setVideoBadgeFilter(null);
       setVideoEventFilter(null);
       setSelectedEntryId(HOME_ID);
       setSelectedSubId(null);
       setVideoPopularSearchFilter({ popularSearchId, label: popularSearchLabel, businessIds: popularSearchBusinessIds ? popularSearchBusinessIds.split(",").filter(Boolean) : [] });
-    } else {
+    } else if (shouldRestoreContext) {
       setVideoBadgeFilter(null);
       setVideoEventFilter(null);
       setVideoPopularSearchFilter(null);
