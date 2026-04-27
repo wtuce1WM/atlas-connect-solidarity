@@ -423,7 +423,7 @@ const Test = () => {
   const [loadingBadge, setLoadingBadge] = useState(false);
   const [videoBadgeFilter, setVideoBadgeFilter] = useState<{ badgeId: string; label: string } | null>(null);
   const [videoEventFilter, setVideoEventFilter] = useState<VideoEventFilter | null>(null);
-  const [videoPopularSearchFilter, setVideoPopularSearchFilter] = useState<{ popularSearchId: string; label: string; businessIds: string[] } | null>(null);
+  const [videoPopularSearchFilter, setVideoPopularSearchFilter] = useState<{ popularSearchId: string; label: string; businessIds: string[]; resolved?: boolean } | null>(null);
   const [videoBadgeDocIds, setVideoBadgeDocIds] = useState<Set<string> | null>(null);
 
   // Load doc ids matching the active video badge filter
@@ -752,7 +752,11 @@ const Test = () => {
         const bizIds = videoPopularSearchFilter.businessIds;
         if (bizIds.length === 0) {
           safeSetVideos([]);
-          safeSetLoadingVideos(false);
+          // If the search has resolved (no business matched), exit the loading state.
+          // Otherwise keep loading=true to avoid flashing "Aucune vidéo trouvée".
+          if (videoPopularSearchFilter.resolved) {
+            safeSetLoadingVideos(false);
+          }
           return;
         }
         const batch = 300;
@@ -1640,7 +1644,7 @@ const Test = () => {
 
     // Pre-set the filter with empty businessIds so the videos area renders the loading state
     setLoadingVideos(true);
-    setVideoPopularSearchFilter({ popularSearchId, label, businessIds: [] });
+    setVideoPopularSearchFilter({ popularSearchId, label, businessIds: [], resolved: false });
 
     try {
       const { data, error } = await supabase.functions.invoke("business-search", {
@@ -1649,10 +1653,13 @@ const Test = () => {
       if (!error) {
         const list = ((data as any)?.businesses || []) as SearchResultBusiness[];
         const ids = list.map((b: any) => b.id).filter(Boolean);
-        setVideoPopularSearchFilter({ popularSearchId, label, businessIds: ids });
+        setVideoPopularSearchFilter({ popularSearchId, label, businessIds: ids, resolved: true });
+      } else {
+        setVideoPopularSearchFilter({ popularSearchId, label, businessIds: [], resolved: true });
       }
     } catch (e) {
       console.error("[runPopularSearch] failed", e);
+      setVideoPopularSearchFilter({ popularSearchId, label, businessIds: [], resolved: true });
     }
   };
 
