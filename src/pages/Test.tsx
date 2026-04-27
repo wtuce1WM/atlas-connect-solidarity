@@ -649,6 +649,16 @@ const Test = () => {
           }
         }
         uniqueDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+        // Fetch service names for any service_id present on these docs
+        const badgeServiceIds = [...new Set(uniqueDocs.map((d: any) => d.service_id).filter(Boolean))] as string[];
+        const badgeServiceNameById = new Map<string, string>();
+        if (badgeServiceIds.length > 0) {
+          const { data: svcRows } = await supabase
+            .from("services")
+            .select("id, name_fr")
+            .in("id", badgeServiceIds);
+          (svcRows || []).forEach((s: any) => badgeServiceNameById.set(s.id, s.name_fr));
+        }
         // Exception: for the manual "Suivez le guide" card (badge "Guide"),
         // show every video tagged in this city without grouping by business.
         const isGuideBadge = /^(suivez le guide|guide)$/i.test(videoBadgeFilter.label.trim());
@@ -680,6 +690,7 @@ const Test = () => {
             manualCard: null,
             subcategory_id: d.subcategory_id ?? null,
             service_id: d.service_id ?? null,
+            service_name: d.service_id ? badgeServiceNameById.get(d.service_id) ?? null : null,
           } as VideoItem;
         });
 
