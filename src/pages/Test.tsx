@@ -246,10 +246,11 @@ const Test = () => {
   // Load front structure (independent of city)
   useEffect(() => {
     const load = async () => {
-      const [entriesRes, linksRes, svcLinksRes, subsRes, servicesRes] = await Promise.all([
+      const [entriesRes, linksRes, svcLinksRes, badgeLinksRes, subsRes, servicesRes] = await Promise.all([
         supabase.from("front_structure").select("*").order("sort_order"),
         supabase.from("front_structure_subcategories").select("*"),
         supabase.from("front_structure_services" as any).select("*"),
+        supabase.from("front_structure_badges" as any).select("*"),
         supabase.from("subcategories").select("id, name_fr, category_id"),
         supabase.from("services").select("id, name_fr").eq("is_active", true),
       ]);
@@ -280,6 +281,10 @@ const Test = () => {
       ((svcLinksRes.data || []) as any[]).forEach((l: any) => {
         (svcLinksByEntry[l.front_structure_id] ||= []).push(l.service_id);
       });
+      const badgeLinksByEntry: Record<string, string[]> = {};
+      ((badgeLinksRes.data || []) as any[]).forEach((l: any) => {
+        (badgeLinksByEntry[l.front_structure_id] ||= []).push(l.badge_id);
+      });
 
       setEntries(
         (entriesRes.data || [])
@@ -290,6 +295,7 @@ const Test = () => {
             sort_order: e.sort_order,
             subcategory_ids: linksByEntry[e.id] || [],
             service_ids: svcLinksByEntry[e.id] || [],
+            badge_ids: badgeLinksByEntry[e.id] || [],
           }))
       );
     };
