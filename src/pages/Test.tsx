@@ -537,6 +537,7 @@ const Test = () => {
               description: null,
               manualCard: { label: (ev.type && String(ev.type).trim()) || ev.name || videoEventFilter.label, badgeId: null, eventId: ev.id },
               eventInfo: {
+                name: ev.name ?? null,
                 hook: ev.hook ?? null,
                 start_date: ev.start_date ?? null,
                 end_date: ev.end_date ?? null,
