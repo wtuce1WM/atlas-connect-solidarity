@@ -1000,6 +1000,15 @@ const Test = () => {
 
 
         const manualCardMap = !selectedSubId ? await getManualCardMap(city, limitedDocs) : new Map<string, { label: string; badgeId: string | null; eventId?: string | null }>();
+        const serviceIdSet = [...new Set(limitedDocs.map((d: any) => d.service_id).filter(Boolean))] as string[];
+        const serviceNameById = new Map<string, string>();
+        for (let i = 0; i < serviceIdSet.length; i += 300) {
+          const { data: svcRows } = await supabase
+            .from("services")
+            .select("id, name_fr")
+            .in("id", serviceIdSet.slice(i, i + 300));
+          (svcRows || []).forEach((s: any) => serviceNameById.set(s.id, s.name_fr));
+        }
 
         const docItems: VideoItem[] = limitedDocs.map((d: any) => {
           const biz = bizMap.get(d.business_id) || null;
@@ -1017,6 +1026,7 @@ const Test = () => {
             manualCard: manualCardMap.get(d.id) || null,
             subcategory_id: d.subcategory_id ?? null,
             service_id: d.service_id ?? null,
+            service_name: d.service_id ? serviceNameById.get(d.service_id) ?? null : null,
           } as VideoItem;
         });
 
