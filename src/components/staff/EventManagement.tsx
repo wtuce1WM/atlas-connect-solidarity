@@ -318,6 +318,72 @@ const SortableVideoItem = ({ id, url, index, setForm, toast, eventId, ownerBusin
   );
 };
 
+/* ── Add a video by pasting a business_documents video ID ── */
+const AddVideoByIdInput = ({ form, setForm, toast }: { form: typeof EMPTY_FORM; setForm: React.Dispatch<React.SetStateAction<typeof EMPTY_FORM>>; toast: any }) => {
+  const [value, setValue] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const resolveAndAdd = async (rawId: string) => {
+    const id = rawId.trim();
+    if (!id || id.length < 30) {
+      toast({ variant: "destructive", title: "ID invalide", description: "Collez un ID de vidéo (UUID)." });
+      return;
+    }
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("business_documents")
+        .select("url, type")
+        .eq("id", id)
+        .maybeSingle();
+      if (error || !data || (data as any).type !== "video" || !(data as any).url) {
+        toast({ variant: "destructive", title: "ID introuvable", description: "Aucune vidéo trouvée avec cet identifiant." });
+        return;
+      }
+      const url = (data as any).url as string;
+      if (form.videos.includes(url)) {
+        toast({ variant: "destructive", title: "Déjà ajoutée", description: "Cette vidéo est déjà liée à l'événement." });
+        return;
+      }
+      setForm(p => ({ ...p, videos: [...p.videos, url] }));
+      setValue("");
+      toast({ title: "Vidéo ajoutée ✓", description: `Liée via l'ID ${id.substring(0, 8)}…` });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <Link className="h-4 w-4 text-muted-foreground shrink-0" />
+      <Input
+        placeholder="Ajouter une vidéo via son ID (business_documents)"
+        value={value}
+        onChange={e => setValue(e.target.value)}
+        onPaste={e => {
+          const pasted = e.clipboardData.getData("text").trim();
+          if (pasted.length >= 30) {
+            e.preventDefault();
+            setValue(pasted);
+            resolveAndAdd(pasted);
+          }
+        }}
+        onKeyDown={e => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            resolveAndAdd(value);
+          }
+        }}
+        className="h-8 text-xs font-mono"
+        disabled={loading}
+      />
+      <Button type="button" size="sm" variant="outline" disabled={loading || !value.trim()} onClick={() => resolveAndAdd(value)}>
+        {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Lier"}
+      </Button>
+    </div>
+  );
+};
+
 /* ── Videos DnD list ── */
 const VideosDndList = ({ form, setForm, toast, eventId, ownerBusinessId, eventName }: { form: typeof EMPTY_FORM; setForm: React.Dispatch<React.SetStateAction<typeof EMPTY_FORM>>; toast: any; eventId: string | null; ownerBusinessId: string | null; eventName: string }) => {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
@@ -435,6 +501,10 @@ const VideosDndList = ({ form, setForm, toast, eventId, ownerBusinessId, eventNa
         <p className="text-sm text-muted-foreground text-center">
           Nombre maximum de vidéos atteint ({maxVideos})
         </p>
+      )}
+
+      {form.videos.length < maxVideos && (
+        <AddVideoByIdInput form={form} setForm={setForm} toast={toast} />
       )}
     </div>
   );
