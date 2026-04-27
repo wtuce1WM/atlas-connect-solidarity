@@ -519,6 +519,14 @@ const Test = () => {
               social: null,
               description: null,
               manualCard: { label: (ev.type && String(ev.type).trim()) || ev.name || videoEventFilter.label, badgeId: null, eventId: ev.id },
+              eventInfo: {
+                hook: ev.hook ?? null,
+                start_date: ev.start_date ?? null,
+                end_date: ev.end_date ?? null,
+                days_of_week: ev.days_of_week ?? null,
+                start_time: ev.start_time ?? null,
+                end_time: ev.end_time ?? null,
+              },
             } as VideoItem;
           }));
         }
