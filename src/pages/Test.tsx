@@ -2006,7 +2006,7 @@ const Test = () => {
                                   )}
                                   {ei.name && (
                                     <p
-                                      className="text-sm font-bold text-white"
+                                      className="text-sm font-bold text-white mt-3"
                                       style={{
                                         fontFamily: "'Roboto', sans-serif",
                                         letterSpacing: "0.02em",
