@@ -195,9 +195,16 @@ const HomepageCardsFront = ({ city, onLabelClick }: Props) => {
       <div className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted group w-full">
         <button
           type="button"
-          onClick={() => { setCurrentTime(0); setActiveIndex(index); }}
-          className="absolute inset-0 w-full h-full text-left"
-          aria-label={`Lire ${it.label || it.businessName || ""}`}
+          onClick={() => {
+            if (it.label) {
+              handleLabelActivate(slot);
+            } else {
+              setCurrentTime(0);
+              setActiveIndex(index);
+            }
+          }}
+          className="absolute inset-0 w-full h-full text-left cursor-pointer"
+          aria-label={it.label ? `Filtrer ${it.label}` : `Lire ${it.businessName || ""}`}
         >
           {it.thumbnail ? (
             <img src={it.thumbnail} alt={it.businessName || ""} className="w-full h-full object-cover" loading="lazy" />
