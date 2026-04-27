@@ -412,6 +412,7 @@ const Test = () => {
       sort_order: -1,
       subcategory_ids: [],
       service_ids: [],
+      badge_ids: [],
     };
     const vlogsEntry: FrontEntry = {
       id: VLOGS_ID,
@@ -419,6 +420,7 @@ const Test = () => {
       sort_order: -0.5,
       subcategory_ids: [],
       service_ids: [],
+      badge_ids: [],
     };
     if (loading) return [homeEntry, vlogsEntry, ...topLevelEntries];
     const filtered = topLevelEntries.filter((e) => entriesWithVideos.has(e.id));
