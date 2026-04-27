@@ -107,29 +107,25 @@ const SlidePanelHome = ({
       const today = new Date().toISOString().slice(0, 10);
       const { data } = await (supabase as any)
         .from("events")
-        .select("id, name, start_date, end_date, hook, logo_url, default_business_id")
+        .select("id, name, start_date, end_date, hook, logo_url")
         .eq("city_id", cityRow.id)
         .or(`end_date.gte.${today},and(end_date.is.null,start_date.gte.${today}),and(start_date.is.null,end_date.is.null)`)
         .order("start_date", { ascending: true, nullsFirst: false });
       if (cancelled) return;
       const rows = (data as any[]) || [];
-      // Fallback: for events without default_business_id, use the first linked business from event_businesses
-      const eventIdsNeedingFallback = rows.filter((r) => !r.default_business_id).map((r) => r.id);
-      const fallbackByEvent = new Map<string, string>();
-      if (eventIdsNeedingFallback.length > 0) {
+      // Always use event_businesses (take first linked business per event)
+      const bizByEvent = new Map<string, string>();
+      if (rows.length > 0) {
         const { data: ebRows } = await (supabase as any)
           .from("event_businesses")
           .select("event_id, business_id, created_at")
-          .in("event_id", eventIdsNeedingFallback)
+          .in("event_id", rows.map((r) => r.id))
           .order("created_at", { ascending: true });
         ((ebRows as any[]) || []).forEach((eb) => {
-          if (!fallbackByEvent.has(eb.event_id)) fallbackByEvent.set(eb.event_id, eb.business_id);
+          if (!bizByEvent.has(eb.event_id)) bizByEvent.set(eb.event_id, eb.business_id);
         });
       }
-      const bizIds = Array.from(new Set([
-        ...rows.map((r) => r.default_business_id).filter(Boolean),
-        ...Array.from(fallbackByEvent.values()),
-      ]));
+      const bizIds = Array.from(new Set(Array.from(bizByEvent.values())));
       const bizMap = new Map<string, AgendaEvent["business"]>();
       if (bizIds.length > 0) {
         const { data: bizRows } = await supabase
@@ -141,7 +137,7 @@ const SlidePanelHome = ({
       if (cancelled) return;
       setAgendaEvents(
         rows.map((r) => {
-          const bizId = r.default_business_id || fallbackByEvent.get(r.id) || null;
+          const bizId = bizByEvent.get(r.id) || null;
           return {
             id: r.id,
             name: r.name,
