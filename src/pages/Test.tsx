@@ -2284,6 +2284,20 @@ const Test = () => {
                             <div className="w-0 h-0 border-y-[6px] border-y-transparent border-l-[9px] border-l-white ml-0.5" />
                           </div>
                         </div>
+                        {selectedEntry?.name?.trim().toLowerCase() === "immobilier" && (v.price || v.priceType) && (
+                          <div className="absolute inset-x-0 bottom-[8%] z-[9] flex flex-col items-center gap-1 px-2 pointer-events-none">
+                            {v.price && (
+                              <span className="px-2 py-0.5 rounded bg-black/80 text-white text-[11px] font-bold leading-tight max-w-full truncate">
+                                {v.price}
+                              </span>
+                            )}
+                            {v.priceType && (
+                              <span className="px-2 py-0.5 rounded bg-gold text-black text-[10px] font-bold uppercase tracking-wide leading-tight">
+                                {v.priceType.toLowerCase() === "location" ? "Location" : v.priceType.toLowerCase() === "vente" ? "Vente" : v.priceType}
+                              </span>
+                            )}
+                          </div>
+                        )}
                         {!isVlogThumb && v.owner?.logo_url && (
                           <div className="absolute inset-x-0 bottom-[15%] z-[6] flex items-center justify-center px-2 pointer-events-none">
                             <div className="animate-logo-big-full-reveal max-w-[100px] max-h-[72px]">
