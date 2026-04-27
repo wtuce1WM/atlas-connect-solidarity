@@ -2103,7 +2103,9 @@ const Test = () => {
                                 </p>
                               ) : null;
                             })()}
-                            <p className="text-[10px] font-medium text-white line-clamp-1">{isVlogThumb ? v.business_name : v.owner?.name || v.business_name}</p>
+                            {!v.eventInfo?.name && (
+                              <p className="text-[10px] font-medium text-white line-clamp-1">{isVlogThumb ? v.business_name : v.owner?.name || v.business_name}</p>
+                            )}
                           </div>
                         )}
                       </div>
