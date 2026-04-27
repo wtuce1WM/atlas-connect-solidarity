@@ -43,6 +43,7 @@ interface VideoItem {
   /** Set only when the video's owner business differs from the display entity */
   owner: OwnerInfo | null;
   social: SocialInfo | null;
+  showSocialBadge: boolean;
   description: string | null;
   manualCard: { label: string; badgeId: string | null; eventId?: string | null } | null;
   subcategory_id?: string | null;
@@ -111,6 +112,10 @@ function extractSocial(d: any): SocialInfo | null {
   const yt = (d?.youtube_account || "").trim();
   if (yt) return { platform: "youtube", account: yt.replace(/^@+/, ""), url: d?.youtube_url || null };
   return null;
+}
+
+function hasDifferentOwnerAccount(owner?: { affiliate_id?: string | null } | null, displayed?: { affiliate_id?: string | null } | null): boolean {
+  return !!owner?.affiliate_id && !!displayed?.affiliate_id && owner.affiliate_id !== displayed.affiliate_id;
 }
 
 async function getManualCardMap(city: City, docs: any[]) {
