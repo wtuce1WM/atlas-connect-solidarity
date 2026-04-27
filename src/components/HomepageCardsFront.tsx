@@ -291,6 +291,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
             </button>
           </div>
         )}
+        {immoBadge}
       </div>
     );
   };
