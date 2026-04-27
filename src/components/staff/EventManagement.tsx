@@ -436,6 +436,10 @@ const VideosDndList = ({ form, setForm, toast, eventId, ownerBusinessId, eventNa
           Nombre maximum de vidéos atteint ({maxVideos})
         </p>
       )}
+
+      {form.videos.length < maxVideos && (
+        <AddVideoByIdInput form={form} setForm={setForm} toast={toast} />
+      )}
     </div>
   );
 };
