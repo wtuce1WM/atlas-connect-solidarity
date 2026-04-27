@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { X, ChevronUp, ChevronDown, Youtube } from "lucide-react";
+import { X, ChevronUp, ChevronDown, Youtube, MapPin, ExternalLink } from "lucide-react";
 import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { SiTiktok } from "react-icons/si";
 import { createPortal } from "react-dom";
@@ -9,6 +9,8 @@ import PanelSearchBar from "@/components/PanelSearchBar";
 import VideoControls from "@/components/VideoControls";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
 import { useNavigate } from "react-router-dom";
+import { LazyDirectionsOverlay } from "@/components/overlays/LazyOverlays";
+import { businessUrl } from "@/lib/businessUrl";
 
 interface SocialInfo {
   platform: "instagram" | "tiktok" | "youtube";
@@ -43,6 +45,17 @@ interface AgendaEvent {
   end_date: string | null;
   hook: string | null;
   logo_url: string | null;
+  business: {
+    id: string;
+    slug: string | null;
+    name: string;
+    address: string | null;
+    latitude: number | null;
+    longitude: number | null;
+    phone: string | null;
+    city: string | null;
+    logo_url: string | null;
+  } | null;
 }
 
 const formatDateRange = (start: string | null, end: string | null) => {
@@ -76,6 +89,7 @@ const SlidePanelHome = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [agendaEvents, setAgendaEvents] = useState<AgendaEvent[]>([]);
+  const [directionsBusiness, setDirectionsBusiness] = useState<AgendaEvent["business"] | null>(null);
 
   useEffect(() => {
     if (!open || !agendaCity) {
@@ -93,11 +107,33 @@ const SlidePanelHome = ({
       const today = new Date().toISOString().slice(0, 10);
       const { data } = await (supabase as any)
         .from("events")
-        .select("id, name, start_date, end_date, hook, logo_url")
+        .select("id, name, start_date, end_date, hook, logo_url, default_business_id")
         .eq("city_id", cityRow.id)
         .or(`end_date.gte.${today},and(end_date.is.null,start_date.gte.${today}),and(start_date.is.null,end_date.is.null)`)
         .order("start_date", { ascending: true, nullsFirst: false });
-      if (!cancelled) setAgendaEvents((data as AgendaEvent[]) || []);
+      if (cancelled) return;
+      const rows = (data as any[]) || [];
+      const bizIds = Array.from(new Set(rows.map((r) => r.default_business_id).filter(Boolean)));
+      const bizMap = new Map<string, AgendaEvent["business"]>();
+      if (bizIds.length > 0) {
+        const { data: bizRows } = await supabase
+          .from("businesses")
+          .select("id, slug, name, address, latitude, longitude, phone, city, logo_url")
+          .in("id", bizIds);
+        ((bizRows as any[]) || []).forEach((b) => bizMap.set(b.id, b as any));
+      }
+      if (cancelled) return;
+      setAgendaEvents(
+        rows.map((r) => ({
+          id: r.id,
+          name: r.name,
+          start_date: r.start_date,
+          end_date: r.end_date,
+          hook: r.hook,
+          logo_url: r.logo_url,
+          business: r.default_business_id ? bizMap.get(r.default_business_id) || null : null,
+        })),
+      );
     })();
     return () => { cancelled = true; };
   }, [open, agendaCity]);
@@ -282,23 +318,53 @@ const SlidePanelHome = ({
                     {agendaEvents.length === 0 ? (
                       <p className="p-4 text-white/70 text-sm text-center">Aucun événement à venir.</p>
                     ) : (
-                      agendaEvents.map((ev) => (
-                        <div
-                          key={ev.id}
-                          className="w-full flex items-start gap-3 p-3 text-left"
-                        >
-                          {ev.logo_url ? (
-                            <img src={ev.logo_url} alt="" className="w-12 h-12 rounded object-cover flex-shrink-0 bg-white/5" />
-                          ) : (
-                            <div className="w-12 h-12 rounded bg-gold/20 flex-shrink-0" />
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-white text-sm font-semibold line-clamp-2">{ev.name}</p>
-                            <p className="text-gold text-xs mt-0.5">{formatDateRange(ev.start_date, ev.end_date)}</p>
-                            {ev.hook && <p className="text-white/60 text-xs mt-1 line-clamp-2">{ev.hook}</p>}
+                      agendaEvents.map((ev) => {
+                        const biz = ev.business;
+                        const hasCoords = !!(biz && biz.latitude && biz.longitude);
+                        return (
+                          <div
+                            key={ev.id}
+                            className="w-full flex items-start gap-3 p-3 text-left"
+                          >
+                            {ev.logo_url ? (
+                              <img src={ev.logo_url} alt="" className="w-12 h-12 rounded object-cover flex-shrink-0 bg-white/5" />
+                            ) : (
+                              <div className="w-12 h-12 rounded bg-gold/20 flex-shrink-0" />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-white text-sm font-semibold line-clamp-2">{ev.name}</p>
+                              <p className="text-gold text-xs mt-0.5">{formatDateRange(ev.start_date, ev.end_date)}</p>
+                              {ev.hook && <p className="text-white/60 text-xs mt-1 line-clamp-2">{ev.hook}</p>}
+                              {(biz || hasCoords) && (
+                                <div className="mt-2 flex gap-2">
+                                  {biz && (
+                                    <button
+                                      type="button"
+                                      onClick={() => navigate(businessUrl(biz))}
+                                      className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-white text-black font-medium text-xs shadow-lg hover:bg-white/90 transition-colors normal-case tracking-normal h-9"
+                                      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                                    >
+                                      <ExternalLink className="h-3.5 w-3.5" />
+                                      <span className="truncate">En savoir +</span>
+                                    </button>
+                                  )}
+                                  {hasCoords && (
+                                    <button
+                                      type="button"
+                                      onClick={() => setDirectionsBusiness(biz)}
+                                      className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-gold text-gold-foreground font-medium text-xs shadow-lg hover:bg-gold/90 transition-colors normal-case tracking-normal h-9"
+                                      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                                    >
+                                      <MapPin className="h-3.5 w-3.5" />
+                                      <span className="truncate">Itinéraire</span>
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ))
+                        );
+                      })
                     )}
                   </div>
                 </div>
@@ -341,6 +407,22 @@ const SlidePanelHome = ({
             </div>
           </div>
         </div>
+        {directionsBusiness && (
+          <Suspense fallback={null}>
+            <LazyDirectionsOverlay
+              business={{
+                name: directionsBusiness.name,
+                address: directionsBusiness.address,
+                latitude: directionsBusiness.latitude,
+                longitude: directionsBusiness.longitude,
+                phone: directionsBusiness.phone,
+                city: directionsBusiness.city,
+                logo_url: directionsBusiness.logo_url,
+              }}
+              onClose={() => setDirectionsBusiness(null)}
+            />
+          </Suspense>
+        )}
       </div>
     </div>,
     document.body,
