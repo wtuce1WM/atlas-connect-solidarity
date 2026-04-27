@@ -2286,7 +2286,7 @@ const Test = () => {
                             <div className="w-0 h-0 border-y-[6px] border-y-transparent border-l-[9px] border-l-white ml-0.5" />
                           </div>
                         </div>
-                        {selectedEntry?.name?.trim().toLowerCase() === "immobilier" && (v.priceType || v.videoTitle) && (
+                        {(["immobilier", "villas"].includes(selectedEntry?.name?.trim().toLowerCase() ?? "")) && (v.priceType || v.videoTitle) && (
                           <div className="absolute inset-x-0 top-[6%] z-[20] flex flex-col items-center gap-2 px-3 pointer-events-none text-center">
                             {v.priceType && (
                               <span className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black">
