@@ -1836,6 +1836,7 @@ export type Database = {
           name_ar: string | null
           name_en: string | null
           name_fr: string
+          og_image_url: string | null
           sort_order: number | null
           updated_at: string | null
         }
@@ -1850,6 +1851,7 @@ export type Database = {
           name_ar?: string | null
           name_en?: string | null
           name_fr: string
+          og_image_url?: string | null
           sort_order?: number | null
           updated_at?: string | null
         }
@@ -1864,6 +1866,7 @@ export type Database = {
           name_ar?: string | null
           name_en?: string | null
           name_fr?: string
+          og_image_url?: string | null
           sort_order?: number | null
           updated_at?: string | null
         }
@@ -4827,6 +4830,7 @@ export type Database = {
           name_ar: string | null
           name_en: string | null
           name_fr: string
+          og_image_url: string | null
           show_google_map: boolean
           sort_order: number | null
           tab_title: string | null
@@ -4846,6 +4850,7 @@ export type Database = {
           name_ar?: string | null
           name_en?: string | null
           name_fr: string
+          og_image_url?: string | null
           show_google_map?: boolean
           sort_order?: number | null
           tab_title?: string | null
@@ -4865,6 +4870,7 @@ export type Database = {
           name_ar?: string | null
           name_en?: string | null
           name_fr?: string
+          og_image_url?: string | null
           show_google_map?: boolean
           sort_order?: number | null
           tab_title?: string | null
