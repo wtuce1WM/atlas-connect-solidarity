@@ -1009,6 +1009,7 @@ const Test = () => {
             social: extractSocial(d),
             description: d.description ?? null,
             manualCard: manualCardMap.get(d.id) || null,
+            subcategory_id: d.subcategory_id ?? null,
           } as VideoItem;
         });
 
