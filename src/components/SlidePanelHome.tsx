@@ -94,8 +94,11 @@ const SlidePanelHome = ({
   const [agendaEvents, setAgendaEvents] = useState<AgendaEvent[]>([]);
   const [directionsBusiness, setDirectionsBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
+  const [ownerBusiness, setOwnerBusiness] = useState<AgendaEvent["business"] | null>(null);
 
-  // Load linked business for a single event (via event_businesses)
+  // Resolve a business for the CTA bar:
+  // - If `eventId` is set, take the first linked business via event_businesses (eventBusiness).
+  // - Otherwise, fall back to the video owner (owner.id is a business id for non-generic videos).
   useEffect(() => {
     if (!open || !eventId) {
       setEventBusiness(null);
@@ -122,6 +125,27 @@ const SlidePanelHome = ({
     })();
     return () => { cancelled = true; };
   }, [open, eventId]);
+
+  // Fallback owner-based business lookup (used when no eventId is provided)
+  useEffect(() => {
+    if (!open || eventId || isGeneric || !owner?.id) {
+      setOwnerBusiness(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const { data: bizRow } = await supabase
+        .from("businesses")
+        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url")
+        .eq("id", owner.id)
+        .maybeSingle();
+      if (cancelled) return;
+      setOwnerBusiness((bizRow as any) || null);
+    })();
+    return () => { cancelled = true; };
+  }, [open, eventId, isGeneric, owner?.id]);
+
+  const ctaBusiness = eventBusiness || ownerBusiness;
 
   useEffect(() => {
     if (!open || !agendaCity) {
