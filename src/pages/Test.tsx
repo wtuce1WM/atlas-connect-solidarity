@@ -49,6 +49,14 @@ interface VideoItem {
   subcategory_id?: string | null;
   service_id?: string | null;
   service_name?: string | null;
+  eventInfo?: {
+    hook: string | null;
+    start_date: string | null;
+    end_date: string | null;
+    days_of_week: string[] | null;
+    start_time: string | null;
+    end_time: string | null;
+  } | null;
 }
 
 interface VideoEventFilter {
@@ -76,6 +84,22 @@ const formatEventDateRange = (start: string | null, end: string | null) => {
   if (start) return fmt(start);
   if (end) return fmt(end);
   return "Date à confirmer";
+};
+
+const DAY_LABEL_FR: Record<string, string> = {
+  monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu",
+  friday: "Ven", saturday: "Sam", sunday: "Dim",
+  lundi: "Lun", mardi: "Mar", mercredi: "Mer", jeudi: "Jeu",
+  vendredi: "Ven", samedi: "Sam", dimanche: "Dim",
+};
+const formatDaysOfWeek = (days: string[] | null | undefined): string | null => {
+  if (!days || days.length === 0) return null;
+  return days.map((d) => DAY_LABEL_FR[d.toLowerCase()] || d).join(" · ");
+};
+const formatTimeRange = (start: string | null, end: string | null): string | null => {
+  if (!start && !end) return null;
+  if (start && end) return `${start} → ${end}`;
+  return start || end;
 };
 
 function extractSocial(d: any): SocialInfo | null {
@@ -463,7 +487,7 @@ const Test = () => {
 
         const { data: eventRows } = await (supabase as any)
           .from("events")
-          .select("id, name, type, images, videos, default_business_id, start_date")
+          .select("id, name, type, hook, images, videos, default_business_id, start_date, end_date, days_of_week, start_time, end_time")
           .in("id", ids)
           .order("start_date", { ascending: true });
 
@@ -511,6 +535,14 @@ const Test = () => {
               social: null,
               description: null,
               manualCard: { label: (ev.type && String(ev.type).trim()) || ev.name || videoEventFilter.label, badgeId: null, eventId: ev.id },
+              eventInfo: {
+                hook: ev.hook ?? null,
+                start_date: ev.start_date ?? null,
+                end_date: ev.end_date ?? null,
+                days_of_week: ev.days_of_week ?? null,
+                start_time: ev.start_time ?? null,
+                end_time: ev.end_time ?? null,
+              },
             } as VideoItem;
           }));
         }
@@ -1955,7 +1987,29 @@ const Test = () => {
                         >
                           {v.id.slice(0, 8)}
                         </button>
-                        {v.manualCard?.label && (
+                        {v.eventInfo ? (
+                          (() => {
+                            const ei = v.eventInfo;
+                            const dateStr = formatEventDateRange(ei.start_date, ei.end_date);
+                            const daysStr = formatDaysOfWeek(ei.days_of_week);
+                            const timeStr = formatTimeRange(ei.start_time, ei.end_time);
+                            return (
+                              <div
+                                className="absolute inset-x-0 top-[8%] z-20 flex flex-col items-center justify-center gap-1 px-3 pointer-events-none text-center text-white"
+                                style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
+                              >
+                                {ei.hook && (
+                                  <p className="text-sm font-bold uppercase tracking-wide line-clamp-2" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                                    {ei.hook}
+                                  </p>
+                                )}
+                                {dateStr && <p className="text-xs font-semibold">{dateStr}</p>}
+                                {daysStr && <p className="text-[11px]">{daysStr}</p>}
+                                {timeStr && <p className="text-[11px]">{timeStr}</p>}
+                              </div>
+                            );
+                          })()
+                        ) : v.manualCard?.label && (
                           <div className="absolute inset-x-0 top-[10%] z-20 flex items-center justify-center px-2 pointer-events-none">
                             <button
                               type="button"
