@@ -430,7 +430,12 @@ const SlidePanelHome = ({
                 <div className="w-4/5 max-w-md pointer-events-auto flex gap-2">
                   <button
                     type="button"
-                    onClick={() => navigate(businessUrl(eventBusiness))}
+                    onClick={() => {
+                      try {
+                        if (videoId) sessionStorage.setItem("returnToTestVideoId", videoId);
+                      } catch {}
+                      navigate(businessUrl(eventBusiness));
+                    }}
                     className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-white text-black font-medium text-xs shadow-lg hover:bg-white/90 transition-colors normal-case tracking-normal h-9"
                     style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                   >
