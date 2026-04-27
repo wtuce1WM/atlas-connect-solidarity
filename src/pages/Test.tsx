@@ -930,7 +930,7 @@ const Test = () => {
         while (true) {
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, subcategory_id, city, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
+            .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, city, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
             .eq("type", "video")
             .in("subcategory_id", subIds)
             .eq("city", city)
@@ -946,7 +946,7 @@ const Test = () => {
           const chunk = extraIds.slice(i, i + 300);
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, subcategory_id, city, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
+            .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, city, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
             .eq("type", "video")
             .in("subcategory_id", subIds)
             .in("id", chunk);
