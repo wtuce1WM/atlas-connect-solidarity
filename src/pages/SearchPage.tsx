@@ -1812,7 +1812,7 @@ const SearchPage = () => {
 
   const t = translations[language] || translations.fr;
 
-  const navigate = useNavigate();
+
 
   const handleCityChange = (city: string) => {
     setSelectedCity(city);
