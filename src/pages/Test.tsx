@@ -218,6 +218,22 @@ const Test = () => {
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const autoOpenedRef = useRef<string | null>(null);
+  // Auto-reopen the SlidePanelHome on the original video when returning from a business panel
+  useEffect(() => {
+    const wantedId = searchParams.get("openVideo");
+    if (!wantedId || autoOpenedRef.current === wantedId) return;
+    const found = videos.find((v) => v.id === wantedId);
+    if (!found) return;
+    autoOpenedRef.current = wantedId;
+    setActiveVideo(found);
+    setActiveVideoId(found.id);
+    setPanelOpen(true);
+    const next = new URLSearchParams(searchParams);
+    next.delete("openVideo");
+    setSearchParams(next, { replace: true });
+  }, [videos, searchParams, setSearchParams]);
   const [guideVideos, setGuideVideos] = useState<VideoItem[]>([]);
   const [loadingGuide, setLoadingGuide] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
