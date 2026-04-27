@@ -434,18 +434,26 @@ const SearchPage = () => {
       const closeCompactPanel = useCallback(() => {
         hasInteractedWithCompactPanelRef.current = true;
         hasAutoAlignedResultsRef.current = true;
+        // Return-to-Test flow: if user came from SlidePanelHome (Test page),
+        // navigate back to /test and reopen the original video panel.
+        // Read the flag BEFORE unmounting the panel (whose cleanup rewrites the URL).
+        let returnVideoId: string | null = null;
+        try {
+          returnVideoId = sessionStorage.getItem("returnToTestVideoId");
+          if (returnVideoId) sessionStorage.removeItem("returnToTestVideoId");
+        } catch {}
         setCompactPanelBusiness(null);
         setIsCompactPanelExpanded(false);
         setIsNestedMosaicOpen(false);
-        // Return-to-Test flow: if user came from SlidePanelHome (Test page),
-        // navigate back to /test and reopen the original video panel.
-        try {
-          const returnVideoId = sessionStorage.getItem("returnToTestVideoId");
-          if (returnVideoId) {
-            sessionStorage.removeItem("returnToTestVideoId");
-            navigate(`/test?openVideo=${encodeURIComponent(returnVideoId)}`);
-          }
-        } catch {}
+        if (returnVideoId) {
+          // Defer navigation so BookOnlineSlidePanel's unmount cleanup
+          // (which calls history.replaceState to the original URL) runs FIRST.
+          // Otherwise the cleanup overwrites our /test?openVideo=... URL.
+          const id = returnVideoId;
+          setTimeout(() => {
+            navigate(`/test?openVideo=${encodeURIComponent(id)}`, { replace: true });
+          }, 0);
+        }
       }, [navigate]);
 
       const handleCompactPanelClose = useCallback(() => {
