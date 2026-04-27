@@ -2276,7 +2276,7 @@ const Test = () => {
                                     e.preventDefault();
                                     e.stopPropagation();
                                     if (!v.id) return;
-                                    void navigator.clipboard.writeText(v.id).catch(() => {});
+                                    void copyTextSilently(v.id).catch(() => {});
                                   }}
                                   className="block w-full text-left text-[10px] font-medium text-white line-clamp-1 cursor-pointer hover:underline"
                                 >
