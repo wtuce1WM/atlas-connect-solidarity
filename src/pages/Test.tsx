@@ -88,19 +88,20 @@ const formatEventDateRange = (start: string | null, end: string | null) => {
 };
 
 const DAY_LABEL_FR: Record<string, string> = {
-  monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu",
-  friday: "Ven", saturday: "Sam", sunday: "Dim",
-  lundi: "Lun", mardi: "Mar", mercredi: "Mer", jeudi: "Jeu",
-  vendredi: "Ven", samedi: "Sam", dimanche: "Dim",
+  monday: "Lundi", tuesday: "Mardi", wednesday: "Mercredi", thursday: "Jeudi",
+  friday: "Vendredi", saturday: "Samedi", sunday: "Dimanche",
+  lundi: "Lundi", mardi: "Mardi", mercredi: "Mercredi", jeudi: "Jeudi",
+  vendredi: "Vendredi", samedi: "Samedi", dimanche: "Dimanche",
 };
 const formatDaysOfWeek = (days: string[] | null | undefined): string | null => {
   if (!days || days.length === 0) return null;
   return days.map((d) => DAY_LABEL_FR[d.toLowerCase()] || d).join(" · ");
 };
 const formatTimeRange = (start: string | null, end: string | null): string | null => {
+  const trim = (t: string) => t.length >= 5 ? t.slice(0, 5) : t;
   if (!start && !end) return null;
-  if (start && end) return `${start} → ${end}`;
-  return start || end;
+  if (start && end) return `${trim(start)} → ${trim(end)}`;
+  return start ? trim(start) : (end ? trim(end) : null);
 };
 
 function extractSocial(d: any): SocialInfo | null {
