@@ -49,6 +49,14 @@ interface VideoItem {
   subcategory_id?: string | null;
   service_id?: string | null;
   service_name?: string | null;
+  eventInfo?: {
+    hook: string | null;
+    start_date: string | null;
+    end_date: string | null;
+    days_of_week: string[] | null;
+    start_time: string | null;
+    end_time: string | null;
+  } | null;
 }
 
 interface VideoEventFilter {
