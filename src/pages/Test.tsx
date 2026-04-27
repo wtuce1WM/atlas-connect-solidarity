@@ -86,7 +86,21 @@ const formatEventDateRange = (start: string | null, end: string | null) => {
   return "Date à confirmer";
 };
 
-function extractSocial(d: any): SocialInfo | null {
+const DAY_LABEL_FR: Record<string, string> = {
+  monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu",
+  friday: "Ven", saturday: "Sam", sunday: "Dim",
+  lundi: "Lun", mardi: "Mar", mercredi: "Mer", jeudi: "Jeu",
+  vendredi: "Ven", samedi: "Sam", dimanche: "Dim",
+};
+const formatDaysOfWeek = (days: string[] | null | undefined): string | null => {
+  if (!days || days.length === 0) return null;
+  return days.map((d) => DAY_LABEL_FR[d.toLowerCase()] || d).join(" · ");
+};
+const formatTimeRange = (start: string | null, end: string | null): string | null => {
+  if (!start && !end) return null;
+  if (start && end) return `${start} → ${end}`;
+  return start || end;
+};
   const ig = (d?.instagram_account || "").trim();
   if (ig) return { platform: "instagram", account: ig.replace(/^@+/, ""), url: d?.instagram_url || null };
   const tt = (d?.tiktok_account || "").trim();
