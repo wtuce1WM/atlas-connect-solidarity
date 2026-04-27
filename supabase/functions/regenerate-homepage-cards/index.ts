@@ -226,8 +226,6 @@ async function buildSnapshot(supabase: any, city: string) {
         rating: dispBiz?.computed_rating ?? dispBiz?.rating ?? null,
         reviewCount: dispBiz?.total_review_count ?? null,
         label: entry.name,
-        price: doc.price || null,
-        priceType: doc.price_type || null,
       },
     };
   });
