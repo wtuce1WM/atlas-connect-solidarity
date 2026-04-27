@@ -2309,7 +2309,7 @@ const Test = () => {
                         )}
                         {selectedEntry?.name?.trim().toLowerCase() === "immobilier" && v.price && (
                           <div
-                            className="absolute inset-x-0 bottom-[18%] z-20 flex flex-col items-center gap-1 px-3 pointer-events-none text-center text-white"
+                            className="absolute inset-x-0 bottom-[3%] z-20 flex flex-col items-center gap-1 px-3 pointer-events-none text-center text-white"
                             style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
                           >
                             <p className="text-base font-semibold">Prix : {v.price}</p>
