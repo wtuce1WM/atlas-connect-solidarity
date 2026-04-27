@@ -1342,6 +1342,7 @@ const Test = () => {
 
   // Reset active video when entry/city changes
   useEffect(() => {
+    if (pendingOpenVideoRef.current) return;
     setActiveVideoId(null);
     setActiveVideo(null);
     setPanelOpen(false);
