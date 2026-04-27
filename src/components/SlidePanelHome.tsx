@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { X, ChevronUp, ChevronDown, Youtube } from "lucide-react";
+import { X, ChevronUp, ChevronDown, Youtube, MapPin, ExternalLink } from "lucide-react";
 import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { SiTiktok } from "react-icons/si";
 import { createPortal } from "react-dom";
@@ -9,6 +9,8 @@ import PanelSearchBar from "@/components/PanelSearchBar";
 import VideoControls from "@/components/VideoControls";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
 import { useNavigate } from "react-router-dom";
+import { LazyDirectionsOverlay } from "@/components/overlays/LazyOverlays";
+import { businessUrl } from "@/lib/businessUrl";
 
 interface SocialInfo {
   platform: "instagram" | "tiktok" | "youtube";
