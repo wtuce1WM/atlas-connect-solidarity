@@ -83,7 +83,7 @@ const formatEventDateRange = (start: string | null, end: string | null) => {
   if (start && end && start !== end) return `${fmt(start)} → ${fmt(end)}`;
   if (start) return fmt(start);
   if (end) return fmt(end);
-  return "Date à confirmer";
+  return null;
 };
 
 const DAY_LABEL_FR: Record<string, string> = {
