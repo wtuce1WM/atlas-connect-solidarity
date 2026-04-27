@@ -67,7 +67,7 @@ async function buildSnapshot(supabase: any, city: string) {
       const orFilter = `business_id.eq.${overrideBizId},linked_business_id.eq.${overrideBizId},poi_id.eq.${overrideBizId}`;
       const { data: ovDocs } = await supabase
         .from("business_documents")
-        .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
+        .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order, price, price_type")
         .eq("type", "video").or(orFilter)
         .in("subcategory_id", entry.subcategory_ids)
         .order("sort_order", { ascending: true }).limit(1);
@@ -75,7 +75,7 @@ async function buildSnapshot(supabase: any, city: string) {
       if (!candidate) {
         const { data: anyDocs } = await supabase
           .from("business_documents")
-          .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
+          .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order, price, price_type")
           .eq("type", "video").or(orFilter)
           .order("sort_order", { ascending: true }).limit(1);
         candidate = (anyDocs && anyDocs[0]) || null;
@@ -96,7 +96,7 @@ async function buildSnapshot(supabase: any, city: string) {
       queries.push(
         supabase
           .from("business_documents")
-          .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
+          .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order, price, price_type")
           .eq("type", "video")
           .in("subcategory_id", entry.subcategory_ids)
           .in("id", chunk)
@@ -117,7 +117,7 @@ async function buildSnapshot(supabase: any, city: string) {
     if (card.video_document_id) {
       const { data: vDoc } = await supabase
         .from("business_documents")
-        .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
+        .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order, price, price_type")
         .eq("id", card.video_document_id).maybeSingle();
       if (vDoc) return { cardId: card.id, doc: vDoc };
       const { data: gv } = await supabase
@@ -127,7 +127,7 @@ async function buildSnapshot(supabase: any, city: string) {
       if (gv) {
         return {
           cardId: card.id,
-          doc: { id: gv.id, url: gv.url, thumbnail_url: gv.thumbnail_url, business_id: card.business_id, poi_id: null, linked_business_id: null, sort_order: 0 },
+          doc: { id: gv.id, url: gv.url, thumbnail_url: gv.thumbnail_url, business_id: card.business_id, poi_id: null, linked_business_id: null, sort_order: 0, price: null, price_type: null },
         };
       }
       return { cardId: card.id, doc: null };
@@ -145,7 +145,7 @@ async function buildSnapshot(supabase: any, city: string) {
 
     let q = supabase
       .from("business_documents")
-      .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
+      .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order, price, price_type")
       .eq("type", "video").order("sort_order", { ascending: true }).limit(1);
     if (card.business_id) {
       q = q.or(`business_id.eq.${card.business_id},linked_business_id.eq.${card.business_id},poi_id.eq.${card.business_id}`);
@@ -226,6 +226,8 @@ async function buildSnapshot(supabase: any, city: string) {
         rating: dispBiz?.computed_rating ?? dispBiz?.rating ?? null,
         reviewCount: dispBiz?.total_review_count ?? null,
         label: entry.name,
+        price: doc.price || null,
+        priceType: doc.price_type || null,
       },
     };
   });
@@ -277,6 +279,8 @@ async function buildSnapshot(supabase: any, city: string) {
         eventId: card.event_id || null,
         popularSearchId: card.popular_search_id || null,
         target,
+        price: doc.price || null,
+        priceType: doc.price_type || null,
       },
     };
   });
