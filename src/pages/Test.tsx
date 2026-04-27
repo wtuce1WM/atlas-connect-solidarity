@@ -1801,6 +1801,7 @@ const Test = () => {
                     <HomepageCardsFront
                       city="Marrakech"
                       onLabelClick={(info) => handleHomeLabelClick(info, "Marrakech")}
+                      labelTakesPriority
                     />
                   </div>
                 </TabsContent>
@@ -1809,6 +1810,7 @@ const Test = () => {
                     <HomepageCardsFront
                       city="Essaouira"
                       onLabelClick={(info) => handleHomeLabelClick(info, "Essaouira")}
+                      labelTakesPriority
                     />
                   </div>
                 </TabsContent>
