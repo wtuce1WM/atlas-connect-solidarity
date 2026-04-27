@@ -438,9 +438,12 @@ const SearchPage = () => {
         // navigate back to /test and reopen the original video panel.
         // Read the flag BEFORE unmounting the panel (whose cleanup rewrites the URL).
         let returnVideoId: string | null = null;
+        let returnContext: string | null = null;
         try {
           returnVideoId = sessionStorage.getItem("returnToTestVideoId");
+          returnContext = sessionStorage.getItem("returnToTestContext");
           if (returnVideoId) sessionStorage.removeItem("returnToTestVideoId");
+          if (returnContext) sessionStorage.removeItem("returnToTestContext");
         } catch {}
         setCompactPanelBusiness(null);
         setIsCompactPanelExpanded(false);
@@ -451,7 +454,9 @@ const SearchPage = () => {
           // Otherwise the cleanup overwrites our /test?openVideo=... URL.
           const id = returnVideoId;
           setTimeout(() => {
-            navigate(`/test?openVideo=${encodeURIComponent(id)}`, { replace: true });
+            const params = new URLSearchParams(returnContext || "");
+            params.set("openVideo", id);
+            navigate(`/test?${params.toString()}`, { replace: true });
           }, 0);
         }
       }, [navigate]);

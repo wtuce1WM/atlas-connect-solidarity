@@ -220,20 +220,108 @@ const Test = () => {
   const [panelOpen, setPanelOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const autoOpenedRef = useRef<string | null>(null);
+  const pendingOpenVideoRef = useRef<string | null>(null);
+  const restoredOpenContextRef = useRef<string | null>(null);
   // Auto-reopen the SlidePanelHome on the original video when returning from a business panel
   useEffect(() => {
     const wantedId = searchParams.get("openVideo");
     if (!wantedId || autoOpenedRef.current === wantedId) return;
+    pendingOpenVideoRef.current = wantedId;
+
+    const shouldRestoreContext = restoredOpenContextRef.current !== wantedId;
+    if (shouldRestoreContext) restoredOpenContextRef.current = wantedId;
+
+    const cityParam = searchParams.get("city") as City | null;
+    if (shouldRestoreContext && cityParam && CITIES.includes(cityParam) && city !== cityParam) setCity(cityParam);
+
+    const entryParam = searchParams.get("entry");
+    const subParam = searchParams.get("sub");
+    const badgeId = searchParams.get("badgeId");
+    const badgeLabel = searchParams.get("badgeLabel");
+    const eventId = searchParams.get("eventId");
+    const eventLabel = searchParams.get("eventLabel");
+    const eventIds = searchParams.get("eventIds");
+    const popularSearchId = searchParams.get("popularSearchId");
+    const popularSearchLabel = searchParams.get("popularSearchLabel");
+    const popularSearchBusinessIds = searchParams.get("popularSearchBusinessIds");
+
+    if (shouldRestoreContext) setOtherViewMode("videos");
+    if (shouldRestoreContext && eventId && eventLabel) {
+      setVideoBadgeFilter(null);
+      setVideoPopularSearchFilter(null);
+      setSelectedEntryId(HOME_ID);
+      setSelectedSubId(null);
+      setVideoEventFilter({ eventId, label: eventLabel, eventIds: eventIds ? eventIds.split(",").filter(Boolean) : undefined });
+    } else if (shouldRestoreContext && badgeId && badgeLabel) {
+      setVideoEventFilter(null);
+      setVideoPopularSearchFilter(null);
+      setSelectedEntryId(HOME_ID);
+      setSelectedSubId(null);
+      setVideoBadgeFilter({ badgeId, label: badgeLabel });
+    } else if (shouldRestoreContext && popularSearchId && popularSearchLabel) {
+      setVideoBadgeFilter(null);
+      setVideoEventFilter(null);
+      setSelectedEntryId(HOME_ID);
+      setSelectedSubId(null);
+      setVideoPopularSearchFilter({ popularSearchId, label: popularSearchLabel, businessIds: popularSearchBusinessIds ? popularSearchBusinessIds.split(",").filter(Boolean) : [] });
+    } else if (shouldRestoreContext) {
+      setVideoBadgeFilter(null);
+      setVideoEventFilter(null);
+      setVideoPopularSearchFilter(null);
+      setSelectedEntryId(entryParam || HOME_ID);
+      setSelectedSubId(subParam || null);
+    }
+
+    const openVideo = (video: VideoItem) => {
+      autoOpenedRef.current = wantedId;
+      pendingOpenVideoRef.current = null;
+      setActiveVideo(video);
+      setActiveVideoId(video.id);
+      setPanelOpen(true);
+      const next = new URLSearchParams(searchParams);
+      next.delete("openVideo");
+      setSearchParams(next, { replace: true });
+    };
+
     const found = videos.find((v) => v.id === wantedId);
-    if (!found) return;
-    autoOpenedRef.current = wantedId;
-    setActiveVideo(found);
-    setActiveVideoId(found.id);
-    setPanelOpen(true);
-    const next = new URLSearchParams(searchParams);
-    next.delete("openVideo");
-    setSearchParams(next, { replace: true });
-  }, [videos, searchParams, setSearchParams]);
+    if (found) {
+      openVideo(found);
+      return;
+    }
+
+    if (loadingVideos) return;
+    let cancelled = false;
+    (async () => {
+      const { data: doc } = await supabase
+        .from("business_documents")
+        .select("id, url, thumbnail_url, business_id, linked_business_id, poi_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, event_id")
+        .eq("id", wantedId)
+        .maybeSingle();
+      if (cancelled || !doc?.url) return;
+      const displayId = (doc as any).poi_id || (doc as any).linked_business_id || (doc as any).business_id;
+      const { data: biz } = displayId
+        ? await supabase
+            .from("businesses")
+            .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+            .eq("id", displayId)
+            .maybeSingle()
+        : { data: null } as any;
+      if (cancelled) return;
+      const video: VideoItem = {
+        id: doc.id,
+        url: doc.url,
+        business_name: (biz as any)?.name || "—",
+        thumbnail_url: doc.thumbnail_url,
+        business: (biz as SearchResultBusiness) || null,
+        owner: biz ? { id: (biz as any).id, name: (biz as any).name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
+        social: extractSocial(doc),
+        description: (doc as any).description ?? null,
+        manualCard: (doc as any).event_id ? { label: "Agenda", badgeId: null, eventId: (doc as any).event_id } : null,
+      };
+      openVideo(video);
+    })();
+    return () => { cancelled = true; };
+  }, [videos, loadingVideos, searchParams, setSearchParams, city]);
   const [guideVideos, setGuideVideos] = useState<VideoItem[]>([]);
   const [loadingGuide, setLoadingGuide] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -1254,6 +1342,7 @@ const Test = () => {
 
   // Reset active video when entry/city changes
   useEffect(() => {
+    if (pendingOpenVideoRef.current) return;
     setActiveVideoId(null);
     setActiveVideo(null);
     setPanelOpen(false);
@@ -1284,6 +1373,27 @@ const Test = () => {
     () => (otherViewMode === "guide" ? guideVideos : videos),
     [otherViewMode, guideVideos, videos]
   );
+
+  const returnContext = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set("city", city);
+    if (videoEventFilter) {
+      params.set("eventId", videoEventFilter.eventId);
+      params.set("eventLabel", videoEventFilter.label);
+      if (videoEventFilter.eventIds?.length) params.set("eventIds", videoEventFilter.eventIds.join(","));
+    } else if (videoBadgeFilter) {
+      params.set("badgeId", videoBadgeFilter.badgeId);
+      params.set("badgeLabel", videoBadgeFilter.label);
+    } else if (videoPopularSearchFilter) {
+      params.set("popularSearchId", videoPopularSearchFilter.popularSearchId);
+      params.set("popularSearchLabel", videoPopularSearchFilter.label);
+      if (videoPopularSearchFilter.businessIds.length) params.set("popularSearchBusinessIds", videoPopularSearchFilter.businessIds.join(","));
+    } else {
+      if (selectedEntryId) params.set("entry", selectedEntryId);
+      if (selectedSubId) params.set("sub", selectedSubId);
+    }
+    return params.toString();
+  }, [city, selectedEntryId, selectedSubId, videoBadgeFilter, videoEventFilter, videoPopularSearchFilter]);
 
 
   // Load Tarik Belasri's visible YouTube shorts when "guide" mode is selected
@@ -2189,6 +2299,7 @@ const Test = () => {
           return i >= 0 && i < activeList.length - 1;
         })()}
         eventId={activeVideo?.id?.startsWith("event:") ? activeVideo.id.slice(6) : (activeVideo?.manualCard?.eventId || null)}
+        returnContext={returnContext}
       />
     </div>
   );
