@@ -11,7 +11,6 @@ import SlidePanelHome from "@/components/SlidePanelHome";
 import { Menu as MenuIcon, X, Star } from "lucide-react";
 import HomepageCardsFront from "@/components/HomepageCardsFront";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { toast } from "sonner";
 
 interface FrontEntry {
   id: string;
@@ -192,6 +191,26 @@ async function getManualCardMap(city: City, docs: any[]) {
 
 const HOME_ID = "__home__";
 const VLOGS_ID = "__vlogs__";
+
+const copyTextSilently = async (text: string) => {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+  } catch {}
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  textarea.style.pointerEvents = "none";
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  document.body.removeChild(textarea);
+};
 
 const Test = () => {
   const navigate = useNavigate();
