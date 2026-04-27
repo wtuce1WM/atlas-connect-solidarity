@@ -2025,8 +2025,8 @@ const Test = () => {
                                     style={{ filter: textShadow }}
                                   >
                                     {dateStr && <p className="text-xs font-semibold">{dateStr}</p>}
-                                    {daysStr && <p className="text-[11px]">{daysStr}</p>}
-                                    {timeStr && <p className="text-[11px]">{timeStr}</p>}
+                                    {daysStr && <p className="text-xs font-semibold">{daysStr}</p>}
+                                    {timeStr && <p className="text-xs font-semibold">{timeStr}</p>}
                                   </div>
                                 )}
                               </>
