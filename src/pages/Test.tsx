@@ -1651,10 +1651,20 @@ const Test = () => {
       if (!error) {
         const list = ((data as any)?.businesses || []) as SearchResultBusiness[];
         const ids = list.map((b: any) => b.id).filter(Boolean);
-        setVideoPopularSearchFilter({ popularSearchId, label, businessIds: ids });
+        if (ids.length === 0) {
+          // No business matched the popular search → show empty state explicitly
+          setVideos([]);
+          setLoadingVideos(false);
+          setVideoPopularSearchFilter({ popularSearchId, label, businessIds: [] });
+        } else {
+          setVideoPopularSearchFilter({ popularSearchId, label, businessIds: ids });
+        }
+      } else {
+        setLoadingVideos(false);
       }
     } catch (e) {
       console.error("[runPopularSearch] failed", e);
+      setLoadingVideos(false);
     }
   };
 
