@@ -1953,7 +1953,14 @@ const Test = () => {
                           </div>
                         )}
                         {((isVlogThumb ? v.business_name : v.owner?.name || v.business_name)) && (
-                          <div className="absolute bottom-0 left-0 right-0 p-1.5">
+                          <div className="absolute bottom-0 left-0 right-0 p-1.5 space-y-0.5">
+                            {selectedEntry?.id !== HOME_ID
+                              && v.manualCard?.label
+                              && !v.business?.engagements?.includes("Logistique:Commandez en ligne et recevez votre colis chez vous") && (
+                              <p className="text-[10px] font-bold uppercase tracking-wide text-gold line-clamp-1">
+                                {v.manualCard.label}
+                              </p>
+                            )}
                             <p className="text-[10px] font-medium text-white line-clamp-1">{isVlogThumb ? v.business_name : v.owner?.name || v.business_name}</p>
                           </div>
                         )}
