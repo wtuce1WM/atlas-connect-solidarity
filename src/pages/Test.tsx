@@ -272,17 +272,56 @@ const Test = () => {
       setSelectedSubId(subParam || null);
     }
 
+    const openVideo = (video: VideoItem) => {
+      autoOpenedRef.current = wantedId;
+      pendingOpenVideoRef.current = null;
+      setActiveVideo(video);
+      setActiveVideoId(video.id);
+      setPanelOpen(true);
+      const next = new URLSearchParams(searchParams);
+      next.delete("openVideo");
+      setSearchParams(next, { replace: true });
+    };
+
     const found = videos.find((v) => v.id === wantedId);
-    if (!found) return;
-    autoOpenedRef.current = wantedId;
-    pendingOpenVideoRef.current = null;
-    setActiveVideo(found);
-    setActiveVideoId(found.id);
-    setPanelOpen(true);
-    const next = new URLSearchParams(searchParams);
-    next.delete("openVideo");
-    setSearchParams(next, { replace: true });
-  }, [videos, searchParams, setSearchParams, city]);
+    if (found) {
+      openVideo(found);
+      return;
+    }
+
+    if (loadingVideos) return;
+    let cancelled = false;
+    (async () => {
+      const { data: doc } = await supabase
+        .from("business_documents")
+        .select("id, url, thumbnail_url, business_id, linked_business_id, poi_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, event_id")
+        .eq("id", wantedId)
+        .maybeSingle();
+      if (cancelled || !doc?.url) return;
+      const displayId = (doc as any).poi_id || (doc as any).linked_business_id || (doc as any).business_id;
+      const { data: biz } = displayId
+        ? await supabase
+            .from("businesses")
+            .select("id, name, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+            .eq("id", displayId)
+            .maybeSingle()
+        : { data: null } as any;
+      if (cancelled) return;
+      const video: VideoItem = {
+        id: doc.id,
+        url: doc.url,
+        business_name: (biz as any)?.name || "—",
+        thumbnail_url: doc.thumbnail_url,
+        business: (biz as SearchResultBusiness) || null,
+        owner: biz ? { id: (biz as any).id, name: (biz as any).name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
+        social: extractSocial(doc),
+        description: (doc as any).description ?? null,
+        manualCard: (doc as any).event_id ? { label: "Agenda", badgeId: null, eventId: (doc as any).event_id } : null,
+      };
+      openVideo(video);
+    })();
+    return () => { cancelled = true; };
+  }, [videos, loadingVideos, searchParams, setSearchParams, city]);
   const [guideVideos, setGuideVideos] = useState<VideoItem[]>([]);
   const [loadingGuide, setLoadingGuide] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
