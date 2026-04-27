@@ -2006,9 +2006,10 @@ const Test = () => {
                                   )}
                                   {ei.name && (
                                     <p
-                                      className="text-sm font-bold uppercase tracking-wide text-white"
+                                      className="text-sm font-bold text-white"
                                       style={{
-                                        fontFamily: "'Josefin Sans', sans-serif",
+                                        fontFamily: "'Roboto', sans-serif",
+                                        letterSpacing: "0.02em",
                                         filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 5px hsla(0,0%,0%,0.95)) drop-shadow(0 0 10px hsla(0,0%,0%,0.85)) drop-shadow(0 2px 6px hsla(0,0%,0%,0.8)) drop-shadow(0 4px 16px hsla(0,0%,0%,0.7)) drop-shadow(0 6px 28px hsla(0,0%,0%,0.5))",
                                       }}
                                     >
