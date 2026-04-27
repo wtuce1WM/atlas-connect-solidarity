@@ -1258,6 +1258,8 @@ const Test = () => {
             subcategory_id: d.subcategory_id ?? null,
             service_id: d.service_id ?? null,
             service_name: d.service_id ? serviceNameById.get(d.service_id) ?? null : null,
+            price: d.price ?? null,
+            priceType: d.price_type ?? null,
           } as VideoItem;
         });
 
