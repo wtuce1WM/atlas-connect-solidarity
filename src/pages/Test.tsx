@@ -946,17 +946,31 @@ const Test = () => {
       } else {
         const subIds = selectedSubId ? [selectedSubId] : selectedEntry.subcategory_ids;
         // When no specific subcategory is selected, also include videos whose
-        // service_id belongs to the services associated with this front_structure entry.
+        // service_id belongs to the services associated with this front_structure entry,
+        // and videos owned by businesses that carry the badges associated with this entry.
         const svcIds = selectedSubId ? [] : (selectedEntry.service_ids || []);
-        if (subIds.length === 0 && svcIds.length === 0) {
+        const badgeIds = selectedSubId ? [] : (selectedEntry.badge_ids || []);
+
+        // Resolve businesses owning any of the associated badges
+        let badgeBizIds: string[] = [];
+        if (badgeIds.length > 0) {
+          const { data: bbData } = await supabase
+            .from("business_badges")
+            .select("business_id")
+            .in("badge_id", badgeIds);
+          badgeBizIds = [...new Set((bbData || []).map((r: any) => r.business_id).filter(Boolean))];
+        }
+
+        if (subIds.length === 0 && svcIds.length === 0 && badgeBizIds.length === 0) {
           safeSetVideos([]);
           safeSetLoadingVideos(false);
           return;
         }
-        // Build OR filter: subcategory_id IN (...) OR service_id IN (...)
+        // Build OR filter: subcategory_id IN (...) OR service_id IN (...) OR business_id IN (...badgeBizIds)
         const orParts: string[] = [];
         if (subIds.length > 0) orParts.push(`subcategory_id.in.(${subIds.join(",")})`);
         if (svcIds.length > 0) orParts.push(`service_id.in.(${svcIds.join(",")})`);
+        if (badgeBizIds.length > 0) orParts.push(`business_id.in.(${badgeBizIds.join(",")})`);
         const orFilter = orParts.join(",");
 
         let offset = 0;
