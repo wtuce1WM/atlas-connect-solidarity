@@ -93,6 +93,35 @@ const SlidePanelHome = ({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [agendaEvents, setAgendaEvents] = useState<AgendaEvent[]>([]);
   const [directionsBusiness, setDirectionsBusiness] = useState<AgendaEvent["business"] | null>(null);
+  const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
+
+  // Load linked business for a single event (via event_businesses)
+  useEffect(() => {
+    if (!open || !eventId) {
+      setEventBusiness(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const { data: ebRows } = await (supabase as any)
+        .from("event_businesses")
+        .select("business_id, created_at")
+        .eq("event_id", eventId)
+        .order("created_at", { ascending: true })
+        .limit(1);
+      if (cancelled) return;
+      const bizId = ((ebRows as any[]) || [])[0]?.business_id;
+      if (!bizId) { setEventBusiness(null); return; }
+      const { data: bizRow } = await supabase
+        .from("businesses")
+        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url")
+        .eq("id", bizId)
+        .maybeSingle();
+      if (cancelled) return;
+      setEventBusiness((bizRow as any) || null);
+    })();
+    return () => { cancelled = true; };
+  }, [open, eventId]);
 
   useEffect(() => {
     if (!open || !agendaCity) {
