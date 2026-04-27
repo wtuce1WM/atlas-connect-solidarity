@@ -127,7 +127,7 @@ async function buildSnapshot(supabase: any, city: string) {
       if (gv) {
         return {
           cardId: card.id,
-          doc: { id: gv.id, url: gv.url, thumbnail_url: gv.thumbnail_url, business_id: card.business_id, poi_id: null, linked_business_id: null, sort_order: 0, price: null, price_type: null },
+          doc: { id: gv.id, url: gv.url, thumbnail_url: gv.thumbnail_url, business_id: card.business_id, poi_id: null, linked_business_id: null, sort_order: 0 },
         };
       }
       return { cardId: card.id, doc: null };
