@@ -220,20 +220,65 @@ const Test = () => {
   const [panelOpen, setPanelOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const autoOpenedRef = useRef<string | null>(null);
+  const pendingOpenVideoRef = useRef<string | null>(null);
   // Auto-reopen the SlidePanelHome on the original video when returning from a business panel
   useEffect(() => {
     const wantedId = searchParams.get("openVideo");
     if (!wantedId || autoOpenedRef.current === wantedId) return;
+    pendingOpenVideoRef.current = wantedId;
+
+    const cityParam = searchParams.get("city") as City | null;
+    if (cityParam && CITIES.includes(cityParam) && city !== cityParam) setCity(cityParam);
+
+    const entryParam = searchParams.get("entry");
+    const subParam = searchParams.get("sub");
+    const badgeId = searchParams.get("badgeId");
+    const badgeLabel = searchParams.get("badgeLabel");
+    const eventId = searchParams.get("eventId");
+    const eventLabel = searchParams.get("eventLabel");
+    const eventIds = searchParams.get("eventIds");
+    const popularSearchId = searchParams.get("popularSearchId");
+    const popularSearchLabel = searchParams.get("popularSearchLabel");
+    const popularSearchBusinessIds = searchParams.get("popularSearchBusinessIds");
+
+    setOtherViewMode("videos");
+    if (eventId && eventLabel) {
+      setVideoBadgeFilter(null);
+      setVideoPopularSearchFilter(null);
+      setSelectedEntryId(HOME_ID);
+      setSelectedSubId(null);
+      setVideoEventFilter({ eventId, label: eventLabel, eventIds: eventIds ? eventIds.split(",").filter(Boolean) : undefined });
+    } else if (badgeId && badgeLabel) {
+      setVideoEventFilter(null);
+      setVideoPopularSearchFilter(null);
+      setSelectedEntryId(HOME_ID);
+      setSelectedSubId(null);
+      setVideoBadgeFilter({ badgeId, label: badgeLabel });
+    } else if (popularSearchId && popularSearchLabel) {
+      setVideoBadgeFilter(null);
+      setVideoEventFilter(null);
+      setSelectedEntryId(HOME_ID);
+      setSelectedSubId(null);
+      setVideoPopularSearchFilter({ popularSearchId, label: popularSearchLabel, businessIds: popularSearchBusinessIds ? popularSearchBusinessIds.split(",").filter(Boolean) : [] });
+    } else {
+      setVideoBadgeFilter(null);
+      setVideoEventFilter(null);
+      setVideoPopularSearchFilter(null);
+      setSelectedEntryId(entryParam || HOME_ID);
+      setSelectedSubId(subParam || null);
+    }
+
     const found = videos.find((v) => v.id === wantedId);
     if (!found) return;
     autoOpenedRef.current = wantedId;
+    pendingOpenVideoRef.current = null;
     setActiveVideo(found);
     setActiveVideoId(found.id);
     setPanelOpen(true);
     const next = new URLSearchParams(searchParams);
     next.delete("openVideo");
     setSearchParams(next, { replace: true });
-  }, [videos, searchParams, setSearchParams]);
+  }, [videos, searchParams, setSearchParams, city]);
   const [guideVideos, setGuideVideos] = useState<VideoItem[]>([]);
   const [loadingGuide, setLoadingGuide] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
