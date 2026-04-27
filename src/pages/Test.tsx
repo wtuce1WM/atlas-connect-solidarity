@@ -19,6 +19,7 @@ interface FrontEntry {
   sort_order: number;
   subcategory_ids: string[];
   service_ids: string[];
+  badge_ids: string[];
 }
 
 interface OwnerInfo {
@@ -245,10 +246,11 @@ const Test = () => {
   // Load front structure (independent of city)
   useEffect(() => {
     const load = async () => {
-      const [entriesRes, linksRes, svcLinksRes, subsRes, servicesRes] = await Promise.all([
+      const [entriesRes, linksRes, svcLinksRes, badgeLinksRes, subsRes, servicesRes] = await Promise.all([
         supabase.from("front_structure").select("*").order("sort_order"),
         supabase.from("front_structure_subcategories").select("*"),
         supabase.from("front_structure_services" as any).select("*"),
+        supabase.from("front_structure_badges" as any).select("*"),
         supabase.from("subcategories").select("id, name_fr, category_id"),
         supabase.from("services").select("id, name_fr").eq("is_active", true),
       ]);
@@ -279,6 +281,10 @@ const Test = () => {
       ((svcLinksRes.data || []) as any[]).forEach((l: any) => {
         (svcLinksByEntry[l.front_structure_id] ||= []).push(l.service_id);
       });
+      const badgeLinksByEntry: Record<string, string[]> = {};
+      ((badgeLinksRes.data || []) as any[]).forEach((l: any) => {
+        (badgeLinksByEntry[l.front_structure_id] ||= []).push(l.badge_id);
+      });
 
       setEntries(
         (entriesRes.data || [])
@@ -289,6 +295,7 @@ const Test = () => {
             sort_order: e.sort_order,
             subcategory_ids: linksByEntry[e.id] || [],
             service_ids: svcLinksByEntry[e.id] || [],
+            badge_ids: badgeLinksByEntry[e.id] || [],
           }))
       );
     };
@@ -405,6 +412,7 @@ const Test = () => {
       sort_order: -1,
       subcategory_ids: [],
       service_ids: [],
+      badge_ids: [],
     };
     const vlogsEntry: FrontEntry = {
       id: VLOGS_ID,
@@ -412,6 +420,7 @@ const Test = () => {
       sort_order: -0.5,
       subcategory_ids: [],
       service_ids: [],
+      badge_ids: [],
     };
     if (loading) return [homeEntry, vlogsEntry, ...topLevelEntries];
     const filtered = topLevelEntries.filter((e) => entriesWithVideos.has(e.id));
@@ -937,17 +946,31 @@ const Test = () => {
       } else {
         const subIds = selectedSubId ? [selectedSubId] : selectedEntry.subcategory_ids;
         // When no specific subcategory is selected, also include videos whose
-        // service_id belongs to the services associated with this front_structure entry.
+        // service_id belongs to the services associated with this front_structure entry,
+        // and videos owned by businesses that carry the badges associated with this entry.
         const svcIds = selectedSubId ? [] : (selectedEntry.service_ids || []);
-        if (subIds.length === 0 && svcIds.length === 0) {
+        const badgeIds = selectedSubId ? [] : (selectedEntry.badge_ids || []);
+
+        // Resolve businesses owning any of the associated badges
+        let badgeBizIds: string[] = [];
+        if (badgeIds.length > 0) {
+          const { data: bbData } = await supabase
+            .from("business_badges")
+            .select("business_id")
+            .in("badge_id", badgeIds);
+          badgeBizIds = [...new Set((bbData || []).map((r: any) => r.business_id).filter(Boolean))];
+        }
+
+        if (subIds.length === 0 && svcIds.length === 0 && badgeBizIds.length === 0) {
           safeSetVideos([]);
           safeSetLoadingVideos(false);
           return;
         }
-        // Build OR filter: subcategory_id IN (...) OR service_id IN (...)
+        // Build OR filter: subcategory_id IN (...) OR service_id IN (...) OR business_id IN (...badgeBizIds)
         const orParts: string[] = [];
         if (subIds.length > 0) orParts.push(`subcategory_id.in.(${subIds.join(",")})`);
         if (svcIds.length > 0) orParts.push(`service_id.in.(${svcIds.join(",")})`);
+        if (badgeBizIds.length > 0) orParts.push(`business_id.in.(${badgeBizIds.join(",")})`);
         const orFilter = orParts.join(",");
 
         let offset = 0;
