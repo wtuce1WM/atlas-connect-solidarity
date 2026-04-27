@@ -38,6 +38,8 @@ interface SlidePanelHomeProps {
   agendaCity?: string | null;
   /** When set, displays CTAs for the event's linked business (via event_businesses) */
   eventId?: string | null;
+  /** Serialized Test page context used to restore the previous result state after closing an establishment panel */
+  returnContext?: string | null;
 }
 
 interface AgendaEvent {
@@ -86,6 +88,7 @@ const SlidePanelHome = ({
   description,
   agendaCity,
   eventId,
+  returnContext,
 }: SlidePanelHomeProps) => {
   const navigate = useNavigate();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -146,6 +149,13 @@ const SlidePanelHome = ({
   }, [open, eventId, isGeneric, owner?.id]);
 
   const ctaBusiness = eventBusiness || ownerBusiness;
+
+  const storeReturnToTest = () => {
+    try {
+      if (videoId) sessionStorage.setItem("returnToTestVideoId", videoId);
+      if (returnContext) sessionStorage.setItem("returnToTestContext", returnContext);
+    } catch {}
+  };
 
   useEffect(() => {
     if (!open || !agendaCity) {
@@ -412,9 +422,7 @@ const SlidePanelHome = ({
                                     <button
                                       type="button"
                                       onClick={() => {
-                                        try {
-                                          if (videoId) sessionStorage.setItem("returnToTestVideoId", videoId);
-                                        } catch {}
+                                        storeReturnToTest();
                                         navigate(businessUrl(biz));
                                       }}
                                       className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-white text-black font-medium text-xs shadow-lg hover:bg-white/90 transition-colors normal-case tracking-normal h-9"
@@ -455,9 +463,7 @@ const SlidePanelHome = ({
                   <button
                     type="button"
                     onClick={() => {
-                      try {
-                        if (videoId) sessionStorage.setItem("returnToTestVideoId", videoId);
-                      } catch {}
+                      storeReturnToTest();
                       navigate(businessUrl(ctaBusiness));
                     }}
                     className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-white text-black font-medium text-xs shadow-lg hover:bg-white/90 transition-colors normal-case tracking-normal h-9"
