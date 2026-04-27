@@ -45,6 +45,7 @@ interface VideoItem {
   social: SocialInfo | null;
   description: string | null;
   manualCard: { label: string; badgeId: string | null; eventId?: string | null } | null;
+  subcategory_id?: string | null;
 }
 
 interface VideoEventFilter {
@@ -1008,6 +1009,7 @@ const Test = () => {
             social: extractSocial(d),
             description: d.description ?? null,
             manualCard: manualCardMap.get(d.id) || null,
+            subcategory_id: d.subcategory_id ?? null,
           } as VideoItem;
         });
 
@@ -1954,9 +1956,9 @@ const Test = () => {
                         )}
                         {((isVlogThumb ? v.business_name : v.owner?.name || v.business_name)) && (
                           <div className="absolute bottom-0 left-0 right-0 p-1.5 space-y-0.5">
-                            {selectedEntry?.id !== HOME_ID && selectedEntry?.name && (
+                            {selectedEntry?.id !== HOME_ID && v.subcategory_id && subcatNames[v.subcategory_id] && (
                               <p className="text-[10px] font-bold uppercase tracking-wide text-gold line-clamp-1">
-                                {selectedEntry.name}
+                                {subcatNames[v.subcategory_id]}
                               </p>
                             )}
                             <p className="text-[10px] font-medium text-white line-clamp-1">{isVlogThumb ? v.business_name : v.owner?.name || v.business_name}</p>
