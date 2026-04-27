@@ -59,6 +59,8 @@ interface VideoItem {
     start_time: string | null;
     end_time: string | null;
   } | null;
+  price?: string | null;
+  priceType?: string | null;
 }
 
 interface VideoEventFilter {
