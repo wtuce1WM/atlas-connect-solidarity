@@ -512,7 +512,7 @@ const SlidePanelHome = ({
                 />
               </div>
             )}
-            <div className="w-full max-w-xl pointer-events-auto">
+            <div className="w-full max-w-xl pointer-events-auto mt-2">
               <PanelSearchBar
                 iconVariant="black"
                 onSearch={(params) => {
