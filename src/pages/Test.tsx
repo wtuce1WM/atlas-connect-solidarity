@@ -751,8 +751,10 @@ const Test = () => {
       if (videoPopularSearchFilter) {
         const bizIds = videoPopularSearchFilter.businessIds;
         if (bizIds.length === 0) {
+          // businessIds not resolved yet (search in flight) → keep loading state
+          // to avoid flashing "Aucune vidéo trouvée" before the search completes.
           safeSetVideos([]);
-          safeSetLoadingVideos(false);
+          // Intentionally NOT calling safeSetLoadingVideos(false) here.
           return;
         }
         const batch = 300;
