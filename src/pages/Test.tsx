@@ -936,11 +936,20 @@ const Test = () => {
         allDocs.sort((a: any, b: any) => (a.front_sort_order ?? 0) - (b.front_sort_order ?? 0));
       } else {
         const subIds = selectedSubId ? [selectedSubId] : selectedEntry.subcategory_ids;
-        if (subIds.length === 0) {
+        // When no specific subcategory is selected, also include videos whose
+        // service_id belongs to the services associated with this front_structure entry.
+        const svcIds = selectedSubId ? [] : (selectedEntry.service_ids || []);
+        if (subIds.length === 0 && svcIds.length === 0) {
           safeSetVideos([]);
           safeSetLoadingVideos(false);
           return;
         }
+        // Build OR filter: subcategory_id IN (...) OR service_id IN (...)
+        const orParts: string[] = [];
+        if (subIds.length > 0) orParts.push(`subcategory_id.in.(${subIds.join(",")})`);
+        if (svcIds.length > 0) orParts.push(`service_id.in.(${svcIds.join(",")})`);
+        const orFilter = orParts.join(",");
+
         let offset = 0;
         const PAGE = 1000;
         while (true) {
@@ -948,7 +957,7 @@ const Test = () => {
             .from("business_documents")
             .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, city, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
             .eq("type", "video")
-            .in("subcategory_id", subIds)
+            .or(orFilter)
             .eq("city", city)
             .order("sort_order", { ascending: true })
             .range(offset, offset + PAGE - 1);
@@ -964,7 +973,7 @@ const Test = () => {
             .from("business_documents")
             .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, city, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
             .eq("type", "video")
-            .in("subcategory_id", subIds)
+            .or(orFilter)
             .in("id", chunk);
           if (data) allDocs.push(...data);
         }
