@@ -491,7 +491,7 @@ const SlidePanelHome = ({
               <p className="text-sm font-medium text-white pointer-events-auto">{businessName}</p>
             )}
             {embed.type === "file" && (
-              <div className="pointer-events-auto">
+              <div className="pointer-events-auto mb-4">
                 <VideoControls
                   type="file"
                   videoRef={videoRef}
@@ -501,7 +501,7 @@ const SlidePanelHome = ({
               </div>
             )}
             {embed.type === "youtube" && (
-              <div className="pointer-events-auto">
+              <div className="pointer-events-auto mb-4">
                 <VideoControls
                   type="youtube"
                   iframeRef={iframeRef}
@@ -512,7 +512,7 @@ const SlidePanelHome = ({
                 />
               </div>
             )}
-            <div className="w-full max-w-xl pointer-events-auto">
+            <div className="w-full max-w-xl pointer-events-auto mt-2">
               <PanelSearchBar
                 iconVariant="black"
                 onSearch={(params) => {
