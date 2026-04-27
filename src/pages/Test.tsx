@@ -50,6 +50,7 @@ interface VideoItem {
   service_id?: string | null;
   service_name?: string | null;
   eventInfo?: {
+    name: string | null;
     hook: string | null;
     start_date: string | null;
     end_date: string | null;
