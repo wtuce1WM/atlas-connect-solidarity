@@ -66,6 +66,7 @@ import type { Business, SearchResult } from "@/pages/search/types";
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { language } = useLanguage();
   const { toast } = useToast();
   const { saveSearch } = useSearchHistory();
