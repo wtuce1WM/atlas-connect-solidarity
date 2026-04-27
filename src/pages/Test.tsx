@@ -1261,6 +1261,7 @@ const Test = () => {
             service_name: d.service_id ? serviceNameById.get(d.service_id) ?? null : null,
             price: d.price ?? null,
             priceType: d.price_type ?? null,
+            videoTitle: d.name ?? null,
           } as VideoItem;
         });
 
