@@ -115,8 +115,28 @@ function extractSocial(d: any): SocialInfo | null {
   return null;
 }
 
-function hasDifferentOwnerAccount(owner?: { affiliate_id?: string | null } | null, displayed?: { affiliate_id?: string | null } | null): boolean {
-  return !!owner?.affiliate_id && !!displayed?.affiliate_id && owner.affiliate_id !== displayed.affiliate_id;
+function normalizeSocialAccount(value?: string | null): string {
+  const raw = (value || "").trim().toLowerCase();
+  if (!raw) return "";
+  try {
+    const url = raw.startsWith("http") ? new URL(raw) : null;
+    const path = url ? url.pathname : raw;
+    return path.split("/").filter(Boolean)[0]?.replace(/^@+/, "") || "";
+  } catch {
+    return raw.split(/[/?#]/)[0].replace(/^@+/, "");
+  }
+}
+
+function isDifferentDisplayedBusinessSocial(social: SocialInfo | null | undefined, business: SearchResultBusiness | null | undefined): boolean {
+  if (!social || !business) return false;
+  const businessUrl = social.platform === "instagram"
+    ? (business as any).instagram_url
+    : social.platform === "tiktok"
+      ? (business as any).tiktok_url
+      : (business as any).youtube_url;
+  const videoAccount = normalizeSocialAccount(social.account);
+  const displayedAccount = normalizeSocialAccount(businessUrl);
+  return !!videoAccount && !!displayedAccount && videoAccount !== displayedAccount;
 }
 
 async function getManualCardMap(city: City, docs: any[]) {
