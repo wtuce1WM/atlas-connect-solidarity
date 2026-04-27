@@ -318,23 +318,53 @@ const SlidePanelHome = ({
                     {agendaEvents.length === 0 ? (
                       <p className="p-4 text-white/70 text-sm text-center">Aucun événement à venir.</p>
                     ) : (
-                      agendaEvents.map((ev) => (
-                        <div
-                          key={ev.id}
-                          className="w-full flex items-start gap-3 p-3 text-left"
-                        >
-                          {ev.logo_url ? (
-                            <img src={ev.logo_url} alt="" className="w-12 h-12 rounded object-cover flex-shrink-0 bg-white/5" />
-                          ) : (
-                            <div className="w-12 h-12 rounded bg-gold/20 flex-shrink-0" />
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-white text-sm font-semibold line-clamp-2">{ev.name}</p>
-                            <p className="text-gold text-xs mt-0.5">{formatDateRange(ev.start_date, ev.end_date)}</p>
-                            {ev.hook && <p className="text-white/60 text-xs mt-1 line-clamp-2">{ev.hook}</p>}
+                      agendaEvents.map((ev) => {
+                        const biz = ev.business;
+                        const hasCoords = !!(biz && biz.latitude && biz.longitude);
+                        return (
+                          <div
+                            key={ev.id}
+                            className="w-full flex items-start gap-3 p-3 text-left"
+                          >
+                            {ev.logo_url ? (
+                              <img src={ev.logo_url} alt="" className="w-12 h-12 rounded object-cover flex-shrink-0 bg-white/5" />
+                            ) : (
+                              <div className="w-12 h-12 rounded bg-gold/20 flex-shrink-0" />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-white text-sm font-semibold line-clamp-2">{ev.name}</p>
+                              <p className="text-gold text-xs mt-0.5">{formatDateRange(ev.start_date, ev.end_date)}</p>
+                              {ev.hook && <p className="text-white/60 text-xs mt-1 line-clamp-2">{ev.hook}</p>}
+                              {(biz || hasCoords) && (
+                                <div className="mt-2 flex gap-2">
+                                  {biz && (
+                                    <button
+                                      type="button"
+                                      onClick={() => navigate(businessUrl(biz))}
+                                      className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-white text-black font-medium text-xs shadow-lg hover:bg-white/90 transition-colors normal-case tracking-normal h-9"
+                                      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                                    >
+                                      <ExternalLink className="h-3.5 w-3.5" />
+                                      <span className="truncate">En savoir +</span>
+                                    </button>
+                                  )}
+                                  {hasCoords && (
+                                    <button
+                                      type="button"
+                                      onClick={() => setDirectionsBusiness(biz)}
+                                      className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-gold text-gold-foreground font-medium text-xs shadow-lg hover:bg-gold/90 transition-colors normal-case tracking-normal h-9"
+                                      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                                    >
+                                      <MapPin className="h-3.5 w-3.5" />
+                                      <span className="truncate">Itinéraire</span>
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ))
+                        );
+                      })
                     )}
                   </div>
                 </div>
