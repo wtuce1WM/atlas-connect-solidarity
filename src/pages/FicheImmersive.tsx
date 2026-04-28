@@ -32,12 +32,12 @@ const FicheImmersive = () => {
     if (!slug) return;
     let cancelled = false;
     (async () => {
-      const { data } = await supabase
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
+      const query = supabase
         .from("businesses")
         .select("id, name, city")
-        .eq("slug", slug)
-        .eq("is_active", true)
-        .maybeSingle();
+        .eq("is_active", true);
+      const { data } = await (isUuid ? query.eq("id", slug) : query.eq("slug", slug)).maybeSingle();
       if (cancelled) return;
       if (data) {
         // Build a search URL with the business name as query so the page has context
