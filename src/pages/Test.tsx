@@ -887,7 +887,12 @@ const Test = () => {
         }
         // Filter by current city: keep the exact backoffice video document rows.
         const uniqueDocs = allDocs.filter((d: any) => d.city === city || extraCityDocIds.has(d.id));
-        const allBizIds = [...new Set(uniqueDocs.map((d: any) => d.business_id).filter(Boolean))] as string[];
+        // Display business prefers poi_id > linked_business_id > business_id (so a video
+        // tagged on business A but linked to establishment B shows B's name and logo).
+        const getDisplayId = (d: any) => d.poi_id || d.linked_business_id || d.business_id;
+        const allBizIds = [...new Set(
+          uniqueDocs.flatMap((d: any) => [d.business_id, d.linked_business_id, d.poi_id]).filter(Boolean)
+        )] as string[];
         const bizMap = new Map<string, SearchResultBusiness>();
         if (allBizIds.length > 0) {
           for (let i = 0; i < allBizIds.length; i += batch) {
@@ -927,7 +932,8 @@ const Test = () => {
               return true;
             });
         const docVideoItems: VideoItem[] = dedupedByBiz.map((d: any) => {
-          const biz = bizMap.get(d.business_id) || null;
+          const displayId = getDisplayId(d);
+          const biz = bizMap.get(displayId) || bizMap.get(d.business_id) || null;
           return {
             id: d.id,
             url: d.url,
