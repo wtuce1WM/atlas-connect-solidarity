@@ -466,11 +466,15 @@ const Home = () => {
 
   useEffect(() => {
     if (!selectedEntryId) return;
+    // Wait until entries are loaded — otherwise an entry coming from the URL (?entry=…)
+    // gets reset to HOME before visibleEntries is populated.
+    if (loading) return;
+    if (visibleEntries.length === 0) return;
     if (visibleEntries.some((entry) => entry.id === selectedEntryId)) return;
 
     setSelectedEntryId(HOME_ID);
     setSelectedSubId(null);
-  }, [selectedEntryId, visibleEntries]);
+  }, [selectedEntryId, visibleEntries, loading]);
 
   // Load videos for selected entry — same logic as backoffice FrontStructureVideosPanel:
   // match business_documents.subcategory_id ∈ entry.subcategory_ids, filter by document.city,
