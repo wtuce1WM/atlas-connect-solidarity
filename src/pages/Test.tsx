@@ -943,10 +943,13 @@ const Test = () => {
             });
         const docVideoItems: VideoItem[] = dedupedByBiz.map((d: any) => {
           const biz = resolveVideoEstablishment(d, bizMap);
+          // Thumbnail name: always show the original business_id's name (e.g. POI),
+          // even when a linked establishment exists (which still drives owner/logo + SlidePanelHome).
+          const thumbnailBiz = (d.business_id && bizMap.get(d.business_id)) || biz;
           return {
             id: d.id,
             url: d.url,
-            business_name: biz?.name || "—",
+            business_name: thumbnailBiz?.name || biz?.name || "—",
             thumbnail_url: d.thumbnail_url,
             business: biz,
             owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
