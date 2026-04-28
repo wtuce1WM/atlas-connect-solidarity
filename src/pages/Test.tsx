@@ -1250,7 +1250,12 @@ const Test = () => {
 
         // Same logic as SlidePanelHome: group by business_id (real owner), dedupe by URL.
         // Single difference here: apply front_video_count per business.
-        const allBizIds = [...new Set(allDocs.map((d: any) => d.business_id).filter(Boolean))] as string[];
+        // Display business prefers poi_id > linked_business_id > business_id (so a video
+        // tagged on business A but linked to establishment B shows B's name and logo).
+        const getDisplayId = (d: any) => d.poi_id || d.linked_business_id || d.business_id;
+        const allBizIds = [...new Set(
+          allDocs.flatMap((d: any) => [d.business_id, d.linked_business_id, d.poi_id]).filter(Boolean)
+        )] as string[];
         const bizMap = new Map<string, SearchResultBusiness>();
         if (allBizIds.length > 0) {
           const batch = 300;
@@ -1298,7 +1303,8 @@ const Test = () => {
         }
 
         const docItems: VideoItem[] = limitedDocs.map((d: any) => {
-          const biz = bizMap.get(d.business_id) || null;
+          const displayId = getDisplayId(d);
+          const biz = bizMap.get(displayId) || bizMap.get(d.business_id) || null;
           return {
             id: d.id,
             url: d.url,
