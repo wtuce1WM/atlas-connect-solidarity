@@ -7,11 +7,11 @@ import { getVideoEmbed } from "@/lib/videoEmbed";
 import SearchResultCard, { type SearchResultBusiness } from "@/components/SearchResultCard";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
-import SlidePanelHome from "@/components/SlidePanelHome";
+
 import { Menu as MenuIcon, X, Star, Youtube } from "lucide-react";
 import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { SiTiktok } from "react-icons/si";
-import HomepageCardsFront from "@/components/HomepageCardsFront";
+
 import HomeCityTabs from "@/components/home/HomeCityTabs";
 import BadgeBusinessesGrid from "@/components/home/BadgeBusinessesGrid";
 import HomeVideoSlidePanel from "@/components/home/HomeVideoSlidePanel";
