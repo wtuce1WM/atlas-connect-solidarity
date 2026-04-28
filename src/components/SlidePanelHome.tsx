@@ -108,17 +108,26 @@ const SlidePanelHome = ({
   useEffect(() => {
     if (!open || !eventId) {
       setEventBusiness(null);
+      setEventInfo(null);
       return;
     }
     let cancelled = false;
     (async () => {
-      const { data: ebRows } = await (supabase as any)
-        .from("event_businesses")
-        .select("business_id, created_at")
-        .eq("event_id", eventId)
-        .order("created_at", { ascending: true })
-        .limit(1);
+      const [{ data: ebRows }, { data: evRow }] = await Promise.all([
+        (supabase as any)
+          .from("event_businesses")
+          .select("business_id, created_at")
+          .eq("event_id", eventId)
+          .order("created_at", { ascending: true })
+          .limit(1),
+        (supabase as any)
+          .from("events")
+          .select("name, logo_url")
+          .eq("id", eventId)
+          .maybeSingle(),
+      ]);
       if (cancelled) return;
+      setEventInfo(evRow ? { name: (evRow as any).name, logo_url: (evRow as any).logo_url } : null);
       const bizId = ((ebRows as any[]) || [])[0]?.business_id;
       if (!bizId) { setEventBusiness(null); return; }
       const { data: bizRow } = await supabase
