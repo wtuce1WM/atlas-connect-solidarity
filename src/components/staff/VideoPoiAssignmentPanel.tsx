@@ -417,7 +417,7 @@ const VideoPoiAssignmentPanel = () => {
       if (toAdd.length > 0) {
         const { data: sourceDoc } = await supabase
           .from("business_documents")
-          .select("url, name, thumbnail_url, sort_order, business_id, city, neighborhood, type, show_on_front, front_sort_order, force_external, subcategory_id, service_id, destination_id, linked_business_id, description, icon, language, popup, price, price_type, start_date, end_date")
+          .select("url, name, thumbnail_url, sort_order, business_id, neighborhood, type, show_on_front, front_sort_order, force_external, subcategory_id, service_id, destination_id, linked_business_id, description, icon, language, popup, price, price_type, start_date, end_date")
           .eq("id", video.id)
           .single();
 
