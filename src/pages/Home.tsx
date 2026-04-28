@@ -889,6 +889,13 @@ const Home = () => {
             });
             youtubeVideoItems = ytFiltered.map((y: any) => {
               const biz = ytBizMap.get(y.business_id) || null;
+              // External YouTube videos: align with generic-video display.
+              // Hide POI branding (owner=null) and surface the YouTube channel as social attribution.
+              const ytUrl: string | null = (biz as any)?.youtube_url || null;
+              const ytAccount = normalizeSocialAccount(ytUrl) || (biz?.name ? biz.name : "");
+              const social = ytAccount
+                ? { platform: "youtube" as const, account: ytAccount, url: ytUrl }
+                : null;
               return {
                 id: y.id,
                 url: y.is_short
@@ -897,8 +904,9 @@ const Home = () => {
                 business_name: y.title || biz?.name || "—",
                 thumbnail_url: y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/hqdefault.jpg`,
                 business: biz,
-                owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
-                social: null,
+                owner: null,
+                social,
+                showSocialBadge: !!social,
                 description: null,
                 manualCard: null,
               } as VideoItem;
