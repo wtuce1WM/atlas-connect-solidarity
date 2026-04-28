@@ -743,8 +743,11 @@ const Home = () => {
         const dedupedByBiz = isGuideBadge
           ? uniqueDocs
           : uniqueDocs.filter((d: any) => {
-              const biz = resolveVideoEstablishment(d, bizMap);
-              const dedupeId = biz?.id || d.business_id || d.id;
+              // Dedupe by the business shown on the thumbnail (business_id),
+              // not the linked establishment, so two distinct POIs sharing
+              // the same linked hotel don't cannibalize each other.
+              const thumbBiz = (d.business_id && bizMap.get(d.business_id)) || resolveVideoEstablishment(d, bizMap);
+              const dedupeId = thumbBiz?.id || d.business_id || d.id;
               if (seenBizIds.has(dedupeId)) return false;
               seenBizIds.add(dedupeId);
               return true;
