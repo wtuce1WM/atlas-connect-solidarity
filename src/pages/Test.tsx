@@ -1431,7 +1431,7 @@ const Test = () => {
           const ownerBiz =
             d.business_id !== displayId
               ? bizMap.get(d.business_id) || null
-              : null;
+              : biz;
           return {
             id: d.id,
             url: d.url,
