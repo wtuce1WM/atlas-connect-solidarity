@@ -240,11 +240,8 @@ const Home = () => {
     })();
     return () => { cancelled = true; };
   }, [videos, loadingVideos, searchParams, setSearchParams, city]);
-  const [guideVideos, setGuideVideos] = useState<VideoItem[]>([]);
-  const [loadingGuide, setLoadingGuide] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [hoveredEntryId, setHoveredEntryId] = useState<string | null>(null);
-  const [otherViewMode, setOtherViewMode] = useState<"details" | "videos" | "guide">("videos");
   const [currentTime, setCurrentTime] = useState(0);
   const [badgeView, setBadgeView] = useState<{ badgeId: string; label: string; city: City } | null>(null);
   const [badgeBusinesses, setBadgeBusinesses] = useState<SearchResultBusiness[]>([]);
