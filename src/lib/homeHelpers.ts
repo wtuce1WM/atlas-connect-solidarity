@@ -6,6 +6,21 @@ export type City = typeof CITIES[number];
 export const HOME_ID = "__home__";
 export const VLOGS_ID = "__vlogs__";
 
+/**
+ * Cities considered as belonging to a parent city for the homepage scope.
+ * Agafay is a desert area near Marrakech and should appear under Marrakech.
+ */
+const CITY_ALIASES: Record<string, string[]> = {
+  Marrakech: ["Marrakech", "Agafay"],
+  Essaouira: ["Essaouira"],
+};
+
+export function cityMatches(docCity: string | null | undefined, city: string): boolean {
+  if (!docCity) return false;
+  const aliases = CITY_ALIASES[city] || [city];
+  return aliases.some((c) => c.toLowerCase() === docCity.toLowerCase());
+}
+
 export interface OwnerInfo {
   id: string;
   name: string;
