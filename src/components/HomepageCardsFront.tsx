@@ -168,6 +168,18 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
 
   const handleLabelActivate = (slot: MixedSlot) => {
     if (isDirectBusinessCard(slot) && slot.data.ownerId) {
+      // Store return context exactly like the "En savoir +" CTA in SlidePanelHome,
+      // so closing the SlidePanel on /search returns to this homepage state.
+      try {
+        if (slot.data.videoId) {
+          sessionStorage.setItem("returnToTestVideoId", slot.data.videoId);
+        } else {
+          sessionStorage.removeItem("returnToTestVideoId");
+        }
+        const ctx = window.location.search.replace(/^\?/, "");
+        if (ctx) sessionStorage.setItem("returnToTestContext", ctx);
+        else sessionStorage.removeItem("returnToTestContext");
+      } catch {}
       navigate(`/fiche/${slot.data.ownerId}`);
       return;
     }
