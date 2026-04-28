@@ -252,7 +252,6 @@ async function buildSnapshot(supabase: any, city: string) {
           rating: null, reviewCount: null, label,
           badgeId: card.badge_id || null,
           eventId: card.event_id || null,
-          popularSearchId: card.popular_search_id || null,
           target,
         },
       };
