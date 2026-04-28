@@ -13,6 +13,27 @@ import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { SiTiktok } from "react-icons/si";
 import HomepageCardsFront from "@/components/HomepageCardsFront";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  CITIES,
+  type City,
+  HOME_ID,
+  VLOGS_ID,
+  type OwnerInfo,
+  type SocialInfo,
+  deriveThumbnail,
+  isAgendaLabel,
+  formatEventDateRange,
+  DAY_LABEL_FR,
+  formatDaysOfWeek,
+  formatTimeRange,
+  extractSocial,
+  getVideoBusinessCandidateIds,
+  resolveVideoEstablishment,
+  normalizeSocialAccount,
+  isDifferentDisplayedBusinessSocial,
+  copyTextSilently,
+} from "@/lib/homeHelpers";
+import { getManualCardMap } from "@/lib/manualCards";
 
 interface FrontEntry {
   id: string;
@@ -21,20 +42,6 @@ interface FrontEntry {
   subcategory_ids: string[];
   service_ids: string[];
   badge_ids: string[];
-}
-
-interface OwnerInfo {
-  id: string;
-  name: string;
-  logo_url: string | null;
-  logo_bg: string | null;
-  affiliate_id?: string | null;
-}
-
-interface SocialInfo {
-  platform: "instagram" | "tiktok" | "youtube";
-  account: string;
-  url: string | null;
 }
 
 interface VideoItem {
@@ -72,192 +79,7 @@ interface VideoEventFilter {
   eventIds?: string[];        // when set, the filter shows MULTIPLE events (e.g. Agenda badge)
 }
 
-const CITIES = ["Marrakech", "Essaouira"] as const;
-type City = typeof CITIES[number];
-
-function deriveThumbnail(url: string): string | null {
-  const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
-  if (yt) return `https://i.ytimg.com/vi/${yt[1]}/hqdefault.jpg`;
-  const bunny = url.match(/iframe\.mediadelivery\.net\/embed\/(\d+)\/([\w-]+)/);
-  if (bunny) return `https://vz-${bunny[1]}.b-cdn.net/${bunny[2]}/thumbnail.jpg`;
-  return null;
-}
-
-const isAgendaLabel = (label: string) => label.trim().toLowerCase() === "agenda";
-
-const formatEventDateRange = (start: string | null, end: string | null) => {
-  const fmt = (d: string) => new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
-  if (start && end && start !== end) return `${fmt(start)} → ${fmt(end)}`;
-  if (start) return fmt(start);
-  if (end) return fmt(end);
-  return null;
-};
-
-const DAY_LABEL_FR: Record<string, string> = {
-  monday: "Lundi", tuesday: "Mardi", wednesday: "Mercredi", thursday: "Jeudi",
-  friday: "Vendredi", saturday: "Samedi", sunday: "Dimanche",
-  lundi: "Lundi", mardi: "Mardi", mercredi: "Mercredi", jeudi: "Jeudi",
-  vendredi: "Vendredi", samedi: "Samedi", dimanche: "Dimanche",
-};
-const formatDaysOfWeek = (days: string[] | null | undefined): string | null => {
-  if (!days || days.length === 0) return null;
-  return days.map((d) => DAY_LABEL_FR[d.toLowerCase()] || d).join(" · ");
-};
-const formatTimeRange = (start: string | null, end: string | null): string | null => {
-  const trim = (t: string) => t.length >= 5 ? t.slice(0, 5) : t;
-  if (!start && !end) return null;
-  if (start && end) return `${trim(start)} → ${trim(end)}`;
-  return start ? trim(start) : (end ? trim(end) : null);
-};
-
-function extractSocial(d: any): SocialInfo | null {
-  const ig = (d?.instagram_account || "").trim();
-  if (ig) return { platform: "instagram", account: ig.replace(/^@+/, ""), url: d?.instagram_url || null };
-  const tt = (d?.tiktok_account || "").trim();
-  if (tt) return { platform: "tiktok", account: tt.replace(/^@+/, ""), url: d?.tiktok_url || null };
-  const yt = (d?.youtube_account || "").trim();
-  if (yt) return { platform: "youtube", account: yt.replace(/^@+/, ""), url: d?.youtube_url || null };
-  return null;
-}
-
-const getVideoBusinessCandidateIds = (d: any): string[] =>
-  [d?.linked_business_id, d?.business_id, d?.poi_id].filter(Boolean) as string[];
-
-const resolveVideoEstablishment = (d: any, bizMap: Map<string, any>) => {
-  const candidates = getVideoBusinessCandidateIds(d)
-    .map((id) => bizMap.get(id))
-    .filter(Boolean);
-  return candidates.find((b: any) => b.is_poi !== true) || candidates[0] || null;
-};
-
-function normalizeSocialAccount(value?: string | null): string {
-  const raw = (value || "").trim().toLowerCase();
-  if (!raw) return "";
-  try {
-    const url = raw.startsWith("http") ? new URL(raw) : null;
-    const path = url ? url.pathname : raw;
-    return path.split("/").filter(Boolean)[0]?.replace(/^@+/, "") || "";
-  } catch {
-    return raw.split(/[/?#]/)[0].replace(/^@+/, "");
-  }
-}
-
-function isDifferentDisplayedBusinessSocial(social: SocialInfo | null | undefined, business: SearchResultBusiness | null | undefined): boolean {
-  if (!social) return false;
-  // No linked business → always show the social overlay (nothing to deduplicate against)
-  if (!business) return true;
-  const businessUrl = social.platform === "instagram"
-    ? (business as any).instagram_url
-    : social.platform === "tiktok"
-      ? (business as any).tiktok_url
-      : (business as any).youtube_url;
-  const videoAccount = normalizeSocialAccount(social.account);
-  const displayedAccount = normalizeSocialAccount(businessUrl);
-  // If business has no matching social URL configured, show the overlay
-  if (!displayedAccount) return !!videoAccount;
-  return !!videoAccount && videoAccount !== displayedAccount;
-}
-
-async function getManualCardMap(city: City, docs: any[]) {
-  const manualMap = new Map<string, { label: string; badgeId: string | null; eventId?: string | null }>();
-
-  if (docs.length === 0) return manualMap;
-
-  const { data: extraRows } = await (supabase as any)
-    .from("front_structure_homepage_extra_cards")
-    .select("id, business_id, badge_id, video_document_id, title, sort_order, event_id")
-    .eq("city", city)
-    .order("sort_order", { ascending: true });
-
-  const cards = ((extraRows as any[]) || []) as Array<{
-    id: string;
-    business_id: string | null;
-    badge_id: string | null;
-    video_document_id: string | null;
-    title: string | null;
-    sort_order: number | null;
-    event_id?: string | null;
-  }>;
-
-  if (cards.length === 0) return manualMap;
-
-  const badgeIds = Array.from(new Set(cards.map((card) => card.badge_id).filter(Boolean))) as string[];
-
-  const [{ data: badges }, { data: badgeLinks }] = await Promise.all([
-    badgeIds.length > 0
-      ? supabase.from("badges").select("id, name_fr").in("id", badgeIds)
-      : Promise.resolve({ data: [] }),
-    badgeIds.length > 0
-      ? supabase.from("business_document_badges").select("badge_id, document_id").in("badge_id", badgeIds)
-      : Promise.resolve({ data: [] }),
-  ]);
-
-  const badgeNameById = new Map<string, string>(((badges as any[]) || []).map((badge) => [badge.id, badge.name_fr]));
-  const docIdsByBadgeId = new Map<string, Set<string>>();
-  ((badgeLinks as any[]) || []).forEach((link) => {
-    const current = docIdsByBadgeId.get(link.badge_id) || new Set<string>();
-    current.add(link.document_id);
-    docIdsByBadgeId.set(link.badge_id, current);
-  });
-
-  const pickLabel = (card: { title: string | null; badge_id: string | null }) => {
-    const trimmedTitle = card.title?.trim();
-    return trimmedTitle || (card.badge_id ? badgeNameById.get(card.badge_id) || null : null);
-  };
-
-  cards.forEach((card) => {
-    const label = pickLabel(card);
-    if (!label) return;
-
-    if (card.video_document_id) {
-      if (!manualMap.has(card.video_document_id)) {
-        manualMap.set(card.video_document_id, { label, badgeId: card.badge_id, eventId: card.event_id ?? null });
-      }
-      return;
-    }
-
-    const matchingDocs = docs.filter((doc) => {
-      const matchesBusiness = !card.business_id || [doc.business_id, doc.linked_business_id, doc.poi_id].includes(card.business_id);
-      const matchesBadge = !card.badge_id || docIdsByBadgeId.get(card.badge_id)?.has(doc.id);
-      const matchesEvent = !card.event_id || doc.event_id === card.event_id;
-      return matchesBusiness && matchesBadge && matchesEvent;
-    });
-
-    if (matchingDocs.length === 0) return;
-
-    const selectedDoc = [...matchingDocs].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0];
-    if (selectedDoc && !manualMap.has(selectedDoc.id)) {
-      manualMap.set(selectedDoc.id, { label, badgeId: card.badge_id, eventId: card.event_id ?? null });
-    }
-  });
-
-  return manualMap;
-}
-
-const HOME_ID = "__home__";
-const VLOGS_ID = "__vlogs__";
-
-const copyTextSilently = async (text: string) => {
-  try {
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(text);
-      return;
-    }
-  } catch {}
-
-  const textarea = document.createElement("textarea");
-  textarea.value = text;
-  textarea.setAttribute("readonly", "");
-  textarea.style.position = "fixed";
-  textarea.style.opacity = "0";
-  textarea.style.pointerEvents = "none";
-  document.body.appendChild(textarea);
-  textarea.select();
-  document.execCommand("copy");
-  document.body.removeChild(textarea);
-};
-
-const Test = () => {
+const Home = () => {
   const navigate = useNavigate();
 
   // ============================================================
@@ -458,7 +280,7 @@ const Test = () => {
     meta.content = "noindex, nofollow";
     document.head.appendChild(meta);
     const prevTitle = document.title;
-    document.title = "Test";
+    document.title = "Home";
     return () => {
       meta.remove();
       document.title = prevTitle;
@@ -2535,4 +2357,4 @@ const Test = () => {
   );
 };
 
-export default Test;
+export default Home;
