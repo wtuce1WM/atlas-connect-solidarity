@@ -107,12 +107,18 @@ const VideoPoiAssignmentPanel = () => {
           business_id: selectedUploadBusiness.id,
           url: uploadedVideoUrl,
           type: "video",
-          city: selectedUploadBusiness.city,
         })
         .select("id")
         .single();
 
       if (insertErr) throw insertErr;
+
+      // Initialize multi-city link with the business default city (Phase 2: source of truth)
+      if (newDoc && selectedUploadBusiness.city) {
+        await supabase
+          .from("business_document_cities")
+          .insert([{ document_id: newDoc.id, city: selectedUploadBusiness.city }] as any);
+      }
 
       toast.success("Vidéo ajoutée ! Recherchez-la par son ID pour affecter des POIs.");
       // Auto-search the newly created doc
@@ -411,7 +417,7 @@ const VideoPoiAssignmentPanel = () => {
       if (toAdd.length > 0) {
         const { data: sourceDoc } = await supabase
           .from("business_documents")
-          .select("url, name, thumbnail_url, sort_order, business_id, city, neighborhood, type, show_on_front, front_sort_order, force_external, subcategory_id, service_id, destination_id, linked_business_id, description, icon, language, popup, price, price_type, start_date, end_date")
+          .select("url, name, thumbnail_url, sort_order, business_id, neighborhood, type, show_on_front, front_sort_order, force_external, subcategory_id, service_id, destination_id, linked_business_id, description, icon, language, popup, price, price_type, start_date, end_date")
           .eq("id", video.id)
           .single();
 
