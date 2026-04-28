@@ -1309,6 +1309,7 @@ const Test = () => {
               ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null }
               : null,
             social: extractSocial(d),
+            showSocialBadge: isDifferentDisplayedBusinessSocial(extractSocial(d), biz),
             description: d.description ?? null,
             manualCard: manualCardMap.get(d.id) || null,
             subcategory_id: d.subcategory_id ?? null,
