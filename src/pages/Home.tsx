@@ -13,6 +13,27 @@ import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { SiTiktok } from "react-icons/si";
 import HomepageCardsFront from "@/components/HomepageCardsFront";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  CITIES,
+  type City,
+  HOME_ID,
+  VLOGS_ID,
+  type OwnerInfo,
+  type SocialInfo,
+  deriveThumbnail,
+  isAgendaLabel,
+  formatEventDateRange,
+  DAY_LABEL_FR,
+  formatDaysOfWeek,
+  formatTimeRange,
+  extractSocial,
+  getVideoBusinessCandidateIds,
+  resolveVideoEstablishment,
+  normalizeSocialAccount,
+  isDifferentDisplayedBusinessSocial,
+  copyTextSilently,
+} from "@/lib/homeHelpers";
+import { getManualCardMap } from "@/lib/manualCards";
 
 interface FrontEntry {
   id: string;
@@ -21,20 +42,6 @@ interface FrontEntry {
   subcategory_ids: string[];
   service_ids: string[];
   badge_ids: string[];
-}
-
-interface OwnerInfo {
-  id: string;
-  name: string;
-  logo_url: string | null;
-  logo_bg: string | null;
-  affiliate_id?: string | null;
-}
-
-interface SocialInfo {
-  platform: "instagram" | "tiktok" | "youtube";
-  account: string;
-  url: string | null;
 }
 
 interface VideoItem {
