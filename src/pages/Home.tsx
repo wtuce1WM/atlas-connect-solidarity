@@ -1905,11 +1905,10 @@ const Home = () => {
                           setActiveVideoId(v.id);
                           setPanelOpen(true);
                         };
-                        if (isThumbMode) {
-                          const isVlogThumb = selectedEntry?.id === VLOGS_ID;
-                          const thumb = v.thumbnail_url || deriveThumbnail(v.url);
-                          const isFile = /\.(mp4|webm|mov)(\?|$)/i.test(v.url);
-                          return (
+                        const isVlogThumb = selectedEntry?.id === VLOGS_ID;
+                        const thumb = v.thumbnail_url || deriveThumbnail(v.url);
+                        const isFile = /\.(mp4|webm|mov)(\?|$)/i.test(v.url);
+                        return (
                       <div
                         key={v.id}
                         onClick={(e) => {
@@ -2147,28 +2146,10 @@ const Home = () => {
                         )}
                       </div>
                         );
-                      }
-                      return (
-                        <div key={v.id} onClick={handlePick} className="cursor-pointer">
-                          {v.business ? (
-                            <SearchResultCard
-                              business={v.business}
-                              index={idx}
-                              labelLogos={[]}
-                              distanceKm={null}
-                              onClick={handlePick}
-                              onMouseEnter={() => {}}
-                              onMouseLeave={() => {}}
-                            />
-                          ) : (
-                            <div className="aspect-square bg-muted rounded-xl" />
-                          )}
-                        </div>
-                        );
                       });
                     })()}
                   </div>
-                  )}
+
                 </div>
               )}
             </div>
