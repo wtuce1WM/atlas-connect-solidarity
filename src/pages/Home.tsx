@@ -838,9 +838,11 @@ const Home = () => {
                   : (v.name || (acct ? `@${acct}` : (biz?.name || "—"))),
                 thumbnail_url: v.thumbnail_url || deriveThumbnail(v.url),
                 business: isVlogsBadge ? null : biz,
-                owner: isVlogsBadge ? null : (biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null),
+                // Generic videos are multi-POI: never show a single POI owner logo/badge
+                // in the vignette or in SlidePanelHome. Show the social account instead.
+                owner: null,
                 social,
-                showSocialBadge: isDifferentDisplayedBusinessSocial(social, biz),
+                showSocialBadge: !!social,
                 description: v.description ?? null,
                 manualCard: null,
               } as VideoItem;
@@ -1220,9 +1222,11 @@ const Home = () => {
                     : (v.name || (acct ? `@${acct}` : (biz?.name || "—"))),
                   thumbnail_url: v.thumbnail_url || deriveThumbnail(v.url),
                   business: isVlogsContext ? null : biz,
-                  owner: isVlogsContext ? null : (biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null),
+                  // Generic videos are multi-POI: never show a single POI owner logo/badge
+                  // in the vignette or in SlidePanelHome. Show the social account instead.
+                  owner: null,
                   social,
-                  showSocialBadge: isDifferentDisplayedBusinessSocial(social, biz),
+                  showSocialBadge: !!social,
                   description: v.description ?? null,
                   manualCard: null,
                 } as VideoItem;
