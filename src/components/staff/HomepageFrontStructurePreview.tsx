@@ -213,17 +213,8 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           }
           allBizIds.add(overrideBizId);
         } else {
-          const { data: ownDocs } = await supabase
-            .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
-            .eq("type", "video")
-            .eq("city", city)
-            .in("subcategory_id", entry.subcategory_ids)
-            .order("sort_order", { ascending: true })
-            .limit(1);
-
-          candidate = (ownDocs && ownDocs[0]) || null;
-
+          // Source of truth: business_document_cities (resolved into extraDocIds).
+          // Pick the first matching doc among those explicitly linked to this city.
           if (extraDocIds.size > 0) {
             const ids = [...extraDocIds];
             for (let i = 0; i < ids.length; i += 300) {
