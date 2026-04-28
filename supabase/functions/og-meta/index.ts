@@ -149,13 +149,15 @@ async function resolveMeta(supabase: any, path: string, params: URLSearchParams)
     }
 
     let badgeName: string | null = null;
+    let badgeImage: string | null = null;
     if (badgeId) {
       const { data: b } = await supabase
         .from("badges")
-        .select("name_fr")
+        .select("name_fr, og_image_url")
         .eq("id", badgeId)
         .maybeSingle();
       badgeName = b?.name_fr || badgeLabelParam || null;
+      badgeImage = b?.og_image_url || null;
     } else if (badgeLabelParam) {
       badgeName = badgeLabelParam;
     }
@@ -168,9 +170,8 @@ async function resolveMeta(supabase: any, path: string, params: URLSearchParams)
       const description = cityName
         ? `Découvrez ${focus} à ${cityName} sur ${SITE_NAME}.`
         : `Découvrez ${focus} sur ${SITE_NAME}.`;
-      // Priorité image: sous-catégorie > catégorie > ville > défaut
-      // (les badges n'ont pas d'image dédiée → on retombe sur la ville)
-      const image = subImage || entryImage || cityImage || DEFAULT_OG_IMAGE;
+      // Priorité image: badge > sous-catégorie > catégorie > ville > défaut
+      const image = badgeImage || subImage || entryImage || cityImage || DEFAULT_OG_IMAGE;
       return { title, description, image };
     }
 
