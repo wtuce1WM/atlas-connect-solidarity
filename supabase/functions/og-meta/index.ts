@@ -149,13 +149,15 @@ async function resolveMeta(supabase: any, path: string, params: URLSearchParams)
     }
 
     let badgeName: string | null = null;
+    let badgeImage: string | null = null;
     if (badgeId) {
       const { data: b } = await supabase
         .from("badges")
-        .select("name_fr")
+        .select("name_fr, og_image_url")
         .eq("id", badgeId)
         .maybeSingle();
       badgeName = b?.name_fr || badgeLabelParam || null;
+      badgeImage = b?.og_image_url || null;
     } else if (badgeLabelParam) {
       badgeName = badgeLabelParam;
     }
