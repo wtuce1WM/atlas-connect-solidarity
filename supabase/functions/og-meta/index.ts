@@ -49,8 +49,8 @@ interface Meta { title: string; description: string; image: string; }
 
 async function resolveMeta(supabase: any, path: string, params: URLSearchParams): Promise<Meta> {
   // ---------- Fiche établissement ----------
-  // /fiche/:slug
-  const ficheMatch = path.match(/^\/fiche\/([^/]+)/);
+  // /fiche/:slug ou /business/:slug (legacy)
+  const ficheMatch = path.match(/^\/(?:fiche|business)\/([^/]+)/);
   if (ficheMatch) {
     const slug = decodeURIComponent(ficheMatch[1]);
     const { data: biz } = await supabase
