@@ -2358,18 +2358,6 @@ const Test = () => {
                             <div className="w-0 h-0 border-y-[6px] border-y-transparent border-l-[9px] border-l-white ml-0.5" />
                           </div>
                         </div>
-                        {v.showSocialBadge && v.social && !v.owner?.logo_url && (
-                          <div className="absolute inset-x-0 bottom-[15%] z-[7] flex flex-col items-center gap-2 px-2 pointer-events-none text-white"
-                            style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
-                          >
-                            {v.social.platform === "instagram" && <InstagramIcon className="h-12 w-12" />}
-                            {v.social.platform === "youtube" && <Youtube className="h-12 w-12" />}
-                            {v.social.platform === "tiktok" && <SiTiktok className="h-11 w-11" />}
-                            <span className="text-sm font-semibold leading-tight line-clamp-1" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                              @{v.social.account}
-                            </span>
-                          </div>
-                        )}
                         {(() => {
                           const targets = ["immobilier", "villas"];
                           const entryName = selectedEntry?.name?.trim().toLowerCase() ?? "";
@@ -2435,7 +2423,7 @@ const Test = () => {
                                 </p>
                               ) : null;
                             })()}
-                            {!v.eventInfo?.name && !(v.showSocialBadge && v.social && !v.owner?.logo_url) && (() => {
+                            {!v.eventInfo?.name && (() => {
                               const displayName = isVlogThumb ? v.business_name : v.owner?.name || v.business_name;
                               return (
                                 <button
