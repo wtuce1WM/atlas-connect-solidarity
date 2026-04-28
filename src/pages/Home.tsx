@@ -342,33 +342,21 @@ const Test = () => {
     const eventId = searchParams.get("eventId");
     const eventLabel = searchParams.get("eventLabel");
     const eventIds = searchParams.get("eventIds");
-    const popularSearchId = searchParams.get("popularSearchId");
-    const popularSearchLabel = searchParams.get("popularSearchLabel");
-    const popularSearchBusinessIds = searchParams.get("popularSearchBusinessIds");
 
     if (shouldRestoreContext) setOtherViewMode("videos");
     if (shouldRestoreContext && eventId && eventLabel) {
       setVideoBadgeFilter(null);
-      setVideoPopularSearchFilter(null);
       setSelectedEntryId(HOME_ID);
       setSelectedSubId(null);
       setVideoEventFilter({ eventId, label: eventLabel, eventIds: eventIds ? eventIds.split(",").filter(Boolean) : undefined });
     } else if (shouldRestoreContext && badgeId && badgeLabel) {
       setVideoEventFilter(null);
-      setVideoPopularSearchFilter(null);
       setSelectedEntryId(HOME_ID);
       setSelectedSubId(null);
       setVideoBadgeFilter({ badgeId, label: badgeLabel });
-    } else if (shouldRestoreContext && popularSearchId && popularSearchLabel) {
-      setVideoBadgeFilter(null);
-      setVideoEventFilter(null);
-      setSelectedEntryId(HOME_ID);
-      setSelectedSubId(null);
-      setVideoPopularSearchFilter({ popularSearchId, label: popularSearchLabel, businessIds: popularSearchBusinessIds ? popularSearchBusinessIds.split(",").filter(Boolean) : [] });
     } else if (shouldRestoreContext) {
       setVideoBadgeFilter(null);
       setVideoEventFilter(null);
-      setVideoPopularSearchFilter(null);
       setSelectedEntryId(entryParam || HOME_ID);
       setSelectedSubId(subParam || null);
     }
