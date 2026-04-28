@@ -1,0 +1,1 @@
+ALTER TABLE public.front_structure_homepage_extra_cards DROP COLUMN IF EXISTS popular_search_id;

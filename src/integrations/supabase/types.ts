@@ -2751,7 +2751,6 @@ export type Database = {
           created_at: string
           event_id: string | null
           id: string
-          popular_search_id: string | null
           sort_order: number
           title: string | null
           updated_at: string
@@ -2764,7 +2763,6 @@ export type Database = {
           created_at?: string
           event_id?: string | null
           id?: string
-          popular_search_id?: string | null
           sort_order?: number
           title?: string | null
           updated_at?: string
@@ -2777,7 +2775,6 @@ export type Database = {
           created_at?: string
           event_id?: string | null
           id?: string
-          popular_search_id?: string | null
           sort_order?: number
           title?: string | null
           updated_at?: string
@@ -2810,13 +2807,6 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "front_structure_homepage_extra_cards_popular_search_id_fkey"
-            columns: ["popular_search_id"]
-            isOneToOne: false
-            referencedRelation: "popular_searches"
             referencedColumns: ["id"]
           },
         ]
