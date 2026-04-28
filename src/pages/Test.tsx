@@ -1263,13 +1263,10 @@ const Test = () => {
         const seenIds = new Set<string>();
         allDocs = allDocs.filter((d: any) => (seenIds.has(d.id) ? false : (seenIds.add(d.id), true)));
 
-        // Same logic as SlidePanelHome: group by business_id (real owner), dedupe by URL.
+        // Same logic as SlidePanelHome: group by resolved establishment, dedupe by URL.
         // Single difference here: apply front_video_count per business.
-        // Display business prefers poi_id > linked_business_id > business_id (so a video
-        // tagged on business A but linked to establishment B shows B's name and logo).
-        const getDisplayId = (d: any) => d.poi_id || d.linked_business_id || d.business_id;
         const allBizIds = [...new Set(
-          allDocs.flatMap((d: any) => [d.business_id, d.linked_business_id, d.poi_id]).filter(Boolean)
+          allDocs.flatMap(getVideoBusinessCandidateIds).filter(Boolean)
         )] as string[];
         const bizMap = new Map<string, SearchResultBusiness>();
         if (allBizIds.length > 0) {
@@ -1289,9 +1286,11 @@ const Test = () => {
         // Group by business_id (the real owner), then keep first N per business (front_video_count)
         const docsByBiz = new Map<string, any[]>();
         for (const d of uniqueDocs) {
-          const arr = docsByBiz.get(d.business_id) || [];
+          const biz = resolveVideoEstablishment(d, bizMap);
+          const groupId = biz?.id || d.business_id || d.id;
+          const arr = docsByBiz.get(groupId) || [];
           arr.push(d);
-          docsByBiz.set(d.business_id, arr);
+          docsByBiz.set(groupId, arr);
         }
 
         const limitedDocs: any[] = [];
@@ -1318,8 +1317,7 @@ const Test = () => {
         }
 
         const docItems: VideoItem[] = limitedDocs.map((d: any) => {
-          const displayId = getDisplayId(d);
-          const biz = bizMap.get(displayId) || bizMap.get(d.business_id) || null;
+          const biz = resolveVideoEstablishment(d, bizMap);
           return {
             id: d.id,
             url: d.url,
