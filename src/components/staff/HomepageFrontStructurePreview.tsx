@@ -719,7 +719,6 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         badgeName: nextBadgeId ? (allBadges.find((b) => b.id === nextBadgeId)?.name_fr || null) : null,
         video_document_id: nextVideoDocumentId,
         title: nextTitle,
-        popular_search_id: nextPopularSearchId,
         event_id: nextEventId,
         eventName: nextEvent?.name || (patch.event_id !== undefined ? null : card.eventName),
         businessName: nextBusiness?.name || (patch.business_id !== undefined ? null : card.businessName),
