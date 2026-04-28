@@ -2462,7 +2462,7 @@ const Test = () => {
                               ) : null;
                             })()}
                             {!v.eventInfo?.name && (() => {
-                              const displayName = isVlogThumb ? v.business_name : v.owner?.name || v.business_name;
+                              const displayName = v.business_name || v.owner?.name || "";
                               return (
                                 <button
                                   type="button"
