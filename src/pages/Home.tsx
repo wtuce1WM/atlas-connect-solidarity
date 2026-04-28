@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,7 +15,7 @@ import { SiTiktok } from "react-icons/si";
 
 import HomeCityTabs from "@/components/home/HomeCityTabs";
 import BadgeBusinessesGrid from "@/components/home/BadgeBusinessesGrid";
-import HomeVideoSlidePanel from "@/components/home/HomeVideoSlidePanel";
+const HomeVideoSlidePanel = lazy(() => import("@/components/home/HomeVideoSlidePanel"));
 import {
   CITIES,
   type City,
@@ -2158,20 +2158,24 @@ const Home = () => {
         </main>
       </div>
 
-      <HomeVideoSlidePanel
-        open={panelOpen}
-        onClose={() => setPanelOpen(false)}
-        activeVideo={activeVideo}
-        activeList={activeList}
-        onActiveVideoChange={(v) => {
-          setActiveVideo(v);
-          setActiveVideoId(v.id);
-        }}
-        isActiveGeneric={isActiveGeneric}
-        currentTime={currentTime}
-        onTimeUpdate={setCurrentTime}
-        returnContext={returnContext}
-      />
+      {panelOpen && (
+        <Suspense fallback={null}>
+          <HomeVideoSlidePanel
+            open={panelOpen}
+            onClose={() => setPanelOpen(false)}
+            activeVideo={activeVideo}
+            activeList={activeList}
+            onActiveVideoChange={(v) => {
+              setActiveVideo(v);
+              setActiveVideoId(v.id);
+            }}
+            isActiveGeneric={isActiveGeneric}
+            currentTime={currentTime}
+            onTimeUpdate={setCurrentTime}
+            returnContext={returnContext}
+          />
+        </Suspense>
+      )}
     </div>
   );
 };
