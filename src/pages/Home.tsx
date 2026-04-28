@@ -145,7 +145,7 @@ const Home = () => {
       if (subParam) setSelectedSubId(subParam);
     }
     if (subParam && (eventId || badgeId)) setSelectedSubId(subParam);
-    if (viewParam === "details" || viewParam === "guide") setOtherViewMode(viewParam);
+    
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -169,7 +169,7 @@ const Home = () => {
     const eventLabel = searchParams.get("eventLabel");
     const eventIds = searchParams.get("eventIds");
 
-    if (shouldRestoreContext) setOtherViewMode("videos");
+    
     if (shouldRestoreContext && eventId && eventLabel) {
       setVideoBadgeFilter(null);
       setSelectedEntryId(HOME_ID);
@@ -1320,10 +1320,7 @@ const Home = () => {
   );
 
   // Active list (used by panel navigation)
-  const activeList = useMemo(
-    () => (otherViewMode === "guide" ? guideVideos : videos),
-    [otherViewMode, guideVideos, videos]
-  );
+  const activeList = videos;
 
   const returnContext = useMemo(() => {
     const params = new URLSearchParams();
