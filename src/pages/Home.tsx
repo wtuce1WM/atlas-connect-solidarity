@@ -2273,39 +2273,18 @@ const Home = () => {
         </main>
       </div>
 
-      <SlidePanelHome
+      <HomeVideoSlidePanel
         open={panelOpen}
         onClose={() => setPanelOpen(false)}
-        videoUrl={activeVideo?.url || null}
-        videoId={activeVideo?.id || null}
-        businessName={activeVideo?.business_name || ""}
-        isGeneric={isActiveGeneric}
-        owner={activeVideo?.owner || null}
-        social={activeVideo?.social || null}
-        showSocialBadge={!!activeVideo?.showSocialBadge}
-        description={activeVideo?.description || null}
+        activeVideo={activeVideo}
+        activeList={activeList}
+        onActiveVideoChange={(v) => {
+          setActiveVideo(v);
+          setActiveVideoId(v.id);
+        }}
+        isActiveGeneric={isActiveGeneric}
         currentTime={currentTime}
         onTimeUpdate={setCurrentTime}
-        onPrev={() => {
-          const i = activeList.findIndex((v) => v.id === activeVideo?.id);
-          if (i > 0) {
-            setActiveVideo(activeList[i - 1]);
-            setActiveVideoId(activeList[i - 1].id);
-          }
-        }}
-        onNext={() => {
-          const i = activeList.findIndex((v) => v.id === activeVideo?.id);
-          if (i >= 0 && i < activeList.length - 1) {
-            setActiveVideo(activeList[i + 1]);
-            setActiveVideoId(activeList[i + 1].id);
-          }
-        }}
-        hasPrev={activeList.findIndex((v) => v.id === activeVideo?.id) > 0}
-        hasNext={(() => {
-          const i = activeList.findIndex((v) => v.id === activeVideo?.id);
-          return i >= 0 && i < activeList.length - 1;
-        })()}
-        eventId={activeVideo?.id?.startsWith("event:") ? activeVideo.id.slice(6) : (activeVideo?.manualCard?.eventId || null)}
         returnContext={returnContext}
       />
     </div>
