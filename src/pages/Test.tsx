@@ -120,6 +120,16 @@ function extractSocial(d: any): SocialInfo | null {
   return null;
 }
 
+const getVideoBusinessCandidateIds = (d: any): string[] =>
+  [d?.linked_business_id, d?.business_id, d?.poi_id].filter(Boolean) as string[];
+
+const resolveVideoEstablishment = (d: any, bizMap: Map<string, any>) => {
+  const candidates = getVideoBusinessCandidateIds(d)
+    .map((id) => bizMap.get(id))
+    .filter(Boolean);
+  return candidates.find((b: any) => b.is_poi !== true) || candidates[0] || null;
+};
+
 function normalizeSocialAccount(value?: string | null): string {
   const raw = (value || "").trim().toLowerCase();
   if (!raw) return "";
