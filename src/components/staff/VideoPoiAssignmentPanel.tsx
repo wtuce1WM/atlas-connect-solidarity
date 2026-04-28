@@ -115,9 +115,16 @@ const VideoPoiAssignmentPanel = () => {
 
       // Initialize multi-city link with the business default city (Phase 2: source of truth)
       if (newDoc && selectedUploadBusiness.city) {
-        await supabase
-          .from("business_document_cities")
-          .insert([{ document_id: newDoc.id, city: selectedUploadBusiness.city }] as any);
+        const { data: cityRow } = await supabase
+          .from("cities")
+          .select("id")
+          .ilike("name_fr", selectedUploadBusiness.city)
+          .maybeSingle();
+        if (cityRow?.id) {
+          await supabase
+            .from("business_document_cities")
+            .insert([{ document_id: newDoc.id, city_id: cityRow.id }]);
+        }
       }
 
       toast.success("Vidéo ajoutée ! Recherchez-la par son ID pour affecter des POIs.");
