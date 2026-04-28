@@ -443,6 +443,30 @@ const SlidePanelHome = ({
                 </div>
               </div>
             )}
+            {!owner && eventId && (eventBusiness || eventInfo) && (
+              <div
+                key={`event-owner-overlay-${eventId}`}
+                className="flex flex-col items-center justify-center gap-3 px-4 pointer-events-none"
+              >
+                {eventBusiness?.logo_url && (
+                  <div className="animate-logo-big-full-reveal max-w-[140px] max-h-[110px] md:max-w-[240px] md:max-h-[160px]">
+                    <img
+                      src={eventBusiness.logo_url}
+                      alt={eventBusiness.name}
+                      className="w-full h-auto max-w-full max-h-[110px] md:max-h-[160px] object-contain"
+                      style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
+                    />
+                  </div>
+                )}
+                {(eventBusiness?.name || eventInfo?.name) && (
+                  <div className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto select-text">
+                    <span className="text-xs font-medium text-white select-text" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                      {eventBusiness?.name || eventInfo?.name} <span className="text-base">©</span>
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
             {visibleSocial && (
               <div
                 key={`social-overlay-${videoId || videoUrl}`}
