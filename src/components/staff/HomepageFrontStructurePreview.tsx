@@ -477,7 +477,6 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         setExtraCards(sortByCustom(extrasKeyed) as any);
         setMixedOrder(mixed.map((m) => m.key));
         setAllBadges(badges);
-        setAllPopularSearches((((popSearchRes as any).data) || []).map((r: any) => ({ id: r.id, query: r.query })));
         setAllEvents(eventsList);
         setLoading(false);
         isFirstLoad.current = false;
