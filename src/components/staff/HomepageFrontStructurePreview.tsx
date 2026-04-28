@@ -708,7 +708,6 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       const nextBadgeId = patch.badge_id !== undefined ? patch.badge_id : card.badge_id;
       const nextVideoDocumentId = patch.video_document_id !== undefined ? patch.video_document_id : card.video_document_id;
       const nextTitle = patch.title !== undefined ? patch.title : card.title;
-      const nextPopularSearchId = patch.popular_search_id !== undefined ? patch.popular_search_id : card.popular_search_id;
       const nextEventId = patch.event_id !== undefined ? patch.event_id : card.event_id;
       const nextBusiness = nextBusinessId ? allBusinesses.find((b) => b.id === nextBusinessId) : null;
       const nextEvent = nextEventId ? allEvents.find((e) => e.id === nextEventId) : null;
