@@ -158,7 +158,19 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
     );
   }
 
+  // A "manual business card": linked to a single establishment, no badge/event/popular-search target.
+  // Clicking it should open the business slide panel on the Search page (same as "En savoir +" CTA).
+  const isDirectBusinessCard = (slot: MixedSlot) => {
+    const d = slot.data;
+    return !!d.ownerId && !d.badgeId && !d.eventId && !d.popularSearchId && !d.target;
+  };
+
   const handleLabelActivate = (slot: MixedSlot) => {
+    if (isDirectBusinessCard(slot) && slot.data.ownerId) {
+      navigate(`/fiche/${slot.data.ownerId}`);
+      return;
+    }
+
     const label = slot.data.label;
     if (!label) return;
 
