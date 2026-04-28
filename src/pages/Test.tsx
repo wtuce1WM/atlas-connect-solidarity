@@ -404,14 +404,16 @@ const Test = () => {
         .eq("id", wantedId)
         .maybeSingle();
       if (cancelled || !doc?.url) return;
-      const displayId = (doc as any).poi_id || (doc as any).linked_business_id || (doc as any).business_id;
-      const { data: biz } = displayId
+      const displayIds = getVideoBusinessCandidateIds(doc as any);
+      const { data: bizRows } = displayIds.length > 0
         ? await supabase
             .from("businesses")
             .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
-            .eq("id", displayId)
-            .maybeSingle()
+            .in("id", displayIds)
         : { data: null } as any;
+      const bizMap = new Map<string, any>();
+      ((bizRows as any[]) || []).forEach((b) => bizMap.set(b.id, b));
+      const biz = resolveVideoEstablishment(doc as any, bizMap);
       if (cancelled) return;
       const video: VideoItem = {
         id: doc.id,
