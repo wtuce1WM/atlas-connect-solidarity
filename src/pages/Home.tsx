@@ -15,7 +15,9 @@ import { SiTiktok } from "react-icons/si";
 
 import HomeCityTabs from "@/components/home/HomeCityTabs";
 import BadgeBusinessesGrid from "@/components/home/BadgeBusinessesGrid";
-const HomeVideoSlidePanel = lazy(() => import("@/components/home/HomeVideoSlidePanel"));
+const HomeVideoSlidePanel = lazy(
+  () => import("@/components/home/HomeVideoSlidePanel"),
+) as typeof import("@/components/home/HomeVideoSlidePanel").default;
 import {
   CITIES,
   type City,
