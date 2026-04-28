@@ -159,10 +159,11 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
 
   // A "manual business card": linked to a single establishment, no badge/event target.
   // Clicking it should open the business slide panel on the Search page (same as "En savoir +" CTA).
+  // The card may carry a label (e.g. "Festival Gnaoua d'Essaouira") — what matters is that
+  // it is not a category/badge/event filter (no badgeId, eventId or target).
   const isDirectBusinessCard = (slot: MixedSlot) => {
     const d = slot.data;
-    // A label means this is a category/filter vignette → not a direct business card
-    return !!d.ownerId && !d.label && !d.badgeId && !d.eventId && !d.target;
+    return !!d.ownerId && !d.badgeId && !d.eventId && !d.target;
   };
 
   const handleLabelActivate = (slot: MixedSlot) => {
