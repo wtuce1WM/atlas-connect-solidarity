@@ -720,7 +720,11 @@ const Home = () => {
             (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
           }
         }
-        uniqueDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+        uniqueDocs.sort((a: any, b: any) => {
+          const so = (a.sort_order ?? 0) - (b.sort_order ?? 0);
+          if (so !== 0) return so;
+          return String(a.id).localeCompare(String(b.id));
+        });
         // Fetch service names for any service_id present on these docs
         const badgeServiceIds = [...new Set(uniqueDocs.map((d: any) => d.service_id).filter(Boolean))] as string[];
         const badgeServiceNameById = new Map<string, string>();
@@ -743,8 +747,11 @@ const Home = () => {
         const dedupedByBiz = isGuideBadge
           ? uniqueDocs
           : uniqueDocs.filter((d: any) => {
-              const biz = resolveVideoEstablishment(d, bizMap);
-              const dedupeId = biz?.id || d.business_id || d.id;
+              // Dedupe by the business shown on the thumbnail (business_id),
+              // not the linked establishment, so two distinct POIs sharing
+              // the same linked hotel don't cannibalize each other.
+              const thumbBiz = (d.business_id && bizMap.get(d.business_id)) || resolveVideoEstablishment(d, bizMap);
+              const dedupeId = thumbBiz?.id || d.business_id || d.id;
               if (seenBizIds.has(dedupeId)) return false;
               seenBizIds.add(dedupeId);
               return true;
