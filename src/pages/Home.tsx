@@ -720,7 +720,11 @@ const Home = () => {
             (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
           }
         }
-        uniqueDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+        uniqueDocs.sort((a: any, b: any) => {
+          const so = (a.sort_order ?? 0) - (b.sort_order ?? 0);
+          if (so !== 0) return so;
+          return String(a.id).localeCompare(String(b.id));
+        });
         // Fetch service names for any service_id present on these docs
         const badgeServiceIds = [...new Set(uniqueDocs.map((d: any) => d.service_id).filter(Boolean))] as string[];
         const badgeServiceNameById = new Map<string, string>();
