@@ -7,6 +7,7 @@ import { getVideoEmbed } from "@/lib/videoEmbed";
 import SearchResultCard, { type SearchResultBusiness } from "@/components/SearchResultCard";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
+import { businessUrl } from "@/lib/businessUrl";
 
 import { Menu as MenuIcon, X, Star, Youtube } from "lucide-react";
 import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
@@ -2041,6 +2042,18 @@ const Home = () => {
                           }
                           if (clickedManualBadge && v.manualCard?.badgeId) {
                             void activateVideoBadgeFilter(v.manualCard.badgeId, v.manualCard.label, city);
+                            return;
+                          }
+
+                          // Agenda event vignette linked to a single establishment:
+                          // navigate directly to that business (same behavior as the
+                          // "En savoir +" button inside SlidePanelHome).
+                          if (v.eventInfo && v.business?.id) {
+                            try {
+                              if (v.id) sessionStorage.setItem("returnToTestVideoId", v.id);
+                              if (returnContext) sessionStorage.setItem("returnToTestContext", returnContext);
+                            } catch {}
+                            navigate(businessUrl(v.business as any));
                             return;
                           }
 
