@@ -91,7 +91,7 @@ export function normalizeSocialAccount(value?: string | null): string {
 
 export function isDifferentDisplayedBusinessSocial(
   social: SocialInfo | null | undefined,
-  business: { instagram_url?: string | null; tiktok_url?: string | null; youtube_url?: string | null } | null | undefined,
+  business: any | null | undefined,
 ): boolean {
   if (!social) return false;
   if (!business) return true;
