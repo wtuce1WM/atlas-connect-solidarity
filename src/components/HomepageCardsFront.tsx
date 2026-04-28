@@ -252,7 +252,9 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
         <button
           type="button"
           onClick={() => {
-            if (it.label && labelTakesPriority) {
+            if (isDirectBusinessCard(slot)) {
+              handleLabelActivate(slot);
+            } else if (it.label && labelTakesPriority) {
               handleLabelActivate(slot);
             } else {
               setCurrentTime(0);
