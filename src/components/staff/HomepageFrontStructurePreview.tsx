@@ -1017,9 +1017,6 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
                       )}
                     </div>
                   </div>
-                  <div className="hidden">
-                    <label className="text-[9px] text-muted-foreground">Suggestion de recherche</label>
-                  </div>
                   <div>
                     <label className="text-[9px] text-muted-foreground">Badge</label>
                     <select
