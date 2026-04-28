@@ -210,6 +210,7 @@ export type Database = {
           name_ar: string | null
           name_en: string | null
           name_fr: string
+          og_image_url: string | null
           sort_order: number | null
           text_color_hex: string | null
           updated_at: string | null
@@ -223,6 +224,7 @@ export type Database = {
           name_ar?: string | null
           name_en?: string | null
           name_fr: string
+          og_image_url?: string | null
           sort_order?: number | null
           text_color_hex?: string | null
           updated_at?: string | null
@@ -236,6 +238,7 @@ export type Database = {
           name_ar?: string | null
           name_en?: string | null
           name_fr?: string
+          og_image_url?: string | null
           sort_order?: number | null
           text_color_hex?: string | null
           updated_at?: string | null

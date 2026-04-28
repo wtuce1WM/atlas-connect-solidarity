@@ -1,0 +1,1 @@
+ALTER TABLE public.badges ADD COLUMN IF NOT EXISTS og_image_url text;
