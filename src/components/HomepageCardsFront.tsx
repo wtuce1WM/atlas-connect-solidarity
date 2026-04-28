@@ -157,13 +157,13 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
     );
   }
 
-  // A "manual business card": linked to a single establishment, no badge/event target.
-  // Clicking it should open the business slide panel on the Search page (same as "En savoir +" CTA).
-  // The card may carry a label (e.g. "Festival Gnaoua d'Essaouira") — what matters is that
-  // it is not a category/badge/event filter (no badgeId, eventId or target).
+  // A "manual business card": ONLY manual extra cards (kind === "extra") linked to a
+  // single establishment, with no badge/event filter. Clicking it should open the
+  // business slide panel on the Search page (same as "En savoir +" CTA in SlidePanelHome).
+  // Regular video cards (kind === "entry") must keep their normal video-player behavior.
   const isDirectBusinessCard = (slot: MixedSlot) => {
     const d = slot.data;
-    return !!d.ownerId && !d.badgeId && !d.eventId && !d.target;
+    return slot.kind === "extra" && !!d.ownerId && !d.badgeId && !d.eventId && !d.target;
   };
 
   const handleLabelActivate = (slot: MixedSlot) => {
