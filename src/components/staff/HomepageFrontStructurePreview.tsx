@@ -57,7 +57,6 @@ interface ExtraCard {
   video_document_id: string | null;
   title: string | null;
   sort_order: number;
-  popular_search_id: string | null;
   event_id: string | null;
 }
 
@@ -76,14 +75,12 @@ interface ExtraCardPreview {
   badgeName: string | null;
   video_document_id: string | null;
   title: string | null;
-  popular_search_id: string | null;
   event_id: string | null;
   eventName: string | null;
 }
 
 interface BizLite { id: string; name: string }
 interface BadgeLite { id: string; name_fr: string }
-interface PopularSearchLite { id: string; query: string }
 interface EventLite { id: string; name: string }
 
 function deriveThumbnail(url: string): string | null {
@@ -100,7 +97,6 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
   const [extraCards, setExtraCards] = useState<ExtraCardPreview[]>([]);
   const [mixedOrder, setMixedOrder] = useState<string[]>([]);
   const [allBadges, setAllBadges] = useState<BadgeLite[]>([]);
-  const [allPopularSearches, setAllPopularSearches] = useState<PopularSearchLite[]>([]);
   const [allEvents, setAllEvents] = useState<EventLite[]>([]);
   const [loading, setLoading] = useState(true);
   const [allBusinesses, setAllBusinesses] = useState<BizLite[]>([]);
@@ -145,7 +141,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       }
 
       // FS entries + badges + extra cards
-      const [entriesRes, linksRes, overridesRes, badgesRes, extraRes, popSearchRes, eventsRes] = await Promise.all([
+      const [entriesRes, linksRes, overridesRes, badgesRes, extraRes, eventsRes] = await Promise.all([
         supabase.from("front_structure").select("id, name, sort_order, show_in_menu").order("sort_order"),
         supabase.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
         (supabase as any)
@@ -155,14 +151,9 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         supabase.from("badges").select("id, name_fr").order("name_fr"),
         (supabase as any)
           .from("front_structure_homepage_extra_cards")
-          .select("id, city, business_id, badge_id, video_document_id, title, sort_order, popular_search_id, event_id")
+          .select("id, city, business_id, badge_id, video_document_id, title, sort_order, event_id")
           .eq("city", city)
           .order("sort_order", { ascending: true }),
-        supabase
-          .from("popular_searches")
-          .select("id, query")
-          .eq("is_active", true)
-          .order("query", { ascending: true }),
         supabase
           .from("events")
           .select("id, name")
@@ -265,7 +256,6 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       const extraRows: ExtraCard[] = ((extraRes as any).data || []).map((r: any) => ({
         id: r.id, city: r.city, business_id: r.business_id, badge_id: r.badge_id,
         video_document_id: r.video_document_id, title: r.title ?? null, sort_order: r.sort_order,
-        popular_search_id: r.popular_search_id ?? null,
         event_id: r.event_id ?? null,
       }));
       const eventsList: EventLite[] = (((eventsRes as any).data) || []).map((e: any) => ({ id: e.id, name: e.name }));
@@ -419,7 +409,6 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
             badgeName,
             video_document_id: card.video_document_id,
             title: card.title,
-            popular_search_id: card.popular_search_id,
             event_id: card.event_id,
             eventName,
           };
@@ -442,7 +431,6 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           badgeName,
           video_document_id: card.video_document_id,
           title: card.title,
-          popular_search_id: card.popular_search_id,
           event_id: card.event_id,
           eventName,
         };
@@ -489,7 +477,6 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         setExtraCards(sortByCustom(extrasKeyed) as any);
         setMixedOrder(mixed.map((m) => m.key));
         setAllBadges(badges);
-        setAllPopularSearches((((popSearchRes as any).data) || []).map((r: any) => ({ id: r.id, query: r.query })));
         setAllEvents(eventsList);
         setLoading(false);
         isFirstLoad.current = false;
@@ -571,7 +558,6 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       video_document_id: row.video_document_id,
       title: row.title ?? null,
       sort_order: row.sort_order,
-      popular_search_id: row.popular_search_id ?? null,
       event_id: row.event_id ?? null,
     };
 
@@ -688,13 +674,12 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       badgeName,
       video_document_id: card.video_document_id,
       title: card.title,
-      popular_search_id: card.popular_search_id,
       event_id: card.event_id,
       eventName,
     }));
   };
 
-  const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null; video_document_id?: string | null; title?: string | null; popular_search_id?: string | null; event_id?: string | null }) => {
+  const updateExtraCard = async (cardId: string, patch: { business_id?: string | null; badge_id?: string | null; video_document_id?: string | null; title?: string | null; event_id?: string | null }) => {
       if (patch.video_document_id !== undefined && patch.video_document_id !== null) {
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
         if (!uuidRegex.test(patch.video_document_id)) {
@@ -723,7 +708,6 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       const nextBadgeId = patch.badge_id !== undefined ? patch.badge_id : card.badge_id;
       const nextVideoDocumentId = patch.video_document_id !== undefined ? patch.video_document_id : card.video_document_id;
       const nextTitle = patch.title !== undefined ? patch.title : card.title;
-      const nextPopularSearchId = patch.popular_search_id !== undefined ? patch.popular_search_id : card.popular_search_id;
       const nextEventId = patch.event_id !== undefined ? patch.event_id : card.event_id;
       const nextBusiness = nextBusinessId ? allBusinesses.find((b) => b.id === nextBusinessId) : null;
       const nextEvent = nextEventId ? allEvents.find((e) => e.id === nextEventId) : null;
@@ -735,7 +719,6 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         badgeName: nextBadgeId ? (allBadges.find((b) => b.id === nextBadgeId)?.name_fr || null) : null,
         video_document_id: nextVideoDocumentId,
         title: nextTitle,
-        popular_search_id: nextPopularSearchId,
         event_id: nextEventId,
         eventName: nextEvent?.name || (patch.event_id !== undefined ? null : card.eventName),
         businessName: nextBusiness?.name || (patch.business_id !== undefined ? null : card.businessName),
@@ -1033,19 +1016,6 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
                         </button>
                       )}
                     </div>
-                  </div>
-                  <div>
-                    <label className="text-[9px] text-muted-foreground">Suggestion de recherche</label>
-                    <select
-                      value={card.popular_search_id || ""}
-                      onChange={(e) => updateExtraCard(card.cardId, { popular_search_id: e.target.value || null })}
-                      className="h-5 w-full px-1 text-[9px] border rounded-md bg-background"
-                    >
-                      <option value="">— Aucune —</option>
-                      {allPopularSearches.map((p) => (
-                        <option key={p.id} value={p.id}>{p.query}</option>
-                      ))}
-                    </select>
                   </div>
                   <div>
                     <label className="text-[9px] text-muted-foreground">Badge</label>

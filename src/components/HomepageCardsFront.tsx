@@ -5,11 +5,11 @@ import { Loader2, Star } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import SlidePanelHome from "@/components/SlidePanelHome";
 
-export type HomeCardTarget = { type: "badge" | "event" | "popular_search"; id: string } | null;
+export type HomeCardTarget = { type: "badge" | "event"; id: string } | null;
 
 interface Props {
   city: string;
-  onLabelClick?: (info: { label: string; kind: "entry" | "extra"; target: HomeCardTarget; badgeId: string | null; eventId?: string | null; popularSearchId?: string | null }) => void;
+  onLabelClick?: (info: { label: string; kind: "entry" | "extra"; target: HomeCardTarget; badgeId: string | null; eventId?: string | null }) => void;
   /** If true, clicking a labeled video card triggers the label filter instead of opening the video panel. Used on the Test homepage. */
   labelTakesPriority?: boolean;
 }
@@ -27,7 +27,6 @@ interface CardData {
   label: string | null;
   badgeId?: string | null;
   eventId?: string | null;
-  popularSearchId?: string | null;
   target?: HomeCardTarget;
   price?: string | null;
   priceType?: string | null;
@@ -158,11 +157,11 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
     );
   }
 
-  // A "manual business card": linked to a single establishment, no badge/event/popular-search target.
+  // A "manual business card": linked to a single establishment, no badge/event target.
   // Clicking it should open the business slide panel on the Search page (same as "En savoir +" CTA).
   const isDirectBusinessCard = (slot: MixedSlot) => {
     const d = slot.data;
-    return !!d.ownerId && !d.badgeId && !d.eventId && !d.popularSearchId && !d.target;
+    return !!d.ownerId && !d.badgeId && !d.eventId && !d.target;
   };
 
   const handleLabelActivate = (slot: MixedSlot) => {
@@ -178,9 +177,8 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
       const target: HomeCardTarget =
         slot.data.target ??
         (slot.data.eventId ? { type: "event", id: slot.data.eventId } :
-         slot.data.popularSearchId ? { type: "popular_search", id: slot.data.popularSearchId } :
          slot.data.badgeId ? { type: "badge", id: slot.data.badgeId } : null);
-      onLabelClick({ label, kind: slot.kind, target, badgeId: slot.data.badgeId ?? null, eventId: slot.data.eventId ?? null, popularSearchId: slot.data.popularSearchId ?? null });
+      onLabelClick({ label, kind: slot.kind, target, badgeId: slot.data.badgeId ?? null, eventId: slot.data.eventId ?? null });
       return;
     }
 

@@ -23,7 +23,7 @@ async function buildSnapshot(supabase: any, city: string) {
     supabase.from("badges").select("id, name_fr"),
     supabase
       .from("front_structure_homepage_extra_cards")
-      .select("id, city, business_id, badge_id, video_document_id, title, sort_order, event_id, popular_search_id")
+      .select("id, city, business_id, badge_id, video_document_id, title, sort_order, event_id")
       .eq("city", city)
       .order("sort_order", { ascending: true }),
     supabase
@@ -232,7 +232,6 @@ async function buildSnapshot(supabase: any, city: string) {
 
   const computeTarget = (card: any) => {
     if (card.event_id) return { type: "event", id: card.event_id };
-    if (card.popular_search_id) return { type: "popular_search", id: card.popular_search_id };
     if (card.badge_id) return { type: "badge", id: card.badge_id };
     return null;
   };
@@ -253,7 +252,6 @@ async function buildSnapshot(supabase: any, city: string) {
           rating: null, reviewCount: null, label,
           badgeId: card.badge_id || null,
           eventId: card.event_id || null,
-          popularSearchId: card.popular_search_id || null,
           target,
         },
       };
@@ -275,7 +273,6 @@ async function buildSnapshot(supabase: any, city: string) {
         label,
         badgeId: card.badge_id || null,
         eventId: card.event_id || null,
-        popularSearchId: card.popular_search_id || null,
         target,
       },
     };
