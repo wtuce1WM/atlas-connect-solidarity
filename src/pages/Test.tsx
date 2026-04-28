@@ -2435,7 +2435,7 @@ const Test = () => {
                                 </p>
                               ) : null;
                             })()}
-                            {!v.eventInfo?.name && (() => {
+                            {!v.eventInfo?.name && !(v.showSocialBadge && v.social && !v.owner?.logo_url) && (() => {
                               const displayName = isVlogThumb ? v.business_name : v.owner?.name || v.business_name;
                               return (
                                 <button
