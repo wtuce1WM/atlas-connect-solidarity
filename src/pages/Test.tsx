@@ -131,7 +131,9 @@ function normalizeSocialAccount(value?: string | null): string {
 }
 
 function isDifferentDisplayedBusinessSocial(social: SocialInfo | null | undefined, business: SearchResultBusiness | null | undefined): boolean {
-  if (!social || !business) return false;
+  if (!social) return false;
+  // No linked business → always show the social overlay (nothing to deduplicate against)
+  if (!business) return true;
   const businessUrl = social.platform === "instagram"
     ? (business as any).instagram_url
     : social.platform === "tiktok"
@@ -139,7 +141,9 @@ function isDifferentDisplayedBusinessSocial(social: SocialInfo | null | undefine
       : (business as any).youtube_url;
   const videoAccount = normalizeSocialAccount(social.account);
   const displayedAccount = normalizeSocialAccount(businessUrl);
-  return !!videoAccount && !!displayedAccount && videoAccount !== displayedAccount;
+  // If business has no matching social URL configured, show the overlay
+  if (!displayedAccount) return !!videoAccount;
+  return !!videoAccount && videoAccount !== displayedAccount;
 }
 
 async function getManualCardMap(city: City, docs: any[]) {
