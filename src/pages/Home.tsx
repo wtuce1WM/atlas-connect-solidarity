@@ -391,27 +391,12 @@ const Home = () => {
   useEffect(() => {
     setLoading(true);
     const load = async () => {
-      // Fetch all internal video docs for the selected city (own city + multi-city assigned)
-      let allDocs: any[] = [];
-      let offset = 0;
-      const PAGE = 1000;
-      while (true) {
-        const { data } = await supabase
-          .from("business_documents")
-          .select("id, url, subcategory_id")
-          .eq("type", "video")
-          .eq("city", city)
-          .not("subcategory_id", "is", null)
-          .range(offset, offset + PAGE - 1);
-        if (!data || data.length === 0) break;
-        allDocs.push(...data);
-        if (data.length < PAGE) break;
-        offset += PAGE;
-      }
-      // Add multi-city assigned docs
-      const extraIds = [...extraCityDocIds];
-      for (let i = 0; i < extraIds.length; i += 300) {
-        const chunk = extraIds.slice(i, i + 300);
+      // Source of truth: business_document_cities (resolved into extraCityDocIds).
+      // Fetch all video docs explicitly linked to this city via the multi-city table.
+      const allDocs: any[] = [];
+      const ids = [...extraCityDocIds];
+      for (let i = 0; i < ids.length; i += 300) {
+        const chunk = ids.slice(i, i + 300);
         const { data } = await supabase
           .from("business_documents")
           .select("id, url, subcategory_id")
