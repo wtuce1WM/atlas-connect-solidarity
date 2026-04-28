@@ -1921,59 +1921,6 @@ const Home = () => {
                         </>
                       )}
                     </h3>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <div className="inline-flex rounded-md border border-border overflow-hidden text-xs">
-                        {CITIES.map((c, idx) => (
-                          <button
-                            key={c}
-                            type="button"
-                            onClick={() => setCity(c)}
-                            className={`px-3 py-1.5 transition-colors ${idx > 0 ? "border-l border-border" : ""} ${
-                              city === c
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-background text-foreground hover:bg-muted"
-                            }`}
-                          >
-                            {c}
-                          </button>
-                        ))}
-                      </div>
-                      <div className="inline-flex rounded-md border border-border overflow-hidden text-xs">
-                        <button
-                          type="button"
-                          onClick={() => setOtherViewMode("details")}
-                          className={`px-3 py-1.5 transition-colors ${
-                            otherViewMode === "details"
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-background text-foreground hover:bg-muted"
-                          }`}
-                        >
-                          Détails
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setOtherViewMode("videos")}
-                          className={`px-3 py-1.5 transition-colors border-l border-border ${
-                            otherViewMode === "videos"
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-background text-foreground hover:bg-muted"
-                          }`}
-                        >
-                          Vidéos
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setOtherViewMode("guide")}
-                          className={`px-3 py-1.5 transition-colors border-l border-border ${
-                            otherViewMode === "guide"
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-background text-foreground hover:bg-muted"
-                          }`}
-                        >
-                          Suivez le guide
-                        </button>
-                      </div>
-                    </div>
                   </div>
                   {isGuide && loadingGuide ? (
                     <p className="text-sm text-muted-foreground">Chargement…</p>
