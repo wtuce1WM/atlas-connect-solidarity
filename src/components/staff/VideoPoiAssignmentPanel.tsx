@@ -117,7 +117,7 @@ const VideoPoiAssignmentPanel = () => {
       if (newDoc && selectedUploadBusiness.city) {
         await supabase
           .from("business_document_cities")
-          .insert({ document_id: newDoc.id, city: selectedUploadBusiness.city });
+          .insert([{ document_id: newDoc.id, city: selectedUploadBusiness.city }] as any);
       }
 
       toast.success("Vidéo ajoutée ! Recherchez-la par son ID pour affecter des POIs.");
