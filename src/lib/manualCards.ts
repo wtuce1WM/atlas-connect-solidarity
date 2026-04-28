@@ -1,0 +1,88 @@
+import { supabase } from "@/integrations/supabase/client";
+import type { City } from "@/lib/homeHelpers";
+
+export interface ManualCardInfo {
+  label: string;
+  badgeId: string | null;
+  eventId?: string | null;
+}
+
+/**
+ * Build a map docId → ManualCardInfo from the homepage extra cards table for a given city.
+ * Used by the homepage to overlay manual labels (badges/events) on top of video cards.
+ */
+export async function getManualCardMap(city: City, docs: any[]): Promise<Map<string, ManualCardInfo>> {
+  const manualMap = new Map<string, ManualCardInfo>();
+
+  if (docs.length === 0) return manualMap;
+
+  const { data: extraRows } = await (supabase as any)
+    .from("front_structure_homepage_extra_cards")
+    .select("id, business_id, badge_id, video_document_id, title, sort_order, event_id")
+    .eq("city", city)
+    .order("sort_order", { ascending: true });
+
+  const cards = ((extraRows as any[]) || []) as Array<{
+    id: string;
+    business_id: string | null;
+    badge_id: string | null;
+    video_document_id: string | null;
+    title: string | null;
+    sort_order: number | null;
+    event_id?: string | null;
+  }>;
+
+  if (cards.length === 0) return manualMap;
+
+  const badgeIds = Array.from(new Set(cards.map((card) => card.badge_id).filter(Boolean))) as string[];
+
+  const [{ data: badges }, { data: badgeLinks }] = await Promise.all([
+    badgeIds.length > 0
+      ? supabase.from("badges").select("id, name_fr").in("id", badgeIds)
+      : Promise.resolve({ data: [] }),
+    badgeIds.length > 0
+      ? supabase.from("business_document_badges").select("badge_id, document_id").in("badge_id", badgeIds)
+      : Promise.resolve({ data: [] }),
+  ]);
+
+  const badgeNameById = new Map<string, string>(((badges as any[]) || []).map((badge: any) => [badge.id, badge.name_fr]));
+  const docIdsByBadgeId = new Map<string, Set<string>>();
+  ((badgeLinks as any[]) || []).forEach((link: any) => {
+    const current = docIdsByBadgeId.get(link.badge_id) || new Set<string>();
+    current.add(link.document_id);
+    docIdsByBadgeId.set(link.badge_id, current);
+  });
+
+  const pickLabel = (card: { title: string | null; badge_id: string | null }) => {
+    const trimmedTitle = card.title?.trim();
+    return trimmedTitle || (card.badge_id ? badgeNameById.get(card.badge_id) || null : null);
+  };
+
+  cards.forEach((card) => {
+    const label = pickLabel(card);
+    if (!label) return;
+
+    if (card.video_document_id) {
+      if (!manualMap.has(card.video_document_id)) {
+        manualMap.set(card.video_document_id, { label, badgeId: card.badge_id, eventId: card.event_id ?? null });
+      }
+      return;
+    }
+
+    const matchingDocs = docs.filter((doc) => {
+      const matchesBusiness = !card.business_id || [doc.business_id, doc.linked_business_id, doc.poi_id].includes(card.business_id);
+      const matchesBadge = !card.badge_id || docIdsByBadgeId.get(card.badge_id)?.has(doc.id);
+      const matchesEvent = !card.event_id || doc.event_id === card.event_id;
+      return matchesBusiness && matchesBadge && matchesEvent;
+    });
+
+    if (matchingDocs.length === 0) return;
+
+    const selectedDoc = [...matchingDocs].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0];
+    if (selectedDoc && !manualMap.has(selectedDoc.id)) {
+      manualMap.set(selectedDoc.id, { label, badgeId: card.badge_id, eventId: card.event_id ?? null });
+    }
+  });
+
+  return manualMap;
+}
