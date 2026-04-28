@@ -2410,6 +2410,25 @@ const Test = () => {
                             )}
                           </div>
                         )}
+                        {v.showSocialBadge && v.social && !v.owner?.logo_url && (
+                          <div className="absolute inset-x-0 bottom-[15%] z-[6] flex flex-col items-center justify-center gap-2 px-2 pointer-events-none text-white">
+                            <div
+                              className="flex items-center justify-center"
+                              style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))" }}
+                            >
+                              {v.social.platform === "instagram" && <InstagramIcon className="h-10 w-10" />}
+                              {v.social.platform === "youtube" && <Youtube className="h-10 w-10" />}
+                              {v.social.platform === "tiktok" && <SiTiktok className="h-9 w-9" />}
+                            </div>
+                            {v.social.account && (
+                              <div className="flex items-center gap-1 rounded-full bg-black/80 border border-white/15 px-2 py-0.5">
+                                <span className="text-[10px] font-medium text-white truncate max-w-[110px]" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                                  Follow @{v.social.account}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        )}
                         {((isVlogThumb ? v.business_name : v.owner?.name || v.business_name)) && (
                           <div className="absolute bottom-0 left-0 right-0 p-1.5 space-y-0.5">
                             {(selectedEntry?.id !== HOME_ID || !!videoBadgeFilter) && (() => {
