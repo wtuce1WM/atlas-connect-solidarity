@@ -411,6 +411,7 @@ const Test = () => {
         business: (biz as SearchResultBusiness) || null,
         owner: biz ? { id: (biz as any).id, name: (biz as any).name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
         social: extractSocial(doc),
+        showSocialBadge: isDifferentDisplayedBusinessSocial(extractSocial(doc), (biz as SearchResultBusiness) || null),
         description: (doc as any).description ?? null,
         manualCard: (doc as any).event_id ? { label: "Agenda", badgeId: null, eventId: (doc as any).event_id } : null,
       };
