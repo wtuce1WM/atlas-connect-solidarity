@@ -1345,10 +1345,8 @@ const Home = () => {
     }
     // Always include sub-category when set (even alongside badge/event filters)
     if (selectedSubId && !params.has("sub")) params.set("sub", selectedSubId);
-    // Persist view mode when not the default
-    if (otherViewMode && otherViewMode !== "videos") params.set("view", otherViewMode);
     return params.toString();
-  }, [city, selectedEntryId, selectedSubId, videoBadgeFilter, videoEventFilter, videoPopularSearchFilter, badgeView, otherViewMode]);
+  }, [city, selectedEntryId, selectedSubId, videoBadgeFilter, videoEventFilter, videoPopularSearchFilter, badgeView]);
 
   // Reflect current navigation state in the URL so it's shareable (WhatsApp, etc.)
   useEffect(() => {
@@ -1359,44 +1357,6 @@ const Home = () => {
       window.history.replaceState(null, "", newUrl);
     }
   }, [returnContext, panelOpen]);
-
-
-  // Load Tarik Belasri's visible YouTube shorts when "guide" mode is selected
-  useEffect(() => {
-    if (otherViewMode !== "guide") return;
-    let cancelled = false;
-    (async () => {
-      setLoadingGuide(true);
-      const { data: biz } = await supabase
-        .from("businesses")
-        .select("id, name, images, logo_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
-        .ilike("name", "Tarik Belasri")
-        .maybeSingle();
-      if (!biz) { if (!cancelled) { setGuideVideos([]); setLoadingGuide(false); } return; }
-      const { data: yvs } = await supabase
-        .from("business_youtube_videos")
-        .select("id, video_id, title, thumbnail, is_visible, is_short, sort_order, published_at")
-        .eq("business_id", biz.id)
-        .eq("is_short", true)
-        .eq("is_visible", true)
-        .order("sort_order", { ascending: true });
-      if (cancelled) return;
-      const items: VideoItem[] = (yvs || []).map((y: any) => ({
-        id: y.id,
-        url: `https://www.youtube.com/shorts/${y.video_id}`,
-        business_name: y.title || biz.name,
-        thumbnail_url: y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/hqdefault.jpg`,
-        business: biz as SearchResultBusiness,
-        owner: null,
-        social: null,
-        description: null,
-        manualCard: null,
-      }));
-      setGuideVideos(items);
-      setLoadingGuide(false);
-    })();
-    return () => { cancelled = true; };
-  }, [otherViewMode]);
 
 
   // Reset currentTime when active video changes
