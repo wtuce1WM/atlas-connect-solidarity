@@ -34,6 +34,7 @@ import {
   normalizeSocialAccount,
   isDifferentDisplayedBusinessSocial,
   copyTextSilently,
+  cityMatches,
 } from "@/lib/homeHelpers";
 import { getManualCardMap } from "@/lib/manualCards";
 
@@ -705,7 +706,7 @@ const Home = () => {
           if (data) allDocs.push(...data);
         }
         // Filter by current city: keep the exact backoffice video document rows.
-        const uniqueDocs = allDocs.filter((d: any) => d.city === city || extraCityDocIds.has(d.id));
+        const uniqueDocs = allDocs.filter((d: any) => cityMatches(d.city, city) || extraCityDocIds.has(d.id));
         const allBizIds = [...new Set(
           uniqueDocs.flatMap(getVideoBusinessCandidateIds).filter(Boolean)
         )] as string[];
@@ -803,7 +804,7 @@ const Home = () => {
                 .order("sort_order", { ascending: true }),
             ]);
             const extraIds = new Set(((extraCityLinks as any[]) || []).map((l: any) => l.generic_video_id));
-            const gvFiltered = ((gvs as any[]) || []).filter((v: any) => v.city === city || extraIds.has(v.id));
+            const gvFiltered = ((gvs as any[]) || []).filter((v: any) => cityMatches(v.city, city) || extraIds.has(v.id));
 
             // Resolve first linked business (for owner display) — best effort
             const { data: gvBizLinks } = await supabase
@@ -882,7 +883,7 @@ const Home = () => {
             // Filter by current city via the owner business's city
             const ytFiltered = ytRows.filter((y: any) => {
               const biz = y.business_id ? ytBizMap.get(y.business_id) : null;
-              return biz?.city === city;
+              return cityMatches(biz?.city, city);
             });
             youtubeVideoItems = ytFiltered.map((y: any) => {
               const biz = ytBizMap.get(y.business_id) || null;
@@ -1182,7 +1183,7 @@ const Home = () => {
                 .order("sort_order", { ascending: true }),
             ]);
             const extraIds = new Set(((extraCityLinks as any[]) || []).map((l: any) => l.generic_video_id));
-            const gvFiltered = ((gvs as any[]) || []).filter((v: any) => v.city === city || extraIds.has(v.id));
+            const gvFiltered = ((gvs as any[]) || []).filter((v: any) => cityMatches(v.city, city) || extraIds.has(v.id));
 
             const { data: gvBizLinks } = await supabase
               .from("generic_video_businesses" as any)
