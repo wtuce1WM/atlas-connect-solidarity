@@ -431,7 +431,6 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
           badgeName,
           video_document_id: card.video_document_id,
           title: card.title,
-          popular_search_id: card.popular_search_id,
           event_id: card.event_id,
           eventName,
         };
