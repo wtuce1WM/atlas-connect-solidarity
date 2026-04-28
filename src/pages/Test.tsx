@@ -1303,7 +1303,8 @@ const Test = () => {
         }
 
         const docItems: VideoItem[] = limitedDocs.map((d: any) => {
-          const biz = bizMap.get(d.business_id) || null;
+          const displayId = getDisplayId(d);
+          const biz = bizMap.get(displayId) || bizMap.get(d.business_id) || null;
           return {
             id: d.id,
             url: d.url,
