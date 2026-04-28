@@ -12,7 +12,9 @@ import { Menu as MenuIcon, X, Star, Youtube } from "lucide-react";
 import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { SiTiktok } from "react-icons/si";
 import HomepageCardsFront from "@/components/HomepageCardsFront";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import HomeCityTabs from "@/components/home/HomeCityTabs";
+import BadgeBusinessesGrid from "@/components/home/BadgeBusinessesGrid";
+import HomeVideoSlidePanel from "@/components/home/HomeVideoSlidePanel";
 import {
   CITIES,
   type City,
