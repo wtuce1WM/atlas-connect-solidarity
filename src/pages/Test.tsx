@@ -120,6 +120,16 @@ function extractSocial(d: any): SocialInfo | null {
   return null;
 }
 
+const getVideoBusinessCandidateIds = (d: any): string[] =>
+  [d?.linked_business_id, d?.business_id, d?.poi_id].filter(Boolean) as string[];
+
+const resolveVideoEstablishment = (d: any, bizMap: Map<string, any>) => {
+  const candidates = getVideoBusinessCandidateIds(d)
+    .map((id) => bizMap.get(id))
+    .filter(Boolean);
+  return candidates.find((b: any) => b.is_poi !== true) || candidates[0] || null;
+};
+
 function normalizeSocialAccount(value?: string | null): string {
   const raw = (value || "").trim().toLowerCase();
   if (!raw) return "";
@@ -394,14 +404,16 @@ const Test = () => {
         .eq("id", wantedId)
         .maybeSingle();
       if (cancelled || !doc?.url) return;
-      const displayId = (doc as any).poi_id || (doc as any).linked_business_id || (doc as any).business_id;
-      const { data: biz } = displayId
+      const displayIds = getVideoBusinessCandidateIds(doc as any);
+      const { data: bizRows } = displayIds.length > 0
         ? await supabase
             .from("businesses")
-            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
-            .eq("id", displayId)
-            .maybeSingle()
+            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, is_poi")
+            .in("id", displayIds)
         : { data: null } as any;
+      const bizMap = new Map<string, any>();
+      ((bizRows as any[]) || []).forEach((b) => bizMap.set(b.id, b));
+      const biz = resolveVideoEstablishment(doc as any, bizMap);
       if (cancelled) return;
       const video: VideoItem = {
         id: doc.id,
@@ -887,18 +899,15 @@ const Test = () => {
         }
         // Filter by current city: keep the exact backoffice video document rows.
         const uniqueDocs = allDocs.filter((d: any) => d.city === city || extraCityDocIds.has(d.id));
-        // Display business prefers poi_id > linked_business_id > business_id (so a video
-        // tagged on business A but linked to establishment B shows B's name and logo).
-        const getDisplayId = (d: any) => d.poi_id || d.linked_business_id || d.business_id;
         const allBizIds = [...new Set(
-          uniqueDocs.flatMap((d: any) => [d.business_id, d.linked_business_id, d.poi_id]).filter(Boolean)
+          uniqueDocs.flatMap(getVideoBusinessCandidateIds).filter(Boolean)
         )] as string[];
         const bizMap = new Map<string, SearchResultBusiness>();
         if (allBizIds.length > 0) {
           for (let i = 0; i < allBizIds.length; i += batch) {
             const { data: bizs } = await supabase
               .from("businesses")
-              .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+              .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, is_poi")
               .in("id", allBizIds.slice(i, i + batch));
             (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
           }
@@ -926,14 +935,14 @@ const Test = () => {
         const dedupedByBiz = isGuideBadge
           ? uniqueDocs
           : uniqueDocs.filter((d: any) => {
-              if (!d.business_id) return true;
-              if (seenBizIds.has(d.business_id)) return false;
-              seenBizIds.add(d.business_id);
+              const biz = resolveVideoEstablishment(d, bizMap);
+              const dedupeId = biz?.id || d.business_id || d.id;
+              if (seenBizIds.has(dedupeId)) return false;
+              seenBizIds.add(dedupeId);
               return true;
             });
         const docVideoItems: VideoItem[] = dedupedByBiz.map((d: any) => {
-          const displayId = getDisplayId(d);
-          const biz = bizMap.get(displayId) || bizMap.get(d.business_id) || null;
+          const biz = resolveVideoEstablishment(d, bizMap);
           return {
             id: d.id,
             url: d.url,
@@ -1254,13 +1263,10 @@ const Test = () => {
         const seenIds = new Set<string>();
         allDocs = allDocs.filter((d: any) => (seenIds.has(d.id) ? false : (seenIds.add(d.id), true)));
 
-        // Same logic as SlidePanelHome: group by business_id (real owner), dedupe by URL.
+        // Same logic as SlidePanelHome: group by resolved establishment, dedupe by URL.
         // Single difference here: apply front_video_count per business.
-        // Display business prefers poi_id > linked_business_id > business_id (so a video
-        // tagged on business A but linked to establishment B shows B's name and logo).
-        const getDisplayId = (d: any) => d.poi_id || d.linked_business_id || d.business_id;
         const allBizIds = [...new Set(
-          allDocs.flatMap((d: any) => [d.business_id, d.linked_business_id, d.poi_id]).filter(Boolean)
+          allDocs.flatMap(getVideoBusinessCandidateIds).filter(Boolean)
         )] as string[];
         const bizMap = new Map<string, SearchResultBusiness>();
         if (allBizIds.length > 0) {
@@ -1280,9 +1286,11 @@ const Test = () => {
         // Group by business_id (the real owner), then keep first N per business (front_video_count)
         const docsByBiz = new Map<string, any[]>();
         for (const d of uniqueDocs) {
-          const arr = docsByBiz.get(d.business_id) || [];
+          const biz = resolveVideoEstablishment(d, bizMap);
+          const groupId = biz?.id || d.business_id || d.id;
+          const arr = docsByBiz.get(groupId) || [];
           arr.push(d);
-          docsByBiz.set(d.business_id, arr);
+          docsByBiz.set(groupId, arr);
         }
 
         const limitedDocs: any[] = [];
@@ -1309,8 +1317,7 @@ const Test = () => {
         }
 
         const docItems: VideoItem[] = limitedDocs.map((d: any) => {
-          const displayId = getDisplayId(d);
-          const biz = bizMap.get(displayId) || bizMap.get(d.business_id) || null;
+          const biz = resolveVideoEstablishment(d, bizMap);
           return {
             id: d.id,
             url: d.url,
@@ -1419,18 +1426,15 @@ const Test = () => {
         return;
       }
 
-      // Home path: display business prefers poi_id > linked_business_id > business_id
-      const getDisplayId = (d: any) => d.poi_id || d.linked_business_id || d.business_id;
-      const displayBizIds = [...new Set(allDocs.map(getDisplayId))];
-      const ownerBizIds = [...new Set(allDocs.map((d: any) => d.business_id).filter((id: string) => !displayBizIds.includes(id)))];
-      const allBizIds = [...new Set([...displayBizIds, ...ownerBizIds])];
+      // Home path: display the resolved linked establishment when present.
+      const allBizIds = [...new Set(allDocs.flatMap(getVideoBusinessCandidateIds))];
       const bizMap = new Map<string, SearchResultBusiness>();
       if (allBizIds.length > 0) {
         const batch = 300;
         for (let i = 0; i < allBizIds.length; i += batch) {
           const { data: bizs } = await supabase
             .from("businesses")
-            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, is_poi")
             .in("id", allBizIds.slice(i, i + batch));
           (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
         }
@@ -1438,19 +1442,14 @@ const Test = () => {
 
       safeSetVideos(
         allDocs.map((d: any) => {
-          const displayId = getDisplayId(d);
-          const biz = bizMap.get(displayId) || null;
-          const ownerBiz =
-            d.business_id !== displayId
-              ? bizMap.get(d.business_id) || null
-              : biz;
+          const biz = resolveVideoEstablishment(d, bizMap);
           return {
             id: d.id,
             url: d.url,
             business_name: biz?.name || "—",
             thumbnail_url: d.thumbnail_url,
             business: biz,
-            owner: ownerBiz ? { id: ownerBiz.id, name: ownerBiz.name, logo_url: (ownerBiz as any).logo_url ?? null, logo_bg: (ownerBiz as any).logo_bg ?? null } : null,
+            owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
             social: extractSocial(d),
             showSocialBadge: isDifferentDisplayedBusinessSocial(extractSocial(d), biz),
             description: d.description ?? null,
