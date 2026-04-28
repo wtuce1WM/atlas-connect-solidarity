@@ -411,6 +411,7 @@ const Test = () => {
         business: (biz as SearchResultBusiness) || null,
         owner: biz ? { id: (biz as any).id, name: (biz as any).name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
         social: extractSocial(doc),
+        showSocialBadge: isDifferentDisplayedBusinessSocial(extractSocial(doc), (biz as SearchResultBusiness) || null),
         description: (doc as any).description ?? null,
         manualCard: (doc as any).event_id ? { label: "Agenda", badgeId: null, eventId: (doc as any).event_id } : null,
       };
@@ -806,6 +807,7 @@ const Test = () => {
               business: biz,
               owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
               social: extractSocial(d),
+              showSocialBadge: isDifferentDisplayedBusinessSocial(extractSocial(d), biz),
               description: d.description ?? null,
               manualCard: null,
               subcategory_id: d.subcategory_id ?? null,
@@ -934,6 +936,7 @@ const Test = () => {
             business: biz,
             owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
             social: extractSocial(d),
+            showSocialBadge: isDifferentDisplayedBusinessSocial(extractSocial(d), biz),
             description: d.description ?? null,
             manualCard: null,
             subcategory_id: d.subcategory_id ?? null,
@@ -1306,6 +1309,7 @@ const Test = () => {
               ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null }
               : null,
             social: extractSocial(d),
+            showSocialBadge: isDifferentDisplayedBusinessSocial(extractSocial(d), biz),
             description: d.description ?? null,
             manualCard: manualCardMap.get(d.id) || null,
             subcategory_id: d.subcategory_id ?? null,
@@ -1436,6 +1440,7 @@ const Test = () => {
             business: biz,
             owner: ownerBiz ? { id: ownerBiz.id, name: ownerBiz.name, logo_url: (ownerBiz as any).logo_url ?? null, logo_bg: (ownerBiz as any).logo_bg ?? null } : null,
             social: extractSocial(d),
+            showSocialBadge: isDifferentDisplayedBusinessSocial(extractSocial(d), biz),
             description: d.description ?? null,
             manualCard: null,
           };
