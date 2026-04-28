@@ -2045,6 +2045,18 @@ const Home = () => {
                             return;
                           }
 
+                          // Agenda event vignette linked to a single establishment:
+                          // navigate directly to that business (same behavior as the
+                          // "En savoir +" button inside SlidePanelHome).
+                          if (v.eventInfo && v.business?.id) {
+                            try {
+                              if (v.id) sessionStorage.setItem("returnToTestVideoId", v.id);
+                              if (returnContext) sessionStorage.setItem("returnToTestContext", returnContext);
+                            } catch {}
+                            navigate(businessUrl(v.business as any));
+                            return;
+                          }
+
                           handlePick();
                         }}
                         className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted cursor-pointer"
