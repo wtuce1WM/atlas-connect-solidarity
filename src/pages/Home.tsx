@@ -145,7 +145,7 @@ const Home = () => {
       if (subParam) setSelectedSubId(subParam);
     }
     if (subParam && (eventId || badgeId)) setSelectedSubId(subParam);
-    if (viewParam === "details" || viewParam === "guide") setOtherViewMode(viewParam);
+    
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -169,7 +169,7 @@ const Home = () => {
     const eventLabel = searchParams.get("eventLabel");
     const eventIds = searchParams.get("eventIds");
 
-    if (shouldRestoreContext) setOtherViewMode("videos");
+    
     if (shouldRestoreContext && eventId && eventLabel) {
       setVideoBadgeFilter(null);
       setSelectedEntryId(HOME_ID);
@@ -240,11 +240,8 @@ const Home = () => {
     })();
     return () => { cancelled = true; };
   }, [videos, loadingVideos, searchParams, setSearchParams, city]);
-  const [guideVideos, setGuideVideos] = useState<VideoItem[]>([]);
-  const [loadingGuide, setLoadingGuide] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [hoveredEntryId, setHoveredEntryId] = useState<string | null>(null);
-  const [otherViewMode, setOtherViewMode] = useState<"details" | "videos" | "guide">("videos");
   const [currentTime, setCurrentTime] = useState(0);
   const [badgeView, setBadgeView] = useState<{ badgeId: string; label: string; city: City } | null>(null);
   const [badgeBusinesses, setBadgeBusinesses] = useState<SearchResultBusiness[]>([]);
@@ -1323,10 +1320,7 @@ const Home = () => {
   );
 
   // Active list (used by panel navigation)
-  const activeList = useMemo(
-    () => (otherViewMode === "guide" ? guideVideos : videos),
-    [otherViewMode, guideVideos, videos]
-  );
+  const activeList = videos;
 
   const returnContext = useMemo(() => {
     const params = new URLSearchParams();
@@ -1351,10 +1345,8 @@ const Home = () => {
     }
     // Always include sub-category when set (even alongside badge/event filters)
     if (selectedSubId && !params.has("sub")) params.set("sub", selectedSubId);
-    // Persist view mode when not the default
-    if (otherViewMode && otherViewMode !== "videos") params.set("view", otherViewMode);
     return params.toString();
-  }, [city, selectedEntryId, selectedSubId, videoBadgeFilter, videoEventFilter, videoPopularSearchFilter, badgeView, otherViewMode]);
+  }, [city, selectedEntryId, selectedSubId, videoBadgeFilter, videoEventFilter, videoPopularSearchFilter, badgeView]);
 
   // Reflect current navigation state in the URL so it's shareable (WhatsApp, etc.)
   useEffect(() => {
@@ -1365,44 +1357,6 @@ const Home = () => {
       window.history.replaceState(null, "", newUrl);
     }
   }, [returnContext, panelOpen]);
-
-
-  // Load Tarik Belasri's visible YouTube shorts when "guide" mode is selected
-  useEffect(() => {
-    if (otherViewMode !== "guide") return;
-    let cancelled = false;
-    (async () => {
-      setLoadingGuide(true);
-      const { data: biz } = await supabase
-        .from("businesses")
-        .select("id, name, images, logo_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
-        .ilike("name", "Tarik Belasri")
-        .maybeSingle();
-      if (!biz) { if (!cancelled) { setGuideVideos([]); setLoadingGuide(false); } return; }
-      const { data: yvs } = await supabase
-        .from("business_youtube_videos")
-        .select("id, video_id, title, thumbnail, is_visible, is_short, sort_order, published_at")
-        .eq("business_id", biz.id)
-        .eq("is_short", true)
-        .eq("is_visible", true)
-        .order("sort_order", { ascending: true });
-      if (cancelled) return;
-      const items: VideoItem[] = (yvs || []).map((y: any) => ({
-        id: y.id,
-        url: `https://www.youtube.com/shorts/${y.video_id}`,
-        business_name: y.title || biz.name,
-        thumbnail_url: y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/hqdefault.jpg`,
-        business: biz as SearchResultBusiness,
-        owner: null,
-        social: null,
-        description: null,
-        manualCard: null,
-      }));
-      setGuideVideos(items);
-      setLoadingGuide(false);
-    })();
-    return () => { cancelled = true; };
-  }, [otherViewMode]);
 
 
   // Reset currentTime when active video changes
@@ -1442,7 +1396,6 @@ const Home = () => {
 
     setVideoEventFilter(null);
     setVideoPopularSearchFilter(null);
-    setOtherViewMode("videos");
     setVideoBadgeFilter({ badgeId, label });
 
     return true;
@@ -1463,7 +1416,6 @@ const Home = () => {
 
     setVideoBadgeFilter(null);
     setVideoPopularSearchFilter(null);
-    setOtherViewMode("videos");
     setSelectedEntryId(HOME_ID);
     setVideoEventFilter({ eventId, label });
 
@@ -1493,7 +1445,6 @@ const Home = () => {
     if (city !== clickedCity) {
       setCity(clickedCity);
     }
-    setOtherViewMode("videos");
 
     // Pre-set the filter with empty businessIds so the videos area renders the loading state
     setLoadingVideos(true);
@@ -1583,7 +1534,6 @@ const Home = () => {
         if (city !== clickedCity) setCity(clickedCity);
         setVideoBadgeFilter(null);
         setVideoPopularSearchFilter(null);
-        setOtherViewMode("videos");
         setSelectedEntryId(HOME_ID);
         setVideoEventFilter({ eventId: eventIds[0], eventIds, label: info.label });
         return;
@@ -1777,10 +1727,7 @@ const Home = () => {
               Aucune vidéo trouvée{videoEventFilter ? ` pour « ${videoEventFilter.label} »` : videoPopularSearchFilter ? ` pour « ${videoPopularSearchFilter.label} »` : videoBadgeFilter ? ` pour « ${videoBadgeFilter.label} »` : selectedEntry ? ` pour « ${selectedEntry.name} »` : ""} à {city}.
             </p>
           ) : (() => {
-            const isGuide = otherViewMode === "guide";
-            const baseList = isGuide ? guideVideos : otherVideos;
-            const displayList = baseList;
-            const isThumbMode = otherViewMode === "videos" || isGuide;
+            const displayList = otherVideos;
             const isParentEntry =
               !!selectedEntry &&
               selectedEntry.id !== HOME_ID &&
@@ -1794,21 +1741,15 @@ const Home = () => {
                   .sort((a, b) => a.name.localeCompare(b.name, "fr", { sensitivity: "base" }))
               : [];
             const showChildrenTile =
-              isParentEntry && !isGuide && otherViewMode === "videos" && childItems.length >= 2;
+              isParentEntry && childItems.length >= 2;
             const childrenTileIndex = 2; // position 3
             return (
             <div className="flex gap-6 items-start">
-              {(displayList.length > 0 || isGuide) && (
+              {displayList.length > 0 && (
                 <div className="w-full min-w-0">
                   <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
                     <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5 flex-wrap">
-                      {isGuide ? (
-                        <>
-                          <button type="button" onClick={() => { setVideoEventFilter(null); setVideoBadgeFilter(null); setVideoPopularSearchFilter(null); setSelectedEntryId(HOME_ID); setSelectedSubId(null); }} className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors">{city}</button>
-                          <span className="text-muted-foreground font-normal">›</span>
-                          <span>Suivez le guide ({displayList.length})</span>
-                        </>
-                      ) : videoEventFilter ? (
+                      {videoEventFilter ? (
                         <>
                           <button
                             type="button"
@@ -1922,12 +1863,7 @@ const Home = () => {
                       )}
                     </h3>
                   </div>
-                  {isGuide && loadingGuide ? (
-                    <p className="text-sm text-muted-foreground">Chargement…</p>
-                  ) : isGuide && displayList.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">Aucune vidéo disponible.</p>
-                  ) : (
-                  <div className={`grid gap-4 ${isThumbMode ? (panelOpen ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-3" : "grid-cols-2 md:grid-cols-4 lg:grid-cols-6") : (panelOpen ? "grid-cols-1 md:grid-cols-2" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6")}`}>
+                  <div className={`grid gap-4 ${panelOpen ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-3" : "grid-cols-2 md:grid-cols-4 lg:grid-cols-6"}`}>
                     {(() => {
                       const items: Array<{ kind: "video"; v: VideoItem; idx: number } | { kind: "children" }> =
                         displayList.map((v, idx) => ({ kind: "video" as const, v, idx }));
@@ -1969,11 +1905,10 @@ const Home = () => {
                           setActiveVideoId(v.id);
                           setPanelOpen(true);
                         };
-                        if (isThumbMode) {
-                          const isVlogThumb = selectedEntry?.id === VLOGS_ID;
-                          const thumb = v.thumbnail_url || deriveThumbnail(v.url);
-                          const isFile = /\.(mp4|webm|mov)(\?|$)/i.test(v.url);
-                          return (
+                        const isVlogThumb = selectedEntry?.id === VLOGS_ID;
+                        const thumb = v.thumbnail_url || deriveThumbnail(v.url);
+                        const isFile = /\.(mp4|webm|mov)(\?|$)/i.test(v.url);
+                        return (
                       <div
                         key={v.id}
                         onClick={(e) => {
@@ -2211,28 +2146,10 @@ const Home = () => {
                         )}
                       </div>
                         );
-                      }
-                      return (
-                        <div key={v.id} onClick={handlePick} className="cursor-pointer">
-                          {v.business ? (
-                            <SearchResultCard
-                              business={v.business}
-                              index={idx}
-                              labelLogos={[]}
-                              distanceKm={null}
-                              onClick={handlePick}
-                              onMouseEnter={() => {}}
-                              onMouseLeave={() => {}}
-                            />
-                          ) : (
-                            <div className="aspect-square bg-muted rounded-xl" />
-                          )}
-                        </div>
-                        );
                       });
                     })()}
                   </div>
-                  )}
+
                 </div>
               )}
             </div>
