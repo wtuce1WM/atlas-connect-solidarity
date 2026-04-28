@@ -2045,18 +2045,6 @@ const Home = () => {
                             return;
                           }
 
-                          // Homepage manual card linked to a single establishment with
-                          // no filter badge: navigate directly to that business (same
-                          // behavior as the "En savoir +" button inside SlidePanelHome).
-                          if (v.manualCard && !v.manualCard.badgeId && v.business?.id) {
-                            try {
-                              if (v.id) sessionStorage.setItem("returnToTestVideoId", v.id);
-                              if (returnContext) sessionStorage.setItem("returnToTestContext", returnContext);
-                            } catch {}
-                            navigate(businessUrl(v.business as any));
-                            return;
-                          }
-
                           handlePick();
                         }}
                         className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted cursor-pointer"
