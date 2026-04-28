@@ -1060,32 +1060,29 @@ const Home = () => {
         if (badgeBizIds.length > 0) orParts.push(`business_id.in.(${badgeBizIds.join(",")})`);
         const orFilter = orParts.join(",");
 
+        // Fetch all docs matching the subcategory/service/badge filter (no city restriction in DB),
+        // then keep those whose legacy city matches OR which are explicitly linked to this city
+        // via business_document_cities (multi-city source of truth).
         let offset = 0;
         const PAGE = 1000;
+        const rawDocs: any[] = [];
         while (true) {
           const { data } = await supabase
             .from("business_documents")
             .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, city, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, price, price_type, name")
             .eq("type", "video")
             .or(orFilter)
-            .eq("city", city)
             .order("sort_order", { ascending: true })
             .range(offset, offset + PAGE - 1);
           if (!data || data.length === 0) break;
-          allDocs.push(...data);
+          rawDocs.push(...data);
           if (data.length < PAGE) break;
           offset += PAGE;
         }
-        const extraIds = [...extraCityDocIds].filter((id) => !allDocs.some((d) => d.id === id));
-        for (let i = 0; i < extraIds.length; i += 300) {
-          const chunk = extraIds.slice(i, i + 300);
-          const { data } = await supabase
-            .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, city, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, price, price_type, name")
-            .eq("type", "video")
-            .or(orFilter)
-            .in("id", chunk);
-          if (data) allDocs.push(...data);
+        for (const d of rawDocs) {
+          if (cityMatches(d.city, city) || extraCityDocIds.has(d.id)) {
+            allDocs.push(d);
+          }
         }
 
         const seenIds = new Set<string>();
