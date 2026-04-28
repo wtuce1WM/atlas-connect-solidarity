@@ -558,7 +558,6 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       video_document_id: row.video_document_id,
       title: row.title ?? null,
       sort_order: row.sort_order,
-      popular_search_id: row.popular_search_id ?? null,
       event_id: row.event_id ?? null,
     };
 
