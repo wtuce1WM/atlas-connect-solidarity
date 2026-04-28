@@ -1440,6 +1440,7 @@ const Test = () => {
             business: biz,
             owner: ownerBiz ? { id: ownerBiz.id, name: ownerBiz.name, logo_url: (ownerBiz as any).logo_url ?? null, logo_bg: (ownerBiz as any).logo_bg ?? null } : null,
             social: extractSocial(d),
+            showSocialBadge: isDifferentDisplayedBusinessSocial(extractSocial(d), biz),
             description: d.description ?? null,
             manualCard: null,
           };
