@@ -232,7 +232,6 @@ async function buildSnapshot(supabase: any, city: string) {
 
   const computeTarget = (card: any) => {
     if (card.event_id) return { type: "event", id: card.event_id };
-    if (card.popular_search_id) return { type: "popular_search", id: card.popular_search_id };
     if (card.badge_id) return { type: "badge", id: card.badge_id };
     return null;
   };
