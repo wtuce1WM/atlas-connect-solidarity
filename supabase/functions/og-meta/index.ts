@@ -148,14 +148,28 @@ async function resolveMeta(supabase: any, path: string, params: URLSearchParams)
       entryImage = e?.og_image_url || null;
     }
 
+    let badgeName: string | null = null;
+    if (badgeId) {
+      const { data: b } = await supabase
+        .from("badges")
+        .select("name_fr")
+        .eq("id", badgeId)
+        .maybeSingle();
+      badgeName = b?.name_fr || badgeLabelParam || null;
+    } else if (badgeLabelParam) {
+      badgeName = badgeLabelParam;
+    }
+
     // Construction du titre/description
-    const segments = [subName, entryName, cityName].filter(Boolean);
+    const segments = [badgeName, subName, entryName, cityName].filter(Boolean);
     if (segments.length > 0) {
       const title = `${segments.join(" · ")} | ${SITE_NAME}`;
+      const focus = badgeName || subName || entryName || "les meilleures adresses";
       const description = cityName
-        ? `Découvrez ${subName || entryName || "les meilleures adresses"} à ${cityName} sur ${SITE_NAME}.`
-        : `Découvrez ${subName || entryName} sur ${SITE_NAME}.`;
+        ? `Découvrez ${focus} à ${cityName} sur ${SITE_NAME}.`
+        : `Découvrez ${focus} sur ${SITE_NAME}.`;
       // Priorité image: sous-catégorie > catégorie > ville > défaut
+      // (les badges n'ont pas d'image dédiée → on retombe sur la ville)
       const image = subImage || entryImage || cityImage || DEFAULT_OG_IMAGE;
       return { title, description, image };
     }
