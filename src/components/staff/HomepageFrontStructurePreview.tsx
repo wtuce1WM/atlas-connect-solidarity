@@ -1017,18 +1017,8 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
                       )}
                     </div>
                   </div>
-                  <div>
+                  <div className="hidden">
                     <label className="text-[9px] text-muted-foreground">Suggestion de recherche</label>
-                    <select
-                      value={card.popular_search_id || ""}
-                      onChange={(e) => updateExtraCard(card.cardId, { popular_search_id: e.target.value || null })}
-                      className="h-5 w-full px-1 text-[9px] border rounded-md bg-background"
-                    >
-                      <option value="">— Aucune —</option>
-                      {allPopularSearches.map((p) => (
-                        <option key={p.id} value={p.id}>{p.query}</option>
-                      ))}
-                    </select>
                   </div>
                   <div>
                     <label className="text-[9px] text-muted-foreground">Badge</label>
