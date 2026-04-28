@@ -2508,7 +2508,7 @@ const Test = () => {
         isGeneric={isActiveGeneric}
         owner={activeVideo?.owner || null}
         social={activeVideo?.social || null}
-        showSocialBadge={isActiveGeneric && !!activeVideo?.showSocialBadge}
+        showSocialBadge={!!activeVideo?.showSocialBadge}
         description={activeVideo?.description || null}
         currentTime={currentTime}
         onTimeUpdate={setCurrentTime}
