@@ -161,7 +161,8 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
   // Clicking it should open the business slide panel on the Search page (same as "En savoir +" CTA).
   const isDirectBusinessCard = (slot: MixedSlot) => {
     const d = slot.data;
-    return !!d.ownerId && !d.badgeId && !d.eventId && !d.target;
+    // A label means this is a category/filter vignette → not a direct business card
+    return !!d.ownerId && !d.label && !d.badgeId && !d.eventId && !d.target;
   };
 
   const handleLabelActivate = (slot: MixedSlot) => {
