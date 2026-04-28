@@ -391,27 +391,12 @@ const Home = () => {
   useEffect(() => {
     setLoading(true);
     const load = async () => {
-      // Fetch all internal video docs for the selected city (own city + multi-city assigned)
-      let allDocs: any[] = [];
-      let offset = 0;
-      const PAGE = 1000;
-      while (true) {
-        const { data } = await supabase
-          .from("business_documents")
-          .select("id, url, subcategory_id")
-          .eq("type", "video")
-          .eq("city", city)
-          .not("subcategory_id", "is", null)
-          .range(offset, offset + PAGE - 1);
-        if (!data || data.length === 0) break;
-        allDocs.push(...data);
-        if (data.length < PAGE) break;
-        offset += PAGE;
-      }
-      // Add multi-city assigned docs
-      const extraIds = [...extraCityDocIds];
-      for (let i = 0; i < extraIds.length; i += 300) {
-        const chunk = extraIds.slice(i, i + 300);
+      // Source of truth: business_document_cities (resolved into extraCityDocIds).
+      // Fetch all video docs explicitly linked to this city via the multi-city table.
+      const allDocs: any[] = [];
+      const ids = [...extraCityDocIds];
+      for (let i = 0; i < ids.length; i += 300) {
+        const chunk = ids.slice(i, i + 300);
         const { data } = await supabase
           .from("business_documents")
           .select("id, url, subcategory_id")
@@ -700,13 +685,13 @@ const Home = () => {
           const chunk = docIds.slice(i, i + batch);
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, city")
+            .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
             .eq("type", "video")
             .in("id", chunk);
           if (data) allDocs.push(...data);
         }
-        // Filter by current city: keep the exact backoffice video document rows.
-        const uniqueDocs = allDocs.filter((d: any) => cityMatches(d.city, city) || extraCityDocIds.has(d.id));
+        // Filter by current city via the multi-city source of truth (business_document_cities).
+        const uniqueDocs = allDocs.filter((d: any) => extraCityDocIds.has(d.id));
         const allBizIds = [...new Set(
           uniqueDocs.flatMap(getVideoBusinessCandidateIds).filter(Boolean)
         )] as string[];
@@ -1060,28 +1045,23 @@ const Home = () => {
         if (badgeBizIds.length > 0) orParts.push(`business_id.in.(${badgeBizIds.join(",")})`);
         const orFilter = orParts.join(",");
 
-        // Fetch all docs matching the subcategory/service/badge filter (no city restriction in DB),
-        // then keep those whose legacy city matches OR which are explicitly linked to this city
-        // via business_document_cities (multi-city source of truth).
-        let offset = 0;
-        const PAGE = 1000;
-        const rawDocs: any[] = [];
-        while (true) {
-          const { data } = await supabase
-            .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, city, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, price, price_type, name")
-            .eq("type", "video")
-            .or(orFilter)
-            .order("sort_order", { ascending: true })
-            .range(offset, offset + PAGE - 1);
-          if (!data || data.length === 0) break;
-          rawDocs.push(...data);
-          if (data.length < PAGE) break;
-          offset += PAGE;
-        }
-        for (const d of rawDocs) {
-          if (cityMatches(d.city, city) || extraCityDocIds.has(d.id)) {
-            allDocs.push(d);
+        // Source of truth: business_document_cities (resolved into extraCityDocIds).
+        // Fetch only docs explicitly linked to this city, filtered by subcategory/service/badge.
+        const cityDocIds = [...extraCityDocIds];
+        if (cityDocIds.length === 0) {
+          allDocs = [];
+        } else {
+          const CHUNK = 300;
+          for (let i = 0; i < cityDocIds.length; i += CHUNK) {
+            const chunk = cityDocIds.slice(i, i + CHUNK);
+            const { data } = await supabase
+              .from("business_documents")
+              .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, price, price_type, name")
+              .eq("type", "video")
+              .or(orFilter)
+              .in("id", chunk)
+              .order("sort_order", { ascending: true });
+            if (data) allDocs.push(...data);
           }
         }
 
