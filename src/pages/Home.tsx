@@ -288,7 +288,7 @@ const Test = () => {
   const restoredOpenContextRef = useRef<string | null>(null);
   const initialUrlRestoredRef = useRef(false);
 
-  // One-time restore from URL on mount (shareable links: city/entry/sub/badge/event/popularSearch/badgeView/view)
+  // One-time restore from URL on mount (shareable links: city/entry/sub/badge/event/badgeView/view)
   useEffect(() => {
     if (initialUrlRestoredRef.current) return;
     initialUrlRestoredRef.current = true;
@@ -304,9 +304,6 @@ const Test = () => {
     const eventId = searchParams.get("eventId");
     const eventLabel = searchParams.get("eventLabel");
     const eventIds = searchParams.get("eventIds");
-    const popularSearchId = searchParams.get("popularSearchId");
-    const popularSearchLabel = searchParams.get("popularSearchLabel");
-    const popularSearchBusinessIds = searchParams.get("popularSearchBusinessIds");
     const badgeViewParam = searchParams.get("badgeView");
     const badgeViewLabelParam = searchParams.get("badgeViewLabel");
     const viewParam = searchParams.get("view");
@@ -315,15 +312,13 @@ const Test = () => {
       setVideoEventFilter({ eventId, label: eventLabel, eventIds: eventIds ? eventIds.split(",").filter(Boolean) : undefined });
     } else if (badgeId && badgeLabel) {
       setVideoBadgeFilter({ badgeId, label: badgeLabel });
-    } else if (popularSearchId && popularSearchLabel) {
-      setVideoPopularSearchFilter({ popularSearchId, label: popularSearchLabel, businessIds: popularSearchBusinessIds ? popularSearchBusinessIds.split(",").filter(Boolean) : [] });
     } else if (badgeViewParam && badgeViewLabelParam && cityParam && CITIES.includes(cityParam)) {
       setBadgeView({ badgeId: badgeViewParam, label: badgeViewLabelParam, city: cityParam });
     } else {
       if (entryParam) setSelectedEntryId(entryParam);
       if (subParam) setSelectedSubId(subParam);
     }
-    if (subParam && (eventId || badgeId || popularSearchId)) setSelectedSubId(subParam);
+    if (subParam && (eventId || badgeId)) setSelectedSubId(subParam);
     if (viewParam === "details" || viewParam === "guide") setOtherViewMode(viewParam);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
