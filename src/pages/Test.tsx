@@ -9,7 +9,7 @@ import PanelSearchBar from "@/components/PanelSearchBar";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
 import SlidePanelHome from "@/components/SlidePanelHome";
 import { Menu as MenuIcon, X, Star, Youtube } from "lucide-react";
-import { FaInstagram as InstagramIcon } from "react-icons/fa";
+import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { SiTiktok } from "react-icons/si";
 import HomepageCardsFront from "@/components/HomepageCardsFront";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
