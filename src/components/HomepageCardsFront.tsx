@@ -157,11 +157,11 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
     );
   }
 
-  // A "manual business card": linked to a single establishment, no badge/event/popular-search target.
+  // A "manual business card": linked to a single establishment, no badge/event target.
   // Clicking it should open the business slide panel on the Search page (same as "En savoir +" CTA).
   const isDirectBusinessCard = (slot: MixedSlot) => {
     const d = slot.data;
-    return !!d.ownerId && !d.badgeId && !d.eventId && !d.popularSearchId && !d.target;
+    return !!d.ownerId && !d.badgeId && !d.eventId && !d.target;
   };
 
   const handleLabelActivate = (slot: MixedSlot) => {
@@ -177,9 +177,8 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
       const target: HomeCardTarget =
         slot.data.target ??
         (slot.data.eventId ? { type: "event", id: slot.data.eventId } :
-         slot.data.popularSearchId ? { type: "popular_search", id: slot.data.popularSearchId } :
          slot.data.badgeId ? { type: "badge", id: slot.data.badgeId } : null);
-      onLabelClick({ label, kind: slot.kind, target, badgeId: slot.data.badgeId ?? null, eventId: slot.data.eventId ?? null, popularSearchId: slot.data.popularSearchId ?? null });
+      onLabelClick({ label, kind: slot.kind, target, badgeId: slot.data.badgeId ?? null, eventId: slot.data.eventId ?? null });
       return;
     }
 
