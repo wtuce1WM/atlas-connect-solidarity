@@ -107,12 +107,18 @@ const VideoPoiAssignmentPanel = () => {
           business_id: selectedUploadBusiness.id,
           url: uploadedVideoUrl,
           type: "video",
-          city: selectedUploadBusiness.city,
         })
         .select("id")
         .single();
 
       if (insertErr) throw insertErr;
+
+      // Initialize multi-city link with the business default city (Phase 2: source of truth)
+      if (newDoc && selectedUploadBusiness.city) {
+        await supabase
+          .from("business_document_cities")
+          .insert({ document_id: newDoc.id, city: selectedUploadBusiness.city });
+      }
 
       toast.success("Vidéo ajoutée ! Recherchez-la par son ID pour affecter des POIs.");
       // Auto-search the newly created doc
