@@ -932,7 +932,8 @@ const Test = () => {
               return true;
             });
         const docVideoItems: VideoItem[] = dedupedByBiz.map((d: any) => {
-          const biz = bizMap.get(d.business_id) || null;
+          const displayId = getDisplayId(d);
+          const biz = bizMap.get(displayId) || bizMap.get(d.business_id) || null;
           return {
             id: d.id,
             url: d.url,
