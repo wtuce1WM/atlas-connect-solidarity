@@ -104,11 +104,13 @@ async function resolveMeta(supabase: any, path: string, params: URLSearchParams)
     }
   }
 
-  // ---------- Recherche / Test (avec city, entry, sub) ----------
+  // ---------- Recherche / Test (avec city, entry, sub, badgeId) ----------
   if (path === "/search" || path === "/test" || path === "/") {
     const city = params.get("city");
     const entryId = params.get("entry"); // catégorie principale (UUID)
     const subId = params.get("sub");     // sous-catégorie (UUID)
+    const badgeId = params.get("badgeId"); // badge (UUID)
+    const badgeLabelParam = params.get("badgeLabel");
 
     let cityImage: string | null = null;
     let cityName: string | null = null;
