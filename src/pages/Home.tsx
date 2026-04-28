@@ -7,12 +7,14 @@ import { getVideoEmbed } from "@/lib/videoEmbed";
 import SearchResultCard, { type SearchResultBusiness } from "@/components/SearchResultCard";
 import PanelSearchBar from "@/components/PanelSearchBar";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
-import SlidePanelHome from "@/components/SlidePanelHome";
+
 import { Menu as MenuIcon, X, Star, Youtube } from "lucide-react";
 import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { SiTiktok } from "react-icons/si";
-import HomepageCardsFront from "@/components/HomepageCardsFront";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
+import HomeCityTabs from "@/components/home/HomeCityTabs";
+import BadgeBusinessesGrid from "@/components/home/BadgeBusinessesGrid";
+import HomeVideoSlidePanel from "@/components/home/HomeVideoSlidePanel";
 import {
   CITIES,
   type City,
@@ -1723,71 +1725,24 @@ const Home = () => {
         <main className={`p-6 overflow-y-auto transition-all duration-300 ${panelOpen ? "w-1/2" : "flex-1"}`}>
           {selectedEntryId === HOME_ID && !videoBadgeFilter && !videoEventFilter && !videoPopularSearchFilter ? (
             <>
-              <Tabs defaultValue={city.toLowerCase()} value={city.toLowerCase()} onValueChange={(v) => { setCity((v.charAt(0).toUpperCase() + v.slice(1)) as City); setBadgeView(null); setVideoBadgeFilter(null); setVideoEventFilter(null); setVideoPopularSearchFilter(null); }}>
-                <TabsList>
-                  <TabsTrigger value="marrakech">Marrakech</TabsTrigger>
-                  <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
-                </TabsList>
-                <TabsContent value="marrakech">
-                  <div>
-                    <HomepageCardsFront
-                      city="Marrakech"
-                      onLabelClick={(info) => handleHomeLabelClick(info, "Marrakech")}
-                      labelTakesPriority
-                    />
-                  </div>
-                </TabsContent>
-                <TabsContent value="essaouira">
-                  <div>
-                    <HomepageCardsFront
-                      city="Essaouira"
-                      onLabelClick={(info) => handleHomeLabelClick(info, "Essaouira")}
-                      labelTakesPriority
-                    />
-                  </div>
-                </TabsContent>
-              </Tabs>
+              <HomeCityTabs
+                city={city}
+                onCityChange={(next) => {
+                  setCity(next);
+                  setBadgeView(null);
+                  setVideoBadgeFilter(null);
+                  setVideoEventFilter(null);
+                  setVideoPopularSearchFilter(null);
+                }}
+                onLabelClick={(info, cityForLabel) => handleHomeLabelClick(info, cityForLabel)}
+              />
               {badgeView && (
-                <div className="mt-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-semibold">
-                      {badgeView.label} — {badgeView.city} ({badgeBusinesses.length})
-                    </h3>
-                    <button
-                      type="button"
-                      onClick={() => setBadgeView(null)}
-                      className="text-xs text-muted-foreground hover:text-foreground"
-                    >
-                      Fermer ×
-                    </button>
-                  </div>
-                  {loadingBadge ? (
-                    <p className="text-sm text-muted-foreground">Chargement…</p>
-                  ) : badgeBusinesses.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">Aucun établissement trouvé.</p>
-                  ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                      {badgeBusinesses.map((b) => (
-                        <button
-                          key={b.id}
-                          type="button"
-                          onClick={() => navigate(`/fiche/${(b as any).slug || b.id}`)}
-                          className="text-left rounded-lg overflow-hidden bg-card border border-border hover:border-primary transition-colors"
-                        >
-                          <div className="aspect-video bg-muted overflow-hidden">
-                            {(b.images && b.images[0]) ? (
-                              <img src={b.images[0]} alt={b.name} className="w-full h-full object-cover" loading="lazy" />
-                            ) : null}
-                          </div>
-                          <div className="p-2">
-                            <p className="text-sm font-medium line-clamp-1">{b.name}</p>
-                            {b.neighborhood && <p className="text-xs text-muted-foreground line-clamp-1">{b.neighborhood}</p>}
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <BadgeBusinessesGrid
+                  badgeView={badgeView}
+                  businesses={badgeBusinesses}
+                  loading={loadingBadge}
+                  onClose={() => setBadgeView(null)}
+                />
               )}
             </>
           ) : !selectedEntry && !videoBadgeFilter && !videoPopularSearchFilter ? (
@@ -2318,39 +2273,18 @@ const Home = () => {
         </main>
       </div>
 
-      <SlidePanelHome
+      <HomeVideoSlidePanel
         open={panelOpen}
         onClose={() => setPanelOpen(false)}
-        videoUrl={activeVideo?.url || null}
-        videoId={activeVideo?.id || null}
-        businessName={activeVideo?.business_name || ""}
-        isGeneric={isActiveGeneric}
-        owner={activeVideo?.owner || null}
-        social={activeVideo?.social || null}
-        showSocialBadge={!!activeVideo?.showSocialBadge}
-        description={activeVideo?.description || null}
+        activeVideo={activeVideo}
+        activeList={activeList}
+        onActiveVideoChange={(v) => {
+          setActiveVideo(v);
+          setActiveVideoId(v.id);
+        }}
+        isActiveGeneric={isActiveGeneric}
         currentTime={currentTime}
         onTimeUpdate={setCurrentTime}
-        onPrev={() => {
-          const i = activeList.findIndex((v) => v.id === activeVideo?.id);
-          if (i > 0) {
-            setActiveVideo(activeList[i - 1]);
-            setActiveVideoId(activeList[i - 1].id);
-          }
-        }}
-        onNext={() => {
-          const i = activeList.findIndex((v) => v.id === activeVideo?.id);
-          if (i >= 0 && i < activeList.length - 1) {
-            setActiveVideo(activeList[i + 1]);
-            setActiveVideoId(activeList[i + 1].id);
-          }
-        }}
-        hasPrev={activeList.findIndex((v) => v.id === activeVideo?.id) > 0}
-        hasNext={(() => {
-          const i = activeList.findIndex((v) => v.id === activeVideo?.id);
-          return i >= 0 && i < activeList.length - 1;
-        })()}
-        eventId={activeVideo?.id?.startsWith("event:") ? activeVideo.id.slice(6) : (activeVideo?.manualCard?.eventId || null)}
         returnContext={returnContext}
       />
     </div>
