@@ -280,7 +280,7 @@ const Home = () => {
     meta.content = "noindex, nofollow";
     document.head.appendChild(meta);
     const prevTitle = document.title;
-    document.title = "Test";
+    document.title = "Home";
     return () => {
       meta.remove();
       document.title = prevTitle;
