@@ -1727,10 +1727,7 @@ const Home = () => {
               Aucune vidéo trouvée{videoEventFilter ? ` pour « ${videoEventFilter.label} »` : videoPopularSearchFilter ? ` pour « ${videoPopularSearchFilter.label} »` : videoBadgeFilter ? ` pour « ${videoBadgeFilter.label} »` : selectedEntry ? ` pour « ${selectedEntry.name} »` : ""} à {city}.
             </p>
           ) : (() => {
-            const isGuide = otherViewMode === "guide";
-            const baseList = isGuide ? guideVideos : otherVideos;
-            const displayList = baseList;
-            const isThumbMode = otherViewMode === "videos" || isGuide;
+            const displayList = otherVideos;
             const isParentEntry =
               !!selectedEntry &&
               selectedEntry.id !== HOME_ID &&
@@ -1744,21 +1741,15 @@ const Home = () => {
                   .sort((a, b) => a.name.localeCompare(b.name, "fr", { sensitivity: "base" }))
               : [];
             const showChildrenTile =
-              isParentEntry && !isGuide && otherViewMode === "videos" && childItems.length >= 2;
+              isParentEntry && childItems.length >= 2;
             const childrenTileIndex = 2; // position 3
             return (
             <div className="flex gap-6 items-start">
-              {(displayList.length > 0 || isGuide) && (
+              {displayList.length > 0 && (
                 <div className="w-full min-w-0">
                   <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
                     <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5 flex-wrap">
-                      {isGuide ? (
-                        <>
-                          <button type="button" onClick={() => { setVideoEventFilter(null); setVideoBadgeFilter(null); setVideoPopularSearchFilter(null); setSelectedEntryId(HOME_ID); setSelectedSubId(null); }} className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors">{city}</button>
-                          <span className="text-muted-foreground font-normal">›</span>
-                          <span>Suivez le guide ({displayList.length})</span>
-                        </>
-                      ) : videoEventFilter ? (
+                      {videoEventFilter ? (
                         <>
                           <button
                             type="button"
