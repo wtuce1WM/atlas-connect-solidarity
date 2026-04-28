@@ -1396,7 +1396,6 @@ const Home = () => {
 
     setVideoEventFilter(null);
     setVideoPopularSearchFilter(null);
-    setOtherViewMode("videos");
     setVideoBadgeFilter({ badgeId, label });
 
     return true;
@@ -1417,7 +1416,6 @@ const Home = () => {
 
     setVideoBadgeFilter(null);
     setVideoPopularSearchFilter(null);
-    setOtherViewMode("videos");
     setSelectedEntryId(HOME_ID);
     setVideoEventFilter({ eventId, label });
 
@@ -1447,7 +1445,6 @@ const Home = () => {
     if (city !== clickedCity) {
       setCity(clickedCity);
     }
-    setOtherViewMode("videos");
 
     // Pre-set the filter with empty businessIds so the videos area renders the loading state
     setLoadingVideos(true);
@@ -1537,7 +1534,6 @@ const Home = () => {
         if (city !== clickedCity) setCity(clickedCity);
         setVideoBadgeFilter(null);
         setVideoPopularSearchFilter(null);
-        setOtherViewMode("videos");
         setSelectedEntryId(HOME_ID);
         setVideoEventFilter({ eventId: eventIds[0], eventIds, label: info.label });
         return;
