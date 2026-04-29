@@ -166,7 +166,7 @@ const ensureEventVideoDocument = async ({
 }: {
   url: string;
   eventId: string;
-  ownerBusinessId: string;
+  ownerBusinessId: string | null;
   eventName: string;
 }) => {
   const { data: existingDocs } = await supabase
@@ -179,9 +179,12 @@ const ensureEventVideoDocument = async ({
   let doc = rows.find(row => row.event_id === eventId) || rows[0] || null;
 
   if (doc) {
+    const updatePayload: Record<string, any> = { event_id: eventId, name: eventName.trim() || null };
+    // Only overwrite business_id when we actually have one — keep existing link otherwise.
+    if (ownerBusinessId) updatePayload.business_id = ownerBusinessId;
     const { data: updated } = await supabase
       .from("business_documents")
-      .update({ event_id: eventId, business_id: ownerBusinessId, name: eventName.trim() || null })
+      .update(updatePayload)
       .eq("id", doc.id)
       .select("id, url, event_id, thumbnail_url, thumbnail_locked")
       .single();
@@ -190,7 +193,7 @@ const ensureEventVideoDocument = async ({
     const { data: inserted } = await supabase
       .from("business_documents")
       .insert({
-        business_id: ownerBusinessId,
+        business_id: ownerBusinessId, // nullable: standalone event videos are allowed
         type: "video",
         url,
         name: eventName.trim() || null,
