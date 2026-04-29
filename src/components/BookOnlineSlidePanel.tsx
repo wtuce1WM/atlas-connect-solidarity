@@ -1082,6 +1082,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           shopCtaLabel={ctaConfig.shopCtaLabel}
           url4CtaLabel={ctaConfig.url4CtaLabel}
           url5CtaLabel={ctaConfig.url5CtaLabel}
+          appStoreLinks={ctaConfig.appStoreLinks}
           fallbackPanelData={fallbackPanelData}
           logoBigOverlay={logoBigOverlay}
           logoBigFadingOut={logoBigFadingOut}
