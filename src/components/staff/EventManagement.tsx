@@ -227,11 +227,11 @@ const SortableVideoItem = ({ id, url, index, setForm, toast, eventId, ownerBusin
       return;
     }
     (async () => {
-      if (eventId && ownerBusinessId) {
+      if (eventId) {
         const doc = await ensureEventVideoDocument({
           url,
           eventId,
-          ownerBusinessId,
+          ownerBusinessId, // may be null — events can be standalone
           eventName,
         });
         if (!cancelled && doc?.id) {
