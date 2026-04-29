@@ -268,11 +268,15 @@ const InlineThumbnailAssignment = ({
   };
 
   const toggleYouTubePlayback = () => {
-    if (!ytPlayerRef.current) return;
+    if (!ytPlayerRef.current) {
+      toast.error("Lecteur YouTube en cours de chargement");
+      return;
+    }
     if (ytPlaying) {
       ytPlayerRef.current.pauseVideo?.();
     } else {
       ytPlayerRef.current.playVideo?.();
+      setYtPlaying(true);
     }
   };
 
@@ -355,7 +359,7 @@ const InlineThumbnailAssignment = ({
               ) : ytId ? (
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <Button type="button" variant="outline" size="icon" onClick={toggleYouTubePlayback} disabled={!ytReady}>
+                    <Button type="button" variant="outline" size="icon" onClick={toggleYouTubePlayback}>
                       {ytPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                     </Button>
                     <input
