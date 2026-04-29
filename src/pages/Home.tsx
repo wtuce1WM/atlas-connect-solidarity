@@ -1334,7 +1334,92 @@ const Home = () => {
           console.warn("[Test sub generic_videos] failed", e);
         }
 
-        safeSetVideos([...docItems, ...genericSubItems]);
+        // Also include business_youtube_videos linked to one of the selected subcategories
+        // via business_youtube_video_subcategories AND linked to the current city
+        // via business_youtube_video_cities (strict, aligned with multi-city policy).
+        let youtubeSubItems: VideoItem[] = [];
+        try {
+          const { data: ytSubLinks } = await supabase
+            .from("business_youtube_video_subcategories" as any)
+            .select("youtube_video_id")
+            .in("subcategory_id", subIds);
+          const ytIds = [...new Set(((ytSubLinks as any[]) || []).map((l: any) => l.youtube_video_id))];
+          if (ytIds.length > 0 && currentCityIds.length > 0) {
+            // Filter to videos explicitly linked to the current city
+            const cityLinksByVideo: Record<string, Set<string>> = {};
+            const CHUNK = 300;
+            for (let i = 0; i < ytIds.length; i += CHUNK) {
+              const { data: ytCityLinks } = await supabase
+                .from("business_youtube_video_cities" as any)
+                .select("youtube_video_id, city_id")
+                .in("youtube_video_id", ytIds.slice(i, i + CHUNK));
+              ((ytCityLinks as any[]) || []).forEach((r: any) => {
+                (cityLinksByVideo[r.youtube_video_id] ||= new Set()).add(r.city_id);
+              });
+            }
+            const ytFilteredIds = ytIds.filter((id) => {
+              const set = cityLinksByVideo[id];
+              if (!set) return false;
+              for (const cid of currentCityIds) if (set.has(cid)) return true;
+              return false;
+            });
+
+            if (ytFilteredIds.length > 0) {
+              const ytRows: any[] = [];
+              for (let i = 0; i < ytFilteredIds.length; i += CHUNK) {
+                const { data } = await supabase
+                  .from("business_youtube_videos")
+                  .select("id, video_id, title, thumbnail, custom_thumbnail_url, thumbnail_locked, is_short, is_visible, sort_order, business_id")
+                  .eq("is_visible", true)
+                  .in("id", ytFilteredIds.slice(i, i + CHUNK))
+                  .order("sort_order", { ascending: true });
+                if (data) ytRows.push(...data);
+              }
+              const ytBizIds = [...new Set(ytRows.map((y) => y.business_id).filter(Boolean))] as string[];
+              const ytBizMap = new Map<string, SearchResultBusiness>();
+              for (let i = 0; i < ytBizIds.length; i += CHUNK) {
+                const { data: bizs } = await supabase
+                  .from("businesses")
+                  .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+                  .in("id", ytBizIds.slice(i, i + CHUNK));
+                (bizs || []).forEach((b: any) => ytBizMap.set(b.id, b as SearchResultBusiness));
+              }
+              const seenUrlsYt = new Set<string>([...docItems, ...genericSubItems].map((i) => i.url).filter(Boolean) as string[]);
+              youtubeSubItems = ytRows
+                .map((y: any) => {
+                  const biz = ytBizMap.get(y.business_id) || null;
+                  const url = y.is_short
+                    ? `https://www.youtube.com/shorts/${y.video_id}`
+                    : `https://www.youtube.com/watch?v=${y.video_id}`;
+                  if (seenUrlsYt.has(url)) return null;
+                  seenUrlsYt.add(url);
+                  const ytAccount = (biz as any)?.youtube_url ? (biz as any).youtube_url.split("/").filter(Boolean).pop() || "" : "";
+                  const social = ytAccount
+                    ? { platform: "youtube" as const, account: ytAccount, url: (biz as any)?.youtube_url || null }
+                    : null;
+                  return {
+                    id: y.id,
+                    url,
+                    business_name: biz?.name || y.title || "—",
+                    thumbnail_url: y.custom_thumbnail_url || y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/maxresdefault.jpg`,
+                    business: biz,
+                    owner: biz
+                      ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null }
+                      : null,
+                    social,
+                    showSocialBadge: !!social,
+                    description: null,
+                    manualCard: null,
+                  } as VideoItem;
+                })
+                .filter(Boolean) as VideoItem[];
+            }
+          }
+        } catch (e) {
+          console.warn("[Test sub business_youtube_videos] failed", e);
+        }
+
+        safeSetVideos([...docItems, ...genericSubItems, ...youtubeSubItems]);
         safeSetLoadingVideos(false);
         return;
       }
