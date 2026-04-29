@@ -79,12 +79,15 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Use our own player page (hosted on this Supabase project) so YouTube
-    // embeds correctly. Capturing youtube.com/embed directly returns
+    // Use our own static player page hosted on the published domain so
+    // YouTube embeds correctly. Capturing youtube.com/embed directly returns
     // "Error 153 Video player configuration error" because the origin is
-    // not whitelisted for headless embeds.
+    // not whitelisted for headless embeds. Using a Supabase function URL
+    // also fails because ApiFlash gets a platform interstitial / lock page.
+    const PLAYER_HOST = Deno.env.get("YT_PLAYER_HOST") ||
+      "https://oneworldmorocco.com";
     const playerUrl =
-      `${SUPABASE_URL}/functions/v1/youtube-player-page` +
+      `${PLAYER_HOST}/yt-player.html` +
       `?id=${encodeURIComponent(youtubeId)}&t=${ts}`;
 
     // ApiFlash screenshot — wait 6s for YT IFrame API to load + seek + render.
