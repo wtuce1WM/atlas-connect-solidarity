@@ -2559,26 +2559,19 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         });
         if (docsError) throw docsError;
 
-        // Save badge + city associations for video docs
+        // Save badge associations for video docs (city associations are handled atomically by replace_business_documents)
         if (insertedDocs) {
           const parsed = typeof insertedDocs === "string" ? JSON.parse(insertedDocs) : insertedDocs;
           const videoInserted = (parsed as any[]).filter((d: any) => d.type === "video");
           const badgeRows: Array<{ document_id: string; badge_id: string }> = [];
-          const cityRows: Array<{ document_id: string; city_id: string }> = [];
           videoInserted.forEach((inserted: any, i: number) => {
             const original = videoDocsWithThumbs[i];
             if (original?.badge_ids?.length) {
               original.badge_ids.forEach(bid => badgeRows.push({ document_id: inserted.id, badge_id: bid }));
             }
-            if (original?.city_ids?.length) {
-              original.city_ids.forEach(cid => cityRows.push({ document_id: inserted.id, city_id: cid }));
-            }
           });
           if (badgeRows.length > 0) {
             await supabase.from("business_document_badges" as any).insert(badgeRows);
-          }
-          if (cityRows.length > 0) {
-            await supabase.from("business_document_cities" as any).insert(cityRows);
           }
         }
 
