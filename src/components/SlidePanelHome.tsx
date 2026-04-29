@@ -555,7 +555,7 @@ const SlidePanelHome = ({
                   playing={ytPlaying}
                   muted={ytMuted}
                   onPlayingChange={setYtPlaying}
-                  onMutedChange={setYtMuted}
+                  onMutedChange={(m) => { setYtMuted(m); setSoundOn(!m); }}
                 />
               </div>
             )}
