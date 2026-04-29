@@ -397,7 +397,7 @@ const YouTubeBackofficePanel = () => {
               source="youtube"
               video={activePanel.video}
               onClose={closePanel}
-              onSaved={loadAll}
+              onSaved={reloadCounts}
             />
           )}
           {activePanel.kind === "business" && (
@@ -405,7 +405,7 @@ const YouTubeBackofficePanel = () => {
               source="youtube"
               video={activePanel.video}
               onClose={closePanel}
-              onSaved={loadAll}
+              onSaved={reloadCounts}
             />
           )}
           {activePanel.kind === "destination" && (
@@ -413,7 +413,7 @@ const YouTubeBackofficePanel = () => {
               source="youtube"
               video={activePanel.video}
               onClose={closePanel}
-              onSaved={loadAll}
+              onSaved={reloadCounts}
             />
           )}
           {activePanel.kind === "tags" && (
@@ -421,7 +421,7 @@ const YouTubeBackofficePanel = () => {
               source="youtube"
               video={activePanel.video}
               onClose={closePanel}
-              onSaved={loadAll}
+              onSaved={reloadCounts}
             />
           )}
           {activePanel.kind === "thumbnail" && (
