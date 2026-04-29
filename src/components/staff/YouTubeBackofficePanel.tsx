@@ -313,6 +313,10 @@ const YouTubeBackofficePanel = () => {
                                   onClick={() => openPanel("tags", v)}>
                                   <Tag className="h-3 w-3 mr-1" />Tags
                                 </Button>
+                                <Button size="sm" variant="outline" className="h-7 text-xs"
+                                  onClick={() => openPanel("thumbnail", v)}>
+                                  <ImageIcon className="h-3 w-3 mr-1" />Vignette
+                                </Button>
                               </div>
                             </div>
                           </div>
