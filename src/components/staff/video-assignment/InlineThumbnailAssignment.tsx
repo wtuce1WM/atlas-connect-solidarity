@@ -25,13 +25,32 @@ const extractYouTubeId = (url: string): string | null => {
 
 /** Candidate thumbnails YouTube exposes for any public video. */
 const youtubeThumbnailCandidates = (ytId: string) => [
-  { key: "maxres",  label: "Max résolution",     url: `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg` },
-  { key: "hq",      label: "Haute qualité",      url: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` },
-  { key: "sd",      label: "Définition standard",url: `https://img.youtube.com/vi/${ytId}/sddefault.jpg` },
-  { key: "frame1",  label: "Frame ~25%",         url: `https://img.youtube.com/vi/${ytId}/1.jpg` },
-  { key: "frame2",  label: "Frame ~50%",         url: `https://img.youtube.com/vi/${ytId}/2.jpg` },
-  { key: "frame3",  label: "Frame ~75%",         url: `https://img.youtube.com/vi/${ytId}/3.jpg` },
+  { key: "maxres",  label: "Max résolution",     url: `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`, pct: null as number | null },
+  { key: "hq",      label: "Haute qualité",      url: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`,    pct: null },
+  { key: "sd",      label: "Définition standard",url: `https://img.youtube.com/vi/${ytId}/sddefault.jpg`,    pct: null },
+  { key: "frame1",  label: "Frame ~25%",         url: `https://img.youtube.com/vi/${ytId}/1.jpg`,            pct: 25 },
+  { key: "frame2",  label: "Frame ~50%",         url: `https://img.youtube.com/vi/${ytId}/2.jpg`,            pct: 50 },
+  { key: "frame3",  label: "Frame ~75%",         url: `https://img.youtube.com/vi/${ytId}/3.jpg`,            pct: 75 },
 ];
+
+/** Lazy-load YouTube IFrame API once. */
+let ytApiPromise: Promise<any> | null = null;
+const loadYouTubeApi = (): Promise<any> => {
+  if (typeof window === "undefined") return Promise.reject();
+  if ((window as any).YT?.Player) return Promise.resolve((window as any).YT);
+  if (ytApiPromise) return ytApiPromise;
+  ytApiPromise = new Promise((resolve) => {
+    const prev = (window as any).onYouTubeIframeAPIReady;
+    (window as any).onYouTubeIframeAPIReady = () => {
+      prev?.();
+      resolve((window as any).YT);
+    };
+    const tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.head.appendChild(tag);
+  });
+  return ytApiPromise;
+};
 
 export type ThumbnailSource = "business_documents" | "generic_videos" | "business_youtube_videos";
 
