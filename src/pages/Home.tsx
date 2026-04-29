@@ -758,28 +758,12 @@ const Home = () => {
             (docBadgesByDocId[r.document_id] ||= []).push(r.badge_id);
           });
         }
-        // Exception: for the manual "Suivez le guide" card (badge "Guide"),
-        // show every video tagged in this city without grouping by business.
-        const isGuideBadge = /^(suivez le guide|guide)$/i.test(videoBadgeFilter.label.trim());
         const isVlogsBadge = /^#?\s*vlogs?$/i.test(videoBadgeFilter.label.trim());
         // For all badge filters, also pull in generic_videos and YouTube videos
-        // tagged with the same badge (not only the Guide badge).
+        // tagged with the same badge.
         const includeExtraSources = true;
-        // Keep only one video per business: the first one (lowest sort_order)
-        const seenBizIds = new Set<string>();
-        const dedupedByBiz = isGuideBadge
-          ? uniqueDocs
-          : uniqueDocs.filter((d: any) => {
-              // Dedupe by the business shown on the thumbnail (business_id),
-              // not the linked establishment, so two distinct POIs sharing
-              // the same linked hotel don't cannibalize each other.
-              const thumbBiz = (d.business_id && bizMap.get(d.business_id)) || resolveVideoEstablishment(d, bizMap);
-              const dedupeId = thumbBiz?.id || d.business_id || d.id;
-              if (seenBizIds.has(dedupeId)) return false;
-              seenBizIds.add(dedupeId);
-              return true;
-            });
-        const docVideoItems: VideoItem[] = dedupedByBiz.map((d: any) => {
+        // No per-business dedupe: show ALL videos tagged with this hashtag.
+        const docVideoItems: VideoItem[] = uniqueDocs.map((d: any) => {
           const biz = resolveVideoEstablishment(d, bizMap);
           // Thumbnail name: always show the original business_id's name (e.g. POI),
           // even when a linked establishment exists (which still drives owner/logo + SlidePanelHome).
