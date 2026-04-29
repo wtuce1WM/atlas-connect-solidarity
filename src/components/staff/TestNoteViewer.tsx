@@ -250,35 +250,45 @@ const TestNoteViewer = () => {
         badgeMap.set(l.generic_video_id, arr);
       });
 
-      const businessVideos: VideoDoc[] = allDocs.map(d => ({
-        id: d.id,
-        url: d.url,
-        name: d.name,
-        thumbnail_url: d.thumbnail_url,
-        city: d.city,
-        neighborhood: d.neighborhood,
-        business_id: d.business_id,
-        business_name: bizMap.get(d.business_id) || "—",
-        badge_ids: badgeMap.get(d.id) || [],
-        subcategory_name: d.subcategory_id ? subMap.get(d.subcategory_id) || null : null,
-        service_name: d.service_id ? svcMap.get(d.service_id) || null : null,
-        source: "business",
-      }));
+      const businessVideos: VideoDoc[] = allDocs.map(d => {
+        const multi = docCityMap.get(d.id) || [];
+        const cities = multi.length > 0 ? multi : (d.city ? [d.city] : []);
+        return {
+          id: d.id,
+          url: d.url,
+          name: d.name,
+          thumbnail_url: d.thumbnail_url,
+          city: d.city,
+          cities,
+          neighborhood: d.neighborhood,
+          business_id: d.business_id,
+          business_name: bizMap.get(d.business_id) || "—",
+          badge_ids: badgeMap.get(d.id) || [],
+          subcategory_name: d.subcategory_id ? subMap.get(d.subcategory_id) || null : null,
+          service_name: d.service_id ? svcMap.get(d.service_id) || null : null,
+          source: "business",
+        };
+      });
 
-      const genericVideos: VideoDoc[] = genericDocs.map(g => ({
-        id: g.id,
-        url: g.url,
-        name: g.name,
-        thumbnail_url: g.thumbnail_url,
-        city: g.city,
-        neighborhood: g.neighborhood,
-        business_id: null,
-        business_name: g.instagram_account || g.tiktok_account || g.youtube_account || "— Générique —",
-        badge_ids: badgeMap.get(g.id) || [],
-        subcategory_name: null,
-        service_name: null,
-        source: "generic",
-      }));
+      const genericVideos: VideoDoc[] = genericDocs.map(g => {
+        const multi = genericCityMap.get(g.id) || [];
+        const cities = multi.length > 0 ? multi : (g.city ? [g.city] : []);
+        return {
+          id: g.id,
+          url: g.url,
+          name: g.name,
+          thumbnail_url: g.thumbnail_url,
+          city: g.city,
+          cities,
+          neighborhood: g.neighborhood,
+          business_id: null,
+          business_name: g.instagram_account || g.tiktok_account || g.youtube_account || "— Générique —",
+          badge_ids: badgeMap.get(g.id) || [],
+          subcategory_name: null,
+          service_name: null,
+          source: "generic",
+        };
+      });
 
       setVideos([...businessVideos, ...genericVideos]);
       setVideosLoading(false);
@@ -288,8 +298,8 @@ const TestNoteViewer = () => {
 
   const matchesCity = (v: VideoDoc) =>
     city === "none" ? false :
-    city === "__none__" ? !v.city :
-    v.city?.toLowerCase() === city.toLowerCase();
+    city === "__none__" ? v.cities.length === 0 :
+    v.cities.some(c => c.toLowerCase() === city.toLowerCase());
 
   const availableBadges = useMemo(() => {
     if (city === "none") return badges;
