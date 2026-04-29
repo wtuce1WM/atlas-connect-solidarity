@@ -630,6 +630,23 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
               className="absolute top-0.5 right-0.5 p-0.5 bg-destructive text-destructive-foreground rounded-full opacity-80 hover:opacity-100 transition-opacity">
               <X className="h-2.5 w-2.5" />
             </button>
+            {!doc.thumbnail_locked ? (
+              <button
+                type="button"
+                title={doc.thumbnail_url ? "Régénérer la vignette au prochain enregistrement" : "Vignette à générer au prochain enregistrement"}
+                onClick={() => {
+                  setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, thumbnail_url: null } : d));
+                  toast({ title: "Vignette à régénérer", description: "Sera recalculée à l'enregistrement de la fiche." });
+                }}
+                className="absolute top-0.5 left-0.5 p-0.5 bg-background/80 text-foreground rounded-full opacity-80 hover:opacity-100 transition-opacity"
+              >
+                <RefreshCw className="h-2.5 w-2.5" />
+              </button>
+            ) : (
+              <div title="Vignette verrouillée — gérer via « Vidéo ID — Vignette personnalisée »" className="absolute top-0.5 left-0.5 p-0.5 bg-background/80 text-amber-600 rounded-full">
+                <Lock className="h-2.5 w-2.5" />
+              </div>
+            )}
           </div>
           {doc.id && (
             <button
