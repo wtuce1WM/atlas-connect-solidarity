@@ -331,18 +331,6 @@ const Home = () => {
       });
       setSubcatNames(subMap);
 
-      // Build subcategory → front_structure entry map (parent dans la structure du front)
-      const entryNameById: Record<string, string> = {};
-      (entriesRes.data || []).forEach((e: any) => { entryNameById[e.id] = e.name; });
-      const parentMap: Record<string, string> = {};
-      (linksRes.data || []).forEach((l: any) => {
-        const entryName = entryNameById[l.front_structure_id];
-        if (entryName && !parentMap[l.subcategory_id]) {
-          parentMap[l.subcategory_id] = entryName;
-        }
-      });
-      setSubcatParents(parentMap);
-
       const svcMap: Record<string, string> = {};
       (servicesRes.data || []).forEach((s: any) => { svcMap[s.id] = s.name_fr; });
       setServiceNames(svcMap);
@@ -1915,14 +1903,14 @@ const Home = () => {
                           <span className="text-muted-foreground font-normal">›</span>
                           <button type="button" onClick={() => { setVideoEventFilter(null); setVideoBadgeFilter(null); setVideoPopularSearchFilter(null); setSelectedEntryId(HOME_ID); setSelectedSubId(null); }} className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors">{city}</button>
                           <span className="text-muted-foreground font-normal">›</span>
-                          {subcatParents[selectedSubId] && (
+                          {selectedEntry && selectedEntry.id !== HOME_ID && (
                             <>
                               <button
                                 type="button"
                                 onClick={() => setSelectedSubId(null)}
                                 className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors"
                               >
-                                {subcatParents[selectedSubId]}
+                                {selectedEntry.name}
                               </button>
                               <span className="text-muted-foreground font-normal">›</span>
                             </>
