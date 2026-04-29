@@ -1149,7 +1149,7 @@ const Home = () => {
         // Single difference here: apply front_video_count per business.
         // Strict mode in subcategory view: ignore linked_business_id so a video stays attributed
         // to its real owner (and therefore to its real categories), not to a referenced business.
-        const strictResolve = !!selectedSubId;
+        const strictResolve = !!selectedEntry && selectedEntry.id !== HOME_ID;
         const allBizIds = [...new Set(
           allDocs.flatMap((d: any) => getVideoBusinessCandidateIds(d, { strict: strictResolve })).filter(Boolean)
         )] as string[];
