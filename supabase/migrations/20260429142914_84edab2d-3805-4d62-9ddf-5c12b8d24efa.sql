@@ -1,0 +1,1 @@
+ALTER TABLE public.business_documents ALTER COLUMN business_id DROP NOT NULL;
