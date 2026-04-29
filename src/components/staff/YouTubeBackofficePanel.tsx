@@ -19,7 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
   Loader2, Search, RefreshCw, ChevronRight, ChevronDown, Play,
-  MapPin, Building2, Globe, Tag, Youtube as YoutubeIcon,
+  MapPin, Building2, Globe, Tag, Image as ImageIcon, Youtube as YoutubeIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -29,6 +29,8 @@ import {
   InlineBadgeSubcatCityAssignment,
   type AssignableVideo,
 } from "./video-assignment/VideoAssignmentPanels";
+import InlineThumbnailAssignment from "./video-assignment/InlineThumbnailAssignment";
+import VideoLightbox from "./VideoLightbox";
 
 interface Business {
   id: string;
