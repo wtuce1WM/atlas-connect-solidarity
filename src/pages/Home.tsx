@@ -325,18 +325,22 @@ const Home = () => {
         supabase.from("services").select("id, name_fr").eq("is_active", true),
       ]);
 
-      // Load category names to build subcategory → parent category map
-      const { data: catsData } = await supabase.from("categories").select("id, name_fr");
-      const catNameById: Record<string, string> = {};
-      (catsData || []).forEach((c: any) => { catNameById[c.id] = c.name_fr; });
-
       const subMap: Record<string, string> = {};
-      const parentMap: Record<string, string> = {};
       (subsRes.data || []).forEach((s: any) => {
         subMap[s.id] = s.name_fr;
-        if (s.category_id && catNameById[s.category_id]) parentMap[s.id] = catNameById[s.category_id];
       });
       setSubcatNames(subMap);
+
+      // Build subcategory → front_structure entry map (parent dans la structure du front)
+      const entryNameById: Record<string, string> = {};
+      (entriesRes.data || []).forEach((e: any) => { entryNameById[e.id] = e.name; });
+      const parentMap: Record<string, string> = {};
+      (linksRes.data || []).forEach((l: any) => {
+        const entryName = entryNameById[l.front_structure_id];
+        if (entryName && !parentMap[l.subcategory_id]) {
+          parentMap[l.subcategory_id] = entryName;
+        }
+      });
       setSubcatParents(parentMap);
 
       const svcMap: Record<string, string> = {};
