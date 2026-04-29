@@ -1375,6 +1375,7 @@ export type Database = {
         Row: {
           business_id: string
           created_at: string
+          custom_thumbnail_url: string | null
           destination_id: string | null
           duration_seconds: number
           id: string
@@ -1384,6 +1385,7 @@ export type Database = {
           sort_order: number
           subcategory_id: string | null
           thumbnail: string
+          thumbnail_locked: boolean
           title: string
           updated_at: string
           video_id: string
@@ -1391,6 +1393,7 @@ export type Database = {
         Insert: {
           business_id: string
           created_at?: string
+          custom_thumbnail_url?: string | null
           destination_id?: string | null
           duration_seconds?: number
           id?: string
@@ -1400,6 +1403,7 @@ export type Database = {
           sort_order?: number
           subcategory_id?: string | null
           thumbnail?: string
+          thumbnail_locked?: boolean
           title?: string
           updated_at?: string
           video_id: string
@@ -1407,6 +1411,7 @@ export type Database = {
         Update: {
           business_id?: string
           created_at?: string
+          custom_thumbnail_url?: string | null
           destination_id?: string | null
           duration_seconds?: number
           id?: string
@@ -1416,6 +1421,7 @@ export type Database = {
           sort_order?: number
           subcategory_id?: string | null
           thumbnail?: string
+          thumbnail_locked?: boolean
           title?: string
           updated_at?: string
           video_id?: string

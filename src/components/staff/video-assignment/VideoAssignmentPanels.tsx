@@ -72,17 +72,50 @@ export interface AssignableVideo {
 /* ──────────────────────────────────────────────────────────── */
 /*  Preview header (video / thumbnail) shared across all panels */
 /* ──────────────────────────────────────────────────────────── */
+const extractYouTubeId = (url: string): string | null => {
+  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+  return m ? m[1] : null;
+};
+
 const VideoPreview = ({ video }: { video: AssignableVideo }) => {
   const isStorageVideo = video.url.includes("supabase.co/storage");
+  const ytId = !isStorageVideo ? extractYouTubeId(video.url) : null;
+  const [playing, setPlaying] = useState(false);
+
   return (
     <div className="relative bg-black rounded-lg overflow-hidden" style={{ aspectRatio: "16/9" }}>
       {isStorageVideo ? (
         <video src={video.url} className="w-full h-full object-contain" muted preload="metadata" controls />
+      ) : ytId && playing ? (
+        <iframe
+          src={`https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0`}
+          className="w-full h-full"
+          allow="autoplay; encrypted-media; fullscreen"
+          allowFullScreen
+        />
       ) : video.thumbnail_url ? (
-        <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" />
+        <>
+          <img src={video.thumbnail_url} alt="" className="w-full h-full object-cover" />
+          {ytId && (
+            <button
+              type="button"
+              onClick={() => setPlaying(true)}
+              className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition"
+              aria-label="Lire la vidéo"
+            >
+              <Play className="h-12 w-12 text-white drop-shadow-lg" />
+            </button>
+          )}
+        </>
       ) : (
         <div className="w-full h-full bg-muted flex items-center justify-center">
-          <Play className="h-8 w-8 text-muted-foreground" />
+          {ytId ? (
+            <button type="button" onClick={() => setPlaying(true)} aria-label="Lire la vidéo">
+              <Play className="h-10 w-10 text-muted-foreground" />
+            </button>
+          ) : (
+            <Play className="h-8 w-8 text-muted-foreground" />
+          )}
         </div>
       )}
     </div>

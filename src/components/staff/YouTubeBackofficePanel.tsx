@@ -19,7 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
   Loader2, Search, RefreshCw, ChevronRight, ChevronDown, Play,
-  MapPin, Building2, Globe, Tag, Youtube as YoutubeIcon,
+  MapPin, Building2, Globe, Tag, Image as ImageIcon, Youtube as YoutubeIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -29,6 +29,8 @@ import {
   InlineBadgeSubcatCityAssignment,
   type AssignableVideo,
 } from "./video-assignment/VideoAssignmentPanels";
+import InlineThumbnailAssignment from "./video-assignment/InlineThumbnailAssignment";
+import VideoLightbox from "./VideoLightbox";
 
 interface Business {
   id: string;
@@ -43,11 +45,13 @@ interface YouTubeVideo {
   video_id: string;
   title: string;
   thumbnail: string | null;
+  custom_thumbnail_url: string | null;
+  thumbnail_locked: boolean;
   is_short: boolean;
   is_visible: boolean;
 }
 
-type PanelKind = "poi" | "business" | "destination" | "tags";
+type PanelKind = "poi" | "business" | "destination" | "tags" | "thumbnail";
 
 const YouTubeBackofficePanel = () => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -57,7 +61,7 @@ const YouTubeBackofficePanel = () => {
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
   const [syncingId, setSyncingId] = useState<string | null>(null);
   const [syncingAll, setSyncingAll] = useState(false);
-  const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   /** Currently opened right-side assignment panel. */
   const [activePanel, setActivePanel] = useState<{ kind: PanelKind; video: AssignableVideo } | null>(null);
@@ -73,7 +77,7 @@ const YouTubeBackofficePanel = () => {
         .order("name"),
       supabase
         .from("business_youtube_videos")
-        .select("id, business_id, video_id, title, thumbnail, is_short, is_visible")
+        .select("id, business_id, video_id, title, thumbnail, custom_thumbnail_url, thumbnail_locked, is_short, is_visible")
         .order("sort_order"),
     ]);
 
@@ -149,7 +153,7 @@ const YouTubeBackofficePanel = () => {
     id: v.id,
     url: `https://www.youtube.com/watch?v=${v.video_id}`,
     name: v.title,
-    thumbnail_url: v.thumbnail,
+    thumbnail_url: v.custom_thumbnail_url || v.thumbnail,
     city: null,
   });
 
@@ -265,18 +269,13 @@ const YouTubeBackofficePanel = () => {
                           >
                             <button
                               type="button"
-                              onClick={() => setPlayingVideoId(playingVideoId === v.id ? null : v.id)}
+                              onClick={() => setLightboxUrl(`https://www.youtube.com/watch?v=${v.video_id}`)}
                               className="relative shrink-0 w-32 aspect-video bg-black rounded overflow-hidden group"
+                              title="Lire la vidéo"
                             >
-                              {playingVideoId === v.id ? (
-                                <iframe
-                                  src={`https://www.youtube.com/embed/${v.video_id}?autoplay=1`}
-                                  className="w-full h-full"
-                                  allow="autoplay"
-                                />
-                              ) : v.thumbnail ? (
+                              {(v.custom_thumbnail_url || v.thumbnail) ? (
                                 <>
-                                  <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover" />
+                                  <img src={v.custom_thumbnail_url || v.thumbnail!} alt={v.title} className="w-full h-full object-cover" />
                                   <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition">
                                     <Play className="h-6 w-6 text-white" />
                                   </div>
@@ -288,6 +287,9 @@ const YouTubeBackofficePanel = () => {
                               )}
                               {v.is_short && (
                                 <Badge className="absolute top-1 left-1 text-[9px] px-1 py-0">SHORT</Badge>
+                              )}
+                              {v.thumbnail_locked && (
+                                <Badge className="absolute bottom-1 right-1 text-[9px] px-1 py-0 bg-amber-600">🔒</Badge>
                               )}
                             </button>
 
@@ -310,6 +312,10 @@ const YouTubeBackofficePanel = () => {
                                 <Button size="sm" variant="outline" className="h-7 text-xs"
                                   onClick={() => openPanel("tags", v)}>
                                   <Tag className="h-3 w-3 mr-1" />Tags
+                                </Button>
+                                <Button size="sm" variant="outline" className="h-7 text-xs"
+                                  onClick={() => openPanel("thumbnail", v)}>
+                                  <ImageIcon className="h-3 w-3 mr-1" />Vignette
                                 </Button>
                               </div>
                             </div>
@@ -360,7 +366,21 @@ const YouTubeBackofficePanel = () => {
               onSaved={loadAll}
             />
           )}
+          {activePanel.kind === "thumbnail" && (
+            <InlineThumbnailAssignment
+              source="business_youtube_videos"
+              videoId={activePanel.video.id}
+              videoUrl={activePanel.video.url}
+              videoName={activePanel.video.name}
+              onClose={closePanel}
+              onSaved={loadAll}
+            />
+          )}
         </div>
+      )}
+
+      {lightboxUrl && (
+        <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />
       )}
     </div>
   );
