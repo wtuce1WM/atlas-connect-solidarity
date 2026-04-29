@@ -112,6 +112,30 @@ const InlineThumbnailAssignment = ({
     }
   };
 
+  /** Download a YouTube thumbnail and re-host it in our storage so the lock is stable. */
+  const pickYouTubeThumbnail = async (sourceUrl: string) => {
+    setUploading(true);
+    try {
+      const res = await fetch(sourceUrl);
+      if (!res.ok) throw new Error(`Image indisponible (HTTP ${res.status})`);
+      const blob = await res.blob();
+      // YouTube returns a 120×90 grey placeholder when the requested size doesn't exist.
+      if (blob.size < 2000) throw new Error("Cette résolution n'est pas disponible pour cette vidéo");
+      const path = `thumbs/yt-${videoId}-${Date.now()}.jpg`;
+      const { error: upErr } = await supabase.storage
+        .from("business-images")
+        .upload(path, blob, { cacheControl: "31536000", upsert: true, contentType: "image/jpeg" });
+      if (upErr) throw upErr;
+      const { data: urlData } = supabase.storage.from("business-images").getPublicUrl(path);
+      await persistThumbnail(urlData.publicUrl);
+      toast.success("Vignette YouTube sélectionnée et verrouillée");
+    } catch (e: any) {
+      toast.error(e?.message || "Erreur lors de la récupération");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const captureFrame = async () => {
     if (!videoRef.current) return;
     const v = videoRef.current;
