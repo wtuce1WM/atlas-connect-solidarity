@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { toast as sonnerToast } from "sonner";
-import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle, Copy, ExternalLink, Globe, Star, Plus, Merge, ArrowRight, Loader2, FileText, X, Upload, Image as ImageIcon, ChevronUp, ChevronDown, GripVertical, Monitor, MessageSquare } from "lucide-react";
+import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle, Copy, ExternalLink, Globe, Star, Plus, Merge, ArrowRight, Loader2, FileText, X, Upload, Image as ImageIcon, ChevronUp, ChevronDown, GripVertical, Monitor, MessageSquare, RefreshCw, Lock as LockIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -286,7 +286,7 @@ const SERVICES: Record<string, string[]> = {
   ],
 };
 
-type VideoDocEntry = { id?: string; url: string; name: string; poi_id: string | null; destination_id: string | null; linked_business_id: string | null; subcategory_id: string | null; service_id: string | null; city: string | null; neighborhood: string | null; description: string | null; price: string | null; price_type: string | null; thumbnail_url: string | null; popup: boolean; hide_logo: boolean; event_id: string | null; badge_ids: string[]; city_ids: string[]; instagram_account?: string | null; instagram_url?: string | null; instagram_video_url?: string | null; tiktok_account?: string | null; tiktok_url?: string | null; tiktok_video_url?: string | null; youtube_account?: string | null; youtube_url?: string | null; youtube_video_url?: string | null; _original_sort_order?: number; _original_front_sort_order?: number; _show_on_front?: boolean };
+type VideoDocEntry = { id?: string; url: string; name: string; poi_id: string | null; destination_id: string | null; linked_business_id: string | null; subcategory_id: string | null; service_id: string | null; city: string | null; neighborhood: string | null; description: string | null; price: string | null; price_type: string | null; thumbnail_url: string | null; thumbnail_locked?: boolean; popup: boolean; hide_logo: boolean; event_id: string | null; badge_ids: string[]; city_ids: string[]; instagram_account?: string | null; instagram_url?: string | null; instagram_video_url?: string | null; tiktok_account?: string | null; tiktok_url?: string | null; tiktok_video_url?: string | null; youtube_account?: string | null; youtube_url?: string | null; youtube_video_url?: string | null; _original_sort_order?: number; _original_front_sort_order?: number; _show_on_front?: boolean };
 
 /* ─── Dialog d'édition des liens sociaux d'une vidéo ─── */
 const VideoSocialLinksDialog = ({
@@ -630,6 +630,23 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
               className="absolute top-0.5 right-0.5 p-0.5 bg-destructive text-destructive-foreground rounded-full opacity-80 hover:opacity-100 transition-opacity">
               <X className="h-2.5 w-2.5" />
             </button>
+            {!doc.thumbnail_locked ? (
+              <button
+                type="button"
+                title={doc.thumbnail_url ? "Régénérer la vignette au prochain enregistrement" : "Vignette à générer au prochain enregistrement"}
+                onClick={() => {
+                  setVideoDocs(prev => prev.map((d, i) => i === idx ? { ...d, thumbnail_url: null } : d));
+                  toast({ title: "Vignette à régénérer", description: "Sera recalculée à l'enregistrement de la fiche." });
+                }}
+                className="absolute top-0.5 left-0.5 p-0.5 bg-background/80 text-foreground rounded-full opacity-80 hover:opacity-100 transition-opacity"
+              >
+                <RefreshCw className="h-2.5 w-2.5" />
+              </button>
+            ) : (
+              <div title="Vignette verrouillée — gérer via « Vidéo ID — Vignette personnalisée »" className="absolute top-0.5 left-0.5 p-0.5 bg-background/80 text-amber-600 rounded-full">
+                <LockIcon className="h-2.5 w-2.5" />
+              </div>
+            )}
           </div>
           {doc.id && (
             <button
@@ -1491,7 +1508,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             });
           }
         }
-        setVideoDocs((data as any[]).filter((d: any) => d.type === "video").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city ?? null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: !!(d as any).popup, hide_logo: !!(d as any).hide_logo, event_id: d.event_id || null, badge_ids: badgeAssocMap.get(d.id) || [], city_ids: cityAssocMap.get(d.id) || [], instagram_account: d.instagram_account || null, instagram_url: d.instagram_url || null, instagram_video_url: d.instagram_video_url || null, tiktok_account: d.tiktok_account || null, tiktok_url: d.tiktok_url || null, tiktok_video_url: d.tiktok_video_url || null, youtube_account: d.youtube_account || null, youtube_url: d.youtube_url || null, youtube_video_url: d.youtube_video_url || null, _original_sort_order: d.sort_order ?? 0, _original_front_sort_order: d.front_sort_order ?? 0, _show_on_front: d.show_on_front ?? false })));
+        setVideoDocs((data as any[]).filter((d: any) => d.type === "video").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city ?? null, neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, thumbnail_locked: !!(d as any).thumbnail_locked, popup: !!(d as any).popup, hide_logo: !!(d as any).hide_logo, event_id: d.event_id || null, badge_ids: badgeAssocMap.get(d.id) || [], city_ids: cityAssocMap.get(d.id) || [], instagram_account: d.instagram_account || null, instagram_url: d.instagram_url || null, instagram_video_url: d.instagram_video_url || null, tiktok_account: d.tiktok_account || null, tiktok_url: d.tiktok_url || null, tiktok_video_url: d.tiktok_video_url || null, youtube_account: d.youtube_account || null, youtube_url: d.youtube_url || null, youtube_video_url: d.youtube_video_url || null, _original_sort_order: d.sort_order ?? 0, _original_front_sort_order: d.front_sort_order ?? 0, _show_on_front: d.show_on_front ?? false })));
       }
     };
     const fetchSummaries = async () => {
@@ -2471,6 +2488,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         const videoDocsWithThumbs = await Promise.all(
           normalizedVideoDocs.map(async (d) => {
             let resolvedUrl = d.url;
+            // Never overwrite a locked thumbnail (managed via VideoThumbnailLocker)
+            if (d.thumbnail_locked) return { ...d, url: resolvedUrl };
             if (d.thumbnail_url) return { ...d, url: resolvedUrl };
 
             // YouTube thumbnail

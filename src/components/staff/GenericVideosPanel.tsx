@@ -1252,9 +1252,21 @@ const GenericVideosPanel = () => {
     if (!uploadedUrl) return;
     setCreating(true);
     const nextOrder = videos.length > 0 ? Math.max(...videos.map(v => v.sort_order)) + 1 : 0;
-    const { error } = await supabase.from("generic_videos" as any).insert({ url: uploadedUrl, sort_order: nextOrder } as any);
+
+    // Auto-generate thumbnail (YouTube/Vimeo/hosted) — never blocking the insert.
+    let thumbnailUrl: string | null = null;
+    try {
+      const { resolveVideoThumbnailUrl } = await import("@/lib/videoThumbnail");
+      thumbnailUrl = await resolveVideoThumbnailUrl(uploadedUrl, "generic");
+    } catch (e) {
+      console.warn("[generic-video] thumbnail generation failed:", e);
+    }
+
+    const { error } = await supabase
+      .from("generic_videos" as any)
+      .insert({ url: uploadedUrl, sort_order: nextOrder, thumbnail_url: thumbnailUrl } as any);
     if (error) toast.error(error.message);
-    else { toast.success("Vidéo générique ajoutée"); setUploadedUrl(""); await loadVideos(); }
+    else { toast.success(thumbnailUrl ? "Vidéo générique ajoutée + vignette générée" : "Vidéo générique ajoutée (vignette à générer manuellement)"); setUploadedUrl(""); await loadVideos(); }
     setCreating(false);
   }, [uploadedUrl, videos, loadVideos]);
 
