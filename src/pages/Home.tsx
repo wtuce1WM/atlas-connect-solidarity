@@ -94,7 +94,7 @@ const Home = () => {
   const [city, setCity] = useState<City>("Marrakech");
   const [entries, setEntries] = useState<FrontEntry[]>([]);
   const [subcatNames, setSubcatNames] = useState<Record<string, string>>({});
-  const [subcatParents, setSubcatParents] = useState<Record<string, string>>({});
+  
   const [serviceNames, setServiceNames] = useState<Record<string, string>>({});
   const [citySubcats, setCitySubcats] = useState<Set<string>>(new Set());
   const [cityServices, setCityServices] = useState<Set<string>>(new Set());
