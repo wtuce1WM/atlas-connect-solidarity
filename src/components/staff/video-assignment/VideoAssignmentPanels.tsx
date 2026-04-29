@@ -747,7 +747,7 @@ export const InlineBadgeSubcatCityAssignment = ({
     setInitialBadgeIds([...selectedBadgeIds]);
     setInitialSubcatIds([...selectedSubcatIds]);
     setInitialCityIds([...selectedCityIds]);
-    onSaved(); onClose(); setSaving(false);
+    onSaved(); setSaving(false);
   };
 
   const filteredSubcats = useMemo(() => {
