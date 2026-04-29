@@ -30,9 +30,11 @@ const VideoDocumentOverlay = ({
   onAnimationEnd,
   onOwnerClick,
 }: VideoDocumentOverlayProps) => {
+  // User's persisted sound preference takes precedence over the per-business default.
+  const { soundOn, setSoundOn } = useVideoSoundPreference();
   const [descExpanded, setDescExpanded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [isMuted, setIsMuted] = useState(!defaultSoundOn);
+  const [isMuted, setIsMuted] = useState(!soundOn);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
