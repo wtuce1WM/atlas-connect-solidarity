@@ -977,6 +977,19 @@ const Home = () => {
           .order("sort_order", { ascending: true });
         const vids = (vidsData as any[]) || [];
         console.log("[Vlogs debug]", { city, destId, linkedIds: [...linkedIds], vidsCount: vids.length, vidsErr });
+
+        // Fetch badges for these generic videos
+        const vlogBadgesByVideo: Record<string, string[]> = {};
+        if (vids.length > 0) {
+          const { data: gvBadges } = await supabase
+            .from("generic_video_badges" as any)
+            .select("generic_video_id, badge_id")
+            .in("generic_video_id", vids.map((v: any) => v.id));
+          ((gvBadges as any[]) || []).forEach((r: any) => {
+            (vlogBadgesByVideo[r.generic_video_id] ||= []).push(r.badge_id);
+          });
+        }
+
         const ordered = vids
           .map((v: any) => {
             const acct = (v.instagram_account || v.tiktok_account || v.youtube_account || "").replace(/^@+/, "");
@@ -990,6 +1003,7 @@ const Home = () => {
               social: extractSocial(v),
               description: null,
               manualCard: null,
+              badge_ids: vlogBadgesByVideo[v.id] || [],
             } as VideoItem;
           })
           .filter(Boolean) as VideoItem[];
