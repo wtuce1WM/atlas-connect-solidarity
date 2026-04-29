@@ -1314,7 +1314,7 @@ const Home = () => {
       }
 
       // Home path: display the resolved linked establishment when present.
-      const allBizIds = [...new Set(allDocs.flatMap(getVideoBusinessCandidateIds))];
+      const allBizIds = [...new Set(allDocs.flatMap((d: any) => getVideoBusinessCandidateIds(d)))];
       const bizMap = new Map<string, SearchResultBusiness>();
       if (allBizIds.length > 0) {
         const batch = 300;
