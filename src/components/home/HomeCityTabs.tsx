@@ -32,10 +32,7 @@ const HomeCityTabs = ({ city, onCityChange, onLabelClick }: Props) => {
         .select("id, name_fr")
         .like("name_fr", "#%")
         .order("name_fr", { ascending: true });
-      const filtered = ((data as any[]) || []).filter(
-        (b) => (b.name_fr || "").trim().toLowerCase() !== "#agenda"
-      );
-      setHashtagBadges(filtered as HashtagBadge[]);
+      setHashtagBadges(((data as any[]) || []) as HashtagBadge[]);
     };
     load();
   }, []);
