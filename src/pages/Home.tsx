@@ -1803,7 +1803,7 @@ const Home = () => {
         </Tabs>
       </div>
 
-      {loading ? (
+      {loading && topLevelEntries.length === 0 ? (
         <p className="text-xs text-muted-foreground">Chargement…</p>
       ) : visibleEntries.filter((e) => e.id !== HOME_ID).length === 0 ? (
         <p className="text-xs text-muted-foreground">Aucune entrée pour {city}.</p>
