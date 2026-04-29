@@ -1789,7 +1789,32 @@ const Home = () => {
               Aucune vidéo trouvée{videoEventFilter ? ` pour « ${videoEventFilter.label} »` : videoPopularSearchFilter ? ` pour « ${videoPopularSearchFilter.label} »` : videoBadgeFilter ? ` pour « ${videoBadgeFilter.label} »` : selectedEntry ? ` pour « ${selectedEntry.name} »` : ""} à {city}.
             </p>
           ) : (() => {
-            const displayList = otherVideos;
+            const isVlogsContext2 = !!selectedEntry && selectedEntry.id === VLOGS_ID;
+            const isBadgeContext = !!videoBadgeFilter;
+            const showHashtagsTile = isVlogsContext2 || isBadgeContext;
+
+            // Aggregate badges from currently loaded videos (Vlogs / Suivez le guide contexts)
+            const hashtagCounts: Record<string, number> = {};
+            if (showHashtagsTile) {
+              for (const v of otherVideos) {
+                const ids = v.badge_ids || [];
+                for (const id of ids) {
+                  // Exclude the currently active "Suivez le guide" badge itself, since it's the page filter
+                  if (videoBadgeFilter && id === videoBadgeFilter.badgeId) continue;
+                  hashtagCounts[id] = (hashtagCounts[id] || 0) + 1;
+                }
+              }
+            }
+            const hashtagItems = Object.entries(hashtagCounts)
+              .map(([id, count]) => ({ id, name: badgeNamesById[id], count }))
+              .filter((h) => !!h.name)
+              .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "fr", { sensitivity: "base" }));
+
+            // Apply hashtag filter to the display list
+            const displayList = hashtagFilterBadgeId
+              ? otherVideos.filter((v) => (v.badge_ids || []).includes(hashtagFilterBadgeId))
+              : otherVideos;
+
             const isParentEntry =
               !!selectedEntry &&
               selectedEntry.id !== HOME_ID &&
@@ -1804,6 +1829,7 @@ const Home = () => {
               : [];
             const showChildrenTile =
               isParentEntry && childItems.length >= 2;
+            const showHashtagsTileFinal = showHashtagsTile && hashtagItems.length >= 1;
             const childrenTileIndex = 2; // position 3
             return (
             <div className="flex gap-6 items-start">
