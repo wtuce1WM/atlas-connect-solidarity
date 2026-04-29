@@ -2471,6 +2471,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         const videoDocsWithThumbs = await Promise.all(
           normalizedVideoDocs.map(async (d) => {
             let resolvedUrl = d.url;
+            // Never overwrite a locked thumbnail (managed via VideoThumbnailLocker)
+            if (d.thumbnail_locked) return { ...d, url: resolvedUrl };
             if (d.thumbnail_url) return { ...d, url: resolvedUrl };
 
             // YouTube thumbnail
