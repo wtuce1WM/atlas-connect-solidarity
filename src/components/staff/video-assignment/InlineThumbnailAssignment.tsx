@@ -183,6 +183,8 @@ const InlineThumbnailAssignment = ({
 
   const embed = getVideoEmbed(videoUrl, window.location.origin);
   const isFile = embed?.type === "file";
+  const ytId = extractYouTubeId(videoUrl);
+  const ytCandidates = ytId ? youtubeThumbnailCandidates(ytId) : [];
 
   return (
     <div className="h-full flex flex-col">
