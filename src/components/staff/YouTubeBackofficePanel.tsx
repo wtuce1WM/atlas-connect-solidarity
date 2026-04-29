@@ -77,7 +77,7 @@ const YouTubeBackofficePanel = () => {
         .order("name"),
       supabase
         .from("business_youtube_videos")
-        .select("id, business_id, video_id, title, thumbnail, is_short, is_visible")
+        .select("id, business_id, video_id, title, thumbnail, custom_thumbnail_url, thumbnail_locked, is_short, is_visible")
         .order("sort_order"),
     ]);
 
