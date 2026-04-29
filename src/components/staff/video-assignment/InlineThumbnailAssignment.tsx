@@ -194,6 +194,25 @@ const InlineThumbnailAssignment = ({
     }
   };
 
+  /** Pick the YT-provided frame thumbnail (1/2/3.jpg) closest to current YT player time. */
+  const captureClosestYouTubeFrame = async () => {
+    if (!ytId || !ytPlayerRef.current || !ytDuration) {
+      toast.error("Lecteur YouTube pas encore prêt");
+      return;
+    }
+    const t = typeof ytPlayerRef.current.getCurrentTime === "function"
+      ? ytPlayerRef.current.getCurrentTime() : ytTime;
+    const pct = (t / ytDuration) * 100;
+    const targets = [
+      { pct: 25, url: `https://img.youtube.com/vi/${ytId}/1.jpg` },
+      { pct: 50, url: `https://img.youtube.com/vi/${ytId}/2.jpg` },
+      { pct: 75, url: `https://img.youtube.com/vi/${ytId}/3.jpg` },
+    ];
+    const best = targets.reduce((a, b) => Math.abs(b.pct - pct) < Math.abs(a.pct - pct) ? b : a);
+    toast.info(`Frame YouTube la plus proche : ~${best.pct}% (position ${pct.toFixed(0)}%)`);
+    await pickYouTubeThumbnail(best.url);
+  };
+
   const toggleLock = async () => {
     const newLocked = !thumbnailLocked;
     const { error } = await (supabase as any)
