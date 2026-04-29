@@ -107,6 +107,43 @@ const InlineThumbnailAssignment = ({
     return () => { alive = false; };
   }, [source, videoId, thumbCol]);
 
+  // Init YouTube IFrame Player API for granular seek + capture
+  const ytIdLocal = extractYouTubeId(videoUrl);
+  useEffect(() => {
+    if (!ytIdLocal || !ytContainerRef.current) return;
+    let destroyed = false;
+    let player: any = null;
+    loadYouTubeApi().then((YT) => {
+      if (destroyed || !ytContainerRef.current) return;
+      player = new YT.Player(ytContainerRef.current, {
+        videoId: ytIdLocal,
+        playerVars: { rel: 0, modestbranding: 1, playsinline: 1 },
+        events: {
+          onReady: () => {
+            if (destroyed) return;
+            ytPlayerRef.current = player;
+            setYtReady(true);
+            try { setYtDuration(player.getDuration() || 0); } catch {}
+            ytPollRef.current = window.setInterval(() => {
+              try {
+                if (player?.getCurrentTime) setYtTime(player.getCurrentTime());
+                if (player?.getDuration && !ytDuration) setYtDuration(player.getDuration() || 0);
+              } catch {}
+            }, 250);
+          },
+        },
+      });
+    });
+    return () => {
+      destroyed = true;
+      if (ytPollRef.current) { clearInterval(ytPollRef.current); ytPollRef.current = null; }
+      try { player?.destroy?.(); } catch {}
+      ytPlayerRef.current = null;
+      setYtReady(false);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ytIdLocal]);
+
   const persistThumbnail = async (publicUrl: string) => {
     const { error } = await (supabase as any)
       .from(source)
