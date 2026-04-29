@@ -11,6 +11,7 @@ interface VideoRow {
   url: string;
   name: string | null;
   city: string | null;
+  cities: string[];
   neighborhood: string | null;
   thumbnail_url: string | null;
   front_sort_order: number;
