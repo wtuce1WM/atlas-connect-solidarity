@@ -111,9 +111,11 @@ const InlineThumbnailAssignment = ({
   // Init YouTube IFrame Player API for granular seek + capture
   const ytIdLocal = extractYouTubeId(videoUrl);
   useEffect(() => {
-    if (!ytIdLocal || !ytContainerRef.current) return;
+    if (loading || !ytIdLocal || !ytContainerRef.current) return;
     let destroyed = false;
     let player: any = null;
+    setYtReady(false);
+    setYtPlaying(false);
     loadYouTubeApi().then((YT) => {
       if (destroyed || !ytContainerRef.current) return;
       player = new YT.Player(ytContainerRef.current, {
@@ -157,7 +159,7 @@ const InlineThumbnailAssignment = ({
       setYtPlaying(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ytIdLocal]);
+  }, [ytIdLocal, loading]);
 
   const persistThumbnail = async (publicUrl: string) => {
     const { error } = await (supabase as any)
@@ -266,11 +268,15 @@ const InlineThumbnailAssignment = ({
   };
 
   const toggleYouTubePlayback = () => {
-    if (!ytPlayerRef.current) return;
+    if (!ytPlayerRef.current) {
+      toast.error("Lecteur YouTube en cours de chargement");
+      return;
+    }
     if (ytPlaying) {
       ytPlayerRef.current.pauseVideo?.();
     } else {
       ytPlayerRef.current.playVideo?.();
+      setYtPlaying(true);
     }
   };
 
@@ -353,7 +359,7 @@ const InlineThumbnailAssignment = ({
               ) : ytId ? (
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <Button type="button" variant="outline" size="icon" onClick={toggleYouTubePlayback} disabled={!ytReady}>
+                    <Button type="button" variant="outline" size="icon" onClick={toggleYouTubePlayback}>
                       {ytPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                     </Button>
                     <input
