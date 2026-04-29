@@ -15,6 +15,7 @@ import { SiTiktok } from "react-icons/si";
 
 import HomeCityTabs from "@/components/home/HomeCityTabs";
 import BadgeBusinessesGrid from "@/components/home/BadgeBusinessesGrid";
+import VideoThumbnail from "@/components/VideoThumbnail";
 const HomeVideoSlidePanel = lazy(
   () => import("@/components/home/HomeVideoSlidePanel"),
 ) as typeof import("@/components/home/HomeVideoSlidePanel").default;
@@ -2070,7 +2071,7 @@ const Home = () => {
                         {thumb ? (
                           <img src={thumb} alt={v.business_name} className="w-full h-full object-cover" loading="lazy" />
                         ) : isFile ? (
-                          <video src={`${v.url}#t=0.5`} className="w-full h-full object-cover" preload="metadata" muted playsInline />
+                          <VideoThumbnail src={v.url} alt={v.business_name} className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full bg-muted" />
                         )}
