@@ -378,7 +378,7 @@ export const InlineBusinessAssignment = ({
       );
     }
     toast.success(`${selectedIds.length} établissement(s) affecté(s)`);
-    setInitialIds([...selectedIds]); onSaved(); onClose(); setSaving(false);
+    setInitialIds([...selectedIds]); onSaved(); setSaving(false);
   };
 
   return (
