@@ -1833,6 +1833,8 @@ const Home = () => {
           })}
         </ul>
       )}
+
+      <HeaderMenuContent onNavigate={() => setMenuOpen(false)} />
     </>
   );
 
