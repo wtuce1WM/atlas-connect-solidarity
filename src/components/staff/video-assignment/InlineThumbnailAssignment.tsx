@@ -379,13 +379,18 @@ const InlineThumbnailAssignment = ({
                       Position : <span className="font-mono font-semibold text-foreground">{ytTime.toFixed(1)}s</span>
                       {ytDuration > 0 && <> / {ytDuration.toFixed(0)}s ({((ytTime / ytDuration) * 100).toFixed(0)}%)</>}
                     </span>
-                    <Button onClick={captureClosestYouTubeFrame} disabled={uploading || !ytReady} size="sm">
+                    <Button onClick={captureClosestYouTubeFrame} disabled={uploading || !ytReady} size="sm" variant="outline">
                       {uploading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Camera className="h-4 w-4 mr-2" />}
-                      Capturer ici (frame YT la plus proche)
+                      Frame YT la plus proche (rapide)
+                    </Button>
+                    <Button onClick={captureYouTubeHD} disabled={uploading || !ytReady} size="sm">
+                      {uploading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Camera className="h-4 w-4 mr-2" />}
+                      Capturer en HD (1280×720)
                     </Button>
                   </div>
                   <p className="text-[10px] text-muted-foreground">
-                    ⚠️ YouTube n'expose que 3 frames publiques (~25%, 50%, 75%). Le bouton sélectionne la plus proche de votre position.
+                    ⚡ <strong>HD</strong> : capture serveur à votre timestamp exact via ApiFlash (~5s, qualité 1280×720).
+                    Frame YT : instantané mais limité aux 3 frames publiques (~25/50/75%).
                   </p>
                 </div>
               ) : (
