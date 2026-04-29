@@ -76,3 +76,6 @@ verify_jwt = false
 
 [functions.handle-email-suppression]
 verify_jwt = false
+[functions.youtube-player-page]
+verify_jwt = false
+
