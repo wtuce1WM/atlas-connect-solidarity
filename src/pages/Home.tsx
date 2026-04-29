@@ -77,6 +77,7 @@ interface VideoItem {
   price?: string | null;
   priceType?: string | null;
   videoTitle?: string | null;
+  badge_ids?: string[];
 }
 
 interface VideoEventFilter {
@@ -252,6 +253,26 @@ const Home = () => {
   const [videoEventFilter, setVideoEventFilter] = useState<VideoEventFilter | null>(null);
   const [videoPopularSearchFilter, setVideoPopularSearchFilter] = useState<{ popularSearchId: string; label: string; businessIds: string[]; resolved?: boolean } | null>(null);
   const [videoBadgeDocIds, setVideoBadgeDocIds] = useState<Set<string> | null>(null);
+  const [badgeNamesById, setBadgeNamesById] = useState<Record<string, string>>({});
+  const [hashtagFilterBadgeId, setHashtagFilterBadgeId] = useState<string | null>(null);
+
+  // Load all badge names once (small table)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase.from("badges").select("id, name_fr");
+      if (cancelled || !data) return;
+      const map: Record<string, string> = {};
+      for (const b of data as any[]) map[b.id] = b.name_fr;
+      setBadgeNamesById(map);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Reset hashtag filter when context changes
+  useEffect(() => {
+    setHashtagFilterBadgeId(null);
+  }, [selectedEntryId, videoBadgeFilter?.badgeId, city]);
 
   // Load doc ids matching the active video badge filter
   useEffect(() => {
@@ -724,6 +745,22 @@ const Home = () => {
             .in("id", badgeServiceIds);
           (svcRows || []).forEach((s: any) => badgeServiceNameById.set(s.id, s.name_fr));
         }
+        // Fetch all badges associated with each document (for hashtag aggregation)
+        const docBadgesByDocId: Record<string, string[]> = {};
+        if (uniqueDocs.length > 0) {
+          const allDocBadges: any[] = [];
+          for (let i = 0; i < uniqueDocs.length; i += batch) {
+            const chunkIds = uniqueDocs.slice(i, i + batch).map((d: any) => d.id);
+            const { data: dbg } = await supabase
+              .from("business_document_badges")
+              .select("document_id, badge_id")
+              .in("document_id", chunkIds);
+            if (dbg) allDocBadges.push(...dbg);
+          }
+          allDocBadges.forEach((r: any) => {
+            (docBadgesByDocId[r.document_id] ||= []).push(r.badge_id);
+          });
+        }
         // Exception: for the manual "Suivez le guide" card (badge "Guide"),
         // show every video tagged in this city without grouping by business.
         const isGuideBadge = /^(suivez le guide|guide)$/i.test(videoBadgeFilter.label.trim());
@@ -764,6 +801,7 @@ const Home = () => {
             subcategory_id: d.subcategory_id ?? null,
             service_id: d.service_id ?? null,
             service_name: d.service_id ? badgeServiceNameById.get(d.service_id) ?? null : null,
+            badge_ids: docBadgesByDocId[d.id] || [],
           } as VideoItem;
         });
 
@@ -821,6 +859,19 @@ const Home = () => {
               (gvBizs || []).forEach((b: any) => gvBizMap.set(b.id, b as SearchResultBusiness));
             }
 
+            // Fetch all badges for these generic videos
+            const gvBadgesByVideo: Record<string, string[]> = {};
+            const gvFilteredIds = gvFiltered.map((v: any) => v.id);
+            if (gvFilteredIds.length > 0) {
+              const { data: allGvBadges } = await supabase
+                .from("generic_video_badges" as any)
+                .select("generic_video_id, badge_id")
+                .in("generic_video_id", gvFilteredIds);
+              ((allGvBadges as any[]) || []).forEach((r: any) => {
+                (gvBadgesByVideo[r.generic_video_id] ||= []).push(r.badge_id);
+              });
+            }
+
             genericVideoItems = gvFiltered.map((v: any) => {
               const bizId = firstBizByGv[v.id];
               const biz = isVlogsBadge ? null : (bizId ? gvBizMap.get(bizId) || null : null);
@@ -841,6 +892,7 @@ const Home = () => {
                 showSocialBadge: !!social,
                 description: v.description ?? null,
                 manualCard: null,
+                badge_ids: gvBadgesByVideo[v.id] || [],
               } as VideoItem;
             });
           }
@@ -883,6 +935,18 @@ const Home = () => {
               const biz = y.business_id ? ytBizMap.get(y.business_id) : null;
               return cityMatches(biz?.city, city);
             });
+            // Fetch all badges for these YouTube videos
+            const ytBadgesByVideo: Record<string, string[]> = {};
+            const ytFilteredIds = ytFiltered.map((y: any) => y.id);
+            if (ytFilteredIds.length > 0) {
+              const { data: allYtBadges } = await supabase
+                .from("business_youtube_video_badges")
+                .select("youtube_video_id, badge_id")
+                .in("youtube_video_id", ytFilteredIds);
+              ((allYtBadges as any[]) || []).forEach((r: any) => {
+                (ytBadgesByVideo[r.youtube_video_id] ||= []).push(r.badge_id);
+              });
+            }
             youtubeVideoItems = ytFiltered.map((y: any) => {
               const biz = ytBizMap.get(y.business_id) || null;
               // External YouTube videos: align with generic-video display.
@@ -905,6 +969,7 @@ const Home = () => {
                 showSocialBadge: !!social,
                 description: null,
                 manualCard: null,
+                badge_ids: ytBadgesByVideo[y.id] || [],
               } as VideoItem;
             });
           }
@@ -956,6 +1021,19 @@ const Home = () => {
           .order("sort_order", { ascending: true });
         const vids = (vidsData as any[]) || [];
         console.log("[Vlogs debug]", { city, destId, linkedIds: [...linkedIds], vidsCount: vids.length, vidsErr });
+
+        // Fetch badges for these generic videos
+        const vlogBadgesByVideo: Record<string, string[]> = {};
+        if (vids.length > 0) {
+          const { data: gvBadges } = await supabase
+            .from("generic_video_badges" as any)
+            .select("generic_video_id, badge_id")
+            .in("generic_video_id", vids.map((v: any) => v.id));
+          ((gvBadges as any[]) || []).forEach((r: any) => {
+            (vlogBadgesByVideo[r.generic_video_id] ||= []).push(r.badge_id);
+          });
+        }
+
         const ordered = vids
           .map((v: any) => {
             const acct = (v.instagram_account || v.tiktok_account || v.youtube_account || "").replace(/^@+/, "");
@@ -969,6 +1047,7 @@ const Home = () => {
               social: extractSocial(v),
               description: null,
               manualCard: null,
+              badge_ids: vlogBadgesByVideo[v.id] || [],
             } as VideoItem;
           })
           .filter(Boolean) as VideoItem[];
@@ -1710,7 +1789,32 @@ const Home = () => {
               Aucune vidéo trouvée{videoEventFilter ? ` pour « ${videoEventFilter.label} »` : videoPopularSearchFilter ? ` pour « ${videoPopularSearchFilter.label} »` : videoBadgeFilter ? ` pour « ${videoBadgeFilter.label} »` : selectedEntry ? ` pour « ${selectedEntry.name} »` : ""} à {city}.
             </p>
           ) : (() => {
-            const displayList = otherVideos;
+            const isVlogsContext2 = !!selectedEntry && selectedEntry.id === VLOGS_ID;
+            const isBadgeContext = !!videoBadgeFilter;
+            const showHashtagsTile = isVlogsContext2 || isBadgeContext;
+
+            // Aggregate badges from currently loaded videos (Vlogs / Suivez le guide contexts)
+            const hashtagCounts: Record<string, number> = {};
+            if (showHashtagsTile) {
+              for (const v of otherVideos) {
+                const ids = v.badge_ids || [];
+                for (const id of ids) {
+                  // Exclude the currently active "Suivez le guide" badge itself, since it's the page filter
+                  if (videoBadgeFilter && id === videoBadgeFilter.badgeId) continue;
+                  hashtagCounts[id] = (hashtagCounts[id] || 0) + 1;
+                }
+              }
+            }
+            const hashtagItems = Object.entries(hashtagCounts)
+              .map(([id, count]) => ({ id, name: badgeNamesById[id], count }))
+              .filter((h) => !!h.name)
+              .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "fr", { sensitivity: "base" }));
+
+            // Apply hashtag filter to the display list
+            const displayList = hashtagFilterBadgeId
+              ? otherVideos.filter((v) => (v.badge_ids || []).includes(hashtagFilterBadgeId))
+              : otherVideos;
+
             const isParentEntry =
               !!selectedEntry &&
               selectedEntry.id !== HOME_ID &&
@@ -1725,6 +1829,7 @@ const Home = () => {
               : [];
             const showChildrenTile =
               isParentEntry && childItems.length >= 2;
+            const showHashtagsTileFinal = showHashtagsTile && hashtagItems.length >= 1;
             const childrenTileIndex = 2; // position 3
             return (
             <div className="flex gap-6 items-start">
@@ -1848,11 +1953,18 @@ const Home = () => {
                   </div>
                   <div className={`grid gap-4 ${panelOpen ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-3" : "grid-cols-2 md:grid-cols-4 lg:grid-cols-6"}`}>
                     {(() => {
-                      const items: Array<{ kind: "video"; v: VideoItem; idx: number } | { kind: "children" }> =
-                        displayList.map((v, idx) => ({ kind: "video" as const, v, idx }));
+                      const items: Array<
+                        | { kind: "video"; v: VideoItem; idx: number }
+                        | { kind: "children" }
+                        | { kind: "hashtags" }
+                      > = displayList.map((v, idx) => ({ kind: "video" as const, v, idx }));
                       if (showChildrenTile) {
                         const insertAt = Math.min(childrenTileIndex, items.length);
                         items.splice(insertAt, 0, { kind: "children" });
+                      }
+                      if (showHashtagsTileFinal) {
+                        const insertAt = Math.min(childrenTileIndex, items.length);
+                        items.splice(insertAt, 0, { kind: "hashtags" });
                       }
                       return items.map((entry, i) => {
                         if (entry.kind === "children") {
@@ -1877,6 +1989,47 @@ const Home = () => {
                                     {c.name}
                                   </button>
                                 ))}
+                              </div>
+                            </div>
+                          );
+                        }
+                        if (entry.kind === "hashtags") {
+                          return (
+                            <div
+                              key="hashtags-tile"
+                              className="aspect-[9/16] rounded-lg overflow-hidden bg-card border border-border p-2 flex flex-col"
+                            >
+                              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1.5 px-1">
+                                #hashtags
+                              </p>
+                              <div className="flex-1 overflow-y-auto flex flex-col gap-1">
+                                {hashtagFilterBadgeId && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setHashtagFilterBadgeId(null)}
+                                    className="text-left text-[10px] px-2 py-1 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                                  >
+                                    ✕ Réinitialiser
+                                  </button>
+                                )}
+                                {hashtagItems.map((h) => {
+                                  const active = hashtagFilterBadgeId === h.id;
+                                  return (
+                                    <button
+                                      key={h.id}
+                                      type="button"
+                                      onClick={() => setHashtagFilterBadgeId(active ? null : h.id)}
+                                      className={`text-left text-xs px-2 py-1.5 rounded transition-colors line-clamp-2 flex items-center justify-between gap-2 ${
+                                        active
+                                          ? "bg-primary text-primary-foreground"
+                                          : "bg-muted hover:bg-primary hover:text-primary-foreground"
+                                      }`}
+                                    >
+                                      <span className="truncate">#{h.name}</span>
+                                      <span className="text-[10px] opacity-70 shrink-0">{h.count}</span>
+                                    </button>
+                                  );
+                                })}
                               </div>
                             </div>
                           );
