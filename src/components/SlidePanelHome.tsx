@@ -11,6 +11,7 @@ import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineO
 import { useNavigate } from "react-router-dom";
 import { LazyDirectionsOverlay } from "@/components/overlays/LazyOverlays";
 import { businessUrl } from "@/lib/businessUrl";
+import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
 
 interface SocialInfo {
   platform: "instagram" | "tiktok" | "youtube";
@@ -231,10 +232,11 @@ const SlidePanelHome = ({
     return () => { cancelled = true; };
   }, [open, agendaCity]);
 
+  const { soundOn, setSoundOn } = useVideoSoundPreference();
   const [filePaused, setFilePaused] = useState(true);
-  const [fileMuted, setFileMuted] = useState(false);
+  const [fileMuted, setFileMuted] = useState(!soundOn);
   const [ytPlaying, setYtPlaying] = useState(false);
-  const [ytMuted, setYtMuted] = useState(false);
+  const [ytMuted, setYtMuted] = useState(!soundOn);
 
   useEffect(() => {
     if (!open) return;
@@ -249,9 +251,15 @@ const SlidePanelHome = ({
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
+    // Apply the user's persisted sound preference to this new video element
+    v.muted = !soundOn;
     const onPlay = () => setFilePaused(false);
     const onPause = () => setFilePaused(true);
-    const onVol = () => setFileMuted(v.muted);
+    const onVol = () => {
+      setFileMuted(v.muted);
+      // Persist user's choice so subsequent videos respect it
+      setSoundOn(!v.muted);
+    };
     v.addEventListener("play", onPlay);
     v.addEventListener("pause", onPause);
     v.addEventListener("volumechange", onVol);
@@ -262,19 +270,23 @@ const SlidePanelHome = ({
       v.removeEventListener("pause", onPause);
       v.removeEventListener("volumechange", onVol);
     };
-  }, [videoUrl, videoId]);
+  }, [videoUrl, videoId, soundOn, setSoundOn]);
 
   if (!open || !videoUrl) return null;
 
   const visibleSocial = showSocialBadge ? social : null;
 
-  const embed = getVideoEmbed(videoUrl, window.location.origin, { autoplay: false, defaultSoundOn: true });
+  const embed = getVideoEmbed(videoUrl, window.location.origin, { autoplay: false, defaultSoundOn: soundOn });
   let embedUrl = embed.embedUrl;
   if (embed.type === "youtube") {
     const ytId = videoUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1];
-    embedUrl = embedUrl.replace("loop=0", `loop=1&playlist=${ytId}`).replace(/[?&]mute=1/, (m) => m[0] + "mute=0");
+    embedUrl = embedUrl.replace("loop=0", `loop=1&playlist=${ytId}`);
+    if (soundOn) {
+      embedUrl = embedUrl.replace(/[?&]mute=1/, (m) => m[0] + "mute=0");
+    }
   } else if (embed.type === "vimeo") {
-    embedUrl = embedUrl.replace("loop=0", "loop=1").replace("muted=1", "muted=0");
+    embedUrl = embedUrl.replace("loop=0", "loop=1");
+    if (soundOn) embedUrl = embedUrl.replace("muted=1", "muted=0");
   } else if (embed.type === "bunny") {
     embedUrl = embedUrl.replace("loop=false", "loop=true");
   }
@@ -543,7 +555,7 @@ const SlidePanelHome = ({
                   playing={ytPlaying}
                   muted={ytMuted}
                   onPlayingChange={setYtPlaying}
-                  onMutedChange={setYtMuted}
+                  onMutedChange={(m) => { setYtMuted(m); setSoundOn(!m); }}
                 />
               </div>
             )}
