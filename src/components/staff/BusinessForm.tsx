@@ -1786,15 +1786,26 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     };
     fetchAll();
   }, []);
-  // Fetch all businesses for video linking
+  // Fetch all businesses for video linking (paginated to bypass PostgREST 1000-row cap)
   useEffect(() => {
     const fetchAll = async () => {
-      const { data } = await supabase
-        .from("businesses")
-        .select("id, name")
-        .eq("is_active", true)
-        .order("name");
-      setAllBusinessesForVideo((data || []).filter(b => b.id !== business?.id));
+      const PAGE = 1000;
+      let offset = 0;
+      const all: Array<{ id: string; name: string }> = [];
+      while (true) {
+        const { data, error } = await supabase
+          .from("businesses")
+          .select("id, name")
+          .eq("is_active", true)
+          .order("name")
+          .order("id")
+          .range(offset, offset + PAGE - 1);
+        if (error || !data || data.length === 0) break;
+        all.push(...data);
+        if (data.length < PAGE) break;
+        offset += PAGE;
+      }
+      setAllBusinessesForVideo(all.filter(b => b.id !== business?.id));
     };
     fetchAll();
   }, [business?.id]);
