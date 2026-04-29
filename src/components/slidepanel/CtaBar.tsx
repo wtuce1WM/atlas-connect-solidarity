@@ -3,6 +3,7 @@ import { ExternalLink, MapPin, CalendarCheck, ShoppingBag } from "lucide-react";
 import VideoControls from "@/components/VideoControls";
 import { OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
+import AppStoreCard from "@/components/cards/AppStoreCard";
 import { whatsappUrl } from "@/lib/phoneUtils";
 
 export const CTA_MODE_LABELS: Record<string, { fr: string; en: string }> = {
