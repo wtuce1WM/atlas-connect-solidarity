@@ -430,9 +430,9 @@ const TestNoteViewer = () => {
                                 {[v.subcategory_name, v.service_name].filter(Boolean).join(" · ")}
                               </p>
                             )}
-                            {(v.city || v.neighborhood) && (
+                            {(v.cities.length > 0 || v.neighborhood) && (
                               <p className="text-[11px] text-muted-foreground/70 truncate">
-                                {[v.city, v.neighborhood].filter(Boolean).join(" · ")}
+                                {[v.cities.join(", "), v.neighborhood].filter(Boolean).join(" · ")}
                               </p>
                             )}
                             {v.name && <p className="text-[11px] text-muted-foreground/70 truncate">{v.name}</p>}
