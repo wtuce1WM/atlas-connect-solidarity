@@ -539,7 +539,7 @@ export const InlineDestinationCityAssignment = ({
     toast.success("Affectations sauvegardées");
     setInitialDestIds([...selectedDestIds]);
     setInitialCityIds([...selectedCityIds]);
-    onSaved(); onClose(); setSaving(false);
+    onSaved(); setSaving(false);
   };
 
   const availableCities = useMemo(() => {
