@@ -1671,7 +1671,7 @@ const Home = () => {
       const { data: agendaBadge } = await (supabase as any)
         .from("badges")
         .select("id")
-        .ilike("name_fr", "Agenda")
+        .or("name_fr.ilike.Agenda,name_fr.ilike.#Agenda")
         .maybeSingle();
       const agendaBadgeId = (agendaBadge as any)?.id as string | null;
 
