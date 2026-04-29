@@ -14,9 +14,24 @@ import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Loader2, Upload, Lock, Unlock, AlertCircle, Camera, X } from "lucide-react";
+import { Loader2, Upload, Lock, Unlock, AlertCircle, Camera, X, Check } from "lucide-react";
 import { toast } from "sonner";
 import { getVideoEmbed } from "@/lib/videoEmbed";
+
+const extractYouTubeId = (url: string): string | null => {
+  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+  return m ? m[1] : null;
+};
+
+/** Candidate thumbnails YouTube exposes for any public video. */
+const youtubeThumbnailCandidates = (ytId: string) => [
+  { key: "maxres",  label: "Max résolution",     url: `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg` },
+  { key: "hq",      label: "Haute qualité",      url: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` },
+  { key: "sd",      label: "Définition standard",url: `https://img.youtube.com/vi/${ytId}/sddefault.jpg` },
+  { key: "frame1",  label: "Frame ~25%",         url: `https://img.youtube.com/vi/${ytId}/1.jpg` },
+  { key: "frame2",  label: "Frame ~50%",         url: `https://img.youtube.com/vi/${ytId}/2.jpg` },
+  { key: "frame3",  label: "Frame ~75%",         url: `https://img.youtube.com/vi/${ytId}/3.jpg` },
+];
 
 export type ThumbnailSource = "business_documents" | "generic_videos" | "business_youtube_videos";
 
