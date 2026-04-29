@@ -436,6 +436,15 @@ const TestNoteViewer = () => {
                               </p>
                             )}
                             {v.name && <p className="text-[11px] text-muted-foreground/70 truncate">{v.name}</p>}
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(v.id); toast.success(`ID copié : ${v.id.slice(0, 8)}…`); }}
+                              className="mt-1 inline-flex items-center gap-1 font-mono text-[10px] text-muted-foreground/60 hover:text-primary transition-colors"
+                              title="Copier l'ID complet"
+                            >
+                              <Copy className="h-3 w-3" />
+                              {v.id}
+                            </button>
                           </div>
                         </div>
                       );
