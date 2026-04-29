@@ -41,6 +41,7 @@ interface CtaBarProps {
   shopCtaLabel: string;
   url4CtaLabel?: string;
   url5CtaLabel?: string;
+  appStoreLinks?: { type: "app_store" | "google_play"; url: string }[];
   fallbackPanelData: any;
   // Logo overlay
   logoBigOverlay: any;
