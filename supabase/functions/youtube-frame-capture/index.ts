@@ -79,18 +79,21 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Build embed URL — start at requested ts, autoplay+muted so playback begins.
-    const embedUrl =
-      `https://www.youtube.com/embed/${youtubeId}` +
-      `?start=${ts}&autoplay=1&mute=1&controls=0&rel=0&modestbranding=1&playsinline=1`;
+    // Use our own player page (hosted on this Supabase project) so YouTube
+    // embeds correctly. Capturing youtube.com/embed directly returns
+    // "Error 153 Video player configuration error" because the origin is
+    // not whitelisted for headless embeds.
+    const playerUrl =
+      `${SUPABASE_URL}/functions/v1/youtube-player-page` +
+      `?id=${encodeURIComponent(youtubeId)}&t=${ts}`;
 
-    // ApiFlash screenshot — wait 4s for the frame to render past the splash.
+    // ApiFlash screenshot — wait 6s for YT IFrame API to load + seek + render.
     const apiflashUrl =
       `https://api.apiflash.com/v1/urltoimage` +
       `?access_key=${encodeURIComponent(APIFLASH_KEY)}` +
-      `&url=${encodeURIComponent(embedUrl)}` +
+      `&url=${encodeURIComponent(playerUrl)}` +
       `&width=1280&height=720&format=jpeg&quality=92` +
-      `&delay=4&fresh=true&response_type=image&no_cookie_banners=true`;
+      `&delay=6&fresh=true&response_type=image&no_cookie_banners=true`;
 
     console.log("[youtube-frame-capture] Calling ApiFlash", { youtubeId, ts });
     const shotRes = await fetch(apiflashUrl);
