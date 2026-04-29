@@ -1159,6 +1159,139 @@ export type Database = {
           },
         ]
       }
+      business_youtube_video_businesses: {
+        Row: {
+          business_id: string
+          created_at: string
+          end_time: number | null
+          id: string
+          sort_order: number
+          start_time: number | null
+          youtube_video_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          end_time?: number | null
+          id?: string
+          sort_order?: number
+          start_time?: number | null
+          youtube_video_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          end_time?: number | null
+          id?: string
+          sort_order?: number
+          start_time?: number | null
+          youtube_video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_youtube_video_businesses_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_youtube_video_businesses_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_youtube_video_businesses_youtube_video_id_fkey"
+            columns: ["youtube_video_id"]
+            isOneToOne: false
+            referencedRelation: "business_youtube_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_youtube_video_cities: {
+        Row: {
+          city_id: string
+          created_at: string
+          id: string
+          youtube_video_id: string
+        }
+        Insert: {
+          city_id: string
+          created_at?: string
+          id?: string
+          youtube_video_id: string
+        }
+        Update: {
+          city_id?: string
+          created_at?: string
+          id?: string
+          youtube_video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_youtube_video_cities_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_youtube_video_cities_youtube_video_id_fkey"
+            columns: ["youtube_video_id"]
+            isOneToOne: false
+            referencedRelation: "business_youtube_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_youtube_video_destinations: {
+        Row: {
+          created_at: string
+          destination_id: string
+          end_time: number | null
+          id: string
+          sort_order: number
+          start_time: number | null
+          youtube_video_id: string
+        }
+        Insert: {
+          created_at?: string
+          destination_id: string
+          end_time?: number | null
+          id?: string
+          sort_order?: number
+          start_time?: number | null
+          youtube_video_id: string
+        }
+        Update: {
+          created_at?: string
+          destination_id?: string
+          end_time?: number | null
+          id?: string
+          sort_order?: number
+          start_time?: number | null
+          youtube_video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_youtube_video_destinations_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_youtube_video_destinations_youtube_video_id_fkey"
+            columns: ["youtube_video_id"]
+            isOneToOne: false
+            referencedRelation: "business_youtube_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_youtube_video_pois: {
         Row: {
           created_at: string
@@ -1195,6 +1328,42 @@ export type Database = {
           },
           {
             foreignKeyName: "business_youtube_video_pois_youtube_video_id_fkey"
+            columns: ["youtube_video_id"]
+            isOneToOne: false
+            referencedRelation: "business_youtube_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_youtube_video_subcategories: {
+        Row: {
+          created_at: string
+          id: string
+          subcategory_id: string
+          youtube_video_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          subcategory_id: string
+          youtube_video_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          subcategory_id?: string
+          youtube_video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_youtube_video_subcategories_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "subcategories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_youtube_video_subcategories_youtube_video_id_fkey"
             columns: ["youtube_video_id"]
             isOneToOne: false
             referencedRelation: "business_youtube_videos"
