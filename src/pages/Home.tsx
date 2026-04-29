@@ -649,7 +649,7 @@ const Home = () => {
           for (let i = 0; i < missingBizIds.length; i += batch) {
             const { data } = await supabase
               .from("business_youtube_videos")
-              .select("id, video_id, title, thumbnail, is_short, is_visible, sort_order, business_id")
+              .select("id, video_id, title, thumbnail, custom_thumbnail_url, thumbnail_locked, is_short, is_visible, sort_order, business_id")
               .eq("is_visible", true)
               .in("business_id", missingBizIds.slice(i, i + batch))
               .order("sort_order", { ascending: true });
