@@ -68,6 +68,7 @@ const VideoDbStructurePanel = () => {
       url: d.url,
       name: d.name,
       city: d.city,
+      cities: [],
       neighborhood: d.neighborhood,
       thumbnail_url: d.thumbnail_url,
       front_sort_order: d.front_sort_order,
@@ -88,6 +89,7 @@ const VideoDbStructurePanel = () => {
       url: d.url,
       name: d.name,
       city: d.city,
+      cities: [],
       neighborhood: d.neighborhood,
       thumbnail_url: d.thumbnail_url,
       front_sort_order: d.sort_order ?? 0,
@@ -95,6 +97,21 @@ const VideoDbStructurePanel = () => {
       business_name: d.instagram_account || d.tiktok_account || d.youtube_account || "— Générique —",
       source: "generic" as const,
     }));
+
+    // Multi-city associations for both sources
+    const { fetchVideoCities } = await import("@/lib/fetchVideoCities");
+    const { businessDocCities, genericVideoCities } = await fetchVideoCities({
+      businessDocumentIds: bizRows.map(r => r.id),
+      genericVideoIds: genRows.map(r => r.id),
+    });
+    bizRows.forEach(r => {
+      const m = businessDocCities.get(r.id) || [];
+      r.cities = m.length > 0 ? m : (r.city ? [r.city] : []);
+    });
+    genRows.forEach(r => {
+      const m = genericVideoCities.get(r.id) || [];
+      r.cities = m.length > 0 ? m : (r.city ? [r.city] : []);
+    });
 
     setRows([...bizRows, ...genRows]);
     setLoading(false);
