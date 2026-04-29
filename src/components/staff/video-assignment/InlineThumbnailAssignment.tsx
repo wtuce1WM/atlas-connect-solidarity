@@ -14,7 +14,7 @@ import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Loader2, Upload, Lock, Unlock, AlertCircle, Camera, X, Check } from "lucide-react";
+import { Loader2, Upload, Lock, Unlock, AlertCircle, Camera, X, Play, Pause } from "lucide-react";
 import { toast } from "sonner";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 
@@ -77,6 +77,7 @@ const InlineThumbnailAssignment = ({
   const [ytDuration, setYtDuration] = useState(0);
   const [ytTime, setYtTime] = useState(0);
   const [ytReady, setYtReady] = useState(false);
+  const [ytPlaying, setYtPlaying] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const ytPlayerRef = useRef<any>(null);
@@ -116,13 +117,23 @@ const InlineThumbnailAssignment = ({
     loadYouTubeApi().then((YT) => {
       if (destroyed || !ytContainerRef.current) return;
       player = new YT.Player(ytContainerRef.current, {
+        width: "100%",
+        height: "100%",
         videoId: ytIdLocal,
-        playerVars: { rel: 0, modestbranding: 1, playsinline: 1, controls: 1, disablekb: 0, fs: 1 },
+        playerVars: { rel: 0, modestbranding: 1, playsinline: 1, controls: 1, disablekb: 0, fs: 1, enablejsapi: 1, origin: window.location.origin },
         events: {
           onReady: () => {
             if (destroyed) return;
             ytPlayerRef.current = player;
             setYtReady(true);
+            try {
+              const iframe = player.getIframe?.();
+              if (iframe) {
+                iframe.style.width = "100%";
+                iframe.style.height = "100%";
+                iframe.style.display = "block";
+              }
+            } catch {}
             try { setYtDuration(player.getDuration() || 0); } catch {}
             ytPollRef.current = window.setInterval(() => {
               try {
@@ -130,6 +141,9 @@ const InlineThumbnailAssignment = ({
                 if (player?.getDuration && !ytDuration) setYtDuration(player.getDuration() || 0);
               } catch {}
             }, 250);
+          },
+          onStateChange: (event: any) => {
+            setYtPlaying(event.data === YT.PlayerState.PLAYING);
           },
         },
       });
@@ -140,6 +154,7 @@ const InlineThumbnailAssignment = ({
       try { player?.destroy?.(); } catch {}
       ytPlayerRef.current = null;
       setYtReady(false);
+      setYtPlaying(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ytIdLocal]);
@@ -250,6 +265,21 @@ const InlineThumbnailAssignment = ({
     await pickYouTubeThumbnail(best.url);
   };
 
+  const toggleYouTubePlayback = () => {
+    if (!ytPlayerRef.current) return;
+    if (ytPlaying) {
+      ytPlayerRef.current.pauseVideo?.();
+    } else {
+      ytPlayerRef.current.playVideo?.();
+    }
+  };
+
+  const seekYouTubeTo = (seconds: number) => {
+    if (!ytPlayerRef.current) return;
+    ytPlayerRef.current.seekTo?.(seconds, true);
+    setYtTime(seconds);
+  };
+
   const toggleLock = async () => {
     const newLocked = !thumbnailLocked;
     const { error } = await (supabase as any)
@@ -321,7 +351,23 @@ const InlineThumbnailAssignment = ({
                   </Button>
                 </div>
               ) : ytId ? (
-                <div className="space-y-1">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Button type="button" variant="outline" size="icon" onClick={toggleYouTubePlayback} disabled={!ytReady}>
+                      {ytPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                    </Button>
+                    <input
+                      type="range"
+                      min={0}
+                      max={Math.max(1, ytDuration)}
+                      step={0.1}
+                      value={Math.min(ytTime, Math.max(1, ytDuration))}
+                      disabled={!ytReady || !ytDuration}
+                      onChange={(e) => seekYouTubeTo(Number(e.target.value))}
+                      className="h-2 flex-1 cursor-pointer accent-primary disabled:cursor-not-allowed disabled:opacity-50"
+                      aria-label="Position dans la vidéo YouTube"
+                    />
+                  </div>
                   <div className="flex items-center gap-3 flex-wrap">
                     <span className="text-xs text-muted-foreground">
                       Position : <span className="font-mono font-semibold text-foreground">{ytTime.toFixed(1)}s</span>
