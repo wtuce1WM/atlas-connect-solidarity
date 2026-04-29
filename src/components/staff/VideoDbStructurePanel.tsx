@@ -126,7 +126,7 @@ const VideoDbStructurePanel = () => {
     const s = search.toLowerCase();
     return r.business_name.toLowerCase().includes(s) ||
       r.id.includes(s) ||
-      (r.city || "").toLowerCase().includes(s) ||
+      r.cities.some(c => c.toLowerCase().includes(s)) ||
       (r.name || "").toLowerCase().includes(s);
   });
 
@@ -202,7 +202,7 @@ const VideoDbStructurePanel = () => {
                 </td>
                 <td className="py-1.5 px-2 font-medium">{r.business_name}</td>
                 <td className="py-1.5 px-2 text-muted-foreground">{r.name || "—"}</td>
-                <td className="py-1.5 px-2 text-muted-foreground">{r.city || "—"}</td>
+                <td className="py-1.5 px-2 text-muted-foreground">{r.cities.length > 0 ? r.cities.join(", ") : "—"}</td>
                 <td className="py-1.5 px-2 max-w-[200px] truncate text-muted-foreground" title={r.url}>{r.url}</td>
                 <td className="py-1.5 px-2 text-center">{r.show_on_front ? "✓" : ""}</td>
                 <td className="py-1.5 px-2 text-center">{r.front_sort_order}</td>
