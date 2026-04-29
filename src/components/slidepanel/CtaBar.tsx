@@ -86,6 +86,7 @@ export function CtaBar({
   shopCtaLabel,
   url4CtaLabel,
   url5CtaLabel,
+  appStoreLinks,
   fallbackPanelData,
   logoBigOverlay,
   logoBigFadingOut,
