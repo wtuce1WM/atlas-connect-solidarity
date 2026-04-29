@@ -373,11 +373,11 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
     if (!selectedCity) return [];
     let result = videos;
 
-    // City filter
+    // City filter (multi-city aware)
     if (selectedCity === NONE_CITY) {
-      result = result.filter(v => !v.city);
+      result = result.filter(v => v.cities.length === 0);
     } else {
-      result = result.filter(v => v.city === selectedCity);
+      result = result.filter(v => v.cities.includes(selectedCity));
     }
 
     // Category filter
