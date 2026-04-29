@@ -187,7 +187,7 @@ export const InlinePoiAssignment = ({
       );
     }
     toast.success(`${selectedIds.length} POI(s) affecté(s)`);
-    setInitialIds([...selectedIds]); onSaved(); onClose(); setSaving(false);
+    setInitialIds([...selectedIds]); onSaved(); setSaving(false);
   };
 
   const availableCities = useMemo(() => {
