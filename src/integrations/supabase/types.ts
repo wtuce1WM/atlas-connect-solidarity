@@ -567,7 +567,7 @@ export type Database = {
       }
       business_documents: {
         Row: {
-          business_id: string
+          business_id: string | null
           city: string | null
           created_at: string
           description: string | null
@@ -607,7 +607,7 @@ export type Database = {
           youtube_video_url: string | null
         }
         Insert: {
-          business_id: string
+          business_id?: string | null
           city?: string | null
           created_at?: string
           description?: string | null
@@ -647,7 +647,7 @@ export type Database = {
           youtube_video_url?: string | null
         }
         Update: {
-          business_id?: string
+          business_id?: string | null
           city?: string | null
           created_at?: string
           description?: string | null
