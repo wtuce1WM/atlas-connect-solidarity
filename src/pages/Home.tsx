@@ -253,6 +253,26 @@ const Home = () => {
   const [videoEventFilter, setVideoEventFilter] = useState<VideoEventFilter | null>(null);
   const [videoPopularSearchFilter, setVideoPopularSearchFilter] = useState<{ popularSearchId: string; label: string; businessIds: string[]; resolved?: boolean } | null>(null);
   const [videoBadgeDocIds, setVideoBadgeDocIds] = useState<Set<string> | null>(null);
+  const [badgeNamesById, setBadgeNamesById] = useState<Record<string, string>>({});
+  const [hashtagFilterBadgeId, setHashtagFilterBadgeId] = useState<string | null>(null);
+
+  // Load all badge names once (small table)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase.from("badges").select("id, name_fr");
+      if (cancelled || !data) return;
+      const map: Record<string, string> = {};
+      for (const b of data as any[]) map[b.id] = b.name_fr;
+      setBadgeNamesById(map);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Reset hashtag filter when context changes
+  useEffect(() => {
+    setHashtagFilterBadgeId(null);
+  }, [selectedEntryId, videoBadgeFilter?.badgeId, city]);
 
   // Load doc ids matching the active video badge filter
   useEffect(() => {
