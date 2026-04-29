@@ -117,7 +117,7 @@ const InlineThumbnailAssignment = ({
       if (destroyed || !ytContainerRef.current) return;
       player = new YT.Player(ytContainerRef.current, {
         videoId: ytIdLocal,
-        playerVars: { rel: 0, modestbranding: 1, playsinline: 1 },
+        playerVars: { rel: 0, modestbranding: 1, playsinline: 1, controls: 1, disablekb: 0, fs: 1 },
         events: {
           onReady: () => {
             if (destroyed) return;
