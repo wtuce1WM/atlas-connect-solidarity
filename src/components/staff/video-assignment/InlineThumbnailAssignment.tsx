@@ -298,6 +298,8 @@ const InlineThumbnailAssignment = ({
                     playsInline
                     onTimeUpdate={(e) => setCurrentTime((e.target as HTMLVideoElement).currentTime)}
                   />
+                ) : ytId ? (
+                  <div ref={ytContainerRef} className="w-full h-full" />
                 ) : embed ? (
                   <iframe
                     src={embed.embedUrl}
@@ -318,7 +320,23 @@ const InlineThumbnailAssignment = ({
                     Capturer cette image
                   </Button>
                 </div>
-              ) : ytId ? null : (
+              ) : ytId ? (
+                <div className="space-y-1">
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className="text-xs text-muted-foreground">
+                      Position : <span className="font-mono font-semibold text-foreground">{ytTime.toFixed(1)}s</span>
+                      {ytDuration > 0 && <> / {ytDuration.toFixed(0)}s ({((ytTime / ytDuration) * 100).toFixed(0)}%)</>}
+                    </span>
+                    <Button onClick={captureClosestYouTubeFrame} disabled={uploading || !ytReady} size="sm">
+                      {uploading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Camera className="h-4 w-4 mr-2" />}
+                      Capturer ici (frame YT la plus proche)
+                    </Button>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">
+                    ⚠️ YouTube n'expose que 3 frames publiques (~25%, 50%, 75%). Le bouton sélectionne la plus proche de votre position.
+                  </p>
+                </div>
+              ) : (
                 <p className="text-[11px] text-muted-foreground">
                   ⚠️ Capture par timestamp uniquement pour les vidéos hébergées (mp4/webm).
                 </p>
