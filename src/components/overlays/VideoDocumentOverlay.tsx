@@ -86,7 +86,7 @@ const VideoDocumentOverlay = ({
   const overlayEmbedUrl = overlayVid.type === "youtube"
     ? overlayVid.embedUrl.replace(/mute=\d/, `mute=${muteVal}`).replace(/loop=\d/, "loop=1").replace(/controls=\d/, "controls=1") + `&playlist=${vidUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1] || ""}`
     : overlayVid.type === "vimeo"
-      ? overlayVid.embedUrl.replace(/muted=\d/, "muted=0").replace(/loop=\d/, "loop=1")
+      ? overlayVid.embedUrl.replace(/muted=\d/, soundOn ? "muted=0" : "muted=1").replace(/loop=\d/, "loop=1")
       : overlayVid.type === "bunny"
         ? overlayVid.embedUrl.replace(/loop=false/, "loop=true")
         : overlayVid.embedUrl;
