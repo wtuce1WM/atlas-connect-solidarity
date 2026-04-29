@@ -1344,7 +1344,14 @@ const Home = () => {
             .select("youtube_video_id")
             .in("subcategory_id", subIds);
           const ytIds = [...new Set(((ytSubLinks as any[]) || []).map((l: any) => l.youtube_video_id))];
-          if (ytIds.length > 0 && currentCityIds.length > 0) {
+          // Resolve current city's UUID (and its aliases, e.g. Agafay under Marrakech)
+          const aliasNames = city === "Marrakech" ? ["Marrakech", "Agafay"] : [city];
+          const { data: cityRows } = await supabase
+            .from("cities")
+            .select("id, name_fr")
+            .in("name_fr", aliasNames);
+          const currentCityIds = new Set<string>(((cityRows as any[]) || []).map((c) => c.id));
+          if (ytIds.length > 0 && currentCityIds.size > 0) {
             // Filter to videos explicitly linked to the current city
             const cityLinksByVideo: Record<string, Set<string>> = {};
             const CHUNK = 300;
