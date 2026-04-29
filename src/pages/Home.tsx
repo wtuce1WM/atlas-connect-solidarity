@@ -1915,14 +1915,14 @@ const Home = () => {
                           <span className="text-muted-foreground font-normal">›</span>
                           <button type="button" onClick={() => { setVideoEventFilter(null); setVideoBadgeFilter(null); setVideoPopularSearchFilter(null); setSelectedEntryId(HOME_ID); setSelectedSubId(null); }} className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors">{city}</button>
                           <span className="text-muted-foreground font-normal">›</span>
-                          {subcatParents[selectedSubId] && (
+                          {selectedEntry && selectedEntry.id !== HOME_ID && (
                             <>
                               <button
                                 type="button"
                                 onClick={() => setSelectedSubId(null)}
                                 className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors"
                               >
-                                {subcatParents[selectedSubId]}
+                                {selectedEntry.name}
                               </button>
                               <span className="text-muted-foreground font-normal">›</span>
                             </>
