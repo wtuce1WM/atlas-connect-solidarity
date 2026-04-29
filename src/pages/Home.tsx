@@ -388,10 +388,11 @@ const Home = () => {
       const PAGE = 1000;
       let offset = 0;
       while (true) {
-        const { data } = await supabase
+         const { data } = await supabase
           .from("business_document_cities")
           .select("document_id")
           .eq("city_id", cityRowId)
+          .order("document_id", { ascending: true })
           .range(offset, offset + PAGE - 1);
         const rows = (data as any[]) || [];
         all.push(...rows.map((r) => r.document_id));
