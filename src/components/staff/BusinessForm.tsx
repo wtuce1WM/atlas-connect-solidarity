@@ -2549,7 +2549,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           ...externalLinkDocs
             .filter((d) => d.name.trim())
             .map((d, i) => ({ id: d.id || null, type: "external_link", url: d.url.trim() || "", name: d.name.trim(), language: d.language || null, icon: d.image_url || null, sort_order: i, description: d.description || "presse", popup: false, force_external: d.force_external || false, show_on_front: false, front_sort_order: 0 })),
-          ...videoDocsWithThumbs.map((d, i) => ({ id: d.id || null, type: "video", url: d.url, name: d.name || null, language: null, icon: null, sort_order: i, front_sort_order: d._original_front_sort_order ?? 0, show_on_front: d._show_on_front ?? false, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city === "" ? "" : (d.city || null), neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: d.popup || false, hide_logo: d.hide_logo || false, force_external: false, event_id: d.event_id || null, instagram_account: d.instagram_account || null, instagram_url: d.instagram_url || null, instagram_video_url: d.instagram_video_url || null, tiktok_account: d.tiktok_account || null, tiktok_url: d.tiktok_url || null, tiktok_video_url: d.tiktok_video_url || null, youtube_account: d.youtube_account || null, youtube_url: d.youtube_url || null, youtube_video_url: d.youtube_video_url || null })),
+          ...videoDocsWithThumbs.map((d, i) => ({ id: d.id || null, type: "video", url: d.url, name: d.name || null, language: null, icon: null, sort_order: i, front_sort_order: d._original_front_sort_order ?? 0, show_on_front: d._show_on_front ?? false, poi_id: d.poi_id || null, destination_id: d.destination_id || null, linked_business_id: d.linked_business_id || null, subcategory_id: d.subcategory_id || null, service_id: d.service_id || null, city: d.city === "" ? "" : (d.city || null), city_ids: d.city_ids || [], neighborhood: d.neighborhood || null, description: d.description || null, price: d.price || null, price_type: d.price_type || null, thumbnail_url: d.thumbnail_url || null, popup: d.popup || false, hide_logo: d.hide_logo || false, force_external: false, event_id: d.event_id || null, instagram_account: d.instagram_account || null, instagram_url: d.instagram_url || null, instagram_video_url: d.instagram_video_url || null, tiktok_account: d.tiktok_account || null, tiktok_url: d.tiktok_url || null, tiktok_video_url: d.tiktok_video_url || null, youtube_account: d.youtube_account || null, youtube_url: d.youtube_url || null, youtube_video_url: d.youtube_video_url || null })),
         ];
 
         // Atomic replace: delete + insert in a single transaction
@@ -2559,26 +2559,19 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         });
         if (docsError) throw docsError;
 
-        // Save badge + city associations for video docs
+        // Save badge associations for video docs (city associations are handled atomically by replace_business_documents)
         if (insertedDocs) {
           const parsed = typeof insertedDocs === "string" ? JSON.parse(insertedDocs) : insertedDocs;
           const videoInserted = (parsed as any[]).filter((d: any) => d.type === "video");
           const badgeRows: Array<{ document_id: string; badge_id: string }> = [];
-          const cityRows: Array<{ document_id: string; city_id: string }> = [];
           videoInserted.forEach((inserted: any, i: number) => {
             const original = videoDocsWithThumbs[i];
             if (original?.badge_ids?.length) {
               original.badge_ids.forEach(bid => badgeRows.push({ document_id: inserted.id, badge_id: bid }));
             }
-            if (original?.city_ids?.length) {
-              original.city_ids.forEach(cid => cityRows.push({ document_id: inserted.id, city_id: cid }));
-            }
           });
           if (badgeRows.length > 0) {
             await supabase.from("business_document_badges" as any).insert(badgeRows);
-          }
-          if (cityRows.length > 0) {
-            await supabase.from("business_document_cities" as any).insert(cityRows);
           }
         }
 
