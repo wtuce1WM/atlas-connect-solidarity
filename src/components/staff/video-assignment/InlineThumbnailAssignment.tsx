@@ -351,7 +351,23 @@ const InlineThumbnailAssignment = ({
                   </Button>
                 </div>
               ) : ytId ? (
-                <div className="space-y-1">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Button type="button" variant="outline" size="icon" onClick={toggleYouTubePlayback} disabled={!ytReady}>
+                      {ytPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                    </Button>
+                    <input
+                      type="range"
+                      min={0}
+                      max={Math.max(1, ytDuration)}
+                      step={0.1}
+                      value={Math.min(ytTime, Math.max(1, ytDuration))}
+                      disabled={!ytReady || !ytDuration}
+                      onChange={(e) => seekYouTubeTo(Number(e.target.value))}
+                      className="h-2 flex-1 cursor-pointer accent-primary disabled:cursor-not-allowed disabled:opacity-50"
+                      aria-label="Position dans la vidéo YouTube"
+                    />
+                  </div>
                   <div className="flex items-center gap-3 flex-wrap">
                     <span className="text-xs text-muted-foreground">
                       Position : <span className="font-mono font-semibold text-foreground">{ytTime.toFixed(1)}s</span>
