@@ -276,13 +276,17 @@ const SlidePanelHome = ({
 
   const visibleSocial = showSocialBadge ? social : null;
 
-  const embed = getVideoEmbed(videoUrl, window.location.origin, { autoplay: false, defaultSoundOn: true });
+  const embed = getVideoEmbed(videoUrl, window.location.origin, { autoplay: false, defaultSoundOn: soundOn });
   let embedUrl = embed.embedUrl;
   if (embed.type === "youtube") {
     const ytId = videoUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1];
-    embedUrl = embedUrl.replace("loop=0", `loop=1&playlist=${ytId}`).replace(/[?&]mute=1/, (m) => m[0] + "mute=0");
+    embedUrl = embedUrl.replace("loop=0", `loop=1&playlist=${ytId}`);
+    if (soundOn) {
+      embedUrl = embedUrl.replace(/[?&]mute=1/, (m) => m[0] + "mute=0");
+    }
   } else if (embed.type === "vimeo") {
-    embedUrl = embedUrl.replace("loop=0", "loop=1").replace("muted=1", "muted=0");
+    embedUrl = embedUrl.replace("loop=0", "loop=1");
+    if (soundOn) embedUrl = embedUrl.replace("muted=1", "muted=0");
   } else if (embed.type === "bunny") {
     embedUrl = embedUrl.replace("loop=false", "loop=true");
   }
