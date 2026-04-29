@@ -935,6 +935,18 @@ const Home = () => {
               const biz = y.business_id ? ytBizMap.get(y.business_id) : null;
               return cityMatches(biz?.city, city);
             });
+            // Fetch all badges for these YouTube videos
+            const ytBadgesByVideo: Record<string, string[]> = {};
+            const ytFilteredIds = ytFiltered.map((y: any) => y.id);
+            if (ytFilteredIds.length > 0) {
+              const { data: allYtBadges } = await supabase
+                .from("business_youtube_video_badges")
+                .select("youtube_video_id, badge_id")
+                .in("youtube_video_id", ytFilteredIds);
+              ((allYtBadges as any[]) || []).forEach((r: any) => {
+                (ytBadgesByVideo[r.youtube_video_id] ||= []).push(r.badge_id);
+              });
+            }
             youtubeVideoItems = ytFiltered.map((y: any) => {
               const biz = ytBizMap.get(y.business_id) || null;
               // External YouTube videos: align with generic-video display.
@@ -957,6 +969,7 @@ const Home = () => {
                 showSocialBadge: !!social,
                 description: null,
                 manualCard: null,
+                badge_ids: ytBadgesByVideo[y.id] || [],
               } as VideoItem;
             });
           }
