@@ -859,6 +859,19 @@ const Home = () => {
               (gvBizs || []).forEach((b: any) => gvBizMap.set(b.id, b as SearchResultBusiness));
             }
 
+            // Fetch all badges for these generic videos
+            const gvBadgesByVideo: Record<string, string[]> = {};
+            const gvFilteredIds = gvFiltered.map((v: any) => v.id);
+            if (gvFilteredIds.length > 0) {
+              const { data: allGvBadges } = await supabase
+                .from("generic_video_badges" as any)
+                .select("generic_video_id, badge_id")
+                .in("generic_video_id", gvFilteredIds);
+              ((allGvBadges as any[]) || []).forEach((r: any) => {
+                (gvBadgesByVideo[r.generic_video_id] ||= []).push(r.badge_id);
+              });
+            }
+
             genericVideoItems = gvFiltered.map((v: any) => {
               const bizId = firstBizByGv[v.id];
               const biz = isVlogsBadge ? null : (bizId ? gvBizMap.get(bizId) || null : null);
@@ -879,6 +892,7 @@ const Home = () => {
                 showSocialBadge: !!social,
                 description: v.description ?? null,
                 manualCard: null,
+                badge_ids: gvBadgesByVideo[v.id] || [],
               } as VideoItem;
             });
           }
