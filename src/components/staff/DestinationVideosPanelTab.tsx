@@ -26,6 +26,7 @@ interface DestVideo {
   destination_id: string;
   destination_name: string;
   city: string | null;
+  cities: string[];
   neighborhood: string | null;
   source: "document" | "generic";
   instagram_account?: string | null;
@@ -89,9 +90,9 @@ const SortableVideoCard = ({ video, index, onPlay }: { video: DestVideo; index: 
             <span className="shrink-0 text-[9px] font-bold uppercase px-1 py-0.5 rounded bg-muted text-muted-foreground">GEN</span>
           )}
         </p>
-        {(video.city || video.neighborhood) && (
+        {(video.cities.length > 0 || video.neighborhood) && (
           <p className="text-[11px] text-muted-foreground/70 truncate">
-            {[video.city, video.neighborhood].filter(Boolean).join(" · ")}
+            {[video.cities.join(", "), video.neighborhood].filter(Boolean).join(" · ")}
           </p>
         )}
         {video.name && <p className="text-[11px] text-muted-foreground/70 truncate">{video.name}</p>}
@@ -237,8 +238,19 @@ const DestinationVideosPanelTab = () => {
       [...((poiRes.data || []) as any[]), ...((bizRes.data || []) as any[]), ...((destRes2.data || []) as any[])].forEach((r: any) => gvLinkedSet.add(r.generic_video_id));
     }
 
+    // Fetch multi-city associations for both sources
+    const { fetchVideoCities } = await import("@/lib/fetchVideoCities");
+    const { businessDocCities, genericVideoCities } = await fetchVideoCities({
+      businessDocumentIds: allDocs.map(d => d.id),
+      genericVideoIds: gvRealIds,
+    });
+
     setVideos(combined.map(d => {
       const rawGvId = d._source === "generic" ? d.business_id : null;
+      const fallbackCity = d.city || null;
+      const multi = d._source === "generic"
+        ? (rawGvId ? genericVideoCities.get(rawGvId) || [] : [])
+        : (businessDocCities.get(d.id) || []);
       return {
         id: d.id,
         url: d.url,
@@ -249,7 +261,8 @@ const DestinationVideosPanelTab = () => {
         business_name: d._source === "generic" ? "Générique" : (bizMap.get(d.business_id) || "—"),
         destination_id: d.destination_id,
         destination_name: destMap.get(d.destination_id) || "—",
-        city: d.city || null,
+        city: fallbackCity,
+        cities: multi.length > 0 ? multi : (fallbackCity ? [fallbackCity] : []),
         neighborhood: d.neighborhood || null,
         source: d._source,
         instagram_account: d.instagram_account || null,
@@ -267,15 +280,15 @@ const DestinationVideosPanelTab = () => {
 
   const videoCities = useMemo(() => {
     const citySet = new Set<string>();
-    videos.forEach(v => { if (v.city) citySet.add(v.city); });
+    videos.forEach(v => v.cities.forEach(c => citySet.add(c)));
     const cityOrder = new Map(cities.map(c => [c.name, c.sort_order]));
     return [...citySet].sort((a, b) => (cityOrder.get(a) ?? 9999) - (cityOrder.get(b) ?? 9999));
   }, [videos, cities]);
 
   const cityFilteredVideos = useMemo(() => {
     if (!selectedCity) return [];
-    if (selectedCity === NONE_CITY) return videos.filter(v => !v.city);
-    return videos.filter(v => v.city === selectedCity);
+    if (selectedCity === NONE_CITY) return videos.filter(v => v.cities.length === 0);
+    return videos.filter(v => v.cities.includes(selectedCity));
   }, [videos, selectedCity]);
 
   const videoDests = useMemo(() => {
