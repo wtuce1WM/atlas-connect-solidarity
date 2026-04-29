@@ -251,9 +251,15 @@ const SlidePanelHome = ({
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
+    // Apply the user's persisted sound preference to this new video element
+    v.muted = !soundOn;
     const onPlay = () => setFilePaused(false);
     const onPause = () => setFilePaused(true);
-    const onVol = () => setFileMuted(v.muted);
+    const onVol = () => {
+      setFileMuted(v.muted);
+      // Persist user's choice so subsequent videos respect it
+      setSoundOn(!v.muted);
+    };
     v.addEventListener("play", onPlay);
     v.addEventListener("pause", onPause);
     v.addEventListener("volumechange", onVol);
@@ -264,7 +270,7 @@ const SlidePanelHome = ({
       v.removeEventListener("pause", onPause);
       v.removeEventListener("volumechange", onVol);
     };
-  }, [videoUrl, videoId]);
+  }, [videoUrl, videoId, soundOn, setSoundOn]);
 
   if (!open || !videoUrl) return null;
 
