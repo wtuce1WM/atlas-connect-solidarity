@@ -232,10 +232,11 @@ const SlidePanelHome = ({
     return () => { cancelled = true; };
   }, [open, agendaCity]);
 
+  const { soundOn, setSoundOn } = useVideoSoundPreference();
   const [filePaused, setFilePaused] = useState(true);
-  const [fileMuted, setFileMuted] = useState(false);
+  const [fileMuted, setFileMuted] = useState(!soundOn);
   const [ytPlaying, setYtPlaying] = useState(false);
-  const [ytMuted, setYtMuted] = useState(false);
+  const [ytMuted, setYtMuted] = useState(!soundOn);
 
   useEffect(() => {
     if (!open) return;
