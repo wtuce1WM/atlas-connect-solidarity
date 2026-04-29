@@ -111,9 +111,11 @@ const InlineThumbnailAssignment = ({
   // Init YouTube IFrame Player API for granular seek + capture
   const ytIdLocal = extractYouTubeId(videoUrl);
   useEffect(() => {
-    if (!ytIdLocal || !ytContainerRef.current) return;
+    if (loading || !ytIdLocal || !ytContainerRef.current) return;
     let destroyed = false;
     let player: any = null;
+    setYtReady(false);
+    setYtPlaying(false);
     loadYouTubeApi().then((YT) => {
       if (destroyed || !ytContainerRef.current) return;
       player = new YT.Player(ytContainerRef.current, {
@@ -157,7 +159,7 @@ const InlineThumbnailAssignment = ({
       setYtPlaying(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ytIdLocal]);
+  }, [ytIdLocal, loading]);
 
   const persistThumbnail = async (publicUrl: string) => {
     const { error } = await (supabase as any)
