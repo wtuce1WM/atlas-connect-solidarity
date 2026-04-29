@@ -16,6 +16,7 @@ interface VideoDoc {
   name: string | null;
   thumbnail_url: string | null;
   city: string | null;
+  cities: string[];
   neighborhood: string | null;
   business_id: string | null;
   business_name: string;
