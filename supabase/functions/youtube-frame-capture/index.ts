@@ -30,10 +30,8 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const APIFLASH_KEY = Deno.env.get("APIFLASH_ACCESS_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    if (!APIFLASH_KEY) throw new Error("APIFLASH_ACCESS_KEY non configurée");
 
     // Auth check
     const authHeader = req.headers.get("Authorization");
