@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import SearchResultCard, { type SearchResultBusiness } from "@/components/SearchResultCard";
 import PanelSearchBar from "@/components/PanelSearchBar";
@@ -1786,16 +1787,19 @@ const Home = () => {
   const structureList = (
     <>
       <div className="mb-4">
-        <Select value={city} onValueChange={(v) => setCity(v as City)}>
-          <SelectTrigger className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
+        <Tabs
+          value={city.toLowerCase()}
+          onValueChange={(v) => {
+            const next = (v.charAt(0).toUpperCase() + v.slice(1)) as City;
+            if (CITIES.includes(next)) setCity(next);
+          }}
+        >
+          <TabsList>
             {CITIES.map((c) => (
-              <SelectItem key={c} value={c}>{c}</SelectItem>
+              <TabsTrigger key={c} value={c.toLowerCase()}>{c}</TabsTrigger>
             ))}
-          </SelectContent>
-        </Select>
+          </TabsList>
+        </Tabs>
       </div>
 
       <h2 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">
