@@ -801,6 +801,7 @@ const Home = () => {
             subcategory_id: d.subcategory_id ?? null,
             service_id: d.service_id ?? null,
             service_name: d.service_id ? badgeServiceNameById.get(d.service_id) ?? null : null,
+            badge_ids: docBadgesByDocId[d.id] || [],
           } as VideoItem;
         });
 
