@@ -133,7 +133,7 @@ const HeaderMenuContent = ({ onNavigate }: Props) => {
         </div>
 
         <div className="border-t border-border pt-3 text-[10px] text-muted-foreground/60">
-          <p>© 2026 ZitounMusk. {t("footer.rights")}</p>
+          <p>© 2026 {t("footer.rights")}</p>
           <div className="flex gap-3 mt-1">
             <a href="#" className="hover:text-gold transition-colors">{t("footer.privacy")}</a>
             <a href="#" className="hover:text-gold transition-colors">{t("footer.terms")}</a>
