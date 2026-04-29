@@ -15,7 +15,6 @@ import { SiTiktok } from "react-icons/si";
 
 import HomeCityTabs from "@/components/home/HomeCityTabs";
 import BadgeBusinessesGrid from "@/components/home/BadgeBusinessesGrid";
-import VideoThumbnail from "@/components/VideoThumbnail";
 const HomeVideoSlidePanel = lazy(
   () => import("@/components/home/HomeVideoSlidePanel"),
 ) as typeof import("@/components/home/HomeVideoSlidePanel").default;
@@ -26,7 +25,6 @@ import {
   VLOGS_ID,
   type OwnerInfo,
   type SocialInfo,
-  deriveThumbnail,
   isAgendaLabel,
   formatEventDateRange,
   DAY_LABEL_FR,
@@ -884,7 +882,7 @@ const Home = () => {
                 business_name: isVlogsBadge
                   ? (acct ? `@${acct}` : (v.name || "—"))
                   : (v.name || (acct ? `@${acct}` : (biz?.name || "—"))),
-                thumbnail_url: v.thumbnail_url || deriveThumbnail(v.url),
+                thumbnail_url: v.thumbnail_url || null,
                 business: isVlogsBadge ? null : biz,
                 // Generic videos are multi-POI: never show a single POI owner logo/badge
                 // in the vignette or in SlidePanelHome. Show the social account instead.
@@ -1042,7 +1040,7 @@ const Home = () => {
               id: v.id,
               url: v.url,
               business_name: acct ? `@${acct}` : (v.name || "—"),
-              thumbnail_url: v.thumbnail_url || deriveThumbnail(v.url),
+              thumbnail_url: v.thumbnail_url || null,
               business: null,
               owner: null,
               social: extractSocial(v),
@@ -1296,7 +1294,7 @@ const Home = () => {
                   business_name: isVlogsContext
                     ? (acct ? `@${acct}` : (v.name || "—"))
                     : (v.name || (acct ? `@${acct}` : (biz?.name || "—"))),
-                  thumbnail_url: v.thumbnail_url || deriveThumbnail(v.url),
+                  thumbnail_url: v.thumbnail_url || null,
                   business: isVlogsContext ? null : biz,
                   // Generic videos are multi-POI: never show a single POI owner logo/badge
                   // in the vignette or in SlidePanelHome. Show the social account instead.
@@ -2043,8 +2041,7 @@ const Home = () => {
                           setPanelOpen(true);
                         };
                         const isVlogThumb = selectedEntry?.id === VLOGS_ID;
-                        const thumb = v.thumbnail_url || deriveThumbnail(v.url);
-                        const isFile = /\.(mp4|webm|mov)(\?|$)/i.test(v.url);
+                        const thumb = v.thumbnail_url || null;
                         return (
                       <div
                         key={v.id}
@@ -2070,8 +2067,6 @@ const Home = () => {
                       >
                         {thumb ? (
                           <img src={thumb} alt={v.business_name} className="w-full h-full object-cover" loading="lazy" />
-                        ) : isFile ? (
-                          <VideoThumbnail src={v.url} alt={v.business_name} className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full bg-muted" />
                         )}
