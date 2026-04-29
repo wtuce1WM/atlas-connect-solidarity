@@ -14,7 +14,7 @@ import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Loader2, Upload, Lock, Unlock, AlertCircle, Camera, X, Check } from "lucide-react";
+import { Loader2, Upload, Lock, Unlock, AlertCircle, Camera, X, Play, Pause } from "lucide-react";
 import { toast } from "sonner";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 
@@ -77,6 +77,7 @@ const InlineThumbnailAssignment = ({
   const [ytDuration, setYtDuration] = useState(0);
   const [ytTime, setYtTime] = useState(0);
   const [ytReady, setYtReady] = useState(false);
+  const [ytPlaying, setYtPlaying] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const ytPlayerRef = useRef<any>(null);
@@ -141,6 +142,9 @@ const InlineThumbnailAssignment = ({
               } catch {}
             }, 250);
           },
+          onStateChange: (event: any) => {
+            setYtPlaying(event.data === YT.PlayerState.PLAYING);
+          },
         },
       });
     });
@@ -150,6 +154,7 @@ const InlineThumbnailAssignment = ({
       try { player?.destroy?.(); } catch {}
       ytPlayerRef.current = null;
       setYtReady(false);
+      setYtPlaying(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ytIdLocal]);
