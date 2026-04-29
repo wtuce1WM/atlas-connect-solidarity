@@ -35,6 +35,7 @@ interface CountryVideo {
   subcategory_name: string;
   category_id: string | null;
   city: string | null;
+  cities: string[];
   neighborhood: string | null;
   service_name: string | null;
   poi_name: string | null;
@@ -115,9 +116,9 @@ const SortableVideoCard = ({
       <div className="mt-1.5">
         <p className="text-sm font-medium leading-tight">{video.business_name}</p>
         <p className="text-xs text-muted-foreground truncate">{video.subcategory_name}</p>
-        {(video.city || video.neighborhood) && (
+        {(video.cities.length > 0 || video.neighborhood) && (
           <p className="text-[11px] text-muted-foreground/70 truncate">
-            {[video.city, video.neighborhood].filter(Boolean).join(" · ")}
+            {[video.cities.join(", "), video.neighborhood].filter(Boolean).join(" · ")}
           </p>
         )}
         {tags.length > 0 && (
