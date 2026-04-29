@@ -265,6 +265,21 @@ const InlineThumbnailAssignment = ({
     await pickYouTubeThumbnail(best.url);
   };
 
+  const toggleYouTubePlayback = () => {
+    if (!ytPlayerRef.current) return;
+    if (ytPlaying) {
+      ytPlayerRef.current.pauseVideo?.();
+    } else {
+      ytPlayerRef.current.playVideo?.();
+    }
+  };
+
+  const seekYouTubeTo = (seconds: number) => {
+    if (!ytPlayerRef.current) return;
+    ytPlayerRef.current.seekTo?.(seconds, true);
+    setYtTime(seconds);
+  };
+
   const toggleLock = async () => {
     const newLocked = !thumbnailLocked;
     const { error } = await (supabase as any)
