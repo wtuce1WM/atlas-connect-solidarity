@@ -1,40 +1,34 @@
-import { useState, useEffect, useCallback } from "react";
+/**
+ * YouTube Backoffice Panel — refonte ergonomique.
+ *
+ * Vue principale : 1 ligne par établissement (tri alpha) ayant `show_youtube_tab=true`.
+ *   • bouton "Synchroniser" par ligne (et un global)
+ *   • compteur de vidéos importées
+ *   • clic sur la ligne → liste des vidéos YouTube importées (titre + miniature + lecture)
+ *
+ * Clic sur l'un des 4 boutons (POI / Établissements / Destinations / Tags) d'une vidéo →
+ * ouvre un panneau d'affectation à droite (50% largeur), réutilisé depuis
+ * `video-assignment/VideoAssignmentPanels.tsx` avec `source="youtube"`.
+ */
+
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Loader2,
-  Play,
-  ChevronDown,
-  ChevronUp,
-  MapPin,
-  Building2,
-  Search,
-  Check,
-  X,
-  RefreshCw,
-} from "lucide-react";
 import { toast } from "sonner";
+import {
+  Loader2, Search, RefreshCw, ChevronRight, ChevronDown, Play,
+  MapPin, Building2, Globe, Tag, Youtube as YoutubeIcon,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  InlinePoiAssignment,
+  InlineBusinessAssignment,
+  InlineDestinationCityAssignment,
+  InlineBadgeSubcatCityAssignment,
+  type AssignableVideo,
+} from "./video-assignment/VideoAssignmentPanels";
 
 interface Business {
   id: string;
@@ -48,170 +42,63 @@ interface YouTubeVideo {
   business_id: string;
   video_id: string;
   title: string;
-  thumbnail: string;
+  thumbnail: string | null;
   is_short: boolean;
   is_visible: boolean;
-  destination_id: string | null;
-  subcategory_id: string | null;
 }
 
-interface Destination {
-  id: string;
-  name_fr: string;
-}
-
-interface SubcategoryOption {
-  id: string;
-  name_fr: string;
-  category_name: string;
-}
-
-interface POI {
-  id: string;
-  name_fr: string;
-  city: string | null;
-  neighborhood: string | null;
-}
-
-interface City {
-  id: string;
-  name: string;
-}
-
-interface BadgeOption {
-  id: string;
-  name_fr: string;
-  color_hex: string | null;
-  text_color_hex: string | null;
-}
+type PanelKind = "poi" | "business" | "destination" | "tags";
 
 const YouTubeBackofficePanel = () => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [videosByBusiness, setVideosByBusiness] = useState<Record<string, YouTubeVideo[]>>({});
-  const [poisByVideo, setPoisByVideo] = useState<Record<string, string[]>>({});
-  const [destinations, setDestinations] = useState<Destination[]>([]);
-  const [subcategories, setSubcategories] = useState<SubcategoryOption[]>([]);
-  const [pois, setPois] = useState<POI[]>([]);
-  const [cities, setCities] = useState<City[]>([]);
-  const [badgesList, setBadgesList] = useState<BadgeOption[]>([]);
-  const [badgesByVideo, setBadgesByVideo] = useState<Record<string, string[]>>({});
-  const [cityByVideo, setCityByVideo] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
-  const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
   const [syncingId, setSyncingId] = useState<string | null>(null);
+  const [syncingAll, setSyncingAll] = useState(false);
+  const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
+
+  /** Currently opened right-side assignment panel. */
+  const [activePanel, setActivePanel] = useState<{ kind: PanelKind; video: AssignableVideo } | null>(null);
 
   const loadAll = useCallback(async () => {
     setLoading(true);
-    const [bizRes, videosRes, destRes, poiRes, vpoiRes, citiesRes, subcatRes, catRes, badgesRes, vbadgesRes] = await Promise.all([
+    const [bizRes, videosRes] = await Promise.all([
       supabase
         .from("businesses")
         .select("id, name, city, youtube_url")
         .eq("show_youtube_tab", true)
+        .not("youtube_url", "is", null)
         .order("name"),
       supabase
         .from("business_youtube_videos")
-        .select("id, business_id, video_id, title, thumbnail, is_short, is_visible, destination_id, subcategory_id")
+        .select("id, business_id, video_id, title, thumbnail, is_short, is_visible")
         .order("sort_order"),
-      supabase.from("destinations").select("id, name_fr").order("name_fr"),
-      supabase
-        .from("businesses")
-        .select("id, name, city, neighborhood")
-        .eq("is_poi", true)
-        .eq("is_active", true)
-        .order("name"),
-      supabase.from("business_youtube_video_pois").select("youtube_video_id, point_of_interest_id"),
-      supabase.from("cities").select("id, name_fr").order("name_fr"),
-      supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
-      supabase.from("categories").select("id, name_fr"),
-      supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("name_fr"),
-      supabase.from("business_youtube_video_badges").select("youtube_video_id, badge_id") as any,
     ]);
 
-    const catNameById = new Map<string, string>(
-      ((catRes.data || []) as any[]).map((c) => [c.id, c.name_fr])
-    );
-    const subcatOptions: SubcategoryOption[] = ((subcatRes.data || []) as any[])
-      .map((s) => ({
-        id: s.id,
-        name_fr: s.name_fr,
-        category_name: catNameById.get(s.category_id) || "—",
-      }))
-      .sort((a, b) =>
-        a.category_name.localeCompare(b.category_name, "fr") ||
-        a.name_fr.localeCompare(b.name_fr, "fr")
-      );
-    setSubcategories(subcatOptions);
-
     if (bizRes.data) setBusinesses(bizRes.data as Business[]);
-    if (destRes.data) setDestinations(destRes.data as Destination[]);
-    const poisData: POI[] = (poiRes.data || []).map((p: any) => ({
-      id: p.id,
-      name_fr: p.name,
-      city: p.city,
-      neighborhood: p.neighborhood,
-    }));
-    setPois(poisData);
-    if (citiesRes.data) setCities((citiesRes.data as any[]).map((c) => ({ id: c.id, name: c.name_fr })));
-
     const grouped: Record<string, YouTubeVideo[]> = {};
     (videosRes.data || []).forEach((v: any) => {
       if (!grouped[v.business_id]) grouped[v.business_id] = [];
       grouped[v.business_id].push(v);
     });
     setVideosByBusiness(grouped);
-
-    const poiMap: Record<string, string[]> = {};
-    (vpoiRes.data || []).forEach((row: any) => {
-      if (!poiMap[row.youtube_video_id]) poiMap[row.youtube_video_id] = [];
-      poiMap[row.youtube_video_id].push(row.point_of_interest_id);
-    });
-    setPoisByVideo(poiMap);
-
-    const citiesById = new Map<string, string>();
-    (citiesRes.data || []).forEach((c: any) => citiesById.set((c.name_fr || "").toLowerCase(), c.id));
-    const cityMap: Record<string, string> = {};
-    Object.entries(poiMap).forEach(([videoId, poiIds]) => {
-      const firstPoi = poisData.find((p) => p.id === poiIds[0]);
-      if (firstPoi && firstPoi.city) {
-        const cid = citiesById.get(firstPoi.city.toLowerCase());
-        if (cid) cityMap[videoId] = cid;
-      }
-    });
-    setCityByVideo(cityMap);
-
-    setBadgesList(((badgesRes.data || []) as any[]).map((b) => ({
-      id: b.id,
-      name_fr: b.name_fr,
-      color_hex: b.color_hex,
-      text_color_hex: b.text_color_hex,
-    })));
-    const badgeMap: Record<string, string[]> = {};
-    ((vbadgesRes.data || []) as any[]).forEach((row: any) => {
-      if (!badgeMap[row.youtube_video_id]) badgeMap[row.youtube_video_id] = [];
-      badgeMap[row.youtube_video_id].push(row.badge_id);
-    });
-    setBadgesByVideo(badgeMap);
-
     setLoading(false);
   }, []);
 
-  useEffect(() => {
-    loadAll();
-  }, [loadAll]);
+  useEffect(() => { loadAll(); }, [loadAll]);
 
   const toggleOpen = (id: string) => {
     setOpenIds((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
   };
 
-  const handleSync = async (business: Business, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleSync = async (business: Business, e?: React.MouseEvent) => {
+    e?.stopPropagation();
     if (!business.youtube_url) {
       toast.error("Aucune URL YouTube configurée");
       return;
@@ -222,7 +109,7 @@ const YouTubeBackofficePanel = () => {
         body: { channelUrl: business.youtube_url, maxResults: 50, businessId: business.id, syncToDb: true },
       });
       if (error) throw error;
-      toast.success("Vidéos YouTube synchronisées");
+      toast.success(`Vidéos synchronisées : ${business.name}`);
       await loadAll();
     } catch (err: any) {
       toast.error(err.message || "Erreur de synchronisation");
@@ -231,507 +118,250 @@ const YouTubeBackofficePanel = () => {
     }
   };
 
-  const toggleVisibility = async (video: YouTubeVideo) => {
-    const newVal = !video.is_visible;
-    setVideosByBusiness((prev) => ({
-      ...prev,
-      [video.business_id]: prev[video.business_id].map((v) =>
-        v.id === video.id ? { ...v, is_visible: newVal } : v
-      ),
-    }));
-    const { error } = await supabase
-      .from("business_youtube_videos")
-      .update({ is_visible: newVal })
-      .eq("id", video.id);
-    if (error) toast.error("Erreur de mise à jour");
-  };
-
-  const updateSubcategory = async (video: YouTubeVideo, subId: string | null) => {
-    setVideosByBusiness((prev) => ({
-      ...prev,
-      [video.business_id]: prev[video.business_id].map((v) =>
-        v.id === video.id ? { ...v, subcategory_id: subId } : v
-      ),
-    }));
-    const { error } = await supabase
-      .from("business_youtube_videos")
-      .update({ subcategory_id: subId } as any)
-      .eq("id", video.id);
-    if (error) toast.error("Erreur de mise à jour sous-catégorie");
-    else toast.success("Sous-catégorie mise à jour");
-  };
-
-  const updateDestination = async (video: YouTubeVideo, destId: string | null) => {
-    setVideosByBusiness((prev) => ({
-      ...prev,
-      [video.business_id]: prev[video.business_id].map((v) =>
-        v.id === video.id ? { ...v, destination_id: destId } : v
-      ),
-    }));
-    const { error } = await supabase
-      .from("business_youtube_videos")
-      .update({ destination_id: destId })
-      .eq("id", video.id);
-    if (error) toast.error("Erreur de mise à jour destination");
-    else toast.success("Destination mise à jour");
-  };
-
-  const togglePoi = async (videoId: string, poiId: string) => {
-    const current = poisByVideo[videoId] || [];
-    const isSelected = current.includes(poiId);
-
-    if (isSelected) {
-      setPoisByVideo((prev) => ({
-        ...prev,
-        [videoId]: current.filter((id) => id !== poiId),
-      }));
-      const { error } = await supabase
-        .from("business_youtube_video_pois")
-        .delete()
-        .eq("youtube_video_id", videoId)
-        .eq("point_of_interest_id", poiId);
-      if (error) toast.error("Erreur");
-    } else {
-      setPoisByVideo((prev) => ({
-        ...prev,
-        [videoId]: [...current, poiId],
-      }));
-      const { error } = await supabase
-        .from("business_youtube_video_pois")
-        .insert({ youtube_video_id: videoId, point_of_interest_id: poiId });
-      if (error) toast.error("Erreur");
+  const handleSyncAll = async () => {
+    if (!confirm(`Lancer la synchronisation de ${filtered.length} établissement(s) ?`)) return;
+    setSyncingAll(true);
+    let ok = 0, ko = 0;
+    for (const b of filtered) {
+      if (!b.youtube_url) continue;
+      try {
+        await supabase.functions.invoke("fetch-youtube-channel", {
+          body: { channelUrl: b.youtube_url, maxResults: 50, businessId: b.id, syncToDb: true },
+        });
+        ok++;
+      } catch { ko++; }
     }
+    setSyncingAll(false);
+    await loadAll();
+    toast.success(`Synchronisation terminée — ${ok} OK${ko ? `, ${ko} en erreur` : ""}`);
   };
 
-  const togglePoiGroup = async (videoId: string, poiIds: string[], allSelected: boolean) => {
-    const current = poisByVideo[videoId] || [];
-    if (allSelected) {
-      const next = current.filter((id) => !poiIds.includes(id));
-      setPoisByVideo((prev) => ({ ...prev, [videoId]: next }));
-      await supabase
-        .from("business_youtube_video_pois")
-        .delete()
-        .eq("youtube_video_id", videoId)
-        .in("point_of_interest_id", poiIds);
-    } else {
-      const toAdd = poiIds.filter((id) => !current.includes(id));
-      if (toAdd.length === 0) return;
-      setPoisByVideo((prev) => ({ ...prev, [videoId]: [...current, ...toAdd] }));
-      await supabase
-        .from("business_youtube_video_pois")
-        .insert(toAdd.map((id) => ({ youtube_video_id: videoId, point_of_interest_id: id })));
-    }
-  };
-
-  const toggleBadge = async (videoId: string, badgeId: string) => {
-    const current = badgesByVideo[videoId] || [];
-    const isSelected = current.includes(badgeId);
-    if (isSelected) {
-      setBadgesByVideo((prev) => ({ ...prev, [videoId]: current.filter((id) => id !== badgeId) }));
-      const { error } = await (supabase as any)
-        .from("business_youtube_video_badges")
-        .delete()
-        .eq("youtube_video_id", videoId)
-        .eq("badge_id", badgeId);
-      if (error) toast.error("Erreur badge");
-    } else {
-      setBadgesByVideo((prev) => ({ ...prev, [videoId]: [...current, badgeId] }));
-      const { error } = await (supabase as any)
-        .from("business_youtube_video_badges")
-        .insert({ youtube_video_id: videoId, badge_id: badgeId });
-      if (error) toast.error("Erreur badge");
-    }
-  };
-
-  const filtered = businesses.filter((b) => {
-    if (!search.trim()) return true;
+  const filtered = useMemo(() => {
+    if (!search.trim()) return businesses;
     const q = search.toLowerCase();
-    return (
-      b.name.toLowerCase().includes(q) ||
-      (b.city || "").toLowerCase().includes(q)
+    return businesses.filter(b =>
+      b.name.toLowerCase().includes(q) || (b.city || "").toLowerCase().includes(q)
     );
+  }, [businesses, search]);
+
+  /** Convert a YouTube DB row into the minimal shape the shared panels need. */
+  const toAssignable = (v: YouTubeVideo): AssignableVideo => ({
+    id: v.id,
+    url: `https://www.youtube.com/watch?v=${v.video_id}`,
+    name: v.title,
+    thumbnail_url: v.thumbnail,
+    city: null,
   });
 
-  if (loading) {
-    return (
-      <div className="flex justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
+  const openPanel = (kind: PanelKind, v: YouTubeVideo) =>
+    setActivePanel({ kind, video: toAssignable(v) });
+  const closePanel = () => setActivePanel(null);
+
+  const hasRightPanel = !!activePanel;
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Rechercher par nom ou ville..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
-          />
+    <div className="flex h-full">
+      <div className={cn("flex-1 space-y-4 pt-4 pr-4 overflow-y-auto", hasRightPanel && "w-1/2")}>
+        {/* Header */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <YoutubeIcon className="h-5 w-5 text-red-600" />
+            <h2 className="text-lg font-semibold">Vidéos YouTube</h2>
+          </div>
+          <div className="relative flex-1 min-w-[240px] max-w-md">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Rechercher un établissement…"
+              className="pl-9 h-9"
+            />
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSyncAll}
+            disabled={syncingAll || loading || filtered.length === 0}
+          >
+            {syncingAll
+              ? <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              : <RefreshCw className="h-4 w-4 mr-2" />}
+            Tout synchroniser ({filtered.length})
+          </Button>
         </div>
-        <p className="text-sm text-muted-foreground">
-          {filtered.length} entreprise{filtered.length > 1 ? "s" : ""} avec onglet YouTube activé
-        </p>
-      </div>
 
-      <div className="space-y-2">
-        {filtered.map((business) => {
-          const videos = videosByBusiness[business.id] || [];
-          const isOpen = openIds.has(business.id);
-          const visibleCount = videos.filter((v) => v.is_visible).length;
-          const shortsCount = videos.filter((v) => v.is_short).length;
-
-          return (
-            <Collapsible
-              key={business.id}
-              open={isOpen}
-              onOpenChange={() => toggleOpen(business.id)}
-              className="border rounded-lg bg-card"
-            >
-              <CollapsibleTrigger className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors">
-                <div className="flex items-center gap-3 text-left">
-                  <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <div>
-                    <p
-                      className="font-semibold text-sm hover:text-primary cursor-copy"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        navigator.clipboard.writeText(business.name);
-                        toast.success(`Nom copié : ${business.name}`);
-                      }}
-                      title="Cliquer pour copier le nom"
-                    >
-                      {business.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {business.city || "—"} · {videos.length} vidéo{videos.length > 1 ? "s" : ""}
-                      {videos.length > 0 && (
-                        <>
-                          {" · "}
-                          {visibleCount} visible{visibleCount > 1 ? "s" : ""}
-                          {" · "}
-                          {shortsCount} short{shortsCount > 1 ? "s" : ""}
-                        </>
-                      )}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={(e) => handleSync(business, e)}
-                    disabled={syncingId === business.id || !business.youtube_url}
-                    className="text-xs h-7"
+        {/* List */}
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : filtered.length === 0 ? (
+          <p className="text-sm text-muted-foreground py-8 text-center">
+            Aucun établissement avec une URL YouTube configurée.
+          </p>
+        ) : (
+          <div className="border rounded-lg divide-y">
+            {filtered.map((biz) => {
+              const videos = videosByBusiness[biz.id] || [];
+              const isOpen = openIds.has(biz.id);
+              const isSyncing = syncingId === biz.id;
+              return (
+                <div key={biz.id}>
+                  <div
+                    className="flex items-center gap-3 p-3 hover:bg-muted/40 cursor-pointer"
+                    onClick={() => toggleOpen(biz.id)}
                   >
-                    {syncingId === business.id ? (
-                      <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                    ) : (
-                      <RefreshCw className="h-3 w-3 mr-1" />
-                    )}
-                    Synchroniser
-                  </Button>
-                  {isOpen ? (
-                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </div>
-              </CollapsibleTrigger>
+                    {isOpen
+                      ? <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+                      : <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{biz.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {biz.city || "—"}
+                        {biz.youtube_url && (
+                          <>
+                            {" · "}
+                            <a
+                              href={biz.youtube_url}
+                              target="_blank"
+                              rel="noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="underline hover:text-foreground"
+                            >
+                              chaîne YouTube
+                            </a>
+                          </>
+                        )}
+                      </p>
+                    </div>
+                    <Badge variant="secondary" className="shrink-0">
+                      {videos.length} vidéo{videos.length > 1 ? "s" : ""}
+                    </Badge>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => handleSync(biz, e)}
+                      disabled={isSyncing || syncingAll}
+                    >
+                      {isSyncing
+                        ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                        : <RefreshCw className="h-3.5 w-3.5 mr-1.5" />}
+                      Synchroniser
+                    </Button>
+                  </div>
 
-              <CollapsibleContent className="px-3 pb-3">
-                {videos.length === 0 ? (
-                  <p className="text-xs text-muted-foreground text-center py-4">
-                    Aucune vidéo synchronisée pour cette entreprise.
-                  </p>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {videos.map((video) => {
-                      const selectedPois = poisByVideo[video.id] || [];
-                      return (
-                        <div
-                          key={video.id}
-                          className={`border rounded-lg overflow-hidden bg-background transition-opacity ${
-                            !video.is_visible ? "opacity-50" : ""
-                          }`}
-                        >
-                          <div className="aspect-video relative bg-muted">
-                            {playingVideoId === video.id ? (
-                              <iframe
-                                src={`https://www.youtube-nocookie.com/embed/${video.video_id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
-                                className="w-full h-full"
-                                allow="autoplay; encrypted-media"
-                                allowFullScreen
-                              />
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => setPlayingVideoId(video.id)}
-                                className="w-full h-full relative group"
-                                aria-label="Lire la vidéo"
-                              >
-                                <img
-                                  src={video.thumbnail}
-                                  alt={video.title}
-                                  className="w-full h-full object-cover"
+                  {/* Expanded videos list */}
+                  {isOpen && (
+                    <div className="px-4 pb-4 pt-1 bg-muted/20 space-y-2">
+                      {videos.length === 0 ? (
+                        <p className="text-xs text-muted-foreground py-3">
+                          Aucune vidéo importée. Cliquez sur Synchroniser.
+                        </p>
+                      ) : (
+                        videos.map((v) => (
+                          <div
+                            key={v.id}
+                            className="flex items-start gap-3 p-2 bg-card border rounded-md"
+                          >
+                            <button
+                              type="button"
+                              onClick={() => setPlayingVideoId(playingVideoId === v.id ? null : v.id)}
+                              className="relative shrink-0 w-32 aspect-video bg-black rounded overflow-hidden group"
+                            >
+                              {playingVideoId === v.id ? (
+                                <iframe
+                                  src={`https://www.youtube.com/embed/${v.video_id}?autoplay=1`}
+                                  className="w-full h-full"
+                                  allow="autoplay"
                                 />
-                                <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
-                                  <div className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
-                                    <Play className="h-5 w-5 text-white fill-white ml-0.5" />
+                              ) : v.thumbnail ? (
+                                <>
+                                  <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover" />
+                                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition">
+                                    <Play className="h-6 w-6 text-white" />
                                   </div>
-                                </div>
-                              </button>
-                            )}
-                            {video.is_short && (
-                              <Badge className="absolute top-2 left-2 bg-red-600 hover:bg-red-600 text-white text-[10px] z-10">
-                                SHORT
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="p-2 space-y-2">
-                            <div className="flex items-start gap-2">
-                              <Switch
-                                checked={video.is_visible}
-                                onCheckedChange={() => toggleVisibility(video)}
-                                className="mt-0.5 scale-75"
-                              />
-                              <p className="text-xs leading-tight line-clamp-2 flex-1 font-medium">
-                                {video.title}
-                              </p>
-                            </div>
-
-                            <div className="space-y-1.5">
-                              <label className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
-                                Sous-catégorie
-                              </label>
-                              <Select
-                                value={video.subcategory_id || "none"}
-                                onValueChange={(val) =>
-                                  updateSubcategory(video, val === "none" ? null : val)
-                                }
-                              >
-                                <SelectTrigger className="h-7 text-xs">
-                                  <SelectValue placeholder="Aucune" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="none">— Aucune —</SelectItem>
-                                  {subcategories.map((s) => (
-                                    <SelectItem key={s.id} value={s.id}>
-                                      {s.name_fr} / {s.category_name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div className="space-y-1.5">
-                              <label className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold flex items-center gap-1">
-                                <MapPin className="h-3 w-3" /> Destination
-                              </label>
-                              <Select
-                                value={video.destination_id || "none"}
-                                onValueChange={(val) =>
-                                  updateDestination(video, val === "none" ? null : val)
-                                }
-                              >
-                                <SelectTrigger className="h-7 text-xs">
-                                  <SelectValue placeholder="Aucune" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="none">— Aucune —</SelectItem>
-                                  {destinations.map((d) => (
-                                    <SelectItem key={d.id} value={d.id}>
-                                      {d.name_fr}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div className="space-y-1.5">
-                              <label className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
-                                Ville
-                              </label>
-                              <Select
-                                value={cityByVideo[video.id] || "none"}
-                                onValueChange={(val) =>
-                                  setCityByVideo((prev) => ({
-                                    ...prev,
-                                    [video.id]: val === "none" ? "" : val,
-                                  }))
-                                }
-                              >
-                                <SelectTrigger className="h-7 text-xs">
-                                  <SelectValue placeholder="Aucune" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="none">— Aucune —</SelectItem>
-                                  {cities.map((c) => (
-                                    <SelectItem key={c.id} value={c.id}>
-                                      {c.name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div className="space-y-1.5">
-                              <label className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
-                                POIs ({selectedPois.length})
-                              </label>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    disabled={!cityByVideo[video.id]}
-                                    className="h-7 w-full justify-start text-xs font-normal"
-                                  >
-                                    {!cityByVideo[video.id]
-                                      ? "Sélectionnez d'abord une ville"
-                                      : selectedPois.length === 0
-                                      ? "Aucun POI sélectionné"
-                                      : `${selectedPois.length} POI${selectedPois.length > 1 ? "s" : ""} sélectionné${selectedPois.length > 1 ? "s" : ""}`}
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-80 p-3" align="start">
-                                  <div className="max-h-72 overflow-y-auto space-y-3">
-                                    {(() => {
-                                      const cityId = cityByVideo[video.id];
-                                      const cityName = (cities.find((c) => c.id === cityId)?.name || "").toLowerCase();
-                                      const cityPois = pois.filter((p) => (p.city || "").toLowerCase() === cityName);
-                                      if (cityPois.length === 0) {
-                                        return (
-                                          <p className="text-xs text-muted-foreground text-center py-3">
-                                            Aucun POI dans cette ville.
-                                          </p>
-                                        );
-                                      }
-                                      const grouped: Record<string, POI[]> = {};
-                                      cityPois.forEach((p) => {
-                                        const key = p.neighborhood || "Autre";
-                                        if (!grouped[key]) grouped[key] = [];
-                                        grouped[key].push(p);
-                                      });
-                                      const sortedKeys = Object.keys(grouped).sort((a, b) =>
-                                        a === "Autre" ? 1 : b === "Autre" ? -1 : a.localeCompare(b)
-                                      );
-                                      return sortedKeys.map((nbName) => {
-                                        const ids = grouped[nbName].map((p) => p.id);
-                                        const allSelected = ids.every((id) => selectedPois.includes(id));
-                                        const someSelected = !allSelected && ids.some((id) => selectedPois.includes(id));
-                                        return (
-                                          <div key={nbName}>
-                                            <div className="mb-1 flex items-center gap-2">
-                                              <Checkbox
-                                                checked={allSelected ? true : someSelected ? "indeterminate" : false}
-                                                onCheckedChange={() => togglePoiGroup(video.id, ids, allSelected)}
-                                                className="h-3.5 w-3.5 shrink-0"
-                                              />
-                                              <button
-                                                type="button"
-                                                className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-                                                onClick={() => togglePoiGroup(video.id, ids, allSelected)}
-                                              >
-                                                {nbName}
-                                                <span className="text-[10px] opacity-60">({ids.length})</span>
-                                              </button>
-                                            </div>
-                                            <div className="flex flex-wrap gap-1.5">
-                                              {grouped[nbName].map((poi) => {
-                                                const isSelected = selectedPois.includes(poi.id);
-                                                return (
-                                                  <Badge
-                                                    key={poi.id}
-                                                    variant={isSelected ? "default" : "outline"}
-                                                    className="cursor-pointer transition-colors text-[10px]"
-                                                    onClick={() => togglePoi(video.id, poi.id)}
-                                                  >
-                                                    {poi.name_fr}
-                                                  </Badge>
-                                                );
-                                              })}
-                                            </div>
-                                          </div>
-                                        );
-                                      });
-                                    })()}
-                                  </div>
-                                </PopoverContent>
-                              </Popover>
-                              {selectedPois.length > 0 && (
-                                <div className="flex flex-wrap gap-1">
-                                  {selectedPois.map((pid) => {
-                                    const poi = pois.find((p) => p.id === pid);
-                                    if (!poi) return null;
-                                    return (
-                                      <Badge
-                                        key={pid}
-                                        variant="secondary"
-                                        className="text-[10px] gap-1 pr-1"
-                                      >
-                                        {poi.name_fr}
-                                        <button
-                                          onClick={() => togglePoi(video.id, pid)}
-                                          className="hover:bg-background rounded"
-                                        >
-                                          <X className="h-2.5 w-2.5" />
-                                        </button>
-                                      </Badge>
-                                    );
-                                  })}
+                                </>
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <Play className="h-5 w-5 text-muted-foreground" />
                                 </div>
                               )}
-                            </div>
+                              {v.is_short && (
+                                <Badge className="absolute top-1 left-1 text-[9px] px-1 py-0">SHORT</Badge>
+                              )}
+                            </button>
 
-                            <div className="space-y-1.5">
-                              <label className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
-                                Badges ({(badgesByVideo[video.id] || []).length})
-                              </label>
-                              <div className="flex flex-wrap gap-1.5">
-                                {badgesList.length === 0 ? (
-                                  <p className="text-[10px] text-muted-foreground">Aucun badge disponible</p>
-                                ) : (
-                                  badgesList.map((b) => {
-                                    const isSelected = (badgesByVideo[video.id] || []).includes(b.id);
-                                    const style = isSelected && b.color_hex
-                                      ? { backgroundColor: b.color_hex, color: b.text_color_hex || "#fff", borderColor: b.color_hex }
-                                      : undefined;
-                                    return (
-                                      <Badge
-                                        key={b.id}
-                                        variant={isSelected ? "default" : "outline"}
-                                        style={style}
-                                        className="cursor-pointer transition-colors text-[10px]"
-                                        onClick={() => toggleBadge(video.id, b.id)}
-                                      >
-                                        {b.name_fr}
-                                      </Badge>
-                                    );
-                                  })
-                                )}
+                            <div className="flex-1 min-w-0 space-y-1.5">
+                              <p className="text-xs font-medium line-clamp-2">{v.title}</p>
+                              <p className="text-[10px] text-muted-foreground font-mono">{v.video_id}</p>
+                              <div className="flex flex-wrap gap-1.5 pt-1">
+                                <Button size="sm" variant="outline" className="h-7 text-xs"
+                                  onClick={() => openPanel("poi", v)}>
+                                  <MapPin className="h-3 w-3 mr-1" />POI
+                                </Button>
+                                <Button size="sm" variant="outline" className="h-7 text-xs"
+                                  onClick={() => openPanel("business", v)}>
+                                  <Building2 className="h-3 w-3 mr-1" />Établissements
+                                </Button>
+                                <Button size="sm" variant="outline" className="h-7 text-xs"
+                                  onClick={() => openPanel("destination", v)}>
+                                  <Globe className="h-3 w-3 mr-1" />Destinations
+                                </Button>
+                                <Button size="sm" variant="outline" className="h-7 text-xs"
+                                  onClick={() => openPanel("tags", v)}>
+                                  <Tag className="h-3 w-3 mr-1" />Tags
+                                </Button>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </CollapsibleContent>
-            </Collapsible>
-          );
-        })}
-        {filtered.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-8">
-            Aucune entreprise trouvée.
-          </p>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
+
+      {/* Right assignment panel */}
+      {activePanel && (
+        <div className="w-1/2 sticky top-0 h-screen overflow-hidden border-l bg-card">
+          {activePanel.kind === "poi" && (
+            <InlinePoiAssignment
+              source="youtube"
+              video={activePanel.video}
+              onClose={closePanel}
+              onSaved={loadAll}
+            />
+          )}
+          {activePanel.kind === "business" && (
+            <InlineBusinessAssignment
+              source="youtube"
+              video={activePanel.video}
+              onClose={closePanel}
+              onSaved={loadAll}
+            />
+          )}
+          {activePanel.kind === "destination" && (
+            <InlineDestinationCityAssignment
+              source="youtube"
+              video={activePanel.video}
+              onClose={closePanel}
+              onSaved={loadAll}
+            />
+          )}
+          {activePanel.kind === "tags" && (
+            <InlineBadgeSubcatCityAssignment
+              source="youtube"
+              video={activePanel.video}
+              onClose={closePanel}
+              onSaved={loadAll}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 };
