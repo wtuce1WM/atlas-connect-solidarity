@@ -1147,8 +1147,11 @@ const Home = () => {
 
         // Same logic as SlidePanelHome: group by resolved establishment, dedupe by URL.
         // Single difference here: apply front_video_count per business.
+        // Strict mode in subcategory view: ignore linked_business_id so a video stays attributed
+        // to its real owner (and therefore to its real categories), not to a referenced business.
+        const strictResolve = !!selectedSubId;
         const allBizIds = [...new Set(
-          allDocs.flatMap(getVideoBusinessCandidateIds).filter(Boolean)
+          allDocs.flatMap((d: any) => getVideoBusinessCandidateIds(d, { strict: strictResolve })).filter(Boolean)
         )] as string[];
         const bizMap = new Map<string, SearchResultBusiness>();
         if (allBizIds.length > 0) {
@@ -1168,7 +1171,7 @@ const Home = () => {
         // Group by business_id (the real owner), then keep first N per business (front_video_count)
         const docsByBiz = new Map<string, any[]>();
         for (const d of uniqueDocs) {
-          const biz = resolveVideoEstablishment(d, bizMap);
+          const biz = resolveVideoEstablishment(d, bizMap, { strict: strictResolve });
           const groupId = biz?.id || d.business_id || d.id;
           const arr = docsByBiz.get(groupId) || [];
           arr.push(d);
