@@ -649,7 +649,7 @@ const Home = () => {
           for (let i = 0; i < missingBizIds.length; i += batch) {
             const { data } = await supabase
               .from("business_youtube_videos")
-              .select("id, video_id, title, thumbnail, is_short, is_visible, sort_order, business_id")
+              .select("id, video_id, title, thumbnail, custom_thumbnail_url, thumbnail_locked, is_short, is_visible, sort_order, business_id")
               .eq("is_visible", true)
               .in("business_id", missingBizIds.slice(i, i + batch))
               .order("sort_order", { ascending: true });
@@ -671,7 +671,7 @@ const Home = () => {
                   ? `https://www.youtube.com/shorts/${y.video_id}`
                   : `https://www.youtube.com/watch?v=${y.video_id}`,
                 business_name: biz.name,
-                thumbnail_url: y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/maxresdefault.jpg`,
+                thumbnail_url: y.custom_thumbnail_url || y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/maxresdefault.jpg`,
                 business: biz,
                 owner: { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null },
                 social: null,
@@ -908,7 +908,7 @@ const Home = () => {
             for (let i = 0; i < ytIds.length; i += batch) {
               const { data } = await supabase
                 .from("business_youtube_videos")
-                .select("id, video_id, title, thumbnail, is_short, is_visible, sort_order, business_id")
+                .select("id, video_id, title, thumbnail, custom_thumbnail_url, thumbnail_locked, is_short, is_visible, sort_order, business_id")
                 .eq("is_visible", true)
                 .in("id", ytIds.slice(i, i + batch))
                 .order("sort_order", { ascending: true });
@@ -957,7 +957,7 @@ const Home = () => {
                   ? `https://www.youtube.com/shorts/${y.video_id}`
                   : `https://www.youtube.com/watch?v=${y.video_id}`,
                 business_name: y.title || biz?.name || "—",
-                thumbnail_url: y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/hqdefault.jpg`,
+                thumbnail_url: y.custom_thumbnail_url || y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/maxresdefault.jpg`,
                 business: biz,
                 owner: null,
                 social,
