@@ -925,11 +925,10 @@ const Home = () => {
                 (bizs || []).forEach((b: any) => ytBizMap.set(b.id, b as SearchResultBusiness));
               }
             }
-            // City filter (aligned with business_documents logic):
+            // City filter (strictly aligned with business_documents logic):
             // Source of truth = business_youtube_video_cities. A YouTube video appears
-            // on a city's homepage if it is explicitly linked to that city.
-            // Fallback: if a video has NO explicit city link at all, use the owner
-            // business's city (legacy behavior, keeps older non-tagged videos visible).
+            // on a city's homepage ONLY if it is explicitly linked to that city.
+            // No fallback on the owner business's city.
             const allYtIds = ytRows.map((y: any) => y.id);
             const cityLinksByVideo: Record<string, Set<string>> = {};
             if (allYtIds.length > 0) {
@@ -952,14 +951,9 @@ const Home = () => {
             const currentCityIds = new Set(((cityRows as any[]) || []).map((c) => c.id));
             const ytFiltered = ytRows.filter((y: any) => {
               const explicit = cityLinksByVideo[y.id];
-              if (explicit && explicit.size > 0) {
-                // Explicit links exist → must include current city
-                for (const cid of currentCityIds) if (explicit.has(cid)) return true;
-                return false;
-              }
-              // No explicit link → fallback to owner business's city
-              const biz = y.business_id ? ytBizMap.get(y.business_id) : null;
-              return cityMatches(biz?.city, city);
+              if (!explicit || explicit.size === 0) return false;
+              for (const cid of currentCityIds) if (explicit.has(cid)) return true;
+              return false;
             });
             // Fetch all badges for these YouTube videos
             const ytBadgesByVideo: Record<string, string[]> = {};
