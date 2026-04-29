@@ -37,6 +37,7 @@ interface ServiceVideo {
   category_id: string | null;
   category_name: string | null;
   city: string | null;
+  cities: string[];
   neighborhood: string | null;
 }
 
@@ -95,9 +96,9 @@ const SortableVideoCard = ({
       <div className="mt-1.5">
         <p className="text-sm font-medium leading-tight">{video.business_name}</p>
         <p className="text-xs text-muted-foreground truncate">{video.service_name}</p>
-        {(video.city || video.neighborhood) && (
+        {(video.cities.length > 0 || video.neighborhood) && (
           <p className="text-[11px] text-muted-foreground/70 truncate">
-            {[video.city, video.neighborhood].filter(Boolean).join(" · ")}
+            {[video.cities.join(", "), video.neighborhood].filter(Boolean).join(" · ")}
           </p>
         )}
         {video.name && <p className="text-[11px] text-muted-foreground/70 truncate">{video.name}</p>}
@@ -196,9 +197,15 @@ const ServiceVideosPanel = () => {
       if (data) data.forEach(c => catMap.set(c.id, c.name_fr));
     }
 
+    const { fetchVideoCities } = await import("@/lib/fetchVideoCities");
+    const { businessDocCities } = await fetchVideoCities({
+      businessDocumentIds: allDocs.map(d => d.id),
+    });
+
     setVideos(allDocs.map(d => {
       const sub = d.subcategory_id ? subMap.get(d.subcategory_id) : null;
       const catId = sub?.category_id || null;
+      const multi = businessDocCities.get(d.id) || [];
       return {
         id: d.id,
         url: d.url,
@@ -214,6 +221,7 @@ const ServiceVideosPanel = () => {
         category_id: catId,
         category_name: catId ? catMap.get(catId) || null : null,
         city: d.city || null,
+        cities: multi.length > 0 ? multi : (d.city ? [d.city] : []),
         neighborhood: d.neighborhood || null,
       };
     }));
@@ -224,7 +232,7 @@ const ServiceVideosPanel = () => {
 
   const videoCities = useMemo(() => {
     const citySet = new Set<string>();
-    videos.forEach(v => { if (v.city) citySet.add(v.city); });
+    videos.forEach(v => v.cities.forEach(c => citySet.add(c)));
     const cityOrder = new Map(cities.map(c => [c.name, c.sort_order]));
     return [...citySet].sort((a, b) => (cityOrder.get(a) ?? 9999) - (cityOrder.get(b) ?? 9999));
   }, [videos, cities]);
@@ -232,8 +240,8 @@ const ServiceVideosPanel = () => {
   // Helper: videos filtered by city only
   const cityFilteredVideos = useMemo(() => {
     if (!selectedCity) return [];
-    if (selectedCity === "__none__") return videos.filter(v => !v.city);
-    return videos.filter(v => v.city === selectedCity);
+    if (selectedCity === "__none__") return videos.filter(v => v.cities.length === 0);
+    return videos.filter(v => v.cities.includes(selectedCity));
   }, [videos, selectedCity]);
 
   // Categories present in city-filtered videos

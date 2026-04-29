@@ -35,6 +35,7 @@ interface CountryVideo {
   subcategory_name: string;
   category_id: string | null;
   city: string | null;
+  cities: string[];
   neighborhood: string | null;
   service_name: string | null;
   poi_name: string | null;
@@ -115,9 +116,9 @@ const SortableVideoCard = ({
       <div className="mt-1.5">
         <p className="text-sm font-medium leading-tight">{video.business_name}</p>
         <p className="text-xs text-muted-foreground truncate">{video.subcategory_name}</p>
-        {(video.city || video.neighborhood) && (
+        {(video.cities.length > 0 || video.neighborhood) && (
           <p className="text-[11px] text-muted-foreground/70 truncate">
-            {[video.city, video.neighborhood].filter(Boolean).join(" · ")}
+            {[video.cities.join(", "), video.neighborhood].filter(Boolean).join(" · ")}
           </p>
         )}
         {tags.length > 0 && (
@@ -260,9 +261,17 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
       seenIds.add(d.id);
       return true;
     });
+
+    // Fetch multi-city associations
+    const { fetchVideoCities } = await import("@/lib/fetchVideoCities");
+    const { businessDocCities } = await fetchVideoCities({
+      businessDocumentIds: dedupedDocs.map(d => d.id),
+    });
+
     setVideos(dedupedDocs.map(d => {
       const biz = bizMap.get(d.business_id);
       const sc = d.subcategory_id ? scMap.get(d.subcategory_id) : null;
+      const multi = businessDocCities.get(d.id) || [];
       return {
         id: d.id,
         url: d.url,
@@ -275,6 +284,7 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
         subcategory_name: sc?.name || "—",
         category_id: sc?.category_id || null,
         city: d.city || null,
+        cities: multi.length > 0 ? multi : (d.city ? [d.city] : []),
         neighborhood: d.neighborhood || null,
         service_name: d.service_id ? (svcMap.get(d.service_id) || "—") : null,
         poi_name: d.poi_id ? (bizMap.get(d.poi_id)?.name || "—") : null,
@@ -326,7 +336,7 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
   // Build city options from videos themselves, sorted by cities table order
   const videoCities = useMemo(() => {
     const citySet = new Set<string>();
-    videos.forEach(v => { if (v.city) citySet.add(v.city); });
+    videos.forEach(v => v.cities.forEach(c => citySet.add(c)));
     const cityOrder = new Map(cities.map(c => [c.name, c.sort_order]));
     return [...citySet].sort((a, b) => (cityOrder.get(a) ?? 9999) - (cityOrder.get(b) ?? 9999));
   }, [videos, cities]);
@@ -363,11 +373,11 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
     if (!selectedCity) return [];
     let result = videos;
 
-    // City filter
+    // City filter (multi-city aware)
     if (selectedCity === NONE_CITY) {
-      result = result.filter(v => !v.city);
+      result = result.filter(v => v.cities.length === 0);
     } else {
-      result = result.filter(v => v.city === selectedCity);
+      result = result.filter(v => v.cities.includes(selectedCity));
     }
 
     // Category filter

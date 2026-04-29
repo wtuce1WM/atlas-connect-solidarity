@@ -26,6 +26,7 @@ interface PoiVideo {
   poi_id: string;
   poi_name: string;
   city: string | null;
+  cities: string[];
   neighborhood: string | null;
   poi_count: number;
   source: "document" | "generic";
@@ -97,9 +98,9 @@ const SortableVideoCard = ({ video, index, onPlay }: { video: PoiVideo; index: n
             </span>
           )}
         </div>
-        {(video.city || video.neighborhood) && (
+        {(video.cities.length > 0 || video.neighborhood) && (
           <p className="text-[11px] text-muted-foreground/70 truncate">
-            {[video.city, video.neighborhood].filter(Boolean).join(" · ")}
+            {[video.cities.join(", "), video.neighborhood].filter(Boolean).join(" · ")}
           </p>
         )}
         {video.name && <p className="text-[11px] text-muted-foreground/70 truncate">{video.name}</p>}
@@ -244,9 +245,20 @@ const PoiVideosPanel = () => {
       [...((poiRes2.data || []) as any[]), ...((bizRes.data || []) as any[]), ...((destRes.data || []) as any[])].forEach((r: any) => gvLinkedSet.add(r.generic_video_id));
     }
 
+    // Fetch multi-city associations for both sources
+    const { fetchVideoCities } = await import("@/lib/fetchVideoCities");
+    const { businessDocCities, genericVideoCities } = await fetchVideoCities({
+      businessDocumentIds: allDocs.map(d => d.id),
+      genericVideoIds: gvRealIds,
+    });
+
     setVideos(combined.map(d => {
       const poi = poiMap.get(d.poi_id);
       const rawGvId = d._source === "generic" ? d.business_id : null;
+      const fallbackCity = d.city || (d._source === "generic" ? poi?.city ?? null : null);
+      const multi = d._source === "generic"
+        ? (rawGvId ? genericVideoCities.get(rawGvId) || [] : [])
+        : (businessDocCities.get(d.id) || []);
       return {
         id: d.id,
         url: d.url,
@@ -257,7 +269,8 @@ const PoiVideosPanel = () => {
         business_name: d._source === "generic" ? "Générique" : (bizMap.get(d.business_id) || "—"),
         poi_id: d.poi_id,
         poi_name: poi?.name || "—",
-        city: d.city || (d._source === "generic" ? poi?.city ?? null : null),
+        city: fallbackCity,
+        cities: multi.length > 0 ? multi : (fallbackCity ? [fallbackCity] : []),
         neighborhood: d.neighborhood || (d._source === "generic" ? poi?.neighborhood ?? null : null),
         poi_count: urlPoiCount.get(d.url) || 1,
         source: d._source,
@@ -276,15 +289,15 @@ const PoiVideosPanel = () => {
 
   const videoCities = useMemo(() => {
     const citySet = new Set<string>();
-    videos.forEach(v => { if (v.city) citySet.add(v.city); });
+    videos.forEach(v => v.cities.forEach(c => citySet.add(c)));
     const cityOrder = new Map(cities.map(c => [c.name, c.sort_order]));
     return [...citySet].sort((a, b) => (cityOrder.get(a) ?? 9999) - (cityOrder.get(b) ?? 9999));
   }, [videos, cities]);
 
   const cityFilteredVideos = useMemo(() => {
     if (!selectedCity) return [];
-    if (selectedCity === NONE_CITY) return videos.filter(v => !v.city);
-    return videos.filter(v => v.city === selectedCity);
+    if (selectedCity === NONE_CITY) return videos.filter(v => v.cities.length === 0);
+    return videos.filter(v => v.cities.includes(selectedCity));
   }, [videos, selectedCity]);
 
   const videoPois = useMemo(() => {

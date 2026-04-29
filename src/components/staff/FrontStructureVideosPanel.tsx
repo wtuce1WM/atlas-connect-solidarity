@@ -34,6 +34,7 @@ interface VideoItem {
   business_name: string;
   subcategory_name: string;
   city: string | null;
+  cities: string[];
   neighborhood: string | null;
   sort_order: number;
 }
@@ -96,9 +97,9 @@ const SortableVideoCard = ({
       <div className="px-2 py-1.5">
         <p className="text-xs font-medium leading-tight truncate">{video.business_name}</p>
         <p className="text-[10px] text-muted-foreground truncate">{video.subcategory_name}</p>
-        {(video.city || video.neighborhood) && (
+        {(video.cities.length > 0 || video.neighborhood) && (
           <p className="text-[10px] text-muted-foreground/70 truncate">
-            {[video.city, video.neighborhood].filter(Boolean).join(" · ")}
+            {[video.cities.join(", "), video.neighborhood].filter(Boolean).join(" · ")}
           </p>
         )}
       </div>
@@ -189,18 +190,27 @@ const FrontStructureVideosPanel = () => {
       if (data) data.forEach(sc => scNameMap.set(sc.id, sc.name_fr));
     }
 
-    setVideos(allDocs.map(d => ({
-      id: d.id,
-      url: d.url,
-      name: d.name,
-      thumbnail_url: d.thumbnail_url,
-      business_id: d.business_id,
-      business_name: bizMap.get(d.business_id) || "—",
-      subcategory_name: d.subcategory_id ? (scNameMap.get(d.subcategory_id) || "—") : "—",
-      city: d.city || null,
-      neighborhood: d.neighborhood || null,
-      sort_order: d.sort_order ?? 0,
-    })));
+    const { fetchVideoCities } = await import("@/lib/fetchVideoCities");
+    const { businessDocCities } = await fetchVideoCities({
+      businessDocumentIds: allDocs.map(d => d.id),
+    });
+
+    setVideos(allDocs.map(d => {
+      const multi = businessDocCities.get(d.id) || [];
+      return {
+        id: d.id,
+        url: d.url,
+        name: d.name,
+        thumbnail_url: d.thumbnail_url,
+        business_id: d.business_id,
+        business_name: bizMap.get(d.business_id) || "—",
+        subcategory_name: d.subcategory_id ? (scNameMap.get(d.subcategory_id) || "—") : "—",
+        city: d.city || null,
+        cities: multi.length > 0 ? multi : (d.city ? [d.city] : []),
+        neighborhood: d.neighborhood || null,
+        sort_order: d.sort_order ?? 0,
+      };
+    }));
 
     setDirty(false);
     setLoading(false);
@@ -210,7 +220,7 @@ const FrontStructureVideosPanel = () => {
 
   const filteredVideos = useMemo(() => {
     if (selectedCity === ALL_VALUE) return videos;
-    return videos.filter(v => v.city === selectedCity);
+    return videos.filter(v => v.cities.includes(selectedCity));
   }, [videos, selectedCity]);
 
   const groupedVideos = useMemo(() => {
@@ -238,7 +248,7 @@ const FrontStructureVideosPanel = () => {
 
   const videoCities = useMemo(() => {
     const citySet = new Set<string>();
-    videos.forEach(v => { if (v.city) citySet.add(v.city); });
+    videos.forEach(v => v.cities.forEach(c => citySet.add(c)));
     const cityOrder = new Map(cities.map(c => [c.name, c.sort_order]));
     return [...citySet].sort((a, b) => (cityOrder.get(a) ?? 9999) - (cityOrder.get(b) ?? 9999));
   }, [videos, cities]);

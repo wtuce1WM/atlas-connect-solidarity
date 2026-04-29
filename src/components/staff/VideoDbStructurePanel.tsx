@@ -11,6 +11,7 @@ interface VideoRow {
   url: string;
   name: string | null;
   city: string | null;
+  cities: string[];
   neighborhood: string | null;
   thumbnail_url: string | null;
   front_sort_order: number;
@@ -67,6 +68,7 @@ const VideoDbStructurePanel = () => {
       url: d.url,
       name: d.name,
       city: d.city,
+      cities: [],
       neighborhood: d.neighborhood,
       thumbnail_url: d.thumbnail_url,
       front_sort_order: d.front_sort_order,
@@ -87,6 +89,7 @@ const VideoDbStructurePanel = () => {
       url: d.url,
       name: d.name,
       city: d.city,
+      cities: [],
       neighborhood: d.neighborhood,
       thumbnail_url: d.thumbnail_url,
       front_sort_order: d.sort_order ?? 0,
@@ -94,6 +97,21 @@ const VideoDbStructurePanel = () => {
       business_name: d.instagram_account || d.tiktok_account || d.youtube_account || "— Générique —",
       source: "generic" as const,
     }));
+
+    // Multi-city associations for both sources
+    const { fetchVideoCities } = await import("@/lib/fetchVideoCities");
+    const { businessDocCities, genericVideoCities } = await fetchVideoCities({
+      businessDocumentIds: bizRows.map(r => r.id),
+      genericVideoIds: genRows.map(r => r.id),
+    });
+    bizRows.forEach(r => {
+      const m = businessDocCities.get(r.id) || [];
+      r.cities = m.length > 0 ? m : (r.city ? [r.city] : []);
+    });
+    genRows.forEach(r => {
+      const m = genericVideoCities.get(r.id) || [];
+      r.cities = m.length > 0 ? m : (r.city ? [r.city] : []);
+    });
 
     setRows([...bizRows, ...genRows]);
     setLoading(false);
@@ -108,7 +126,7 @@ const VideoDbStructurePanel = () => {
     const s = search.toLowerCase();
     return r.business_name.toLowerCase().includes(s) ||
       r.id.includes(s) ||
-      (r.city || "").toLowerCase().includes(s) ||
+      r.cities.some(c => c.toLowerCase().includes(s)) ||
       (r.name || "").toLowerCase().includes(s);
   });
 
@@ -184,7 +202,7 @@ const VideoDbStructurePanel = () => {
                 </td>
                 <td className="py-1.5 px-2 font-medium">{r.business_name}</td>
                 <td className="py-1.5 px-2 text-muted-foreground">{r.name || "—"}</td>
-                <td className="py-1.5 px-2 text-muted-foreground">{r.city || "—"}</td>
+                <td className="py-1.5 px-2 text-muted-foreground">{r.cities.length > 0 ? r.cities.join(", ") : "—"}</td>
                 <td className="py-1.5 px-2 max-w-[200px] truncate text-muted-foreground" title={r.url}>{r.url}</td>
                 <td className="py-1.5 px-2 text-center">{r.show_on_front ? "✓" : ""}</td>
                 <td className="py-1.5 px-2 text-center">{r.front_sort_order}</td>
