@@ -3,6 +3,7 @@ import { X, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Play, Pause, Volu
 import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import type { VideoDoc } from "@/hooks/useBookOnlineData";
+import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
 
 interface VideoDocumentOverlayProps {
   activeVideo: { url: string; name: string | null; description: string | null };
@@ -29,9 +30,11 @@ const VideoDocumentOverlay = ({
   onAnimationEnd,
   onOwnerClick,
 }: VideoDocumentOverlayProps) => {
+  // User's persisted sound preference takes precedence over the per-business default.
+  const { soundOn, setSoundOn } = useVideoSoundPreference();
   const [descExpanded, setDescExpanded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [isMuted, setIsMuted] = useState(!defaultSoundOn);
+  const [isMuted, setIsMuted] = useState(!soundOn);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -52,13 +55,16 @@ const VideoDocumentOverlay = ({
   }, [isPlaying, postCmd]);
 
   const toggleMute = useCallback(() => {
+    const next = !isMuted;
     if (videoRef.current) {
-      videoRef.current.muted = !isMuted;
+      videoRef.current.muted = next;
     } else {
-      postCmd(isMuted ? "unMute" : "mute");
+      postCmd(next ? "mute" : "unMute");
     }
-    setIsMuted(m => !m);
-  }, [isMuted, postCmd]);
+    setIsMuted(next);
+    // Persist user's choice across all videos / panels / sessions
+    setSoundOn(!next);
+  }, [isMuted, postCmd, setSoundOn]);
 
   const vidUrl = activeVideo.url;
   const currentIdx = videoDocs.findIndex(v => v.url === vidUrl);
@@ -71,16 +77,16 @@ const VideoDocumentOverlay = ({
       onNavigate({ url: v.url, name: v.name, description: v.description });
       setDescExpanded(false);
       setIsPlaying(true);
-      setIsMuted(!defaultSoundOn);
+      setIsMuted(!soundOn);
     }
   };
 
   const overlayVid = getVideoEmbed(vidUrl, window.location.origin);
-  const muteVal = defaultSoundOn ? "0" : "1";
+  const muteVal = soundOn ? "0" : "1";
   const overlayEmbedUrl = overlayVid.type === "youtube"
     ? overlayVid.embedUrl.replace(/mute=\d/, `mute=${muteVal}`).replace(/loop=\d/, "loop=1").replace(/controls=\d/, "controls=1") + `&playlist=${vidUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1] || ""}`
     : overlayVid.type === "vimeo"
-      ? overlayVid.embedUrl.replace(/muted=\d/, "muted=0").replace(/loop=\d/, "loop=1")
+      ? overlayVid.embedUrl.replace(/muted=\d/, soundOn ? "muted=0" : "muted=1").replace(/loop=\d/, "loop=1")
       : overlayVid.type === "bunny"
         ? overlayVid.embedUrl.replace(/loop=false/, "loop=true")
         : overlayVid.embedUrl;
