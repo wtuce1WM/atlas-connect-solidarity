@@ -30,10 +30,8 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const APIFLASH_KEY = Deno.env.get("APIFLASH_ACCESS_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    if (!APIFLASH_KEY) throw new Error("APIFLASH_ACCESS_KEY non configurée");
 
     // Auth check
     const authHeader = req.headers.get("Authorization");
@@ -79,40 +77,36 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Use our own static player page hosted on the published domain so
-    // YouTube embeds correctly. Capturing youtube.com/embed directly returns
-    // "Error 153 Video player configuration error" because the origin is
-    // not whitelisted for headless embeds. Using a Supabase function URL
-    // also fails because ApiFlash gets a platform interstitial / lock page.
-    const PLAYER_HOST = Deno.env.get("YT_PLAYER_HOST") ||
-      "https://oneworldmorocco.com";
-    const playerUrl =
-      `${PLAYER_HOST}/yt-player.html` +
-      `?id=${encodeURIComponent(youtubeId)}&t=${ts}`;
-
-    // ApiFlash screenshot — wait 6s for YT IFrame API to load + seek + render.
-    const apiflashUrl =
-      `https://api.apiflash.com/v1/urltoimage` +
-      `?access_key=${encodeURIComponent(APIFLASH_KEY)}` +
-      `&url=${encodeURIComponent(playerUrl)}` +
-      `&width=1280&height=720&format=jpeg&quality=92` +
-      `&delay=6&fresh=true&response_type=image&no_cookie_banners=true`;
-
-    console.log("[youtube-frame-capture] Calling ApiFlash", { youtubeId, ts });
-    const shotRes = await fetch(apiflashUrl);
-    if (!shotRes.ok) {
-      const text = await shotRes.text();
-      console.error("[youtube-frame-capture] ApiFlash error", shotRes.status, text);
-      return new Response(JSON.stringify({ error: `ApiFlash ${shotRes.status}: ${text.slice(0, 200)}` }), {
+    // Fetch the official YouTube HD thumbnail. We try maxresdefault (1280×720)
+    // first, then fall back to hqdefault (480×360) which always exists.
+    // Note: the `timestamp` parameter is accepted for API compatibility but
+    // ignored — YouTube only exposes their auto-selected thumbnails publicly.
+    const candidates = [
+      `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`,
+      `https://img.youtube.com/vi/${youtubeId}/sddefault.jpg`,
+      `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`,
+    ];
+    let blob: Blob | null = null;
+    let usedUrl = "";
+    for (const candidate of candidates) {
+      try {
+        const r = await fetch(candidate);
+        if (!r.ok) continue;
+        const b = await r.blob();
+        // YouTube returns a 120×90 grey placeholder (~1-2 KB) when the
+        // requested size doesn't exist. Reject anything suspiciously small.
+        if (b.size < 5_000) continue;
+        blob = b;
+        usedUrl = candidate;
+        break;
+      } catch (_) { /* try next */ }
+    }
+    if (!blob) {
+      return new Response(JSON.stringify({ error: "Aucune thumbnail HD disponible pour cette vidéo" }), {
         status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    const blob = await shotRes.blob();
-    if (blob.size < 5_000) {
-      return new Response(JSON.stringify({ error: "Capture vide / lecteur non chargé" }), {
-        status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    console.log("[youtube-frame-capture] Fetched", usedUrl, blob.size, "bytes");
 
     // Upload to storage
     const path = `thumbs/yt-hd-${youtubeId}-t${ts}-${Date.now()}.jpg`;
