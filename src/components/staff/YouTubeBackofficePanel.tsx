@@ -56,6 +56,7 @@ type PanelKind = "poi" | "business" | "destination" | "tags" | "thumbnail";
 const YouTubeBackofficePanel = () => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [videosByBusiness, setVideosByBusiness] = useState<Record<string, YouTubeVideo[]>>({});
+  const [counts, setCounts] = useState<Record<string, { poi: number; business: number; destination: number; tags: number }>>({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
@@ -68,7 +69,7 @@ const YouTubeBackofficePanel = () => {
 
   const loadAll = useCallback(async () => {
     setLoading(true);
-    const [bizRes, videosRes] = await Promise.all([
+    const [bizRes, videosRes, poiRes, bizLinkRes, destRes, badgeRes, subcatRes, cityRes] = await Promise.all([
       supabase
         .from("businesses")
         .select("id, name, city, youtube_url")
@@ -79,6 +80,12 @@ const YouTubeBackofficePanel = () => {
         .from("business_youtube_videos")
         .select("id, business_id, video_id, title, thumbnail, custom_thumbnail_url, thumbnail_locked, is_short, is_visible")
         .order("sort_order"),
+      supabase.from("business_youtube_video_pois").select("youtube_video_id"),
+      supabase.from("business_youtube_video_businesses").select("youtube_video_id"),
+      supabase.from("business_youtube_video_destinations").select("youtube_video_id"),
+      supabase.from("business_youtube_video_badges").select("youtube_video_id"),
+      supabase.from("business_youtube_video_subcategories").select("youtube_video_id"),
+      supabase.from("business_youtube_video_cities").select("youtube_video_id"),
     ]);
 
     if (bizRes.data) setBusinesses(bizRes.data as Business[]);
@@ -88,6 +95,20 @@ const YouTubeBackofficePanel = () => {
       grouped[v.business_id].push(v);
     });
     setVideosByBusiness(grouped);
+
+    const c: Record<string, { poi: number; business: number; destination: number; tags: number }> = {};
+    const bump = (id: string, key: "poi" | "business" | "destination" | "tags") => {
+      if (!c[id]) c[id] = { poi: 0, business: 0, destination: 0, tags: 0 };
+      c[id][key]++;
+    };
+    (poiRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "poi"));
+    (bizLinkRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "business"));
+    (destRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "destination"));
+    (badgeRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
+    (subcatRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
+    (cityRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
+    setCounts(c);
+
     setLoading(false);
   }, []);
 
@@ -297,26 +318,39 @@ const YouTubeBackofficePanel = () => {
                               <p className="text-xs font-medium line-clamp-2">{v.title}</p>
                               <p className="text-[10px] text-muted-foreground font-mono">{v.video_id}</p>
                               <div className="flex flex-wrap gap-1.5 pt-1">
-                                <Button size="sm" variant="outline" className="h-7 text-xs"
-                                  onClick={() => openPanel("poi", v)}>
-                                  <MapPin className="h-3 w-3 mr-1" />POI
-                                </Button>
-                                <Button size="sm" variant="outline" className="h-7 text-xs"
-                                  onClick={() => openPanel("business", v)}>
-                                  <Building2 className="h-3 w-3 mr-1" />Établissements
-                                </Button>
-                                <Button size="sm" variant="outline" className="h-7 text-xs"
-                                  onClick={() => openPanel("destination", v)}>
-                                  <Globe className="h-3 w-3 mr-1" />Destinations
-                                </Button>
-                                <Button size="sm" variant="outline" className="h-7 text-xs"
-                                  onClick={() => openPanel("tags", v)}>
-                                  <Tag className="h-3 w-3 mr-1" />Tags
-                                </Button>
-                                <Button size="sm" variant="outline" className="h-7 text-xs"
-                                  onClick={() => openPanel("thumbnail", v)}>
-                                  <ImageIcon className="h-3 w-3 mr-1" />Vignette
-                                </Button>
+                                {(() => {
+                                  const c = counts[v.id] || { poi: 0, business: 0, destination: 0, tags: 0 };
+                                  const CountBadge = ({ n }: { n: number }) =>
+                                    n > 0 ? (
+                                      <span className="ml-1 inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded bg-primary text-primary-foreground text-[10px] font-semibold">
+                                        {n}
+                                      </span>
+                                    ) : null;
+                                  return (
+                                    <>
+                                      <Button size="sm" variant="outline" className="h-7 text-xs"
+                                        onClick={() => openPanel("poi", v)}>
+                                        <MapPin className="h-3 w-3 mr-1" />POI<CountBadge n={c.poi} />
+                                      </Button>
+                                      <Button size="sm" variant="outline" className="h-7 text-xs"
+                                        onClick={() => openPanel("business", v)}>
+                                        <Building2 className="h-3 w-3 mr-1" />Établissements<CountBadge n={c.business} />
+                                      </Button>
+                                      <Button size="sm" variant="outline" className="h-7 text-xs"
+                                        onClick={() => openPanel("destination", v)}>
+                                        <Globe className="h-3 w-3 mr-1" />Destinations<CountBadge n={c.destination} />
+                                      </Button>
+                                      <Button size="sm" variant="outline" className="h-7 text-xs"
+                                        onClick={() => openPanel("tags", v)}>
+                                        <Tag className="h-3 w-3 mr-1" />Tags<CountBadge n={c.tags} />
+                                      </Button>
+                                      <Button size="sm" variant="outline" className="h-7 text-xs"
+                                        onClick={() => openPanel("thumbnail", v)}>
+                                        <ImageIcon className="h-3 w-3 mr-1" />Vignette
+                                      </Button>
+                                    </>
+                                  );
+                                })()}
                               </div>
                             </div>
                           </div>
