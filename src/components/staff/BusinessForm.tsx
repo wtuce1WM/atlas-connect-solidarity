@@ -644,7 +644,7 @@ const SortableVideoCard = ({ id, doc, idx, videoDocs, setVideoDocs, poiBusinesse
               </button>
             ) : (
               <div title="Vignette verrouillée — gérer via « Vidéo ID — Vignette personnalisée »" className="absolute top-0.5 left-0.5 p-0.5 bg-background/80 text-amber-600 rounded-full">
-                <Lock className="h-2.5 w-2.5" />
+                <LockIcon className="h-2.5 w-2.5" />
               </div>
             )}
           </div>
