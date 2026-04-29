@@ -69,7 +69,7 @@ const YouTubeBackofficePanel = () => {
 
   const loadAll = useCallback(async () => {
     setLoading(true);
-    const [bizRes, videosRes] = await Promise.all([
+    const [bizRes, videosRes, poiRes, bizLinkRes, destRes, badgeRes, subcatRes, cityRes] = await Promise.all([
       supabase
         .from("businesses")
         .select("id, name, city, youtube_url")
@@ -80,6 +80,12 @@ const YouTubeBackofficePanel = () => {
         .from("business_youtube_videos")
         .select("id, business_id, video_id, title, thumbnail, custom_thumbnail_url, thumbnail_locked, is_short, is_visible")
         .order("sort_order"),
+      supabase.from("business_youtube_video_pois").select("youtube_video_id"),
+      supabase.from("business_youtube_video_businesses").select("youtube_video_id"),
+      supabase.from("business_youtube_video_destinations").select("youtube_video_id"),
+      supabase.from("business_youtube_video_badges").select("youtube_video_id"),
+      supabase.from("business_youtube_video_subcategories").select("youtube_video_id"),
+      supabase.from("business_youtube_video_cities").select("youtube_video_id"),
     ]);
 
     if (bizRes.data) setBusinesses(bizRes.data as Business[]);
@@ -89,6 +95,20 @@ const YouTubeBackofficePanel = () => {
       grouped[v.business_id].push(v);
     });
     setVideosByBusiness(grouped);
+
+    const c: Record<string, { poi: number; business: number; destination: number; tags: number }> = {};
+    const bump = (id: string, key: "poi" | "business" | "destination" | "tags") => {
+      if (!c[id]) c[id] = { poi: 0, business: 0, destination: 0, tags: 0 };
+      c[id][key]++;
+    };
+    (poiRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "poi"));
+    (bizLinkRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "business"));
+    (destRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "destination"));
+    (badgeRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
+    (subcatRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
+    (cityRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
+    setCounts(c);
+
     setLoading(false);
   }, []);
 
