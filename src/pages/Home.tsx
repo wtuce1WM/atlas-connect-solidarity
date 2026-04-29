@@ -2080,10 +2080,7 @@ const Home = () => {
                         const insertAt = Math.min(childrenTileIndex, items.length);
                         items.splice(insertAt, 0, { kind: "children" });
                       }
-                      if (showHashtagsTileFinal) {
-                        const insertAt = Math.min(childrenTileIndex, items.length);
-                        items.splice(insertAt, 0, { kind: "hashtags" });
-                      }
+                      // Hashtags tile removed from grid (now displayed next to city toggle)
                       return items.map((entry, i) => {
                         if (entry.kind === "children") {
                           return (
