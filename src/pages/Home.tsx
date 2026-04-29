@@ -509,7 +509,7 @@ const Home = () => {
       const safeSetVideos = (v: VideoItem[]) => { if (!cancelled) setVideos(v); };
       const safeSetLoadingVideos = (b: boolean) => { if (!cancelled) setLoadingVideos(b); };
       safeSetLoadingVideos(true);
-      console.log("[Test load]", { selectedEntryId: selectedEntry?.id, selectedEntryName: selectedEntry?.name, videoBadgeFilter, videoEventFilter, city });
+      console.log("[Test load]", { selectedEntryId: selectedEntry?.id, selectedEntryName: selectedEntry?.name, selectedSubId, videoBadgeFilter, videoEventFilter, city });
 
       // Event filter (Agenda): show ONE card per event, using event.images[0] as thumbnail.
       if (videoEventFilter) {
