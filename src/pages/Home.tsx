@@ -925,8 +925,39 @@ const Home = () => {
                 (bizs || []).forEach((b: any) => ytBizMap.set(b.id, b as SearchResultBusiness));
               }
             }
-            // Filter by current city via the owner business's city
+            // City filter (aligned with business_documents logic):
+            // Source of truth = business_youtube_video_cities. A YouTube video appears
+            // on a city's homepage if it is explicitly linked to that city.
+            // Fallback: if a video has NO explicit city link at all, use the owner
+            // business's city (legacy behavior, keeps older non-tagged videos visible).
+            const allYtIds = ytRows.map((y: any) => y.id);
+            const cityLinksByVideo: Record<string, Set<string>> = {};
+            if (allYtIds.length > 0) {
+              for (let i = 0; i < allYtIds.length; i += batch) {
+                const { data: ytCityLinks } = await supabase
+                  .from("business_youtube_video_cities" as any)
+                  .select("youtube_video_id, city_id")
+                  .in("youtube_video_id", allYtIds.slice(i, i + batch));
+                ((ytCityLinks as any[]) || []).forEach((r: any) => {
+                  (cityLinksByVideo[r.youtube_video_id] ||= new Set()).add(r.city_id);
+                });
+              }
+            }
+            // Resolve current city's UUID (and its aliases, e.g. Agafay under Marrakech)
+            const aliasNames = (city === "Marrakech" ? ["Marrakech", "Agafay"] : [city]);
+            const { data: cityRows } = await supabase
+              .from("cities")
+              .select("id, name_fr")
+              .in("name_fr", aliasNames);
+            const currentCityIds = new Set(((cityRows as any[]) || []).map((c) => c.id));
             const ytFiltered = ytRows.filter((y: any) => {
+              const explicit = cityLinksByVideo[y.id];
+              if (explicit && explicit.size > 0) {
+                // Explicit links exist → must include current city
+                for (const cid of currentCityIds) if (explicit.has(cid)) return true;
+                return false;
+              }
+              // No explicit link → fallback to owner business's city
               const biz = y.business_id ? ytBizMap.get(y.business_id) : null;
               return cityMatches(biz?.city, city);
             });
