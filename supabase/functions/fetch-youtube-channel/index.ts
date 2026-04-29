@@ -108,7 +108,26 @@ serve(async (req) => {
     const detailsRes = await fetch(detailsUrl);
     const detailsData = await detailsRes.json();
 
-    const videos = (detailsData.items || []).map((item: any) => {
+    // Helper: pick best available thumbnail (maxres > sd > hq).
+    // YouTube returns a tiny placeholder when maxres/sd are absent, so we validate by size.
+    async function pickBestThumbnail(videoId: string, apiFallback: string): Promise<string> {
+      const candidates = [
+        `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`,
+        `https://i.ytimg.com/vi/${videoId}/sddefault.jpg`,
+        `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+      ];
+      for (const url of candidates) {
+        try {
+          const r = await fetch(url, { method: "HEAD" });
+          if (!r.ok) continue;
+          const len = parseInt(r.headers.get("content-length") || "0", 10);
+          if (len > 5000) return url;
+        } catch (_) { /* try next */ }
+      }
+      return apiFallback;
+    }
+
+    const videos = await Promise.all((detailsData.items || []).map(async (item: any) => {
       const duration = item.contentDetails?.duration || "";
       const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
       const seconds = match
@@ -116,16 +135,22 @@ serve(async (req) => {
         : 0;
       const title = item.snippet?.title || "";
       const isShort = (seconds > 0 && seconds <= 180) || /\bshorts?\b/i.test(title);
+      const apiThumb = item.snippet?.thumbnails?.maxres?.url
+        || item.snippet?.thumbnails?.standard?.url
+        || item.snippet?.thumbnails?.high?.url
+        || item.snippet?.thumbnails?.medium?.url
+        || "";
+      const thumbnail = await pickBestThumbnail(item.id, apiThumb);
 
       return {
         videoId: item.id,
         title: item.snippet?.title || "",
-        thumbnail: item.snippet?.thumbnails?.high?.url || item.snippet?.thumbnails?.medium?.url || "",
+        thumbnail,
         publishedAt: item.snippet?.publishedAt || "",
         isShort,
         durationSeconds: seconds,
       };
-    });
+    }));
 
     // Step 4: Optionally sync to database
     if (syncToDb && businessId) {
