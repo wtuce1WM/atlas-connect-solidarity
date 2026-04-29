@@ -712,7 +712,7 @@ const Home = () => {
         // Filter by current city via the multi-city source of truth (business_document_cities).
         const uniqueDocs = allDocs.filter((d: any) => extraCityDocIds.has(d.id));
         const allBizIds = [...new Set(
-          uniqueDocs.flatMap(getVideoBusinessCandidateIds).filter(Boolean)
+          uniqueDocs.flatMap((d: any) => getVideoBusinessCandidateIds(d)).filter(Boolean)
         )] as string[];
         const bizMap = new Map<string, SearchResultBusiness>();
         if (allBizIds.length > 0) {
