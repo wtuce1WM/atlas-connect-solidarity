@@ -1786,16 +1786,19 @@ const Home = () => {
   const structureList = (
     <>
       <div className="mb-4">
-        <Select value={city} onValueChange={(v) => setCity(v as City)}>
-          <SelectTrigger className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
+        <Tabs
+          value={city.toLowerCase()}
+          onValueChange={(v) => {
+            const next = (v.charAt(0).toUpperCase() + v.slice(1)) as City;
+            if (CITIES.includes(next)) setCity(next);
+          }}
+        >
+          <TabsList>
             {CITIES.map((c) => (
-              <SelectItem key={c} value={c}>{c}</SelectItem>
+              <TabsTrigger key={c} value={c.toLowerCase()}>{c}</TabsTrigger>
             ))}
-          </SelectContent>
-        </Select>
+          </TabsList>
+        </Tabs>
       </div>
 
       <h2 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">
