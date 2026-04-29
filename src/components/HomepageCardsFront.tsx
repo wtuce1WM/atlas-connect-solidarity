@@ -212,20 +212,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
           ? "Vente"
           : it.priceType
       : null;
-    const immoBadge = showImmoBadge ? (
-      <div className="absolute inset-x-0 bottom-6 z-[9] flex flex-col items-center gap-1 px-2 pointer-events-none">
-        {it.price && (
-          <span className="px-2 py-0.5 rounded bg-black/80 text-white text-[11px] font-bold leading-tight max-w-full truncate">
-            {it.price}
-          </span>
-        )}
-        {priceTypeLabel && (
-          <span className="px-2 py-0.5 rounded bg-gold text-black text-[10px] font-bold uppercase tracking-wide leading-tight">
-            {priceTypeLabel}
-          </span>
-        )}
-      </div>
-    ) : null;
+    const immoBadge = null;
 
     if (!it.videoId) {
       return (
