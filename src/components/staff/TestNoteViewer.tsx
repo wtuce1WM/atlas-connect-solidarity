@@ -156,11 +156,51 @@ const TestNoteViewer = () => {
         .order("sort_order");
       const genericDocs = ((genericRows as any[]) || []).filter(g => isInternalVideoUrl(g.url));
 
-      const [badgesRes, subsRes, servicesRes] = await Promise.all([
+      const [badgesRes, subsRes, servicesRes, citiesRes] = await Promise.all([
         supabase.from("badges").select("id, name_fr"),
         supabase.from("subcategories").select("id, name_fr"),
         supabase.from("services").select("id, name_fr"),
+        supabase.from("cities").select("id, name_fr"),
       ]);
+      const cityNameMap = new Map<string, string>(((citiesRes.data as any[]) || []).map(c => [c.id, c.name_fr]));
+
+      // Multi-city associations for business video documents
+      const docCityMap = new Map<string, string[]>();
+      const docIdsForCities = allDocs.map(d => d.id);
+      for (let i = 0; i < docIdsForCities.length; i += 200) {
+        const { data } = await supabase
+          .from("business_document_cities")
+          .select("document_id, city_id")
+          .in("document_id", docIdsForCities.slice(i, i + 200));
+        if (data) {
+          (data as any[]).forEach(row => {
+            const name = cityNameMap.get(row.city_id);
+            if (!name) return;
+            const arr = docCityMap.get(row.document_id) || [];
+            if (!arr.includes(name)) arr.push(name);
+            docCityMap.set(row.document_id, arr);
+          });
+        }
+      }
+
+      // Multi-city associations for generic videos
+      const genericCityMap = new Map<string, string[]>();
+      const genericIdsForCities = genericDocs.map(g => g.id);
+      for (let i = 0; i < genericIdsForCities.length; i += 200) {
+        const { data } = await supabase
+          .from("generic_video_cities" as any)
+          .select("generic_video_id, city_id")
+          .in("generic_video_id", genericIdsForCities.slice(i, i + 200));
+        if (data) {
+          (data as any[]).forEach(row => {
+            const name = cityNameMap.get(row.city_id);
+            if (!name) return;
+            const arr = genericCityMap.get(row.generic_video_id) || [];
+            if (!arr.includes(name)) arr.push(name);
+            genericCityMap.set(row.generic_video_id, arr);
+          });
+        }
+      }
 
       // Badge links - business
       const allLinks: any[] = [];
