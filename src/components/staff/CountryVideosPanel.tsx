@@ -261,9 +261,17 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
       seenIds.add(d.id);
       return true;
     });
+
+    // Fetch multi-city associations
+    const { fetchVideoCities } = await import("@/lib/fetchVideoCities");
+    const { businessDocCities } = await fetchVideoCities({
+      businessDocumentIds: dedupedDocs.map(d => d.id),
+    });
+
     setVideos(dedupedDocs.map(d => {
       const biz = bizMap.get(d.business_id);
       const sc = d.subcategory_id ? scMap.get(d.subcategory_id) : null;
+      const multi = businessDocCities.get(d.id) || [];
       return {
         id: d.id,
         url: d.url,
@@ -276,6 +284,7 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
         subcategory_name: sc?.name || "—",
         category_id: sc?.category_id || null,
         city: d.city || null,
+        cities: multi.length > 0 ? multi : (d.city ? [d.city] : []),
         neighborhood: d.neighborhood || null,
         service_name: d.service_id ? (svcMap.get(d.service_id) || "—") : null,
         poi_name: d.poi_id ? (bizMap.get(d.poi_id)?.name || "—") : null,
