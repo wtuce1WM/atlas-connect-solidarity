@@ -237,13 +237,57 @@ const InlineThumbnailAssignment = ({
                     Capturer cette image
                   </Button>
                 </div>
-              ) : (
+              ) : ytId ? null : (
                 <p className="text-[11px] text-muted-foreground">
                   ⚠️ Capture par timestamp uniquement pour les vidéos hébergées (mp4/webm).
-                  Pour YouTube/Vimeo, utilise l'upload manuel.
                 </p>
               )}
             </div>
+
+            {/* YouTube thumbnail picker */}
+            {ytId && (
+              <div className="space-y-2">
+                <Label className="text-xs">Choisir une image proposée par YouTube</Label>
+                <p className="text-[11px] text-muted-foreground">
+                  Cliquez sur une vignette pour la sélectionner. Les 3 dernières sont des frames extraites à 25%, 50% et 75% de la vidéo.
+                </p>
+                <div className="grid grid-cols-3 gap-2">
+                  {ytCandidates.map((c) => {
+                    const isSelected = thumbnailUrl?.includes(`/${ytId}/`) || (thumbnailUrl?.endsWith(c.url.split("/").pop()!) ?? false);
+                    return (
+                      <button
+                        key={c.key}
+                        type="button"
+                        disabled={uploading}
+                        onClick={() => pickYouTubeThumbnail(c.url)}
+                        className={
+                          "group relative aspect-video bg-black rounded overflow-hidden border-2 transition " +
+                          (isSelected ? "border-primary" : "border-transparent hover:border-muted-foreground/50")
+                        }
+                        title={c.label}
+                      >
+                        <img
+                          src={c.url}
+                          alt={c.label}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.currentTarget.parentElement as HTMLElement).style.display = "none";
+                          }}
+                        />
+                        <div className="absolute inset-x-0 bottom-0 bg-black/60 text-white text-[9px] px-1 py-0.5 truncate">
+                          {c.label}
+                        </div>
+                        {uploading && (
+                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                            <Loader2 className="h-4 w-4 animate-spin text-white" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Current thumbnail */}
             <div>
