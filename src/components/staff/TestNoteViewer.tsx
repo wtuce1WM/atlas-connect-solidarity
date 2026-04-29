@@ -510,12 +510,12 @@ const TestNoteViewer = () => {
           )}
           {(() => {
             const base = videos.filter(v => v.badge_ids.length === 0);
-            const cityOptions = Array.from(new Set(base.map(v => v.city).filter(Boolean) as string[])).sort((a, b) => a.localeCompare(b, "fr"));
-            const hasNoCity = base.some(v => !v.city);
+            const cityOptions = Array.from(new Set(base.flatMap(v => v.cities))).sort((a, b) => a.localeCompare(b, "fr"));
+            const hasNoCity = base.some(v => v.cities.length === 0);
             const toBadge = base.filter(v =>
               toBadgeCity === "all" ? true :
-              toBadgeCity === "__none__" ? !v.city :
-              v.city?.toLowerCase() === toBadgeCity.toLowerCase()
+              toBadgeCity === "__none__" ? v.cities.length === 0 :
+              v.cities.some(c => c.toLowerCase() === toBadgeCity.toLowerCase())
             );
             return (
               <>
@@ -526,10 +526,10 @@ const TestNoteViewer = () => {
                     <SelectContent>
                       <SelectItem value="all">Toutes ({base.length})</SelectItem>
                       {cityOptions.map(c => (
-                        <SelectItem key={c} value={c}>{c} ({base.filter(v => v.city?.toLowerCase() === c.toLowerCase()).length})</SelectItem>
+                        <SelectItem key={c} value={c}>{c} ({base.filter(v => v.cities.some(x => x.toLowerCase() === c.toLowerCase())).length})</SelectItem>
                       ))}
                       {hasNoCity && (
-                        <SelectItem value="__none__">Sans ville ({base.filter(v => !v.city).length})</SelectItem>
+                        <SelectItem value="__none__">Sans ville ({base.filter(v => v.cities.length === 0).length})</SelectItem>
                       )}
                     </SelectContent>
                   </Select>
