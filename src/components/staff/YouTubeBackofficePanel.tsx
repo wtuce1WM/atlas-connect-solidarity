@@ -114,6 +114,30 @@ const YouTubeBackofficePanel = () => {
 
   useEffect(() => { loadAll(); }, [loadAll]);
 
+  /** Light refresh: only re-fetch the link tables to update CTA counts. */
+  const reloadCounts = useCallback(async () => {
+    const [poiRes, bizLinkRes, destRes, badgeRes, subcatRes, cityRes] = await Promise.all([
+      supabase.from("business_youtube_video_pois").select("youtube_video_id"),
+      supabase.from("business_youtube_video_businesses").select("youtube_video_id"),
+      supabase.from("business_youtube_video_destinations").select("youtube_video_id"),
+      supabase.from("business_youtube_video_badges").select("youtube_video_id"),
+      supabase.from("business_youtube_video_subcategories").select("youtube_video_id"),
+      supabase.from("business_youtube_video_cities").select("youtube_video_id"),
+    ]);
+    const c: Record<string, { poi: number; business: number; destination: number; tags: number }> = {};
+    const bump = (id: string, key: "poi" | "business" | "destination" | "tags") => {
+      if (!c[id]) c[id] = { poi: 0, business: 0, destination: 0, tags: 0 };
+      c[id][key]++;
+    };
+    (poiRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "poi"));
+    (bizLinkRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "business"));
+    (destRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "destination"));
+    (badgeRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
+    (subcatRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
+    (cityRes.data || []).forEach((r: any) => bump(r.youtube_video_id, "tags"));
+    setCounts(c);
+  }, []);
+
   const toggleOpen = (id: string) => {
     setOpenIds((prev) => {
       const next = new Set(prev);
@@ -373,7 +397,7 @@ const YouTubeBackofficePanel = () => {
               source="youtube"
               video={activePanel.video}
               onClose={closePanel}
-              onSaved={loadAll}
+              onSaved={reloadCounts}
             />
           )}
           {activePanel.kind === "business" && (
@@ -381,7 +405,7 @@ const YouTubeBackofficePanel = () => {
               source="youtube"
               video={activePanel.video}
               onClose={closePanel}
-              onSaved={loadAll}
+              onSaved={reloadCounts}
             />
           )}
           {activePanel.kind === "destination" && (
@@ -389,7 +413,7 @@ const YouTubeBackofficePanel = () => {
               source="youtube"
               video={activePanel.video}
               onClose={closePanel}
-              onSaved={loadAll}
+              onSaved={reloadCounts}
             />
           )}
           {activePanel.kind === "tags" && (
@@ -397,7 +421,7 @@ const YouTubeBackofficePanel = () => {
               source="youtube"
               video={activePanel.video}
               onClose={closePanel}
-              onSaved={loadAll}
+              onSaved={reloadCounts}
             />
           )}
           {activePanel.kind === "thumbnail" && (

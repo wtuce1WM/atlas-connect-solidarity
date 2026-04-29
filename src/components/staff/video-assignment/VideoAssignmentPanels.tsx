@@ -187,7 +187,7 @@ export const InlinePoiAssignment = ({
       );
     }
     toast.success(`${selectedIds.length} POI(s) affecté(s)`);
-    setInitialIds([...selectedIds]); onSaved(); onClose(); setSaving(false);
+    setInitialIds([...selectedIds]); onSaved(); setSaving(false);
   };
 
   const availableCities = useMemo(() => {
@@ -378,7 +378,7 @@ export const InlineBusinessAssignment = ({
       );
     }
     toast.success(`${selectedIds.length} établissement(s) affecté(s)`);
-    setInitialIds([...selectedIds]); onSaved(); onClose(); setSaving(false);
+    setInitialIds([...selectedIds]); onSaved(); setSaving(false);
   };
 
   return (
@@ -539,7 +539,7 @@ export const InlineDestinationCityAssignment = ({
     toast.success("Affectations sauvegardées");
     setInitialDestIds([...selectedDestIds]);
     setInitialCityIds([...selectedCityIds]);
-    onSaved(); onClose(); setSaving(false);
+    onSaved(); setSaving(false);
   };
 
   const availableCities = useMemo(() => {
@@ -747,7 +747,7 @@ export const InlineBadgeSubcatCityAssignment = ({
     setInitialBadgeIds([...selectedBadgeIds]);
     setInitialSubcatIds([...selectedSubcatIds]);
     setInitialCityIds([...selectedCityIds]);
-    onSaved(); onClose(); setSaving(false);
+    onSaved(); setSaving(false);
   };
 
   const filteredSubcats = useMemo(() => {
