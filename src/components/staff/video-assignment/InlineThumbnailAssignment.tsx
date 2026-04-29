@@ -25,13 +25,32 @@ const extractYouTubeId = (url: string): string | null => {
 
 /** Candidate thumbnails YouTube exposes for any public video. */
 const youtubeThumbnailCandidates = (ytId: string) => [
-  { key: "maxres",  label: "Max résolution",     url: `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg` },
-  { key: "hq",      label: "Haute qualité",      url: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` },
-  { key: "sd",      label: "Définition standard",url: `https://img.youtube.com/vi/${ytId}/sddefault.jpg` },
-  { key: "frame1",  label: "Frame ~25%",         url: `https://img.youtube.com/vi/${ytId}/1.jpg` },
-  { key: "frame2",  label: "Frame ~50%",         url: `https://img.youtube.com/vi/${ytId}/2.jpg` },
-  { key: "frame3",  label: "Frame ~75%",         url: `https://img.youtube.com/vi/${ytId}/3.jpg` },
+  { key: "maxres",  label: "Max résolution",     url: `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`, pct: null as number | null },
+  { key: "hq",      label: "Haute qualité",      url: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`,    pct: null },
+  { key: "sd",      label: "Définition standard",url: `https://img.youtube.com/vi/${ytId}/sddefault.jpg`,    pct: null },
+  { key: "frame1",  label: "Frame ~25%",         url: `https://img.youtube.com/vi/${ytId}/1.jpg`,            pct: 25 },
+  { key: "frame2",  label: "Frame ~50%",         url: `https://img.youtube.com/vi/${ytId}/2.jpg`,            pct: 50 },
+  { key: "frame3",  label: "Frame ~75%",         url: `https://img.youtube.com/vi/${ytId}/3.jpg`,            pct: 75 },
 ];
+
+/** Lazy-load YouTube IFrame API once. */
+let ytApiPromise: Promise<any> | null = null;
+const loadYouTubeApi = (): Promise<any> => {
+  if (typeof window === "undefined") return Promise.reject();
+  if ((window as any).YT?.Player) return Promise.resolve((window as any).YT);
+  if (ytApiPromise) return ytApiPromise;
+  ytApiPromise = new Promise((resolve) => {
+    const prev = (window as any).onYouTubeIframeAPIReady;
+    (window as any).onYouTubeIframeAPIReady = () => {
+      prev?.();
+      resolve((window as any).YT);
+    };
+    const tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.head.appendChild(tag);
+  });
+  return ytApiPromise;
+};
 
 export type ThumbnailSource = "business_documents" | "generic_videos" | "business_youtube_videos";
 
@@ -55,8 +74,14 @@ const InlineThumbnailAssignment = ({
   const [uploading, setUploading] = useState(false);
   const [capturing, setCapturing] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
+  const [ytDuration, setYtDuration] = useState(0);
+  const [ytTime, setYtTime] = useState(0);
+  const [ytReady, setYtReady] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const ytPlayerRef = useRef<any>(null);
+  const ytContainerRef = useRef<HTMLDivElement>(null);
+  const ytPollRef = useRef<number | null>(null);
 
   /** Column name that stores the displayed thumbnail per source. */
   const thumbCol = source === "business_youtube_videos" ? "custom_thumbnail_url" : "thumbnail_url";
@@ -81,6 +106,43 @@ const InlineThumbnailAssignment = ({
     })();
     return () => { alive = false; };
   }, [source, videoId, thumbCol]);
+
+  // Init YouTube IFrame Player API for granular seek + capture
+  const ytIdLocal = extractYouTubeId(videoUrl);
+  useEffect(() => {
+    if (!ytIdLocal || !ytContainerRef.current) return;
+    let destroyed = false;
+    let player: any = null;
+    loadYouTubeApi().then((YT) => {
+      if (destroyed || !ytContainerRef.current) return;
+      player = new YT.Player(ytContainerRef.current, {
+        videoId: ytIdLocal,
+        playerVars: { rel: 0, modestbranding: 1, playsinline: 1 },
+        events: {
+          onReady: () => {
+            if (destroyed) return;
+            ytPlayerRef.current = player;
+            setYtReady(true);
+            try { setYtDuration(player.getDuration() || 0); } catch {}
+            ytPollRef.current = window.setInterval(() => {
+              try {
+                if (player?.getCurrentTime) setYtTime(player.getCurrentTime());
+                if (player?.getDuration && !ytDuration) setYtDuration(player.getDuration() || 0);
+              } catch {}
+            }, 250);
+          },
+        },
+      });
+    });
+    return () => {
+      destroyed = true;
+      if (ytPollRef.current) { clearInterval(ytPollRef.current); ytPollRef.current = null; }
+      try { player?.destroy?.(); } catch {}
+      ytPlayerRef.current = null;
+      setYtReady(false);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ytIdLocal]);
 
   const persistThumbnail = async (publicUrl: string) => {
     const { error } = await (supabase as any)
@@ -169,6 +231,25 @@ const InlineThumbnailAssignment = ({
     }
   };
 
+  /** Pick the YT-provided frame thumbnail (1/2/3.jpg) closest to current YT player time. */
+  const captureClosestYouTubeFrame = async () => {
+    if (!ytId || !ytPlayerRef.current || !ytDuration) {
+      toast.error("Lecteur YouTube pas encore prêt");
+      return;
+    }
+    const t = typeof ytPlayerRef.current.getCurrentTime === "function"
+      ? ytPlayerRef.current.getCurrentTime() : ytTime;
+    const pct = (t / ytDuration) * 100;
+    const targets = [
+      { pct: 25, url: `https://img.youtube.com/vi/${ytId}/1.jpg` },
+      { pct: 50, url: `https://img.youtube.com/vi/${ytId}/2.jpg` },
+      { pct: 75, url: `https://img.youtube.com/vi/${ytId}/3.jpg` },
+    ];
+    const best = targets.reduce((a, b) => Math.abs(b.pct - pct) < Math.abs(a.pct - pct) ? b : a);
+    toast.info(`Frame YouTube la plus proche : ~${best.pct}% (position ${pct.toFixed(0)}%)`);
+    await pickYouTubeThumbnail(best.url);
+  };
+
   const toggleLock = async () => {
     const newLocked = !thumbnailLocked;
     const { error } = await (supabase as any)
@@ -217,6 +298,8 @@ const InlineThumbnailAssignment = ({
                     playsInline
                     onTimeUpdate={(e) => setCurrentTime((e.target as HTMLVideoElement).currentTime)}
                   />
+                ) : ytId ? (
+                  <div ref={ytContainerRef} className="w-full h-full" />
                 ) : embed ? (
                   <iframe
                     src={embed.embedUrl}
@@ -237,7 +320,23 @@ const InlineThumbnailAssignment = ({
                     Capturer cette image
                   </Button>
                 </div>
-              ) : ytId ? null : (
+              ) : ytId ? (
+                <div className="space-y-1">
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className="text-xs text-muted-foreground">
+                      Position : <span className="font-mono font-semibold text-foreground">{ytTime.toFixed(1)}s</span>
+                      {ytDuration > 0 && <> / {ytDuration.toFixed(0)}s ({((ytTime / ytDuration) * 100).toFixed(0)}%)</>}
+                    </span>
+                    <Button onClick={captureClosestYouTubeFrame} disabled={uploading || !ytReady} size="sm">
+                      {uploading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Camera className="h-4 w-4 mr-2" />}
+                      Capturer ici (frame YT la plus proche)
+                    </Button>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">
+                    ⚠️ YouTube n'expose que 3 frames publiques (~25%, 50%, 75%). Le bouton sélectionne la plus proche de votre position.
+                  </p>
+                </div>
+              ) : (
                 <p className="text-[11px] text-muted-foreground">
                   ⚠️ Capture par timestamp uniquement pour les vidéos hébergées (mp4/webm).
                 </p>
