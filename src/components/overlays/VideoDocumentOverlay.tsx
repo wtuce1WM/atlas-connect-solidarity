@@ -55,13 +55,16 @@ const VideoDocumentOverlay = ({
   }, [isPlaying, postCmd]);
 
   const toggleMute = useCallback(() => {
+    const next = !isMuted;
     if (videoRef.current) {
-      videoRef.current.muted = !isMuted;
+      videoRef.current.muted = next;
     } else {
-      postCmd(isMuted ? "unMute" : "mute");
+      postCmd(next ? "mute" : "unMute");
     }
-    setIsMuted(m => !m);
-  }, [isMuted, postCmd]);
+    setIsMuted(next);
+    // Persist user's choice across all videos / panels / sessions
+    setSoundOn(!next);
+  }, [isMuted, postCmd, setSoundOn]);
 
   const vidUrl = activeVideo.url;
   const currentIdx = videoDocs.findIndex(v => v.url === vidUrl);
@@ -74,12 +77,12 @@ const VideoDocumentOverlay = ({
       onNavigate({ url: v.url, name: v.name, description: v.description });
       setDescExpanded(false);
       setIsPlaying(true);
-      setIsMuted(!defaultSoundOn);
+      setIsMuted(!soundOn);
     }
   };
 
   const overlayVid = getVideoEmbed(vidUrl, window.location.origin);
-  const muteVal = defaultSoundOn ? "0" : "1";
+  const muteVal = soundOn ? "0" : "1";
   const overlayEmbedUrl = overlayVid.type === "youtube"
     ? overlayVid.embedUrl.replace(/mute=\d/, `mute=${muteVal}`).replace(/loop=\d/, "loop=1").replace(/controls=\d/, "controls=1") + `&playlist=${vidUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1] || ""}`
     : overlayVid.type === "vimeo"
