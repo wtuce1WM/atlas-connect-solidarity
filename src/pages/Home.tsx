@@ -1202,7 +1202,7 @@ const Home = () => {
         }
 
         const docItems: VideoItem[] = limitedDocs.map((d: any) => {
-          const biz = resolveVideoEstablishment(d, bizMap);
+          const biz = resolveVideoEstablishment(d, bizMap, { strict: strictResolve });
           return {
             id: d.id,
             url: d.url,
