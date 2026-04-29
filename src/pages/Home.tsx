@@ -117,24 +117,27 @@ const Home = () => {
   const initialUrlRestoredRef = useRef(false);
 
   // One-time restore from URL on mount (shareable links: city/entry/sub/badge/event/badgeView/view)
+  // Read directly from window.location.search to avoid any timing issue with useSearchParams.
   useEffect(() => {
     if (initialUrlRestoredRef.current) return;
     initialUrlRestoredRef.current = true;
-    if (searchParams.get("openVideo")) return; // handled by the openVideo effect below
 
-    const cityParam = searchParams.get("city") as City | null;
+    const sp = new URLSearchParams(window.location.search);
+    if (sp.get("openVideo")) return; // handled by the openVideo effect below
+
+    const cityParam = sp.get("city") as City | null;
     if (cityParam && CITIES.includes(cityParam)) setCity(cityParam);
 
-    const entryParam = searchParams.get("entry");
-    const subParam = searchParams.get("sub");
-    const badgeId = searchParams.get("badgeId");
-    const badgeLabel = searchParams.get("badgeLabel");
-    const eventId = searchParams.get("eventId");
-    const eventLabel = searchParams.get("eventLabel");
-    const eventIds = searchParams.get("eventIds");
-    const badgeViewParam = searchParams.get("badgeView");
-    const badgeViewLabelParam = searchParams.get("badgeViewLabel");
-    const viewParam = searchParams.get("view");
+    const entryParam = sp.get("entry");
+    const subParam = sp.get("sub");
+    const badgeId = sp.get("badgeId");
+    const badgeLabel = sp.get("badgeLabel");
+    const eventId = sp.get("eventId");
+    const eventLabel = sp.get("eventLabel");
+    const eventIds = sp.get("eventIds");
+    const badgeViewParam = sp.get("badgeView");
+    const badgeViewLabelParam = sp.get("badgeViewLabel");
+    const viewParam = sp.get("view");
 
     if (eventId && eventLabel) {
       setVideoEventFilter({ eventId, label: eventLabel, eventIds: eventIds ? eventIds.split(",").filter(Boolean) : undefined });
@@ -147,7 +150,7 @@ const Home = () => {
       if (subParam) setSelectedSubId(subParam);
     }
     if (subParam && (eventId || badgeId)) setSelectedSubId(subParam);
-    
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
