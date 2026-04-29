@@ -267,6 +267,35 @@ const InlineThumbnailAssignment = ({
     await pickYouTubeThumbnail(best.url);
   };
 
+  /** Server-side HD capture via ApiFlash edge function (1280×720 at exact timestamp). */
+  const captureYouTubeHD = async () => {
+    if (!ytId || !ytPlayerRef.current) {
+      toast.error("Lecteur YouTube pas encore prêt");
+      return;
+    }
+    const t = Math.floor(
+      typeof ytPlayerRef.current.getCurrentTime === "function"
+        ? ytPlayerRef.current.getCurrentTime() : ytTime
+    );
+    setUploading(true);
+    const toastId = toast.loading(`Capture HD à ${t}s en cours (5-10s)…`);
+    try {
+      const { data, error } = await supabase.functions.invoke("youtube-frame-capture", {
+        body: { youtubeId: ytId, timestamp: t, source, videoRowId: videoId },
+      });
+      if (error) throw error;
+      if (!data?.url) throw new Error("Réponse invalide");
+      setThumbnailUrl(data.url);
+      setThumbnailLocked(true);
+      onSaved?.();
+      toast.success(`Vignette HD capturée à ${t}s`, { id: toastId });
+    } catch (e: any) {
+      toast.error(e?.message || "Erreur capture HD", { id: toastId });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const toggleYouTubePlayback = () => {
     if (!ytPlayerRef.current) {
       toast.error("Lecteur YouTube en cours de chargement");
@@ -379,13 +408,18 @@ const InlineThumbnailAssignment = ({
                       Position : <span className="font-mono font-semibold text-foreground">{ytTime.toFixed(1)}s</span>
                       {ytDuration > 0 && <> / {ytDuration.toFixed(0)}s ({((ytTime / ytDuration) * 100).toFixed(0)}%)</>}
                     </span>
-                    <Button onClick={captureClosestYouTubeFrame} disabled={uploading || !ytReady} size="sm">
+                    <Button onClick={captureClosestYouTubeFrame} disabled={uploading || !ytReady} size="sm" variant="outline">
                       {uploading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Camera className="h-4 w-4 mr-2" />}
-                      Capturer ici (frame YT la plus proche)
+                      Frame YT la plus proche (rapide)
+                    </Button>
+                    <Button onClick={captureYouTubeHD} disabled={uploading || !ytReady} size="sm">
+                      {uploading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Camera className="h-4 w-4 mr-2" />}
+                      Capturer en HD (1280×720)
                     </Button>
                   </div>
                   <p className="text-[10px] text-muted-foreground">
-                    ⚠️ YouTube n'expose que 3 frames publiques (~25%, 50%, 75%). Le bouton sélectionne la plus proche de votre position.
+                    ⚡ <strong>HD</strong> : capture serveur à votre timestamp exact via ApiFlash (~5s, qualité 1280×720).
+                    Frame YT : instantané mais limité aux 3 frames publiques (~25/50/75%).
                   </p>
                 </div>
               ) : (
