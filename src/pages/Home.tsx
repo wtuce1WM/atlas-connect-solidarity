@@ -331,18 +331,6 @@ const Home = () => {
       });
       setSubcatNames(subMap);
 
-      // Build subcategory → front_structure entry map (parent dans la structure du front)
-      const entryNameById: Record<string, string> = {};
-      (entriesRes.data || []).forEach((e: any) => { entryNameById[e.id] = e.name; });
-      const parentMap: Record<string, string> = {};
-      (linksRes.data || []).forEach((l: any) => {
-        const entryName = entryNameById[l.front_structure_id];
-        if (entryName && !parentMap[l.subcategory_id]) {
-          parentMap[l.subcategory_id] = entryName;
-        }
-      });
-      setSubcatParents(parentMap);
-
       const svcMap: Record<string, string> = {};
       (servicesRes.data || []).forEach((s: any) => { svcMap[s.id] = s.name_fr; });
       setServiceNames(svcMap);
