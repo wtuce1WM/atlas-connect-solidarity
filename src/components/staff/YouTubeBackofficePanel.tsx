@@ -269,18 +269,13 @@ const YouTubeBackofficePanel = () => {
                           >
                             <button
                               type="button"
-                              onClick={() => setPlayingVideoId(playingVideoId === v.id ? null : v.id)}
+                              onClick={() => setLightboxUrl(`https://www.youtube.com/watch?v=${v.video_id}`)}
                               className="relative shrink-0 w-32 aspect-video bg-black rounded overflow-hidden group"
+                              title="Lire la vidéo"
                             >
-                              {playingVideoId === v.id ? (
-                                <iframe
-                                  src={`https://www.youtube.com/embed/${v.video_id}?autoplay=1`}
-                                  className="w-full h-full"
-                                  allow="autoplay"
-                                />
-                              ) : v.thumbnail ? (
+                              {(v.custom_thumbnail_url || v.thumbnail) ? (
                                 <>
-                                  <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover" />
+                                  <img src={v.custom_thumbnail_url || v.thumbnail!} alt={v.title} className="w-full h-full object-cover" />
                                   <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition">
                                     <Play className="h-6 w-6 text-white" />
                                   </div>
@@ -292,6 +287,9 @@ const YouTubeBackofficePanel = () => {
                               )}
                               {v.is_short && (
                                 <Badge className="absolute top-1 left-1 text-[9px] px-1 py-0">SHORT</Badge>
+                              )}
+                              {v.thumbnail_locked && (
+                                <Badge className="absolute bottom-1 right-1 text-[9px] px-1 py-0 bg-amber-600">🔒</Badge>
                               )}
                             </button>
 
