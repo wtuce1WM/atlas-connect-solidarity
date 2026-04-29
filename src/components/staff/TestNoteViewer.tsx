@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Play } from "lucide-react";
+import { Loader2, Play, Copy } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
@@ -436,6 +436,15 @@ const TestNoteViewer = () => {
                               </p>
                             )}
                             {v.name && <p className="text-[11px] text-muted-foreground/70 truncate">{v.name}</p>}
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(v.id); toast.success(`ID copié : ${v.id.slice(0, 8)}…`); }}
+                              className="mt-1 inline-flex items-center gap-1 font-mono text-[10px] text-muted-foreground/60 hover:text-primary transition-colors"
+                              title="Copier l'ID complet"
+                            >
+                              <Copy className="h-3 w-3" />
+                              {v.id}
+                            </button>
                           </div>
                         </div>
                       );
@@ -583,6 +592,15 @@ const TestNoteViewer = () => {
                                   </p>
                                 )}
                                 {v.name && <p className="text-[11px] text-muted-foreground/70 truncate">{v.name}</p>}
+                                <button
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(v.id); toast.success(`ID copié : ${v.id.slice(0, 8)}…`); }}
+                                  className="mt-1 inline-flex items-center gap-1 font-mono text-[10px] text-muted-foreground/60 hover:text-primary transition-colors"
+                                  title="Copier l'ID complet"
+                                >
+                                  <Copy className="h-3 w-3" />
+                                  {v.id}
+                                </button>
                               </div>
                             </div>
                           );
