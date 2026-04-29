@@ -16,6 +16,7 @@ interface VideoDoc {
   name: string | null;
   thumbnail_url: string | null;
   city: string | null;
+  cities: string[];
   neighborhood: string | null;
   business_id: string | null;
   business_name: string;
@@ -155,11 +156,51 @@ const TestNoteViewer = () => {
         .order("sort_order");
       const genericDocs = ((genericRows as any[]) || []).filter(g => isInternalVideoUrl(g.url));
 
-      const [badgesRes, subsRes, servicesRes] = await Promise.all([
+      const [badgesRes, subsRes, servicesRes, citiesRes] = await Promise.all([
         supabase.from("badges").select("id, name_fr"),
         supabase.from("subcategories").select("id, name_fr"),
         supabase.from("services").select("id, name_fr"),
+        supabase.from("cities").select("id, name_fr"),
       ]);
+      const cityNameMap = new Map<string, string>(((citiesRes.data as any[]) || []).map(c => [c.id, c.name_fr]));
+
+      // Multi-city associations for business video documents
+      const docCityMap = new Map<string, string[]>();
+      const docIdsForCities = allDocs.map(d => d.id);
+      for (let i = 0; i < docIdsForCities.length; i += 200) {
+        const { data } = await supabase
+          .from("business_document_cities")
+          .select("document_id, city_id")
+          .in("document_id", docIdsForCities.slice(i, i + 200));
+        if (data) {
+          (data as any[]).forEach(row => {
+            const name = cityNameMap.get(row.city_id);
+            if (!name) return;
+            const arr = docCityMap.get(row.document_id) || [];
+            if (!arr.includes(name)) arr.push(name);
+            docCityMap.set(row.document_id, arr);
+          });
+        }
+      }
+
+      // Multi-city associations for generic videos
+      const genericCityMap = new Map<string, string[]>();
+      const genericIdsForCities = genericDocs.map(g => g.id);
+      for (let i = 0; i < genericIdsForCities.length; i += 200) {
+        const { data } = await supabase
+          .from("generic_video_cities" as any)
+          .select("generic_video_id, city_id")
+          .in("generic_video_id", genericIdsForCities.slice(i, i + 200));
+        if (data) {
+          (data as any[]).forEach(row => {
+            const name = cityNameMap.get(row.city_id);
+            if (!name) return;
+            const arr = genericCityMap.get(row.generic_video_id) || [];
+            if (!arr.includes(name)) arr.push(name);
+            genericCityMap.set(row.generic_video_id, arr);
+          });
+        }
+      }
 
       // Badge links - business
       const allLinks: any[] = [];
@@ -209,35 +250,45 @@ const TestNoteViewer = () => {
         badgeMap.set(l.generic_video_id, arr);
       });
 
-      const businessVideos: VideoDoc[] = allDocs.map(d => ({
-        id: d.id,
-        url: d.url,
-        name: d.name,
-        thumbnail_url: d.thumbnail_url,
-        city: d.city,
-        neighborhood: d.neighborhood,
-        business_id: d.business_id,
-        business_name: bizMap.get(d.business_id) || "—",
-        badge_ids: badgeMap.get(d.id) || [],
-        subcategory_name: d.subcategory_id ? subMap.get(d.subcategory_id) || null : null,
-        service_name: d.service_id ? svcMap.get(d.service_id) || null : null,
-        source: "business",
-      }));
+      const businessVideos: VideoDoc[] = allDocs.map(d => {
+        const multi = docCityMap.get(d.id) || [];
+        const cities = multi.length > 0 ? multi : (d.city ? [d.city] : []);
+        return {
+          id: d.id,
+          url: d.url,
+          name: d.name,
+          thumbnail_url: d.thumbnail_url,
+          city: d.city,
+          cities,
+          neighborhood: d.neighborhood,
+          business_id: d.business_id,
+          business_name: bizMap.get(d.business_id) || "—",
+          badge_ids: badgeMap.get(d.id) || [],
+          subcategory_name: d.subcategory_id ? subMap.get(d.subcategory_id) || null : null,
+          service_name: d.service_id ? svcMap.get(d.service_id) || null : null,
+          source: "business",
+        };
+      });
 
-      const genericVideos: VideoDoc[] = genericDocs.map(g => ({
-        id: g.id,
-        url: g.url,
-        name: g.name,
-        thumbnail_url: g.thumbnail_url,
-        city: g.city,
-        neighborhood: g.neighborhood,
-        business_id: null,
-        business_name: g.instagram_account || g.tiktok_account || g.youtube_account || "— Générique —",
-        badge_ids: badgeMap.get(g.id) || [],
-        subcategory_name: null,
-        service_name: null,
-        source: "generic",
-      }));
+      const genericVideos: VideoDoc[] = genericDocs.map(g => {
+        const multi = genericCityMap.get(g.id) || [];
+        const cities = multi.length > 0 ? multi : (g.city ? [g.city] : []);
+        return {
+          id: g.id,
+          url: g.url,
+          name: g.name,
+          thumbnail_url: g.thumbnail_url,
+          city: g.city,
+          cities,
+          neighborhood: g.neighborhood,
+          business_id: null,
+          business_name: g.instagram_account || g.tiktok_account || g.youtube_account || "— Générique —",
+          badge_ids: badgeMap.get(g.id) || [],
+          subcategory_name: null,
+          service_name: null,
+          source: "generic",
+        };
+      });
 
       setVideos([...businessVideos, ...genericVideos]);
       setVideosLoading(false);
@@ -247,8 +298,8 @@ const TestNoteViewer = () => {
 
   const matchesCity = (v: VideoDoc) =>
     city === "none" ? false :
-    city === "__none__" ? !v.city :
-    v.city?.toLowerCase() === city.toLowerCase();
+    city === "__none__" ? v.cities.length === 0 :
+    v.cities.some(c => c.toLowerCase() === city.toLowerCase());
 
   const availableBadges = useMemo(() => {
     if (city === "none") return badges;
@@ -379,9 +430,9 @@ const TestNoteViewer = () => {
                                 {[v.subcategory_name, v.service_name].filter(Boolean).join(" · ")}
                               </p>
                             )}
-                            {(v.city || v.neighborhood) && (
+                            {(v.cities.length > 0 || v.neighborhood) && (
                               <p className="text-[11px] text-muted-foreground/70 truncate">
-                                {[v.city, v.neighborhood].filter(Boolean).join(" · ")}
+                                {[v.cities.join(", "), v.neighborhood].filter(Boolean).join(" · ")}
                               </p>
                             )}
                             {v.name && <p className="text-[11px] text-muted-foreground/70 truncate">{v.name}</p>}
@@ -459,12 +510,12 @@ const TestNoteViewer = () => {
           )}
           {(() => {
             const base = videos.filter(v => v.badge_ids.length === 0);
-            const cityOptions = Array.from(new Set(base.map(v => v.city).filter(Boolean) as string[])).sort((a, b) => a.localeCompare(b, "fr"));
-            const hasNoCity = base.some(v => !v.city);
+            const cityOptions = Array.from(new Set(base.flatMap(v => v.cities))).sort((a, b) => a.localeCompare(b, "fr"));
+            const hasNoCity = base.some(v => v.cities.length === 0);
             const toBadge = base.filter(v =>
               toBadgeCity === "all" ? true :
-              toBadgeCity === "__none__" ? !v.city :
-              v.city?.toLowerCase() === toBadgeCity.toLowerCase()
+              toBadgeCity === "__none__" ? v.cities.length === 0 :
+              v.cities.some(c => c.toLowerCase() === toBadgeCity.toLowerCase())
             );
             return (
               <>
@@ -475,10 +526,10 @@ const TestNoteViewer = () => {
                     <SelectContent>
                       <SelectItem value="all">Toutes ({base.length})</SelectItem>
                       {cityOptions.map(c => (
-                        <SelectItem key={c} value={c}>{c} ({base.filter(v => v.city?.toLowerCase() === c.toLowerCase()).length})</SelectItem>
+                        <SelectItem key={c} value={c}>{c} ({base.filter(v => v.cities.some(x => x.toLowerCase() === c.toLowerCase())).length})</SelectItem>
                       ))}
                       {hasNoCity && (
-                        <SelectItem value="__none__">Sans ville ({base.filter(v => !v.city).length})</SelectItem>
+                        <SelectItem value="__none__">Sans ville ({base.filter(v => v.cities.length === 0).length})</SelectItem>
                       )}
                     </SelectContent>
                   </Select>
@@ -526,9 +577,9 @@ const TestNoteViewer = () => {
                                     {[v.subcategory_name, v.service_name].filter(Boolean).join(" · ")}
                                   </p>
                                 )}
-                                {(v.city || v.neighborhood) && (
+                                {(v.cities.length > 0 || v.neighborhood) && (
                                   <p className="text-[11px] text-muted-foreground/70 truncate">
-                                    {[v.city, v.neighborhood].filter(Boolean).join(" · ")}
+                                    {[v.cities.join(", "), v.neighborhood].filter(Boolean).join(" · ")}
                                   </p>
                                 )}
                                 {v.name && <p className="text-[11px] text-muted-foreground/70 truncate">{v.name}</p>}
