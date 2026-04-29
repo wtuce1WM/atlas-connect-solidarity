@@ -56,6 +56,7 @@ type PanelKind = "poi" | "business" | "destination" | "tags" | "thumbnail";
 const YouTubeBackofficePanel = () => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [videosByBusiness, setVideosByBusiness] = useState<Record<string, YouTubeVideo[]>>({});
+  const [counts, setCounts] = useState<Record<string, { poi: number; business: number; destination: number; tags: number }>>({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
