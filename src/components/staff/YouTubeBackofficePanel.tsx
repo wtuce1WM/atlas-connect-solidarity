@@ -153,7 +153,7 @@ const YouTubeBackofficePanel = () => {
     id: v.id,
     url: `https://www.youtube.com/watch?v=${v.video_id}`,
     name: v.title,
-    thumbnail_url: v.thumbnail,
+    thumbnail_url: v.custom_thumbnail_url || v.thumbnail,
     city: null,
   });
 
