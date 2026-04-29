@@ -74,8 +74,14 @@ const InlineThumbnailAssignment = ({
   const [uploading, setUploading] = useState(false);
   const [capturing, setCapturing] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
+  const [ytDuration, setYtDuration] = useState(0);
+  const [ytTime, setYtTime] = useState(0);
+  const [ytReady, setYtReady] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const ytPlayerRef = useRef<any>(null);
+  const ytContainerRef = useRef<HTMLDivElement>(null);
+  const ytPollRef = useRef<number | null>(null);
 
   /** Column name that stores the displayed thumbnail per source. */
   const thumbCol = source === "business_youtube_videos" ? "custom_thumbnail_url" : "thumbnail_url";
