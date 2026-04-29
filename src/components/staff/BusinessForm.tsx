@@ -2442,10 +2442,23 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       // Save business documents (menus, flipbooks & external links)
       if (businessId) {
         // Generate thumbnails for videos that don't have one yet
-        const isNonEmbedVideo = (url: string) => !url.match(/youtube\.com|youtu\.be|vimeo\.com/i);
+        const isYouTubeOrVimeoUrl = (url: string) => /youtube\.com|youtu\.be|vimeo\.com/i.test(url);
+        const isHostedVideoUrl = (url: string) => !isYouTubeOrVimeoUrl(url);
         const getYouTubeId = (url: string): string | null => {
           const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
           return m ? m[1] : null;
+        };
+        const getVimeoId = (url: string): string | null => {
+          const m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+          return m ? m[1] : null;
+        };
+        const fetchVimeoThumbnail = async (url: string): Promise<string | null> => {
+          try {
+            const r = await fetch(`https://vimeo.com/api/oembed.json?url=${encodeURIComponent(url)}`);
+            if (!r.ok) return null;
+            const j = await r.json();
+            return (j?.thumbnail_url as string) || null;
+          } catch { return null; }
         };
         const normalizedVideoDocs = videoDocs
           .map((d) => ({
@@ -2466,8 +2479,15 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               return { ...d, url: resolvedUrl, thumbnail_url: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` };
             }
 
-            // Hosted video thumbnail (any non-YouTube/Vimeo)
-            if (!isNonEmbedVideo(resolvedUrl)) return { ...d, url: resolvedUrl };
+            // Vimeo thumbnail (oEmbed API)
+            if (getVimeoId(resolvedUrl)) {
+              const vimeoThumb = await fetchVimeoThumbnail(resolvedUrl);
+              if (vimeoThumb) return { ...d, url: resolvedUrl, thumbnail_url: vimeoThumb };
+              return { ...d, url: resolvedUrl };
+            }
+
+            // Hosted video thumbnail (MP4/WebM and others)
+            if (!isHostedVideoUrl(resolvedUrl)) return { ...d, url: resolvedUrl };
 
             try {
               console.log("[thumb] Generating thumbnail for:", resolvedUrl);
