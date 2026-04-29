@@ -116,13 +116,23 @@ const InlineThumbnailAssignment = ({
     loadYouTubeApi().then((YT) => {
       if (destroyed || !ytContainerRef.current) return;
       player = new YT.Player(ytContainerRef.current, {
+        width: "100%",
+        height: "100%",
         videoId: ytIdLocal,
-        playerVars: { rel: 0, modestbranding: 1, playsinline: 1, controls: 1, disablekb: 0, fs: 1 },
+        playerVars: { rel: 0, modestbranding: 1, playsinline: 1, controls: 1, disablekb: 0, fs: 1, enablejsapi: 1, origin: window.location.origin },
         events: {
           onReady: () => {
             if (destroyed) return;
             ytPlayerRef.current = player;
             setYtReady(true);
+            try {
+              const iframe = player.getIframe?.();
+              if (iframe) {
+                iframe.style.width = "100%";
+                iframe.style.height = "100%";
+                iframe.style.display = "block";
+              }
+            } catch {}
             try { setYtDuration(player.getDuration() || 0); } catch {}
             ytPollRef.current = window.setInterval(() => {
               try {
