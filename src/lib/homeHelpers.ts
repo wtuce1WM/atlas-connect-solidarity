@@ -82,11 +82,18 @@ export function extractSocial(d: any): SocialInfo | null {
   return null;
 }
 
-export const getVideoBusinessCandidateIds = (d: any): string[] =>
-  [d?.linked_business_id, d?.business_id, d?.poi_id].filter(Boolean) as string[];
+export const getVideoBusinessCandidateIds = (d: any, opts?: { strict?: boolean }): string[] =>
+  (opts?.strict
+    ? [d?.business_id, d?.poi_id]
+    : [d?.linked_business_id, d?.business_id, d?.poi_id]
+  ).filter(Boolean) as string[];
 
-export const resolveVideoEstablishment = (d: any, bizMap: Map<string, any>) => {
-  const candidates = getVideoBusinessCandidateIds(d)
+export const resolveVideoEstablishment = (
+  d: any,
+  bizMap: Map<string, any>,
+  opts?: { strict?: boolean },
+) => {
+  const candidates = getVideoBusinessCandidateIds(d, opts)
     .map((id) => bizMap.get(id))
     .filter(Boolean);
   return candidates.find((b: any) => b.is_poi !== true) || candidates[0] || null;
