@@ -11,6 +11,7 @@ import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineO
 import { useNavigate } from "react-router-dom";
 import { LazyDirectionsOverlay } from "@/components/overlays/LazyOverlays";
 import { businessUrl } from "@/lib/businessUrl";
+import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
 
 interface SocialInfo {
   platform: "instagram" | "tiktok" | "youtube";
