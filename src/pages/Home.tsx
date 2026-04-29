@@ -1953,11 +1953,18 @@ const Home = () => {
                   </div>
                   <div className={`grid gap-4 ${panelOpen ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-3" : "grid-cols-2 md:grid-cols-4 lg:grid-cols-6"}`}>
                     {(() => {
-                      const items: Array<{ kind: "video"; v: VideoItem; idx: number } | { kind: "children" }> =
-                        displayList.map((v, idx) => ({ kind: "video" as const, v, idx }));
+                      const items: Array<
+                        | { kind: "video"; v: VideoItem; idx: number }
+                        | { kind: "children" }
+                        | { kind: "hashtags" }
+                      > = displayList.map((v, idx) => ({ kind: "video" as const, v, idx }));
                       if (showChildrenTile) {
                         const insertAt = Math.min(childrenTileIndex, items.length);
                         items.splice(insertAt, 0, { kind: "children" });
+                      }
+                      if (showHashtagsTileFinal) {
+                        const insertAt = Math.min(childrenTileIndex, items.length);
+                        items.splice(insertAt, 0, { kind: "hashtags" });
                       }
                       return items.map((entry, i) => {
                         if (entry.kind === "children") {
@@ -1982,6 +1989,47 @@ const Home = () => {
                                     {c.name}
                                   </button>
                                 ))}
+                              </div>
+                            </div>
+                          );
+                        }
+                        if (entry.kind === "hashtags") {
+                          return (
+                            <div
+                              key="hashtags-tile"
+                              className="aspect-[9/16] rounded-lg overflow-hidden bg-card border border-border p-2 flex flex-col"
+                            >
+                              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1.5 px-1">
+                                #hashtags
+                              </p>
+                              <div className="flex-1 overflow-y-auto flex flex-col gap-1">
+                                {hashtagFilterBadgeId && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setHashtagFilterBadgeId(null)}
+                                    className="text-left text-[10px] px-2 py-1 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                                  >
+                                    ✕ Réinitialiser
+                                  </button>
+                                )}
+                                {hashtagItems.map((h) => {
+                                  const active = hashtagFilterBadgeId === h.id;
+                                  return (
+                                    <button
+                                      key={h.id}
+                                      type="button"
+                                      onClick={() => setHashtagFilterBadgeId(active ? null : h.id)}
+                                      className={`text-left text-xs px-2 py-1.5 rounded transition-colors line-clamp-2 flex items-center justify-between gap-2 ${
+                                        active
+                                          ? "bg-primary text-primary-foreground"
+                                          : "bg-muted hover:bg-primary hover:text-primary-foreground"
+                                      }`}
+                                    >
+                                      <span className="truncate">#{h.name}</span>
+                                      <span className="text-[10px] opacity-70 shrink-0">{h.count}</span>
+                                    </button>
+                                  );
+                                })}
                               </div>
                             </div>
                           );
