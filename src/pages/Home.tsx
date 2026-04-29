@@ -1802,17 +1802,13 @@ const Home = () => {
         </Tabs>
       </div>
 
-      <h2 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">
-        Structure du front
-      </h2>
-
       {loading ? (
         <p className="text-xs text-muted-foreground">Chargement…</p>
-      ) : visibleEntries.length === 0 ? (
+      ) : visibleEntries.filter((e) => e.id !== HOME_ID).length === 0 ? (
         <p className="text-xs text-muted-foreground">Aucune entrée pour {city}.</p>
       ) : (
         <ul className="space-y-1">
-          {visibleEntries.map((e) => {
+          {visibleEntries.filter((e) => e.id !== HOME_ID).map((e) => {
             const isActive = e.id === selectedEntryId;
             return (
               <li key={e.id}>
