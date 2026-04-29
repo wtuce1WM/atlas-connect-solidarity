@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
 import HomepageCardsFront, { type HomeCardTarget } from "@/components/HomepageCardsFront";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { CITIES, type City } from "@/lib/homeHelpers";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Props {
   city: City;
@@ -11,11 +13,30 @@ interface Props {
   ) => void;
 }
 
+interface HashtagBadge {
+  id: string;
+  name_fr: string;
+}
+
 /**
  * Marrakech / Essaouira tabs that mount HomepageCardsFront for each city.
- * Pure presentational component extracted from Home.tsx.
+ * Also displays hashtag badges (those starting with "#") next to the toggle.
  */
 const HomeCityTabs = ({ city, onCityChange, onLabelClick }: Props) => {
+  const [hashtagBadges, setHashtagBadges] = useState<HashtagBadge[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data } = await (supabase as any)
+        .from("badges")
+        .select("id, name_fr")
+        .like("name_fr", "#%")
+        .order("name_fr", { ascending: true });
+      setHashtagBadges(((data as any[]) || []) as HashtagBadge[]);
+    };
+    load();
+  }, []);
+
   return (
     <Tabs
       defaultValue={city.toLowerCase()}
@@ -25,10 +46,40 @@ const HomeCityTabs = ({ city, onCityChange, onLabelClick }: Props) => {
         if (CITIES.includes(next)) onCityChange(next);
       }}
     >
-      <TabsList>
-        <TabsTrigger value="marrakech">Marrakech</TabsTrigger>
-        <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
-      </TabsList>
+      <div className="flex items-center gap-3 flex-wrap">
+        <TabsList>
+          <TabsTrigger value="marrakech">Marrakech</TabsTrigger>
+          <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
+        </TabsList>
+
+        {hashtagBadges.length > 0 && (
+          <div className="flex items-center gap-2 flex-wrap">
+            {hashtagBadges.map((b) => (
+              <button
+                key={b.id}
+                type="button"
+                onClick={() =>
+                  onLabelClick(
+                    {
+                      label: b.name_fr,
+                      kind: "extra",
+                      target: { type: "badge", id: b.id },
+                      badgeId: b.id,
+                      eventId: null,
+                    },
+                    city,
+                  )
+                }
+                className="inline-flex items-center rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-medium text-gold hover:bg-gold/20 hover:border-gold/60 transition-colors"
+                title={`Filtrer par ${b.name_fr}`}
+              >
+                {b.name_fr}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
       {CITIES.map((c) => (
         <TabsContent key={c} value={c.toLowerCase()}>
           <div>
