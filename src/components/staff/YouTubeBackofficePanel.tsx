@@ -366,7 +366,21 @@ const YouTubeBackofficePanel = () => {
               onSaved={loadAll}
             />
           )}
+          {activePanel.kind === "thumbnail" && (
+            <InlineThumbnailAssignment
+              source="business_youtube_videos"
+              videoId={activePanel.video.id}
+              videoUrl={activePanel.video.url}
+              videoName={activePanel.video.name}
+              onClose={closePanel}
+              onSaved={loadAll}
+            />
+          )}
         </div>
+      )}
+
+      {lightboxUrl && (
+        <VideoLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />
       )}
     </div>
   );
