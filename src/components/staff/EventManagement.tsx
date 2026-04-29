@@ -282,20 +282,28 @@ const SortableVideoItem = ({ id, url, index, setForm, toast, eventId, ownerBusin
           <X className="h-4 w-4 text-destructive" />
         </Button>
       </div>
-      {url && videoDocId && (
+      {url && (
         <div className="flex items-center gap-1 ml-8 group">
           <span className="text-[10px] text-muted-foreground shrink-0">ID :</span>
-          <code className="text-[10px] font-mono text-muted-foreground truncate flex-1" title={videoDocId}>{videoDocId}</code>
-          <Button
-            type="button"
-            size="icon"
-            variant="ghost"
-            className="h-5 w-5 shrink-0"
-            onClick={handleCopy}
-            title="Copier l'ID"
-          >
-            {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
-          </Button>
+          {videoDocId ? (
+            <>
+              <code className="text-[10px] font-mono text-muted-foreground truncate flex-1" title={videoDocId}>{videoDocId}</code>
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                className="h-5 w-5 shrink-0"
+                onClick={handleCopy}
+                title="Copier l'ID"
+              >
+                {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+              </Button>
+            </>
+          ) : (
+            <span className="text-[10px] italic text-muted-foreground/70 truncate flex-1" title="Liez un établissement à l'événement puis enregistrez pour générer l'ID">
+              non généré — liez un établissement puis enregistrez
+            </span>
+          )}
         </div>
       )}
       {!url && (
