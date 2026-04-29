@@ -45,11 +45,13 @@ interface YouTubeVideo {
   video_id: string;
   title: string;
   thumbnail: string | null;
+  custom_thumbnail_url: string | null;
+  thumbnail_locked: boolean;
   is_short: boolean;
   is_visible: boolean;
 }
 
-type PanelKind = "poi" | "business" | "destination" | "tags";
+type PanelKind = "poi" | "business" | "destination" | "tags" | "thumbnail";
 
 const YouTubeBackofficePanel = () => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -59,7 +61,7 @@ const YouTubeBackofficePanel = () => {
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
   const [syncingId, setSyncingId] = useState<string | null>(null);
   const [syncingAll, setSyncingAll] = useState(false);
-  const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   /** Currently opened right-side assignment panel. */
   const [activePanel, setActivePanel] = useState<{ kind: PanelKind; video: AssignableVideo } | null>(null);
