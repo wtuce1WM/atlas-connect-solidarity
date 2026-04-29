@@ -43,7 +43,10 @@ export function deriveThumbnail(url: string): string | null {
   return null;
 }
 
-export const isAgendaLabel = (label: string) => label.trim().toLowerCase() === "agenda";
+export const isAgendaLabel = (label: string) => {
+  const l = label.trim().toLowerCase();
+  return l === "agenda" || l === "#agenda";
+};
 
 export const formatEventDateRange = (start: string | null, end: string | null) => {
   const fmt = (d: string) => new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
