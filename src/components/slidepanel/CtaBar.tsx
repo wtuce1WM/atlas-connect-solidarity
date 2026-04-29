@@ -3,6 +3,7 @@ import { ExternalLink, MapPin, CalendarCheck, ShoppingBag } from "lucide-react";
 import VideoControls from "@/components/VideoControls";
 import { OwnerLogoOverlay, OwnerBadge } from "@/components/CardsVisibilityToggle";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
+import AppStoreCard from "@/components/cards/AppStoreCard";
 import { whatsappUrl } from "@/lib/phoneUtils";
 
 export const CTA_MODE_LABELS: Record<string, { fr: string; en: string }> = {
@@ -40,6 +41,7 @@ interface CtaBarProps {
   shopCtaLabel: string;
   url4CtaLabel?: string;
   url5CtaLabel?: string;
+  appStoreLinks?: { type: "app_store" | "google_play"; url: string }[];
   fallbackPanelData: any;
   // Logo overlay
   logoBigOverlay: any;
@@ -84,6 +86,7 @@ export function CtaBar({
   shopCtaLabel,
   url4CtaLabel,
   url5CtaLabel,
+  appStoreLinks,
   fallbackPanelData,
   logoBigOverlay,
   logoBigFadingOut,
@@ -269,6 +272,11 @@ export function CtaBar({
       className={`${cardsHidden && showSearchBar ? 'absolute bottom-[56px] left-0 right-0 z-[74] pb-[14px] md:pb-[10px]' : 'shrink-0 py-2 lg:pb-2'} flex flex-col items-center gap-2 ${externalVideoInteractiveMode ? 'pointer-events-none' : 'pointer-events-auto'} ${cardsHidden && effectiveMedia?.kind === "matterport" ? 'mb-24' : ''}`}
       style={hideStyle}
     >
+      {!cardsHidden && appStoreLinks && appStoreLinks.length > 0 && (
+        <div className="pointer-events-auto">
+          <AppStoreCard links={appStoreLinks} />
+        </div>
+      )}
       {ctaItems.length > 0 && (
         ctaItems.length === 5 ? (
           <div className="w-4/5 md:w-3/4 md:px-0 pointer-events-auto flex flex-col gap-2">
