@@ -231,10 +231,15 @@ const SortableVideoItem = ({ id, url, index, setForm, toast, eventId, ownerBusin
           ownerBusinessId,
           eventName,
         });
-        if (!cancelled) setVideoDocId(doc?.id || null);
-        return;
+        if (!cancelled && doc?.id) {
+          setVideoDocId(doc.id);
+          return;
+        }
       }
 
+      // Fallback : look up an existing business_documents row by URL.
+      // Useful when the event has no linked business yet (no ownerBusinessId),
+      // so we can still show whatever ID is already attached to that video URL.
       const { data } = await supabase
         .from("business_documents")
         .select("id, event_id")
