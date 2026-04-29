@@ -671,7 +671,7 @@ const Home = () => {
                   ? `https://www.youtube.com/shorts/${y.video_id}`
                   : `https://www.youtube.com/watch?v=${y.video_id}`,
                 business_name: biz.name,
-                thumbnail_url: y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/hqdefault.jpg`,
+                thumbnail_url: y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/maxresdefault.jpg`,
                 business: biz,
                 owner: { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null },
                 social: null,
