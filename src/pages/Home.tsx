@@ -77,6 +77,7 @@ interface VideoItem {
   price?: string | null;
   priceType?: string | null;
   videoTitle?: string | null;
+  badge_ids?: string[];
 }
 
 interface VideoEventFilter {
