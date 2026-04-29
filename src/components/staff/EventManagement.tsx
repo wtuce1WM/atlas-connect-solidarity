@@ -303,8 +303,8 @@ const SortableVideoItem = ({ id, url, index, setForm, toast, eventId, ownerBusin
               </Button>
             </>
           ) : (
-            <span className="text-[10px] italic text-muted-foreground/70 truncate flex-1" title="Liez un établissement à l'événement puis enregistrez pour générer l'ID">
-              non généré — liez un établissement puis enregistrez
+            <span className="text-[10px] italic text-muted-foreground/70 truncate flex-1" title="Enregistrez l'événement pour générer l'ID">
+              non généré — enregistrez l'événement
             </span>
           )}
         </div>
