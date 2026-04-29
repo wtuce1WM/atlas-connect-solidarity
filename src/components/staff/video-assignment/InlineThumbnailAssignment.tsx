@@ -14,9 +14,24 @@ import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Loader2, Upload, Lock, Unlock, AlertCircle, Camera, X } from "lucide-react";
+import { Loader2, Upload, Lock, Unlock, AlertCircle, Camera, X, Check } from "lucide-react";
 import { toast } from "sonner";
 import { getVideoEmbed } from "@/lib/videoEmbed";
+
+const extractYouTubeId = (url: string): string | null => {
+  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+  return m ? m[1] : null;
+};
+
+/** Candidate thumbnails YouTube exposes for any public video. */
+const youtubeThumbnailCandidates = (ytId: string) => [
+  { key: "maxres",  label: "Max résolution",     url: `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg` },
+  { key: "hq",      label: "Haute qualité",      url: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` },
+  { key: "sd",      label: "Définition standard",url: `https://img.youtube.com/vi/${ytId}/sddefault.jpg` },
+  { key: "frame1",  label: "Frame ~25%",         url: `https://img.youtube.com/vi/${ytId}/1.jpg` },
+  { key: "frame2",  label: "Frame ~50%",         url: `https://img.youtube.com/vi/${ytId}/2.jpg` },
+  { key: "frame3",  label: "Frame ~75%",         url: `https://img.youtube.com/vi/${ytId}/3.jpg` },
+];
 
 export type ThumbnailSource = "business_documents" | "generic_videos" | "business_youtube_videos";
 
@@ -97,6 +112,30 @@ const InlineThumbnailAssignment = ({
     }
   };
 
+  /** Download a YouTube thumbnail and re-host it in our storage so the lock is stable. */
+  const pickYouTubeThumbnail = async (sourceUrl: string) => {
+    setUploading(true);
+    try {
+      const res = await fetch(sourceUrl);
+      if (!res.ok) throw new Error(`Image indisponible (HTTP ${res.status})`);
+      const blob = await res.blob();
+      // YouTube returns a 120×90 grey placeholder when the requested size doesn't exist.
+      if (blob.size < 2000) throw new Error("Cette résolution n'est pas disponible pour cette vidéo");
+      const path = `thumbs/yt-${videoId}-${Date.now()}.jpg`;
+      const { error: upErr } = await supabase.storage
+        .from("business-images")
+        .upload(path, blob, { cacheControl: "31536000", upsert: true, contentType: "image/jpeg" });
+      if (upErr) throw upErr;
+      const { data: urlData } = supabase.storage.from("business-images").getPublicUrl(path);
+      await persistThumbnail(urlData.publicUrl);
+      toast.success("Vignette YouTube sélectionnée et verrouillée");
+    } catch (e: any) {
+      toast.error(e?.message || "Erreur lors de la récupération");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const captureFrame = async () => {
     if (!videoRef.current) return;
     const v = videoRef.current;
@@ -144,6 +183,8 @@ const InlineThumbnailAssignment = ({
 
   const embed = getVideoEmbed(videoUrl, window.location.origin);
   const isFile = embed?.type === "file";
+  const ytId = extractYouTubeId(videoUrl);
+  const ytCandidates = ytId ? youtubeThumbnailCandidates(ytId) : [];
 
   return (
     <div className="h-full flex flex-col">
@@ -196,13 +237,57 @@ const InlineThumbnailAssignment = ({
                     Capturer cette image
                   </Button>
                 </div>
-              ) : (
+              ) : ytId ? null : (
                 <p className="text-[11px] text-muted-foreground">
                   ⚠️ Capture par timestamp uniquement pour les vidéos hébergées (mp4/webm).
-                  Pour YouTube/Vimeo, utilise l'upload manuel.
                 </p>
               )}
             </div>
+
+            {/* YouTube thumbnail picker */}
+            {ytId && (
+              <div className="space-y-2">
+                <Label className="text-xs">Choisir une image proposée par YouTube</Label>
+                <p className="text-[11px] text-muted-foreground">
+                  Cliquez sur une vignette pour la sélectionner. Les 3 dernières sont des frames extraites à 25%, 50% et 75% de la vidéo.
+                </p>
+                <div className="grid grid-cols-3 gap-2">
+                  {ytCandidates.map((c) => {
+                    const isSelected = thumbnailUrl?.includes(`/${ytId}/`) || (thumbnailUrl?.endsWith(c.url.split("/").pop()!) ?? false);
+                    return (
+                      <button
+                        key={c.key}
+                        type="button"
+                        disabled={uploading}
+                        onClick={() => pickYouTubeThumbnail(c.url)}
+                        className={
+                          "group relative aspect-video bg-black rounded overflow-hidden border-2 transition " +
+                          (isSelected ? "border-primary" : "border-transparent hover:border-muted-foreground/50")
+                        }
+                        title={c.label}
+                      >
+                        <img
+                          src={c.url}
+                          alt={c.label}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.currentTarget.parentElement as HTMLElement).style.display = "none";
+                          }}
+                        />
+                        <div className="absolute inset-x-0 bottom-0 bg-black/60 text-white text-[9px] px-1 py-0.5 truncate">
+                          {c.label}
+                        </div>
+                        {uploading && (
+                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                            <Loader2 className="h-4 w-4 animate-spin text-white" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Current thumbnail */}
             <div>
