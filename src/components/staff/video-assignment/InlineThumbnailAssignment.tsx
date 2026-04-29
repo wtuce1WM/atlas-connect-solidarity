@@ -267,6 +267,35 @@ const InlineThumbnailAssignment = ({
     await pickYouTubeThumbnail(best.url);
   };
 
+  /** Server-side HD capture via ApiFlash edge function (1280×720 at exact timestamp). */
+  const captureYouTubeHD = async () => {
+    if (!ytId || !ytPlayerRef.current) {
+      toast.error("Lecteur YouTube pas encore prêt");
+      return;
+    }
+    const t = Math.floor(
+      typeof ytPlayerRef.current.getCurrentTime === "function"
+        ? ytPlayerRef.current.getCurrentTime() : ytTime
+    );
+    setUploading(true);
+    const toastId = toast.loading(`Capture HD à ${t}s en cours (5-10s)…`);
+    try {
+      const { data, error } = await supabase.functions.invoke("youtube-frame-capture", {
+        body: { youtubeId: ytId, timestamp: t, source, videoRowId: videoId },
+      });
+      if (error) throw error;
+      if (!data?.url) throw new Error("Réponse invalide");
+      setThumbnailUrl(data.url);
+      setThumbnailLocked(true);
+      onSaved?.();
+      toast.success(`Vignette HD capturée à ${t}s`, { id: toastId });
+    } catch (e: any) {
+      toast.error(e?.message || "Erreur capture HD", { id: toastId });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const toggleYouTubePlayback = () => {
     if (!ytPlayerRef.current) {
       toast.error("Lecteur YouTube en cours de chargement");
