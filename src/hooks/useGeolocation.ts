@@ -282,6 +282,7 @@ export function useGeolocation(): GeolocationState {
       }
       setDetectedCity(minDist <= 100 ? nearest : null);
     }
+    broadcast();
   }, [cities, neighborhoods]);
 
   const setManualCity = useCallback((cityName: string) => {
