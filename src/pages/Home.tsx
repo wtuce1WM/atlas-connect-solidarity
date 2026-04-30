@@ -1493,6 +1493,7 @@ const Home = () => {
             showSocialBadge: isDifferentDisplayedBusinessSocial(extractSocial(d), biz),
             description: d.description ?? null,
             manualCard: null,
+            videoTitle: d.name ?? null,
           };
         })
       );
