@@ -2424,7 +2424,7 @@ const Home = () => {
                                 </p>
                               ) : null;
                             })()}
-                            {!v.eventInfo?.name && (() => {
+                            {!v.eventInfo?.name && !genericVideoIds.has(v.id) && (() => {
                               const displayName = v.business_name || v.owner?.name || "";
                               return (
                                 <button
