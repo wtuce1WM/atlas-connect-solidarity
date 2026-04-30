@@ -857,7 +857,7 @@ const Home = () => {
                 : Promise.resolve({ data: [] as any[] } as any),
               supabase
                 .from("generic_videos" as any)
-                .select("id, url, name, thumbnail_url, city, sort_order, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
+                .select("id, url, name, title, thumbnail_url, city, sort_order, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
                 .in("id", gvIds)
                 .order("sort_order", { ascending: true }),
             ]);
@@ -916,7 +916,7 @@ const Home = () => {
                 showSocialBadge: !!social,
                 description: v.description ?? null,
                 manualCard: null,
-                videoName: v.name ?? null,
+                videoName: v.title || v.name || null,
                 badge_ids: gvBadgesByVideo[v.id] || [],
               } as VideoItem;
             });
@@ -1066,7 +1066,7 @@ const Home = () => {
         }
         const { data: vidsData, error: vidsErr } = await supabase
           .from("generic_videos" as any)
-          .select("id, url, name, thumbnail_url, instagram_account, tiktok_account, youtube_account, sort_order")
+          .select("id, url, name, title, thumbnail_url, instagram_account, tiktok_account, youtube_account, sort_order")
           .in("id", [...linkedIds])
           .order("sort_order", { ascending: true });
         const vids = (vidsData as any[]) || [];
@@ -1097,6 +1097,7 @@ const Home = () => {
               social: extractSocial(v),
               description: null,
               manualCard: null,
+              videoName: v.title || v.name || null,
               badge_ids: vlogBadgesByVideo[v.id] || [],
             } as VideoItem;
           })
@@ -1308,7 +1309,7 @@ const Home = () => {
                 : Promise.resolve({ data: [] as any[] } as any),
               supabase
                 .from("generic_videos" as any)
-                .select("id, url, name, thumbnail_url, city, sort_order, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
+                .select("id, url, name, title, thumbnail_url, city, sort_order, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
                 .in("id", gvIds)
                 .order("sort_order", { ascending: true }),
             ]);
@@ -1357,6 +1358,7 @@ const Home = () => {
                   showSocialBadge: !!social,
                   description: v.description ?? null,
                   manualCard: null,
+                  videoName: v.title || v.name || null,
                 } as VideoItem;
               });
           }
