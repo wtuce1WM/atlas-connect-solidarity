@@ -2304,7 +2304,7 @@ const Home = () => {
                               {v.manualCard.label}
                             </button>
                           </div>
-                        ) : (genericVideoIds.has(v.id) && v.business_name) ? (
+                        ) : (genericVideoIds.has(v.id) && v.videoName) ? (
                           <div className="absolute inset-x-0 top-[6%] z-20 flex flex-col items-center gap-2 px-3 pointer-events-none text-center">
                             <p
                               className="text-sm font-bold text-white"
@@ -2314,7 +2314,7 @@ const Home = () => {
                                 filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 5px hsla(0,0%,0%,0.95)) drop-shadow(0 0 10px hsla(0,0%,0%,0.85)) drop-shadow(0 2px 6px hsla(0,0%,0%,0.8)) drop-shadow(0 4px 16px hsla(0,0%,0%,0.7)) drop-shadow(0 6px 28px hsla(0,0%,0%,0.5))",
                               }}
                             >
-                              {v.business_name}
+                              {v.videoName}
                             </p>
                           </div>
                         ) : null}
