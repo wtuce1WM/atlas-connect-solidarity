@@ -753,6 +753,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         .insert(rows);
       if (insErr) { toast({ title: "Erreur", description: insErr.message, variant: "destructive" }); return; }
     }
+    invalidateManualCardCache(city as any);
   };
 
   const onDragEnd = (event: DragEndEvent) => {
