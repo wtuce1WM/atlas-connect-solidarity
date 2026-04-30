@@ -55,8 +55,11 @@ const PanelLocationOverlay = ({ open, onClose }: PanelLocationOverlayProps) => {
 
   const mapRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
+  const autocompleteRef = useRef<any>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  const selectedCoordsRef = useRef<{ lat: number; lng: number } | null>(null);
+  const selectedAddressRef = useRef("");
 
   const [addressQuery, setAddressQuery] = useState("");
   const [selectedCoords, setSelectedCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -68,6 +71,14 @@ const PanelLocationOverlay = ({ open, onClose }: PanelLocationOverlayProps) => {
 
   const coords = geo.isEnabled && geo.coords ? geo.coords : null;
   const activeCoords = selectedCoords || coords;
+
+  useEffect(() => {
+    selectedCoordsRef.current = selectedCoords;
+  }, [selectedCoords]);
+
+  useEffect(() => {
+    selectedAddressRef.current = selectedAddress;
+  }, [selectedAddress]);
 
   // Load maps on open
   useEffect(() => {
@@ -111,10 +122,14 @@ const PanelLocationOverlay = ({ open, onClose }: PanelLocationOverlayProps) => {
       });
 
       if (inputRef.current) {
+        if (autocompleteRef.current) {
+          window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
+        }
         const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
           componentRestrictions: { country: "ma" },
           fields: ["geometry", "formatted_address", "name"],
         });
+        autocompleteRef.current = autocomplete;
         autocomplete.addListener("place_changed", () => {
           const place = autocomplete.getPlace();
           if (place.geometry?.location) {
@@ -133,6 +148,10 @@ const PanelLocationOverlay = ({ open, onClose }: PanelLocationOverlayProps) => {
 
     return () => {
       clearTimeout(timer);
+      if (autocompleteRef.current && window.google?.maps?.event) {
+        window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
+        autocompleteRef.current = null;
+      }
       mapRef.current = null;
       markerRef.current = null;
     };
