@@ -94,37 +94,6 @@ export async function getManualCardMap(city: City, docs: any[]): Promise<Map<str
 
   if (cards.length === 0) return manualMap;
 
-  const cards = ((extraRows as any[]) || []) as Array<{
-    id: string;
-    business_id: string | null;
-    badge_id: string | null;
-    video_document_id: string | null;
-    title: string | null;
-    sort_order: number | null;
-    event_id?: string | null;
-  }>;
-
-  if (cards.length === 0) return manualMap;
-
-  const badgeIds = Array.from(new Set(cards.map((card) => card.badge_id).filter(Boolean))) as string[];
-
-  const [{ data: badges }, { data: badgeLinks }] = await Promise.all([
-    badgeIds.length > 0
-      ? supabase.from("badges").select("id, name_fr").in("id", badgeIds)
-      : Promise.resolve({ data: [] }),
-    badgeIds.length > 0
-      ? supabase.from("business_document_badges").select("badge_id, document_id").in("badge_id", badgeIds)
-      : Promise.resolve({ data: [] }),
-  ]);
-
-  const badgeNameById = new Map<string, string>(((badges as any[]) || []).map((badge: any) => [badge.id, badge.name_fr]));
-  const docIdsByBadgeId = new Map<string, Set<string>>();
-  ((badgeLinks as any[]) || []).forEach((link: any) => {
-    const current = docIdsByBadgeId.get(link.badge_id) || new Set<string>();
-    current.add(link.document_id);
-    docIdsByBadgeId.set(link.badge_id, current);
-  });
-
   const pickLabel = (card: { title: string | null; badge_id: string | null }) => {
     const trimmedTitle = card.title?.trim();
     return trimmedTitle || (card.badge_id ? badgeNameById.get(card.badge_id) || null : null);
