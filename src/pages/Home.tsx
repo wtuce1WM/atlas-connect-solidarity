@@ -2349,25 +2349,11 @@ const Home = () => {
                           const entryName = selectedEntry?.name?.trim().toLowerCase() ?? "";
                           const subName = selectedSubId ? (subcatNames[selectedSubId] || "").trim().toLowerCase() : "";
                           return targets.includes(entryName) || targets.includes(subName);
-                        })() && (v.priceType || v.videoTitle) && (
+                        })() && v.priceType && (
                           <div className="absolute inset-x-0 top-[6%] z-[20] flex flex-col items-center gap-2 px-3 pointer-events-none text-center">
-                            {v.priceType && (
-                              <span className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black">
-                                {v.priceType.toLowerCase() === "location" ? "Location" : v.priceType.toLowerCase() === "vente" ? "Vente" : v.priceType}
-                              </span>
-                            )}
-                            {v.videoTitle && (
-                              <p
-                                className="text-sm font-bold text-white mt-3 line-clamp-3"
-                                style={{
-                                  fontFamily: "'Roboto', sans-serif",
-                                  letterSpacing: "0.02em",
-                                  filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 5px hsla(0,0%,0%,0.95)) drop-shadow(0 0 10px hsla(0,0%,0%,0.85)) drop-shadow(0 2px 6px hsla(0,0%,0%,0.8)) drop-shadow(0 4px 16px hsla(0,0%,0%,0.7)) drop-shadow(0 6px 28px hsla(0,0%,0%,0.5))",
-                                }}
-                              >
-                                {v.videoTitle}
-                              </p>
-                            )}
+                            <span className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black">
+                              {v.priceType.toLowerCase() === "location" ? "Location" : v.priceType.toLowerCase() === "vente" ? "Vente" : v.priceType}
+                            </span>
                           </div>
                         )}
                         {!isVlogThumb && v.owner?.logo_url && (
