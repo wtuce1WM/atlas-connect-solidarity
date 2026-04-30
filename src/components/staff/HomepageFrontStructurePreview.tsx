@@ -530,6 +530,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       .from("front_structure_homepage_extra_cards")
       .insert({ city, business_id: null, badge_id: null, sort_order: nextSort });
     if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    invalidateManualCardCache(city as any);
     setExtraReloadKey((k) => k + 1);
   };
 
