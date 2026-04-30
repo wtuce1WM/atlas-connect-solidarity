@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import VideoLightbox from "@/components/staff/VideoLightbox";
+import { invalidateManualCardCache } from "@/lib/manualCards";
 import {
   DndContext,
   closestCenter,
