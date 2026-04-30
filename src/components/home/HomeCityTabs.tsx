@@ -6,6 +6,7 @@ import { CITIES, type City } from "@/lib/homeHelpers";
 import { supabase } from "@/integrations/supabase/client";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import PanelLocationOverlay from "@/components/overlays/PanelLocationOverlay";
+import { useDragScroll } from "@/hooks/useDragScroll";
 
 interface Props {
   city: City;
