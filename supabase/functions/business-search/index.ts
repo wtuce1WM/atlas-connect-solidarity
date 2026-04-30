@@ -1745,8 +1745,14 @@ serve(async (req) => {
         let builder = supabase.from("businesses").select("*")
           .eq("is_active", true)
           .in("id", badgeBizIds);
-        if (effectiveCity) builder = applyCityFilter(builder);
-        if (detectedNeighborhood) {
+        // Note: badge is already a strong constraint (curated list of businesses).
+        // Skip city/neighborhood filters when the synonym key itself matches the city/neighborhood name
+        // (e.g. "agafay" → badge Agafay, businesses live in city="Agafay" but no neighborhood set).
+        const synKeyNorm = matchedSynonymBadgeKey ? stripAccentsGlobal(matchedSynonymBadgeKey.toLowerCase()).trim() : "";
+        const cityMatchesSynKey = effectiveCity && synKeyNorm && stripAccentsGlobal(effectiveCity.toLowerCase()).trim() === synKeyNorm;
+        const neighMatchesSynKey = detectedNeighborhood && synKeyNorm && stripAccentsGlobal(detectedNeighborhood.toLowerCase()).trim() === synKeyNorm;
+        if (effectiveCity && !cityMatchesSynKey) builder = applyCityFilter(builder);
+        if (detectedNeighborhood && !neighMatchesSynKey) {
           builder = builder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
         }
         builder = builder
