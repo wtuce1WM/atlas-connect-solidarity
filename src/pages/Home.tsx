@@ -2159,7 +2159,7 @@ const Home = () => {
                           return (
                             <div
                               key="children-tile"
-                              className="aspect-[9/16] rounded-lg overflow-hidden bg-card border border-border p-2 flex flex-col"
+                              className="md:aspect-[9/16] rounded-lg overflow-hidden bg-card border border-border p-2 flex flex-col"
                             >
                               <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1.5 px-1">
                                 Sous-catégories
