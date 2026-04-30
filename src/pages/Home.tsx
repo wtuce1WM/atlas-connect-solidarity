@@ -267,7 +267,7 @@ const Home = () => {
       const { data: bizRows } = displayIds.length > 0
         ? await supabase
             .from("businesses")
-            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, is_poi")
+            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr, is_poi")
             .in("id", displayIds)
         : { data: null } as any;
       const bizMap = new Map<string, any>();
@@ -572,7 +572,7 @@ const Home = () => {
         if (bizIds.length > 0) {
           const { data: bizRows } = await supabase
             .from("businesses")
-            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr")
             .in("id", bizIds);
           ((bizRows as any[]) || []).forEach((b) => bizMap.set(b.id, b));
         }
@@ -652,7 +652,7 @@ const Home = () => {
         for (let i = 0; i < bizIds.length; i += batch) {
           const { data: bizs } = await supabase
             .from("businesses")
-            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr")
             .in("id", bizIds.slice(i, i + batch));
           (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
         }
@@ -766,7 +766,7 @@ const Home = () => {
           for (let i = 0; i < allBizIds.length; i += batch) {
             const { data: bizs } = await supabase
               .from("businesses")
-              .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, is_poi")
+              .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr, is_poi")
               .in("id", allBizIds.slice(i, i + batch));
             (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
           }
@@ -880,7 +880,7 @@ const Home = () => {
             if (gvBizIds.length > 0) {
               const { data: gvBizs } = await supabase
                 .from("businesses")
-                .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+                .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr")
                 .in("id", gvBizIds);
               (gvBizs || []).forEach((b: any) => gvBizMap.set(b.id, b as SearchResultBusiness));
             }
@@ -952,7 +952,7 @@ const Home = () => {
               for (let i = 0; i < ytBizIds.length; i += batch) {
                 const { data: bizs } = await supabase
                   .from("businesses")
-                  .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+                  .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr")
                   .in("id", ytBizIds.slice(i, i + batch));
                 (bizs || []).forEach((b: any) => ytBizMap.set(b.id, b as SearchResultBusiness));
               }
@@ -1218,7 +1218,7 @@ const Home = () => {
           for (let i = 0; i < allBizIds.length; i += batch) {
             const { data: bizs } = await supabase
               .from("businesses")
-              .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, google_rating, priority_score, front_video_count, is_poi")
+              .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr, google_rating, priority_score, front_video_count, is_poi")
               .in("id", allBizIds.slice(i, i + batch));
             (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
           }
@@ -1331,7 +1331,7 @@ const Home = () => {
             if (gvBizIds.length > 0) {
               const { data: gvBizs } = await supabase
                 .from("businesses")
-                .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+                .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr")
                 .in("id", gvBizIds);
               (gvBizs || []).forEach((b: any) => gvBizMap.set(b.id, b as SearchResultBusiness));
             }
@@ -1421,7 +1421,7 @@ const Home = () => {
               for (let i = 0; i < ytBizIds.length; i += CHUNK) {
                 const { data: bizs } = await supabase
                   .from("businesses")
-                  .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+                  .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr")
                   .in("id", ytBizIds.slice(i, i + CHUNK));
                 (bizs || []).forEach((b: any) => ytBizMap.set(b.id, b as SearchResultBusiness));
               }
@@ -1473,7 +1473,7 @@ const Home = () => {
         for (let i = 0; i < allBizIds.length; i += batch) {
           const { data: bizs } = await supabase
             .from("businesses")
-            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, is_poi")
+            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr, is_poi")
             .in("id", allBizIds.slice(i, i + batch));
           (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
         }
