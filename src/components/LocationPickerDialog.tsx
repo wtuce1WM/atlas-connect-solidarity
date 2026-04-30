@@ -295,9 +295,19 @@ const LocationPickerDialog = ({
   };
 
   const handleConfirm = () => {
+    console.log("[LocationPickerDialog] handleConfirm clicked", {
+      activeCoords,
+      selectedCoords,
+      coords,
+      isEnabled,
+      selectedAddress,
+      detectedCity,
+    });
     if (activeCoords) {
       onConfirm(activeCoords, selectedAddress || detectedCity || "");
       onOpenChange(false);
+    } else {
+      console.warn("[LocationPickerDialog] Confirm aborted: no activeCoords. Pick a place from the autocomplete dropdown or click on the map.");
     }
   };
 
