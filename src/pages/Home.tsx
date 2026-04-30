@@ -2433,7 +2433,7 @@ const Home = () => {
                             </div>
                             {v.social.account && (
                               <div className="flex items-center gap-1 rounded-full bg-black/80 border border-white/15 px-2 py-0.5">
-                                <span className="text-[10px] font-medium text-white truncate max-w-[110px]" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                                <span className="text-[10px] font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
                                   Follow @{v.social.account}
                                 </span>
                               </div>
