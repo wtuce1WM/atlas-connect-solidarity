@@ -304,6 +304,7 @@ export function useGeolocation(): GeolocationState {
     setIsManual(true);
     setIsEnabled(true);
     setShowBanner(false);
+    broadcast();
   }, [cities]);
 
   return {
