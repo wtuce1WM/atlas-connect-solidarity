@@ -51,7 +51,7 @@ function loadGoogleMaps(): Promise<void> {
   return gmapsPromise;
 }
 
-const PanelLocationOverlay = ({ open, onClose }: PanelLocationOverlayProps) => {
+const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLocationOverlayProps) => {
   const { language } = useLanguage();
   const geo = useGeolocation();
 
