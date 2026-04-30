@@ -727,6 +727,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       .delete()
       .eq("id", cardId);
     if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    invalidateManualCardCache(city as any);
     setExtraReloadKey((k) => k + 1);
   };
 
