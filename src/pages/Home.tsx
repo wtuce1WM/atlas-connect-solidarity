@@ -259,7 +259,7 @@ const Home = () => {
     (async () => {
       const { data: doc } = await supabase
         .from("business_documents")
-        .select("id, url, thumbnail_url, business_id, linked_business_id, poi_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, event_id")
+        .select("id, url, thumbnail_url, business_id, linked_business_id, poi_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, event_id, name")
         .eq("id", wantedId)
         .maybeSingle();
       if (cancelled || !doc?.url) return;
@@ -642,7 +642,7 @@ const Home = () => {
           const chunk = bizIds.slice(i, i + batch);
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
+            .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, name")
             .eq("type", "video")
             .in("business_id", chunk)
             .order("front_sort_order", { ascending: true });
@@ -682,6 +682,7 @@ const Home = () => {
               manualCard: null,
               subcategory_id: d.subcategory_id ?? null,
               service_id: d.service_id ?? null,
+              videoTitle: d.name ?? null,
             } as VideoItem;
           })
           .filter(Boolean) as VideoItem[];
@@ -750,7 +751,7 @@ const Home = () => {
           const chunk = docIds.slice(i, i + batch);
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
+            .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, name")
             .eq("type", "video")
             .in("id", chunk);
           if (data) allDocs.push(...data);
@@ -826,6 +827,7 @@ const Home = () => {
             service_id: d.service_id ?? null,
             service_name: d.service_id ? badgeServiceNameById.get(d.service_id) ?? null : null,
             badge_ids: docBadgesByDocId[d.id] || [],
+            videoTitle: d.name ?? null,
           } as VideoItem;
         });
 
@@ -1126,7 +1128,7 @@ const Home = () => {
           const chunk = bizIds.slice(i, i + batch);
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, event_id")
+            .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, event_id, name")
             .eq("type", "video")
             .eq("show_on_front", true)
             .in("business_id", chunk)
@@ -1139,7 +1141,7 @@ const Home = () => {
           const chunk = extraIds.slice(i, i + batch);
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, event_id")
+            .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, event_id, name")
             .eq("type", "video")
             .eq("show_on_front", true)
             .in("id", chunk);
@@ -1491,6 +1493,7 @@ const Home = () => {
             showSocialBadge: isDifferentDisplayedBusinessSocial(extractSocial(d), biz),
             description: d.description ?? null,
             manualCard: null,
+            videoTitle: d.name ?? null,
           };
         })
       );
@@ -2306,7 +2309,7 @@ const Home = () => {
                               {v.manualCard.label}
                             </button>
                           </div>
-                        ) : (genericVideoIds.has(v.id) && v.videoName) ? (
+                        ) : ((genericVideoIds.has(v.id) && v.videoName) || (!genericVideoIds.has(v.id) && v.videoTitle)) ? (
                           <div className="absolute inset-x-0 top-[6%] z-20 flex flex-col items-center gap-2 px-3 pointer-events-none text-center">
                             <p
                               className="text-sm font-bold text-white"
@@ -2316,7 +2319,7 @@ const Home = () => {
                                 filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 5px hsla(0,0%,0%,0.95)) drop-shadow(0 0 10px hsla(0,0%,0%,0.85)) drop-shadow(0 2px 6px hsla(0,0%,0%,0.8)) drop-shadow(0 4px 16px hsla(0,0%,0%,0.7)) drop-shadow(0 6px 28px hsla(0,0%,0%,0.5))",
                               }}
                             >
-                              {v.videoName}
+                              {genericVideoIds.has(v.id) ? v.videoName : v.videoTitle}
                             </p>
                           </div>
                         ) : null}
@@ -2349,25 +2352,11 @@ const Home = () => {
                           const entryName = selectedEntry?.name?.trim().toLowerCase() ?? "";
                           const subName = selectedSubId ? (subcatNames[selectedSubId] || "").trim().toLowerCase() : "";
                           return targets.includes(entryName) || targets.includes(subName);
-                        })() && (v.priceType || v.videoTitle) && (
+                        })() && v.priceType && (
                           <div className="absolute inset-x-0 top-[6%] z-[20] flex flex-col items-center gap-2 px-3 pointer-events-none text-center">
-                            {v.priceType && (
-                              <span className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black">
-                                {v.priceType.toLowerCase() === "location" ? "Location" : v.priceType.toLowerCase() === "vente" ? "Vente" : v.priceType}
-                              </span>
-                            )}
-                            {v.videoTitle && (
-                              <p
-                                className="text-sm font-bold text-white mt-3 line-clamp-3"
-                                style={{
-                                  fontFamily: "'Roboto', sans-serif",
-                                  letterSpacing: "0.02em",
-                                  filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 5px hsla(0,0%,0%,0.95)) drop-shadow(0 0 10px hsla(0,0%,0%,0.85)) drop-shadow(0 2px 6px hsla(0,0%,0%,0.8)) drop-shadow(0 4px 16px hsla(0,0%,0%,0.7)) drop-shadow(0 6px 28px hsla(0,0%,0%,0.5))",
-                                }}
-                              >
-                                {v.videoTitle}
-                              </p>
-                            )}
+                            <span className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black">
+                              {v.priceType.toLowerCase() === "location" ? "Location" : v.priceType.toLowerCase() === "vente" ? "Vente" : v.priceType}
+                            </span>
                           </div>
                         )}
                         {!isVlogThumb && v.owner?.logo_url && (
@@ -2428,7 +2417,7 @@ const Home = () => {
                                 </p>
                               ) : null;
                             })()}
-                            {!v.eventInfo?.name && !(genericVideoIds.has(v.id) && v.videoName) && (() => {
+                            {!v.eventInfo?.name && !(genericVideoIds.has(v.id) && v.videoName) && !(!genericVideoIds.has(v.id) && v.videoTitle) && (() => {
                               const displayName = v.business_name || v.owner?.name || "";
                               return (
                                 <button
