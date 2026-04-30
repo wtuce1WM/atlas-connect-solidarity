@@ -2309,20 +2309,28 @@ const Home = () => {
                               {v.manualCard.label}
                             </button>
                           </div>
-                        ) : ((genericVideoIds.has(v.id) && v.videoName) || (!genericVideoIds.has(v.id) && v.videoTitle)) ? (
-                          <div className="absolute inset-x-0 top-[6%] z-20 flex flex-col items-center gap-2 px-3 pointer-events-none text-center">
-                            <p
-                              className="text-sm font-bold text-white"
-                              style={{
-                                fontFamily: "'Roboto', sans-serif",
-                                letterSpacing: "0.02em",
-                                filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 5px hsla(0,0%,0%,0.95)) drop-shadow(0 0 10px hsla(0,0%,0%,0.85)) drop-shadow(0 2px 6px hsla(0,0%,0%,0.8)) drop-shadow(0 4px 16px hsla(0,0%,0%,0.7)) drop-shadow(0 6px 28px hsla(0,0%,0%,0.5))",
-                              }}
-                            >
-                              {genericVideoIds.has(v.id) ? v.videoName : v.videoTitle}
-                            </p>
-                          </div>
-                        ) : null}
+                         ) : (() => {
+                           const isGeneric = genericVideoIds.has(v.id);
+                           const isHomepage = selectedEntry?.id === HOME_ID;
+                           const internalFallbackHook = !isGeneric && !v.videoTitle && !isHomepage
+                             ? ((v.business as any)?.hook_fr || null)
+                             : null;
+                           const topText = isGeneric ? v.videoName : (v.videoTitle || internalFallbackHook);
+                           return topText ? (
+                             <div className="absolute inset-x-0 top-[6%] z-20 flex flex-col items-center gap-2 px-3 pointer-events-none text-center">
+                               <p
+                                 className="text-sm font-bold text-white"
+                                 style={{
+                                   fontFamily: "'Roboto', sans-serif",
+                                   letterSpacing: "0.02em",
+                                   filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 5px hsla(0,0%,0%,0.95)) drop-shadow(0 0 10px hsla(0,0%,0%,0.85)) drop-shadow(0 2px 6px hsla(0,0%,0%,0.8)) drop-shadow(0 4px 16px hsla(0,0%,0%,0.7)) drop-shadow(0 6px 28px hsla(0,0%,0%,0.5))",
+                                 }}
+                               >
+                                 {topText}
+                               </p>
+                             </div>
+                           ) : null;
+                         })()}
                         {selectedEntry?.id !== HOME_ID && v.business?.engagements?.includes("Logistique:Commandez en ligne et recevez votre colis chez vous") && (
                           <div className="absolute inset-x-0 top-[10%] z-20 flex items-center justify-center px-2 pointer-events-none">
                             <span
