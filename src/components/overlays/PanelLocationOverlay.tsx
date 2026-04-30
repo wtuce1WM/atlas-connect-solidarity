@@ -291,8 +291,17 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
 
   if (!open && !closing) return null;
 
-  return (
-    <div className={`absolute inset-0 z-[90] bg-background flex flex-col ${closing ? "animate-out slide-out-to-bottom duration-200" : "animate-in slide-in-from-bottom duration-200"}`}>
+  const isPopup = variant === "popup";
+
+  const content = (
+    <div
+      className={
+        isPopup
+          ? `relative w-full max-w-2xl h-[90vh] max-h-[700px] bg-background rounded-2xl shadow-2xl flex flex-col overflow-hidden ${closing ? "animate-out zoom-out-95 duration-200" : "animate-in zoom-in-95 duration-200"}`
+          : `absolute inset-0 z-[90] bg-background flex flex-col ${closing ? "animate-out slide-out-to-bottom duration-200" : "animate-in slide-in-from-bottom duration-200"}`
+      }
+      onClick={isPopup ? (e) => e.stopPropagation() : undefined}
+    >
       {/* Header */}
       <div className="shrink-0 flex items-center gap-3 px-4 py-3 border-b border-border">
         <button
