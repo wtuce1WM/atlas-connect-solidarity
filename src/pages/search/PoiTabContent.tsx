@@ -74,13 +74,7 @@ const PoiTabContent = ({
             : "w-full"
         }`}
       >
-        <div
-          className={`pt-4 mx-auto px-4 ${
-            poiSelectedBusinessId || poiMapBusiness || (hasKnownLocation && !hidePoiMap)
-              ? "max-w-full"
-              : "max-w-[80%]"
-          }`}
-        >
+        <div className="pt-4 mx-auto px-4 max-w-full">
           {/* Sticky bar for POI — Carte badge only (mobile/tablet) + desktop spacer */}
           <div
             className="sticky z-[19] bg-white lg:bg-white flex items-center justify-center px-4 gap-2 relative py-4 sm:py-4 lg:py-1.5 lg:hidden"
