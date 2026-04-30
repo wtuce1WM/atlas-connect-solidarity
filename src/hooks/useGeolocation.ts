@@ -212,15 +212,19 @@ export function useGeolocation(): GeolocationState {
     );
   }, [isEnabled, cities, isManual]);
 
+  const broadcast = () => {
+    try { window.dispatchEvent(new CustomEvent("geo:changed")); } catch { /* noop */ }
+  };
+
   const accept = useCallback(() => {
     localStorage.setItem(STORAGE_KEY, "enabled");
-    // Clear manual location when accepting browser geolocation
     localStorage.removeItem(MANUAL_COORDS_KEY);
     localStorage.removeItem(MANUAL_ADDRESS_KEY);
     setIsManual(false);
     setConfirmedAddress(null);
     setIsEnabled(true);
     setShowBanner(false);
+    broadcast();
   }, []);
 
   const decline = useCallback(() => {
