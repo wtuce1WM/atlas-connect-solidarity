@@ -474,14 +474,14 @@ const SortableVideoCard = ({
         {hasTimeframes && <span className="absolute bottom-2 left-2 z-10 px-2 py-1 rounded text-[10px] font-bold bg-amber-500 text-white flex items-center gap-0.5"><Clock className="h-3 w-3" />TIME</span>}
         {(poiCount > 0 || bizCount > 0 || destCount > 0) && (
           <button
-            className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-white hover:bg-emerald-600 transition-colors"
+            className="absolute top-9 right-2 z-10 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-white hover:bg-emerald-600 transition-colors"
             onClick={(e) => { e.stopPropagation(); onPreviewOverlay(video); }}
           >
             VU
           </button>
         )}
         <button
-          className="absolute top-2 left-2 z-10 p-1 rounded bg-destructive/80 text-destructive-foreground opacity-0 group-hover:opacity-100 hover:bg-destructive transition-opacity"
+          className="absolute top-2 right-2 z-10 p-1 rounded bg-destructive/80 text-destructive-foreground opacity-0 group-hover:opacity-100 hover:bg-destructive transition-opacity"
           onClick={(e) => { e.stopPropagation(); onDelete(video); }}
           title="Supprimer cette vidéo"
         >
