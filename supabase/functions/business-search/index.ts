@@ -17,13 +17,39 @@ function detectSuperlative(query: string): boolean {
   return superlatives.some(s => lower.includes(s));
 }
 
-// Get the best available rating for a business (composite)
+// Sources prises en compte pour la note pondérée et le total d'avis
+const RATING_SOURCES: Array<{ rating: keyof Business; count: keyof Business }> = [
+  { rating: "google_rating", count: "google_review_count" },
+  { rating: "tripadvisor_rating", count: "tripadvisor_review_count" },
+  { rating: "restaurant_guru_rating", count: "restaurant_guru_review_count" },
+  { rating: "getyourguide_rating", count: "getyourguide_review_count" },
+  { rating: "viator_rating", count: "viator_review_count" },
+  { rating: "avis_verifies_rating", count: "avis_verifies_review_count" },
+  { rating: "trustpilot_rating", count: "trustpilot_review_count" },
+  { rating: "tourradar_rating", count: "tourradar_review_count" },
+];
+
+// Seuil minimum d'avis cumulés pour être pris en compte dans le tri par note
+const MIN_REVIEWS_FOR_RATING_SORT = 10;
+
+/**
+ * Note pondérée par le nombre d'avis, normalisée sur /20.
+ * Renvoie -1 si l'établissement a moins de MIN_REVIEWS_FOR_RATING_SORT avis cumulés
+ * (afin qu'il soit relégué en fin de tri par note).
+ */
 function getBestRating(b: Business): number {
-  return Math.max(
-    b.google_rating ?? 0,
-    b.tripadvisor_rating ?? 0,
-    b.restaurant_guru_rating ?? 0,
-  );
+  let totalCount = 0;
+  let weightedSum = 0;
+  for (const { rating, count } of RATING_SOURCES) {
+    const r = (b[rating] as number | null | undefined) ?? 0;
+    const c = (b[count] as number | null | undefined) ?? 0;
+    if (r > 0 && c > 0) {
+      weightedSum += (r / 5) * 20 * c;
+      totalCount += c;
+    }
+  }
+  if (totalCount < MIN_REVIEWS_FOR_RATING_SORT) return -1;
+  return weightedSum / totalCount;
 }
 
 // Rerank metadata stored for logging
