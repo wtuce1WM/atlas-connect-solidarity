@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Play, Upload, Copy, Check, FileText, Instagram, X, MapPin, MapPinned, Building2, Search, GripVertical, Clock, Globe, Tag, Layers } from "lucide-react";
 import VideoIdSearchInput from "./VideoIdSearchInput";
+import ImportFromBusinessDocInput from "./ImportFromBusinessDocInput";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -724,9 +725,13 @@ const GenericVideosPanel = () => {
           <p className="text-sm text-muted-foreground text-center py-8">Aucune vidéo générique</p>
         ) : (
           <>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <p className="text-sm text-muted-foreground">{videos.length} vidéo{videos.length > 1 ? "s" : ""} • Cliquez pour voir les entités liées</p>
               <VideoIdSearchInput videoIds={videos.map(v => v.id)} />
+              <ImportFromBusinessDocInput
+                onImported={loadVideos}
+                getNextSortOrder={() => (videos.length > 0 ? Math.max(...videos.map(v => v.sort_order)) + 1 : 0)}
+              />
             </div>
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <SortableContext items={videos.map(v => v.id)} strategy={rectSortingStrategy}>
