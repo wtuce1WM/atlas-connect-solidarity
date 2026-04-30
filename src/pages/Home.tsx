@@ -682,6 +682,7 @@ const Home = () => {
               manualCard: null,
               subcategory_id: d.subcategory_id ?? null,
               service_id: d.service_id ?? null,
+              videoTitle: d.name ?? null,
             } as VideoItem;
           })
           .filter(Boolean) as VideoItem[];
