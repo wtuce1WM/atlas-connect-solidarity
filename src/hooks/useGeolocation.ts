@@ -113,8 +113,8 @@ export function useGeolocation(): GeolocationState {
       });
   }, []);
 
-  // Restore manual location from localStorage on mount
-  useEffect(() => {
+  // Restore manual location from localStorage (initial mount + cross-instance sync)
+  const hydrateFromStorage = useCallback(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     const manualCoordsStr = localStorage.getItem(MANUAL_COORDS_KEY);
     const manualAddr = localStorage.getItem(MANUAL_ADDRESS_KEY);
@@ -129,7 +129,6 @@ export function useGeolocation(): GeolocationState {
       setShowBanner(false);
     }
 
-    // Restore manual location if present
     if (manualCoordsStr && manualAddr) {
       try {
         const parsed = JSON.parse(manualCoordsStr);
@@ -141,8 +140,23 @@ export function useGeolocation(): GeolocationState {
       } catch {
         // ignore parse errors
       }
+    } else {
+      // No manual location stored — clear any stale local state
+      setIsManual(false);
+      setConfirmedAddress(null);
     }
   }, []);
+
+  useEffect(() => {
+    hydrateFromStorage();
+    const onChange = () => hydrateFromStorage();
+    window.addEventListener("geo:changed", onChange);
+    window.addEventListener("storage", onChange);
+    return () => {
+      window.removeEventListener("geo:changed", onChange);
+      window.removeEventListener("storage", onChange);
+    };
+  }, [hydrateFromStorage]);
 
   // Detect neighborhood when coords and neighborhoods are available
   useEffect(() => {
