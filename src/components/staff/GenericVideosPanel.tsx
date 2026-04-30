@@ -1,6 +1,16 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Play, Upload, Copy, Check, FileText, Instagram, X, MapPin, MapPinned, Building2, Search, GripVertical, Clock, Globe, Tag, Layers } from "lucide-react";
+import { Loader2, Play, Upload, Copy, Check, FileText, Instagram, X, MapPin, MapPinned, Building2, Search, GripVertical, Clock, Globe, Tag, Layers, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import VideoIdSearchInput from "./VideoIdSearchInput";
 import ImportFromBusinessDocInput from "./ImportFromBusinessDocInput";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -410,6 +420,7 @@ const SortableVideoCard = ({
   onEditDestinations,
   onEditTags,
   onPreviewOverlay,
+  onDelete,
 }: {
   video: GenericVideo;
   poiCount: number;
@@ -429,6 +440,7 @@ const SortableVideoCard = ({
   onEditDestinations: (v: GenericVideo) => void;
   onEditTags: (v: GenericVideo) => void;
   onPreviewOverlay: (v: GenericVideo) => void;
+  onDelete: (v: GenericVideo) => void;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: video.id });
   const [copiedId, setCopiedId] = useState(false);
@@ -468,6 +480,13 @@ const SortableVideoCard = ({
             VU
           </button>
         )}
+        <button
+          className="absolute top-2 left-2 z-10 p-1 rounded bg-destructive/80 text-destructive-foreground opacity-0 group-hover:opacity-100 hover:bg-destructive transition-opacity"
+          onClick={(e) => { e.stopPropagation(); onDelete(video); }}
+          title="Supprimer cette vidéo"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
       </button>
 
       <div className="p-2 space-y-1">
@@ -516,6 +535,8 @@ const GenericVideosPanel = () => {
   const [destinationVideo, setDestinationVideo] = useState<GenericVideo | null>(null);
   const [tagsVideo, setTagsVideo] = useState<GenericVideo | null>(null);
   const [previewOverlayVideo, setPreviewOverlayVideo] = useState<GenericVideo | null>(null);
+  const [deleteConfirmVideo, setDeleteConfirmVideo] = useState<GenericVideo | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Filtres "Nom Social" — un par réseau
   const ALL_SOCIAL = "__all__";
@@ -819,6 +840,7 @@ const GenericVideosPanel = () => {
                         onEditDestinations={(v) => { setSelectedVideo(null); setPoiVideo(null); setBusinessVideo(null); setTagsVideo(null); setDestinationVideo(v); }}
                         onEditTags={(v) => { setSelectedVideo(null); setPoiVideo(null); setBusinessVideo(null); setDestinationVideo(null); setTagsVideo(v); }}
                         onPreviewOverlay={setPreviewOverlayVideo}
+                        onDelete={setDeleteConfirmVideo}
                       />
                     </div>
                   ))}
@@ -877,6 +899,45 @@ const GenericVideosPanel = () => {
       {socialVideo && <SocialLinksDialog video={socialVideo} open={!!socialVideo} onOpenChange={(o) => !o && setSocialVideo(null)} onSaved={loadVideos} />}
       {descVideo && <DescriptionDialog video={descVideo} open={!!descVideo} onOpenChange={(o) => !o && setDescVideo(null)} onSaved={loadVideos} />}
       {previewOverlayVideo && <GenericVideoPreviewOverlay video={previewOverlayVideo} onClose={() => setPreviewOverlayVideo(null)} />}
+
+      <AlertDialog open={!!deleteConfirmVideo} onOpenChange={(o) => !o && !deleting && setDeleteConfirmVideo(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer cette vidéo générique ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteConfirmVideo?.name || deleteConfirmVideo?.title || "Vidéo sans nom"}
+              <br />
+              Cette action est <strong>définitive</strong> et supprimera également tous les liens associés (POIs, établissements, destinations, badges, sous-catégories, villes).
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={async (e) => {
+                e.preventDefault();
+                if (!deleteConfirmVideo) return;
+                setDeleting(true);
+                const { error } = await supabase.from("generic_videos" as any).delete().eq("id", deleteConfirmVideo.id);
+                setDeleting(false);
+                if (error) {
+                  toast.error(error.message);
+                } else {
+                  toast.success("Vidéo supprimée");
+                  if (selectedVideo?.id === deleteConfirmVideo.id) setSelectedVideo(null);
+                  setDeleteConfirmVideo(null);
+                  await loadVideos();
+                  await loadCounts();
+                }
+              }}
+            >
+              {deleting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
