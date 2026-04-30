@@ -238,8 +238,8 @@ async function buildSnapshot(supabase: any, city: string) {
 
   const extraPreviews = extraRows.map((card) => {
     const doc = extraDocByCard[card.id];
-    const badgeName = card.badge_id ? (badgeMap.get(card.badge_id) || null) : null;
-    const label = card.title?.trim() || badgeName || null;
+    // badge_id is only used to FILTER which video to pick — never displayed as label.
+    const label = card.title?.trim() || null;
     const target = computeTarget(card);
     if (!doc) {
       const biz = card.business_id ? bizMap.get(card.business_id) : null;
