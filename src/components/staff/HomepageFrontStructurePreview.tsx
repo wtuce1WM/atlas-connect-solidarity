@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import VideoLightbox from "@/components/staff/VideoLightbox";
+import { invalidateManualCardCache } from "@/lib/manualCards";
 import {
   DndContext,
   closestCenter,
@@ -529,6 +530,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       .from("front_structure_homepage_extra_cards")
       .insert({ city, business_id: null, badge_id: null, sort_order: nextSort });
     if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    invalidateManualCardCache(city as any);
     setExtraReloadKey((k) => k + 1);
   };
 
@@ -691,6 +693,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       .update(patch)
       .eq("id", cardId);
     if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    invalidateManualCardCache(city as any);
     setOpenSearchEntry(null);
     setSearchByEntry((p) => ({ ...p, [cardId]: "" }));
     setExtraCards((prev) => prev.map((card) => {
@@ -724,6 +727,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       .delete()
       .eq("id", cardId);
     if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    invalidateManualCardCache(city as any);
     setExtraReloadKey((k) => k + 1);
   };
 
@@ -749,6 +753,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
         .insert(rows);
       if (insErr) { toast({ title: "Erreur", description: insErr.message, variant: "destructive" }); return; }
     }
+    invalidateManualCardCache(city as any);
   };
 
   const onDragEnd = (event: DragEndEvent) => {
