@@ -13,6 +13,8 @@ declare global {
 interface PanelLocationOverlayProps {
   open: boolean;
   onClose: () => void;
+  /** "absolute" (default, fills parent) or "popup" (fixed centered modal with backdrop) */
+  variant?: "absolute" | "popup";
 }
 
 const DEFAULT_CENTER = { lat: 31.6295, lng: -7.9811 };
@@ -49,7 +51,7 @@ function loadGoogleMaps(): Promise<void> {
   return gmapsPromise;
 }
 
-const PanelLocationOverlay = ({ open, onClose }: PanelLocationOverlayProps) => {
+const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLocationOverlayProps) => {
   const { language } = useLanguage();
   const geo = useGeolocation();
 
@@ -289,8 +291,17 @@ const PanelLocationOverlay = ({ open, onClose }: PanelLocationOverlayProps) => {
 
   if (!open && !closing) return null;
 
-  return (
-    <div className={`absolute inset-0 z-[90] bg-background flex flex-col ${closing ? "animate-out slide-out-to-bottom duration-200" : "animate-in slide-in-from-bottom duration-200"}`}>
+  const isPopup = variant === "popup";
+
+  const content = (
+    <div
+      className={
+        isPopup
+          ? `relative w-full max-w-2xl h-[90vh] max-h-[700px] bg-background rounded-2xl shadow-2xl flex flex-col overflow-hidden ${closing ? "animate-out zoom-out-95 duration-200" : "animate-in zoom-in-95 duration-200"}`
+          : `absolute inset-0 z-[90] bg-background flex flex-col ${closing ? "animate-out slide-out-to-bottom duration-200" : "animate-in slide-in-from-bottom duration-200"}`
+      }
+      onClick={isPopup ? (e) => e.stopPropagation() : undefined}
+    >
       {/* Header */}
       <div className="shrink-0 flex items-center gap-3 px-4 py-3 border-b border-border">
         <button
@@ -389,6 +400,19 @@ const PanelLocationOverlay = ({ open, onClose }: PanelLocationOverlayProps) => {
       </div>
     </div>
   );
+
+  if (isPopup) {
+    return (
+      <div
+        className={`fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 ${closing ? "animate-out fade-out duration-200" : "animate-in fade-in duration-200"}`}
+        onClick={handleClose}
+      >
+        {content}
+      </div>
+    );
+  }
+
+  return content;
 };
 
 export default PanelLocationOverlay;
