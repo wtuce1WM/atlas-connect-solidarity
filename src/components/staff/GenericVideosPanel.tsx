@@ -899,6 +899,45 @@ const GenericVideosPanel = () => {
       {socialVideo && <SocialLinksDialog video={socialVideo} open={!!socialVideo} onOpenChange={(o) => !o && setSocialVideo(null)} onSaved={loadVideos} />}
       {descVideo && <DescriptionDialog video={descVideo} open={!!descVideo} onOpenChange={(o) => !o && setDescVideo(null)} onSaved={loadVideos} />}
       {previewOverlayVideo && <GenericVideoPreviewOverlay video={previewOverlayVideo} onClose={() => setPreviewOverlayVideo(null)} />}
+
+      <AlertDialog open={!!deleteConfirmVideo} onOpenChange={(o) => !o && !deleting && setDeleteConfirmVideo(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer cette vidéo générique ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteConfirmVideo?.name || deleteConfirmVideo?.title || "Vidéo sans nom"}
+              <br />
+              Cette action est <strong>définitive</strong> et supprimera également tous les liens associés (POIs, établissements, destinations, badges, sous-catégories, villes).
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={async (e) => {
+                e.preventDefault();
+                if (!deleteConfirmVideo) return;
+                setDeleting(true);
+                const { error } = await supabase.from("generic_videos" as any).delete().eq("id", deleteConfirmVideo.id);
+                setDeleting(false);
+                if (error) {
+                  toast.error(error.message);
+                } else {
+                  toast.success("Vidéo supprimée");
+                  if (selectedVideo?.id === deleteConfirmVideo.id) setSelectedVideo(null);
+                  setDeleteConfirmVideo(null);
+                  await loadVideos();
+                  await loadCounts();
+                }
+              }}
+            >
+              {deleting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
