@@ -240,13 +240,13 @@ export function useGeolocation(): GeolocationState {
       setIsEnabled(false);
     } else {
       localStorage.setItem(STORAGE_KEY, "enabled");
-      // Clear manual when toggling to browser geolocation
       localStorage.removeItem(MANUAL_COORDS_KEY);
       localStorage.removeItem(MANUAL_ADDRESS_KEY);
       setIsManual(false);
       setConfirmedAddress(null);
       setIsEnabled(true);
     }
+    broadcast();
   }, [isEnabled]);
 
   const dismiss = useCallback(() => {
