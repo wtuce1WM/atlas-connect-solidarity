@@ -480,6 +480,13 @@ const SortableVideoCard = ({
             VU
           </button>
         )}
+        <button
+          className="absolute top-2 left-2 z-10 p-1 rounded bg-destructive/80 text-destructive-foreground opacity-0 group-hover:opacity-100 hover:bg-destructive transition-opacity"
+          onClick={(e) => { e.stopPropagation(); onDelete(video); }}
+          title="Supprimer cette vidéo"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
       </button>
 
       <div className="p-2 space-y-1">
