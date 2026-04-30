@@ -2453,7 +2453,7 @@ const Home = () => {
                                 </p>
                               ) : null;
                             })()}
-                            {!v.eventInfo?.name && !(genericVideoIds.has(v.id) && v.videoName) && !(!genericVideoIds.has(v.id) && v.videoTitle) && !(!genericVideoIds.has(v.id) && !v.videoTitle && selectedEntry?.id !== HOME_ID && (v.business as any)?.hook_fr) && (() => {
+                            {!v.eventInfo?.name && (() => {
                               const displayName = v.business_name || v.owner?.name || "";
                               return (
                                 <button
