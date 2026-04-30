@@ -693,6 +693,7 @@ const HomepageFrontStructurePreview = ({ city }: Props) => {
       .update(patch)
       .eq("id", cardId);
     if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    invalidateManualCardCache(city as any);
     setOpenSearchEntry(null);
     setSearchByEntry((p) => ({ ...p, [cardId]: "" }));
     setExtraCards((prev) => prev.map((card) => {
