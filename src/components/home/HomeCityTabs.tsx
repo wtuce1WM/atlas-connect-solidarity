@@ -6,6 +6,7 @@ import { CITIES, type City } from "@/lib/homeHelpers";
 import { supabase } from "@/integrations/supabase/client";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import PanelLocationOverlay from "@/components/overlays/PanelLocationOverlay";
+import { useDragScroll } from "@/hooks/useDragScroll";
 
 interface Props {
   city: City;
@@ -29,6 +30,7 @@ const HomeCityTabs = ({ city, onCityChange, onLabelClick }: Props) => {
   const [hashtagBadges, setHashtagBadges] = useState<HashtagBadge[]>([]);
   const [showLocationOverlay, setShowLocationOverlay] = useState(false);
   const geo = useGeolocation();
+  const hashtagsScrollRef = useDragScroll<HTMLDivElement>();
 
   useEffect(() => {
     const load = async () => {
@@ -86,7 +88,7 @@ const HomeCityTabs = ({ city, onCityChange, onLabelClick }: Props) => {
         </button>
 
         {hashtagBadges.length > 0 && (
-          <div className="flex items-center gap-2 overflow-x-auto lg:flex-wrap lg:overflow-visible -mx-2 px-2 lg:mx-0 lg:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div ref={hashtagsScrollRef} className="flex items-center gap-2 overflow-x-auto lg:flex-wrap lg:overflow-visible -mx-2 px-2 lg:mx-0 lg:px-0 cursor-grab select-none touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {hashtagBadges.map((b) => (
               <button
                 key={b.id}
