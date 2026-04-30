@@ -26,7 +26,6 @@ const RATING_SOURCES: Array<{ rating: keyof Business; count: keyof Business }> =
   { rating: "viator_rating", count: "viator_review_count" },
   { rating: "avis_verifies_rating", count: "avis_verifies_review_count" },
   { rating: "trustpilot_rating", count: "trustpilot_review_count" },
-  { rating: "kayak_rating", count: "kayak_review_count" },
   { rating: "tourradar_rating", count: "tourradar_review_count" },
 ];
 
