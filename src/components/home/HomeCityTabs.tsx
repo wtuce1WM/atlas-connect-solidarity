@@ -30,6 +30,7 @@ const HomeCityTabs = ({ city, onCityChange, onLabelClick }: Props) => {
   const [hashtagBadges, setHashtagBadges] = useState<HashtagBadge[]>([]);
   const [showLocationOverlay, setShowLocationOverlay] = useState(false);
   const geo = useGeolocation();
+  const hashtagsScrollRef = useDragScroll<HTMLDivElement>();
 
   useEffect(() => {
     const load = async () => {
