@@ -57,6 +57,34 @@ const HomeCityTabs = ({ city, onCityChange, onLabelClick }: Props) => {
           <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
         </TabsList>
 
+        <button
+          type="button"
+          onClick={() => setShowLocationOverlay(true)}
+          className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-3 h-9 text-xs font-medium shadow-lg transition-colors ${
+            geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity || geo.confirmedAddress)
+              ? "bg-gold/20 text-gold border border-gold/40"
+              : "bg-[#C04F17] text-white hover:bg-[#C04F17]/90"
+          }`}
+          style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+        >
+          {geo.isDetecting ? (
+            <Loader className="h-3.5 w-3.5 animate-spin" />
+          ) : geo.isEnabled ? (
+            <MapPin className="h-3.5 w-3.5" />
+          ) : (
+            <MapPinOff className="h-3.5 w-3.5" />
+          )}
+          <span className="truncate max-w-[240px]">
+            {geo.isDetecting
+              ? "…"
+              : geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity)
+              ? `📍 ${[geo.detectedNeighborhood, geo.detectedCity].filter(Boolean).join(", ")}`
+              : geo.isEnabled && geo.confirmedAddress
+              ? `📍 ${geo.confirmedAddress}`
+              : "Localisation"}
+          </span>
+        </button>
+
         {hashtagBadges.length > 0 && (
           <div className="flex items-center gap-2 flex-wrap">
             {hashtagBadges.map((b) => (
