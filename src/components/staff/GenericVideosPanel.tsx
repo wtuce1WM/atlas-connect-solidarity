@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Play, Upload, Copy, Check, FileText, Instagram, X, MapPin, MapPinned, Building2, Search, GripVertical, Clock, Globe, Tag, Layers } from "lucide-react";
 import VideoIdSearchInput from "./VideoIdSearchInput";
 import ImportFromBusinessDocInput from "./ImportFromBusinessDocInput";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -498,6 +499,12 @@ const GenericVideosPanel = () => {
   const [destinationVideo, setDestinationVideo] = useState<GenericVideo | null>(null);
   const [tagsVideo, setTagsVideo] = useState<GenericVideo | null>(null);
   const [previewOverlayVideo, setPreviewOverlayVideo] = useState<GenericVideo | null>(null);
+
+  // Filtres "Nom Social" — un par réseau
+  const ALL_SOCIAL = "__all__";
+  const [filterIg, setFilterIg] = useState<string>(ALL_SOCIAL);
+  const [filterTt, setFilterTt] = useState<string>(ALL_SOCIAL);
+  const [filterYt, setFilterYt] = useState<string>(ALL_SOCIAL);
 
   // Selected video for right panel
   const [selectedVideo, setSelectedVideo] = useState<GenericVideo | null>(null);
