@@ -826,6 +826,7 @@ const Home = () => {
             service_id: d.service_id ?? null,
             service_name: d.service_id ? badgeServiceNameById.get(d.service_id) ?? null : null,
             badge_ids: docBadgesByDocId[d.id] || [],
+            videoTitle: d.name ?? null,
           } as VideoItem;
         });
 
