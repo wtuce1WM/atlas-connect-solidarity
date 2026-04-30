@@ -535,6 +535,8 @@ const GenericVideosPanel = () => {
   const [destinationVideo, setDestinationVideo] = useState<GenericVideo | null>(null);
   const [tagsVideo, setTagsVideo] = useState<GenericVideo | null>(null);
   const [previewOverlayVideo, setPreviewOverlayVideo] = useState<GenericVideo | null>(null);
+  const [deleteConfirmVideo, setDeleteConfirmVideo] = useState<GenericVideo | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Filtres "Nom Social" — un par réseau
   const ALL_SOCIAL = "__all__";
@@ -838,6 +840,7 @@ const GenericVideosPanel = () => {
                         onEditDestinations={(v) => { setSelectedVideo(null); setPoiVideo(null); setBusinessVideo(null); setTagsVideo(null); setDestinationVideo(v); }}
                         onEditTags={(v) => { setSelectedVideo(null); setPoiVideo(null); setBusinessVideo(null); setDestinationVideo(null); setTagsVideo(v); }}
                         onPreviewOverlay={setPreviewOverlayVideo}
+                        onDelete={setDeleteConfirmVideo}
                       />
                     </div>
                   ))}
