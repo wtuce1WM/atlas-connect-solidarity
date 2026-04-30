@@ -730,20 +730,58 @@ const GenericVideosPanel = () => {
           <div className="flex items-center justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
         ) : videos.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-8">Aucune vidéo générique</p>
-        ) : (
+        ) : (() => {
+          const igAccounts = Array.from(new Set(videos.map(v => v.instagram_account).filter((s): s is string => !!s && !!s.trim()))).sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
+          const ttAccounts = Array.from(new Set(videos.map(v => v.tiktok_account).filter((s): s is string => !!s && !!s.trim()))).sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
+          const ytAccounts = Array.from(new Set(videos.map(v => v.youtube_account).filter((s): s is string => !!s && !!s.trim()))).sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
+          const filteredVideos = videos.filter(v =>
+            (filterIg === ALL_SOCIAL || v.instagram_account === filterIg) &&
+            (filterTt === ALL_SOCIAL || v.tiktok_account === filterTt) &&
+            (filterYt === ALL_SOCIAL || v.youtube_account === filterYt)
+          );
+          return (
           <>
             <div className="flex items-center gap-3 flex-wrap">
-              <p className="text-sm text-muted-foreground">{videos.length} vidéo{videos.length > 1 ? "s" : ""} • Cliquez pour voir les entités liées</p>
-              <VideoIdSearchInput videoIds={videos.map(v => v.id)} />
+              <p className="text-sm text-muted-foreground">{filteredVideos.length}/{videos.length} vidéo{videos.length > 1 ? "s" : ""} • Cliquez pour voir les entités liées</p>
+              <VideoIdSearchInput videoIds={filteredVideos.map(v => v.id)} />
               <ImportFromBusinessDocInput
                 onImported={loadVideos}
                 getNextSortOrder={() => (videos.length > 0 ? Math.max(...videos.map(v => v.sort_order)) + 1 : 0)}
               />
             </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-medium text-muted-foreground">Nom social :</span>
+              <Select value={filterIg} onValueChange={setFilterIg}>
+                <SelectTrigger className="h-7 text-xs w-[180px]"><SelectValue placeholder="Instagram" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL_SOCIAL}>Instagram — Tous</SelectItem>
+                  {igAccounts.map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={filterTt} onValueChange={setFilterTt}>
+                <SelectTrigger className="h-7 text-xs w-[180px]"><SelectValue placeholder="TikTok" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL_SOCIAL}>TikTok — Tous</SelectItem>
+                  {ttAccounts.map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={filterYt} onValueChange={setFilterYt}>
+                <SelectTrigger className="h-7 text-xs w-[180px]"><SelectValue placeholder="YouTube" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL_SOCIAL}>YouTube — Tous</SelectItem>
+                  {ytAccounts.map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              {(filterIg !== ALL_SOCIAL || filterTt !== ALL_SOCIAL || filterYt !== ALL_SOCIAL) && (
+                <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => { setFilterIg(ALL_SOCIAL); setFilterTt(ALL_SOCIAL); setFilterYt(ALL_SOCIAL); }}>
+                  Réinitialiser
+                </Button>
+              )}
+            </div>
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={videos.map(v => v.id)} strategy={rectSortingStrategy}>
+              <SortableContext items={filteredVideos.map(v => v.id)} strategy={rectSortingStrategy}>
                 <div className="flex flex-wrap gap-4">
-                  {videos.map(video => (
+                  {filteredVideos.map(video => (
                     <div key={video.id} style={{ width: 260 }}>
                       <SortableVideoCard
                         video={video}
@@ -771,7 +809,8 @@ const GenericVideosPanel = () => {
               </SortableContext>
             </DndContext>
           </>
-        )}
+          );
+        })()}
       </div>
 
       {/* Right: detail panel (only one at a time) */}
