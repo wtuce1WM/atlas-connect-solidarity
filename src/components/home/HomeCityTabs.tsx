@@ -86,7 +86,7 @@ const HomeCityTabs = ({ city, onCityChange, onLabelClick }: Props) => {
         </button>
 
         {hashtagBadges.length > 0 && (
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 overflow-x-auto lg:flex-wrap lg:overflow-visible -mx-2 px-2 lg:mx-0 lg:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {hashtagBadges.map((b) => (
               <button
                 key={b.id}
@@ -103,7 +103,7 @@ const HomeCityTabs = ({ city, onCityChange, onLabelClick }: Props) => {
                     city,
                   )
                 }
-                className="inline-flex items-center rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-medium text-gold hover:bg-gold/20 hover:border-gold/60 transition-colors"
+                className="shrink-0 inline-flex items-center rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-medium text-gold hover:bg-gold/20 hover:border-gold/60 transition-colors"
                 title={`Filtrer par ${b.name_fr}`}
               >
                 {b.name_fr}
