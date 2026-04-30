@@ -113,8 +113,8 @@ export function useGeolocation(): GeolocationState {
       });
   }, []);
 
-  // Restore manual location from localStorage on mount
-  useEffect(() => {
+  // Restore manual location from localStorage (initial mount + cross-instance sync)
+  const hydrateFromStorage = useCallback(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     const manualCoordsStr = localStorage.getItem(MANUAL_COORDS_KEY);
     const manualAddr = localStorage.getItem(MANUAL_ADDRESS_KEY);
@@ -129,7 +129,6 @@ export function useGeolocation(): GeolocationState {
       setShowBanner(false);
     }
 
-    // Restore manual location if present
     if (manualCoordsStr && manualAddr) {
       try {
         const parsed = JSON.parse(manualCoordsStr);
@@ -141,8 +140,23 @@ export function useGeolocation(): GeolocationState {
       } catch {
         // ignore parse errors
       }
+    } else {
+      // No manual location stored — clear any stale local state
+      setIsManual(false);
+      setConfirmedAddress(null);
     }
   }, []);
+
+  useEffect(() => {
+    hydrateFromStorage();
+    const onChange = () => hydrateFromStorage();
+    window.addEventListener("geo:changed", onChange);
+    window.addEventListener("storage", onChange);
+    return () => {
+      window.removeEventListener("geo:changed", onChange);
+      window.removeEventListener("storage", onChange);
+    };
+  }, [hydrateFromStorage]);
 
   // Detect neighborhood when coords and neighborhoods are available
   useEffect(() => {
@@ -198,21 +212,26 @@ export function useGeolocation(): GeolocationState {
     );
   }, [isEnabled, cities, isManual]);
 
+  const broadcast = () => {
+    try { window.dispatchEvent(new CustomEvent("geo:changed")); } catch { /* noop */ }
+  };
+
   const accept = useCallback(() => {
     localStorage.setItem(STORAGE_KEY, "enabled");
-    // Clear manual location when accepting browser geolocation
     localStorage.removeItem(MANUAL_COORDS_KEY);
     localStorage.removeItem(MANUAL_ADDRESS_KEY);
     setIsManual(false);
     setConfirmedAddress(null);
     setIsEnabled(true);
     setShowBanner(false);
+    broadcast();
   }, []);
 
   const decline = useCallback(() => {
     localStorage.setItem(STORAGE_KEY, "disabled");
     setIsEnabled(false);
     setShowBanner(false);
+    broadcast();
   }, []);
 
   const toggle = useCallback(() => {
@@ -221,13 +240,13 @@ export function useGeolocation(): GeolocationState {
       setIsEnabled(false);
     } else {
       localStorage.setItem(STORAGE_KEY, "enabled");
-      // Clear manual when toggling to browser geolocation
       localStorage.removeItem(MANUAL_COORDS_KEY);
       localStorage.removeItem(MANUAL_ADDRESS_KEY);
       setIsManual(false);
       setConfirmedAddress(null);
       setIsEnabled(true);
     }
+    broadcast();
   }, [isEnabled]);
 
   const dismiss = useCallback(() => {
@@ -263,6 +282,7 @@ export function useGeolocation(): GeolocationState {
       }
       setDetectedCity(minDist <= 100 ? nearest : null);
     }
+    broadcast();
   }, [cities, neighborhoods]);
 
   const setManualCity = useCallback((cityName: string) => {
@@ -284,6 +304,7 @@ export function useGeolocation(): GeolocationState {
     setIsManual(true);
     setIsEnabled(true);
     setShowBanner(false);
+    broadcast();
   }, [cities]);
 
   return {
