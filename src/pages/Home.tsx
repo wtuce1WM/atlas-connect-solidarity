@@ -2345,7 +2345,7 @@ const Home = () => {
                            const topText = isGeneric ? v.videoName : (v.videoTitle || internalFallbackHook);
                            const hasOrderBadge = selectedEntry?.id !== HOME_ID && v.business?.engagements?.includes("Logistique:Commandez en ligne et recevez votre colis chez vous");
                            return topText ? (
-                             <div className={`absolute inset-x-0 ${hasOrderBadge ? "top-[20%]" : "top-[6%]"} z-[10] flex flex-col items-center gap-2 px-3 pointer-events-none text-center`}>
+                             <div className={`absolute inset-x-0 ${hasOrderBadge ? "top-[20%]" : "top-[12%]"} z-[10] flex flex-col items-center gap-2 px-3 pointer-events-none text-center`}>
                                <p
                                  className="text-sm font-bold text-white"
                                  style={{
