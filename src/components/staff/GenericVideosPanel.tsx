@@ -60,6 +60,7 @@ interface GenericVideo {
   youtube_url: string | null;
   youtube_video_url: string | null;
   description: string | null;
+  title: string | null;
 }
 
 /* ─── Social links editor dialog ─── */
@@ -134,20 +135,36 @@ const SocialLinksDialog = ({
 
 /* ─── Description (RichText) dialog ─── */
 const DescriptionDialog = ({ video, open, onOpenChange, onSaved }: { video: GenericVideo; open: boolean; onOpenChange: (o: boolean) => void; onSaved: () => void; }) => {
+  const [title, setTitle] = useState(video.title || "");
   const [desc, setDesc] = useState(video.description || "");
   const [saving, setSaving] = useState(false);
   const save = async () => {
     setSaving(true);
-    const { error } = await supabase.from("generic_videos" as any).update({ description: desc || null } as any).eq("id", video.id);
+    const { error } = await supabase.from("generic_videos" as any).update({ title: title.trim() || null, description: desc || null } as any).eq("id", video.id);
     if (error) toast.error(error.message);
-    else { toast.success("Description enregistrée"); onSaved(); onOpenChange(false); }
+    else { toast.success("Titre & description enregistrés"); onSaved(); onOpenChange(false); }
     setSaving(false);
   };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader><DialogTitle>Description de la vidéo</DialogTitle></DialogHeader>
-        <RichTextEditor content={desc} onChange={setDesc} maxHeight="400px" />
+        <DialogHeader><DialogTitle>Titre & description de la vidéo</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="generic-video-title" className="text-xs font-semibold">Titre</Label>
+            <Input
+              id="generic-video-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Titre de la vidéo (optionnel)"
+              maxLength={200}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold">Description</Label>
+            <RichTextEditor content={desc} onChange={setDesc} maxHeight="400px" />
+          </div>
+        </div>
         <div className="flex justify-end pt-2">
           <Button onClick={save} disabled={saving}>{saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Enregistrer</Button>
         </div>
