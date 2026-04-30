@@ -95,7 +95,13 @@ const Home = () => {
   // ============================================================
   // STATE
   // ============================================================
-  const [city, setCity] = useState<City>("Marrakech");
+  // Initialize from last viewed city (localStorage) to avoid first-paint flash.
+  // Will be overridden by URL param (?city=…) or by geolocation detection below.
+  const [city, setCity] = useState<City>(() => readLastHomepageCity() || "Marrakech");
+  const geo = useGeolocation();
+  // True until either: URL specified a city, user manually picked one, or geo detection completed.
+  const [resolvingCity, setResolvingCity] = useState(true);
+  const cityResolvedRef = useRef(false);
   const [entries, setEntries] = useState<FrontEntry[]>([]);
   const [subcatNames, setSubcatNames] = useState<Record<string, string>>({});
   
