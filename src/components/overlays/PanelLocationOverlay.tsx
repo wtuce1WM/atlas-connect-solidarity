@@ -400,6 +400,19 @@ const PanelLocationOverlay = ({ open, onClose, variant = "absolute" }: PanelLoca
       </div>
     </div>
   );
+
+  if (isPopup) {
+    return (
+      <div
+        className={`fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 ${closing ? "animate-out fade-out duration-200" : "animate-in fade-in duration-200"}`}
+        onClick={handleClose}
+      >
+        {content}
+      </div>
+    );
+  }
+
+  return content;
 };
 
 export default PanelLocationOverlay;
