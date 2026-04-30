@@ -272,11 +272,11 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
           {it.rating != null && (
-            <div className="absolute top-1.5 left-1.5 right-1.5 z-[5] flex items-center gap-1 text-[10px]">
+            <div className="absolute top-1.5 left-1.5 z-[5] flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-black/60 backdrop-blur-sm">
               <Star className="h-2.5 w-2.5 text-gold fill-gold" />
               <span className="font-medium text-white">{it.rating}/20</span>
               {(it.reviewCount ?? 0) > 0 && (
-                <span className="text-white/70">· {it.reviewCount} avis</span>
+                <span className="text-white/80">· {it.reviewCount} avis</span>
               )}
             </div>
           )}
