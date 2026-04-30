@@ -3492,6 +3492,7 @@ export type Database = {
           tiktok_account: string | null
           tiktok_url: string | null
           tiktok_video_url: string | null
+          title: string | null
           updated_at: string
           url: string
           youtube_account: string | null
@@ -3514,6 +3515,7 @@ export type Database = {
           tiktok_account?: string | null
           tiktok_url?: string | null
           tiktok_video_url?: string | null
+          title?: string | null
           updated_at?: string
           url: string
           youtube_account?: string | null
@@ -3536,6 +3538,7 @@ export type Database = {
           tiktok_account?: string | null
           tiktok_url?: string | null
           tiktok_video_url?: string | null
+          title?: string | null
           updated_at?: string
           url?: string
           youtube_account?: string | null
