@@ -41,6 +41,8 @@ import {
   cityMatches,
 } from "@/lib/homeHelpers";
 import { getManualCardMap } from "@/lib/manualCards";
+import { resolveHomepageCity, readLastHomepageCity, writeLastHomepageCity } from "@/lib/cityHomepage";
+import { useGeolocation } from "@/hooks/useGeolocation";
 
 interface FrontEntry {
   id: string;
