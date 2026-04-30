@@ -94,17 +94,15 @@ export async function getManualCardMap(city: City, docs: any[]): Promise<Map<str
 
   if (cards.length === 0) return manualMap;
 
-  const pickLabel = (card: { title: string | null; badge_id: string | null }) => {
-    const trimmedTitle = card.title?.trim();
-    return trimmedTitle || (card.badge_id ? badgeNameById.get(card.badge_id) || null : null);
-  };
+  // IMPORTANT: badge_id on extra cards is ONLY used to FILTER which video to pick.
+  // It must NEVER be used as the displayed label. Only an explicit `title` is shown.
+  const pickLabel = (card: { title: string | null }) => card.title?.trim() || null;
 
   cards.forEach((card) => {
     const label = pickLabel(card);
-    if (!label) return;
 
     if (card.video_document_id) {
-      if (!manualMap.has(card.video_document_id)) {
+      if (label && !manualMap.has(card.video_document_id)) {
         manualMap.set(card.video_document_id, { label, badgeId: card.badge_id, eventId: card.event_id ?? null });
       }
       return;
@@ -120,7 +118,7 @@ export async function getManualCardMap(city: City, docs: any[]): Promise<Map<str
     if (matchingDocs.length === 0) return;
 
     const selectedDoc = [...matchingDocs].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0];
-    if (selectedDoc && !manualMap.has(selectedDoc.id)) {
+    if (selectedDoc && label && !manualMap.has(selectedDoc.id)) {
       manualMap.set(selectedDoc.id, { label, badgeId: card.badge_id, eventId: card.event_id ?? null });
     }
   });
