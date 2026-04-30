@@ -13,6 +13,8 @@ declare global {
 interface PanelLocationOverlayProps {
   open: boolean;
   onClose: () => void;
+  /** "absolute" (default, fills parent) or "popup" (fixed centered modal with backdrop) */
+  variant?: "absolute" | "popup";
 }
 
 const DEFAULT_CENTER = { lat: 31.6295, lng: -7.9811 };
