@@ -80,6 +80,7 @@ interface VideoItem {
   price?: string | null;
   priceType?: string | null;
   videoTitle?: string | null;
+  videoName?: string | null;
   badge_ids?: string[];
 }
 
