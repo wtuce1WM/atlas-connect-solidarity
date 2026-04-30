@@ -248,9 +248,23 @@ const PanelLocationOverlay = ({ open, onClose }: PanelLocationOverlayProps) => {
   };
 
   const handleConfirm = () => {
+    console.log("[PanelLocationOverlay] handleConfirm clicked", {
+      activeCoords,
+      selectedCoords,
+      geoCoords: geo.coords,
+      isEnabled: geo.isEnabled,
+      selectedAddress,
+      detectedCity: geo.detectedCity,
+    });
     if (activeCoords) {
       geo.setManualLocation(activeCoords, selectedAddress || geo.detectedCity || "");
+      console.log("[PanelLocationOverlay] setManualLocation called, localStorage:", {
+        coords: localStorage.getItem("geo_manual_coords"),
+        address: localStorage.getItem("geo_manual_address"),
+      });
       handleClose();
+    } else {
+      console.warn("[PanelLocationOverlay] Confirm aborted: no activeCoords");
     }
   };
 
