@@ -1309,7 +1309,7 @@ const Home = () => {
                 : Promise.resolve({ data: [] as any[] } as any),
               supabase
                 .from("generic_videos" as any)
-                .select("id, url, name, thumbnail_url, city, sort_order, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
+                .select("id, url, name, title, thumbnail_url, city, sort_order, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description")
                 .in("id", gvIds)
                 .order("sort_order", { ascending: true }),
             ]);
@@ -1358,6 +1358,7 @@ const Home = () => {
                   showSocialBadge: !!social,
                   description: v.description ?? null,
                   manualCard: null,
+                  videoName: v.title || v.name || null,
                 } as VideoItem;
               });
           }
