@@ -1867,6 +1867,11 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {resolvingCity && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-background">
+          <div className="h-8 w-8 rounded-full border-2 border-gold border-t-transparent animate-spin" />
+        </div>
+      )}
       <Header
         rightContent={
           <div className="flex items-center justify-end pr-2">
