@@ -76,11 +76,7 @@ const DestinationsTabContent = ({
           hasRightPanel ? "w-1/2" : hasKnownLocation && !hideDestMap ? "w-1/2" : "w-full"
         }`}
       >
-        <div
-          className={`pt-4 mx-auto px-4 ${
-            hasRightPanel || (hasKnownLocation && !hideDestMap) ? "max-w-full" : "max-w-[80%]"
-          }`}
-        >
+        <div className="pt-4 mx-auto px-4 max-w-full">
           {/* Sticky bar for Destinations — Carte badge only (mobile/tablet) */}
           <div
             className="sticky z-[19] bg-white lg:bg-white flex items-center justify-center px-4 gap-2 relative py-4 sm:py-4 lg:py-1.5 lg:hidden"
