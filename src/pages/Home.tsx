@@ -136,7 +136,11 @@ const Home = () => {
     if (sp.get("openVideo")) return; // handled by the openVideo effect below
 
     const cityParam = sp.get("city") as City | null;
-    if (cityParam && CITIES.includes(cityParam)) setCity(cityParam);
+    if (cityParam && CITIES.includes(cityParam)) {
+      setCity(cityParam);
+      cityResolvedRef.current = true;
+      setResolvingCity(false);
+    }
 
     const entryParam = sp.get("entry");
     const subParam = sp.get("sub");
@@ -163,6 +167,36 @@ const Home = () => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Geo-based homepage city resolution.
+  // - Respects URL ?city= override (handled above) and any user manual change.
+  // - If geo is enabled & coords arrive: pick the nearest configured homepage.
+  // - If geo is disabled / denied: fall back to last viewed city (already initialized) or Marrakech.
+  // - Persists the resolved city for next visit (no flash).
+  useEffect(() => {
+    if (cityResolvedRef.current) return;
+
+    // Geo disabled or user declined: resolve immediately with fallback.
+    if (!geo.isEnabled) {
+      cityResolvedRef.current = true;
+      setResolvingCity(false);
+      return;
+    }
+
+    // Still detecting position: keep loader on.
+    if (geo.isDetecting || !geo.coords) return;
+
+    const resolved = resolveHomepageCity(geo.coords);
+    setCity(resolved);
+    cityResolvedRef.current = true;
+    setResolvingCity(false);
+  }, [geo.isEnabled, geo.isDetecting, geo.coords]);
+
+  // Persist last viewed homepage city (manual switches or auto-resolution).
+  useEffect(() => {
+    if (!cityResolvedRef.current) return;
+    writeLastHomepageCity(city);
+  }, [city]);
 
   // Auto-reopen the SlidePanelHome on the original video when returning from a business panel
   useEffect(() => {
