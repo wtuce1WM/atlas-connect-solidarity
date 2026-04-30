@@ -124,6 +124,11 @@ const HomeCityTabs = ({ city, onCityChange, onLabelClick }: Props) => {
           </div>
         </TabsContent>
       ))}
+
+      <PanelLocationOverlay
+        open={showLocationOverlay}
+        onClose={() => setShowLocationOverlay(false)}
+      />
     </Tabs>
   );
 };
