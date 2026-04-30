@@ -27,6 +27,8 @@ interface HashtagBadge {
  */
 const HomeCityTabs = ({ city, onCityChange, onLabelClick }: Props) => {
   const [hashtagBadges, setHashtagBadges] = useState<HashtagBadge[]>([]);
+  const [showLocationOverlay, setShowLocationOverlay] = useState(false);
+  const geo = useGeolocation();
 
   useEffect(() => {
     const load = async () => {
