@@ -267,8 +267,11 @@ const PanelLocationOverlay = ({ open, onClose }: PanelLocationOverlayProps) => {
   };
 
   const handleConfirm = () => {
-    if (activeCoords) {
-      geo.setManualLocation(activeCoords, selectedAddress || geo.detectedCity || "");
+    const coordsToConfirm = selectedCoordsRef.current || coords;
+    const addressToConfirm = selectedAddressRef.current || addressQuery || geo.detectedCity || "";
+
+    if (coordsToConfirm) {
+      geo.setManualLocation(coordsToConfirm, addressToConfirm);
       handleClose();
     }
   };
