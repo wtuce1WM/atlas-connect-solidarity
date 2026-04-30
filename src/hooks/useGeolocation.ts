@@ -231,6 +231,7 @@ export function useGeolocation(): GeolocationState {
     localStorage.setItem(STORAGE_KEY, "disabled");
     setIsEnabled(false);
     setShowBanner(false);
+    broadcast();
   }, []);
 
   const toggle = useCallback(() => {
