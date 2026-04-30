@@ -766,7 +766,7 @@ const Home = () => {
           for (let i = 0; i < allBizIds.length; i += batch) {
             const { data: bizs } = await supabase
               .from("businesses")
-              .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr, is_poi")
+              .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr, is_poi, front_video_count")
               .in("id", allBizIds.slice(i, i + batch));
             (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
           }
@@ -776,6 +776,33 @@ const Home = () => {
           if (so !== 0) return so;
           return String(a.id).localeCompare(String(b.id));
         });
+        // Group internal docs by resolved establishment, then keep first N per business
+        // (front_video_count). This mirrors the subcategory branch behavior.
+        // Generic videos and YouTube videos (added later) are NOT grouped.
+        {
+          const docsByBiz = new Map<string, any[]>();
+          const orderKey = new Map<string, number>();
+          let idx = 0;
+          for (const d of uniqueDocs) {
+            const biz = resolveVideoEstablishment(d, bizMap);
+            const groupId = biz?.id || d.business_id || d.id;
+            if (!docsByBiz.has(groupId)) {
+              docsByBiz.set(groupId, []);
+              orderKey.set(groupId, idx++);
+            }
+            docsByBiz.get(groupId)!.push(d);
+          }
+          const limited: any[] = [];
+          for (const [bizId, docs] of docsByBiz.entries()) {
+            const biz = bizMap.get(bizId) as any;
+            const limit = Math.max(1, Math.min(9, biz?.front_video_count ?? 1));
+            limited.push(...docs.slice(0, limit));
+          }
+          // Preserve original sort_order
+          limited.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+          uniqueDocs.length = 0;
+          uniqueDocs.push(...limited);
+        }
         // Fetch service names for any service_id present on these docs
         const badgeServiceIds = [...new Set(uniqueDocs.map((d: any) => d.service_id).filter(Boolean))] as string[];
         const badgeServiceNameById = new Map<string, string>();
