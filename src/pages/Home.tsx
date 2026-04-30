@@ -916,6 +916,7 @@ const Home = () => {
                 showSocialBadge: !!social,
                 description: v.description ?? null,
                 manualCard: null,
+                videoName: v.name ?? null,
                 badge_ids: gvBadgesByVideo[v.id] || [],
               } as VideoItem;
             });
