@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
+import { MapPin, MapPinOff, Loader } from "lucide-react";
 import HomepageCardsFront, { type HomeCardTarget } from "@/components/HomepageCardsFront";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { CITIES, type City } from "@/lib/homeHelpers";
 import { supabase } from "@/integrations/supabase/client";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import PanelLocationOverlay from "@/components/overlays/PanelLocationOverlay";
 
 interface Props {
   city: City;
