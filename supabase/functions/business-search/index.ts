@@ -4499,10 +4499,18 @@ serve(async (req) => {
       }
     }
 
-    // Superlative intent: sort by best rating DESC (google > tripadvisor > restaurant_guru)
+    // Superlative intent: apply global ranking policy
+    // 1. Verified first; 2. priority_score DESC; 3. weighted rating /20 DESC (≥10 reviews) as tiebreaker
     if (isSuperlatif && businesses.length > 1) {
-      console.log(`Superlative detected in "${effectiveQuery}" → sorting by rating`);
-      businesses = [...businesses].sort((a, b) => getBestRating(b) - getBestRating(a));
+      console.log(`Superlative detected in "${effectiveQuery}" → applying ranking policy (verified > priority_score > rating)`);
+      businesses = [...businesses].sort((a, b) => {
+        const aVerified = a.wtuce_status === "verified";
+        const bVerified = b.wtuce_status === "verified";
+        if (aVerified !== bVerified) return aVerified ? -1 : 1;
+        const psDiff = (b.priority_score || 0) - (a.priority_score || 0);
+        if (psDiff !== 0) return psDiff;
+        return getBestRating(b) - getBestRating(a);
+      });
     }
     // Filter out name-matched businesses that are irrelevant when a subcategory/service is detected
     // e.g. "Gypsy Queens La Piscine" (a clothing store) should NOT be pinned for "piscine" search
