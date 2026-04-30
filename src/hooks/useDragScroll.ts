@@ -33,8 +33,8 @@ export function useDragScroll<T extends HTMLElement = HTMLDivElement>() {
         velocity = 0;
         return;
       }
-      el.scrollLeft += velocity * 16; // ~per frame
-      velocity *= 0.92; // friction
+      el.scrollLeft += velocity * 16;
+      velocity *= 0.92;
       momentumRAF = requestAnimationFrame(runMomentum);
     };
 
@@ -48,44 +48,47 @@ export function useDragScroll<T extends HTMLElement = HTMLDivElement>() {
       lastT = performance.now();
       startScroll = el.scrollLeft;
       velocity = 0;
-      el.style.cursor = "grabbing";
       el.style.scrollBehavior = "auto";
-      try { el.setPointerCapture(e.pointerId); } catch {}
     };
 
     const onPointerMove = (e: PointerEvent) => {
       if (!isDown) return;
       const dx = e.clientX - startX;
-      if (Math.abs(dx) > 4) moved = true;
-      el.scrollLeft = startScroll - dx;
-
-      const now = performance.now();
-      const dt = now - lastT;
-      if (dt > 0) {
-        // pixels per ms — used as velocity for momentum
-        velocity = (lastX - e.clientX) / dt;
+      if (Math.abs(dx) > 4) {
+        if (!moved) {
+          // First time we cross the threshold: now we're really dragging
+          el.style.cursor = "grabbing";
+        }
+        moved = true;
       }
-      lastX = e.clientX;
-      lastT = now;
+      if (moved) {
+        el.scrollLeft = startScroll - dx;
+        const now = performance.now();
+        const dt = now - lastT;
+        if (dt > 0) {
+          velocity = (lastX - e.clientX) / dt;
+        }
+        lastX = e.clientX;
+        lastT = now;
+      }
     };
 
-    const endDrag = (e?: PointerEvent) => {
+    const endDrag = () => {
       if (!isDown) return;
       isDown = false;
       el.style.cursor = "";
-      if (e) { try { el.releasePointerCapture(e.pointerId); } catch {} }
-      // Kick off momentum if velocity is meaningful
-      if (Math.abs(velocity) > 0.1) {
+      if (moved && Math.abs(velocity) > 0.1) {
         runMomentum();
       }
     };
 
+    // Only suppress click if a real drag happened
     const onClickCapture = (e: MouseEvent) => {
       if (moved) {
         e.stopPropagation();
         e.preventDefault();
-        moved = false;
       }
+      moved = false;
     };
 
     const onWheel = (e: WheelEvent) => {
@@ -95,25 +98,22 @@ export function useDragScroll<T extends HTMLElement = HTMLDivElement>() {
       el.style.scrollBehavior = "smooth";
       el.scrollLeft += e.deltaY;
       e.preventDefault();
-      // Reset behavior shortly after so drag stays snappy
       window.setTimeout(() => { el.style.scrollBehavior = "auto"; }, 200);
     };
 
     el.addEventListener("pointerdown", onPointerDown);
-    el.addEventListener("pointermove", onPointerMove);
-    el.addEventListener("pointerup", endDrag);
-    el.addEventListener("pointercancel", endDrag);
-    el.addEventListener("pointerleave", endDrag);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", endDrag);
+    window.addEventListener("pointercancel", endDrag);
     el.addEventListener("click", onClickCapture, true);
     el.addEventListener("wheel", onWheel, { passive: false });
 
     return () => {
       stopMomentum();
       el.removeEventListener("pointerdown", onPointerDown);
-      el.removeEventListener("pointermove", onPointerMove);
-      el.removeEventListener("pointerup", endDrag);
-      el.removeEventListener("pointercancel", endDrag);
-      el.removeEventListener("pointerleave", endDrag);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", endDrag);
+      window.removeEventListener("pointercancel", endDrag);
       el.removeEventListener("click", onClickCapture, true);
       el.removeEventListener("wheel", onWheel);
     };
