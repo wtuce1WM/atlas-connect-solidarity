@@ -420,6 +420,7 @@ const SortableVideoCard = ({
   onEditDestinations,
   onEditTags,
   onPreviewOverlay,
+  onDelete,
 }: {
   video: GenericVideo;
   poiCount: number;
