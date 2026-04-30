@@ -11,7 +11,7 @@ import PanelSearchBar from "@/components/PanelSearchBar";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
 import { businessUrl } from "@/lib/businessUrl";
 
-import { Menu as MenuIcon, X, Star, Youtube } from "lucide-react";
+import { Menu as MenuIcon, X, Star, Youtube, MapPin } from "lucide-react";
 import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { SiTiktok } from "react-icons/si";
 
