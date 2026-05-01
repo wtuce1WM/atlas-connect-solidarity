@@ -271,7 +271,7 @@ const SubcategoryPage = () => {
         // Fetch businesses that have this subcategory in their categories array
         const { data: businessData, error } = await supabase
           .from("businesses")
-          .select("id, slug, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, default_service, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, computed_rating, total_review_count, gamme_id, badge_id, neighborhood, hook_fr")
+          .select("id, slug, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, default_service, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, computed_rating, total_review_count, gamme_id, badge_id, neighborhood, hook_fr, priority_score")
           .eq("is_active", true)
           .contains("categories", [decodedSubcategoryName])
           .order("wtuce_status", { ascending: true })
