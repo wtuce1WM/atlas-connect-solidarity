@@ -301,6 +301,9 @@ const Home = () => {
   const [videoBadgeFilter, setVideoBadgeFilter] = useState<{ badgeId: string; label: string } | null>(null);
   const [videoEventFilter, setVideoEventFilter] = useState<VideoEventFilter | null>(null);
   const [videoPopularSearchFilter, setVideoPopularSearchFilter] = useState<{ popularSearchId: string; label: string; businessIds: string[]; resolved?: boolean } | null>(null);
+  // Set when the user opens a homepage card linked to a specific business.
+  // That business will be pinned at the top of the next filtered list (badge view, video filter, etc.).
+  const [pinnedBusinessId, setPinnedBusinessId] = useState<string | null>(null);
   const [videoBadgeDocIds, setVideoBadgeDocIds] = useState<Set<string> | null>(null);
   const [badgeNamesById, setBadgeNamesById] = useState<Record<string, string>>({});
   const [hashtagFilterBadgeId, setHashtagFilterBadgeId] = useState<string | null>(null);
@@ -322,6 +325,13 @@ const Home = () => {
   useEffect(() => {
     setHashtagFilterBadgeId(null);
   }, [selectedEntryId, videoBadgeFilter?.badgeId, city]);
+
+  // Clear pinned business when no filtered view is active anymore.
+  useEffect(() => {
+    if (!videoBadgeFilter && !videoEventFilter && !videoPopularSearchFilter && !badgeView) {
+      setPinnedBusinessId(null);
+    }
+  }, [videoBadgeFilter, videoEventFilter, videoPopularSearchFilter, badgeView]);
 
   // Load doc ids matching the active video badge filter
   useEffect(() => {
@@ -550,6 +560,17 @@ const Home = () => {
     let cancelled = false;
     const load = async () => {
       const safeSetVideos = (v: VideoItem[]) => { if (!cancelled) setVideos(v); };
+      // Pin: when the active filter was opened from a homepage card linked to a business,
+      // move that business's first video to the top of the list (preserving order otherwise).
+      const applyPin = (items: VideoItem[]): VideoItem[] => {
+        if (!pinnedBusinessId) return items;
+        const idx = items.findIndex((it) => (it.business as any)?.id === pinnedBusinessId);
+        if (idx <= 0) return items;
+        const next = items.slice();
+        const [pinned] = next.splice(idx, 1);
+        next.unshift(pinned);
+        return next;
+      };
       const safeSetLoadingVideos = (b: boolean) => { if (!cancelled) setLoadingVideos(b); };
       safeSetLoadingVideos(true);
       console.log("[Test load]", { selectedEntryId: selectedEntry?.id, selectedEntryName: selectedEntry?.name, selectedSubId, videoBadgeFilter, videoEventFilter, city });
@@ -735,7 +756,7 @@ const Home = () => {
         for (const it of [...docVideoItems, ...ytVideoItems]) finalById.set((it.business as any)?.id, it);
         const ordered = bizIds.map((bid) => finalById.get(bid)).filter(Boolean) as VideoItem[];
 
-        safeSetVideos(ordered);
+        safeSetVideos(applyPin(ordered));
         safeSetLoadingVideos(false);
         return;
       }
@@ -1056,7 +1077,7 @@ const Home = () => {
           }
         }
 
-        safeSetVideos([...docVideoItems, ...genericVideoItems, ...youtubeVideoItems]);
+        safeSetVideos(applyPin([...docVideoItems, ...genericVideoItems, ...youtubeVideoItems]));
         safeSetLoadingVideos(false);
         return;
       }
@@ -1133,7 +1154,7 @@ const Home = () => {
             } as VideoItem;
           })
           .filter(Boolean) as VideoItem[];
-        safeSetVideos(ordered);
+        safeSetVideos(applyPin(ordered));
         safeSetLoadingVideos(false);
         return;
       }
@@ -1538,7 +1559,7 @@ const Home = () => {
     };
     load();
     return () => { cancelled = true; };
-  }, [selectedEntry, city, selectedSubId, extraCityDocIds, videoBadgeFilter, videoEventFilter, videoPopularSearchFilter]);
+  }, [selectedEntry, city, selectedSubId, extraCityDocIds, videoBadgeFilter, videoEventFilter, videoPopularSearchFilter, pinnedBusinessId]);
 
   // Reset active video when entry/city changes
   useEffect(() => {
@@ -1717,9 +1738,12 @@ const Home = () => {
   };
 
   const handleHomeLabelClick = async (
-    info: { label: string; kind: "entry" | "extra"; target?: { type: "badge" | "event" | "popular_search"; id: string } | null; badgeId: string | null; eventId?: string | null; popularSearchId?: string | null },
+    info: { label: string; kind: "entry" | "extra"; target?: { type: "badge" | "event" | "popular_search"; id: string } | null; badgeId: string | null; eventId?: string | null; popularSearchId?: string | null; pinnedBusinessId?: string | null },
     clickedCity: City
   ) => {
+    // Apply pin only when the manual card is linked to a specific business AND has a target
+    // (badge / event / popular search). For entry-kind clicks or agenda, no pin makes sense.
+    setPinnedBusinessId(info.kind === "extra" ? (info.pinnedBusinessId ?? null) : null);
 
     if (info.kind === "entry") {
       const match = entries.find((e) => e.name.toLowerCase() === info.label.toLowerCase());
@@ -1869,6 +1893,15 @@ const Home = () => {
       return bRating - aRating;
     };
     const sortedBizs = ((bizs as any[]) || []).slice().sort(sortWtuceAndRating);
+    // Pin: if the originating homepage card is linked to a business, ensure it appears first.
+    const pinId = info.pinnedBusinessId ?? null;
+    if (pinId) {
+      const idx = sortedBizs.findIndex((b: any) => b.id === pinId);
+      if (idx > 0) {
+        const [pinned] = sortedBizs.splice(idx, 1);
+        sortedBizs.unshift(pinned);
+      }
+    }
     setBadgeBusinesses(sortedBizs as SearchResultBusiness[]);
     setLoadingBadge(false);
         return;

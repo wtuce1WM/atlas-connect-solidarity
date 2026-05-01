@@ -9,7 +9,7 @@ export type HomeCardTarget = { type: "badge" | "event"; id: string } | null;
 
 interface Props {
   city: string;
-  onLabelClick?: (info: { label: string; kind: "entry" | "extra"; target: HomeCardTarget; badgeId: string | null; eventId?: string | null }) => void;
+  onLabelClick?: (info: { label: string; kind: "entry" | "extra"; target: HomeCardTarget; badgeId: string | null; eventId?: string | null; pinnedBusinessId?: string | null }) => void;
   /** If true, clicking a labeled video card triggers the label filter instead of opening the video panel. Used on the Test homepage. */
   labelTakesPriority?: boolean;
 }
@@ -192,7 +192,16 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
         slot.data.target ??
         (slot.data.eventId ? { type: "event", id: slot.data.eventId } :
          slot.data.badgeId ? { type: "badge", id: slot.data.badgeId } : null);
-      onLabelClick({ label, kind: slot.kind, target, badgeId: slot.data.badgeId ?? null, eventId: slot.data.eventId ?? null });
+      onLabelClick({
+        label,
+        kind: slot.kind,
+        target,
+        badgeId: slot.data.badgeId ?? null,
+        eventId: slot.data.eventId ?? null,
+        // When the manual card is also linked to a specific establishment,
+        // we want that business pinned at the top of the next page (label/badge/event filtered).
+        pinnedBusinessId: slot.kind === "extra" ? (slot.data.ownerId ?? null) : null,
+      });
       return;
     }
 
