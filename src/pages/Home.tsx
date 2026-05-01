@@ -1274,12 +1274,10 @@ const Home = () => {
           limitedDocs.push(...sorted.slice(0, limit));
         }
 
-        // Global ordering: Home stays sort_order (JSON-driven). Other entries
-        // (Restauration, Hébergement, etc.) follow the same ranking as SearchPage:
-        // WTUCE > priority_score > rating (≥10 reviews). No sort_order tie-break.
-        if (isHome) {
-          limitedDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-        } else {
+        // Global ordering: Home is JSON-driven (order already defined upstream),
+        // so no extra sort here. Other entries (Restauration, Hébergement, etc.)
+        // follow the same ranking as SearchPage: WTUCE > priority_score > rating (≥10 reviews).
+        if (!isHome) {
           limitedDocs.sort((a: any, b: any) => {
             const bizA = resolveVideoEstablishment(a, bizMap, { strict: strictResolve });
             const bizB = resolveVideoEstablishment(b, bizMap, { strict: strictResolve });
