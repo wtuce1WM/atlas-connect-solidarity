@@ -170,6 +170,11 @@ const SlidePanelHome = ({
   }, [open, eventId, isGeneric, owner?.id]);
 
   const ctaBusiness = eventBusiness || ownerBusiness;
+  const normalizeHeaderName = (value: string | null | undefined) =>
+    (value || "").trim().toLocaleLowerCase("fr-FR");
+  const shouldShowOwnerLogoInHeader =
+    !!owner?.logo_url &&
+    normalizeHeaderName(businessName) === normalizeHeaderName(owner.name);
 
   const storeReturnToTest = () => {
     try {
@@ -360,8 +365,8 @@ const SlidePanelHome = ({
               business={{
                 ...ctaBusiness,
                 name: businessName || ctaBusiness.name,
-                logo_url: owner?.logo_url ?? null,
-                logo_bg: owner?.logo_bg ?? null,
+                logo_url: shouldShowOwnerLogoInHeader ? owner.logo_url : null,
+                logo_bg: shouldShowOwnerLogoInHeader ? owner.logo_bg ?? null : null,
               }}
               businessId={ctaBusiness.id}
               hookText={null}
