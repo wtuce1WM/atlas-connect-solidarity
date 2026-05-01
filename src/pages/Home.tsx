@@ -2021,7 +2021,7 @@ const Home = () => {
           onClick={() => setMenuOpen(false)}
         >
           <div
-            className="w-1/5 min-w-[260px] h-full bg-background border-r border-border shadow-xl animate-in slide-in-from-left-2 fade-in duration-200 overflow-y-auto p-4"
+            className="w-full lg:w-1/2 h-full bg-background border-r border-border shadow-xl animate-in slide-in-from-left-2 fade-in duration-200 overflow-y-auto p-4"
             onClick={(e) => e.stopPropagation()}
           >
             {structureList}
