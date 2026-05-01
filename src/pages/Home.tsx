@@ -384,6 +384,14 @@ const Home = () => {
     };
   }, []);
 
+  // Lock body scroll while the front-structure Menu panel is open (avoids double scroll on mobile/tablet)
+  useEffect(() => {
+    if (!menuOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, [menuOpen]);
+
   // Load front structure (independent of city)
   useEffect(() => {
     const load = async () => {
