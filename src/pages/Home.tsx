@@ -2324,6 +2324,7 @@ const Home = () => {
                         };
                         const isVlogThumb = selectedEntry?.id === VLOGS_ID;
                         const thumb = v.thumbnail_url || null;
+                        const optimizedThumb = optimizeSupabaseImage(thumb, { width: 400 });
                         return (
                       <div
                         key={v.id}
@@ -2347,9 +2348,9 @@ const Home = () => {
                         }}
                         className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted cursor-pointer"
                       >
-                        {thumb ? (
+                        {optimizedThumb ? (
                           <img
-                            src={thumb}
+                            src={optimizedThumb}
                             alt={v.business_name}
                             className="w-full h-full object-cover"
                             loading={i < 6 ? "eager" : "lazy"}
