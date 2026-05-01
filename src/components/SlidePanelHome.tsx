@@ -10,8 +10,13 @@ import VideoControls from "@/components/VideoControls";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
 import { useNavigate } from "react-router-dom";
 import { LazyDirectionsOverlay } from "@/components/overlays/LazyOverlays";
-import { businessUrl } from "@/lib/businessUrl";
+import { businessUrl, buildOgShareUrl } from "@/lib/businessUrl";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
+import BusinessHeader from "@/components/slidepanel/BusinessHeader";
+import ShareButton from "@/components/ShareButton";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
+import { whatsappUrl } from "@/lib/phoneUtils";
+import { Phone } from "lucide-react";
 
 interface SocialInfo {
   platform: "instagram" | "tiktok" | "youtube";
@@ -61,6 +66,9 @@ interface AgendaEvent {
     phone: string | null;
     city: string | null;
     logo_url: string | null;
+    neighborhood?: string | null;
+    whatsapp?: string | null;
+    logo_bg?: string | null;
   } | null;
 }
 
@@ -133,7 +141,7 @@ const SlidePanelHome = ({
       if (!bizId) { setEventBusiness(null); return; }
       const { data: bizRow } = await supabase
         .from("businesses")
-        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url")
+        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg")
         .eq("id", bizId)
         .maybeSingle();
       if (cancelled) return;
@@ -152,7 +160,7 @@ const SlidePanelHome = ({
     (async () => {
       const { data: bizRow } = await supabase
         .from("businesses")
-        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url")
+        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg")
         .eq("id", owner.id)
         .maybeSingle();
       if (cancelled) return;
@@ -209,7 +217,7 @@ const SlidePanelHome = ({
       if (bizIds.length > 0) {
         const { data: bizRows } = await supabase
           .from("businesses")
-          .select("id, slug, name, address, latitude, longitude, phone, city, logo_url")
+          .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg")
           .in("id", bizIds);
         ((bizRows as any[]) || []).forEach((b) => bizMap.set(b.id, b as any));
       }
@@ -301,14 +309,65 @@ const SlidePanelHome = ({
         ref={panelRef}
         className="absolute right-0 top-0 h-full w-full bg-background border-l border-border shadow-2xl animate-slide-in-right overflow-hidden"
       >
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute top-4 left-4 z-10 w-9 h-9 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center text-white transition-colors"
-          aria-label="Fermer"
-        >
-          <X className="h-5 w-5" />
-        </button>
+        {/* Top toolbar : close + WhatsApp/Phone + Share */}
+        <div className="absolute top-0 left-0 right-0 z-[70] flex items-center justify-between px-4 py-2 pointer-events-none">
+          <button
+            type="button"
+            onClick={onClose}
+            className="pointer-events-auto h-9 w-9 flex items-center justify-center rounded-full bg-white text-black shadow-2xl hover:bg-white/90 transition-opacity"
+            aria-label="Fermer"
+          >
+            <X className="h-4 w-4" />
+          </button>
+          <div className="pointer-events-auto flex items-center gap-6">
+            {ctaBusiness?.whatsapp ? (
+              <a
+                href={whatsappUrl(ctaBusiness.whatsapp)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-9 w-9 flex items-center justify-center rounded-full text-white hover:opacity-90 transition-opacity"
+                style={{ backgroundColor: "#25D366" }}
+                aria-label="WhatsApp"
+              >
+                <WhatsAppIcon className="h-4 w-4" />
+              </a>
+            ) : ctaBusiness?.phone ? (
+              <a
+                href={`tel:${ctaBusiness.phone}`}
+                className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background hover:opacity-90 transition-opacity"
+                aria-label="Appeler"
+              >
+                <Phone className="h-4 w-4" />
+              </a>
+            ) : null}
+          </div>
+          <div className="pointer-events-auto">
+            {ctaBusiness && (
+              <ShareButton
+                title={ctaBusiness.name || businessName}
+                variant="dark"
+                className="shrink-0"
+                shareUrl={ctaBusiness.slug ? buildOgShareUrl(ctaBusiness.slug) : undefined}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* BusinessHeader: Logo + Nom + Ville + Quartier + Adresse */}
+        {ctaBusiness && (
+          <div className="absolute top-12 left-2 right-2 z-[65] pointer-events-none">
+            <BusinessHeader
+              business={ctaBusiness}
+              businessId={ctaBusiness.id}
+              hookText={null}
+              showHook={false}
+              hasReviewsCard={false}
+              avgOn20={null}
+              totalReviewCount={0}
+              onOpenReviews={() => {}}
+            />
+          </div>
+        )}
 
         {(onPrev || onNext) && (
           <div className="absolute top-1/2 -translate-y-1/2 right-4 z-10 flex flex-col gap-3">
