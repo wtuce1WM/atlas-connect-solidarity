@@ -2497,6 +2497,7 @@ const Home = () => {
               }}
               onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
               noToolbarOffset
+              iconVariant="black"
             />
           </div>
         </div>
