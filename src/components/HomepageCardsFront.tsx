@@ -230,7 +230,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
         <div className="relative aspect-[9/16] rounded-lg bg-muted overflow-hidden flex items-center justify-center text-xs text-muted-foreground text-center px-2">
           {it.thumbnail ? (
             <>
-              <img src={it.thumbnail} alt={it.businessName || it.label || ""} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+              <img src={it.thumbnail} alt={it.businessName || it.label || ""} className="absolute inset-0 w-full h-full object-cover" loading={isPriority ? "eager" : "lazy"} fetchPriority={isPriority ? "high" : "auto"} decoding={isPriority ? "sync" : "async"} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
             </>
           ) : (
