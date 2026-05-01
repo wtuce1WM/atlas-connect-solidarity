@@ -314,7 +314,6 @@ export function useBookOnlineData(businessId: string) {
           .select("url, name, city, price, price_type, description, thumbnail_url, business_id, sort_order")
           .eq("business_id", businessId)
           .eq("type", "video")
-          .order("front_sort_order")
           .order("sort_order"),
       ]);
 
