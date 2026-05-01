@@ -169,8 +169,14 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
 
   if (loading) {
     return (
-      <div className="flex justify-center py-12">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-3 lg:grid-cols-6">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div
+            key={i}
+            className="relative aspect-[9/16] rounded-lg bg-muted/40 overflow-hidden animate-pulse"
+            style={{ animationDelay: `${i * 80}ms` }}
+          />
+        ))}
       </div>
     );
   }
