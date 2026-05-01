@@ -3309,33 +3309,35 @@ const SearchPage = () => {
               />
             )}
             <div className="flex-1 min-h-0 overflow-visible">
-              <BookOnlineSlidePanel
-                businessId={compactPanelBusiness.id}
-                onClose={closeCompactPanel}
-                externalOverlayActive={showAiPopup}
-                forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
-                interceptCloseRef={compactPanelInterceptCloseRef}
-                showSearchBar
-                closeTrigger={mapPanelCloseTrigger}
-                onMosaicStateChange={setIsNestedMosaicOpen}
-                onSearch={(params) => {
-                  setSelectedCategoryFilter(null);
-                  setSelectedSubcategoryFilter(null);
-                  setSelectedServiceFilter(null);
-                  if (params.q) {
-                    setSearchQuery(params.q);
-                    setInputValue(params.q);
-                  }
-                  setActiveTab("suggestions");
-                  setSelectedCity("all");
-                  setIsGeoCityAutoSelected(false);
-                  setSearchParams(params);
-                }}
-                onSearchBusinessSelect={(bizId) => {
-                  setCompactPanelBusiness({ id: bizId, name: "" } as any);
-                  setIsCompactPanelExpanded(false);
-                }}
-              />
+              <Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>}>
+                <BookOnlineSlidePanel
+                  businessId={compactPanelBusiness.id}
+                  onClose={closeCompactPanel}
+                  externalOverlayActive={showAiPopup}
+                  forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
+                  interceptCloseRef={compactPanelInterceptCloseRef}
+                  showSearchBar
+                  closeTrigger={mapPanelCloseTrigger}
+                  onMosaicStateChange={setIsNestedMosaicOpen}
+                  onSearch={(params) => {
+                    setSelectedCategoryFilter(null);
+                    setSelectedSubcategoryFilter(null);
+                    setSelectedServiceFilter(null);
+                    if (params.q) {
+                      setSearchQuery(params.q);
+                      setInputValue(params.q);
+                    }
+                    setActiveTab("suggestions");
+                    setSelectedCity("all");
+                    setIsGeoCityAutoSelected(false);
+                    setSearchParams(params);
+                  }}
+                  onSearchBusinessSelect={(bizId) => {
+                    setCompactPanelBusiness({ id: bizId, name: "" } as any);
+                    setIsCompactPanelExpanded(false);
+                  }}
+                />
+              </Suspense>
             </div>
           </div>
         </>
