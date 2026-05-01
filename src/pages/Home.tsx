@@ -120,6 +120,7 @@ const Home = () => {
   const [extraCityDocIds, setExtraCityDocIds] = useState<Set<string>>(new Set());
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
+  const [homeSearchOverlayOpen, setHomeSearchOverlayOpen] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const autoOpenedRef = useRef<string | null>(null);
@@ -2488,14 +2489,21 @@ const Home = () => {
       </div>
 
       {!panelOpen && (
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-1/2 z-[85] pointer-events-none">
-          <div className="relative pointer-events-auto">
+        <div
+          className={`fixed z-[85] pointer-events-none ${
+            homeSearchOverlayOpen
+              ? "inset-0"
+              : "bottom-0 left-1/2 -translate-x-1/2 w-1/2"
+          }`}
+        >
+          <div className="relative w-full h-full pointer-events-auto">
             <PanelSearchBar
               onSearch={(params) => {
                 const sp = new URLSearchParams(params);
                 navigate(`/search?${sp.toString()}`);
               }}
               onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
+              onOverlayChange={setHomeSearchOverlayOpen}
               noToolbarOffset
               iconVariant="black"
             />
