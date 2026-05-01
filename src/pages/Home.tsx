@@ -115,6 +115,19 @@ const Home = () => {
   const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [loadingVideos, setLoadingVideos] = useState(false);
+
+  // Preload first video thumbnail to accelerate LCP on /test (cards-only optimization)
+  useEffect(() => {
+    const firstThumb = videos[0]?.thumbnail_url;
+    if (!firstThumb) return;
+    const link = document.createElement("link");
+    link.rel = "preload";
+    link.as = "image";
+    link.href = firstThumb;
+    (link as any).fetchPriority = "high";
+    document.head.appendChild(link);
+    return () => { try { document.head.removeChild(link); } catch {} };
+  }, [videos]);
   const [entriesWithVideos, setEntriesWithVideos] = useState<Set<string>>(new Set());
   const [subsWithVideos, setSubsWithVideos] = useState<Set<string>>(new Set());
   const [cityRowId, setCityRowId] = useState<string | null>(null);
