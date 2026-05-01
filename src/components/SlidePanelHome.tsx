@@ -37,7 +37,7 @@ interface SlidePanelHomeProps {
   onNext?: () => void;
   hasPrev?: boolean;
   hasNext?: boolean;
-  owner?: { id: string; name: string; logo_url: string | null } | null;
+  owner?: { id: string; name: string; logo_url: string | null; logo_bg?: string | null } | null;
   social?: SocialInfo | null;
   showSocialBadge?: boolean;
   description?: string | null;
@@ -357,7 +357,12 @@ const SlidePanelHome = ({
         {ctaBusiness && (
           <div className="absolute top-16 md:top-14 lg:top-16 left-2 right-2 z-[65] pointer-events-none">
             <BusinessHeader
-              business={{ ...ctaBusiness, name: businessName || ctaBusiness.name }}
+              business={{
+                ...ctaBusiness,
+                name: businessName || ctaBusiness.name,
+                logo_url: owner?.logo_url ?? ctaBusiness.logo_url,
+                logo_bg: owner?.logo_bg ?? ctaBusiness.logo_bg,
+              }}
               businessId={ctaBusiness.id}
               hookText={null}
               showHook={false}
