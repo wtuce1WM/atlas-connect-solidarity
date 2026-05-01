@@ -795,25 +795,29 @@ export function useBookOnlineData(businessId: string) {
   }, [destinations, language]);
 
   // Derived: all video URLs — order:
-  //   1. own fiche internal videos (hosted, owner = current business)
-  //   2. linked internal/generic videos (KP/POI/generic, hosted)
-  //   3. external (YouTube/Vimeo)
-  // Stable within each bucket via DB sort_order.
+  //   1. own fiche videos, internal and external mixed by front_sort_order
+  //   2. linked videos
+  //   3. POI-linked videos
+  //   4. generic videos
+  // Stable within each bucket via DB front_sort_order / sort_order.
   const allVideoUrls = useMemo(() => {
     const legacyVideo = business?.video_1_url?.trim() || null;
-    const isExternal = (url: string) => /youtube\.com|youtu\.be|vimeo\.com/i.test(url);
     const rank = (d: VideoDoc) => {
-      if (isExternal(d.url)) return 2; // external
-      if (d.owner_business_id === businessId) return 0; // own fiche
-      return 1; // linked (KP/POI/generic)
+      if (d.owner_business_id === businessId) return 0; // own fiche, regardless of hosting type
+      if (d.owner_business_id && !d.is_poi_linked) return 1; // linked KP/business videos
+      if (d.is_poi_linked) return 2; // POI-linked videos
+      return 3; // generic videos
     };
     const sorted = videoDocs
       .map((d, i) => ({ d, i }))
       .sort((a, b) => rank(a.d) - rank(b.d) || a.i - b.i)
       .map(x => x.d);
     const urls = sorted.map(d => d.url).filter(Boolean);
-    // Legacy video belongs to the fiche → place at top of own-fiche bucket
-    if (legacyVideo && !urls.includes(legacyVideo)) urls.unshift(legacyVideo);
+    // Legacy video belongs to the fiche but has no front_sort_order: keep it after sorted own-fiche videos.
+    if (legacyVideo && !urls.includes(legacyVideo)) {
+      const firstNonOwnIndex = sorted.findIndex((d) => d.owner_business_id !== businessId);
+      urls.splice(firstNonOwnIndex === -1 ? urls.length : firstNonOwnIndex, 0, legacyVideo);
+    }
     return urls;
   }, [business?.video_1_url, videoDocs, businessId]);
 
