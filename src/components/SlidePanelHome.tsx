@@ -37,7 +37,7 @@ interface SlidePanelHomeProps {
   onNext?: () => void;
   hasPrev?: boolean;
   hasNext?: boolean;
-  owner?: { id: string; name: string; logo_url: string | null } | null;
+  owner?: { id: string; name: string; logo_url: string | null; logo_bg?: string | null } | null;
   social?: SocialInfo | null;
   showSocialBadge?: boolean;
   description?: string | null;
