@@ -2251,21 +2251,48 @@ const Home = () => {
                       )}
                     </h3>
                   </div>
+                  {showHashtagsTileFinal && hashtagItems.length > 0 && (
+                    <div className="flex items-center gap-2 overflow-x-auto lg:flex-wrap lg:overflow-visible -mx-2 px-2 lg:mx-0 lg:px-0 cursor-grab select-none touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden mb-3">
+                      {hashtagFilterBadgeId && (
+                        <button
+                          type="button"
+                          onClick={() => setHashtagFilterBadgeId(null)}
+                          className="shrink-0 inline-flex items-center rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20 hover:border-primary/60 transition-colors"
+                          title="Réinitialiser le filtre hashtag"
+                        >
+                          ✕ Réinitialiser
+                        </button>
+                      )}
+                      {hashtagItems.map((h) => {
+                        const active = hashtagFilterBadgeId === h.id;
+                        return (
+                          <button
+                            key={h.id}
+                            type="button"
+                            onClick={() => setHashtagFilterBadgeId(active ? null : h.id)}
+                            className={`shrink-0 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                              active
+                                ? "border-gold bg-gold text-background"
+                                : "border-gold/40 bg-gold/10 text-gold hover:bg-gold/20 hover:border-gold/60"
+                            }`}
+                            title={`Filtrer par #${h.name}`}
+                          >
+                            <span>#{h.name}</span>
+                            <span className="opacity-70">{h.count}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                   <div className={`grid gap-4 ${panelOpen ? "grid-cols-1 md:grid-cols-3 lg:grid-cols-3" : "grid-cols-1 md:grid-cols-3 lg:grid-cols-6"}`}>
                     {(() => {
                       const items: Array<
                         | { kind: "video"; v: VideoItem; idx: number }
                         | { kind: "children" }
-                        | { kind: "hashtags" }
                       > = displayList.map((v, idx) => ({ kind: "video" as const, v, idx }));
                       if (showChildrenTile) {
                         const insertAt = Math.min(childrenTileIndex, items.length);
                         items.splice(insertAt, 0, { kind: "children" });
-                      }
-                      if (showHashtagsTileFinal) {
-                        // Insert the hashtags tile right after the children tile (or at position 2 if no children tile).
-                        const insertAt = Math.min(showChildrenTile ? childrenTileIndex + 1 : childrenTileIndex, items.length);
-                        items.splice(insertAt, 0, { kind: "hashtags" });
                       }
                       return items.map((entry, i) => {
                         if (entry.kind === "children") {
@@ -2290,47 +2317,6 @@ const Home = () => {
                                     {c.name}
                                   </button>
                                 ))}
-                              </div>
-                            </div>
-                          );
-                        }
-                        if (entry.kind === "hashtags") {
-                          return (
-                            <div
-                              key="hashtags-tile"
-                              className="aspect-[9/16] rounded-lg overflow-hidden bg-card border border-border p-2 flex flex-col"
-                            >
-                              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1.5 px-1">
-                                #hashtags
-                              </p>
-                              <div className="flex-1 overflow-y-auto flex flex-col gap-1">
-                                {hashtagFilterBadgeId && (
-                                  <button
-                                    type="button"
-                                    onClick={() => setHashtagFilterBadgeId(null)}
-                                    className="text-left text-[10px] px-2 py-1 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-                                  >
-                                    ✕ Réinitialiser
-                                  </button>
-                                )}
-                                {hashtagItems.map((h) => {
-                                  const active = hashtagFilterBadgeId === h.id;
-                                  return (
-                                    <button
-                                      key={h.id}
-                                      type="button"
-                                      onClick={() => setHashtagFilterBadgeId(active ? null : h.id)}
-                                      className={`text-left text-xs px-2 py-1.5 rounded transition-colors line-clamp-2 flex items-center justify-between gap-2 ${
-                                        active
-                                          ? "bg-primary text-primary-foreground"
-                                          : "bg-muted hover:bg-primary hover:text-primary-foreground"
-                                      }`}
-                                    >
-                                      <span className="truncate">#{h.name}</span>
-                                      <span className="text-[10px] opacity-70 shrink-0">{h.count}</span>
-                                    </button>
-                                  );
-                                })}
                               </div>
                             </div>
                           );
