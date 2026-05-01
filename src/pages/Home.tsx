@@ -1575,6 +1575,17 @@ const Home = () => {
                   .in("id", ytBizIds.slice(i, i + CHUNK));
                 (bizs || []).forEach((b: any) => ytBizMap.set(b.id, b as SearchResultBusiness));
               }
+              const ytBadgesByVideo: Record<string, string[]> = {};
+              const ytRowIds = ytRows.map((y: any) => y.id).filter(Boolean);
+              if (ytRowIds.length > 0) {
+                const { data: rows } = await supabase
+                  .from("business_youtube_video_badges")
+                  .select("youtube_video_id, badge_id")
+                  .in("youtube_video_id", ytRowIds);
+                ((rows as any[]) || []).forEach((r: any) => {
+                  (ytBadgesByVideo[r.youtube_video_id] ||= []).push(r.badge_id);
+                });
+              }
               const seenUrlsYt = new Set<string>([...docItems, ...genericSubItems].map((i) => i.url).filter(Boolean) as string[]);
               youtubeSubItems = ytRows
                 .map((y: any) => {
@@ -1601,6 +1612,7 @@ const Home = () => {
                     showSocialBadge: !!social,
                     description: null,
                     manualCard: null,
+                    badge_ids: ytBadgesByVideo[y.id] || [],
                   } as VideoItem;
                 })
                 .filter(Boolean) as VideoItem[];
