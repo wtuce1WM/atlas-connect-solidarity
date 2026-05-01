@@ -320,7 +320,6 @@ const Home = () => {
   const [pinnedBusinessId, setPinnedBusinessId] = useState<string | null>(null);
   const [videoBadgeDocIds, setVideoBadgeDocIds] = useState<Set<string> | null>(null);
   const [badgeNamesById, setBadgeNamesById] = useState<Record<string, string>>({});
-  const [hashtagFilterBadgeId, setHashtagFilterBadgeId] = useState<string | null>(null);
 
   // Load all badge names once (small table)
   useEffect(() => {
@@ -334,6 +333,14 @@ const Home = () => {
     })();
     return () => { cancelled = true; };
   }, []);
+
+  const hashtagBadges = useMemo(
+    () => Object.entries(badgeNamesById)
+      .map(([id, name]) => ({ id, name }))
+      .filter((b) => b.name.trim().startsWith("#"))
+      .sort((a, b) => a.name.localeCompare(b.name, "fr", { sensitivity: "base" })),
+    [badgeNamesById]
+  );
 
   // Clear pinned business when no filtered view is active anymore.
   useEffect(() => {
