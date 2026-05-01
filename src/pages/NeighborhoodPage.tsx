@@ -137,19 +137,17 @@ const NeighborhoodPage = () => {
     }
     
     const dir = sortAsc ? -1 : 1;
-    result.sort((a, b) => {
-      if (sortMode === "reviews") {
+    if (sortMode === "reviews") {
+      result.sort((a, b) => {
         const countA = (a.google_review_count || 0) + (a.tripadvisor_review_count || 0) + (a.restaurant_guru_review_count || 0);
         const countB = (b.google_review_count || 0) + (b.tripadvisor_review_count || 0) + (b.restaurant_guru_review_count || 0);
         return (countB - countA) * dir;
-      }
-      const rA = getEffectiveRating(a);
-      const rB = getEffectiveRating(b);
-      if (rA === null && rB === null) return 0;
-      if (rA === null) return 1;
-      if (rB === null) return -1;
-      return (rB - rA) * dir;
-    });
+      });
+    } else {
+      // Default: WTUCE > priority_score > rating (ignore <10 reviews) — same as SearchPage
+      result.sort(sortWtuceAndRating);
+      if (sortAsc) result.reverse();
+    }
     
     return result;
   }, [businesses, selectedCategory, selectedSubcategory, selectedActivities, sortMode, sortAsc]);
