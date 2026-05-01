@@ -133,18 +133,9 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
     return () => { cancelled = true; };
   }, [city]);
 
-  // Preload the first thumbnail to accelerate LCP
-  useEffect(() => {
-    const firstThumb = optimizeSupabaseImage(slots[0]?.data.thumbnail, { width: 240, quality: 50 });
-    if (!firstThumb) return;
-    const link = document.createElement("link");
-    link.rel = "preload";
-    link.as = "image";
-    link.href = firstThumb;
-    (link as any).fetchPriority = "high";
-    document.head.appendChild(link);
-    return () => { try { document.head.removeChild(link); } catch {} };
-  }, [slots]);
+  // Note: LCP image priority is handled inline via fetchPriority="high" on the first <img>.
+  // No dynamic <link rel="preload"> here — it competed with the JS bundle for bandwidth
+  // and degraded FCP on mobile.
 
   // Playable slots only (have a video)
   const playableIndices = slots
