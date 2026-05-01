@@ -320,6 +320,7 @@ const Home = () => {
   const [pinnedBusinessId, setPinnedBusinessId] = useState<string | null>(null);
   const [videoBadgeDocIds, setVideoBadgeDocIds] = useState<Set<string> | null>(null);
   const [badgeNamesById, setBadgeNamesById] = useState<Record<string, string>>({});
+  const [hashtagFilterBadgeId, setHashtagFilterBadgeId] = useState<string | null>(null);
 
   // Load all badge names once (small table)
   useEffect(() => {
