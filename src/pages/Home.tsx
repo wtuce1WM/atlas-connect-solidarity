@@ -1741,9 +1741,9 @@ const Home = () => {
     info: { label: string; kind: "entry" | "extra"; target?: { type: "badge" | "event" | "popular_search"; id: string } | null; badgeId: string | null; eventId?: string | null; popularSearchId?: string | null; pinnedBusinessId?: string | null },
     clickedCity: City
   ) => {
-    // Apply pin only when the manual card is linked to a specific business AND has a target
-    // (badge / event / popular search). For entry-kind clicks or agenda, no pin makes sense.
-    setPinnedBusinessId(info.kind === "extra" ? (info.pinnedBusinessId ?? null) : null);
+    // Pin the linked business (manual extra card OR entry whose video was forced via overrides)
+    // so it appears first on the next page (entry video list, badge view, video filter, etc.).
+    setPinnedBusinessId(info.pinnedBusinessId ?? null);
 
     if (info.kind === "entry") {
       const match = entries.find((e) => e.name.toLowerCase() === info.label.toLowerCase());
