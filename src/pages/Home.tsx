@@ -2167,27 +2167,8 @@ const Home = () => {
             // Hashtags are now shown across all video contexts (entries, sub-categories, events, popular searches, badge filters, vlogs).
             const showHashtagsTile = true;
 
-            // Aggregate badges from currently loaded videos (Vlogs / Suivez le guide contexts)
-            const hashtagCounts: Record<string, number> = {};
-            if (showHashtagsTile) {
-              for (const v of otherVideos) {
-                const ids = v.badge_ids || [];
-                for (const id of ids) {
-                  // Exclude the currently active "Suivez le guide" badge itself, since it's the page filter
-                  if (videoBadgeFilter && id === videoBadgeFilter.badgeId) continue;
-                  hashtagCounts[id] = (hashtagCounts[id] || 0) + 1;
-                }
-              }
-            }
-            const hashtagItems = Object.entries(hashtagCounts)
-              .map(([id, count]) => ({ id, name: badgeNamesById[id], count }))
-              .filter((h) => !!h.name)
-              .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "fr", { sensitivity: "base" }));
-
-            // Apply hashtag filter to the display list
-            const displayList = hashtagFilterBadgeId
-              ? otherVideos.filter((v) => (v.badge_ids || []).includes(hashtagFilterBadgeId))
-              : otherVideos;
+            const hashtagItems = hashtagBadges;
+            const displayList = otherVideos;
 
             const isParentEntry =
               !!selectedEntry &&
@@ -2327,32 +2308,23 @@ const Home = () => {
                   </div>
                   {showHashtagsTileFinal && hashtagItems.length > 0 && (
                     <div className="flex items-center gap-2 overflow-x-auto lg:flex-wrap lg:overflow-visible -mx-2 px-2 lg:mx-0 lg:px-0 cursor-grab select-none touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden mb-3">
-                      {hashtagFilterBadgeId && (
-                        <button
-                          type="button"
-                          onClick={() => setHashtagFilterBadgeId(null)}
-                          className="shrink-0 inline-flex items-center rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20 hover:border-primary/60 transition-colors"
-                          title="Réinitialiser le filtre hashtag"
-                        >
-                          ✕ Réinitialiser
-                        </button>
-                      )}
                       {hashtagItems.map((h) => {
-                        const active = hashtagFilterBadgeId === h.id;
                         return (
                           <button
                             key={h.id}
                             type="button"
-                            onClick={() => setHashtagFilterBadgeId(active ? null : h.id)}
-                            className={`shrink-0 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                              active
-                                ? "border-gold bg-gold text-background"
-                                : "border-gold/40 bg-gold/10 text-gold hover:bg-gold/20 hover:border-gold/60"
-                            }`}
-                            title={`Filtrer par #${h.name}`}
+                            onClick={() => {
+                              setVideoEventFilter(null);
+                              setVideoPopularSearchFilter(null);
+                              setBadgeView(null);
+                              setSelectedEntryId(HOME_ID);
+                              setSelectedSubId(null);
+                              setVideoBadgeFilter({ badgeId: h.id, label: h.name });
+                            }}
+                            className="shrink-0 inline-flex items-center rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-medium text-gold hover:bg-gold/20 hover:border-gold/60 transition-colors"
+                            title={`Filtrer par ${h.name}`}
                           >
-                            <span>#{h.name}</span>
-                            <span className="opacity-70">{h.count}</span>
+                            {h.name}
                           </button>
                         );
                       })}
