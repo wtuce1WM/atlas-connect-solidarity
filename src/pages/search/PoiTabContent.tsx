@@ -137,7 +137,7 @@ const PoiTabContent = ({
             }
             onHover={setHoveredPoiId}
           />
-          {allPois.length > 0 && <div className="mb-16" />}
+          {allPois.length > 0 && <div className="mb-4" />}
         </div>
       </section>
 
