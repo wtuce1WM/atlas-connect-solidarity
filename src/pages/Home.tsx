@@ -1939,7 +1939,7 @@ const Home = () => {
 
       <div className="pt-[53px] flex w-full min-h-[calc(100vh-53px)]">
         {/* Right zone 80% */}
-        <main className={`p-6 overflow-y-auto transition-all duration-300 ${panelOpen ? "w-1/2" : "flex-1"}`}>
+        <main className={`p-6 pb-24 overflow-y-auto transition-all duration-300 ${panelOpen ? "w-1/2" : "flex-1"}`}>
           {geo.isEnabled && (geo.confirmedAddress || geo.detectedCity) && (
             <div className="flex justify-end mb-2">
               <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground max-w-full truncate">
