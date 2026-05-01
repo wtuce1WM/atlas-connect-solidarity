@@ -749,7 +749,7 @@ const Home = () => {
         for (const it of [...docVideoItems, ...ytVideoItems]) finalById.set((it.business as any)?.id, it);
         const ordered = bizIds.map((bid) => finalById.get(bid)).filter(Boolean) as VideoItem[];
 
-        safeSetVideos(ordered);
+        safeSetVideos(applyPin(ordered));
         safeSetLoadingVideos(false);
         return;
       }
@@ -1070,7 +1070,7 @@ const Home = () => {
           }
         }
 
-        safeSetVideos([...docVideoItems, ...genericVideoItems, ...youtubeVideoItems]);
+        safeSetVideos(applyPin([...docVideoItems, ...genericVideoItems, ...youtubeVideoItems]));
         safeSetLoadingVideos(false);
         return;
       }
@@ -1147,7 +1147,7 @@ const Home = () => {
             } as VideoItem;
           })
           .filter(Boolean) as VideoItem[];
-        safeSetVideos(ordered);
+        safeSetVideos(applyPin(ordered));
         safeSetLoadingVideos(false);
         return;
       }
