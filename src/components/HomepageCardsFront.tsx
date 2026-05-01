@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Star } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import SlidePanelHome from "@/components/SlidePanelHome";
+import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 
 export type HomeCardTarget = { type: "badge" | "event"; id: string } | null;
 
@@ -122,7 +123,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
 
   // Preload the first thumbnail to accelerate LCP
   useEffect(() => {
-    const firstThumb = slots[0]?.data.thumbnail;
+    const firstThumb = optimizeSupabaseImage(slots[0]?.data.thumbnail, { width: 400 });
     if (!firstThumb) return;
     const link = document.createElement("link");
     link.rel = "preload";
@@ -237,13 +238,14 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
           : it.priceType
       : null;
     const immoBadge = null;
+    const optimizedThumb = optimizeSupabaseImage(it.thumbnail, { width: 400 });
 
     if (!it.videoId) {
       return (
         <div className="relative aspect-[9/16] rounded-lg bg-muted overflow-hidden flex items-center justify-center text-xs text-muted-foreground text-center px-2">
           {it.thumbnail ? (
             <>
-              <img src={it.thumbnail} alt={it.businessName || it.label || ""} className="absolute inset-0 w-full h-full object-cover" loading={isPriority ? "eager" : "lazy"} fetchPriority={isPriority ? "high" : "auto"} decoding={isPriority ? "sync" : "async"} />
+              <img src={optimizedThumb || it.thumbnail} alt={it.businessName || it.label || ""} className="absolute inset-0 w-full h-full object-cover" loading={isPriority ? "eager" : "lazy"} fetchPriority={isPriority ? "high" : "auto"} decoding={isPriority ? "sync" : "async"} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
             </>
           ) : (
@@ -288,7 +290,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
           aria-label={it.label ? `Filtrer ${it.label}` : `Lire ${it.businessName || ""}`}
         >
           {it.thumbnail ? (
-            <img src={it.thumbnail} alt={it.businessName || ""} className="w-full h-full object-cover" loading={isPriority ? "eager" : "lazy"} fetchPriority={isPriority ? "high" : "auto"} decoding={isPriority ? "sync" : "async"} />
+            <img src={optimizedThumb || it.thumbnail} alt={it.businessName || ""} className="w-full h-full object-cover" loading={isPriority ? "eager" : "lazy"} fetchPriority={isPriority ? "high" : "auto"} decoding={isPriority ? "sync" : "async"} />
           ) : isFileVideo && it.videoUrl ? (
             <VideoThumbnail src={it.videoUrl} alt={it.businessName || ""} className="w-full h-full object-cover" />
           ) : (

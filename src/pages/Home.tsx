@@ -44,6 +44,7 @@ import { getManualCardMap } from "@/lib/manualCards";
 import { resolveHomepageCity, readLastHomepageCity, writeLastHomepageCity } from "@/lib/cityHomepage";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { sortWtuceAndRating } from "@/lib/businessRanking";
+import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 
 interface FrontEntry {
   id: string;
@@ -118,7 +119,7 @@ const Home = () => {
 
   // Preload first video thumbnail to accelerate LCP on /test (cards-only optimization)
   useEffect(() => {
-    const firstThumb = videos[0]?.thumbnail_url;
+    const firstThumb = optimizeSupabaseImage(videos[0]?.thumbnail_url, { width: 400 });
     if (!firstThumb) return;
     const link = document.createElement("link");
     link.rel = "preload";
@@ -2323,6 +2324,7 @@ const Home = () => {
                         };
                         const isVlogThumb = selectedEntry?.id === VLOGS_ID;
                         const thumb = v.thumbnail_url || null;
+                        const optimizedThumb = optimizeSupabaseImage(thumb, { width: 400 });
                         return (
                       <div
                         key={v.id}
@@ -2346,9 +2348,9 @@ const Home = () => {
                         }}
                         className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted cursor-pointer"
                       >
-                        {thumb ? (
+                        {optimizedThumb ? (
                           <img
-                            src={thumb}
+                            src={optimizedThumb}
                             alt={v.business_name}
                             className="w-full h-full object-cover"
                             loading={i < 6 ? "eager" : "lazy"}
