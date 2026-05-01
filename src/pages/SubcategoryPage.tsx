@@ -172,19 +172,17 @@ const SubcategoryPage = () => {
     }
 
     const dir = sortAsc ? -1 : 1;
-    result = [...result].sort((a, b) => {
-      if (sortMode === "reviews") {
+    if (sortMode === "reviews") {
+      result = [...result].sort((a, b) => {
         const countA = a.total_review_count || 0;
         const countB = b.total_review_count || 0;
         return (countB - countA) * dir;
-      }
-      const rA = getEffectiveRating(a);
-      const rB = getEffectiveRating(b);
-      if (rA === null && rB === null) return 0;
-      if (rA === null) return 1;
-      if (rB === null) return -1;
-      return (rB - rA) * dir;
-    });
+      });
+    } else {
+      // Default: WTUCE > priority_score > rating (ignore <10 reviews) — same as SearchPage
+      result = [...result].sort(sortWtuceAndRating);
+      if (sortAsc) result.reverse();
+    }
 
     return result;
   }, [allBusinesses, selectedCity, selectedServices, selectedGamme, sortMode, sortAsc]);
