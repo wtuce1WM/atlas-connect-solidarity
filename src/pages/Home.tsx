@@ -1720,9 +1720,12 @@ const Home = () => {
   };
 
   const handleHomeLabelClick = async (
-    info: { label: string; kind: "entry" | "extra"; target?: { type: "badge" | "event" | "popular_search"; id: string } | null; badgeId: string | null; eventId?: string | null; popularSearchId?: string | null },
+    info: { label: string; kind: "entry" | "extra"; target?: { type: "badge" | "event" | "popular_search"; id: string } | null; badgeId: string | null; eventId?: string | null; popularSearchId?: string | null; pinnedBusinessId?: string | null },
     clickedCity: City
   ) => {
+    // Apply pin only when the manual card is linked to a specific business AND has a target
+    // (badge / event / popular search). For entry-kind clicks or agenda, no pin makes sense.
+    setPinnedBusinessId(info.kind === "extra" ? (info.pinnedBusinessId ?? null) : null);
 
     if (info.kind === "entry") {
       const match = entries.find((e) => e.name.toLowerCase() === info.label.toLowerCase());
