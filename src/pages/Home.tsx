@@ -2129,7 +2129,7 @@ const Home = () => {
               : [];
             const showChildrenTile =
               isParentEntry && childItems.length >= 2;
-            const showHashtagsTileFinal = showHashtagsTile && hashtagItems.length >= 1;
+            const showHashtagsTileFinal = showHashtagsTile;
             const childrenTileIndex = 2; // position 3
             return (
             <div className="flex gap-6 items-start">
