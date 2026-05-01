@@ -1342,12 +1342,19 @@ const Home = () => {
           docsByBiz.set(groupId, arr);
         }
 
+        // Apply front_video_count ONLY at the subcategory level.
+        // At the category (front_structure entry) level, show all videos without per-business limit.
+        const applyFrontVideoCountLimit = !!selectedSubId;
         const limitedDocs: any[] = [];
         for (const [bizId, docs] of docsByBiz.entries()) {
-          const biz = bizMap.get(bizId) as any;
-          const limit = Math.max(1, Math.min(9, biz?.front_video_count ?? 1));
           const sorted = [...docs].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-          limitedDocs.push(...sorted.slice(0, limit));
+          if (applyFrontVideoCountLimit) {
+            const biz = bizMap.get(bizId) as any;
+            const limit = Math.max(1, Math.min(9, biz?.front_video_count ?? 1));
+            limitedDocs.push(...sorted.slice(0, limit));
+          } else {
+            limitedDocs.push(...sorted);
+          }
         }
 
         // Global ordering: Home is JSON-driven (order already defined upstream),
