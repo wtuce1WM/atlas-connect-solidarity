@@ -568,7 +568,7 @@ const SlidePanelHome = ({
             )}
             {ctaBusiness && (
               <>
-                <p className="text-sm font-medium text-white pointer-events-auto text-center">{ctaBusiness.name || businessName}</p>
+                
                 <div className="w-4/5 max-w-md pointer-events-auto flex gap-2">
                   <button
                     type="button"
