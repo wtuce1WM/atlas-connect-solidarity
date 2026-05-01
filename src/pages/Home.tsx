@@ -301,6 +301,9 @@ const Home = () => {
   const [videoBadgeFilter, setVideoBadgeFilter] = useState<{ badgeId: string; label: string } | null>(null);
   const [videoEventFilter, setVideoEventFilter] = useState<VideoEventFilter | null>(null);
   const [videoPopularSearchFilter, setVideoPopularSearchFilter] = useState<{ popularSearchId: string; label: string; businessIds: string[]; resolved?: boolean } | null>(null);
+  // Set when the user opens a homepage card linked to a specific business.
+  // That business will be pinned at the top of the next filtered list (badge view, video filter, etc.).
+  const [pinnedBusinessId, setPinnedBusinessId] = useState<string | null>(null);
   const [videoBadgeDocIds, setVideoBadgeDocIds] = useState<Set<string> | null>(null);
   const [badgeNamesById, setBadgeNamesById] = useState<Record<string, string>>({});
   const [hashtagFilterBadgeId, setHashtagFilterBadgeId] = useState<string | null>(null);
