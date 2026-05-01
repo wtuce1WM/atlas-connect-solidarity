@@ -192,7 +192,16 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
         slot.data.target ??
         (slot.data.eventId ? { type: "event", id: slot.data.eventId } :
          slot.data.badgeId ? { type: "badge", id: slot.data.badgeId } : null);
-      onLabelClick({ label, kind: slot.kind, target, badgeId: slot.data.badgeId ?? null, eventId: slot.data.eventId ?? null });
+      onLabelClick({
+        label,
+        kind: slot.kind,
+        target,
+        badgeId: slot.data.badgeId ?? null,
+        eventId: slot.data.eventId ?? null,
+        // When the manual card is also linked to a specific establishment,
+        // we want that business pinned at the top of the next page (label/badge/event filtered).
+        pinnedBusinessId: slot.kind === "extra" ? (slot.data.ownerId ?? null) : null,
+      });
       return;
     }
 
