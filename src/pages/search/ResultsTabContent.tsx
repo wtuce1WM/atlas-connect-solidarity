@@ -199,7 +199,7 @@ export default function ResultsTabContent({
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="mb-4 flex flex-col items-center gap-1">
+                <div className="mb-28 flex flex-col items-center gap-1">
                   <p className="text-sm text-muted-foreground">
                     {t.showing} {startResult} {t.to} {endResult} sur {displayedResultsCount} {t.results}
                   </p>
