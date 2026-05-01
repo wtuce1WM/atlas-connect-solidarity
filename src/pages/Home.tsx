@@ -716,6 +716,17 @@ const Home = () => {
           seen.add(d.business_id);
           docByBiz.set(d.business_id, d);
         }
+        const popDocBadgesByDocId: Record<string, string[]> = {};
+        const popDocIds = [...new Set(allDocs.map((d: any) => d.id).filter(Boolean))] as string[];
+        for (let i = 0; i < popDocIds.length; i += batch) {
+          const { data: rows } = await supabase
+            .from("business_document_badges")
+            .select("document_id, badge_id")
+            .in("document_id", popDocIds.slice(i, i + batch));
+          ((rows as any[]) || []).forEach((r: any) => {
+            (popDocBadgesByDocId[r.document_id] ||= []).push(r.badge_id);
+          });
+        }
         const docVideoItems: VideoItem[] = bizIds
           .map((bid) => {
             const d = docByBiz.get(bid);
@@ -734,6 +745,7 @@ const Home = () => {
               manualCard: null,
               subcategory_id: d.subcategory_id ?? null,
               service_id: d.service_id ?? null,
+              badge_ids: popDocBadgesByDocId[d.id] || [],
               videoTitle: d.name ?? null,
             } as VideoItem;
           })
@@ -758,6 +770,17 @@ const Home = () => {
             if (!y.business_id || ytByBiz.has(y.business_id)) continue;
             ytByBiz.set(y.business_id, y);
           }
+          const popYtBadgesByVideo: Record<string, string[]> = {};
+          const popYtIds = ytRows.map((y: any) => y.id).filter(Boolean);
+          if (popYtIds.length > 0) {
+            const { data: rows } = await supabase
+              .from("business_youtube_video_badges")
+              .select("youtube_video_id, badge_id")
+              .in("youtube_video_id", popYtIds);
+            ((rows as any[]) || []).forEach((r: any) => {
+              (popYtBadgesByVideo[r.youtube_video_id] ||= []).push(r.badge_id);
+            });
+          }
           ytVideoItems = missingBizIds
             .map((bid) => {
               const y = ytByBiz.get(bid);
@@ -775,6 +798,7 @@ const Home = () => {
                 social: null,
                 description: null,
                 manualCard: null,
+                badge_ids: popYtBadgesByVideo[y.id] || [],
               } as VideoItem;
             })
             .filter(Boolean) as VideoItem[];
