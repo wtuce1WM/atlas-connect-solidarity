@@ -198,9 +198,10 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
         target,
         badgeId: slot.data.badgeId ?? null,
         eventId: slot.data.eventId ?? null,
-        // When the manual card is also linked to a specific establishment,
-        // we want that business pinned at the top of the next page (label/badge/event filtered).
-        pinnedBusinessId: slot.kind === "extra" ? (slot.data.ownerId ?? null) : null,
+        // When the card is linked to a specific establishment (manual extra card OR
+        // entry-card whose video was forced via front_structure_homepage_overrides),
+        // pin that business at the top of the next page.
+        pinnedBusinessId: slot.data.ownerId ?? null,
       });
       return;
     }
