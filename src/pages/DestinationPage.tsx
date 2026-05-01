@@ -78,14 +78,8 @@ const DestinationPage = () => {
   };
 
   const sortedBusinesses = useMemo(() => {
-    return [...businesses].sort((a, b) => {
-      const rA = getEffectiveRating(a);
-      const rB = getEffectiveRating(b);
-      if (rA === null && rB === null) return 0;
-      if (rA === null) return 1;
-      if (rB === null) return -1;
-      return rB - rA;
-    });
+    // WTUCE > priority_score > rating (ignore <10 reviews) — same as SearchPage
+    return [...businesses].sort(sortWtuceAndRating);
   }, [businesses]);
 
   const totalPages = Math.ceil(sortedBusinesses.length / ITEMS_PER_PAGE);
