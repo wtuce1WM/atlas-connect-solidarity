@@ -1875,6 +1875,15 @@ const Home = () => {
       return bRating - aRating;
     };
     const sortedBizs = ((bizs as any[]) || []).slice().sort(sortWtuceAndRating);
+    // Pin: if the originating homepage card is linked to a business, ensure it appears first.
+    const pinId = info.pinnedBusinessId ?? null;
+    if (pinId) {
+      const idx = sortedBizs.findIndex((b: any) => b.id === pinId);
+      if (idx > 0) {
+        const [pinned] = sortedBizs.splice(idx, 1);
+        sortedBizs.unshift(pinned);
+      }
+    }
     setBadgeBusinesses(sortedBizs as SearchResultBusiness[]);
     setLoadingBadge(false);
         return;
