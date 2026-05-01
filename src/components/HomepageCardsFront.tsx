@@ -120,6 +120,19 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
     return () => { cancelled = true; };
   }, [city]);
 
+  // Preload the first thumbnail to accelerate LCP
+  useEffect(() => {
+    const firstThumb = slots[0]?.data.thumbnail;
+    if (!firstThumb) return;
+    const link = document.createElement("link");
+    link.rel = "preload";
+    link.as = "image";
+    link.href = firstThumb;
+    (link as any).fetchPriority = "high";
+    document.head.appendChild(link);
+    return () => { try { document.head.removeChild(link); } catch {} };
+  }, [slots]);
+
   // Playable slots only (have a video)
   const playableIndices = slots
     .map((s, i) => (s.data.videoId ? i : -1))
