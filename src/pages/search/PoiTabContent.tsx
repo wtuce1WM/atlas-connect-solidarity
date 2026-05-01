@@ -66,7 +66,7 @@ const PoiTabContent = ({
   return (
     <div className="flex">
       <section
-        className={`pb-2 lg:pb-4 bg-white dark:bg-zinc-900 transition-all duration-300 ${
+        className={`pb-0 lg:pb-0 bg-white dark:bg-zinc-900 transition-all duration-300 ${
           poiSelectedBusinessId || poiMapBusiness
             ? "w-1/2"
             : hasKnownLocation && !hidePoiMap
@@ -137,7 +137,7 @@ const PoiTabContent = ({
             }
             onHover={setHoveredPoiId}
           />
-          {allPois.length > 0 && <div className="mb-1" />}
+          {allPois.length > 0 && <div className="mb-0" />}
         </div>
       </section>
 
