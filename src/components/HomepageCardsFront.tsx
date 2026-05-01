@@ -275,7 +275,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
           aria-label={it.label ? `Filtrer ${it.label}` : `Lire ${it.businessName || ""}`}
         >
           {it.thumbnail ? (
-            <img src={it.thumbnail} alt={it.businessName || ""} className="w-full h-full object-cover" loading="lazy" />
+            <img src={it.thumbnail} alt={it.businessName || ""} className="w-full h-full object-cover" loading={isPriority ? "eager" : "lazy"} fetchPriority={isPriority ? "high" : "auto"} decoding={isPriority ? "sync" : "async"} />
           ) : isFileVideo && it.videoUrl ? (
             <VideoThumbnail src={it.videoUrl} alt={it.businessName || ""} className="w-full h-full object-cover" />
           ) : (
