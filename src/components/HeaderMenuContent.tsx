@@ -105,6 +105,8 @@ const HeaderMenuContent = ({ onNavigate }: Props) => {
         <div className="mb-4">
           <h4 className="text-xs font-semibold text-gold mb-2">{t("footer.company")}</h4>
           <ul className="space-y-1.5 text-xs text-muted-foreground">
+            <li><Link to="/mission" className="hover:text-gold transition-colors" onClick={close}>{t("footer.ourMission")}</Link></li>
+            <li><Link to="/contact" className="hover:text-gold transition-colors" onClick={close}>{t("footer.contact")}</Link></li>
             <li><Link to="/conditions-generales" className="hover:text-gold transition-colors" onClick={close}>Conditions Générales</Link></li>
             <li><a href="/affiliates" className="hover:text-gold transition-colors" onClick={close}>{t("footer.affiliates")}</a></li>
             <li><Link to="/blog" className="hover:text-gold transition-colors" onClick={close}>{t("footer.blog")}</Link></li>
