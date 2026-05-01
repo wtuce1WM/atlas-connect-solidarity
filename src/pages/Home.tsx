@@ -2321,7 +2321,7 @@ const Home = () => {
                             </div>
                           );
                         }
-                        
+                        const v = entry.v;
                         const idx = entry.idx;
                         const handlePick = () => {
                           setActiveVideo(v);
