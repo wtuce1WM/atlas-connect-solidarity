@@ -2487,6 +2487,21 @@ const Home = () => {
         </main>
       </div>
 
+      {!panelOpen && (
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-1/2 z-[85] pointer-events-none">
+          <div className="relative pointer-events-auto">
+            <PanelSearchBar
+              onSearch={(params) => {
+                const sp = new URLSearchParams(params);
+                navigate(`/search?${sp.toString()}`);
+              }}
+              onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
+              noToolbarOffset
+            />
+          </div>
+        </div>
+      )}
+
       {panelOpen && (
         <Suspense fallback={null}>
           <HomeVideoSlidePanel
