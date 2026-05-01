@@ -119,7 +119,7 @@ const Home = () => {
 
   // Preload first video thumbnail to accelerate LCP on /test (cards-only optimization)
   useEffect(() => {
-    const firstThumb = videos[0]?.thumbnail_url;
+    const firstThumb = optimizeSupabaseImage(videos[0]?.thumbnail_url, { width: 400 });
     if (!firstThumb) return;
     const link = document.createElement("link");
     link.rel = "preload";
