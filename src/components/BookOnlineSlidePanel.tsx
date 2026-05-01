@@ -1893,6 +1893,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
       {/* Search bar */}
       {showSearchBar && (
         <PanelSearchBar
+          iconVariant="black"
           onSearch={onSearch}
           onBusinessSelect={onSearchBusinessSelect}
           businessCity={business?.city}
