@@ -38,7 +38,7 @@ import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type Subca
 import AISearchAnswer, { parseInline, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import SearchResultCard from "@/components/SearchResultCard";
 import AISuggestionCard from "@/components/AISuggestionCard";
-import BookOnlineSlidePanel from "@/components/BookOnlineSlidePanel";
+const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import MobileSearchOverlay from "@/components/MobileSearchOverlay";
@@ -2475,11 +2475,13 @@ const SearchPage = () => {
                 toolbarRightId="overlay-slide-panel-toolbar"
               />
               <div className="flex-1 min-h-0 overflow-visible">
-                <BookOnlineSlidePanel
-                  businessId={overlaySelectedBusiness.id}
-                  onClose={() => { setOverlaySelectedBusiness(null); setIsOverlayPanelExpanded(false); }}
-                  forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
-                />
+                <Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>}>
+                  <BookOnlineSlidePanel
+                    businessId={overlaySelectedBusiness.id}
+                    onClose={() => { setOverlaySelectedBusiness(null); setIsOverlayPanelExpanded(false); }}
+                    forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
+                  />
+                </Suspense>
               </div>
             </div>
           )}
@@ -3307,33 +3309,35 @@ const SearchPage = () => {
               />
             )}
             <div className="flex-1 min-h-0 overflow-visible">
-              <BookOnlineSlidePanel
-                businessId={compactPanelBusiness.id}
-                onClose={closeCompactPanel}
-                externalOverlayActive={showAiPopup}
-                forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
-                interceptCloseRef={compactPanelInterceptCloseRef}
-                showSearchBar
-                closeTrigger={mapPanelCloseTrigger}
-                onMosaicStateChange={setIsNestedMosaicOpen}
-                onSearch={(params) => {
-                  setSelectedCategoryFilter(null);
-                  setSelectedSubcategoryFilter(null);
-                  setSelectedServiceFilter(null);
-                  if (params.q) {
-                    setSearchQuery(params.q);
-                    setInputValue(params.q);
-                  }
-                  setActiveTab("suggestions");
-                  setSelectedCity("all");
-                  setIsGeoCityAutoSelected(false);
-                  setSearchParams(params);
-                }}
-                onSearchBusinessSelect={(bizId) => {
-                  setCompactPanelBusiness({ id: bizId, name: "" } as any);
-                  setIsCompactPanelExpanded(false);
-                }}
-              />
+              <Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>}>
+                <BookOnlineSlidePanel
+                  businessId={compactPanelBusiness.id}
+                  onClose={closeCompactPanel}
+                  externalOverlayActive={showAiPopup}
+                  forceMuted={voiceStatus === "recording" || voiceStatus === "processing"}
+                  interceptCloseRef={compactPanelInterceptCloseRef}
+                  showSearchBar
+                  closeTrigger={mapPanelCloseTrigger}
+                  onMosaicStateChange={setIsNestedMosaicOpen}
+                  onSearch={(params) => {
+                    setSelectedCategoryFilter(null);
+                    setSelectedSubcategoryFilter(null);
+                    setSelectedServiceFilter(null);
+                    if (params.q) {
+                      setSearchQuery(params.q);
+                      setInputValue(params.q);
+                    }
+                    setActiveTab("suggestions");
+                    setSelectedCity("all");
+                    setIsGeoCityAutoSelected(false);
+                    setSearchParams(params);
+                  }}
+                  onSearchBusinessSelect={(bizId) => {
+                    setCompactPanelBusiness({ id: bizId, name: "" } as any);
+                    setIsCompactPanelExpanded(false);
+                  }}
+                />
+              </Suspense>
             </div>
           </div>
         </>
