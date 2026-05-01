@@ -6,6 +6,7 @@ import { ArrowLeft, Loader2, MapPin, ChevronLeft, ChevronRight, X, Phone, Slider
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
+import { sortWtuceAndRating } from "@/lib/businessRanking";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import TopCityBusinesses from "@/components/TopCityBusinesses";
