@@ -2005,10 +2005,10 @@ const Home = () => {
             <button
               type="button"
               onClick={() => setMenuOpen((v) => !v)}
-              className="flex items-center gap-1.5 text-sm font-semibold text-foreground hover:text-gold transition-colors"
+              className="flex items-center gap-1.5 text-base font-semibold text-foreground hover:text-gold transition-colors"
               aria-label="Menu Structure"
             >
-              {menuOpen ? <X className="h-4 w-4" /> : <MenuIcon className="h-4 w-4" />}
+              {menuOpen ? <X className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
               Menu
             </button>
           </div>
