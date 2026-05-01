@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useSEO } from "@/hooks/useSEO";
 
 import { supabase } from "@/integrations/supabase/client";
+import { sortWtuceAndRating } from "@/lib/businessRanking";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -172,19 +173,17 @@ const SubcategoryPage = () => {
     }
 
     const dir = sortAsc ? -1 : 1;
-    result = [...result].sort((a, b) => {
-      if (sortMode === "reviews") {
+    if (sortMode === "reviews") {
+      result = [...result].sort((a, b) => {
         const countA = a.total_review_count || 0;
         const countB = b.total_review_count || 0;
         return (countB - countA) * dir;
-      }
-      const rA = getEffectiveRating(a);
-      const rB = getEffectiveRating(b);
-      if (rA === null && rB === null) return 0;
-      if (rA === null) return 1;
-      if (rB === null) return -1;
-      return (rB - rA) * dir;
-    });
+      });
+    } else {
+      // Default: WTUCE > priority_score > rating (ignore <10 reviews) — same as SearchPage
+      result = [...result].sort(sortWtuceAndRating);
+      if (sortAsc) result.reverse();
+    }
 
     return result;
   }, [allBusinesses, selectedCity, selectedServices, selectedGamme, sortMode, sortAsc]);
@@ -271,7 +270,7 @@ const SubcategoryPage = () => {
         // Fetch businesses that have this subcategory in their categories array
         const { data: businessData, error } = await supabase
           .from("businesses")
-          .select("id, slug, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, default_service, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, computed_rating, total_review_count, gamme_id, badge_id, neighborhood, hook_fr")
+          .select("id, slug, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, default_service, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, computed_rating, total_review_count, gamme_id, badge_id, neighborhood, hook_fr, priority_score")
           .eq("is_active", true)
           .contains("categories", [decodedSubcategoryName])
           .order("wtuce_status", { ascending: true })

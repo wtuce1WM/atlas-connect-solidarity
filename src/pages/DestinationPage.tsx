@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { supabase } from "@/integrations/supabase/client";
+import { sortWtuceAndRating } from "@/lib/businessRanking";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -77,14 +78,8 @@ const DestinationPage = () => {
   };
 
   const sortedBusinesses = useMemo(() => {
-    return [...businesses].sort((a, b) => {
-      const rA = getEffectiveRating(a);
-      const rB = getEffectiveRating(b);
-      if (rA === null && rB === null) return 0;
-      if (rA === null) return 1;
-      if (rB === null) return -1;
-      return rB - rA;
-    });
+    // WTUCE > priority_score > rating (ignore <10 reviews) — same as SearchPage
+    return [...businesses].sort(sortWtuceAndRating);
   }, [businesses]);
 
   const totalPages = Math.ceil(sortedBusinesses.length / ITEMS_PER_PAGE);
@@ -130,7 +125,7 @@ const DestinationPage = () => {
         const [bizRes, gammesRes, badgesRes, subcatsRes, badgeSubcatsRes] = await Promise.all([
           supabase
             .from("businesses")
-            .select("id, slug, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, default_service, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, gamme_id, badge_id, neighborhood, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, hook_fr")
+            .select("id, slug, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, default_service, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, computed_rating, total_review_count, priority_score, gamme_id, badge_id, neighborhood, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, hook_fr")
             .eq("is_active", true)
             .in("id", businessIds),
           supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order").order("sort_order"),

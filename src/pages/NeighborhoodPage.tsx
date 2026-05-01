@@ -6,6 +6,7 @@ import { ArrowLeft, Loader2, MapPin, ChevronLeft, ChevronRight, X, Phone, Slider
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
+import { sortWtuceAndRating } from "@/lib/businessRanking";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import TopCityBusinesses from "@/components/TopCityBusinesses";
@@ -136,19 +137,17 @@ const NeighborhoodPage = () => {
     }
     
     const dir = sortAsc ? -1 : 1;
-    result.sort((a, b) => {
-      if (sortMode === "reviews") {
+    if (sortMode === "reviews") {
+      result.sort((a, b) => {
         const countA = (a.google_review_count || 0) + (a.tripadvisor_review_count || 0) + (a.restaurant_guru_review_count || 0);
         const countB = (b.google_review_count || 0) + (b.tripadvisor_review_count || 0) + (b.restaurant_guru_review_count || 0);
         return (countB - countA) * dir;
-      }
-      const rA = getEffectiveRating(a);
-      const rB = getEffectiveRating(b);
-      if (rA === null && rB === null) return 0;
-      if (rA === null) return 1;
-      if (rB === null) return -1;
-      return (rB - rA) * dir;
-    });
+      });
+    } else {
+      // Default: WTUCE > priority_score > rating (ignore <10 reviews) — same as SearchPage
+      result.sort(sortWtuceAndRating);
+      if (sortAsc) result.reverse();
+    }
     
     return result;
   }, [businesses, selectedCategory, selectedSubcategory, selectedActivities, sortMode, sortAsc]);
@@ -257,7 +256,7 @@ const NeighborhoodPage = () => {
         }
       }
 
-      const selectFields = "id, slug, name, city, region, address, phone, whatsapp, skype, main_category, categories, default_service, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, priority_score, logo_url, gamme_id, badge_id, neighborhood, opening_hours, show_opening_hours, is_open_24h, hook_fr, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, is_featured";
+      const selectFields = "id, slug, name, city, region, address, phone, whatsapp, skype, main_category, categories, default_service, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, computed_rating, total_review_count, priority_score, logo_url, gamme_id, badge_id, neighborhood, opening_hours, show_opening_hours, is_open_24h, hook_fr, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, is_featured";
 
       // Fetch businesses for this neighborhood + "Toute la ville & environs" businesses in same city
       const CITYWIDE_NEIGHBORHOOD = "Toute la ville & environs";
