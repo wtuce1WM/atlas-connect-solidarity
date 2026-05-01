@@ -137,13 +137,7 @@ const PoiTabContent = ({
             }
             onHover={setHoveredPoiId}
           />
-          {allPois.length > 0 && (
-            <p className="text-xs text-muted-foreground font-medium mt-4 text-center">
-              {language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt"}
-              {poiCity && ` — ${poiCity}`} · {allPois.length}{" "}
-              {language === "en" ? "results" : "résultats"}
-            </p>
-          )}
+          {allPois.length > 0 && <div className="mb-16" />}
         </div>
       </section>
 
