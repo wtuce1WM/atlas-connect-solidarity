@@ -13,7 +13,7 @@ import { businessUrl } from "@/lib/businessUrl";
 
 import { Menu as MenuIcon, X, Star, Youtube, MapPin } from "lucide-react";
 import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
-import { SiTiktok } from "react-icons/si";
+import { TikTokIcon as SiTiktok } from "@/components/icons/TikTokIcon";
 
 import HomeCityTabs from "@/components/home/HomeCityTabs";
 import BadgeBusinessesGrid from "@/components/home/BadgeBusinessesGrid";

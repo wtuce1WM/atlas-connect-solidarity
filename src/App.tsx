@@ -64,7 +64,26 @@ const Test = lazy(() => import("./pages/Home"));
 
 const queryClient = new QueryClient();
 
-const renderLazyRoute = (page: JSX.Element) => <Suspense fallback={null}>{page}</Suspense>;
+const RouteFallback = () => (
+  <div
+    aria-hidden="true"
+    style={{
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "#faf8f5",
+      fontFamily: "'Josefin Sans', system-ui, sans-serif",
+      fontSize: "14px",
+      letterSpacing: "0.15em",
+      color: "#8a7c6f",
+    }}
+  >
+    ONE WORLD MOROCCO
+  </div>
+);
+
+const renderLazyRoute = (page: JSX.Element) => <Suspense fallback={<RouteFallback />}>{page}</Suspense>;
 
 const BusinessRedirect = () => {
   const { slug } = useParams();

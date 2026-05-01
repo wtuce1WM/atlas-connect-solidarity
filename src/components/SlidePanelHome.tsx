@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { X, ChevronUp, ChevronDown, Youtube, MapPin, ExternalLink } from "lucide-react";
 import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
-import { SiTiktok } from "react-icons/si";
+import { TikTokIcon as SiTiktok } from "@/components/icons/TikTokIcon";
 import { createPortal } from "react-dom";
 import { getVideoEmbed } from "@/lib/videoEmbed";
 import PanelSearchBar from "@/components/PanelSearchBar";
