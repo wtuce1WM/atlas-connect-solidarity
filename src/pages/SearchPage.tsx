@@ -417,6 +417,7 @@ const SearchPage = () => {
    const [isAiRegenerating, setIsAiRegenerating] = useState(false);
    const lastAiServiceRef = useRef<string | null>(null);
     const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
+    const [bottomSearchOverlayOpen, setBottomSearchOverlayOpen] = useState(false);
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
     const [isNestedMosaicOpen, setIsNestedMosaicOpen] = useState(false);
       const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
