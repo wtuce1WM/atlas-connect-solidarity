@@ -2191,7 +2191,10 @@ const Home = () => {
               {displayList.length > 0 && (
                 <div className="w-full min-w-0">
                   <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
-                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5 flex-wrap" style={{ fontFamily: "'Roboto', sans-serif" }}>
+                    <h3
+                      className="text-sm font-semibold text-foreground flex items-center gap-1.5 flex-wrap [&_button]:font-['Roboto'] [&_button]:normal-case [&_button]:tracking-normal [&_span]:font-['Roboto'] [&_span]:normal-case [&_span]:tracking-normal"
+                      style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: 0, textTransform: "none" }}
+                    >
                       {videoEventFilter ? (
                         <>
                           <button
