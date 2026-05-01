@@ -320,7 +320,6 @@ const Home = () => {
   const [pinnedBusinessId, setPinnedBusinessId] = useState<string | null>(null);
   const [videoBadgeDocIds, setVideoBadgeDocIds] = useState<Set<string> | null>(null);
   const [badgeNamesById, setBadgeNamesById] = useState<Record<string, string>>({});
-  const [hashtagFilterBadgeId, setHashtagFilterBadgeId] = useState<string | null>(null);
 
   // Load all badge names once (small table)
   useEffect(() => {
@@ -335,10 +334,13 @@ const Home = () => {
     return () => { cancelled = true; };
   }, []);
 
-  // Reset hashtag filter when context changes
-  useEffect(() => {
-    setHashtagFilterBadgeId(null);
-  }, [selectedEntryId, videoBadgeFilter?.badgeId, city]);
+  const hashtagBadges = useMemo(
+    () => Object.entries(badgeNamesById)
+      .map(([id, name]) => ({ id, name }))
+      .filter((b) => b.name.trim().startsWith("#"))
+      .sort((a, b) => a.name.localeCompare(b.name, "fr", { sensitivity: "base" })),
+    [badgeNamesById]
+  );
 
   // Clear pinned business when no filtered view is active anymore.
   useEffect(() => {
@@ -716,6 +718,17 @@ const Home = () => {
           seen.add(d.business_id);
           docByBiz.set(d.business_id, d);
         }
+        const popDocBadgesByDocId: Record<string, string[]> = {};
+        const popDocIds = [...new Set(allDocs.map((d: any) => d.id).filter(Boolean))] as string[];
+        for (let i = 0; i < popDocIds.length; i += batch) {
+          const { data: rows } = await supabase
+            .from("business_document_badges")
+            .select("document_id, badge_id")
+            .in("document_id", popDocIds.slice(i, i + batch));
+          ((rows as any[]) || []).forEach((r: any) => {
+            (popDocBadgesByDocId[r.document_id] ||= []).push(r.badge_id);
+          });
+        }
         const docVideoItems: VideoItem[] = bizIds
           .map((bid) => {
             const d = docByBiz.get(bid);
@@ -734,6 +747,7 @@ const Home = () => {
               manualCard: null,
               subcategory_id: d.subcategory_id ?? null,
               service_id: d.service_id ?? null,
+              badge_ids: popDocBadgesByDocId[d.id] || [],
               videoTitle: d.name ?? null,
             } as VideoItem;
           })
@@ -758,6 +772,17 @@ const Home = () => {
             if (!y.business_id || ytByBiz.has(y.business_id)) continue;
             ytByBiz.set(y.business_id, y);
           }
+          const popYtBadgesByVideo: Record<string, string[]> = {};
+          const popYtIds = ytRows.map((y: any) => y.id).filter(Boolean);
+          if (popYtIds.length > 0) {
+            const { data: rows } = await supabase
+              .from("business_youtube_video_badges")
+              .select("youtube_video_id, badge_id")
+              .in("youtube_video_id", popYtIds);
+            ((rows as any[]) || []).forEach((r: any) => {
+              (popYtBadgesByVideo[r.youtube_video_id] ||= []).push(r.badge_id);
+            });
+          }
           ytVideoItems = missingBizIds
             .map((bid) => {
               const y = ytByBiz.get(bid);
@@ -775,6 +800,7 @@ const Home = () => {
                 social: null,
                 description: null,
                 manualCard: null,
+                badge_ids: popYtBadgesByVideo[y.id] || [],
               } as VideoItem;
             })
             .filter(Boolean) as VideoItem[];
@@ -1352,6 +1378,17 @@ const Home = () => {
 
 
         const manualCardMap = !selectedSubId ? await getManualCardMap(city, limitedDocs) : new Map<string, { label: string; badgeId: string | null; eventId?: string | null }>();
+        const docBadgesByDocId: Record<string, string[]> = {};
+        const limitedDocIds = limitedDocs.map((d: any) => d.id).filter(Boolean);
+        for (let i = 0; i < limitedDocIds.length; i += 300) {
+          const { data: rows } = await supabase
+            .from("business_document_badges")
+            .select("document_id, badge_id")
+            .in("document_id", limitedDocIds.slice(i, i + 300));
+          ((rows as any[]) || []).forEach((r: any) => {
+            (docBadgesByDocId[r.document_id] ||= []).push(r.badge_id);
+          });
+        }
         const serviceIdSet = [...new Set(limitedDocs.map((d: any) => d.service_id).filter(Boolean))] as string[];
         const serviceNameById = new Map<string, string>();
         for (let i = 0; i < serviceIdSet.length; i += 300) {
@@ -1382,6 +1419,7 @@ const Home = () => {
             service_name: d.service_id ? serviceNameById.get(d.service_id) ?? null : null,
             price: d.price ?? null,
             priceType: d.price_type ?? null,
+            badge_ids: docBadgesByDocId[d.id] || [],
             videoTitle: d.name ?? null,
           } as VideoItem;
         });
@@ -1439,6 +1477,17 @@ const Home = () => {
             }
 
             const seenUrlsGv = new Set<string>(docItems.map((i) => i.url).filter(Boolean) as string[]);
+            const gvBadgesByVideo: Record<string, string[]> = {};
+            const gvFilteredIds = gvFiltered.map((v: any) => v.id).filter(Boolean);
+            if (gvFilteredIds.length > 0) {
+              const { data: rows } = await supabase
+                .from("generic_video_badges" as any)
+                .select("generic_video_id, badge_id")
+                .in("generic_video_id", gvFilteredIds);
+              ((rows as any[]) || []).forEach((r: any) => {
+                (gvBadgesByVideo[r.generic_video_id] ||= []).push(r.badge_id);
+              });
+            }
             genericSubItems = gvFiltered
               .filter((v: any) => v.url && !seenUrlsGv.has(v.url) && (seenUrlsGv.add(v.url), true))
               .map((v: any) => {
@@ -1462,6 +1511,7 @@ const Home = () => {
                   showSocialBadge: !!social,
                   description: v.description ?? null,
                   manualCard: null,
+                  badge_ids: gvBadgesByVideo[v.id] || [],
                   videoName: v.title || v.name || null,
                 } as VideoItem;
               });
@@ -1527,6 +1577,17 @@ const Home = () => {
                   .in("id", ytBizIds.slice(i, i + CHUNK));
                 (bizs || []).forEach((b: any) => ytBizMap.set(b.id, b as SearchResultBusiness));
               }
+              const ytBadgesByVideo: Record<string, string[]> = {};
+              const ytRowIds = ytRows.map((y: any) => y.id).filter(Boolean);
+              if (ytRowIds.length > 0) {
+                const { data: rows } = await supabase
+                  .from("business_youtube_video_badges")
+                  .select("youtube_video_id, badge_id")
+                  .in("youtube_video_id", ytRowIds);
+                ((rows as any[]) || []).forEach((r: any) => {
+                  (ytBadgesByVideo[r.youtube_video_id] ||= []).push(r.badge_id);
+                });
+              }
               const seenUrlsYt = new Set<string>([...docItems, ...genericSubItems].map((i) => i.url).filter(Boolean) as string[]);
               youtubeSubItems = ytRows
                 .map((y: any) => {
@@ -1553,6 +1614,7 @@ const Home = () => {
                     showSocialBadge: !!social,
                     description: null,
                     manualCard: null,
+                    badge_ids: ytBadgesByVideo[y.id] || [],
                   } as VideoItem;
                 })
                 .filter(Boolean) as VideoItem[];
@@ -1580,6 +1642,17 @@ const Home = () => {
           (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
         }
       }
+      const homeDocBadgesByDocId: Record<string, string[]> = {};
+      const homeDocIds = allDocs.map((d: any) => d.id).filter(Boolean);
+      for (let i = 0; i < homeDocIds.length; i += 300) {
+        const { data: rows } = await supabase
+          .from("business_document_badges")
+          .select("document_id, badge_id")
+          .in("document_id", homeDocIds.slice(i, i + 300));
+        ((rows as any[]) || []).forEach((r: any) => {
+          (homeDocBadgesByDocId[r.document_id] ||= []).push(r.badge_id);
+        });
+      }
 
       safeSetVideos(
         allDocs.map((d: any) => {
@@ -1595,6 +1668,7 @@ const Home = () => {
             showSocialBadge: isDifferentDisplayedBusinessSocial(extractSocial(d), biz),
             description: d.description ?? null,
             manualCard: null,
+            badge_ids: homeDocBadgesByDocId[d.id] || [],
             videoTitle: d.name ?? null,
           };
         })
@@ -2093,27 +2167,8 @@ const Home = () => {
             // Hashtags are now shown across all video contexts (entries, sub-categories, events, popular searches, badge filters, vlogs).
             const showHashtagsTile = true;
 
-            // Aggregate badges from currently loaded videos (Vlogs / Suivez le guide contexts)
-            const hashtagCounts: Record<string, number> = {};
-            if (showHashtagsTile) {
-              for (const v of otherVideos) {
-                const ids = v.badge_ids || [];
-                for (const id of ids) {
-                  // Exclude the currently active "Suivez le guide" badge itself, since it's the page filter
-                  if (videoBadgeFilter && id === videoBadgeFilter.badgeId) continue;
-                  hashtagCounts[id] = (hashtagCounts[id] || 0) + 1;
-                }
-              }
-            }
-            const hashtagItems = Object.entries(hashtagCounts)
-              .map(([id, count]) => ({ id, name: badgeNamesById[id], count }))
-              .filter((h) => !!h.name)
-              .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "fr", { sensitivity: "base" }));
-
-            // Apply hashtag filter to the display list
-            const displayList = hashtagFilterBadgeId
-              ? otherVideos.filter((v) => (v.badge_ids || []).includes(hashtagFilterBadgeId))
-              : otherVideos;
+            const hashtagItems = hashtagBadges;
+            const displayList = otherVideos;
 
             const isParentEntry =
               !!selectedEntry &&
@@ -2253,32 +2308,23 @@ const Home = () => {
                   </div>
                   {showHashtagsTileFinal && hashtagItems.length > 0 && (
                     <div className="flex items-center gap-2 overflow-x-auto lg:flex-wrap lg:overflow-visible -mx-2 px-2 lg:mx-0 lg:px-0 cursor-grab select-none touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden mb-3">
-                      {hashtagFilterBadgeId && (
-                        <button
-                          type="button"
-                          onClick={() => setHashtagFilterBadgeId(null)}
-                          className="shrink-0 inline-flex items-center rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20 hover:border-primary/60 transition-colors"
-                          title="Réinitialiser le filtre hashtag"
-                        >
-                          ✕ Réinitialiser
-                        </button>
-                      )}
                       {hashtagItems.map((h) => {
-                        const active = hashtagFilterBadgeId === h.id;
                         return (
                           <button
                             key={h.id}
                             type="button"
-                            onClick={() => setHashtagFilterBadgeId(active ? null : h.id)}
-                            className={`shrink-0 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                              active
-                                ? "border-gold bg-gold text-background"
-                                : "border-gold/40 bg-gold/10 text-gold hover:bg-gold/20 hover:border-gold/60"
-                            }`}
-                            title={`Filtrer par #${h.name}`}
+                            onClick={() => {
+                              setVideoEventFilter(null);
+                              setVideoPopularSearchFilter(null);
+                              setBadgeView(null);
+                              setSelectedEntryId(HOME_ID);
+                              setSelectedSubId(null);
+                              setVideoBadgeFilter({ badgeId: h.id, label: h.name });
+                            }}
+                            className="shrink-0 inline-flex items-center rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-medium text-gold hover:bg-gold/20 hover:border-gold/60 transition-colors"
+                            title={`Filtrer par ${h.name}`}
                           >
-                            <span>#{h.name}</span>
-                            <span className="opacity-70">{h.count}</span>
+                            {h.name}
                           </button>
                         );
                       })}
