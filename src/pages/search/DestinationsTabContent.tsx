@@ -135,13 +135,7 @@ const DestinationsTabContent = ({
             }}
             onHover={setHoveredDestId}
           />
-          {allDestItems.length > 0 && (
-            <p className="text-xs text-muted-foreground font-medium mt-4 text-center">
-              {language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations"}
-              {destCity && ` — ${destCity}`} · {allDestItems.length}{" "}
-              {language === "en" ? "results" : "résultats"}
-            </p>
-          )}
+          {allDestItems.length > 0 && <div className="mb-0" />}
         </div>
       </section>
 
