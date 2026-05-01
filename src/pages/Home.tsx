@@ -120,6 +120,7 @@ const Home = () => {
   const [extraCityDocIds, setExtraCityDocIds] = useState<Set<string>>(new Set());
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
+  const [homeSearchOverlayOpen, setHomeSearchOverlayOpen] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const autoOpenedRef = useRef<string | null>(null);
