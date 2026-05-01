@@ -66,7 +66,7 @@ const PoiTabContent = ({
   return (
     <div className="flex">
       <section
-        className={`pb-2 lg:pb-4 bg-white dark:bg-zinc-900 transition-all duration-300 ${
+        className={`pb-0 lg:pb-0 bg-white dark:bg-zinc-900 transition-all duration-300 ${
           poiSelectedBusinessId || poiMapBusiness
             ? "w-1/2"
             : hasKnownLocation && !hidePoiMap
