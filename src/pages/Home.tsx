@@ -1835,11 +1835,32 @@ const Home = () => {
     }
     const { data: bizs } = await supabase
       .from("businesses")
-      .select("id, name, slug, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status")
+      .select("id, name, slug, images, logo_url, logo_bg, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, priority_score")
       .in("id", ids)
       .eq("city", clickedCity)
       .eq("is_active", true);
-    setBadgeBusinesses(((bizs as any[]) || []) as SearchResultBusiness[]);
+    // Same ranking as SearchPage: WTUCE verified first (priority_score desc),
+    // then non-verified by priority_score, then by effective rating ignoring <10 reviews.
+    const getEffectiveRating = (b: any): number | null =>
+      b?.computed_rating ?? (b?.rating ? Number(b.rating) : null);
+    const sortWtuceAndRating = (a: any, b: any) => {
+      const aVerified = a.wtuce_status === "verified" ? 0 : 1;
+      const bVerified = b.wtuce_status === "verified" ? 0 : 1;
+      if (aVerified !== bVerified) return aVerified - bVerified;
+      if (aVerified === 0) {
+        return (b.priority_score || 0) - (a.priority_score || 0);
+      }
+      const aPrio = a.priority_score || 0;
+      const bPrio = b.priority_score || 0;
+      if (aPrio !== bPrio) return bPrio - aPrio;
+      const aCount = a.total_review_count ?? 0;
+      const bCount = b.total_review_count ?? 0;
+      const aRating = aCount >= 10 ? (getEffectiveRating(a) ?? -1) : -1;
+      const bRating = bCount >= 10 ? (getEffectiveRating(b) ?? -1) : -1;
+      return bRating - aRating;
+    };
+    const sortedBizs = ((bizs as any[]) || []).slice().sort(sortWtuceAndRating);
+    setBadgeBusinesses(sortedBizs as SearchResultBusiness[]);
     setLoadingBadge(false);
         return;
       }
