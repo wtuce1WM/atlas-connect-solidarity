@@ -238,6 +238,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
           : it.priceType
       : null;
     const immoBadge = null;
+    const optimizedThumb = optimizeSupabaseImage(it.thumbnail, { width: 400 });
 
     if (!it.videoId) {
       return (
