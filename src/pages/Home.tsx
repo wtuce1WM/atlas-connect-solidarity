@@ -2492,7 +2492,7 @@ const Home = () => {
         <div
           className={`fixed z-[85] pointer-events-none ${
             homeSearchOverlayOpen
-              ? "inset-0"
+              ? "inset-y-0 left-1/2 -translate-x-1/2 w-full md:w-1/2"
               : "bottom-0 left-1/2 -translate-x-1/2 w-1/2"
           }`}
         >
