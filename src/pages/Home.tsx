@@ -43,6 +43,7 @@ import {
 import { getManualCardMap } from "@/lib/manualCards";
 import { resolveHomepageCity, readLastHomepageCity, writeLastHomepageCity } from "@/lib/cityHomepage";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { sortWtuceAndRating } from "@/lib/businessRanking";
 
 interface FrontEntry {
   id: string;
@@ -1273,8 +1274,20 @@ const Home = () => {
           limitedDocs.push(...sorted.slice(0, limit));
         }
 
-        // Global ordering by sort_order
-        limitedDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+        // Global ordering: Home stays sort_order (JSON-driven). Other entries
+        // (Restauration, Hébergement, etc.) follow the same ranking as SearchPage:
+        // WTUCE > priority_score > rating (≥10 reviews), with sort_order as tie-break.
+        if (isHome) {
+          limitedDocs.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+        } else {
+          limitedDocs.sort((a: any, b: any) => {
+            const bizA = resolveVideoEstablishment(a, bizMap, { strict: strictResolve });
+            const bizB = resolveVideoEstablishment(b, bizMap, { strict: strictResolve });
+            const r = sortWtuceAndRating(bizA || {}, bizB || {});
+            if (r !== 0) return r;
+            return (a.sort_order ?? 0) - (b.sort_order ?? 0);
+          });
+        }
 
 
         const manualCardMap = !selectedSubId ? await getManualCardMap(city, limitedDocs) : new Map<string, { label: string; badgeId: string | null; eventId?: string | null }>();
