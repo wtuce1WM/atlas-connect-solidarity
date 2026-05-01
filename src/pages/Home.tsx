@@ -115,6 +115,19 @@ const Home = () => {
   const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [loadingVideos, setLoadingVideos] = useState(false);
+
+  // Preload first video thumbnail to accelerate LCP on /test (cards-only optimization)
+  useEffect(() => {
+    const firstThumb = videos[0]?.thumbnail_url;
+    if (!firstThumb) return;
+    const link = document.createElement("link");
+    link.rel = "preload";
+    link.as = "image";
+    link.href = firstThumb;
+    (link as any).fetchPriority = "high";
+    document.head.appendChild(link);
+    return () => { try { document.head.removeChild(link); } catch {} };
+  }, [videos]);
   const [entriesWithVideos, setEntriesWithVideos] = useState<Set<string>>(new Set());
   const [subsWithVideos, setSubsWithVideos] = useState<Set<string>>(new Set());
   const [cityRowId, setCityRowId] = useState<string | null>(null);
@@ -2334,7 +2347,14 @@ const Home = () => {
                         className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted cursor-pointer"
                       >
                         {thumb ? (
-                          <img src={thumb} alt={v.business_name} className="w-full h-full object-cover" loading="lazy" />
+                          <img
+                            src={thumb}
+                            alt={v.business_name}
+                            className="w-full h-full object-cover"
+                            loading={i < 6 ? "eager" : "lazy"}
+                            fetchPriority={i < 6 ? "high" : "auto"}
+                            decoding={i === 0 ? "sync" : "async"}
+                          />
                         ) : (
                           <div className="w-full h-full bg-muted" />
                         )}
