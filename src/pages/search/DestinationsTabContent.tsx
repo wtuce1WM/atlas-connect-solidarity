@@ -72,7 +72,7 @@ const DestinationsTabContent = ({
   return (
     <div className="flex">
       <section
-        className={`pb-6 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${
+        className={`pb-0 lg:pb-0 bg-white dark:bg-zinc-900 transition-all duration-300 ${
           hasRightPanel ? "w-1/2" : hasKnownLocation && !hideDestMap ? "w-1/2" : "w-full"
         }`}
       >
@@ -135,13 +135,7 @@ const DestinationsTabContent = ({
             }}
             onHover={setHoveredDestId}
           />
-          {allDestItems.length > 0 && (
-            <p className="text-xs text-muted-foreground font-medium mt-4 text-center">
-              {language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations"}
-              {destCity && ` — ${destCity}`} · {allDestItems.length}{" "}
-              {language === "en" ? "results" : "résultats"}
-            </p>
-          )}
+          {allDestItems.length > 0 && <div className="mb-0" />}
         </div>
       </section>
 
