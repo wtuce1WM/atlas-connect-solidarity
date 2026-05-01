@@ -135,7 +135,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
 
   // Preload the first thumbnail to accelerate LCP
   useEffect(() => {
-    const firstThumb = optimizeSupabaseImage(slots[0]?.data.thumbnail, { width: 400 });
+    const firstThumb = optimizeSupabaseImage(slots[0]?.data.thumbnail, { width: 300, quality: 60 });
     if (!firstThumb) return;
     const link = document.createElement("link");
     link.rel = "preload";
