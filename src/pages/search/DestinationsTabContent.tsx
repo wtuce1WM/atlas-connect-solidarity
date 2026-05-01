@@ -72,7 +72,7 @@ const DestinationsTabContent = ({
   return (
     <div className="flex">
       <section
-        className={`pb-6 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${
+        className={`pb-0 lg:pb-0 bg-white dark:bg-zinc-900 transition-all duration-300 ${
           hasRightPanel ? "w-1/2" : hasKnownLocation && !hideDestMap ? "w-1/2" : "w-full"
         }`}
       >
