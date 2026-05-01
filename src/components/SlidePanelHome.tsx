@@ -10,8 +10,13 @@ import VideoControls from "@/components/VideoControls";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
 import { useNavigate } from "react-router-dom";
 import { LazyDirectionsOverlay } from "@/components/overlays/LazyOverlays";
-import { businessUrl } from "@/lib/businessUrl";
+import { businessUrl, buildOgShareUrl } from "@/lib/businessUrl";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
+import BusinessHeader from "@/components/slidepanel/BusinessHeader";
+import ShareButton from "@/components/ShareButton";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
+import { whatsappUrl } from "@/lib/phoneUtils";
+import { Phone } from "lucide-react";
 
 interface SocialInfo {
   platform: "instagram" | "tiktok" | "youtube";
