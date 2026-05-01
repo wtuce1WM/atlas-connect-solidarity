@@ -66,6 +66,9 @@ interface AgendaEvent {
     phone: string | null;
     city: string | null;
     logo_url: string | null;
+    neighborhood?: string | null;
+    whatsapp?: string | null;
+    logo_bg?: string | null;
   } | null;
 }
 
