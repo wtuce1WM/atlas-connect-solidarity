@@ -360,8 +360,8 @@ const SlidePanelHome = ({
               business={{
                 ...ctaBusiness,
                 name: businessName || ctaBusiness.name,
-                logo_url: owner?.logo_url ?? ctaBusiness.logo_url,
-                logo_bg: owner?.logo_bg ?? ctaBusiness.logo_bg,
+                logo_url: owner?.logo_url ?? null,
+                logo_bg: owner?.logo_bg ?? null,
               }}
               businessId={ctaBusiness.id}
               hookText={null}
