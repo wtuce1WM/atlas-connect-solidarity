@@ -2334,7 +2334,14 @@ const Home = () => {
                         className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted cursor-pointer"
                       >
                         {thumb ? (
-                          <img src={thumb} alt={v.business_name} className="w-full h-full object-cover" loading="lazy" />
+                          <img
+                            src={thumb}
+                            alt={v.business_name}
+                            className="w-full h-full object-cover"
+                            loading={i < 6 ? "eager" : "lazy"}
+                            fetchPriority={i < 6 ? "high" : "auto"}
+                            decoding={i === 0 ? "sync" : "async"}
+                          />
                         ) : (
                           <div className="w-full h-full bg-muted" />
                         )}
