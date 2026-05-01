@@ -553,6 +553,17 @@ const Home = () => {
     let cancelled = false;
     const load = async () => {
       const safeSetVideos = (v: VideoItem[]) => { if (!cancelled) setVideos(v); };
+      // Pin: when the active filter was opened from a homepage card linked to a business,
+      // move that business's first video to the top of the list (preserving order otherwise).
+      const applyPin = (items: VideoItem[]): VideoItem[] => {
+        if (!pinnedBusinessId) return items;
+        const idx = items.findIndex((it) => (it.business as any)?.id === pinnedBusinessId);
+        if (idx <= 0) return items;
+        const next = items.slice();
+        const [pinned] = next.splice(idx, 1);
+        next.unshift(pinned);
+        return next;
+      };
       const safeSetLoadingVideos = (b: boolean) => { if (!cancelled) setLoadingVideos(b); };
       safeSetLoadingVideos(true);
       console.log("[Test load]", { selectedEntryId: selectedEntry?.id, selectedEntryName: selectedEntry?.name, selectedSubId, videoBadgeFilter, videoEventFilter, city });
