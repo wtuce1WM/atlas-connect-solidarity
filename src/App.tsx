@@ -10,9 +10,9 @@ import FloatingSearchBar from "@/components/FloatingSearchBar";
 import StaffRouteGuard from "@/components/StaffRouteGuard";
 import FloatingClubButton from "@/components/FloatingClubButton";
 import FloatingWhatsAppButton from "@/components/FloatingWhatsAppButton";
-import Index from "./pages/Index";
 import ScrollToTop from "./components/ScrollToTop";
 import RouteTransition from "./components/RouteTransition";
+const Index = lazy(() => import("./pages/Index"));
 const BusinessDetail = lazy(() => import("./pages/BusinessDetail"));
 const CityMap = lazy(() => import("./pages/CityMap"));
 const CategoryPage = lazy(() => import("./pages/CategoryPage"));
@@ -129,7 +129,7 @@ const AppContent = () => {
           <ScrollToTop />
           <RouteTransition>
             <Routes>
-              <Route path="/" element={<Index />} />
+              <Route path="/" element={renderLazyRoute(<Index />)} />
               <Route path="/business/:slug" element={<BusinessRedirect />} />
               <Route path="/city/:city" element={renderLazyRoute(<CityMap />)} />
               <Route path="/category/:categoryName" element={renderLazyRoute(<CategoryPage />)} />
