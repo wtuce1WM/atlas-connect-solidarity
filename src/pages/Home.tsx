@@ -320,7 +320,6 @@ const Home = () => {
   const [pinnedBusinessId, setPinnedBusinessId] = useState<string | null>(null);
   const [videoBadgeDocIds, setVideoBadgeDocIds] = useState<Set<string> | null>(null);
   const [badgeNamesById, setBadgeNamesById] = useState<Record<string, string>>({});
-  const [hashtagFilterBadgeId, setHashtagFilterBadgeId] = useState<string | null>(null);
 
   // Load all badge names once (small table)
   useEffect(() => {
@@ -334,11 +333,6 @@ const Home = () => {
     })();
     return () => { cancelled = true; };
   }, []);
-
-  // Reset hashtag filter when context changes
-  useEffect(() => {
-    setHashtagFilterBadgeId(null);
-  }, [selectedEntryId, videoBadgeFilter?.badgeId, city]);
 
   // Clear pinned business when no filtered view is active anymore.
   useEffect(() => {
