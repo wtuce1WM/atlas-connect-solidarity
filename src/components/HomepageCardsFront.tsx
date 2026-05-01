@@ -63,59 +63,71 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
       if (error) {
         console.error("[HomepageCardsFront] snapshot error", error);
         setSlots([]);
-      } else {
-        const payload = (data?.payload as MixedSlot[] | null) || [];
-        const eventIds = [...new Set(payload.map((slot) => slot.data.eventId).filter(Boolean))] as string[];
-        const immoVideoIds = [...new Set(
-          payload
-            .filter((slot) => (slot.data.label || "").trim().toLowerCase() === "immobilier" && slot.data.videoId)
-            .map((slot) => slot.data.videoId!)
-        )];
-
-        const [eventsRes, immoDocsRes] = await Promise.all([
-          eventIds.length > 0
-            ? (supabase as any).from("events").select("id, name, images").in("id", eventIds)
-            : Promise.resolve({ data: [] }),
-          immoVideoIds.length > 0
-            ? (supabase as any).from("business_documents").select("id, price, price_type").in("id", immoVideoIds)
-            : Promise.resolve({ data: [] }),
-        ]);
-
-        const eventMap = new Map<string, any>(((eventsRes.data as any[]) || []).map((e) => [e.id, e]));
-        const immoMap = new Map<string, any>(((immoDocsRes.data as any[]) || []).map((d) => [d.id, d]));
-
-        setSlots(payload.map((slot) => {
-          let next = slot;
-          const event = slot.data.eventId ? eventMap.get(slot.data.eventId) : null;
-          if (event) {
-            next = {
-              ...next,
-              data: {
-                ...next.data,
-                videoId: null,
-                videoUrl: null,
-                thumbnail: event.images?.[0] || null,
-                businessName: event.name || next.data.businessName,
-                ownerLogo: null,
-                ownerName: null,
-                ownerId: null,
-                rating: null,
-                reviewCount: null,
-              },
-            };
-          }
-          const immo = next.data.videoId ? immoMap.get(next.data.videoId) : null;
-          if (immo && (next.data.label || "").trim().toLowerCase() === "immobilier") {
-            next = {
-              ...next,
-              data: { ...next.data, price: immo.price ?? null, priceType: immo.price_type ?? null },
-            };
-          }
-          return next;
-        }));
+        setLoading(false);
+        isFirstLoad.current = false;
+        return;
       }
+
+      const payload = (data?.payload as MixedSlot[] | null) || [];
+
+      // PASS 1 — render immediately with the snapshot to unblock LCP
+      setSlots(payload);
       setLoading(false);
       isFirstLoad.current = false;
+
+      // PASS 2 — fetch enrichment data in background and patch slots once ready
+      const eventIds = [...new Set(payload.map((slot) => slot.data.eventId).filter(Boolean))] as string[];
+      const immoVideoIds = [...new Set(
+        payload
+          .filter((slot) => (slot.data.label || "").trim().toLowerCase() === "immobilier" && slot.data.videoId)
+          .map((slot) => slot.data.videoId!)
+      )];
+
+      if (eventIds.length === 0 && immoVideoIds.length === 0) return;
+
+      const [eventsRes, immoDocsRes] = await Promise.all([
+        eventIds.length > 0
+          ? (supabase as any).from("events").select("id, name, images").in("id", eventIds)
+          : Promise.resolve({ data: [] }),
+        immoVideoIds.length > 0
+          ? (supabase as any).from("business_documents").select("id, price, price_type").in("id", immoVideoIds)
+          : Promise.resolve({ data: [] }),
+      ]);
+
+      if (cancelled) return;
+
+      const eventMap = new Map<string, any>(((eventsRes.data as any[]) || []).map((e) => [e.id, e]));
+      const immoMap = new Map<string, any>(((immoDocsRes.data as any[]) || []).map((d) => [d.id, d]));
+
+      setSlots(payload.map((slot) => {
+        let next = slot;
+        const event = slot.data.eventId ? eventMap.get(slot.data.eventId) : null;
+        if (event) {
+          next = {
+            ...next,
+            data: {
+              ...next.data,
+              videoId: null,
+              videoUrl: null,
+              thumbnail: event.images?.[0] || null,
+              businessName: event.name || next.data.businessName,
+              ownerLogo: null,
+              ownerName: null,
+              ownerId: null,
+              rating: null,
+              reviewCount: null,
+            },
+          };
+        }
+        const immo = next.data.videoId ? immoMap.get(next.data.videoId) : null;
+        if (immo && (next.data.label || "").trim().toLowerCase() === "immobilier") {
+          next = {
+            ...next,
+            data: { ...next.data, price: immo.price ?? null, priceType: immo.price_type ?? null },
+          };
+        }
+        return next;
+      }));
     };
     load();
     return () => { cancelled = true; };
