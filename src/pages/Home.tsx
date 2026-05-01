@@ -1552,7 +1552,7 @@ const Home = () => {
     };
     load();
     return () => { cancelled = true; };
-  }, [selectedEntry, city, selectedSubId, extraCityDocIds, videoBadgeFilter, videoEventFilter, videoPopularSearchFilter]);
+  }, [selectedEntry, city, selectedSubId, extraCityDocIds, videoBadgeFilter, videoEventFilter, videoPopularSearchFilter, pinnedBusinessId]);
 
   // Reset active video when entry/city changes
   useEffect(() => {
