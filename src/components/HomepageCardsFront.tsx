@@ -120,6 +120,19 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
     return () => { cancelled = true; };
   }, [city]);
 
+  // Preload the first thumbnail to accelerate LCP
+  useEffect(() => {
+    const firstThumb = slots[0]?.data.thumbnail;
+    if (!firstThumb) return;
+    const link = document.createElement("link");
+    link.rel = "preload";
+    link.as = "image";
+    link.href = firstThumb;
+    (link as any).fetchPriority = "high";
+    document.head.appendChild(link);
+    return () => { try { document.head.removeChild(link); } catch {} };
+  }, [slots]);
+
   // Playable slots only (have a video)
   const playableIndices = slots
     .map((s, i) => (s.data.videoId ? i : -1))
@@ -212,6 +225,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
 
   const renderCard = (slot: MixedSlot, index: number) => {
     const it = slot.data;
+    const isPriority = index === 0;
     const isFileVideo = !!it.videoUrl && !it.thumbnail && !/youtube|youtu\.be|vimeo|mediadelivery/i.test(it.videoUrl);
     const isImmobilier = (it.label || "").trim().toLowerCase() === "immobilier";
     const showImmoBadge = isImmobilier && (it.price || it.priceType);
@@ -229,7 +243,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
         <div className="relative aspect-[9/16] rounded-lg bg-muted overflow-hidden flex items-center justify-center text-xs text-muted-foreground text-center px-2">
           {it.thumbnail ? (
             <>
-              <img src={it.thumbnail} alt={it.businessName || it.label || ""} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+              <img src={it.thumbnail} alt={it.businessName || it.label || ""} className="absolute inset-0 w-full h-full object-cover" loading={isPriority ? "eager" : "lazy"} fetchPriority={isPriority ? "high" : "auto"} decoding={isPriority ? "sync" : "async"} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
             </>
           ) : (
@@ -274,7 +288,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
           aria-label={it.label ? `Filtrer ${it.label}` : `Lire ${it.businessName || ""}`}
         >
           {it.thumbnail ? (
-            <img src={it.thumbnail} alt={it.businessName || ""} className="w-full h-full object-cover" loading="lazy" />
+            <img src={it.thumbnail} alt={it.businessName || ""} className="w-full h-full object-cover" loading={isPriority ? "eager" : "lazy"} fetchPriority={isPriority ? "high" : "auto"} decoding={isPriority ? "sync" : "async"} />
           ) : isFileVideo && it.videoUrl ? (
             <VideoThumbnail src={it.videoUrl} alt={it.businessName || ""} className="w-full h-full object-cover" />
           ) : (
