@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Star } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import SlidePanelHome from "@/components/SlidePanelHome";
+import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 
 export type HomeCardTarget = { type: "badge" | "event"; id: string } | null;
 
