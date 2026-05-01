@@ -1343,7 +1343,7 @@ const Home = () => {
         }
 
         // Apply front_video_count ONLY at the subcategory level.
-        // At the category (front_structure entry) level, show all videos without per-business limit.
+        // At the category (front_structure entry) level, cap at 1 video per business.
         const applyFrontVideoCountLimit = !!selectedSubId;
         const limitedDocs: any[] = [];
         for (const [bizId, docs] of docsByBiz.entries()) {
@@ -1353,7 +1353,7 @@ const Home = () => {
             const limit = Math.max(1, Math.min(9, biz?.front_video_count ?? 1));
             limitedDocs.push(...sorted.slice(0, limit));
           } else {
-            limitedDocs.push(...sorted);
+            limitedDocs.push(...sorted.slice(0, 1));
           }
         }
 
