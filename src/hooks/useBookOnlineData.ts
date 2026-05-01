@@ -311,10 +311,11 @@ export function useBookOnlineData(businessId: string) {
           .order("sort_order"),
         supabase
           .from("business_documents")
-          .select("url, name, city, price, price_type, description, thumbnail_url, business_id")
+          .select("url, name, city, price, price_type, description, thumbnail_url, business_id, sort_order")
           .eq("business_id", businessId)
           .eq("type", "video")
-          .order("front_sort_order"),
+          .order("front_sort_order")
+          .order("sort_order"),
       ]);
 
       if (isCancelled) return;
