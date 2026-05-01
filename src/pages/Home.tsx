@@ -1376,6 +1376,17 @@ const Home = () => {
 
 
         const manualCardMap = !selectedSubId ? await getManualCardMap(city, limitedDocs) : new Map<string, { label: string; badgeId: string | null; eventId?: string | null }>();
+        const docBadgesByDocId: Record<string, string[]> = {};
+        const limitedDocIds = limitedDocs.map((d: any) => d.id).filter(Boolean);
+        for (let i = 0; i < limitedDocIds.length; i += 300) {
+          const { data: rows } = await supabase
+            .from("business_document_badges")
+            .select("document_id, badge_id")
+            .in("document_id", limitedDocIds.slice(i, i + 300));
+          ((rows as any[]) || []).forEach((r: any) => {
+            (docBadgesByDocId[r.document_id] ||= []).push(r.badge_id);
+          });
+        }
         const serviceIdSet = [...new Set(limitedDocs.map((d: any) => d.service_id).filter(Boolean))] as string[];
         const serviceNameById = new Map<string, string>();
         for (let i = 0; i < serviceIdSet.length; i += 300) {
@@ -1406,6 +1417,7 @@ const Home = () => {
             service_name: d.service_id ? serviceNameById.get(d.service_id) ?? null : null,
             price: d.price ?? null,
             priceType: d.price_type ?? null,
+            badge_ids: docBadgesByDocId[d.id] || [],
             videoTitle: d.name ?? null,
           } as VideoItem;
         });
@@ -1463,6 +1475,17 @@ const Home = () => {
             }
 
             const seenUrlsGv = new Set<string>(docItems.map((i) => i.url).filter(Boolean) as string[]);
+            const gvBadgesByVideo: Record<string, string[]> = {};
+            const gvFilteredIds = gvFiltered.map((v: any) => v.id).filter(Boolean);
+            if (gvFilteredIds.length > 0) {
+              const { data: rows } = await supabase
+                .from("generic_video_badges" as any)
+                .select("generic_video_id, badge_id")
+                .in("generic_video_id", gvFilteredIds);
+              ((rows as any[]) || []).forEach((r: any) => {
+                (gvBadgesByVideo[r.generic_video_id] ||= []).push(r.badge_id);
+              });
+            }
             genericSubItems = gvFiltered
               .filter((v: any) => v.url && !seenUrlsGv.has(v.url) && (seenUrlsGv.add(v.url), true))
               .map((v: any) => {
@@ -1486,6 +1509,7 @@ const Home = () => {
                   showSocialBadge: !!social,
                   description: v.description ?? null,
                   manualCard: null,
+                  badge_ids: gvBadgesByVideo[v.id] || [],
                   videoName: v.title || v.name || null,
                 } as VideoItem;
               });
