@@ -212,6 +212,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
 
   const renderCard = (slot: MixedSlot, index: number) => {
     const it = slot.data;
+    const isPriority = index === 0;
     const isFileVideo = !!it.videoUrl && !it.thumbnail && !/youtube|youtu\.be|vimeo|mediadelivery/i.test(it.videoUrl);
     const isImmobilier = (it.label || "").trim().toLowerCase() === "immobilier";
     const showImmoBadge = isImmobilier && (it.price || it.priceType);
