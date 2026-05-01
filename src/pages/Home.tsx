@@ -384,12 +384,19 @@ const Home = () => {
     };
   }, []);
 
-  // Lock body scroll while the front-structure Menu panel is open (avoids double scroll on mobile/tablet)
+  // Lock body scroll while the front-structure Menu panel is open (avoids double scroll on mobile/tablet).
+  // Compensate the scrollbar width to prevent the underlying grid from shifting horizontally.
   useEffect(() => {
     if (!menuOpen) return;
-    const prev = document.body.style.overflow;
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    const prevOverflow = document.body.style.overflow;
+    const prevPaddingRight = document.body.style.paddingRight;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = prev; };
+    if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`;
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.body.style.paddingRight = prevPaddingRight;
+    };
   }, [menuOpen]);
 
   // Load front structure (independent of city)
