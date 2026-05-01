@@ -2262,7 +2262,11 @@ const Home = () => {
                         const insertAt = Math.min(childrenTileIndex, items.length);
                         items.splice(insertAt, 0, { kind: "children" });
                       }
-                      // Hashtags tile removed from grid (now displayed next to city toggle)
+                      if (showHashtagsTileFinal) {
+                        // Insert the hashtags tile right after the children tile (or at position 2 if no children tile).
+                        const insertAt = Math.min(showChildrenTile ? childrenTileIndex + 1 : childrenTileIndex, items.length);
+                        items.splice(insertAt, 0, { kind: "hashtags" });
+                      }
                       return items.map((entry, i) => {
                         if (entry.kind === "children") {
                           return (
