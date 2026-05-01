@@ -2090,7 +2090,8 @@ const Home = () => {
           ) : (() => {
             const isVlogsContext2 = !!selectedEntry && selectedEntry.id === VLOGS_ID;
             const isBadgeContext = !!videoBadgeFilter;
-            const showHashtagsTile = isVlogsContext2 || isBadgeContext;
+            // Hashtags are now shown across all video contexts (entries, sub-categories, events, popular searches, badge filters, vlogs).
+            const showHashtagsTile = true;
 
             // Aggregate badges from currently loaded videos (Vlogs / Suivez le guide contexts)
             const hashtagCounts: Record<string, number> = {};
