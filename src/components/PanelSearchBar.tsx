@@ -75,7 +75,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
         <button
           type="button"
           onClick={() => setOverlay(true)}
-          className={`w-full flex items-center justify-center gap-3 px-4 py-3 bg-transparent border rounded-xl backdrop-blur-sm ${isBlack ? 'border-black/40' : 'border-white/40'}`}
+          className={`w-full flex items-center justify-center gap-3 px-4 py-3 bg-transparent border rounded-xl backdrop-blur-sm ${isBlack ? 'border-black ring-1 ring-white ring-offset-0' : 'border-white/40'}`}
         >
           <Search className={`h-4 w-4 shrink-0 ${isBlack ? 'text-black' : 'text-white'}`} />
         </button>
