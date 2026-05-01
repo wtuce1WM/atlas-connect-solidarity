@@ -43,6 +43,7 @@ import {
 import { getManualCardMap } from "@/lib/manualCards";
 import { resolveHomepageCity, readLastHomepageCity, writeLastHomepageCity } from "@/lib/cityHomepage";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { sortWtuceAndRating } from "@/lib/businessRanking";
 
 interface FrontEntry {
   id: string;
