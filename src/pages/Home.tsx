@@ -326,6 +326,13 @@ const Home = () => {
     setHashtagFilterBadgeId(null);
   }, [selectedEntryId, videoBadgeFilter?.badgeId, city]);
 
+  // Clear pinned business when no filtered view is active anymore.
+  useEffect(() => {
+    if (!videoBadgeFilter && !videoEventFilter && !videoPopularSearchFilter && !badgeView) {
+      setPinnedBusinessId(null);
+    }
+  }, [videoBadgeFilter, videoEventFilter, videoPopularSearchFilter, badgeView]);
+
   // Load doc ids matching the active video badge filter
   useEffect(() => {
     if (!videoBadgeFilter) {
