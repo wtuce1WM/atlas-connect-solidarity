@@ -2965,6 +2965,33 @@ const SearchPage = () => {
         onFinish={() => finishRecording()}
       />
 
+      {/* Bottom floating search bar — same as Home when SlidePanelHome closed */}
+      {!compactPanelBusiness && (
+        <div
+          className={`fixed z-[85] pointer-events-none ${
+            bottomSearchOverlayOpen
+              ? "inset-y-0 left-1/2 -translate-x-1/2 w-full md:w-1/2"
+              : "bottom-0 left-1/2 -translate-x-1/2 w-[90%] lg:w-1/2"
+          }`}
+        >
+          <div className="relative w-full h-full pointer-events-auto">
+            <PanelSearchBar
+              onSearch={(params) => {
+                const sp = new URLSearchParams(params);
+                navigate(`/search?${sp.toString()}`);
+              }}
+              onBusinessSelect={(bizId) => {
+                setCompactPanelBusiness({ id: bizId, name: "" } as any);
+                setIsCompactPanelExpanded(false);
+              }}
+              onOverlayChange={setBottomSearchOverlayOpen}
+              noToolbarOffset
+              iconVariant="black"
+            />
+          </div>
+        </div>
+      )}
+
       {/* Split view: Left AI text panel + Right business panel */}
       {compactPanelBusiness && (
         <>
