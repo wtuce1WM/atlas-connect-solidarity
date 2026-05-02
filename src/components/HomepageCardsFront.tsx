@@ -306,14 +306,11 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
           ) : (
             <div className="w-full h-full bg-muted" />
           )}
+          <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/70 to-transparent pointer-events-none" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
-          {it.rating != null && (
-            <div className="absolute top-1.5 left-1.5 right-1.5 z-[5] flex items-center gap-1 text-[10px]">
-              <Star className="h-2.5 w-2.5 text-gold fill-gold" />
-              <span className="font-medium text-white">{it.rating}/20</span>
-              {(it.reviewCount ?? 0) > 0 && (
-                <span className="text-white/70">· {it.reviewCount} avis</span>
-              )}
+          {it.businessName && (
+            <div className="absolute top-0 left-0 right-0 p-1.5 z-[5]">
+              <p className="text-[10px] font-medium text-white line-clamp-1">{it.businessName}</p>
             </div>
           )}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -331,9 +328,13 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
               />
             </div>
           )}
-          {it.businessName && (
-            <div className="absolute bottom-0 left-0 right-0 p-1.5">
-              <p className="text-[10px] font-medium text-white line-clamp-1">{it.businessName}</p>
+          {it.rating != null && (
+            <div className="absolute bottom-1.5 left-1.5 right-1.5 z-[5] flex items-center gap-1 text-[10px]">
+              <Star className="h-2.5 w-2.5 text-gold fill-gold" />
+              <span className="font-medium text-white">{it.rating}/20</span>
+              {(it.reviewCount ?? 0) > 0 && (
+                <span className="text-white/70">· {it.reviewCount} avis</span>
+              )}
             </div>
           )}
         </button>
