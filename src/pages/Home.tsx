@@ -867,35 +867,20 @@ const Home = () => {
           if (so !== 0) return so;
           return String(a.id).localeCompare(String(b.id));
         });
-        // Group internal docs by resolved establishment, then keep first N per business
-        // (front_video_count). This mirrors the subcategory branch behavior.
-        // Generic videos and YouTube videos (added later) are NOT grouped.
+        // Keep only the first video per displayed business (lowest sort_order in the BO),
+        // grouped by POI when present, otherwise by the real owner (strict, ignores linked_business_id).
         {
-          // Strict resolve so a video stays attributed to its real owner (business_id/poi_id)
-          // and is not re-grouped under its linked_business_id.
-          const docsByBiz = new Map<string, any[]>();
-          const orderKey = new Map<string, number>();
-          let idx = 0;
+          const seenGroup = new Set<string>();
+          const kept: any[] = [];
           for (const d of uniqueDocs) {
             const biz = resolveVideoEstablishment(d, bizMap, { strict: true });
-            // Group by POI when present, otherwise by resolved establishment.
             const groupId = d.poi_id || biz?.id || d.business_id || d.id;
-            if (!docsByBiz.has(groupId)) {
-              docsByBiz.set(groupId, []);
-              orderKey.set(groupId, idx++);
-            }
-            docsByBiz.get(groupId)!.push(d);
+            if (seenGroup.has(groupId)) continue;
+            seenGroup.add(groupId);
+            kept.push(d);
           }
-          const limited: any[] = [];
-          for (const [bizId, docs] of docsByBiz.entries()) {
-            const biz = bizMap.get(bizId) as any;
-            const limit = Math.max(1, Math.min(9, biz?.front_video_count ?? 1));
-            limited.push(...docs.slice(0, limit));
-          }
-          // Preserve original sort_order
-          limited.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
           uniqueDocs.length = 0;
-          uniqueDocs.push(...limited);
+          uniqueDocs.push(...kept);
         }
         // Fetch service names for any service_id present on these docs
         const badgeServiceIds = [...new Set(uniqueDocs.map((d: any) => d.service_id).filter(Boolean))] as string[];
