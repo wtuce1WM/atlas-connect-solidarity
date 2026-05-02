@@ -687,8 +687,9 @@ const SlidePanelHome = ({
   );
 };
 
-const DescriptionPlusButton = ({ html, businessName }: { html: string; businessName: string }) => {
-  const [open, setOpen] = useState(false);
+const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange }: { html: string; businessName: string; isOpen: boolean; onOpenChange: (v: boolean) => void }) => {
+  const open = isOpen;
+  const setOpen = onOpenChange;
   return (
     <>
       <div className="absolute left-1/2 -translate-x-1/2 bottom-[18.75rem] z-20 pointer-events-auto">
