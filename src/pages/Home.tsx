@@ -1365,12 +1365,17 @@ const Home = () => {
 
         // Apply front_video_count ONLY at the subcategory level.
         // At the category (front_structure entry) level, cap at 1 video per business.
+        // EXCEPTION: when the resolved establishment is a POI (is_poi=true), show ALL
+        // videos pointing to it (no per-group limit), since multiple owners legitimately
+        // contribute videos to the same POI.
         const applyFrontVideoCountLimit = !!selectedSubId;
         const limitedDocs: any[] = [];
         for (const [bizId, docs] of docsByBiz.entries()) {
           const sorted = [...docs].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-          if (applyFrontVideoCountLimit) {
-            const biz = bizMap.get(bizId) as any;
+          const biz = bizMap.get(bizId) as any;
+          if (biz?.is_poi === true) {
+            limitedDocs.push(...sorted);
+          } else if (applyFrontVideoCountLimit) {
             const limit = Math.max(1, Math.min(9, biz?.front_video_count ?? 1));
             limitedDocs.push(...sorted.slice(0, limit));
           } else {
