@@ -113,6 +113,7 @@ const SlidePanelHome = ({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [agendaEvents, setAgendaEvents] = useState<AgendaEvent[]>([]);
   const [directionsBusiness, setDirectionsBusiness] = useState<AgendaEvent["business"] | null>(null);
+  const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
   const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [businessDescription, setBusinessDescription] = useState<string | null>(null);
 
