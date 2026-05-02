@@ -183,7 +183,7 @@ export default function ResultsTabContent({
                     />
                   );
 
-                  if (index === 2 && currentPage === 1) {
+                  if (index === 2 && currentPage === 1 && !hideAiSuggestion) {
                     return [
                       card,
                       <AISuggestionCard
