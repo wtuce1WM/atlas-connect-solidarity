@@ -41,6 +41,12 @@ import {
   cityMatches,
 } from "@/lib/homeHelpers";
 import { fetchDocBadgesByDocId, fetchYtBadgesByVideoId, fetchBusinessesByIds, DOC_VIDEO_COLS } from "@/lib/homeFetchHelpers";
+import {
+  buildDocVideoItem,
+  buildYoutubeVideoItem,
+  getCityIdByName,
+  fetchServiceNamesByIds,
+} from "@/lib/homeVideoBuilders";
 import { getManualCardMap } from "@/lib/manualCards";
 import { resolveHomepageCity, readLastHomepageCity, writeLastHomepageCity } from "@/lib/cityHomepage";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -456,12 +462,8 @@ const Home = () => {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { data } = await supabase
-        .from("cities")
-        .select("id")
-        .eq("name_fr", city)
-        .maybeSingle();
-      if (!cancelled) setCityRowId((data as any)?.id || null);
+      const id = await getCityIdByName(city);
+      if (!cancelled) setCityRowId(id);
     })();
     return () => { cancelled = true; };
   }, [city]);
@@ -714,22 +716,15 @@ const Home = () => {
             const d = docByBiz.get(bid);
             const biz = bizMap.get(bid) || null;
             if (!d || !biz) return null;
-            return {
-              id: d.id,
-              url: d.url,
-              business_name: biz.name,
-              thumbnail_url: d.thumbnail_url,
-              business: biz,
-              owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
-              social: extractSocial(d),
-              showSocialBadge: isDifferentDisplayedBusinessSocial(extractSocial(d), biz),
-              description: d.description ?? null,
-              manualCard: null,
-              subcategory_id: d.subcategory_id ?? null,
-              service_id: d.service_id ?? null,
-              badge_ids: popDocBadgesByDocId[d.id] || [],
-              videoTitle: d.name ?? null,
-            } as VideoItem;
+            // Popular branch: business_name is forced to biz.name (not biz?.name || "—")
+            // and manualCard is always null. Override after build.
+            const item = buildDocVideoItem({
+              doc: d,
+              bizMap,
+              docBadgesByDocId: popDocBadgesByDocId,
+            }) as VideoItem;
+            item.business_name = biz.name;
+            return item;
           })
           .filter(Boolean) as VideoItem[];
 
@@ -760,22 +755,18 @@ const Home = () => {
               const y = ytByBiz.get(bid);
               const biz = bizMap.get(bid) || null;
               if (!y || !biz) return null;
-              return {
-                id: y.id,
-                url: y.is_short
-                  ? `https://www.youtube.com/shorts/${y.video_id}`
-                  : `https://www.youtube.com/watch?v=${y.video_id}`,
-                business_name: biz.name,
-                thumbnail_url: y.custom_thumbnail_url || y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/maxresdefault.jpg`,
+              // Popular branch: business_name forced to biz.name (not biz.name||title)
+              // and social/showSocialBadge intentionally null.
+              const item = buildYoutubeVideoItem({
+                yt: y,
                 business: biz,
-                owner: { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null },
-                social: null,
-                description: null,
-                manualCard: null,
-                badge_ids: popYtBadgesByVideo[y.id] || [],
-                // External YouTube videos: show the YouTube title (not the business hook).
-                videoTitle: y.title ?? null,
-              } as VideoItem;
+                ytBadgesByVideo: popYtBadgesByVideo,
+              }) as VideoItem | null;
+              if (!item) return null;
+              item.business_name = biz.name;
+              item.social = null;
+              delete (item as any).showSocialBadge;
+              return item;
             })
             .filter(Boolean) as VideoItem[];
         }
@@ -836,15 +827,9 @@ const Home = () => {
           uniqueDocs.push(...kept);
         }
         // Fetch service names for any service_id present on these docs
-        const badgeServiceIds = [...new Set(uniqueDocs.map((d: any) => d.service_id).filter(Boolean))] as string[];
-        const badgeServiceNameById = new Map<string, string>();
-        if (badgeServiceIds.length > 0) {
-          const { data: svcRows } = await supabase
-            .from("services")
-            .select("id, name_fr")
-            .in("id", badgeServiceIds);
-          (svcRows || []).forEach((s: any) => badgeServiceNameById.set(s.id, s.name_fr));
-        }
+        const badgeServiceNameById = await fetchServiceNamesByIds(
+          uniqueDocs.map((d: any) => d.service_id).filter(Boolean) as string[],
+        );
         // Fetch all badges associated with each document (for hashtag aggregation)
         const docBadgesByDocId = await fetchDocBadgesByDocId(uniqueDocs.map((d: any) => d.id).filter(Boolean));
         const isVlogsBadge = /^#?\s*vlogs?$/i.test(videoBadgeFilter.label.trim());
@@ -852,31 +837,15 @@ const Home = () => {
         // tagged with the same badge.
         const includeExtraSources = true;
         // No per-business dedupe: show ALL videos tagged with this hashtag.
-        const docVideoItems: VideoItem[] = uniqueDocs.map((d: any) => {
-          const biz = resolveVideoEstablishment(d, bizMap);
-          // Thumbnail name: always show the original business_id's name (e.g. POI),
-          // even when a linked establishment exists (which still drives owner/logo + SlidePanelHome).
-          const thumbnailBiz = (d.business_id && bizMap.get(d.business_id)) || biz;
-          return {
-            id: d.id,
-            url: d.url,
-            business_name: thumbnailBiz?.name || biz?.name || "—",
-            pageBusinessName: thumbnailBiz?.name ?? null,
-            pageBusinessId: d.business_id ?? null,
-            thumbnail_url: d.thumbnail_url,
-            business: biz,
-            owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
-            social: extractSocial(d),
-            showSocialBadge: isDifferentDisplayedBusinessSocial(extractSocial(d), biz),
-            description: d.description ?? null,
-            manualCard: null,
-            subcategory_id: d.subcategory_id ?? null,
-            service_id: d.service_id ?? null,
-            service_name: d.service_id ? badgeServiceNameById.get(d.service_id) ?? null : null,
-            badge_ids: docBadgesByDocId[d.id] || [],
-            videoTitle: d.name ?? null,
-          } as VideoItem;
-        });
+        const docVideoItems: VideoItem[] = uniqueDocs.map((d: any) =>
+          buildDocVideoItem({
+            doc: d,
+            bizMap,
+            docBadgesByDocId,
+            serviceNameById: badgeServiceNameById,
+            withPageBusiness: true,
+          }) as VideoItem,
+        );
 
         // For "Suivez le guide" (Guide badge): also include generic videos tagged
         // with the same badge and assigned to the current city (either via
@@ -889,12 +858,7 @@ const Home = () => {
             .eq("badge_id", videoBadgeFilter.badgeId);
           const gvIds = [...new Set(((gvBadgeLinks as any[]) || []).map((l: any) => l.generic_video_id))];
           if (gvIds.length > 0) {
-            const { data: cityRow } = await supabase
-              .from("cities")
-              .select("id")
-              .eq("name_fr", city)
-              .maybeSingle();
-            const cityId = (cityRow as any)?.id ?? null;
+            const cityId = await getCityIdByName(city);
 
             const [{ data: extraCityLinks }, { data: gvs }] = await Promise.all([
               cityId
@@ -1317,40 +1281,21 @@ const Home = () => {
 
         const manualCardMap = !selectedSubId ? await getManualCardMap(city, limitedDocs) : new Map<string, { label: string; badgeId: string | null; eventId?: string | null }>();
         const docBadgesByDocId = await fetchDocBadgesByDocId(limitedDocs.map((d: any) => d.id).filter(Boolean));
-        const serviceIdSet = [...new Set(limitedDocs.map((d: any) => d.service_id).filter(Boolean))] as string[];
-        const serviceNameById = new Map<string, string>();
-        for (let i = 0; i < serviceIdSet.length; i += 300) {
-          const { data: svcRows } = await supabase
-            .from("services")
-            .select("id, name_fr")
-            .in("id", serviceIdSet.slice(i, i + 300));
-          (svcRows || []).forEach((s: any) => serviceNameById.set(s.id, s.name_fr));
-        }
+        const serviceNameById = await fetchServiceNamesByIds(
+          limitedDocs.map((d: any) => d.service_id).filter(Boolean) as string[],
+        );
 
-        const docItems: VideoItem[] = limitedDocs.map((d: any) => {
-          const biz = resolveVideoEstablishment(d, bizMap, { strict: strictResolve });
-          return {
-            id: d.id,
-            url: d.url,
-            business_name: biz?.name || "—",
-            thumbnail_url: d.thumbnail_url,
-            business: biz,
-            owner: biz
-              ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null }
-              : null,
-            social: extractSocial(d),
-            showSocialBadge: isDifferentDisplayedBusinessSocial(extractSocial(d), biz),
-            description: d.description ?? null,
-            manualCard: manualCardMap.get(d.id) || null,
-            subcategory_id: d.subcategory_id ?? null,
-            service_id: d.service_id ?? null,
-            service_name: d.service_id ? serviceNameById.get(d.service_id) ?? null : null,
-            price: d.price ?? null,
-            priceType: d.price_type ?? null,
-            badge_ids: docBadgesByDocId[d.id] || [],
-            videoTitle: d.name ?? null,
-          } as VideoItem;
-        });
+        const docItems: VideoItem[] = limitedDocs.map((d: any) =>
+          buildDocVideoItem({
+            doc: d,
+            bizMap,
+            strict: strictResolve,
+            manualCardMap,
+            docBadgesByDocId,
+            serviceNameById,
+            withPrice: true,
+          }) as VideoItem,
+        );
 
         // Also include generic_videos linked to one of the selected subcategories
         // and matching the current city (via generic_videos.city or generic_video_cities).
@@ -1362,12 +1307,7 @@ const Home = () => {
             .in("subcategory_id", subIds);
           const gvIds = [...new Set(((gvSubLinks as any[]) || []).map((l: any) => l.generic_video_id))];
           if (gvIds.length > 0) {
-            const { data: cityRow } = await supabase
-              .from("cities")
-              .select("id")
-              .eq("name_fr", city)
-              .maybeSingle();
-            const cityId = (cityRow as any)?.id ?? null;
+            const cityId = await getCityIdByName(city);
 
             const [{ data: extraCityLinks }, { data: gvs }] = await Promise.all([
               cityId
@@ -1497,32 +1437,15 @@ const Home = () => {
               youtubeSubItems = ytRows
                 .map((y: any) => {
                   const biz = ytBizMap.get(y.business_id) || null;
-                  const url = y.is_short
-                    ? `https://www.youtube.com/shorts/${y.video_id}`
-                    : `https://www.youtube.com/watch?v=${y.video_id}`;
-                  if (seenUrlsYt.has(url)) return null;
-                  seenUrlsYt.add(url);
-                  const ytAccount = (biz as any)?.youtube_url ? (biz as any).youtube_url.split("/").filter(Boolean).pop() || "" : "";
-                  const social = ytAccount
-                    ? { platform: "youtube" as const, account: ytAccount, url: (biz as any)?.youtube_url || null }
-                    : null;
-                  return {
-                    id: y.id,
-                    url,
-                    business_name: biz?.name || y.title || "—",
-                    thumbnail_url: y.custom_thumbnail_url || y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/maxresdefault.jpg`,
+                  const item = buildYoutubeVideoItem({
+                    yt: y,
                     business: biz,
-                    owner: biz
-                      ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null }
-                      : null,
-                    social,
-                    showSocialBadge: !!social,
-                    description: null,
-                    manualCard: null,
-                    badge_ids: ytBadgesByVideo[y.id] || [],
-                    // External YouTube videos: show the YouTube title (not the business hook).
-                    videoTitle: y.title ?? null,
-                  } as VideoItem;
+                    ytBadgesByVideo,
+                  }) as VideoItem | null;
+                  if (!item) return null;
+                  if (seenUrlsYt.has(item.url)) return null;
+                  seenUrlsYt.add(item.url);
+                  return item;
                 })
                 .filter(Boolean) as VideoItem[];
             }
@@ -1542,23 +1465,13 @@ const Home = () => {
       const homeDocBadgesByDocId = await fetchDocBadgesByDocId(allDocs.map((d: any) => d.id).filter(Boolean));
 
       safeSetVideos(
-        allDocs.map((d: any) => {
-          const biz = resolveVideoEstablishment(d, bizMap);
-          return {
-            id: d.id,
-            url: d.url,
-            business_name: biz?.name || "—",
-            thumbnail_url: d.thumbnail_url,
-            business: biz,
-            owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
-            social: extractSocial(d),
-            showSocialBadge: isDifferentDisplayedBusinessSocial(extractSocial(d), biz),
-            description: d.description ?? null,
-            manualCard: null,
-            badge_ids: homeDocBadgesByDocId[d.id] || [],
-            videoTitle: d.name ?? null,
-          };
-        })
+        allDocs.map((d: any) =>
+          buildDocVideoItem({
+            doc: d,
+            bizMap,
+            docBadgesByDocId: homeDocBadgesByDocId,
+          }) as VideoItem,
+        ),
       );
       safeSetLoadingVideos(false);
     };
