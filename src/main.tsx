@@ -3,6 +3,23 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
+
+type WindowWithInstallPrompt = typeof window & {
+  __owmInstallPromptEvent?: BeforeInstallPromptEvent;
+};
+
+if (typeof window !== "undefined") {
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    (window as WindowWithInstallPrompt).__owmInstallPromptEvent = event as BeforeInstallPromptEvent;
+    window.dispatchEvent(new Event("owm-installprompt-ready"));
+  });
+}
+
 interface RootErrorBoundaryState {
   error: Error | null;
 }

@@ -45,6 +45,14 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+type WindowWithInstallPrompt = typeof window & {
+  __owmInstallPromptEvent?: BeforeInstallPromptEvent;
+};
+
+type NavigatorWithStandalone = Navigator & {
+  standalone?: boolean;
+};
+
 const detectPlatform = (): Platform => {
   if (typeof navigator === "undefined") return "ios";
   const ua = navigator.userAgent;
@@ -66,26 +74,29 @@ const Install = () => {
 
     // Already installed (standalone mode) → redirect to /test with resolved city
     const isStandalone =
-      window.matchMedia?.("(display-mode: standalone)").matches || (navigator as any).standalone;
+      window.matchMedia?.("(display-mode: standalone)").matches || Boolean((navigator as NavigatorWithStandalone).standalone);
     if (isStandalone) {
       setInstalled(true);
       redirectStandaloneToHome();
       return;
     }
 
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setInstallEvent(e as BeforeInstallPromptEvent);
+    const readCapturedInstallPrompt = () => {
+      const capturedEvent = (window as WindowWithInstallPrompt).__owmInstallPromptEvent;
+      if (capturedEvent) setInstallEvent(capturedEvent);
     };
     const installedHandler = () => {
       setInstalled(true);
       setInstallEvent(null);
+      delete (window as WindowWithInstallPrompt).__owmInstallPromptEvent;
       redirectStandaloneToHome();
     };
-    window.addEventListener("beforeinstallprompt", handler);
+
+    readCapturedInstallPrompt();
+    window.addEventListener("owm-installprompt-ready", readCapturedInstallPrompt);
     window.addEventListener("appinstalled", installedHandler);
     return () => {
-      window.removeEventListener("beforeinstallprompt", handler);
+      window.removeEventListener("owm-installprompt-ready", readCapturedInstallPrompt);
       window.removeEventListener("appinstalled", installedHandler);
     };
   }, []);
@@ -101,6 +112,7 @@ const Install = () => {
       if (outcome === "accepted") {
         setInstalled(true);
         setInstallEvent(null);
+        delete (window as WindowWithInstallPrompt).__owmInstallPromptEvent;
         redirectStandaloneToHome();
       }
       return;
