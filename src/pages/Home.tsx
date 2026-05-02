@@ -870,16 +870,11 @@ const Home = () => {
         // Keep only the first video per displayed business (lowest sort_order in the BO),
         // grouped by POI when present, otherwise by the real owner (strict, ignores linked_business_id).
         {
-          // DEBUG: log all docs sorted, then keep first per group
-          console.log("[BadgeFilter] uniqueDocs sorted:", uniqueDocs.map((d: any) => ({
-            id: d.id, sort_order: d.sort_order, business_id: d.business_id, poi_id: d.poi_id, linked: d.linked_business_id,
-          })));
           const seenGroup = new Set<string>();
           const kept: any[] = [];
           for (const d of uniqueDocs) {
             const biz = resolveVideoEstablishment(d, bizMap, { strict: true });
             const groupId = d.poi_id || biz?.id || d.business_id || d.id;
-            console.log("[BadgeFilter] doc", d.id, "→ groupId", groupId, "seen?", seenGroup.has(groupId));
             if (seenGroup.has(groupId)) continue;
             seenGroup.add(groupId);
             kept.push(d);
