@@ -406,11 +406,11 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
   const saveOrder = async () => {
     setSaving(true);
     try {
-      for (let i = 0; i < videos.length; i++) {
+      for (let i = 0; i < filteredVideos.length; i++) {
         await supabase
           .from("business_documents")
-          .update({ front_sort_order: i } as any)
-          .eq("id", videos[i].id);
+          .update({ sort_order: i } as any)
+          .eq("id", filteredVideos[i].id);
       }
       toast.success("Ordre sauvegardé");
     } catch {
