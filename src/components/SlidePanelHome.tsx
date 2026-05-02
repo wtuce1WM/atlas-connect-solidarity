@@ -10,6 +10,7 @@ import VideoControls from "@/components/VideoControls";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
 import { useNavigate } from "react-router-dom";
 import { LazyDirectionsOverlay } from "@/components/overlays/LazyOverlays";
+import PoiSlidePanel from "@/components/PoiSlidePanel";
 import { businessUrl, buildOgShareUrl } from "@/lib/businessUrl";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
