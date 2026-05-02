@@ -620,11 +620,11 @@ const SlidePanelHome = ({
                   )}
                   <button
                     type="button"
-                    disabled={!ctaBusiness}
+                    disabled={!ownerBusiness}
                     onClick={() => {
-                      if (!ctaBusiness) return;
+                      if (!ownerBusiness) return;
                       storeReturnToTest();
-                      navigate(businessUrl(ctaBusiness));
+                      navigate(businessUrl(ownerBusiness));
                     }}
                     className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto hover:bg-black/80 transition-colors disabled:cursor-default disabled:hover:bg-black normal-case tracking-normal"
                     aria-label={`Voir la fiche de ${owner.name}`}
