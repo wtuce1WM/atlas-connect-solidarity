@@ -1619,17 +1619,7 @@ const Home = () => {
           (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
         }
       }
-      const homeDocBadgesByDocId: Record<string, string[]> = {};
-      const homeDocIds = allDocs.map((d: any) => d.id).filter(Boolean);
-      for (let i = 0; i < homeDocIds.length; i += 300) {
-        const { data: rows } = await supabase
-          .from("business_document_badges")
-          .select("document_id, badge_id")
-          .in("document_id", homeDocIds.slice(i, i + 300));
-        ((rows as any[]) || []).forEach((r: any) => {
-          (homeDocBadgesByDocId[r.document_id] ||= []).push(r.badge_id);
-        });
-      }
+      const homeDocBadgesByDocId = await fetchDocBadgesByDocId(allDocs.map((d: any) => d.id).filter(Boolean));
 
       safeSetVideos(
         allDocs.map((d: any) => {
