@@ -402,7 +402,7 @@ const SlidePanelHome = ({
           </div>
         )}
 
-        {visibleSocial && description && (
+        {description && (
           <DescriptionPlusButton html={description} businessName={businessName} />
         )}
 
