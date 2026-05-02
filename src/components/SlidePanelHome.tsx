@@ -180,7 +180,7 @@ const SlidePanelHome = ({
       if (!bizId) { setEventBusiness(null); return; }
       const { data: bizRow } = await supabase
         .from("businesses")
-        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg")
+        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg, is_poi")
         .eq("id", bizId)
         .maybeSingle();
       if (cancelled) return;
@@ -199,7 +199,7 @@ const SlidePanelHome = ({
     (async () => {
       const { data: bizRow } = await supabase
         .from("businesses")
-        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg")
+        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg, is_poi")
         .eq("id", owner.id)
         .maybeSingle();
       if (cancelled) return;
@@ -221,7 +221,7 @@ const SlidePanelHome = ({
     (async () => {
       const { data: bizRow } = await supabase
         .from("businesses")
-        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg")
+        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg, is_poi")
         .eq("id", pageBusinessId)
         .maybeSingle();
       if (cancelled) return;
@@ -283,7 +283,7 @@ const SlidePanelHome = ({
       if (bizIds.length > 0) {
         const { data: bizRows } = await supabase
           .from("businesses")
-          .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg")
+          .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg, is_poi")
           .in("id", bizIds);
         ((bizRows as any[]) || []).forEach((b) => bizMap.set(b.id, b as any));
       }
