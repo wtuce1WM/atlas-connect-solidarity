@@ -1090,8 +1090,9 @@ const SearchPage = () => {
     if (pinIdsParam) {
       const orderedIds = pinIdsParam.split(",").map(s => s.trim()).filter(Boolean);
       const allowSet = new Set(orderedIds);
-      const byId = new Map(filtered.filter(b => allowSet.has(b.id)).map(b => [b.id, b]));
-      const ordered = orderedIds.map(id => byId.get(id)).filter(Boolean) as Business[];
+      const byId: Record<string, Business> = {};
+      for (const b of filtered) if (allowSet.has(b.id)) byId[b.id] = b;
+      const ordered = orderedIds.map(id => byId[id]).filter(Boolean) as Business[];
       return ordered;
     }
 
