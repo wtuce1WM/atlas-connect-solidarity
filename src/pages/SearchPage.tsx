@@ -452,12 +452,13 @@ const SearchPage = () => {
         if (returnVideoId) {
           // Defer navigation so BookOnlineSlidePanel's unmount cleanup
           // (which calls history.replaceState to the original URL) runs FIRST.
-          // Otherwise the cleanup overwrites our /test?openVideo=... URL.
-          const id = returnVideoId;
+          // Note: we intentionally do NOT re-add `openVideo` so the
+          // SlidePanelHome does not auto-reopen when the user returns to Home.
           setTimeout(() => {
             const params = new URLSearchParams(returnContext || "");
-            params.set("openVideo", id);
-            navigate(`/test?${params.toString()}`, { replace: true });
+            params.delete("openVideo");
+            const qs = params.toString();
+            navigate(`/test${qs ? `?${qs}` : ""}`, { replace: true });
           }, 0);
         }
       }, [navigate]);
