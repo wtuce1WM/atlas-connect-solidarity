@@ -19,11 +19,49 @@ const detectPlatform = (): Platform => {
 
 const Install = () => {
   const [platform, setPlatform] = useState<Platform>("ios");
+  const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
+  const [installed, setInstalled] = useState(false);
+  const guideRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     setPlatform(detectPlatform());
     document.title = "Installer l'app — ONE WORLD MOROCCO";
+
+    // Already installed (standalone mode)
+    if (window.matchMedia?.("(display-mode: standalone)").matches || (navigator as any).standalone) {
+      setInstalled(true);
+    }
+
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setInstallEvent(e as BeforeInstallPromptEvent);
+    };
+    const installedHandler = () => {
+      setInstalled(true);
+      setInstallEvent(null);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    window.addEventListener("appinstalled", installedHandler);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+      window.removeEventListener("appinstalled", installedHandler);
+    };
   }, []);
+
+  const handleIconClick = async () => {
+    if (installed) return;
+    if (installEvent) {
+      await installEvent.prompt();
+      const { outcome } = await installEvent.userChoice;
+      if (outcome === "accepted") {
+        setInstalled(true);
+        setInstallEvent(null);
+      }
+      return;
+    }
+    // Fallback: scroll to platform-specific guide
+    guideRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const tabs: { id: Platform; label: string; icon: JSX.Element }[] = useMemo(
     () => [
