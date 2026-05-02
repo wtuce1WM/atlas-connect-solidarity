@@ -68,7 +68,7 @@ async function buildSnapshot(supabase: any, city: string) {
       const { data: ovDocs } = await supabase
         .from("business_documents")
         .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
-        .eq("type", "video").or(orFilter)
+        .eq("type", "video").eq("business_is_active", true).or(orFilter)
         .in("subcategory_id", entry.subcategory_ids)
         .order("sort_order", { ascending: true }).limit(1);
       let candidate: any = (ovDocs && ovDocs[0]) || null;
@@ -76,7 +76,7 @@ async function buildSnapshot(supabase: any, city: string) {
         const { data: anyDocs } = await supabase
           .from("business_documents")
           .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
-          .eq("type", "video").or(orFilter)
+          .eq("type", "video").eq("business_is_active", true).or(orFilter)
           .order("sort_order", { ascending: true }).limit(1);
         candidate = (anyDocs && anyDocs[0]) || null;
       }
