@@ -113,6 +113,7 @@ const SlidePanelHome = ({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [agendaEvents, setAgendaEvents] = useState<AgendaEvent[]>([]);
   const [directionsBusiness, setDirectionsBusiness] = useState<AgendaEvent["business"] | null>(null);
+  const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
   const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [businessDescription, setBusinessDescription] = useState<string | null>(null);
 
@@ -420,7 +421,7 @@ const SlidePanelHome = ({
         )}
 
         {/* BusinessHeader: Logo + Nom + Ville + Quartier + Adresse */}
-        {!descOverlayOpen && ctaBusiness && (
+        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && ctaBusiness && (
           <div className="absolute top-16 md:top-14 lg:top-16 left-2 right-2 z-[65] pointer-events-none">
             <BusinessHeader
               business={{
@@ -720,6 +721,7 @@ const SlidePanelHome = ({
             <div className="w-full max-w-xl pointer-events-auto mt-2">
               <PanelSearchBar
                 iconVariant="black"
+                onOverlayChange={setSearchOverlayOpen}
                 onSearch={(params) => {
                   const sp = new URLSearchParams(params);
                   navigate(`/search?${sp.toString()}`);
