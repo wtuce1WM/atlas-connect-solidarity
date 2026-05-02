@@ -721,6 +721,7 @@ const SlidePanelHome = ({
             <div className="w-full max-w-xl pointer-events-auto mt-2">
               <PanelSearchBar
                 iconVariant="black"
+                onOverlayChange={setSearchOverlayOpen}
                 onSearch={(params) => {
                   const sp = new URLSearchParams(params);
                   navigate(`/search?${sp.toString()}`);
