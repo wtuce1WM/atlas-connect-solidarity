@@ -129,6 +129,8 @@ const SlidePanelHome = ({
   }, [open, owner?.id, description]);
 
   const effectiveDescription = (description && description.trim()) ? description : businessDescription;
+  const [descOverlayOpen, setDescOverlayOpen] = useState(false);
+  useEffect(() => { if (!open) setDescOverlayOpen(false); }, [open]);
   const [ownerBusiness, setOwnerBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [eventInfo, setEventInfo] = useState<{ name: string; logo_url: string | null } | null>(null);
 
@@ -336,6 +338,7 @@ const SlidePanelHome = ({
         className="absolute right-0 top-0 h-full w-full bg-background border-l border-border shadow-2xl animate-slide-in-right overflow-hidden"
       >
         {/* Top toolbar : close + WhatsApp/Phone + Share */}
+        {!descOverlayOpen && (
         <div className="absolute top-0 left-0 right-0 z-[70] flex items-center justify-between px-4 py-2 pointer-events-none">
           <button
             type="button"
@@ -378,9 +381,10 @@ const SlidePanelHome = ({
             )}
           </div>
         </div>
+        )}
 
         {/* BusinessHeader: Logo + Nom + Ville + Quartier + Adresse */}
-        {ctaBusiness && (
+        {!descOverlayOpen && ctaBusiness && (
           <div className="absolute top-16 md:top-14 lg:top-16 left-2 right-2 z-[65] pointer-events-none">
             <BusinessHeader
               business={{
@@ -424,7 +428,7 @@ const SlidePanelHome = ({
         )}
 
         {effectiveDescription && (
-          <DescriptionPlusButton html={effectiveDescription} businessName={businessName} />
+          <DescriptionPlusButton html={effectiveDescription} businessName={businessName} isOpen={descOverlayOpen} onOpenChange={setDescOverlayOpen} />
         )}
 
         <div className="relative w-full h-full">
@@ -522,7 +526,7 @@ const SlidePanelHome = ({
               </div>
             )}
           </div>
-          <div className="absolute inset-x-0 bottom-0 top-0 z-30 p-4 flex flex-col items-center justify-end gap-3 pointer-events-none">
+          <div className={`absolute inset-x-0 bottom-0 top-0 z-30 p-4 flex flex-col items-center justify-end gap-3 pointer-events-none ${descOverlayOpen ? "hidden" : ""}`}>
             {owner && (
               <div
                 key={`owner-overlay-${videoId || videoUrl}`}
@@ -683,8 +687,9 @@ const SlidePanelHome = ({
   );
 };
 
-const DescriptionPlusButton = ({ html, businessName }: { html: string; businessName: string }) => {
-  const [open, setOpen] = useState(false);
+const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange }: { html: string; businessName: string; isOpen: boolean; onOpenChange: (v: boolean) => void }) => {
+  const open = isOpen;
+  const setOpen = onOpenChange;
   return (
     <>
       <div className="absolute left-1/2 -translate-x-1/2 bottom-[18.75rem] z-20 pointer-events-auto">
