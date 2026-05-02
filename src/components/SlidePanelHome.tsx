@@ -88,6 +88,7 @@ const SlidePanelHome = ({
   videoUrl,
   videoId,
   businessName,
+  pageBusinessName,
   isGeneric,
   currentTime,
   onTimeUpdate,
