@@ -175,14 +175,14 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
     while (true) {
       let q = supabase
         .from("business_documents")
-        .select("id, url, name, thumbnail_url, sort_order, business_id, subcategory_id, service_id, poi_id, linked_business_id, city, neighborhood")
+        .select("id, url, name, thumbnail_url, sort_order, front_sort_order, business_id, subcategory_id, service_id, poi_id, linked_business_id, city, neighborhood")
         .eq("type", "video");
       if (withSubcategory) {
         q = q.not("subcategory_id", "is", null);
       } else {
         q = q.is("subcategory_id", null);
       }
-      const { data } = await q.order("sort_order", { ascending: true }).range(offset, offset + PAGE - 1);
+      const { data } = await q.order("front_sort_order", { ascending: true }).range(offset, offset + PAGE - 1);
       if (!data || data.length === 0) break;
       allDocs.push(...data);
       if (data.length < PAGE) break;
