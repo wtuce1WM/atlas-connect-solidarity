@@ -1060,6 +1060,7 @@ const Home = () => {
                 .from("business_youtube_videos")
                 .select("id, video_id, title, thumbnail, custom_thumbnail_url, thumbnail_locked, is_short, is_visible, sort_order, business_id")
                 .eq("is_visible", true)
+                .eq("business_is_active", true)
                 .in("id", ytIds.slice(i, i + batch))
                 .order("sort_order", { ascending: true });
               if (data) ytRows.push(...data);
