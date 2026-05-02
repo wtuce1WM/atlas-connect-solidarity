@@ -280,6 +280,7 @@ const Home = () => {
         .from("business_documents")
         .select("id, url, thumbnail_url, business_id, linked_business_id, poi_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, event_id, name")
         .eq("id", wantedId)
+        .eq("business_is_active", true)
         .maybeSingle();
       if (cancelled || !doc?.url) return;
       const displayIds = getVideoBusinessCandidateIds(doc as any);
