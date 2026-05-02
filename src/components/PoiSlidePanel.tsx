@@ -259,12 +259,14 @@ const PoiSlidePanel = ({ businessId, onClose, slideFrom = "bottom", showSearchBa
           .from("business_documents")
           .select("url, name, thumbnail_url, business_id")
           .eq("type", "video")
+          .eq("business_is_active", true)
           .eq("poi_id", businessId)
           .order("sort_order", { ascending: true }),
         supabase
           .from("business_documents")
           .select("url, name, thumbnail_url, business_id")
           .eq("type", "video")
+          .eq("business_is_active", true)
           .eq("business_id", businessId)
           .order("sort_order", { ascending: true }),
         supabase

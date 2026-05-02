@@ -280,6 +280,7 @@ const Home = () => {
         .from("business_documents")
         .select("id, url, thumbnail_url, business_id, linked_business_id, poi_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, event_id, name")
         .eq("id", wantedId)
+        .eq("business_is_active", true)
         .maybeSingle();
       if (cancelled || !doc?.url) return;
       const displayIds = getVideoBusinessCandidateIds(doc as any);
@@ -510,6 +511,7 @@ const Home = () => {
           .from("business_documents")
           .select("id, url, subcategory_id")
           .eq("type", "video")
+          .eq("business_is_active", true)
           .not("subcategory_id", "is", null)
           .in("id", chunk);
         if (data) allDocs.push(...data);
@@ -646,6 +648,7 @@ const Home = () => {
             const { data: docs } = await supabase
               .from("business_documents")
               .select("url, thumbnail_url")
+              .eq("business_is_active", true)
               .in("url", firstVideoUrls);
             ((docs as any[]) || []).forEach((d) => {
               if (d.url && d.thumbnail_url) thumbByUrl.set(d.url, d.thumbnail_url);
@@ -703,6 +706,7 @@ const Home = () => {
             .from("business_documents")
             .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, name")
             .eq("type", "video")
+            .eq("business_is_active", true)
             .in("business_id", chunk)
             .order("front_sort_order", { ascending: true });
           if (data) allDocs.push(...data);
@@ -768,6 +772,7 @@ const Home = () => {
               .from("business_youtube_videos")
               .select("id, video_id, title, thumbnail, custom_thumbnail_url, thumbnail_locked, is_short, is_visible, sort_order, business_id")
               .eq("is_visible", true)
+              .eq("business_is_active", true)
               .in("business_id", missingBizIds.slice(i, i + batch))
               .order("sort_order", { ascending: true });
             if (data) ytRows.push(...data);
@@ -836,6 +841,7 @@ const Home = () => {
             .from("business_documents")
             .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, name")
             .eq("type", "video")
+            .eq("business_is_active", true)
             .in("id", chunk);
           if (data) allDocs.push(...data);
         }
@@ -1054,6 +1060,7 @@ const Home = () => {
                 .from("business_youtube_videos")
                 .select("id, video_id, title, thumbnail, custom_thumbnail_url, thumbnail_locked, is_short, is_visible, sort_order, business_id")
                 .eq("is_visible", true)
+                .eq("business_is_active", true)
                 .in("id", ytIds.slice(i, i + batch))
                 .order("sort_order", { ascending: true });
               if (data) ytRows.push(...data);
@@ -1243,6 +1250,7 @@ const Home = () => {
             .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, event_id, name")
             .eq("type", "video")
             .eq("show_on_front", true)
+            .eq("business_is_active", true)
             .in("business_id", chunk)
             .order("front_sort_order", { ascending: true });
           if (data) allDocs.push(...data);
@@ -1256,6 +1264,7 @@ const Home = () => {
             .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, event_id, name")
             .eq("type", "video")
             .eq("show_on_front", true)
+            .eq("business_is_active", true)
             .in("id", chunk);
           if (data) allDocs.push(...data);
         }
@@ -1306,6 +1315,7 @@ const Home = () => {
               .from("business_documents")
               .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, price, price_type, name")
               .eq("type", "video")
+              .eq("business_is_active", true)
               .or(orFilter)
               .in("id", chunk)
               .order("sort_order", { ascending: true });
@@ -1578,6 +1588,7 @@ const Home = () => {
                   .from("business_youtube_videos")
                   .select("id, video_id, title, thumbnail, custom_thumbnail_url, thumbnail_locked, is_short, is_visible, sort_order, business_id")
                   .eq("is_visible", true)
+                  .eq("business_is_active", true)
                   .in("id", ytFilteredIds.slice(i, i + CHUNK))
                   .order("sort_order", { ascending: true });
                 if (data) ytRows.push(...data);

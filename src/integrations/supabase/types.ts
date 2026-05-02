@@ -568,6 +568,7 @@ export type Database = {
       business_documents: {
         Row: {
           business_id: string | null
+          business_is_active: boolean
           city: string | null
           created_at: string
           description: string | null
@@ -608,6 +609,7 @@ export type Database = {
         }
         Insert: {
           business_id?: string | null
+          business_is_active?: boolean
           city?: string | null
           created_at?: string
           description?: string | null
@@ -648,6 +650,7 @@ export type Database = {
         }
         Update: {
           business_id?: string | null
+          business_is_active?: boolean
           city?: string | null
           created_at?: string
           description?: string | null
@@ -1374,6 +1377,7 @@ export type Database = {
       business_youtube_videos: {
         Row: {
           business_id: string
+          business_is_active: boolean
           created_at: string
           custom_thumbnail_url: string | null
           destination_id: string | null
@@ -1392,6 +1396,7 @@ export type Database = {
         }
         Insert: {
           business_id: string
+          business_is_active?: boolean
           created_at?: string
           custom_thumbnail_url?: string | null
           destination_id?: string | null
@@ -1410,6 +1415,7 @@ export type Database = {
         }
         Update: {
           business_id?: string
+          business_is_active?: boolean
           created_at?: string
           custom_thumbnail_url?: string | null
           destination_id?: string | null
