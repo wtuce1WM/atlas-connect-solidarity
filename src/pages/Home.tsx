@@ -814,16 +814,7 @@ const Home = () => {
         const allBizIds = [...new Set(
           uniqueDocs.flatMap((d: any) => getVideoBusinessCandidateIds(d)).filter(Boolean)
         )] as string[];
-        const bizMap = new Map<string, SearchResultBusiness>();
-        if (allBizIds.length > 0) {
-          for (let i = 0; i < allBizIds.length; i += batch) {
-            const { data: bizs } = await supabase
-              .from("businesses")
-              .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr, is_poi, front_video_count")
-              .in("id", allBizIds.slice(i, i + batch));
-            (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
-          }
-        }
+        const bizMap = (await fetchBusinessesByIds(allBizIds, "is_poi, front_video_count")) as Map<string, SearchResultBusiness>;
         uniqueDocs.sort((a: any, b: any) => {
           const so = (a.sort_order ?? 0) - (b.sort_order ?? 0);
           if (so !== 0) return so;
