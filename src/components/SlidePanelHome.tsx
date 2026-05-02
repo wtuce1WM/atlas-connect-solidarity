@@ -570,6 +570,7 @@ const SlidePanelHome = ({
                 );
               }
               if (owner && owner.name) {
+                console.log("[SlidePanelHome owner badge]", { videoId, businessName, pageBusinessName, ownerName: owner.name });
                 return (
                   <div
                     key={`credit-owner-${videoId || videoUrl}`}
