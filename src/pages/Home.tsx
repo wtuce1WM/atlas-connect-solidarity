@@ -1365,17 +1365,17 @@ const Home = () => {
           docsByBiz.set(groupId, arr);
         }
 
-        // Apply front_video_count ONLY at the subcategory level.
-        // At the category (front_structure entry) level, cap at 1 video per business.
-        // EXCEPTION: when grouped by a POI, show ALL videos pointing to it (no limit).
+        // Apply front_video_count per displayed group (POI or business).
+        // - Subcategory level: use the group's front_video_count (1..9, default 1).
+        // - Category (front_structure entry) level: cap at 1 per group, EXCEPT for POIs
+        //   which use their own front_video_count so a POI can showcase several clips.
         const applyFrontVideoCountLimit = !!selectedSubId;
         const limitedDocs: any[] = [];
         for (const [groupId, docs] of docsByBiz.entries()) {
           const sorted = [...docs].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
           const groupBiz = bizMap.get(groupId) as any;
-          if (groupBiz?.is_poi === true) {
-            limitedDocs.push(...sorted);
-          } else if (applyFrontVideoCountLimit) {
+          const isPoi = groupBiz?.is_poi === true;
+          if (applyFrontVideoCountLimit || isPoi) {
             const limit = Math.max(1, Math.min(9, groupBiz?.front_video_count ?? 1));
             limitedDocs.push(...sorted.slice(0, limit));
           } else {
