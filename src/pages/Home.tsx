@@ -1306,30 +1306,17 @@ const Home = () => {
           (svcRows || []).forEach((s: any) => serviceNameById.set(s.id, s.name_fr));
         }
 
-        const docItems: VideoItem[] = limitedDocs.map((d: any) => {
-          const biz = resolveVideoEstablishment(d, bizMap, { strict: strictResolve });
-          return {
-            id: d.id,
-            url: d.url,
-            business_name: biz?.name || "—",
-            thumbnail_url: d.thumbnail_url,
-            business: biz,
-            owner: biz
-              ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null }
-              : null,
-            social: extractSocial(d),
-            showSocialBadge: isDifferentDisplayedBusinessSocial(extractSocial(d), biz),
-            description: d.description ?? null,
-            manualCard: manualCardMap.get(d.id) || null,
-            subcategory_id: d.subcategory_id ?? null,
-            service_id: d.service_id ?? null,
-            service_name: d.service_id ? serviceNameById.get(d.service_id) ?? null : null,
-            price: d.price ?? null,
-            priceType: d.price_type ?? null,
-            badge_ids: docBadgesByDocId[d.id] || [],
-            videoTitle: d.name ?? null,
-          } as VideoItem;
-        });
+        const docItems: VideoItem[] = limitedDocs.map((d: any) =>
+          buildDocVideoItem({
+            doc: d,
+            bizMap,
+            strict: strictResolve,
+            manualCardMap,
+            docBadgesByDocId,
+            serviceNameById,
+            withPrice: true,
+          }) as VideoItem,
+        );
 
         // Also include generic_videos linked to one of the selected subcategories
         // and matching the current city (via generic_videos.city or generic_video_cities).
