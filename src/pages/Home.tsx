@@ -720,22 +720,15 @@ const Home = () => {
             const d = docByBiz.get(bid);
             const biz = bizMap.get(bid) || null;
             if (!d || !biz) return null;
-            return {
-              id: d.id,
-              url: d.url,
-              business_name: biz.name,
-              thumbnail_url: d.thumbnail_url,
-              business: biz,
-              owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
-              social: extractSocial(d),
-              showSocialBadge: isDifferentDisplayedBusinessSocial(extractSocial(d), biz),
-              description: d.description ?? null,
-              manualCard: null,
-              subcategory_id: d.subcategory_id ?? null,
-              service_id: d.service_id ?? null,
-              badge_ids: popDocBadgesByDocId[d.id] || [],
-              videoTitle: d.name ?? null,
-            } as VideoItem;
+            // Popular branch: business_name is forced to biz.name (not biz?.name || "—")
+            // and manualCard is always null. Override after build.
+            const item = buildDocVideoItem({
+              doc: d,
+              bizMap,
+              docBadgesByDocId: popDocBadgesByDocId,
+            }) as VideoItem;
+            item.business_name = biz.name;
+            return item;
           })
           .filter(Boolean) as VideoItem[];
 
