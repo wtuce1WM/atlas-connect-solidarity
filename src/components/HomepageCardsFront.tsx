@@ -91,7 +91,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
           ? (supabase as any).from("events").select("id, name, images").in("id", eventIds)
           : Promise.resolve({ data: [] }),
         immoVideoIds.length > 0
-          ? (supabase as any).from("business_documents").select("id, price, price_type").in("id", immoVideoIds)
+          ? (supabase as any).from("business_documents").select("id, price, price_type").eq("business_is_active", true).in("id", immoVideoIds)
           : Promise.resolve({ data: [] }),
       ]);
 
