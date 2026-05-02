@@ -1017,14 +1017,7 @@ const Home = () => {
               });
             }
 
-            const gvWithoutBusinessDocDuplicate = gvFiltered.filter((v: any) => {
-              const targets = linkedTargetsByGv[v.id];
-              if (!targets) return true;
-              for (const targetId of targets) if (representedBusinessIds.has(targetId)) return false;
-              return true;
-            });
-
-            genericVideoItems = gvWithoutBusinessDocDuplicate.map((v: any) => {
+            genericVideoItems = gvFiltered.map((v: any) => {
               const bizId = firstBizByGv[v.id];
               const biz = isVlogsBadge ? null : (bizId ? gvBizMap.get(bizId) || null : null);
               const acct = (v.instagram_account || v.tiktok_account || v.youtube_account || "").replace(/^@+/, "");
