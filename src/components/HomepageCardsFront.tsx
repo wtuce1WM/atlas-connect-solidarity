@@ -45,6 +45,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
+  const [activeDescription, setActiveDescription] = useState<string | null>(null);
   const isFirstLoad = useRef(true);
 
   useEffect(() => {
@@ -146,6 +147,22 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
   const activePosInPlayable = activeIndex !== null ? playableIndices.indexOf(activeIndex) : -1;
   const hasPrev = activePosInPlayable > 0;
   const hasNext = activePosInPlayable >= 0 && activePosInPlayable < playableIndices.length - 1;
+
+  // Fetch description of the active business so the green "+" overlay can render in SlidePanelHome.
+  useEffect(() => {
+    const ownerId = activeSlot?.data.ownerId;
+    if (!ownerId) { setActiveDescription(null); return; }
+    let cancelled = false;
+    (supabase as any)
+      .from("businesses")
+      .select("description")
+      .eq("id", ownerId)
+      .maybeSingle()
+      .then(({ data }: any) => {
+        if (!cancelled) setActiveDescription(data?.description ?? null);
+      });
+    return () => { cancelled = true; };
+  }, [activeSlot?.data.ownerId]);
 
   const goPrev = () => {
     if (!hasPrev) return;
@@ -391,7 +408,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
             : null
         }
         social={null}
-        description={null}
+        description={activeDescription}
         agendaCity={
           activeSlot && (activeSlot.data.label || "").trim().toLowerCase() === "agenda"
             ? city
