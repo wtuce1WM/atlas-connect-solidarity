@@ -18,6 +18,29 @@ if (typeof window !== "undefined") {
     (window as WindowWithInstallPrompt).__owmInstallPromptEvent = event as BeforeInstallPromptEvent;
     window.dispatchEvent(new Event("owm-installprompt-ready"));
   });
+
+  const isInIframe = (() => {
+    try {
+      return window.self !== window.top;
+    } catch {
+      return true;
+    }
+  })();
+
+  const hostname = window.location.hostname;
+  const isPreviewHost = hostname.startsWith("id-preview--") || hostname.includes("lovableproject.com");
+
+  if ("serviceWorker" in navigator && !isInIframe && !isPreviewHost && window.location.protocol === "https:") {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch((error) => {
+        console.warn("[PWA] Service worker registration failed", error);
+      });
+    });
+  } else if ("serviceWorker" in navigator && (isInIframe || isPreviewHost)) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      registrations.forEach((registration) => registration.unregister());
+    });
+  }
 }
 
 interface RootErrorBoundaryState {
