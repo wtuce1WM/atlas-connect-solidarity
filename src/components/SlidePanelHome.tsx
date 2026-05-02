@@ -10,6 +10,7 @@ import VideoControls from "@/components/VideoControls";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
 import { useNavigate } from "react-router-dom";
 import { LazyDirectionsOverlay } from "@/components/overlays/LazyOverlays";
+import PoiSlidePanel from "@/components/PoiSlidePanel";
 import { businessUrl, buildOgShareUrl } from "@/lib/businessUrl";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
@@ -148,6 +149,8 @@ const SlidePanelHome = ({
   useEffect(() => { if (!open) setDescOverlayOpen(false); }, [open]);
   const [ownerBusiness, setOwnerBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [eventInfo, setEventInfo] = useState<{ name: string; logo_url: string | null } | null>(null);
+  const [poiOverlayBusinessId, setPoiOverlayBusinessId] = useState<string | null>(null);
+  useEffect(() => { if (!open) setPoiOverlayBusinessId(null); }, [open]);
 
   // Resolve a business for the CTA bar:
   // - If `eventId` is set, take the first linked business via event_businesses (eventBusiness).
@@ -179,7 +182,7 @@ const SlidePanelHome = ({
       if (!bizId) { setEventBusiness(null); return; }
       const { data: bizRow } = await supabase
         .from("businesses")
-        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg")
+        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg, is_poi")
         .eq("id", bizId)
         .maybeSingle();
       if (cancelled) return;
@@ -198,7 +201,7 @@ const SlidePanelHome = ({
     (async () => {
       const { data: bizRow } = await supabase
         .from("businesses")
-        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg")
+        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg, is_poi")
         .eq("id", owner.id)
         .maybeSingle();
       if (cancelled) return;
@@ -220,7 +223,7 @@ const SlidePanelHome = ({
     (async () => {
       const { data: bizRow } = await supabase
         .from("businesses")
-        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg")
+        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg, is_poi")
         .eq("id", pageBusinessId)
         .maybeSingle();
       if (cancelled) return;
@@ -282,7 +285,7 @@ const SlidePanelHome = ({
       if (bizIds.length > 0) {
         const { data: bizRows } = await supabase
           .from("businesses")
-          .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg")
+          .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg, is_poi")
           .in("id", bizIds);
         ((bizRows as any[]) || []).forEach((b) => bizMap.set(b.id, b as any));
       }
@@ -421,7 +424,7 @@ const SlidePanelHome = ({
         )}
 
         {/* BusinessHeader: Logo + Nom + Ville + Quartier + Adresse */}
-        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && ctaBusiness && (
+        {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !poiOverlayBusinessId && ctaBusiness && (
           <div className="absolute top-16 md:top-14 lg:top-16 left-2 right-2 z-[65] pointer-events-none">
             <BusinessHeader
               business={{
@@ -673,6 +676,10 @@ const SlidePanelHome = ({
                   <button
                     type="button"
                     onClick={() => {
+                      if ((ctaBusiness as any).is_poi) {
+                        setPoiOverlayBusinessId(ctaBusiness.id);
+                        return;
+                      }
                       storeReturnToTest();
                       navigate(businessUrl(ctaBusiness));
                     }}
@@ -746,6 +753,15 @@ const SlidePanelHome = ({
               onClose={() => setDirectionsBusiness(null)}
             />
           </Suspense>
+        )}
+        {poiOverlayBusinessId && (
+          <div className="absolute inset-0 z-[85]">
+            <PoiSlidePanel
+              businessId={poiOverlayBusinessId}
+              onClose={() => setPoiOverlayBusinessId(null)}
+              slideFrom="bottom"
+            />
+          </div>
         )}
       </div>
     </div>,
