@@ -338,6 +338,7 @@ const SlidePanelHome = ({
         className="absolute right-0 top-0 h-full w-full bg-background border-l border-border shadow-2xl animate-slide-in-right overflow-hidden"
       >
         {/* Top toolbar : close + WhatsApp/Phone + Share */}
+        {!descOverlayOpen && (
         <div className="absolute top-0 left-0 right-0 z-[70] flex items-center justify-between px-4 py-2 pointer-events-none">
           <button
             type="button"
