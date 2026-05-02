@@ -40,6 +40,7 @@ import {
   copyTextSilently,
   cityMatches,
 } from "@/lib/homeHelpers";
+import { fetchDocBadgesByDocId, fetchYtBadgesByVideoId } from "@/lib/homeFetchHelpers";
 import { getManualCardMap } from "@/lib/manualCards";
 import { resolveHomepageCity, readLastHomepageCity, writeLastHomepageCity } from "@/lib/cityHomepage";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -727,17 +728,8 @@ const Home = () => {
           seen.add(d.business_id);
           docByBiz.set(d.business_id, d);
         }
-        const popDocBadgesByDocId: Record<string, string[]> = {};
         const popDocIds = [...new Set(allDocs.map((d: any) => d.id).filter(Boolean))] as string[];
-        for (let i = 0; i < popDocIds.length; i += batch) {
-          const { data: rows } = await supabase
-            .from("business_document_badges")
-            .select("document_id, badge_id")
-            .in("document_id", popDocIds.slice(i, i + batch));
-          ((rows as any[]) || []).forEach((r: any) => {
-            (popDocBadgesByDocId[r.document_id] ||= []).push(r.badge_id);
-          });
-        }
+        const popDocBadgesByDocId = await fetchDocBadgesByDocId(popDocIds);
         const docVideoItems: VideoItem[] = bizIds
           .map((bid) => {
             const d = docByBiz.get(bid);
@@ -782,17 +774,8 @@ const Home = () => {
             if (!y.business_id || ytByBiz.has(y.business_id)) continue;
             ytByBiz.set(y.business_id, y);
           }
-          const popYtBadgesByVideo: Record<string, string[]> = {};
           const popYtIds = ytRows.map((y: any) => y.id).filter(Boolean);
-          if (popYtIds.length > 0) {
-            const { data: rows } = await supabase
-              .from("business_youtube_video_badges")
-              .select("youtube_video_id, badge_id")
-              .in("youtube_video_id", popYtIds);
-            ((rows as any[]) || []).forEach((r: any) => {
-              (popYtBadgesByVideo[r.youtube_video_id] ||= []).push(r.badge_id);
-            });
-          }
+          const popYtBadgesByVideo = await fetchYtBadgesByVideoId(popYtIds);
           ytVideoItems = missingBizIds
             .map((bid) => {
               const y = ytByBiz.get(bid);
@@ -893,21 +876,7 @@ const Home = () => {
           (svcRows || []).forEach((s: any) => badgeServiceNameById.set(s.id, s.name_fr));
         }
         // Fetch all badges associated with each document (for hashtag aggregation)
-        const docBadgesByDocId: Record<string, string[]> = {};
-        if (uniqueDocs.length > 0) {
-          const allDocBadges: any[] = [];
-          for (let i = 0; i < uniqueDocs.length; i += batch) {
-            const chunkIds = uniqueDocs.slice(i, i + batch).map((d: any) => d.id);
-            const { data: dbg } = await supabase
-              .from("business_document_badges")
-              .select("document_id, badge_id")
-              .in("document_id", chunkIds);
-            if (dbg) allDocBadges.push(...dbg);
-          }
-          allDocBadges.forEach((r: any) => {
-            (docBadgesByDocId[r.document_id] ||= []).push(r.badge_id);
-          });
-        }
+        const docBadgesByDocId = await fetchDocBadgesByDocId(uniqueDocs.map((d: any) => d.id).filter(Boolean));
         const isVlogsBadge = /^#?\s*vlogs?$/i.test(videoBadgeFilter.label.trim());
         // For all badge filters, also pull in generic_videos and YouTube videos
         // tagged with the same badge.
@@ -1108,17 +1077,7 @@ const Home = () => {
               return false;
             });
             // Fetch all badges for these YouTube videos
-            const ytBadgesByVideo: Record<string, string[]> = {};
-            const ytFilteredIds = ytFiltered.map((y: any) => y.id);
-            if (ytFilteredIds.length > 0) {
-              const { data: allYtBadges } = await supabase
-                .from("business_youtube_video_badges")
-                .select("youtube_video_id, badge_id")
-                .in("youtube_video_id", ytFilteredIds);
-              ((allYtBadges as any[]) || []).forEach((r: any) => {
-                (ytBadgesByVideo[r.youtube_video_id] ||= []).push(r.badge_id);
-              });
-            }
+            const ytBadgesByVideo = await fetchYtBadgesByVideoId(ytFiltered.map((y: any) => y.id).filter(Boolean));
             youtubeVideoItems = ytFiltered.map((y: any) => {
               const biz = ytBizMap.get(y.business_id) || null;
               // External YouTube videos: align with generic-video display.
@@ -1413,17 +1372,7 @@ const Home = () => {
 
 
         const manualCardMap = !selectedSubId ? await getManualCardMap(city, limitedDocs) : new Map<string, { label: string; badgeId: string | null; eventId?: string | null }>();
-        const docBadgesByDocId: Record<string, string[]> = {};
-        const limitedDocIds = limitedDocs.map((d: any) => d.id).filter(Boolean);
-        for (let i = 0; i < limitedDocIds.length; i += 300) {
-          const { data: rows } = await supabase
-            .from("business_document_badges")
-            .select("document_id, badge_id")
-            .in("document_id", limitedDocIds.slice(i, i + 300));
-          ((rows as any[]) || []).forEach((r: any) => {
-            (docBadgesByDocId[r.document_id] ||= []).push(r.badge_id);
-          });
-        }
+        const docBadgesByDocId = await fetchDocBadgesByDocId(limitedDocs.map((d: any) => d.id).filter(Boolean));
         const serviceIdSet = [...new Set(limitedDocs.map((d: any) => d.service_id).filter(Boolean))] as string[];
         const serviceNameById = new Map<string, string>();
         for (let i = 0; i < serviceIdSet.length; i += 300) {
@@ -1613,17 +1562,7 @@ const Home = () => {
                   .in("id", ytBizIds.slice(i, i + CHUNK));
                 (bizs || []).forEach((b: any) => ytBizMap.set(b.id, b as SearchResultBusiness));
               }
-              const ytBadgesByVideo: Record<string, string[]> = {};
-              const ytRowIds = ytRows.map((y: any) => y.id).filter(Boolean);
-              if (ytRowIds.length > 0) {
-                const { data: rows } = await supabase
-                  .from("business_youtube_video_badges")
-                  .select("youtube_video_id, badge_id")
-                  .in("youtube_video_id", ytRowIds);
-                ((rows as any[]) || []).forEach((r: any) => {
-                  (ytBadgesByVideo[r.youtube_video_id] ||= []).push(r.badge_id);
-                });
-              }
+              const ytBadgesByVideo = await fetchYtBadgesByVideoId(ytRows.map((y: any) => y.id).filter(Boolean));
               const seenUrlsYt = new Set<string>([...docItems, ...genericSubItems].map((i) => i.url).filter(Boolean) as string[]);
               youtubeSubItems = ytRows
                 .map((y: any) => {
@@ -1680,17 +1619,7 @@ const Home = () => {
           (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
         }
       }
-      const homeDocBadgesByDocId: Record<string, string[]> = {};
-      const homeDocIds = allDocs.map((d: any) => d.id).filter(Boolean);
-      for (let i = 0; i < homeDocIds.length; i += 300) {
-        const { data: rows } = await supabase
-          .from("business_document_badges")
-          .select("document_id, badge_id")
-          .in("document_id", homeDocIds.slice(i, i + 300));
-        ((rows as any[]) || []).forEach((r: any) => {
-          (homeDocBadgesByDocId[r.document_id] ||= []).push(r.badge_id);
-        });
-      }
+      const homeDocBadgesByDocId = await fetchDocBadgesByDocId(allDocs.map((d: any) => d.id).filter(Boolean));
 
       safeSetVideos(
         allDocs.map((d: any) => {
