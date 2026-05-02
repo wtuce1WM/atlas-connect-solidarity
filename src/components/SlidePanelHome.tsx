@@ -428,7 +428,7 @@ const SlidePanelHome = ({
         )}
 
         {effectiveDescription && (
-          <DescriptionPlusButton html={effectiveDescription} businessName={businessName} />
+          <DescriptionPlusButton html={effectiveDescription} businessName={businessName} isOpen={descOverlayOpen} onOpenChange={setDescOverlayOpen} />
         )}
 
         <div className="relative w-full h-full">
