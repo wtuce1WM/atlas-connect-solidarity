@@ -939,14 +939,6 @@ const Home = () => {
           } as VideoItem;
         });
 
-        const representedBusinessIds = new Set<string>();
-        uniqueDocs.forEach((d: any) => {
-          const biz = resolveVideoEstablishment(d, bizMap);
-          [d.business_id, d.linked_business_id, d.poi_id, biz?.id].filter(Boolean).forEach((id: string) => {
-            representedBusinessIds.add(id);
-          });
-        });
-
         // For "Suivez le guide" (Guide badge): also include generic videos tagged
         // with the same badge and assigned to the current city (either via
         // generic_videos.city or via generic_video_cities multi-city links).
