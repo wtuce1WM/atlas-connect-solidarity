@@ -597,6 +597,7 @@ export function useBookOnlineData(businessId: string) {
           .select("url, name, city, price, price_type, description, thumbnail_url, business_id, sort_order")
           .eq("linked_business_id", businessId)
           .eq("type", "video")
+          .eq("business_is_active", true)
           .order("front_sort_order")
           .order("sort_order");
         if (!isCancelled && linkedVids && linkedVids.length > 0) {
