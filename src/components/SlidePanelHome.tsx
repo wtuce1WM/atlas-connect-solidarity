@@ -431,6 +431,7 @@ const SlidePanelHome = ({
           <DescriptionPlusButton html={effectiveDescription} businessName={businessName} isOpen={descOverlayOpen} onOpenChange={setDescOverlayOpen} />
         )}
 
+
         <div className="relative w-full h-full">
           <div className="relative bg-black overflow-hidden w-full h-full">
             {embed.type === "file" ? (
