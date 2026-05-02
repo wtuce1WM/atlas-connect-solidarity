@@ -119,7 +119,7 @@ async function buildSnapshot(supabase: any, city: string) {
       const { data: vDoc } = await supabase
         .from("business_documents")
         .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
-        .eq("id", card.video_document_id).maybeSingle();
+        .eq("id", card.video_document_id).eq("business_is_active", true).maybeSingle();
       if (vDoc) return { cardId: card.id, doc: vDoc };
       const { data: gv } = await supabase
         .from("generic_videos")
