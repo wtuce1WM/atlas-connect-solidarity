@@ -1538,17 +1538,7 @@ const Home = () => {
 
       // Home path: display the resolved linked establishment when present.
       const allBizIds = [...new Set(allDocs.flatMap((d: any) => getVideoBusinessCandidateIds(d)))];
-      const bizMap = new Map<string, SearchResultBusiness>();
-      if (allBizIds.length > 0) {
-        const batch = 300;
-        for (let i = 0; i < allBizIds.length; i += batch) {
-          const { data: bizs } = await supabase
-            .from("businesses")
-            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr, is_poi")
-            .in("id", allBizIds.slice(i, i + batch));
-          (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
-        }
-      }
+      const bizMap = (await fetchBusinessesByIds(allBizIds, "is_poi")) as Map<string, SearchResultBusiness>;
       const homeDocBadgesByDocId = await fetchDocBadgesByDocId(allDocs.map((d: any) => d.id).filter(Boolean));
 
       safeSetVideos(
