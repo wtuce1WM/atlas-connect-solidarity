@@ -423,8 +423,8 @@ const SlidePanelHome = ({
           </div>
         )}
 
-        {description && (
-          <DescriptionPlusButton html={description} businessName={businessName} />
+        {effectiveDescription && (
+          <DescriptionPlusButton html={effectiveDescription} businessName={businessName} />
         )}
 
         <div className="relative w-full h-full">
