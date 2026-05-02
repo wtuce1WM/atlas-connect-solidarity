@@ -847,31 +847,15 @@ const Home = () => {
         // tagged with the same badge.
         const includeExtraSources = true;
         // No per-business dedupe: show ALL videos tagged with this hashtag.
-        const docVideoItems: VideoItem[] = uniqueDocs.map((d: any) => {
-          const biz = resolveVideoEstablishment(d, bizMap);
-          // Thumbnail name: always show the original business_id's name (e.g. POI),
-          // even when a linked establishment exists (which still drives owner/logo + SlidePanelHome).
-          const thumbnailBiz = (d.business_id && bizMap.get(d.business_id)) || biz;
-          return {
-            id: d.id,
-            url: d.url,
-            business_name: thumbnailBiz?.name || biz?.name || "—",
-            pageBusinessName: thumbnailBiz?.name ?? null,
-            pageBusinessId: d.business_id ?? null,
-            thumbnail_url: d.thumbnail_url,
-            business: biz,
-            owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
-            social: extractSocial(d),
-            showSocialBadge: isDifferentDisplayedBusinessSocial(extractSocial(d), biz),
-            description: d.description ?? null,
-            manualCard: null,
-            subcategory_id: d.subcategory_id ?? null,
-            service_id: d.service_id ?? null,
-            service_name: d.service_id ? badgeServiceNameById.get(d.service_id) ?? null : null,
-            badge_ids: docBadgesByDocId[d.id] || [],
-            videoTitle: d.name ?? null,
-          } as VideoItem;
-        });
+        const docVideoItems: VideoItem[] = uniqueDocs.map((d: any) =>
+          buildDocVideoItem({
+            doc: d,
+            bizMap,
+            docBadgesByDocId,
+            serviceNameById: badgeServiceNameById,
+            withPageBusiness: true,
+          }) as VideoItem,
+        );
 
         // For "Suivez le guide" (Guide badge): also include generic videos tagged
         // with the same badge and assigned to the current city (either via
