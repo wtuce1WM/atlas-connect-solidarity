@@ -116,23 +116,24 @@ const SlidePanelHome = ({
   const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [businessDescription, setBusinessDescription] = useState<string | null>(null);
 
-  // Fallback: if no per-video description was provided, fetch the linked business description
-  // so the green "+" overlay can still render in SlidePanelHome.
+  // Fallback: if no per-video description was provided, fetch the description of
+  // the consulted business (pageBusinessId, i.e. the document's "root" business —
+  // typically the POI/fiche), falling back to the owner only if no page id is set.
   useEffect(() => {
     if (description && description.trim()) { setBusinessDescription(null); return; }
-    const ownerId = owner?.id;
-    if (!open || !ownerId) { setBusinessDescription(null); return; }
+    const targetId = pageBusinessId || owner?.id;
+    if (!open || !targetId) { setBusinessDescription(null); return; }
     let cancelled = false;
     (supabase as any)
       .from("businesses")
       .select("description")
-      .eq("id", ownerId)
+      .eq("id", targetId)
       .maybeSingle()
       .then(({ data }: any) => {
         if (!cancelled) setBusinessDescription(data?.description ?? null);
       });
     return () => { cancelled = true; };
-  }, [open, owner?.id, description]);
+  }, [open, owner?.id, pageBusinessId, description]);
 
   const effectiveDescription = (description && description.trim()) ? description : businessDescription;
   const [descOverlayOpen, setDescOverlayOpen] = useState(false);
