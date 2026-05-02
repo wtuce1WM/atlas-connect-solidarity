@@ -676,6 +676,10 @@ const SlidePanelHome = ({
                   <button
                     type="button"
                     onClick={() => {
+                      if ((ctaBusiness as any).is_poi) {
+                        setPoiOverlayBusinessId(ctaBusiness.id);
+                        return;
+                      }
                       storeReturnToTest();
                       navigate(businessUrl(ctaBusiness));
                     }}
