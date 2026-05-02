@@ -870,16 +870,11 @@ const Home = () => {
         // Keep only the first video per displayed business (lowest sort_order in the BO),
         // grouped by POI when present, otherwise by the real owner (strict, ignores linked_business_id).
         {
-          // DEBUG: log all docs sorted, then keep first per group
-          console.log("[BadgeFilter] uniqueDocs sorted:", uniqueDocs.map((d: any) => ({
-            id: d.id, sort_order: d.sort_order, business_id: d.business_id, poi_id: d.poi_id, linked: d.linked_business_id,
-          })));
           const seenGroup = new Set<string>();
           const kept: any[] = [];
           for (const d of uniqueDocs) {
             const biz = resolveVideoEstablishment(d, bizMap, { strict: true });
             const groupId = d.poi_id || biz?.id || d.business_id || d.id;
-            console.log("[BadgeFilter] doc", d.id, "→ groupId", groupId, "seen?", seenGroup.has(groupId));
             if (seenGroup.has(groupId)) continue;
             seenGroup.add(groupId);
             kept.push(d);
@@ -944,6 +939,14 @@ const Home = () => {
           } as VideoItem;
         });
 
+        const representedBusinessIds = new Set<string>();
+        uniqueDocs.forEach((d: any) => {
+          const biz = resolveVideoEstablishment(d, bizMap);
+          [d.business_id, d.linked_business_id, d.poi_id, biz?.id].filter(Boolean).forEach((id: string) => {
+            representedBusinessIds.add(id);
+          });
+        });
+
         // For "Suivez le guide" (Guide badge): also include generic videos tagged
         // with the same badge and assigned to the current city (either via
         // generic_videos.city or via generic_video_cities multi-city links).
@@ -980,13 +983,24 @@ const Home = () => {
             const gvFiltered = ((gvs as any[]) || []).filter((v: any) => cityMatches(v.city, city) || extraIds.has(v.id));
 
             // Resolve first linked business (for owner display) — best effort
-            const { data: gvBizLinks } = await supabase
-              .from("generic_video_businesses" as any)
-              .select("generic_video_id, business_id")
-              .in("generic_video_id", gvFiltered.map((v: any) => v.id));
+            const [{ data: gvBizLinks }, { data: gvPoiLinks }] = await Promise.all([
+              supabase
+                .from("generic_video_businesses" as any)
+                .select("generic_video_id, business_id")
+                .in("generic_video_id", gvFiltered.map((v: any) => v.id)),
+              supabase
+                .from("generic_video_pois" as any)
+                .select("generic_video_id, poi_id")
+                .in("generic_video_id", gvFiltered.map((v: any) => v.id)),
+            ]);
             const firstBizByGv: Record<string, string> = {};
+            const linkedTargetsByGv: Record<string, Set<string>> = {};
             (((gvBizLinks as any[]) || [])).forEach((l: any) => {
               if (!firstBizByGv[l.generic_video_id]) firstBizByGv[l.generic_video_id] = l.business_id;
+              (linkedTargetsByGv[l.generic_video_id] ||= new Set()).add(l.business_id);
+            });
+            (((gvPoiLinks as any[]) || [])).forEach((l: any) => {
+              (linkedTargetsByGv[l.generic_video_id] ||= new Set()).add(l.poi_id);
             });
             const gvBizIds = [...new Set(Object.values(firstBizByGv))];
             const gvBizMap = new Map<string, SearchResultBusiness>();
@@ -1011,7 +1025,14 @@ const Home = () => {
               });
             }
 
-            genericVideoItems = gvFiltered.map((v: any) => {
+            const gvWithoutBusinessDocDuplicate = gvFiltered.filter((v: any) => {
+              const targets = linkedTargetsByGv[v.id];
+              if (!targets) return true;
+              for (const targetId of targets) if (representedBusinessIds.has(targetId)) return false;
+              return true;
+            });
+
+            genericVideoItems = gvWithoutBusinessDocDuplicate.map((v: any) => {
               const bizId = firstBizByGv[v.id];
               const biz = isVlogsBadge ? null : (bizId ? gvBizMap.get(bizId) || null : null);
               const acct = (v.instagram_account || v.tiktok_account || v.youtube_account || "").replace(/^@+/, "");
