@@ -167,8 +167,7 @@ const Install = () => {
           <button
             type="button"
             onClick={handleIconClick}
-            disabled={installed}
-            className="group relative mx-auto mb-8 block focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-4 focus-visible:ring-offset-background rounded-3xl"
+            className="group relative mx-auto mb-8 block focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-4 focus-visible:ring-offset-background rounded-3xl cursor-pointer"
             aria-label={
               installed
                 ? "Application déjà installée"
