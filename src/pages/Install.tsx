@@ -49,6 +49,10 @@ type WindowWithInstallPrompt = typeof window & {
   __owmInstallPromptEvent?: BeforeInstallPromptEvent;
 };
 
+type NavigatorWithStandalone = Navigator & {
+  standalone?: boolean;
+};
+
 const detectPlatform = (): Platform => {
   if (typeof navigator === "undefined") return "ios";
   const ua = navigator.userAgent;
@@ -70,7 +74,7 @@ const Install = () => {
 
     // Already installed (standalone mode) → redirect to /test with resolved city
     const isStandalone =
-      window.matchMedia?.("(display-mode: standalone)").matches || (navigator as any).standalone;
+      window.matchMedia?.("(display-mode: standalone)").matches || Boolean((navigator as NavigatorWithStandalone).standalone);
     if (isStandalone) {
       setInstalled(true);
       redirectStandaloneToHome();
