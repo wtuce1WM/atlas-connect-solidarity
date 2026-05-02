@@ -1491,14 +1491,7 @@ const Home = () => {
                 if (data) ytRows.push(...data);
               }
               const ytBizIds = [...new Set(ytRows.map((y) => y.business_id).filter(Boolean))] as string[];
-              const ytBizMap = new Map<string, SearchResultBusiness>();
-              for (let i = 0; i < ytBizIds.length; i += CHUNK) {
-                const { data: bizs } = await supabase
-                  .from("businesses")
-                  .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr")
-                  .in("id", ytBizIds.slice(i, i + CHUNK));
-                (bizs || []).forEach((b: any) => ytBizMap.set(b.id, b as SearchResultBusiness));
-              }
+              const ytBizMap = (await fetchBusinessesByIds(ytBizIds)) as Map<string, SearchResultBusiness>;
               const ytBadgesByVideo = await fetchYtBadgesByVideoId(ytRows.map((y: any) => y.id).filter(Boolean));
               const seenUrlsYt = new Set<string>([...docItems, ...genericSubItems].map((i) => i.url).filter(Boolean) as string[]);
               youtubeSubItems = ytRows
