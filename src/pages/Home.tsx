@@ -876,21 +876,7 @@ const Home = () => {
           (svcRows || []).forEach((s: any) => badgeServiceNameById.set(s.id, s.name_fr));
         }
         // Fetch all badges associated with each document (for hashtag aggregation)
-        const docBadgesByDocId: Record<string, string[]> = {};
-        if (uniqueDocs.length > 0) {
-          const allDocBadges: any[] = [];
-          for (let i = 0; i < uniqueDocs.length; i += batch) {
-            const chunkIds = uniqueDocs.slice(i, i + batch).map((d: any) => d.id);
-            const { data: dbg } = await supabase
-              .from("business_document_badges")
-              .select("document_id, badge_id")
-              .in("document_id", chunkIds);
-            if (dbg) allDocBadges.push(...dbg);
-          }
-          allDocBadges.forEach((r: any) => {
-            (docBadgesByDocId[r.document_id] ||= []).push(r.badge_id);
-          });
-        }
+        const docBadgesByDocId = await fetchDocBadgesByDocId(uniqueDocs.map((d: any) => d.id).filter(Boolean));
         const isVlogsBadge = /^#?\s*vlogs?$/i.test(videoBadgeFilter.label.trim());
         // For all badge filters, also pull in generic_videos and YouTube videos
         // tagged with the same badge.
