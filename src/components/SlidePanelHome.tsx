@@ -30,6 +30,8 @@ interface SlidePanelHomeProps {
   videoUrl: string | null;
   videoId: string | null;
   businessName: string;
+  /** Nom de la fiche/document consulté (ex: POI), distinct du owner quand la vidéo a un linked_business_id */
+  pageBusinessName?: string | null;
   isGeneric: boolean;
   currentTime: number;
   onTimeUpdate: (t: number) => void;
@@ -86,6 +88,7 @@ const SlidePanelHome = ({
   videoUrl,
   videoId,
   businessName,
+  pageBusinessName,
   isGeneric,
   currentTime,
   onTimeUpdate,
@@ -567,6 +570,7 @@ const SlidePanelHome = ({
                 );
               }
               if (owner && owner.name) {
+                console.log("[SlidePanelHome owner badge]", { videoId, businessName, pageBusinessName, ownerName: owner.name });
                 return (
                   <div
                     key={`credit-owner-${videoId || videoUrl}`}
@@ -584,7 +588,7 @@ const SlidePanelHome = ({
                   )}
                   <div className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto select-text">
                     <span className="text-xs font-medium text-white select-text" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                      {businessName || owner.name} <span className="text-base">©</span>
+                      {pageBusinessName || businessName || owner.name} <span className="text-base">©</span>
                     </span>
                   </div>
                   </div>

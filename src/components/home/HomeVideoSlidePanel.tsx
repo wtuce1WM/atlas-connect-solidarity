@@ -5,6 +5,7 @@ interface VideoLike {
   id: string;
   url: string;
   business_name: string;
+  pageBusinessName?: string | null;
   owner: { id: string; name: string; logo_url: string | null; logo_bg: string | null } | null;
   social: any;
   showSocialBadge?: boolean;
@@ -65,6 +66,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
       videoUrl={activeVideo?.url || null}
       videoId={activeVideo?.id || null}
       businessName={activeVideo?.business_name || ""}
+      pageBusinessName={activeVideo?.pageBusinessName ?? null}
       isGeneric={isActiveGeneric}
       owner={activeVideo?.owner || null}
       social={activeVideo?.social || null}
