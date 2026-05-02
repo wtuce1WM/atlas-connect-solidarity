@@ -2442,23 +2442,7 @@ const Home = () => {
                               <>
                                 {/* Upper half: Gold badge (event type) + Hook */}
                                 <div className="absolute inset-x-0 top-[6%] z-20 flex flex-col items-center gap-2 px-3 pointer-events-none text-center">
-                                  {v.manualCard?.label && (
-                                    <button
-                                      type="button"
-                                      data-manual-badge="true"
-                                      onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        if (v.manualCard?.badgeId) {
-                                          void activateVideoBadgeFilter(v.manualCard.badgeId, v.manualCard.label, city);
-                                        }
-                                      }}
-                                      className="pointer-events-auto px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black cursor-pointer hover:bg-gold/90 transition-colors"
-                                    >
-                                      {v.manualCard.label}
-                                    </button>
-                                  )}
+                                  {/* Gold badge label hidden in category/subcategory results grid */}
                                   {ei.name && (
                                     <p
                                       className="text-sm font-bold text-white mt-3"
@@ -2487,27 +2471,8 @@ const Home = () => {
                             );
                           })()
                         ) : v.manualCard?.label ? (
-                          <div className="absolute inset-x-0 top-[10%] z-20 flex items-center justify-center px-2 pointer-events-none">
-                            <button
-                              type="button"
-                              data-manual-badge="true"
-                              onMouseDown={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                              }}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                if (v.manualCard?.badgeId) {
-                                  void activateVideoBadgeFilter(v.manualCard.badgeId, v.manualCard.label, city);
-                                }
-                              }}
-                              className="pointer-events-auto px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black cursor-pointer hover:bg-gold/90 transition-colors"
-                            >
-                              {v.manualCard.label}
-                            </button>
-                          </div>
-                         ) : (() => {
+                          /* Gold badge label hidden in category/subcategory results grid */
+                          null
                            const isGeneric = genericVideoIds.has(v.id);
                            const isHomepage = selectedEntry?.id === HOME_ID;
                            const internalFallbackHook = !isGeneric && !v.videoTitle && !isHomepage
