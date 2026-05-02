@@ -608,7 +608,7 @@ const SlidePanelHome = ({
                     aria-label={`Voir la fiche de ${owner.name}`}
                   >
                     <span className="text-xs font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                      {owner.name} <span className="text-base">©</span>
+                      {owner.name} ©
                     </span>
                   </button>
                   </div>
