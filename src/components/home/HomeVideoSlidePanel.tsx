@@ -6,6 +6,7 @@ interface VideoLike {
   url: string;
   business_name: string;
   pageBusinessName?: string | null;
+  pageBusinessId?: string | null;
   owner: { id: string; name: string; logo_url: string | null; logo_bg: string | null } | null;
   social: any;
   showSocialBadge?: boolean;
