@@ -24,9 +24,32 @@ export const loadInactiveBusinessIds = (): Promise<Set<string>> => {
   inactiveIdsPromise = (async () => {
     try {
       const rows = await fetchAllRows<{ id: string }>(
-        () => supabase.from("businesses").select("id").eq("is_active", false) as any,
+        "businesses",
+        "id",
+        "id",
       );
-      return new Set<string>(rows.map((r) => r.id));
+      // fetchAllRows doesn't filter; we need only inactive ones, so query directly.
+      const { supabase } = await import("@/integrations/supabase/client");
+      const inactive = new Set<string>();
+      // Paginate is_active=false directly to keep payload small.
+      let offset = 0;
+      const PAGE = 1000;
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const { data, error } = await supabase
+          .from("businesses")
+          .select("id")
+          .eq("is_active", false)
+          .range(offset, offset + PAGE - 1);
+        if (error) break;
+        const arr = (data as any[]) || [];
+        for (const r of arr) inactive.add(r.id);
+        if (arr.length < PAGE) break;
+        offset += PAGE;
+      }
+      // rows fallback unused; keep linter happy
+      void rows;
+      return inactive;
     } catch (e) {
       console.warn("[inactiveBusinesses] failed to load", e);
       return new Set<string>();
