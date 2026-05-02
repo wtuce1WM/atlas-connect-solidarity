@@ -939,14 +939,6 @@ const Home = () => {
           } as VideoItem;
         });
 
-        const representedBusinessIds = new Set<string>();
-        uniqueDocs.forEach((d: any) => {
-          const biz = resolveVideoEstablishment(d, bizMap);
-          [d.business_id, d.linked_business_id, d.poi_id, biz?.id].filter(Boolean).forEach((id: string) => {
-            representedBusinessIds.add(id);
-          });
-        });
-
         // For "Suivez le guide" (Guide badge): also include generic videos tagged
         // with the same badge and assigned to the current city (either via
         // generic_videos.city or via generic_video_cities multi-city links).
@@ -1025,14 +1017,7 @@ const Home = () => {
               });
             }
 
-            const gvWithoutBusinessDocDuplicate = gvFiltered.filter((v: any) => {
-              const targets = linkedTargetsByGv[v.id];
-              if (!targets) return true;
-              for (const targetId of targets) if (representedBusinessIds.has(targetId)) return false;
-              return true;
-            });
-
-            genericVideoItems = gvWithoutBusinessDocDuplicate.map((v: any) => {
+            genericVideoItems = gvFiltered.map((v: any) => {
               const bizId = firstBizByGv[v.id];
               const biz = isVlogsBadge ? null : (bizId ? gvBizMap.get(bizId) || null : null);
               const acct = (v.instagram_account || v.tiktok_account || v.youtube_account || "").replace(/^@+/, "");
