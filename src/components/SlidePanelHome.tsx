@@ -527,82 +527,90 @@ const SlidePanelHome = ({
             )}
           </div>
           <div className={`absolute inset-x-0 bottom-0 top-0 z-30 p-4 flex flex-col items-center justify-end gap-3 pointer-events-none ${descOverlayOpen ? "hidden" : ""}`}>
-            {owner && owner.logo_url && owner.name && (
-              <div
-                key={`owner-overlay-${videoId || videoUrl}`}
-                className="flex flex-col items-center justify-center gap-3 px-4 pointer-events-none"
-              >
-                <div className="animate-logo-big-full-reveal flex items-center justify-center">
-                  <img
-                    src={owner.logo_url}
-                    alt={owner.name}
-                    className="w-auto h-auto max-w-[140px] max-h-[110px] md:max-w-[140px] md:max-h-[110px] object-contain"
-                    style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
-                  />
-                </div>
-                {/* Badge © masqué — décommenter pour réafficher
-                <div className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto select-text">
-                  <span className="text-xs font-medium text-white select-text" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                    {owner.name} <span className="text-base">©</span>
-                  </span>
-                </div>
-                */}
-              </div>
-            )}
-            {!owner && eventId && (eventBusiness || eventInfo) && (
-              <div
-                key={`event-owner-overlay-${eventId}`}
-                className="flex flex-col items-center justify-center gap-3 px-4 pointer-events-none"
-              >
-                {eventBusiness?.logo_url && (
-                  <div className="animate-logo-big-full-reveal flex items-center justify-center">
-                    <img
-                      src={eventBusiness.logo_url}
-                      alt={eventBusiness.name}
-                      className="w-auto h-auto max-w-[140px] max-h-[110px] md:max-w-[140px] md:max-h-[110px] object-contain"
+            {/* Bloc crédit unifié — priorité : social > owner > eventBusiness (mutuellement exclusifs) */}
+            {(() => {
+              if (visibleSocial) {
+                return (
+                  <div
+                    key={`credit-social-${videoId || videoUrl}`}
+                    className="flex flex-col items-center justify-center gap-3 px-4 pointer-events-none"
+                  >
+                    <a
+                      href={visibleSocial.url || undefined}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="animate-logo-big-full-reveal pointer-events-auto flex flex-col items-center gap-2 text-white"
                       style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
-                    />
+                    >
+                      {visibleSocial.platform === "instagram" && <InstagramIcon className="h-16 w-16 md:h-20 md:w-20" />}
+                      {visibleSocial.platform === "youtube" && <Youtube className="h-16 w-16 md:h-20 md:w-20" />}
+                      {visibleSocial.platform === "tiktok" && <SiTiktok className="h-14 w-14 md:h-[72px] md:w-[72px]" />}
+                    </a>
+                    <a
+                      href={visibleSocial.url || undefined}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto hover:bg-black/80 transition-colors"
+                    >
+                      <span className="text-xs font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                        Follow @{visibleSocial.account}
+                      </span>
+                    </a>
                   </div>
-                )}
-                {/* Badge © masqué — décommenter pour réafficher
-                {(eventBusiness?.name || eventInfo?.name) && (
-                  <div className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto select-text">
-                    <span className="text-xs font-medium text-white select-text" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                      {eventBusiness?.name || eventInfo?.name} <span className="text-base">©</span>
-                    </span>
+                );
+              }
+              if (owner && owner.logo_url && owner.name) {
+                return (
+                  <div
+                    key={`credit-owner-${videoId || videoUrl}`}
+                    className="flex flex-col items-center justify-center gap-3 px-4 pointer-events-none"
+                  >
+                    <div className="animate-logo-big-full-reveal flex items-center justify-center">
+                      <img
+                        src={owner.logo_url}
+                        alt={owner.name}
+                        className="w-auto h-auto max-w-[140px] max-h-[110px] md:max-w-[140px] md:max-h-[110px] object-contain"
+                        style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
+                      />
+                    </div>
+                    {/* Badge © masqué — décommenter pour réafficher
+                    <div className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto select-text">
+                      <span className="text-xs font-medium text-white select-text" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                        {owner.name} <span className="text-base">©</span>
+                      </span>
+                    </div>
+                    */}
                   </div>
-                )}
-                */}
-              </div>
-            )}
-            {visibleSocial && (
-              <div
-                key={`social-overlay-${videoId || videoUrl}`}
-                className="flex flex-col items-center justify-center gap-3 px-4 pointer-events-none"
-              >
-                <a
-                  href={visibleSocial.url || undefined}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="animate-logo-big-full-reveal pointer-events-auto flex flex-col items-center gap-2 text-white"
-                  style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
-                >
-                  {visibleSocial.platform === "instagram" && <InstagramIcon className="h-16 w-16 md:h-20 md:w-20" />}
-                  {visibleSocial.platform === "youtube" && <Youtube className="h-16 w-16 md:h-20 md:w-20" />}
-                  {visibleSocial.platform === "tiktok" && <SiTiktok className="h-14 w-14 md:h-[72px] md:w-[72px]" />}
-                </a>
-                <a
-                  href={visibleSocial.url || undefined}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto hover:bg-black/80 transition-colors"
-                >
-                  <span className="text-xs font-medium text-white" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                    Follow @{visibleSocial.account}
-                  </span>
-                </a>
-              </div>
-            )}
+                );
+              }
+              if (!owner && eventId && (eventBusiness || eventInfo) && eventBusiness?.logo_url) {
+                return (
+                  <div
+                    key={`credit-event-${eventId}`}
+                    className="flex flex-col items-center justify-center gap-3 px-4 pointer-events-none"
+                  >
+                    <div className="animate-logo-big-full-reveal flex items-center justify-center">
+                      <img
+                        src={eventBusiness.logo_url}
+                        alt={eventBusiness.name}
+                        className="w-auto h-auto max-w-[140px] max-h-[110px] md:max-w-[140px] md:max-h-[110px] object-contain"
+                        style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
+                      />
+                    </div>
+                    {/* Badge © masqué — décommenter pour réafficher
+                    {(eventBusiness?.name || eventInfo?.name) && (
+                      <div className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto select-text">
+                        <span className="text-xs font-medium text-white select-text" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
+                          {eventBusiness?.name || eventInfo?.name} <span className="text-base">©</span>
+                        </span>
+                      </div>
+                    )}
+                    */}
+                  </div>
+                );
+              }
+              return null;
+            })()}
             {ctaBusiness && (
               <>
                 
