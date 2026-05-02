@@ -871,12 +871,15 @@ const Home = () => {
         // (front_video_count). This mirrors the subcategory branch behavior.
         // Generic videos and YouTube videos (added later) are NOT grouped.
         {
+          // Strict resolve so a video stays attributed to its real owner (business_id/poi_id)
+          // and is not re-grouped under its linked_business_id.
           const docsByBiz = new Map<string, any[]>();
           const orderKey = new Map<string, number>();
           let idx = 0;
           for (const d of uniqueDocs) {
-            const biz = resolveVideoEstablishment(d, bizMap);
-            const groupId = biz?.id || d.business_id || d.id;
+            const biz = resolveVideoEstablishment(d, bizMap, { strict: true });
+            // Group by POI when present, otherwise by resolved establishment.
+            const groupId = d.poi_id || biz?.id || d.business_id || d.id;
             if (!docsByBiz.has(groupId)) {
               docsByBiz.set(groupId, []);
               orderKey.set(groupId, idx++);
