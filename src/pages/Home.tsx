@@ -1463,32 +1463,15 @@ const Home = () => {
               youtubeSubItems = ytRows
                 .map((y: any) => {
                   const biz = ytBizMap.get(y.business_id) || null;
-                  const url = y.is_short
-                    ? `https://www.youtube.com/shorts/${y.video_id}`
-                    : `https://www.youtube.com/watch?v=${y.video_id}`;
-                  if (seenUrlsYt.has(url)) return null;
-                  seenUrlsYt.add(url);
-                  const ytAccount = (biz as any)?.youtube_url ? (biz as any).youtube_url.split("/").filter(Boolean).pop() || "" : "";
-                  const social = ytAccount
-                    ? { platform: "youtube" as const, account: ytAccount, url: (biz as any)?.youtube_url || null }
-                    : null;
-                  return {
-                    id: y.id,
-                    url,
-                    business_name: biz?.name || y.title || "—",
-                    thumbnail_url: y.custom_thumbnail_url || y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/maxresdefault.jpg`,
+                  const item = buildYoutubeVideoItem({
+                    yt: y,
                     business: biz,
-                    owner: biz
-                      ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null }
-                      : null,
-                    social,
-                    showSocialBadge: !!social,
-                    description: null,
-                    manualCard: null,
-                    badge_ids: ytBadgesByVideo[y.id] || [],
-                    // External YouTube videos: show the YouTube title (not the business hook).
-                    videoTitle: y.title ?? null,
-                  } as VideoItem;
+                    ytBadgesByVideo,
+                  }) as VideoItem | null;
+                  if (!item) return null;
+                  if (seenUrlsYt.has(item.url)) return null;
+                  seenUrlsYt.add(item.url);
+                  return item;
                 })
                 .filter(Boolean) as VideoItem[];
             }
