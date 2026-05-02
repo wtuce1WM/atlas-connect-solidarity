@@ -409,7 +409,7 @@ const CountryVideosPanel = ({ withSubcategory = true }: { withSubcategory?: bool
       for (let i = 0; i < filteredVideos.length; i++) {
         await supabase
           .from("business_documents")
-          .update({ sort_order: i } as any)
+          .update({ front_sort_order: i } as any)
           .eq("id", filteredVideos[i].id);
       }
       toast.success("Ordre sauvegardé");
