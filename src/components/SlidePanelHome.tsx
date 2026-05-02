@@ -697,26 +697,27 @@ const SlidePanelHome = ({
   );
 };
 
+export const DescriptionPlusInlineButton = ({ onOpen }: { onOpen: () => void }) => (
+  <button
+    type="button"
+    onClick={onOpen}
+    className="group flex flex-col items-center gap-2 pointer-events-auto"
+    aria-label="Voir la description"
+  >
+    <span
+      className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
+      style={{ backgroundColor: '#25D366' }}
+    >
+      <span className="text-2xl text-white font-light leading-none">+</span>
+    </span>
+  </button>
+);
+
 const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange }: { html: string; businessName: string; isOpen: boolean; onOpenChange: (v: boolean) => void }) => {
   const open = isOpen;
   const setOpen = onOpenChange;
   return (
     <>
-      <div className="absolute left-1/2 -translate-x-1/2 bottom-[18.75rem] z-20 pointer-events-auto">
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          className="group flex flex-col items-center gap-2"
-          aria-label="Voir la description"
-        >
-          <span
-            className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
-            style={{ backgroundColor: '#25D366' }}
-          >
-            <span className="text-2xl text-white font-light leading-none">+</span>
-          </span>
-        </button>
-      </div>
       {open && (
         <div
           className="absolute inset-0 z-[40] flex flex-col bg-black/90 backdrop-blur-sm animate-fade-in pointer-events-auto"
