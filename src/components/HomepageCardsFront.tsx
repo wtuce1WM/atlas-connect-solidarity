@@ -45,6 +45,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
+  const [activeDescription, setActiveDescription] = useState<string | null>(null);
   const isFirstLoad = useRef(true);
 
   useEffect(() => {
