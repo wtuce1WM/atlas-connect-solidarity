@@ -116,13 +116,18 @@ const SlidePanelHome = ({
   const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [businessDescription, setBusinessDescription] = useState<string | null>(null);
 
-  // Fallback: if no per-video description was provided, fetch the description of
-  // the consulted business (pageBusinessId, i.e. the document's "root" business —
-  // typically the POI/fiche), falling back to the owner only if no page id is set.
+  // Description source:
+  // - When pageBusinessId is provided, ALWAYS use that business's description
+  //   (the consulted fiche) — ignore the per-video description.
+  // - Otherwise, use the per-video description if any, then fall back to the owner's.
   useEffect(() => {
-    if (description && description.trim()) { setBusinessDescription(null); return; }
+    if (!open) { setBusinessDescription(null); return; }
+    if (!pageBusinessId && description && description.trim()) {
+      setBusinessDescription(null);
+      return;
+    }
     const targetId = pageBusinessId || owner?.id;
-    if (!open || !targetId) { setBusinessDescription(null); return; }
+    if (!targetId) { setBusinessDescription(null); return; }
     let cancelled = false;
     (supabase as any)
       .from("businesses")
@@ -135,7 +140,9 @@ const SlidePanelHome = ({
     return () => { cancelled = true; };
   }, [open, owner?.id, pageBusinessId, description]);
 
-  const effectiveDescription = (description && description.trim()) ? description : businessDescription;
+  const effectiveDescription = pageBusinessId
+    ? businessDescription
+    : ((description && description.trim()) ? description : businessDescription);
   const [descOverlayOpen, setDescOverlayOpen] = useState(false);
   useEffect(() => { if (!open) setDescOverlayOpen(false); }, [open]);
   const [ownerBusiness, setOwnerBusiness] = useState<AgendaEvent["business"] | null>(null);
