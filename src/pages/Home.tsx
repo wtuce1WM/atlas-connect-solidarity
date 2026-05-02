@@ -648,6 +648,7 @@ const Home = () => {
             const { data: docs } = await supabase
               .from("business_documents")
               .select("url, thumbnail_url")
+              .eq("business_is_active", true)
               .in("url", firstVideoUrls);
             ((docs as any[]) || []).forEach((d) => {
               if (d.url && d.thumbnail_url) thumbByUrl.set(d.url, d.thumbnail_url);
