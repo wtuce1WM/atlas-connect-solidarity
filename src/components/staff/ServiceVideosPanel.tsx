@@ -352,7 +352,7 @@ const ServiceVideosPanel = () => {
         filteredVideos.map((v, i) =>
           supabase
             .from("business_documents")
-            .update({ front_sort_order: i } as any)
+            .update({ sort_order: i } as any)
             .eq("id", v.id)
         )
       );
