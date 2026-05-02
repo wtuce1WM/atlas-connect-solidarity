@@ -999,16 +999,7 @@ const Home = () => {
               if (data) ytRows.push(...data);
             }
             const ytBizIds = [...new Set(ytRows.map((y: any) => y.business_id).filter(Boolean))] as string[];
-            const ytBizMap = new Map<string, SearchResultBusiness>();
-            if (ytBizIds.length > 0) {
-              for (let i = 0; i < ytBizIds.length; i += batch) {
-                const { data: bizs } = await supabase
-                  .from("businesses")
-                  .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr")
-                  .in("id", ytBizIds.slice(i, i + batch));
-                (bizs || []).forEach((b: any) => ytBizMap.set(b.id, b as SearchResultBusiness));
-              }
-            }
+            const ytBizMap = (await fetchBusinessesByIds(ytBizIds)) as Map<string, SearchResultBusiness>;
             // City filter (strictly aligned with business_documents logic):
             // Source of truth = business_youtube_video_cities. A YouTube video appears
             // on a city's homepage ONLY if it is explicitly linked to that city.
