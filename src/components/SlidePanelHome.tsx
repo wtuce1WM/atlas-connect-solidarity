@@ -528,6 +528,9 @@ const SlidePanelHome = ({
             )}
           </div>
           <div className={`absolute inset-x-0 bottom-0 top-0 z-30 p-4 flex flex-col items-center justify-end gap-3 pointer-events-none ${descOverlayOpen ? "hidden" : ""}`}>
+            {effectiveDescription && (
+              <DescriptionPlusInlineButton onOpen={() => setDescOverlayOpen(true)} />
+            )}
             {/* Bloc crédit unifié — priorité : social > owner > eventBusiness (mutuellement exclusifs) */}
             {(() => {
               if (visibleSocial) {
