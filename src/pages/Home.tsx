@@ -1355,10 +1355,13 @@ const Home = () => {
         // Group by resolved establishment. When the doc points to a POI, group by POI
         // so all videos referencing that POI are bucketed together (and shown without
         // the per-business limit below).
+        // Group by the actually displayed establishment (resolveVideoEstablishment skips POIs).
+        // This ensures videos showing the same business name stack into a single group,
+        // even if some are POI-tagged. Fallback to POI/business_id only if no real biz resolved.
         const docsByBiz = new Map<string, any[]>();
         for (const d of uniqueDocs) {
           const biz = resolveVideoEstablishment(d, bizMap, { strict: strictResolve });
-          const groupId = d.poi_id || biz?.id || d.business_id || d.id;
+          const groupId = biz?.id || d.poi_id || d.business_id || d.id;
           const arr = docsByBiz.get(groupId) || [];
           arr.push(d);
           docsByBiz.set(groupId, arr);
