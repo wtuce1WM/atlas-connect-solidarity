@@ -1395,14 +1395,7 @@ const Home = () => {
               if (!firstBizByGv[l.generic_video_id]) firstBizByGv[l.generic_video_id] = l.business_id;
             });
             const gvBizIds = [...new Set(Object.values(firstBizByGv))];
-            const gvBizMap = new Map<string, SearchResultBusiness>();
-            if (gvBizIds.length > 0) {
-              const { data: gvBizs } = await supabase
-                .from("businesses")
-                .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr")
-                .in("id", gvBizIds);
-              (gvBizs || []).forEach((b: any) => gvBizMap.set(b.id, b as SearchResultBusiness));
-            }
+            const gvBizMap = (await fetchBusinessesByIds(gvBizIds)) as Map<string, SearchResultBusiness>;
 
             const seenUrlsGv = new Set<string>(docItems.map((i) => i.url).filter(Boolean) as string[]);
             const gvBadgesByVideo: Record<string, string[]> = {};
