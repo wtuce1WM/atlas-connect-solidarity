@@ -15,6 +15,15 @@ export const BASE_BIZ_COLS =
   "id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr";
 
 /**
+ * Canonical column list used everywhere we hydrate a `business_documents` video row.
+ * Identical (order + spelling) to the previously inlined `.select(...)` strings used
+ * across the homepage video loaders. Append extra columns at call sites as needed
+ * (e.g. ", front_sort_order", ", event_id", ", price, price_type").
+ */
+export const DOC_VIDEO_COLS =
+  "id, url, thumbnail_url, business_id, subcategory_id, service_id, sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, name";
+
+/**
  * Fetch businesses by id (chunked at 300) and return a Map<id, row>.
  * `extraCols` is appended to BASE_BIZ_COLS to cover the few call sites that
  * also need `is_poi`, `front_video_count`, `priority_score`, `google_rating`, etc.
