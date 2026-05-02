@@ -62,6 +62,7 @@ export interface ResultsTabContentProps {
   onFrontStructureFilter?: (subcategoryNames: Set<string> | null) => void;
   fsTopBusinessId?: string | null;
   allCityMapBusinesses?: Business[];
+  hideAiSuggestion?: boolean;
 }
 
 export default function ResultsTabContent({
