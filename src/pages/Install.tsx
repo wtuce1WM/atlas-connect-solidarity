@@ -1,7 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Apple, Smartphone, Monitor, Share, Plus, MoreVertical, Download, Check } from "lucide-react";
 
 type Platform = "ios" | "android" | "mac" | "windows";
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
 
 const detectPlatform = (): Platform => {
   if (typeof navigator === "undefined") return "ios";
@@ -14,11 +19,49 @@ const detectPlatform = (): Platform => {
 
 const Install = () => {
   const [platform, setPlatform] = useState<Platform>("ios");
+  const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
+  const [installed, setInstalled] = useState(false);
+  const guideRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     setPlatform(detectPlatform());
     document.title = "Installer l'app — ONE WORLD MOROCCO";
+
+    // Already installed (standalone mode)
+    if (window.matchMedia?.("(display-mode: standalone)").matches || (navigator as any).standalone) {
+      setInstalled(true);
+    }
+
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setInstallEvent(e as BeforeInstallPromptEvent);
+    };
+    const installedHandler = () => {
+      setInstalled(true);
+      setInstallEvent(null);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    window.addEventListener("appinstalled", installedHandler);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+      window.removeEventListener("appinstalled", installedHandler);
+    };
   }, []);
+
+  const handleIconClick = async () => {
+    if (installed) return;
+    if (installEvent) {
+      await installEvent.prompt();
+      const { outcome } = await installEvent.userChoice;
+      if (outcome === "accepted") {
+        setInstalled(true);
+        setInstallEvent(null);
+      }
+      return;
+    }
+    // Fallback: scroll to platform-specific guide
+    guideRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const tabs: { id: Platform; label: string; icon: JSX.Element }[] = useMemo(
     () => [
@@ -75,13 +118,46 @@ const Install = () => {
       <div className="mx-auto max-w-2xl px-6 py-12">
         {/* Header */}
         <header className="text-center mb-10">
-          <img src="/app-icon-512.png" alt="ONE WORLD MOROCCO" className="mx-auto h-24 w-24 rounded-3xl shadow-xl mb-6" />
+          <button
+            type="button"
+            onClick={handleIconClick}
+            disabled={installed}
+            className="group relative mx-auto mb-8 block focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-4 focus-visible:ring-offset-background rounded-3xl"
+            aria-label={
+              installed
+                ? "Application déjà installée"
+                : installEvent
+                  ? "Installer l'application maintenant"
+                  : "Voir les instructions d'installation"
+            }
+          >
+            <img
+              src="/app-icon-512.png"
+              alt="ONE WORLD MOROCCO"
+              className={`h-24 w-24 rounded-3xl shadow-xl transition-transform ${
+                installed ? "" : "group-hover:scale-105 group-active:scale-95 cursor-pointer"
+              }`}
+            />
+            {!installed && (
+              <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gold text-[hsl(var(--background))] text-xs font-roboto font-medium shadow-lg whitespace-nowrap">
+                <Download className="h-3 w-3" />
+                {installEvent ? "Installer" : "Comment installer"}
+              </span>
+            )}
+            {installed && (
+              <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-600 text-white text-xs font-roboto font-medium shadow-lg whitespace-nowrap">
+                <Check className="h-3 w-3" />
+                Installée
+              </span>
+            )}
+          </button>
           <h1 className="font-josefin text-3xl md:text-4xl font-light tracking-wide mb-3">
             Installer ONE WORLD MOROCCO
           </h1>
           <p className="font-roboto text-muted-foreground text-base leading-relaxed">
-            Installe l'app sur ton appareil pour un accès en un clic, sans barre d'adresse,
-            avec l'icône directement sur ton écran d'accueil ou ton bureau.
+            {installEvent
+              ? "Touche l'icône ci-dessus pour installer l'app en un clic, ou suis les étapes ci-dessous."
+              : "Installe l'app sur ton appareil pour un accès en un clic, sans barre d'adresse, avec l'icône directement sur ton écran d'accueil ou ton bureau."}
           </p>
         </header>
 
@@ -104,7 +180,7 @@ const Install = () => {
         </div>
 
         {/* Guide card */}
-        <section className="bg-card border border-border rounded-2xl p-6 md:p-8 shadow-sm">
+        <section ref={guideRef} className="bg-card border border-border rounded-2xl p-6 md:p-8 shadow-sm scroll-mt-6">
           <h2 className="font-josefin text-xl md:text-2xl font-light mb-6 text-center">
             {guide.title}
           </h2>
