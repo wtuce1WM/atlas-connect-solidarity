@@ -623,14 +623,7 @@ const Home = () => {
         const events = ((eventRows as any[]) || []).filter((ev) => ev?.images?.[0] || ev?.videos?.[0]);
 
         const bizIds = events.map((ev) => ev.default_business_id).filter(Boolean) as string[];
-        const bizMap = new Map<string, any>();
-        if (bizIds.length > 0) {
-          const { data: bizRows } = await supabase
-            .from("businesses")
-            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr")
-            .in("id", bizIds);
-          ((bizRows as any[]) || []).forEach((b) => bizMap.set(b.id, b));
-        }
+        const bizMap = await fetchBusinessesByIds(bizIds);
 
         if (events.length === 0) {
           safeSetVideos([]);
