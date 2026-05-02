@@ -1644,6 +1644,8 @@ const Home = () => {
                     description: null,
                     manualCard: null,
                     badge_ids: ytBadgesByVideo[y.id] || [],
+                    // External YouTube videos: show the YouTube title (not the business hook).
+                    videoTitle: y.title ?? null,
                   } as VideoItem;
                 })
                 .filter(Boolean) as VideoItem[];
