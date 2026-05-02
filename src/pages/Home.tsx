@@ -728,17 +728,8 @@ const Home = () => {
           seen.add(d.business_id);
           docByBiz.set(d.business_id, d);
         }
-        const popDocBadgesByDocId: Record<string, string[]> = {};
         const popDocIds = [...new Set(allDocs.map((d: any) => d.id).filter(Boolean))] as string[];
-        for (let i = 0; i < popDocIds.length; i += batch) {
-          const { data: rows } = await supabase
-            .from("business_document_badges")
-            .select("document_id, badge_id")
-            .in("document_id", popDocIds.slice(i, i + batch));
-          ((rows as any[]) || []).forEach((r: any) => {
-            (popDocBadgesByDocId[r.document_id] ||= []).push(r.badge_id);
-          });
-        }
+        const popDocBadgesByDocId = await fetchDocBadgesByDocId(popDocIds);
         const docVideoItems: VideoItem[] = bizIds
           .map((bid) => {
             const d = docByBiz.get(bid);
