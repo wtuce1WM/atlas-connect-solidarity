@@ -41,6 +41,12 @@ import {
   cityMatches,
 } from "@/lib/homeHelpers";
 import { fetchDocBadgesByDocId, fetchYtBadgesByVideoId, fetchBusinessesByIds, DOC_VIDEO_COLS } from "@/lib/homeFetchHelpers";
+import {
+  buildDocVideoItem,
+  buildYoutubeVideoItem,
+  getCityIdByName,
+  fetchServiceNamesByIds,
+} from "@/lib/homeVideoBuilders";
 import { getManualCardMap } from "@/lib/manualCards";
 import { resolveHomepageCity, readLastHomepageCity, writeLastHomepageCity } from "@/lib/cityHomepage";
 import { useGeolocation } from "@/hooks/useGeolocation";
