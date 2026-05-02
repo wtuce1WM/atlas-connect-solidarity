@@ -62,6 +62,7 @@ export interface ResultsTabContentProps {
   onFrontStructureFilter?: (subcategoryNames: Set<string> | null) => void;
   fsTopBusinessId?: string | null;
   allCityMapBusinesses?: Business[];
+  hideAiSuggestion?: boolean;
 }
 
 export default function ResultsTabContent({
@@ -105,6 +106,7 @@ export default function ResultsTabContent({
   onFrontStructureFilter,
   fsTopBusinessId,
   allCityMapBusinesses,
+  hideAiSuggestion,
 }: ResultsTabContentProps) {
   const { tabs: frontTabs } = useFrontStructureTabs(effectiveCity || null);
   const [activeFsTabId, setActiveFsTabId] = useState<string | null>(null);
@@ -181,7 +183,7 @@ export default function ResultsTabContent({
                     />
                   );
 
-                  if (index === 2 && currentPage === 1) {
+                  if (index === 2 && currentPage === 1 && !hideAiSuggestion) {
                     return [
                       card,
                       <AISuggestionCard
