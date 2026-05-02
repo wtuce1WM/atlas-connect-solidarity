@@ -40,6 +40,7 @@ import {
   copyTextSilently,
   cityMatches,
 } from "@/lib/homeHelpers";
+import { fetchDocBadgesByDocId, fetchYtBadgesByVideoId } from "@/lib/homeFetchHelpers";
 import { getManualCardMap } from "@/lib/manualCards";
 import { resolveHomepageCity, readLastHomepageCity, writeLastHomepageCity } from "@/lib/cityHomepage";
 import { useGeolocation } from "@/hooks/useGeolocation";
