@@ -526,7 +526,7 @@ const SlidePanelHome = ({
               </div>
             )}
           </div>
-          <div className="absolute inset-x-0 bottom-0 top-0 z-30 p-4 flex flex-col items-center justify-end gap-3 pointer-events-none">
+          <div className={`absolute inset-x-0 bottom-0 top-0 z-30 p-4 flex flex-col items-center justify-end gap-3 pointer-events-none ${descOverlayOpen ? "hidden" : ""}`}>
             {owner && (
               <div
                 key={`owner-overlay-${videoId || videoUrl}`}
