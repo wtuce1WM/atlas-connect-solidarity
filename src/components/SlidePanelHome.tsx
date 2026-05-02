@@ -32,6 +32,8 @@ interface SlidePanelHomeProps {
   businessName: string;
   /** Nom de la fiche/document consulté (ex: POI), distinct du owner quand la vidéo a un linked_business_id */
   pageBusinessName?: string | null;
+  /** Id du business "racine" du document (pour fallback description) */
+  pageBusinessId?: string | null;
   isGeneric: boolean;
   currentTime: number;
   onTimeUpdate: (t: number) => void;
