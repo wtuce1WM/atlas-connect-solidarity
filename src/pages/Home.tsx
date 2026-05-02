@@ -706,6 +706,7 @@ const Home = () => {
             .from("business_documents")
             .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, name")
             .eq("type", "video")
+            .eq("business_is_active", true)
             .in("business_id", chunk)
             .order("front_sort_order", { ascending: true });
           if (data) allDocs.push(...data);
