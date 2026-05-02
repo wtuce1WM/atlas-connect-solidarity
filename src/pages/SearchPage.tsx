@@ -1084,8 +1084,19 @@ const SearchPage = () => {
       return [...openDuring.sort(sortWtuceAndRating), ...rest.sort(sortWtuceAndRating)];
     }
 
+    // pinIds: explicit allow-list of business IDs (e.g. from /fiche/:slug → KP group)
+    // When present, restrict results to these IDs only and preserve the requested order.
+    const pinIdsParam = searchParams.get("pinIds");
+    if (pinIdsParam) {
+      const orderedIds = pinIdsParam.split(",").map(s => s.trim()).filter(Boolean);
+      const allowSet = new Set(orderedIds);
+      const byId = new Map(filtered.filter(b => allowSet.has(b.id)).map(b => [b.id, b]));
+      const ordered = orderedIds.map(id => byId.get(id)).filter(Boolean) as Business[];
+      return ordered;
+    }
+
     return [...filtered].sort(sortWtuceAndRating);
-  }, [allBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots, detectedNeighborhood, searchLevel, totalCount]);
+  }, [allBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots, detectedNeighborhood, searchLevel, totalCount, searchParams]);
 
   // Build subcategory name → icon name map
   const subcategoryIconMap = useMemo(() => {
