@@ -705,8 +705,9 @@ export const DescriptionPlusInlineButton = ({ onOpen }: { onOpen: () => void }) 
   <button
     type="button"
     onClick={onOpen}
-    className="group flex flex-col items-center gap-2 pointer-events-auto"
+    className="animate-logo-big-full-reveal group flex flex-col items-center gap-2 pointer-events-auto"
     aria-label="Voir la description"
+    style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5)) drop-shadow(0 4px 20px hsla(0,0%,0%,0.3))" }}
   >
     <span
       className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
