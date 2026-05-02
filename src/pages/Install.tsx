@@ -1,7 +1,44 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Apple, Smartphone, Monitor, Share, Plus, MoreVertical, Download, Check } from "lucide-react";
+import { resolveHomepageCity } from "@/lib/cityHomepage";
 
 type Platform = "ios" | "android" | "mac" | "windows";
+
+/**
+ * When launched as installed PWA (standalone), redirect to /test?city=<resolved>
+ * using geolocation (Essaouira if within 80km, else Marrakech).
+ * Falls back gracefully if geolocation is denied or unavailable.
+ */
+const redirectStandaloneToHome = () => {
+  const go = (city: string) => {
+    window.location.replace(`/test?city=${encodeURIComponent(city)}&entry=__home__`);
+  };
+  if (!navigator.geolocation) {
+    go(resolveHomepageCity(null));
+    return;
+  }
+  let done = false;
+  const timeout = setTimeout(() => {
+    if (done) return;
+    done = true;
+    go(resolveHomepageCity(null));
+  }, 2500);
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timeout);
+      go(resolveHomepageCity({ lat: pos.coords.latitude, lng: pos.coords.longitude }));
+    },
+    () => {
+      if (done) return;
+      done = true;
+      clearTimeout(timeout);
+      go(resolveHomepageCity(null));
+    },
+    { timeout: 2000, maximumAge: 5 * 60 * 1000 }
+  );
+};
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -27,9 +64,13 @@ const Install = () => {
     setPlatform(detectPlatform());
     document.title = "Installer l'app — ONE WORLD MOROCCO";
 
-    // Already installed (standalone mode)
-    if (window.matchMedia?.("(display-mode: standalone)").matches || (navigator as any).standalone) {
+    // Already installed (standalone mode) → redirect to /test with resolved city
+    const isStandalone =
+      window.matchMedia?.("(display-mode: standalone)").matches || (navigator as any).standalone;
+    if (isStandalone) {
       setInstalled(true);
+      redirectStandaloneToHome();
+      return;
     }
 
     const handler = (e: Event) => {
@@ -39,6 +80,7 @@ const Install = () => {
     const installedHandler = () => {
       setInstalled(true);
       setInstallEvent(null);
+      redirectStandaloneToHome();
     };
     window.addEventListener("beforeinstallprompt", handler);
     window.addEventListener("appinstalled", installedHandler);
@@ -49,13 +91,17 @@ const Install = () => {
   }, []);
 
   const handleIconClick = async () => {
-    if (installed) return;
+    if (installed) {
+      redirectStandaloneToHome();
+      return;
+    }
     if (installEvent) {
       await installEvent.prompt();
       const { outcome } = await installEvent.userChoice;
       if (outcome === "accepted") {
         setInstalled(true);
         setInstallEvent(null);
+        redirectStandaloneToHome();
       }
       return;
     }
