@@ -288,6 +288,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
         .from("business_documents")
         .select("url, name, thumbnail_url, business_id")
         .eq("type", "video")
+        .eq("business_is_active", true)
         .eq("destination_id", destinationId)
         .order("sort_order", { ascending: true });
       if (cancelled) return;
