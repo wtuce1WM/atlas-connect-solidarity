@@ -98,6 +98,7 @@ async function buildSnapshot(supabase: any, city: string) {
           .from("business_documents")
           .select("id, url, thumbnail_url, business_id, poi_id, linked_business_id, sort_order")
           .eq("type", "video")
+          .eq("business_is_active", true)
           .in("subcategory_id", entry.subcategory_ids)
           .in("id", chunk)
           .order("sort_order", { ascending: true }).limit(1)
