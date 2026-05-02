@@ -356,12 +356,14 @@ export function useBookOnlineData(businessId: string) {
           .select("url, name, city, price, price_type, description, thumbnail_url, business_id")
           .eq("linked_business_id", businessId)
           .eq("type", "video")
+          .eq("business_is_active", true)
           .order("front_sort_order"),
         supabase
           .from("business_documents")
           .select("url, name, city, price, price_type, description, thumbnail_url, business_id")
           .eq("poi_id", businessId)
           .eq("type", "video")
+          .eq("business_is_active", true)
           .order("front_sort_order"),
         supabase
           .from("generic_video_pois" as any)
