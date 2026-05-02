@@ -408,7 +408,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
             : null
         }
         social={null}
-        description={null}
+        description={activeDescription}
         agendaCity={
           activeSlot && (activeSlot.data.label || "").trim().toLowerCase() === "agenda"
             ? city
