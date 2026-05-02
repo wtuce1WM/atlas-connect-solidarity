@@ -8,6 +8,33 @@ import { supabase } from "@/integrations/supabase/client";
 const CHUNK = 300;
 
 /**
+ * Canonical column list used everywhere we hydrate a business for a video card.
+ * Kept identical (order + spelling) to the previous inlined `.select(...)` strings.
+ */
+export const BASE_BIZ_COLS =
+  "id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr";
+
+/**
+ * Fetch businesses by id (chunked at 300) and return a Map<id, row>.
+ * `extraCols` is appended to BASE_BIZ_COLS to cover the few call sites that
+ * also need `is_poi`, `front_video_count`, `priority_score`, `google_rating`, etc.
+ */
+export async function fetchBusinessesByIds(
+  ids: readonly string[],
+  extraCols = "",
+): Promise<Map<string, any>> {
+  const map = new Map<string, any>();
+  if (!ids || ids.length === 0) return map;
+  const cols = extraCols ? `${BASE_BIZ_COLS}, ${extraCols}` : BASE_BIZ_COLS;
+  await chunked(ids, async (chunk) => {
+    const { data } = await supabase.from("businesses").select(cols).in("id", chunk);
+    ((data as any[]) || []).forEach((b: any) => map.set(b.id, b));
+    return [];
+  });
+  return map;
+}
+
+/**
  * Generic chunked fetcher: runs `runChunk` over `ids` in batches of CHUNK
  * and concatenates results. Mirrors the `for (i; i+=300) .in(col, slice)` pattern.
  */

@@ -40,7 +40,7 @@ import {
   copyTextSilently,
   cityMatches,
 } from "@/lib/homeHelpers";
-import { fetchDocBadgesByDocId, fetchYtBadgesByVideoId } from "@/lib/homeFetchHelpers";
+import { fetchDocBadgesByDocId, fetchYtBadgesByVideoId, fetchBusinessesByIds } from "@/lib/homeFetchHelpers";
 import { getManualCardMap } from "@/lib/manualCards";
 import { resolveHomepageCity, readLastHomepageCity, writeLastHomepageCity } from "@/lib/cityHomepage";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -285,14 +285,7 @@ const Home = () => {
         .maybeSingle();
       if (cancelled || !doc?.url) return;
       const displayIds = getVideoBusinessCandidateIds(doc as any);
-      const { data: bizRows } = displayIds.length > 0
-        ? await supabase
-            .from("businesses")
-            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr, is_poi")
-            .in("id", displayIds)
-        : { data: null } as any;
-      const bizMap = new Map<string, any>();
-      ((bizRows as any[]) || []).forEach((b) => bizMap.set(b.id, b));
+      const bizMap = await fetchBusinessesByIds(displayIds, "is_poi");
       const biz = resolveVideoEstablishment(doc as any, bizMap);
       if (cancelled) return;
       const video: VideoItem = {
@@ -630,14 +623,7 @@ const Home = () => {
         const events = ((eventRows as any[]) || []).filter((ev) => ev?.images?.[0] || ev?.videos?.[0]);
 
         const bizIds = events.map((ev) => ev.default_business_id).filter(Boolean) as string[];
-        const bizMap = new Map<string, any>();
-        if (bizIds.length > 0) {
-          const { data: bizRows } = await supabase
-            .from("businesses")
-            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr")
-            .in("id", bizIds);
-          ((bizRows as any[]) || []).forEach((b) => bizMap.set(b.id, b));
-        }
+        const bizMap = await fetchBusinessesByIds(bizIds);
 
         if (events.length === 0) {
           safeSetVideos([]);
@@ -712,14 +698,7 @@ const Home = () => {
             .order("front_sort_order", { ascending: true });
           if (data) allDocs.push(...data);
         }
-        const bizMap = new Map<string, SearchResultBusiness>();
-        for (let i = 0; i < bizIds.length; i += batch) {
-          const { data: bizs } = await supabase
-            .from("businesses")
-            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr")
-            .in("id", bizIds.slice(i, i + batch));
-          (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
-        }
+        const bizMap = (await fetchBusinessesByIds(bizIds)) as Map<string, SearchResultBusiness>;
         // Keep one video per business (the first), preserving the search ranking order
         const seen = new Set<string>();
         const docByBiz = new Map<string, any>();
@@ -835,16 +814,7 @@ const Home = () => {
         const allBizIds = [...new Set(
           uniqueDocs.flatMap((d: any) => getVideoBusinessCandidateIds(d)).filter(Boolean)
         )] as string[];
-        const bizMap = new Map<string, SearchResultBusiness>();
-        if (allBizIds.length > 0) {
-          for (let i = 0; i < allBizIds.length; i += batch) {
-            const { data: bizs } = await supabase
-              .from("businesses")
-              .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr, is_poi, front_video_count")
-              .in("id", allBizIds.slice(i, i + batch));
-            (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
-          }
-        }
+        const bizMap = (await fetchBusinessesByIds(allBizIds, "is_poi, front_video_count")) as Map<string, SearchResultBusiness>;
         uniqueDocs.sort((a: any, b: any) => {
           const so = (a.sort_order ?? 0) - (b.sort_order ?? 0);
           if (so !== 0) return so;
@@ -964,14 +934,7 @@ const Home = () => {
               (linkedTargetsByGv[l.generic_video_id] ||= new Set()).add(l.poi_id);
             });
             const gvBizIds = [...new Set(Object.values(firstBizByGv))];
-            const gvBizMap = new Map<string, SearchResultBusiness>();
-            if (gvBizIds.length > 0) {
-              const { data: gvBizs } = await supabase
-                .from("businesses")
-                .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr")
-                .in("id", gvBizIds);
-              (gvBizs || []).forEach((b: any) => gvBizMap.set(b.id, b as SearchResultBusiness));
-            }
+            const gvBizMap = (await fetchBusinessesByIds(gvBizIds)) as Map<string, SearchResultBusiness>;
 
             // Fetch all badges for these generic videos
             const gvBadgesByVideo: Record<string, string[]> = {};
@@ -1036,16 +999,7 @@ const Home = () => {
               if (data) ytRows.push(...data);
             }
             const ytBizIds = [...new Set(ytRows.map((y: any) => y.business_id).filter(Boolean))] as string[];
-            const ytBizMap = new Map<string, SearchResultBusiness>();
-            if (ytBizIds.length > 0) {
-              for (let i = 0; i < ytBizIds.length; i += batch) {
-                const { data: bizs } = await supabase
-                  .from("businesses")
-                  .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr")
-                  .in("id", ytBizIds.slice(i, i + batch));
-                (bizs || []).forEach((b: any) => ytBizMap.set(b.id, b as SearchResultBusiness));
-              }
-            }
+            const ytBizMap = (await fetchBusinessesByIds(ytBizIds)) as Map<string, SearchResultBusiness>;
             // City filter (strictly aligned with business_documents logic):
             // Source of truth = business_youtube_video_cities. A YouTube video appears
             // on a city's homepage ONLY if it is explicitly linked to that city.
@@ -1296,17 +1250,7 @@ const Home = () => {
         const allBizIds = [...new Set(
           allDocs.flatMap((d: any) => getVideoBusinessCandidateIds(d, { strict: strictResolve })).filter(Boolean)
         )] as string[];
-        const bizMap = new Map<string, SearchResultBusiness>();
-        if (allBizIds.length > 0) {
-          const batch = 300;
-          for (let i = 0; i < allBizIds.length; i += batch) {
-            const { data: bizs } = await supabase
-              .from("businesses")
-              .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr, google_rating, priority_score, front_video_count, is_poi")
-              .in("id", allBizIds.slice(i, i + batch));
-            (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
-          }
-        }
+        const bizMap = (await fetchBusinessesByIds(allBizIds, "google_rating, priority_score, front_video_count, is_poi")) as Map<string, SearchResultBusiness>;
 
         // Keep the exact backoffice video document rows; do not deduplicate by URL.
         const uniqueDocs = allDocs;
@@ -1451,14 +1395,7 @@ const Home = () => {
               if (!firstBizByGv[l.generic_video_id]) firstBizByGv[l.generic_video_id] = l.business_id;
             });
             const gvBizIds = [...new Set(Object.values(firstBizByGv))];
-            const gvBizMap = new Map<string, SearchResultBusiness>();
-            if (gvBizIds.length > 0) {
-              const { data: gvBizs } = await supabase
-                .from("businesses")
-                .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr")
-                .in("id", gvBizIds);
-              (gvBizs || []).forEach((b: any) => gvBizMap.set(b.id, b as SearchResultBusiness));
-            }
+            const gvBizMap = (await fetchBusinessesByIds(gvBizIds)) as Map<string, SearchResultBusiness>;
 
             const seenUrlsGv = new Set<string>(docItems.map((i) => i.url).filter(Boolean) as string[]);
             const gvBadgesByVideo: Record<string, string[]> = {};
@@ -1554,14 +1491,7 @@ const Home = () => {
                 if (data) ytRows.push(...data);
               }
               const ytBizIds = [...new Set(ytRows.map((y) => y.business_id).filter(Boolean))] as string[];
-              const ytBizMap = new Map<string, SearchResultBusiness>();
-              for (let i = 0; i < ytBizIds.length; i += CHUNK) {
-                const { data: bizs } = await supabase
-                  .from("businesses")
-                  .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr")
-                  .in("id", ytBizIds.slice(i, i + CHUNK));
-                (bizs || []).forEach((b: any) => ytBizMap.set(b.id, b as SearchResultBusiness));
-              }
+              const ytBizMap = (await fetchBusinessesByIds(ytBizIds)) as Map<string, SearchResultBusiness>;
               const ytBadgesByVideo = await fetchYtBadgesByVideoId(ytRows.map((y: any) => y.id).filter(Boolean));
               const seenUrlsYt = new Set<string>([...docItems, ...genericSubItems].map((i) => i.url).filter(Boolean) as string[]);
               youtubeSubItems = ytRows
@@ -1608,17 +1538,7 @@ const Home = () => {
 
       // Home path: display the resolved linked establishment when present.
       const allBizIds = [...new Set(allDocs.flatMap((d: any) => getVideoBusinessCandidateIds(d)))];
-      const bizMap = new Map<string, SearchResultBusiness>();
-      if (allBizIds.length > 0) {
-        const batch = 300;
-        for (let i = 0; i < allBizIds.length; i += batch) {
-          const { data: bizs } = await supabase
-            .from("businesses")
-            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr, is_poi")
-            .in("id", allBizIds.slice(i, i + batch));
-          (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
-        }
-      }
+      const bizMap = (await fetchBusinessesByIds(allBizIds, "is_poi")) as Map<string, SearchResultBusiness>;
       const homeDocBadgesByDocId = await fetchDocBadgesByDocId(allDocs.map((d: any) => d.id).filter(Boolean));
 
       safeSetVideos(
