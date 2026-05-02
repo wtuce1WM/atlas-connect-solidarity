@@ -759,22 +759,18 @@ const Home = () => {
               const y = ytByBiz.get(bid);
               const biz = bizMap.get(bid) || null;
               if (!y || !biz) return null;
-              return {
-                id: y.id,
-                url: y.is_short
-                  ? `https://www.youtube.com/shorts/${y.video_id}`
-                  : `https://www.youtube.com/watch?v=${y.video_id}`,
-                business_name: biz.name,
-                thumbnail_url: y.custom_thumbnail_url || y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/maxresdefault.jpg`,
+              // Popular branch: business_name forced to biz.name (not biz.name||title)
+              // and social/showSocialBadge intentionally null.
+              const item = buildYoutubeVideoItem({
+                yt: y,
                 business: biz,
-                owner: { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null },
-                social: null,
-                description: null,
-                manualCard: null,
-                badge_ids: popYtBadgesByVideo[y.id] || [],
-                // External YouTube videos: show the YouTube title (not the business hook).
-                videoTitle: y.title ?? null,
-              } as VideoItem;
+                ytBadgesByVideo: popYtBadgesByVideo,
+              }) as VideoItem | null;
+              if (!item) return null;
+              item.business_name = biz.name;
+              item.social = null;
+              delete (item as any).showSocialBadge;
+              return item;
             })
             .filter(Boolean) as VideoItem[];
         }
