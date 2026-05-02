@@ -1250,17 +1250,7 @@ const Home = () => {
         const allBizIds = [...new Set(
           allDocs.flatMap((d: any) => getVideoBusinessCandidateIds(d, { strict: strictResolve })).filter(Boolean)
         )] as string[];
-        const bizMap = new Map<string, SearchResultBusiness>();
-        if (allBizIds.length > 0) {
-          const batch = 300;
-          for (let i = 0; i < allBizIds.length; i += batch) {
-            const { data: bizs } = await supabase
-              .from("businesses")
-              .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr, google_rating, priority_score, front_video_count, is_poi")
-              .in("id", allBizIds.slice(i, i + batch));
-            (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
-          }
-        }
+        const bizMap = (await fetchBusinessesByIds(allBizIds, "google_rating, priority_score, front_video_count, is_poi")) as Map<string, SearchResultBusiness>;
 
         // Keep the exact backoffice video document rows; do not deduplicate by URL.
         const uniqueDocs = allDocs;
