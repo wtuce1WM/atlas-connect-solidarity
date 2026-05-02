@@ -2000,7 +2000,7 @@ const SearchPage = () => {
       />
 
       {/* Hidden AISearchAnswer instance — generates AI text for Sticky 4 (overlay disabled) */}
-      {searchQuery && !isLoading && filteredBusinesses.length > 0 && !aiAnswerText && (
+      {searchQuery && !isLoading && filteredBusinesses.length > 0 && !aiAnswerText && !searchParams.get("pinIds") && (
         <div className="hidden">
           <AISearchAnswer
             query={spokenText || searchQuery}
