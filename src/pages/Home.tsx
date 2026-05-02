@@ -774,17 +774,8 @@ const Home = () => {
             if (!y.business_id || ytByBiz.has(y.business_id)) continue;
             ytByBiz.set(y.business_id, y);
           }
-          const popYtBadgesByVideo: Record<string, string[]> = {};
           const popYtIds = ytRows.map((y: any) => y.id).filter(Boolean);
-          if (popYtIds.length > 0) {
-            const { data: rows } = await supabase
-              .from("business_youtube_video_badges")
-              .select("youtube_video_id, badge_id")
-              .in("youtube_video_id", popYtIds);
-            ((rows as any[]) || []).forEach((r: any) => {
-              (popYtBadgesByVideo[r.youtube_video_id] ||= []).push(r.badge_id);
-            });
-          }
+          const popYtBadgesByVideo = await fetchYtBadgesByVideoId(popYtIds);
           ytVideoItems = missingBizIds
             .map((bid) => {
               const y = ytByBiz.get(bid);
