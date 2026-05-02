@@ -827,15 +827,9 @@ const Home = () => {
           uniqueDocs.push(...kept);
         }
         // Fetch service names for any service_id present on these docs
-        const badgeServiceIds = [...new Set(uniqueDocs.map((d: any) => d.service_id).filter(Boolean))] as string[];
-        const badgeServiceNameById = new Map<string, string>();
-        if (badgeServiceIds.length > 0) {
-          const { data: svcRows } = await supabase
-            .from("services")
-            .select("id, name_fr")
-            .in("id", badgeServiceIds);
-          (svcRows || []).forEach((s: any) => badgeServiceNameById.set(s.id, s.name_fr));
-        }
+        const badgeServiceNameById = await fetchServiceNamesByIds(
+          uniqueDocs.map((d: any) => d.service_id).filter(Boolean) as string[],
+        );
         // Fetch all badges associated with each document (for hashtag aggregation)
         const docBadgesByDocId = await fetchDocBadgesByDocId(uniqueDocs.map((d: any) => d.id).filter(Boolean));
         const isVlogsBadge = /^#?\s*vlogs?$/i.test(videoBadgeFilter.label.trim());
@@ -1287,15 +1281,9 @@ const Home = () => {
 
         const manualCardMap = !selectedSubId ? await getManualCardMap(city, limitedDocs) : new Map<string, { label: string; badgeId: string | null; eventId?: string | null }>();
         const docBadgesByDocId = await fetchDocBadgesByDocId(limitedDocs.map((d: any) => d.id).filter(Boolean));
-        const serviceIdSet = [...new Set(limitedDocs.map((d: any) => d.service_id).filter(Boolean))] as string[];
-        const serviceNameById = new Map<string, string>();
-        for (let i = 0; i < serviceIdSet.length; i += 300) {
-          const { data: svcRows } = await supabase
-            .from("services")
-            .select("id, name_fr")
-            .in("id", serviceIdSet.slice(i, i + 300));
-          (svcRows || []).forEach((s: any) => serviceNameById.set(s.id, s.name_fr));
-        }
+        const serviceNameById = await fetchServiceNamesByIds(
+          limitedDocs.map((d: any) => d.service_id).filter(Boolean) as string[],
+        );
 
         const docItems: VideoItem[] = limitedDocs.map((d: any) =>
           buildDocVideoItem({
