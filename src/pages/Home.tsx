@@ -927,6 +927,7 @@ const Home = () => {
             url: d.url,
             business_name: thumbnailBiz?.name || biz?.name || "—",
             pageBusinessName: thumbnailBiz?.name ?? null,
+            pageBusinessId: d.business_id ?? null,
             thumbnail_url: d.thumbnail_url,
             business: biz,
             owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
