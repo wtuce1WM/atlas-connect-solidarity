@@ -1319,12 +1319,7 @@ const Home = () => {
             .in("subcategory_id", subIds);
           const gvIds = [...new Set(((gvSubLinks as any[]) || []).map((l: any) => l.generic_video_id))];
           if (gvIds.length > 0) {
-            const { data: cityRow } = await supabase
-              .from("cities")
-              .select("id")
-              .eq("name_fr", city)
-              .maybeSingle();
-            const cityId = (cityRow as any)?.id ?? null;
+            const cityId = await getCityIdByName(city);
 
             const [{ data: extraCityLinks }, { data: gvs }] = await Promise.all([
               cityId
