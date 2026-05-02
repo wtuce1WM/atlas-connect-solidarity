@@ -148,6 +148,22 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
   const hasPrev = activePosInPlayable > 0;
   const hasNext = activePosInPlayable >= 0 && activePosInPlayable < playableIndices.length - 1;
 
+  // Fetch description of the active business so the green "+" overlay can render in SlidePanelHome.
+  useEffect(() => {
+    const ownerId = activeSlot?.data.ownerId;
+    if (!ownerId) { setActiveDescription(null); return; }
+    let cancelled = false;
+    (supabase as any)
+      .from("businesses")
+      .select("description")
+      .eq("id", ownerId)
+      .maybeSingle()
+      .then(({ data }: any) => {
+        if (!cancelled) setActiveDescription(data?.description ?? null);
+      });
+    return () => { cancelled = true; };
+  }, [activeSlot?.data.ownerId]);
+
   const goPrev = () => {
     if (!hasPrev) return;
     setActiveIndex(playableIndices[activePosInPlayable - 1]);
