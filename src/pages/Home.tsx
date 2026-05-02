@@ -59,6 +59,8 @@ interface VideoItem {
   id: string;
   url: string;
   business_name: string;
+  /** Nom de l'établissement "racine" du document (business_documents.business_id), distinct du owner quand un linked_business_id existe */
+  pageBusinessName?: string | null;
   thumbnail_url: string | null;
   business: SearchResultBusiness | null;
   /** Set only when the video's owner business differs from the display entity */
