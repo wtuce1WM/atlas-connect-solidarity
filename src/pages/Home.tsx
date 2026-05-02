@@ -691,7 +691,7 @@ const Home = () => {
           const chunk = bizIds.slice(i, i + batch);
           const { data } = await supabase
             .from("business_documents")
-            .select("id, url, thumbnail_url, business_id, subcategory_id, service_id, sort_order, front_sort_order, poi_id, linked_business_id, destination_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url, description, name")
+            .select(`${DOC_VIDEO_COLS}, front_sort_order`)
             .eq("type", "video")
             .eq("business_is_active", true)
             .in("business_id", chunk)
