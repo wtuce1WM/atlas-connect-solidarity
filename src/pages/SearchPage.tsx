@@ -2828,6 +2828,7 @@ const SearchPage = () => {
           effectiveCity={effectiveCityForMap}
            onFrontStructureFilter={(subNames) => setFsFilterSubcategories(subNames)}
            fsTopBusinessId={fsTopBusinessId}
+           hideAiSuggestion={!!searchParams.get("pinIds")}
            allCityMapBusinesses={allCityMapBusinesses}
         />
       )}
