@@ -108,6 +108,27 @@ const SlidePanelHome = ({
   const [agendaEvents, setAgendaEvents] = useState<AgendaEvent[]>([]);
   const [directionsBusiness, setDirectionsBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
+  const [businessDescription, setBusinessDescription] = useState<string | null>(null);
+
+  // Fallback: if no per-video description was provided, fetch the linked business description
+  // so the green "+" overlay can still render in SlidePanelHome.
+  useEffect(() => {
+    if (description && description.trim()) { setBusinessDescription(null); return; }
+    const ownerId = owner?.id;
+    if (!open || !ownerId) { setBusinessDescription(null); return; }
+    let cancelled = false;
+    (supabase as any)
+      .from("businesses")
+      .select("description")
+      .eq("id", ownerId)
+      .maybeSingle()
+      .then(({ data }: any) => {
+        if (!cancelled) setBusinessDescription(data?.description ?? null);
+      });
+    return () => { cancelled = true; };
+  }, [open, owner?.id, description]);
+
+  const effectiveDescription = (description && description.trim()) ? description : businessDescription;
   const [ownerBusiness, setOwnerBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [eventInfo, setEventInfo] = useState<{ name: string; logo_url: string | null } | null>(null);
 
