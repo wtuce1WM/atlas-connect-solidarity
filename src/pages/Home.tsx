@@ -511,6 +511,7 @@ const Home = () => {
           .from("business_documents")
           .select("id, url, subcategory_id")
           .eq("type", "video")
+          .eq("business_is_active", true)
           .not("subcategory_id", "is", null)
           .in("id", chunk);
         if (data) allDocs.push(...data);
