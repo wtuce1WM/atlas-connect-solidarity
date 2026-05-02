@@ -1353,11 +1353,13 @@ const Home = () => {
         // Keep the exact backoffice video document rows; do not deduplicate by URL.
         const uniqueDocs = allDocs;
 
-        // Group by business_id (the real owner), then keep first N per business (front_video_count)
+        // Group by resolved establishment. When the doc points to a POI, group by POI
+        // so all videos referencing that POI are bucketed together (and shown without
+        // the per-business limit below).
         const docsByBiz = new Map<string, any[]>();
         for (const d of uniqueDocs) {
           const biz = resolveVideoEstablishment(d, bizMap, { strict: strictResolve });
-          const groupId = biz?.id || d.business_id || d.id;
+          const groupId = d.poi_id || biz?.id || d.business_id || d.id;
           const arr = docsByBiz.get(groupId) || [];
           arr.push(d);
           docsByBiz.set(groupId, arr);
@@ -1365,13 +1367,16 @@ const Home = () => {
 
         // Apply front_video_count ONLY at the subcategory level.
         // At the category (front_structure entry) level, cap at 1 video per business.
+        // EXCEPTION: when grouped by a POI, show ALL videos pointing to it (no limit).
         const applyFrontVideoCountLimit = !!selectedSubId;
         const limitedDocs: any[] = [];
-        for (const [bizId, docs] of docsByBiz.entries()) {
+        for (const [groupId, docs] of docsByBiz.entries()) {
           const sorted = [...docs].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-          if (applyFrontVideoCountLimit) {
-            const biz = bizMap.get(bizId) as any;
-            const limit = Math.max(1, Math.min(9, biz?.front_video_count ?? 1));
+          const groupBiz = bizMap.get(groupId) as any;
+          if (groupBiz?.is_poi === true) {
+            limitedDocs.push(...sorted);
+          } else if (applyFrontVideoCountLimit) {
+            const limit = Math.max(1, Math.min(9, groupBiz?.front_video_count ?? 1));
             limitedDocs.push(...sorted.slice(0, limit));
           } else {
             limitedDocs.push(...sorted.slice(0, 1));
