@@ -206,7 +206,29 @@ const SlidePanelHome = ({
     return () => { cancelled = true; };
   }, [open, eventId, isGeneric, owner?.id]);
 
-  const ctaBusiness = eventBusiness || ownerBusiness;
+  // Page business lookup: when pageBusinessId is provided, load the consulted
+  // fiche so all CTAs (En savoir +, Itinéraire, WhatsApp, partage) target it
+  // instead of the owner.
+  const [pageBusiness, setPageBusiness] = useState<AgendaEvent["business"] | null>(null);
+  useEffect(() => {
+    if (!open || eventId || isGeneric || !pageBusinessId) {
+      setPageBusiness(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const { data: bizRow } = await supabase
+        .from("businesses")
+        .select("id, slug, name, address, latitude, longitude, phone, city, logo_url, neighborhood, whatsapp, logo_bg")
+        .eq("id", pageBusinessId)
+        .maybeSingle();
+      if (cancelled) return;
+      setPageBusiness((bizRow as any) || null);
+    })();
+    return () => { cancelled = true; };
+  }, [open, eventId, isGeneric, pageBusinessId]);
+
+  const ctaBusiness = eventBusiness || pageBusiness || ownerBusiness;
   const normalizeHeaderName = (value: string | null | undefined) =>
     (value || "").trim().toLocaleLowerCase("fr-FR");
   const shouldShowOwnerLogoInHeader =
