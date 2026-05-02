@@ -698,14 +698,7 @@ const Home = () => {
             .order("front_sort_order", { ascending: true });
           if (data) allDocs.push(...data);
         }
-        const bizMap = new Map<string, SearchResultBusiness>();
-        for (let i = 0; i < bizIds.length; i += batch) {
-          const { data: bizs } = await supabase
-            .from("businesses")
-            .select("id, name, images, logo_url, logo_bg, affiliate_id, instagram_url, tiktok_url, youtube_url, rating, computed_rating, total_review_count, categories, default_service, is_open_24h, show_opening_hours, opening_hours, city, neighborhood, latitude, longitude, engagements, wtuce_status, hook_fr")
-            .in("id", bizIds.slice(i, i + batch));
-          (bizs || []).forEach((b: any) => bizMap.set(b.id, b as SearchResultBusiness));
-        }
+        const bizMap = (await fetchBusinessesByIds(bizIds)) as Map<string, SearchResultBusiness>;
         // Keep one video per business (the first), preserving the search ranking order
         const seen = new Set<string>();
         const docByBiz = new Map<string, any>();
