@@ -1372,17 +1372,7 @@ const Home = () => {
 
 
         const manualCardMap = !selectedSubId ? await getManualCardMap(city, limitedDocs) : new Map<string, { label: string; badgeId: string | null; eventId?: string | null }>();
-        const docBadgesByDocId: Record<string, string[]> = {};
-        const limitedDocIds = limitedDocs.map((d: any) => d.id).filter(Boolean);
-        for (let i = 0; i < limitedDocIds.length; i += 300) {
-          const { data: rows } = await supabase
-            .from("business_document_badges")
-            .select("document_id, badge_id")
-            .in("document_id", limitedDocIds.slice(i, i + 300));
-          ((rows as any[]) || []).forEach((r: any) => {
-            (docBadgesByDocId[r.document_id] ||= []).push(r.badge_id);
-          });
-        }
+        const docBadgesByDocId = await fetchDocBadgesByDocId(limitedDocs.map((d: any) => d.id).filter(Boolean));
         const serviceIdSet = [...new Set(limitedDocs.map((d: any) => d.service_id).filter(Boolean))] as string[];
         const serviceNameById = new Map<string, string>();
         for (let i = 0; i < serviceIdSet.length; i += 300) {
