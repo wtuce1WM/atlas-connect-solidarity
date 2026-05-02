@@ -703,11 +703,19 @@ const DescriptionPlusButton = ({ html, businessName }: { html: string; businessN
         </button>
       </div>
       {open && (
-        <div className="absolute inset-0 z-[40] flex flex-col bg-black/90 backdrop-blur-sm animate-fade-in pointer-events-auto">
+        <div
+          className="absolute inset-0 z-[40] flex flex-col bg-black/90 backdrop-blur-sm animate-fade-in pointer-events-auto"
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
           <div className="relative z-10 shrink-0 flex items-center gap-3 px-4 py-3 bg-transparent border-b border-white/10">
             <button
               type="button"
-              onClick={() => setOpen(false)}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                setOpen(false);
+              }}
               className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0"
               aria-label="Fermer"
             >
