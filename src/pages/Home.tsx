@@ -462,12 +462,8 @@ const Home = () => {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { data } = await supabase
-        .from("cities")
-        .select("id")
-        .eq("name_fr", city)
-        .maybeSingle();
-      if (!cancelled) setCityRowId((data as any)?.id || null);
+      const id = await getCityIdByName(city);
+      if (!cancelled) setCityRowId(id);
     })();
     return () => { cancelled = true; };
   }, [city]);
@@ -868,12 +864,7 @@ const Home = () => {
             .eq("badge_id", videoBadgeFilter.badgeId);
           const gvIds = [...new Set(((gvBadgeLinks as any[]) || []).map((l: any) => l.generic_video_id))];
           if (gvIds.length > 0) {
-            const { data: cityRow } = await supabase
-              .from("cities")
-              .select("id")
-              .eq("name_fr", city)
-              .maybeSingle();
-            const cityId = (cityRow as any)?.id ?? null;
+            const cityId = await getCityIdByName(city);
 
             const [{ data: extraCityLinks }, { data: gvs }] = await Promise.all([
               cityId
