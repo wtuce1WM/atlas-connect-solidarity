@@ -68,6 +68,7 @@ function HomeVideoSlidePanel<T extends VideoLike>({
       videoId={activeVideo?.id || null}
       businessName={activeVideo?.business_name || ""}
       pageBusinessName={activeVideo?.pageBusinessName ?? null}
+      pageBusinessId={activeVideo?.pageBusinessId ?? null}
       isGeneric={isActiveGeneric}
       owner={activeVideo?.owner || null}
       social={activeVideo?.social || null}
