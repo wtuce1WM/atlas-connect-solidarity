@@ -180,7 +180,7 @@ const Install = () => {
         </div>
 
         {/* Guide card */}
-        <section className="bg-card border border-border rounded-2xl p-6 md:p-8 shadow-sm">
+        <section ref={guideRef} className="bg-card border border-border rounded-2xl p-6 md:p-8 shadow-sm scroll-mt-6">
           <h2 className="font-josefin text-xl md:text-2xl font-light mb-6 text-center">
             {guide.title}
           </h2>
