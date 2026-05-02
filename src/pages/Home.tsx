@@ -40,7 +40,7 @@ import {
   copyTextSilently,
   cityMatches,
 } from "@/lib/homeHelpers";
-import { fetchDocBadgesByDocId, fetchYtBadgesByVideoId, fetchBusinessesByIds } from "@/lib/homeFetchHelpers";
+import { fetchDocBadgesByDocId, fetchYtBadgesByVideoId, fetchBusinessesByIds, DOC_VIDEO_COLS } from "@/lib/homeFetchHelpers";
 import { getManualCardMap } from "@/lib/manualCards";
 import { resolveHomepageCity, readLastHomepageCity, writeLastHomepageCity } from "@/lib/cityHomepage";
 import { useGeolocation } from "@/hooks/useGeolocation";
