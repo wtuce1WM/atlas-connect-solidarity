@@ -2473,6 +2473,7 @@ const Home = () => {
                         ) : v.manualCard?.label ? (
                           /* Gold badge label hidden in category/subcategory results grid */
                           null
+                         ) : (() => {
                            const isGeneric = genericVideoIds.has(v.id);
                            const isHomepage = selectedEntry?.id === HOME_ID;
                            const internalFallbackHook = !isGeneric && !v.videoTitle && !isHomepage
