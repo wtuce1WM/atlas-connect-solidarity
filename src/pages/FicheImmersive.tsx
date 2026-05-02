@@ -35,14 +35,32 @@ const FicheImmersive = () => {
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
       const query = supabase
         .from("businesses")
-        .select("id, name, city")
+        .select("id, name, city, kp_regroupement, kp_regroupement_2, kp_active")
         .eq("is_active", true);
       const { data } = await (isUuid ? query.eq("id", slug) : query.eq("slug", slug)).maybeSingle();
       if (cancelled) return;
       if (data) {
-        // Build a search URL with the business name as query so the page has context
+        // Collect KP siblings (only when KP is active on the source fiche)
+        const ids: string[] = [data.id];
+        if (data.kp_active) {
+          const kp1 = data.kp_regroupement?.trim();
+          const kp2 = data.kp_regroupement_2?.trim();
+          const orParts: string[] = [];
+          if (kp1) orParts.push(`kp_regroupement.eq.${kp1}`);
+          if (kp2) orParts.push(`kp_regroupement_2.eq.${kp2}`);
+          if (orParts.length > 0) {
+            const { data: siblings } = await supabase
+              .from("businesses")
+              .select("id")
+              .eq("is_active", true)
+              .neq("id", data.id)
+              .or(orParts.join(","));
+            if (siblings) ids.push(...siblings.map((s: any) => s.id));
+          }
+        }
         const params = new URLSearchParams();
         params.set("openBusiness", data.id);
+        params.set("pinIds", ids.join(","));
         if (data.name) params.set("q", data.name);
         if (data.city) params.set("t", data.city);
         setRedirectTo(`/search?${params.toString()}`);
