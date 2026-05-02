@@ -1491,23 +1491,13 @@ const Home = () => {
       const homeDocBadgesByDocId = await fetchDocBadgesByDocId(allDocs.map((d: any) => d.id).filter(Boolean));
 
       safeSetVideos(
-        allDocs.map((d: any) => {
-          const biz = resolveVideoEstablishment(d, bizMap);
-          return {
-            id: d.id,
-            url: d.url,
-            business_name: biz?.name || "—",
-            thumbnail_url: d.thumbnail_url,
-            business: biz,
-            owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
-            social: extractSocial(d),
-            showSocialBadge: isDifferentDisplayedBusinessSocial(extractSocial(d), biz),
-            description: d.description ?? null,
-            manualCard: null,
-            badge_ids: homeDocBadgesByDocId[d.id] || [],
-            videoTitle: d.name ?? null,
-          };
-        })
+        allDocs.map((d: any) =>
+          buildDocVideoItem({
+            doc: d,
+            bizMap,
+            docBadgesByDocId: homeDocBadgesByDocId,
+          }) as VideoItem,
+        ),
       );
       safeSetLoadingVideos(false);
     };
