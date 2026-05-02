@@ -1,7 +1,44 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Apple, Smartphone, Monitor, Share, Plus, MoreVertical, Download, Check } from "lucide-react";
+import { resolveHomepageCity } from "@/lib/cityHomepage";
 
 type Platform = "ios" | "android" | "mac" | "windows";
+
+/**
+ * When launched as installed PWA (standalone), redirect to /test?city=<resolved>
+ * using geolocation (Essaouira if within 80km, else Marrakech).
+ * Falls back gracefully if geolocation is denied or unavailable.
+ */
+const redirectStandaloneToHome = () => {
+  const go = (city: string) => {
+    window.location.replace(`/test?city=${encodeURIComponent(city)}&entry=__home__`);
+  };
+  if (!navigator.geolocation) {
+    go(resolveHomepageCity(null));
+    return;
+  }
+  let done = false;
+  const timeout = setTimeout(() => {
+    if (done) return;
+    done = true;
+    go(resolveHomepageCity(null));
+  }, 2500);
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timeout);
+      go(resolveHomepageCity({ lat: pos.coords.latitude, lng: pos.coords.longitude }));
+    },
+    () => {
+      if (done) return;
+      done = true;
+      clearTimeout(timeout);
+      go(resolveHomepageCity(null));
+    },
+    { timeout: 2000, maximumAge: 5 * 60 * 1000 }
+  );
+};
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
