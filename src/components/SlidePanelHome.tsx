@@ -32,6 +32,8 @@ interface SlidePanelHomeProps {
   businessName: string;
   /** Nom de la fiche/document consulté (ex: POI), distinct du owner quand la vidéo a un linked_business_id */
   pageBusinessName?: string | null;
+  /** Id du business "racine" du document (pour fallback description) */
+  pageBusinessId?: string | null;
   isGeneric: boolean;
   currentTime: number;
   onTimeUpdate: (t: number) => void;
@@ -89,6 +91,7 @@ const SlidePanelHome = ({
   videoId,
   businessName,
   pageBusinessName,
+  pageBusinessId,
   isGeneric,
   currentTime,
   onTimeUpdate,
@@ -113,25 +116,33 @@ const SlidePanelHome = ({
   const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [businessDescription, setBusinessDescription] = useState<string | null>(null);
 
-  // Fallback: if no per-video description was provided, fetch the linked business description
-  // so the green "+" overlay can still render in SlidePanelHome.
+  // Description source:
+  // - When pageBusinessId is provided, ALWAYS use that business's description
+  //   (the consulted fiche) — ignore the per-video description.
+  // - Otherwise, use the per-video description if any, then fall back to the owner's.
   useEffect(() => {
-    if (description && description.trim()) { setBusinessDescription(null); return; }
-    const ownerId = owner?.id;
-    if (!open || !ownerId) { setBusinessDescription(null); return; }
+    if (!open) { setBusinessDescription(null); return; }
+    if (!pageBusinessId && description && description.trim()) {
+      setBusinessDescription(null);
+      return;
+    }
+    const targetId = pageBusinessId || owner?.id;
+    if (!targetId) { setBusinessDescription(null); return; }
     let cancelled = false;
     (supabase as any)
       .from("businesses")
       .select("description")
-      .eq("id", ownerId)
+      .eq("id", targetId)
       .maybeSingle()
       .then(({ data }: any) => {
         if (!cancelled) setBusinessDescription(data?.description ?? null);
       });
     return () => { cancelled = true; };
-  }, [open, owner?.id, description]);
+  }, [open, owner?.id, pageBusinessId, description]);
 
-  const effectiveDescription = (description && description.trim()) ? description : businessDescription;
+  const effectiveDescription = pageBusinessId
+    ? businessDescription
+    : ((description && description.trim()) ? description : businessDescription);
   const [descOverlayOpen, setDescOverlayOpen] = useState(false);
   useEffect(() => { if (!open) setDescOverlayOpen(false); }, [open]);
   const [ownerBusiness, setOwnerBusiness] = useState<AgendaEvent["business"] | null>(null);
@@ -587,7 +598,7 @@ const SlidePanelHome = ({
                   )}
                   <div className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto select-text">
                     <span className="text-xs font-medium text-white select-text" style={{ fontFamily: "'Josefin Sans', sans-serif" }}>
-                      {pageBusinessName || businessName || owner.name} <span className="text-base">©</span>
+                      {owner.name} <span className="text-base">©</span>
                     </span>
                   </div>
                   </div>

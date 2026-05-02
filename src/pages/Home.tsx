@@ -61,6 +61,7 @@ interface VideoItem {
   business_name: string;
   /** Nom de l'établissement "racine" du document (business_documents.business_id), distinct du owner quand un linked_business_id existe */
   pageBusinessName?: string | null;
+  pageBusinessId?: string | null;
   thumbnail_url: string | null;
   business: SearchResultBusiness | null;
   /** Set only when the video's owner business differs from the display entity */
@@ -297,6 +298,7 @@ const Home = () => {
         url: doc.url,
         business_name: (biz as any)?.name || "—",
         pageBusinessName: bizMap.get((doc as any).business_id)?.name ?? null,
+        pageBusinessId: (doc as any).business_id ?? null,
         thumbnail_url: doc.thumbnail_url,
         business: (biz as SearchResultBusiness) || null,
         owner: biz ? { id: (biz as any).id, name: (biz as any).name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
@@ -925,6 +927,7 @@ const Home = () => {
             url: d.url,
             business_name: thumbnailBiz?.name || biz?.name || "—",
             pageBusinessName: thumbnailBiz?.name ?? null,
+            pageBusinessId: d.business_id ?? null,
             thumbnail_url: d.thumbnail_url,
             business: biz,
             owner: biz ? { id: biz.id, name: biz.name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
