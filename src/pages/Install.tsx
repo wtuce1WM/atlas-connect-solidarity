@@ -45,6 +45,10 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+type WindowWithInstallPrompt = typeof window & {
+  __owmInstallPromptEvent?: BeforeInstallPromptEvent;
+};
+
 const detectPlatform = (): Platform => {
   if (typeof navigator === "undefined") return "ios";
   const ua = navigator.userAgent;
@@ -73,19 +77,22 @@ const Install = () => {
       return;
     }
 
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setInstallEvent(e as BeforeInstallPromptEvent);
+    const readCapturedInstallPrompt = () => {
+      const capturedEvent = (window as WindowWithInstallPrompt).__owmInstallPromptEvent;
+      if (capturedEvent) setInstallEvent(capturedEvent);
     };
     const installedHandler = () => {
       setInstalled(true);
       setInstallEvent(null);
+      delete (window as WindowWithInstallPrompt).__owmInstallPromptEvent;
       redirectStandaloneToHome();
     };
-    window.addEventListener("beforeinstallprompt", handler);
+
+    readCapturedInstallPrompt();
+    window.addEventListener("owm-installprompt-ready", readCapturedInstallPrompt);
     window.addEventListener("appinstalled", installedHandler);
     return () => {
-      window.removeEventListener("beforeinstallprompt", handler);
+      window.removeEventListener("owm-installprompt-ready", readCapturedInstallPrompt);
       window.removeEventListener("appinstalled", installedHandler);
     };
   }, []);
@@ -101,6 +108,7 @@ const Install = () => {
       if (outcome === "accepted") {
         setInstalled(true);
         setInstallEvent(null);
+        delete (window as WindowWithInstallPrompt).__owmInstallPromptEvent;
         redirectStandaloneToHome();
       }
       return;
