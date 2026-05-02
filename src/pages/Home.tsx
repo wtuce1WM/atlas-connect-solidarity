@@ -296,6 +296,7 @@ const Home = () => {
         id: doc.id,
         url: doc.url,
         business_name: (biz as any)?.name || "—",
+        pageBusinessName: bizMap.get((doc as any).business_id)?.name ?? null,
         thumbnail_url: doc.thumbnail_url,
         business: (biz as SearchResultBusiness) || null,
         owner: biz ? { id: (biz as any).id, name: (biz as any).name, logo_url: (biz as any).logo_url ?? null, logo_bg: (biz as any).logo_bg ?? null } : null,
