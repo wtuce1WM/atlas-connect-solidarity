@@ -278,7 +278,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
           ) : (
             <span>{it.label || "Aucune vidéo"}</span>
           )}
-          {it.label && !it.businessName && (
+          {it.label && (
             <div className="absolute inset-x-0 top-[10%] z-[8] flex items-center justify-center px-2">
               <button
                 type="button"
@@ -355,7 +355,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
             </div>
           )}
         </button>
-        {it.label && !it.businessName && (
+        {it.label && (
           <div className="absolute inset-x-0 top-[10%] z-[8] flex items-center justify-center px-2">
             <button
               type="button"
