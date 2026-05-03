@@ -10,9 +10,23 @@ interface HotelAvailabilityIntent {
   rooms?: number;
 }
 
+interface FlightSearchIntent {
+  origin?: string;
+  destination?: string;
+  departureDate?: string;
+  returnDate?: string;
+  adults?: number;
+}
+
+interface WebSearchIntent {
+  query: string;
+}
+
 interface UseVoiceSearchOptions {
   onTranscript: (keywords: string, spokenText: string, category?: string, timeKeyword?: string) => void;
   onHotelAvailability?: (intent: HotelAvailabilityIntent, spokenText: string) => void;
+  onFlightSearch?: (intent: FlightSearchIntent, spokenText: string) => void;
+  onWebSearch?: (intent: WebSearchIntent, spokenText: string) => void;
   onError?: (message: string) => void;
   lang?: string;
 }
