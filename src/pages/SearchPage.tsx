@@ -1883,9 +1883,6 @@ const SearchPage = () => {
   const handleCityChange = (city: string) => {
     setSelectedCity(city);
     setIsGeoCityAutoSelected(false);
-    // TEMP DISABLED: auto-regenerate AI text on city filter change
-    // setAiAnswerText("");
-    // setAiRegenerateKey(k => k + 1);
   };
 
   const handleCategoryChange = (category: string) => {
@@ -2653,16 +2650,6 @@ const SearchPage = () => {
           </div>
         </div>
       )}
-
-      {/* Geolocation consent banner disabled to avoid fullscreen overlay UX */}
-
-      {/* Mobile-only: geo + time badges removed — geo button lives in sticky tab bars */}
-
-      {/* Hero Section - DISABLED */}
-
-
-
-
 
 
 

@@ -52,7 +52,7 @@ const StaffMaster = lazy(() => import("./pages/StaffMaster"));
 const StaffB2B = lazy(() => import("./pages/StaffB2B"));
 const DestinationPage = lazy(() => import("./pages/DestinationPage"));
 const SearchLayoutDemo = lazy(() => import("./pages/SearchLayoutDemo"));
-const SearchPageCopy = lazy(() => import("./pages/SearchPageCopy"));
+
 const StrictModePage = lazy(() => import("./pages/StrictModePage"));
 const IconPreview = lazy(() => import("./pages/IconPreview"));
 const BlogPresentation = lazy(() => import("./pages/BlogPresentation"));
@@ -169,7 +169,7 @@ const AppContent = () => {
               <Route path="/destination/:destinationName" element={renderLazyRoute(<DestinationPage />)} />
               <Route path="/conditions-generales" element={renderLazyRoute(<CGF />)} />
               <Route path="/staff/search-layouts" element={<StaffRouteGuard>{renderLazyRoute(<SearchLayoutDemo />)}</StaffRouteGuard>} />
-              <Route path="/blog/search-copy" element={renderLazyRoute(<SearchPageCopy />)} />
+              
               <Route path="/staff/mode-strict" element={<StaffRouteGuard>{renderLazyRoute(<StrictModePage />)}</StaffRouteGuard>} />
               <Route path="/staff/ai-effects" element={<StaffRouteGuard>{renderLazyRoute(<AIEffectsDemo />)}</StaffRouteGuard>} />
               <Route path="/blog/icon-preview" element={renderLazyRoute(<IconPreview />)} />
