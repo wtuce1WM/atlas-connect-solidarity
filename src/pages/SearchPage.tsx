@@ -898,8 +898,8 @@ const SearchPage = () => {
     subcategoryFilterBusinesses,
   ]);
 
-  const getEffectiveRating = (b: typeof allBusinesses[0]): number | null => {
-    return (b as any).computed_rating ?? (b.rating ? Number(b.rating) : null);
+  const getEffectiveRating = (b: Business): number | null => {
+    return b.computed_rating ?? (b.rating ? Number(b.rating) : null);
   };
 
   // Compute distance between user coords and a business
@@ -918,14 +918,14 @@ const SearchPage = () => {
     if (aVerified !== bVerified) return aVerified - bVerified;
     // Verified: sort by priority_score descending
     if (aVerified === 0) {
-      return ((b as any).priority_score || 0) - ((a as any).priority_score || 0);
+      return (b.priority_score || 0) - (a.priority_score || 0);
     }
     // Non-verified: priority_score first, then rating desc (ignore <10 reviews)
-    const aPrio = (a as any).priority_score || 0;
-    const bPrio = (b as any).priority_score || 0;
+    const aPrio = a.priority_score || 0;
+    const bPrio = b.priority_score || 0;
     if (aPrio !== bPrio) return bPrio - aPrio;
-    const aCount = (a as any).total_review_count ?? 0;
-    const bCount = (b as any).total_review_count ?? 0;
+    const aCount = a.total_review_count ?? 0;
+    const bCount = b.total_review_count ?? 0;
     const aRating = aCount >= 10 ? (getEffectiveRating(a) ?? -1) : -1;
     const bRating = bCount >= 10 ? (getEffectiveRating(b) ?? -1) : -1;
     return bRating - aRating;
@@ -1139,8 +1139,8 @@ const SearchPage = () => {
         city: b.city,
         neighborhood: b.neighborhood,
         rating: b.rating,
-        avgOn20: (b as any).computed_rating ?? b.rating ?? null,
-        totalReviews: (b as any).total_review_count ?? 0,
+        avgOn20: b.computed_rating ?? b.rating ?? null,
+        totalReviews: b.total_review_count ?? 0,
         subcategory: b.categories?.[0] || null,
       }));
   }, [hasKnownLocation, isSubDesktop, mapCenterForResults, neighborhoodCoords, effectiveCityForMap]);
@@ -1193,13 +1193,13 @@ const SearchPage = () => {
       b.categories?.some((cat: string) => fsFilterSubcategories.has(cat))
     );
     matching.sort((a, b) => {
-      const aVerified = (a as any).wtuce_status === 'verified' ? 0 : 1;
-      const bVerified = (b as any).wtuce_status === 'verified' ? 0 : 1;
+      const aVerified = a.wtuce_status === 'verified' ? 0 : 1;
+      const bVerified = b.wtuce_status === 'verified' ? 0 : 1;
       if (aVerified !== bVerified) return aVerified - bVerified;
-      const aCount = (a as any).total_review_count ?? 0;
-      const bCount = (b as any).total_review_count ?? 0;
-      const aRating = aCount >= 10 ? ((a as any).computed_rating ?? a.rating ?? -1) : -1;
-      const bRating = bCount >= 10 ? ((b as any).computed_rating ?? b.rating ?? -1) : -1;
+      const aCount = a.total_review_count ?? 0;
+      const bCount = b.total_review_count ?? 0;
+      const aRating = aCount >= 10 ? (a.computed_rating ?? a.rating ?? -1) : -1;
+      const bRating = bCount >= 10 ? (b.computed_rating ?? b.rating ?? -1) : -1;
       return bRating - aRating;
     });
     return buildMapPoiItems(matching.slice(0, 20), guardDesktop);
