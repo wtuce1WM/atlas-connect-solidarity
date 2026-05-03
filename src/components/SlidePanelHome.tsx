@@ -535,7 +535,7 @@ const SlidePanelHome = ({
                                       type="button"
                                       onClick={() => {
                                         storeReturnToTest();
-                                        navigate(businessUrl(biz));
+                                        navigate(`/search?openBusiness=${biz.id}`);
                                       }}
                                       className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-white text-black font-medium text-xs shadow-lg hover:bg-white/90 transition-colors normal-case tracking-normal h-9"
                                       style={{ fontFamily: "'Josefin Sans', sans-serif" }}
@@ -677,7 +677,7 @@ const SlidePanelHome = ({
                     type="button"
                     onClick={() => {
                       storeReturnToTest();
-                      navigate(businessUrl(ctaBusiness));
+                      navigate(`/search?openBusiness=${ctaBusiness.id}`);
                     }}
                     className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-white text-black font-medium text-xs shadow-lg hover:bg-white/90 transition-colors normal-case tracking-normal h-9"
                     style={{ fontFamily: "'Josefin Sans', sans-serif" }}
