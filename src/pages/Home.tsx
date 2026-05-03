@@ -2303,7 +2303,7 @@ const Home = () => {
                           const subName = selectedSubId ? (subcatNames[selectedSubId] || "").trim().toLowerCase() : "";
                           return targets.includes(entryName) || targets.includes(subName);
                         })() && v.priceType && (
-                          <div className="absolute inset-x-0 top-12 z-[20] flex flex-col items-center gap-2 px-3 pointer-events-none text-center">
+                          <div className="absolute inset-x-0 top-[32%] z-[20] flex flex-col items-center gap-2 px-3 pointer-events-none text-center">
                             <span className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black">
                               {v.priceType.toLowerCase() === "location" ? "Location" : v.priceType.toLowerCase() === "vente" ? "Vente" : v.priceType}
                             </span>
