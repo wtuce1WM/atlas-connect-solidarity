@@ -142,11 +142,13 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
       return;
     }
     setStatus("processing");
-    const { query: keywords, category, timeKeyword, intent, hotelAvailability, flightSearch, webSearch } = await extractSearchIntent(transcript);
+    const { query: keywords, category, timeKeyword, intent, hotelAvailability, hotelSearch, flightSearch, webSearch } = await extractSearchIntent(transcript);
     setStatus("idle");
 
     if (intent === "hotelAvailability" && hotelAvailability && onHotelAvailabilityRef.current) {
       onHotelAvailabilityRef.current(hotelAvailability, transcript);
+    } else if (intent === "hotelSearch" && hotelSearch && onHotelSearchRef.current) {
+      onHotelSearchRef.current(hotelSearch, transcript);
     } else if (intent === "flightSearch" && flightSearch && onFlightSearchRef.current) {
       onFlightSearchRef.current(flightSearch, transcript);
     } else if (intent === "webSearch" && webSearch && onWebSearchRef.current) {
