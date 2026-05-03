@@ -2356,36 +2356,36 @@ const Home = () => {
                         )}
                          {((isVlogThumb ? v.business_name : v.owner?.name || v.business_name)) && (
                            <div className="absolute top-0 left-0 right-0 p-1.5 space-y-0.5 z-[5]">
-                             {(selectedEntry?.id !== HOME_ID || !!videoBadgeFilter) && (() => {
-                               const label = v.service_name
-                                 || (v.service_id && serviceNames[v.service_id])
-                                 || (v.subcategory_id && subcatNames[v.subcategory_id])
-                                 || null;
-                               return label ? (
-                                 <p className="text-[10px] font-bold uppercase tracking-wide text-gold line-clamp-1" style={{ filter: "drop-shadow(0 1px 2px hsla(0,0%,0%,0.9))" }}>
-                                   {label}
-                                 </p>
-                               ) : null;
-                             })()}
-                             {!v.eventInfo?.name && !genericVideoIds.has(v.id) && (() => {
-                               const displayName = v.business_name || v.owner?.name || "";
-                               return (
-                                 <button
-                                   type="button"
-                                   onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                                   onClick={(e) => {
-                                     e.preventDefault();
-                                     e.stopPropagation();
-                                     if (!v.id) return;
-                                     void copyTextSilently(v.id).catch(() => {});
-                                   }}
-                                   className="block w-full text-left text-[10px] font-medium text-white line-clamp-1 cursor-pointer hover:underline"
-                                   style={{ filter: "drop-shadow(0 1px 2px hsla(0,0%,0%,0.9))" }}
-                                 >
-                                   {displayName}
-                                 </button>
-                               );
-                             })()}
+                              {!v.eventInfo?.name && !genericVideoIds.has(v.id) && (() => {
+                                const displayName = v.business_name || v.owner?.name || "";
+                                return (
+                                  <button
+                                    type="button"
+                                    onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      if (!v.id) return;
+                                      void copyTextSilently(v.id).catch(() => {});
+                                    }}
+                                    className="block w-full text-left text-[10px] font-medium text-white line-clamp-1 cursor-pointer hover:underline"
+                                    style={{ filter: "drop-shadow(0 1px 2px hsla(0,0%,0%,0.9))" }}
+                                  >
+                                    {displayName}
+                                  </button>
+                                );
+                              })()}
+                              {(selectedEntry?.id !== HOME_ID || !!videoBadgeFilter) && (() => {
+                                const label = v.service_name
+                                  || (v.service_id && serviceNames[v.service_id])
+                                  || (v.subcategory_id && subcatNames[v.subcategory_id])
+                                  || null;
+                                return label ? (
+                                  <p className="text-[10px] font-bold uppercase tracking-wide text-gold line-clamp-1" style={{ filter: "drop-shadow(0 1px 2px hsla(0,0%,0%,0.9))" }}>
+                                    {label}
+                                  </p>
+                                ) : null;
+                              })()}
                            </div>
                          )}
                          {v.business && (v.business.computed_rating ?? v.business.rating) != null && (
