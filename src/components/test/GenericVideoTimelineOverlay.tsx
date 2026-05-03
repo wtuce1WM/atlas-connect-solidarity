@@ -190,7 +190,10 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
     loadBookmarks();
   }, [clubOpen, userId, items]);
 
-  const reachedItems = items;
+  const reachedItems = useMemo(
+    () => items.filter((it) => (it.start_time ?? 0) <= currentTime),
+    [items, currentTime]
+  );
 
   const activeId = useMemo(() => {
     if (reachedItems.length === 0) return null;
@@ -307,7 +310,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
         >
           <Heart className="h-3.5 w-3.5" />
           <span className="text-[11px] font-semibold tracking-wide">
-            {t.clubBtn}
+            {t.saveBtn}
           </span>
           {isLoggedIn && unsavedCount > 0 && (
             <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-white text-[10px] font-bold" style={{ color: "#6050DC" }}>
