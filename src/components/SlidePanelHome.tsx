@@ -815,7 +815,7 @@ const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange }: { h
           </div>
           <div className="flex-1 min-h-0 overflow-y-auto px-4 md:px-8 py-6">
             <div
-              className="prose prose-invert max-w-3xl mx-auto text-white text-base md:text-lg leading-relaxed select-text"
+              className="prose prose-invert max-w-3xl mx-auto text-base md:text-lg leading-relaxed select-text [&_*]:!text-white [&_a]:pointer-events-none [&_a]:no-underline [&_a]:!text-white"
               dangerouslySetInnerHTML={{ __html: html }}
             />
           </div>
