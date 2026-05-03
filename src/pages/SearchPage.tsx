@@ -1437,6 +1437,56 @@ const SearchPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       const fetchId = ++latestFetchIdRef.current;
+      if (pinIdsParam) {
+        const orderedIds = pinIdsParam.split(",").map(s => s.trim()).filter(Boolean);
+        if (orderedIds.length === 0) {
+          setPinnedBusinesses([]);
+          setAllBusinesses([]);
+          setTotalCount(null);
+          setIsLoading(false);
+          return;
+        }
+
+        setIsLoading(true);
+        setAiAnswerText("");
+        setShowAiPopup(false);
+        setDetectedSubcategory(null);
+        setSelectedCategoryFilter(null);
+        setSelectedSubcategoryFilter(null);
+        setSelectedServiceFilter(null);
+        setMoreFilterTimeSlots([]);
+        setMoreFilterEngagements([]);
+        setMoreFilterCommodites([]);
+        setMoreFilterMatchingIds(null);
+
+        const selectFields = "id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, engagements, online_shop_url, presentation_mode, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, rating, computed_rating, total_review_count, gamme_id, badge_id, hook_fr, hook_en, hook_ar, opening_hours, show_opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids, default_service, neighborhood, priority_score";
+        const { data, error } = await supabase
+          .from("businesses")
+          .select(selectFields)
+          .eq("is_active", true)
+          .in("id", orderedIds);
+
+        if (fetchId !== latestFetchIdRef.current) return;
+        if (error) {
+          console.error("Error fetching pinned businesses:", error);
+          setPinnedBusinesses([]);
+          setAllBusinesses([]);
+        } else {
+          const byId: Record<string, Business> = {};
+          (data || []).forEach((b: any) => { byId[b.id] = { ...b, distance_km: null } as Business; });
+          const ordered = orderedIds.map(id => byId[id]).filter(Boolean) as Business[];
+          setPinnedBusinesses(ordered);
+          setAllBusinesses(ordered);
+          setTotalCount(null);
+          setSearchMessage("");
+          setDetectedCity(searchParams.get("t") || ordered[0]?.city || null);
+          if (openBusinessParam) openCompactPanel({ id: openBusinessParam, name: ordered.find(b => b.id === openBusinessParam)?.name || "" } as any);
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      setPinnedBusinesses([]);
 
       if (!searchQuery.trim() && !categoryFromUrl) {
         if (fetchId !== latestFetchIdRef.current) return;
@@ -1678,7 +1728,7 @@ const SearchPage = () => {
     };
 
     fetchData();
-  }, [searchQuery, categoryFromUrl, language, urlT]);
+  }, [searchQuery, categoryFromUrl, language, urlT, pinIdsParam, openBusinessParam]);
 
   // Fetch label logos for search result businesses
   useEffect(() => {
