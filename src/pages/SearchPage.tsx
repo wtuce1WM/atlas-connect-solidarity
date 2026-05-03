@@ -161,7 +161,7 @@ const SearchPage = () => {
     try {
       sessionStorage.setItem("ai_suggestion_text", answer);
       // Also store businesses for parseInline rendering
-      const bizData = (allBusinesses || []).slice(0, 20).map((b: any) => ({
+      const bizData = (allBusinesses || []).slice(0, 20).map((b) => ({
         id: b.id, name: b.name, city: b.city, main_category: b.main_category,
         categories: b.categories, hook_fr: b.hook_fr, rating: b.rating,
         wtuce_status: b.wtuce_status, images: b.images, logo_url: b.logo_url,
@@ -318,7 +318,7 @@ const SearchPage = () => {
 
       const { data } = await query.order("priority_score", { ascending: false }).limit(200);
       if (data) {
-        setSubcategoryFilterBusinesses(data.map((b: any) => ({ ...b, distance_km: null })) as Business[]);
+        setSubcategoryFilterBusinesses((data as unknown as Business[]).map((b) => ({ ...b, distance_km: null })));
       }
     };
     fetchSubcategoryBusinesses();
@@ -355,7 +355,7 @@ const SearchPage = () => {
 
       const { data } = await query.order("priority_score", { ascending: false }).limit(200);
       if (data) {
-        setServiceFilterBusinesses(data.map((b: any) => ({ ...b, distance_km: null })) as Business[]);
+        setServiceFilterBusinesses((data as unknown as Business[]).map((b) => ({ ...b, distance_km: null })));
       }
     };
     fetchServiceBusinesses();
@@ -694,7 +694,7 @@ const SearchPage = () => {
         .eq("is_active", true);
       if (cancelled) return;
       const matchingIds = new Set<string>();
-      (data || []).forEach((b: any) => {
+      (data || []).forEach((b: { id: string; engagements: string[] | null }) => {
         const engs: string[] = b.engagements || [];
         const hasAll = allSelected.every(s => engs.includes(s));
         if (hasAll) matchingIds.add(b.id);
@@ -1102,7 +1102,8 @@ const SearchPage = () => {
   const subcategoryIconMap = useMemo(() => {
     const map: Record<string, string> = {};
     for (const sub of subcategories) {
-      if ((sub as any).icon) map[sub.name_fr] = (sub as any).icon;
+      const icon = (sub as { icon?: string | null }).icon;
+      if (icon) map[sub.name_fr] = icon;
     }
     return map;
   }, [subcategories]);
@@ -1451,7 +1452,7 @@ const SearchPage = () => {
           setAllBusinesses([]);
         } else {
           const byId: Record<string, Business> = {};
-          (data || []).forEach((b: any) => { byId[b.id] = { ...b, distance_km: null } as Business; });
+          (data as unknown as Business[] || []).forEach((b) => { byId[b.id] = { ...b, distance_km: null }; });
           const ordered = orderedIds.map(id => byId[id]).filter(Boolean) as Business[];
           setPinnedBusinesses(ordered);
           setAllBusinesses(ordered);
@@ -1637,7 +1638,7 @@ const SearchPage = () => {
             if (biz.length >= 1 && searchQuery.trim()) {
               const normalize = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/s\b/g, "").trim();
               const qNorm = normalize(searchQuery);
-              const exactMatch = biz.find((b: any) => normalize(b.name) === qNorm);
+              const exactMatch = biz.find((b: Business) => normalize(b.name) === qNorm);
               if (exactMatch) {
                 openCompactPanel(exactMatch as any);
               }
@@ -1728,7 +1729,8 @@ const SearchPage = () => {
         .in("id", labelIds);
       if (!labelsData) { setBusinessLabelLogos({}); return; }
       const logoMap: Record<string, string> = {};
-      (labelsData as any[]).forEach((l: any) => {
+      type LabelRow = { id: string; logo_url?: string | null; image_url?: string | null };
+      (labelsData as unknown as LabelRow[]).forEach((l) => {
         const url = l.logo_url || l.image_url;
         if (url) logoMap[l.id] = url;
       });
@@ -1769,7 +1771,7 @@ const SearchPage = () => {
     }
 
     // Rating
-    const ratingOn20 = (b as any).computed_rating ?? b.rating ?? null;
+    const ratingOn20 = b.computed_rating ?? b.rating ?? null;
     if (ratingOn20 !== null) {
       parts.push(`noté ${ratingOn20.toFixed(1).replace('.', ',')} sur 20`);
     }
@@ -2668,7 +2670,7 @@ const SearchPage = () => {
               <BusinessMap
                 businesses={filteredBusinesses
                   .filter((b) => {
-                    const engs: string[] = (b as any).engagements || [];
+                    const engs: string[] = b.engagements || [];
                     const isWebOnly = engs.some((e: string) => {
                       const n = e.toLowerCase().trim();
                       return n === "web only" || n === "logistique:web only" || n.endsWith(":web only");
@@ -2688,7 +2690,7 @@ const SearchPage = () => {
                   longitude: b.longitude,
                   wtuce_status: b.wtuce_status,
                   logo_url: b.logo_url,
-                  neighborhood: (b as any).neighborhood,
+                  neighborhood: b.neighborhood,
                   images: b.images,
                   hook_fr: b.hook_fr,
                   google_rating: b.google_rating,
