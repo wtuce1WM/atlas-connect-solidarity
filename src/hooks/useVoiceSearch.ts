@@ -22,9 +22,17 @@ interface WebSearchIntent {
   query: string;
 }
 
+interface HotelSearchIntent {
+  city: string;
+  checkIn?: string;
+  checkOut?: string;
+  adults?: number;
+}
+
 interface UseVoiceSearchOptions {
   onTranscript: (keywords: string, spokenText: string, category?: string, timeKeyword?: string) => void;
   onHotelAvailability?: (intent: HotelAvailabilityIntent, spokenText: string) => void;
+  onHotelSearch?: (intent: HotelSearchIntent, spokenText: string) => void;
   onFlightSearch?: (intent: FlightSearchIntent, spokenText: string) => void;
   onWebSearch?: (intent: WebSearchIntent, spokenText: string) => void;
   onError?: (message: string) => void;
