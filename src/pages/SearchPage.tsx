@@ -115,6 +115,8 @@ const SearchPage = () => {
   // Sync searchQuery & inputValue when URL params change (e.g. same query re-submitted with _t)
   const urlQ = searchParams.get("q") || "";
   const urlT = searchParams.get("_t") || "";
+  const openBusinessParam = searchParams.get("openBusiness") || "";
+  const pinIdsParam = searchParams.get("pinIds") || "";
   useEffect(() => {
     if (urlQ !== searchQuery || urlT) {
       setSearchQuery(urlQ);
@@ -125,16 +127,13 @@ const SearchPage = () => {
 
 
   // Handle openBusiness URL param (from FloatingSearchBar recently viewed)
+  const lastOpenedBusinessParamRef = useRef<string | null>(null);
   useEffect(() => {
-    const openBizId = searchParams.get("openBusiness");
-    if (openBizId) {
-      openCompactPanel({ id: openBizId, name: "" } as any);
-      // Clean up the param from URL
-      const next = new URLSearchParams(searchParams);
-      next.delete("openBusiness");
-      setSearchParams(next, { replace: true });
+    if (openBusinessParam && lastOpenedBusinessParamRef.current !== openBusinessParam) {
+      lastOpenedBusinessParamRef.current = openBusinessParam;
+      openCompactPanel({ id: openBusinessParam, name: "" } as any);
     }
-  }, [searchParams]);
+  }, [openBusinessParam]);
 
 
   const [fsFilterSubcategories, setFsFilterSubcategories] = useState<Set<string> | null>(null);
@@ -481,6 +480,7 @@ const SearchPage = () => {
      const [hoveredResultId, setHoveredResultId] = useState<string | null>(null);
      const [hoveredPoiId, setHoveredPoiId] = useState<string | null>(null);
      const [hoveredDestId, setHoveredDestId] = useState<string | null>(null);
+     const [pinnedBusinesses, setPinnedBusinesses] = useState<Business[]>([]);
      const [allPois, setAllPois] = useState<PoiMapItem[]>([]);
      const [allDests, setAllDests] = useState<PoiMapItem[]>([]);
       const [allDestItems, setAllDestItems] = useState<DestinationItem[]>([]);
@@ -980,6 +980,13 @@ const SearchPage = () => {
   }, [effectiveCityForMap, neighborhoodCoords, citiesWithPriority, allBusinesses]);
 
   const filteredBusinesses = useMemo(() => {
+    if (pinIdsParam && pinnedBusinesses.length > 0) {
+      const orderedIds = pinIdsParam.split(",").map(s => s.trim()).filter(Boolean);
+      const byId: Record<string, Business> = {};
+      for (const b of pinnedBusinesses) byId[b.id] = b;
+      return orderedIds.map(id => byId[id]).filter(Boolean) as Business[];
+    }
+
     const isServerPaginatedResults = totalCount !== null;
 
     // When server-side pagination is active, the backend already returned the exact
@@ -1092,7 +1099,6 @@ const SearchPage = () => {
 
     // pinIds: explicit allow-list of business IDs (e.g. from /fiche/:slug → KP group)
     // When present, restrict results to these IDs only and preserve the requested order.
-    const pinIdsParam = searchParams.get("pinIds");
     if (pinIdsParam) {
       const orderedIds = pinIdsParam.split(",").map(s => s.trim()).filter(Boolean);
       const allowSet = new Set(orderedIds);
@@ -1103,7 +1109,7 @@ const SearchPage = () => {
     }
 
     return [...filtered].sort(sortWtuceAndRating);
-  }, [allBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots, detectedNeighborhood, searchLevel, totalCount, searchParams]);
+  }, [allBusinesses, pinnedBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots, detectedNeighborhood, searchLevel, totalCount, pinIdsParam]);
 
   // Build subcategory name → icon name map
   const subcategoryIconMap = useMemo(() => {
@@ -1431,6 +1437,56 @@ const SearchPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       const fetchId = ++latestFetchIdRef.current;
+      if (pinIdsParam) {
+        const orderedIds = pinIdsParam.split(",").map(s => s.trim()).filter(Boolean);
+        if (orderedIds.length === 0) {
+          setPinnedBusinesses([]);
+          setAllBusinesses([]);
+          setTotalCount(null);
+          setIsLoading(false);
+          return;
+        }
+
+        setIsLoading(true);
+        setAiAnswerText("");
+        setShowAiPopup(false);
+        setDetectedSubcategory(null);
+        setSelectedCategoryFilter(null);
+        setSelectedSubcategoryFilter(null);
+        setSelectedServiceFilter(null);
+        setMoreFilterTimeSlots([]);
+        setMoreFilterEngagements([]);
+        setMoreFilterCommodites([]);
+        setMoreFilterMatchingIds(null);
+
+        const selectFields = "id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, engagements, online_shop_url, presentation_mode, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, rating, computed_rating, total_review_count, gamme_id, badge_id, hook_fr, hook_en, hook_ar, opening_hours, show_opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids, default_service, neighborhood, priority_score";
+        const { data, error } = await supabase
+          .from("businesses")
+          .select(selectFields)
+          .eq("is_active", true)
+          .in("id", orderedIds);
+
+        if (fetchId !== latestFetchIdRef.current) return;
+        if (error) {
+          console.error("Error fetching pinned businesses:", error);
+          setPinnedBusinesses([]);
+          setAllBusinesses([]);
+        } else {
+          const byId: Record<string, Business> = {};
+          (data || []).forEach((b: any) => { byId[b.id] = { ...b, distance_km: null } as Business; });
+          const ordered = orderedIds.map(id => byId[id]).filter(Boolean) as Business[];
+          setPinnedBusinesses(ordered);
+          setAllBusinesses(ordered);
+          setTotalCount(null);
+          setSearchMessage("");
+          setDetectedCity(searchParams.get("t") || ordered[0]?.city || null);
+          if (openBusinessParam) openCompactPanel({ id: openBusinessParam, name: ordered.find(b => b.id === openBusinessParam)?.name || "" } as any);
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      setPinnedBusinesses([]);
 
       if (!searchQuery.trim() && !categoryFromUrl) {
         if (fetchId !== latestFetchIdRef.current) return;
@@ -1672,7 +1728,7 @@ const SearchPage = () => {
     };
 
     fetchData();
-  }, [searchQuery, categoryFromUrl, language, urlT]);
+  }, [searchQuery, categoryFromUrl, language, urlT, pinIdsParam, openBusinessParam]);
 
   // Fetch label logos for search result businesses
   useEffect(() => {
