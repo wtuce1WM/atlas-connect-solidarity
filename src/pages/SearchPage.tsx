@@ -3145,6 +3145,26 @@ const SearchPage = () => {
         onClose={() => setWebOverlay({ open: false, query: "" })}
       />
 
+      {/* SerpAPI hotel search by city (voice intent: hotelSearch) */}
+      {hotelSearchPanel && (
+        <FallbackHotelsPanel
+          data={hotelSearchPanel}
+          selectedHotelId={null}
+          onClose={() => setHotelSearchPanel(null)}
+          onSelectHotel={(_hotelId, businessId) => {
+            if (businessId) {
+              setHotelSearchPanel(null);
+              setSearchParams({ openBusiness: businessId });
+            }
+          }}
+        />
+      )}
+      {hotelSearchLoading && (
+        <div className="fixed inset-0 z-[230] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      )}
+
       {/* Bottom floating search bar — hidden when the right-side Google Map is visible (it has its own search bar) */}
       {(() => {
         const rightMapVisible = hasKnownLocation && !compactPanelBusiness && (
