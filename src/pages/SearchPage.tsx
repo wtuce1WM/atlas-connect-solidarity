@@ -3037,8 +3037,15 @@ const SearchPage = () => {
         onFinish={() => finishRecording()}
       />
 
-      {/* Bottom floating search bar — same as Home when SlidePanelHome closed */}
-      {!compactPanelBusiness && (
+      {/* Bottom floating search bar — hidden when the right-side Google Map is visible (it has its own search bar) */}
+      {(() => {
+        const rightMapVisible = hasKnownLocation && !compactPanelBusiness && (
+          (activeTab === "suggestions" && !hideResultsMap) ||
+          (activeTab === "poi" && !hidePoiMap) ||
+          (activeTab === "destinations" && !hideDestMap)
+        );
+        return !compactPanelBusiness && !rightMapVisible;
+      })() && (
         <>
           {bottomSearchOverlayOpen && (
             <div
