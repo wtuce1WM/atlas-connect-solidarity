@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { LazyDirectionsOverlay } from "@/components/overlays/LazyOverlays";
 import PoiSlidePanel from "@/components/PoiSlidePanel";
 import { businessUrl, buildOgShareUrl } from "@/lib/businessUrl";
+import { buildKpSearchUrl } from "@/lib/buildKpSearchUrl";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
 import ShareButton from "@/components/ShareButton";
@@ -533,9 +534,10 @@ const SlidePanelHome = ({
                                   {biz && (
                                     <button
                                       type="button"
-                                      onClick={() => {
+                                      onClick={async () => {
                                         storeReturnToTest();
-                                        navigate(`/search?openBusiness=${biz.id}`);
+                                        const url = await buildKpSearchUrl(biz.id);
+                                        navigate(url);
                                       }}
                                       className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-white text-black font-medium text-xs shadow-lg hover:bg-white/90 transition-colors normal-case tracking-normal h-9"
                                       style={{ fontFamily: "'Josefin Sans', sans-serif" }}
@@ -625,10 +627,11 @@ const SlidePanelHome = ({
                   <button
                     type="button"
                     disabled={!ownerBusiness}
-                    onClick={() => {
+                    onClick={async () => {
                       if (!ownerBusiness) return;
                       storeReturnToTest();
-                      navigate(`/search?openBusiness=${ownerBusiness.id}`);
+                      const url = await buildKpSearchUrl(ownerBusiness.id);
+                      navigate(url);
                     }}
                     className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto hover:bg-black/80 transition-colors disabled:cursor-default disabled:hover:bg-black normal-case tracking-normal"
                     aria-label={`Voir la fiche de ${owner.name}`}
@@ -675,9 +678,10 @@ const SlidePanelHome = ({
                 <div className="w-4/5 max-w-md pointer-events-auto flex gap-2">
                   <button
                     type="button"
-                    onClick={() => {
+                    onClick={async () => {
                       storeReturnToTest();
-                      navigate(`/search?openBusiness=${ctaBusiness.id}`);
+                      const url = await buildKpSearchUrl(ctaBusiness.id);
+                      navigate(url);
                     }}
                     className="flex items-center justify-center gap-1.5 flex-1 rounded-lg bg-white text-black font-medium text-xs shadow-lg hover:bg-white/90 transition-colors normal-case tracking-normal h-9"
                     style={{ fontFamily: "'Josefin Sans', sans-serif" }}
