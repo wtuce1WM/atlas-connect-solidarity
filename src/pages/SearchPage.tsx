@@ -947,6 +947,7 @@ const SearchPage = () => {
       if (isMobile) window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     onHotelAvailability: handleHotelAvailability,
+    onHotelSearch: handleHotelSearch,
     onFlightSearch: (intent) => {
       setFlightOverlay({ open: true, initial: intent });
     },
