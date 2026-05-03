@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/solidarity",
+      "destination": "/solidarity/index.html"
+    },
+    {
       "source": "/:path*",
       "has": [
         {

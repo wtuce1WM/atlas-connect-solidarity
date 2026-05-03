@@ -1,0 +1,1058 @@
+:root {
+  --ink: #101417;
+  --ink-2: #2d393f;
+  --muted: #647278;
+  --paper: #f6f4ee;
+  --panel: #ffffff;
+  --panel-2: #eef4f2;
+  --line: #dde3df;
+  --teal: #007f75;
+  --teal-dark: #004d4a;
+  --red: #b83d46;
+  --gold: #d79a2b;
+  --blue: #315f91;
+  --leaf: #5f8d52;
+  --shadow: 0 26px 80px rgba(16, 20, 23, 0.14);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background:
+    linear-gradient(135deg, rgba(0, 127, 117, 0.08), transparent 28%),
+    linear-gradient(45deg, rgba(184, 61, 70, 0.08), transparent 34%),
+    var(--paper);
+  color: var(--ink);
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
+}
+
+body.menu-open {
+  overflow: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  width: 100%;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.side-rail {
+  position: sticky;
+  top: 0;
+  display: grid;
+  height: 100vh;
+  gap: 28px;
+  align-content: start;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  background: #0d1d20;
+  color: #fff;
+  padding: 26px;
+}
+
+.brand {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-mark {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  border-radius: 8px;
+  color: #f2c775;
+  font-weight: 950;
+}
+
+.brand strong,
+.brand small {
+  display: block;
+  overflow-wrap: break-word;
+}
+
+.brand small {
+  color: rgba(255, 255, 255, 0.62);
+  font-weight: 700;
+}
+
+.rail-nav {
+  display: grid;
+  gap: 6px;
+  margin-top: 18px;
+}
+
+.rail-nav a {
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.72);
+  font-weight: 850;
+  padding: 12px 14px;
+}
+
+.rail-nav a:hover,
+.rail-nav a:focus-visible,
+.rail-nav a.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.rail-status {
+  margin-top: auto;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(0, 127, 117, 0.22), rgba(215, 154, 43, 0.12)),
+    rgba(255, 255, 255, 0.04);
+  padding: 18px;
+}
+
+.rail-status span {
+  color: #f2c775;
+  font-size: 0.76rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.rail-status strong {
+  display: block;
+  margin-top: 8px;
+}
+
+.rail-status p {
+  margin: 8px 0 0;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.94rem;
+}
+
+.workspace {
+  min-width: 0;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  min-height: 74px;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(16, 20, 23, 0.08);
+  background: rgba(246, 244, 238, 0.88);
+  padding: 14px clamp(18px, 4vw, 46px);
+  backdrop-filter: blur(18px);
+}
+
+.menu-button {
+  display: none;
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.menu-button span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  margin: 5px auto;
+  background: var(--ink);
+}
+
+.topbar-copy {
+  display: grid;
+  gap: 2px;
+}
+
+.topbar-copy span,
+.section-kicker,
+.console-topline span,
+.audience-card > span,
+.project-card span,
+.commerce-cards span {
+  color: var(--red);
+  font-size: 0.76rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.topbar-copy strong {
+  font-size: 1.05rem;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.topbar-actions a,
+.audience-tabs button,
+.button {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-weight: 900;
+}
+
+.topbar-actions a {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink-2);
+  padding: 10px 14px;
+}
+
+.command-center,
+.section {
+  padding: clamp(34px, 5vw, 58px) clamp(18px, 4vw, 46px);
+}
+
+.command-center {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(460px, 1.08fr);
+  gap: 22px;
+  align-items: stretch;
+}
+
+.command-copy,
+.hero-console,
+.audience-card,
+.calculator,
+.allocation-panel,
+.map-panel,
+.project-card,
+.commerce-shell,
+.commerce-cards article,
+.ledger-table,
+.partner-form {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 18px 54px rgba(16, 20, 23, 0.08);
+}
+
+.command-copy {
+  display: grid;
+  min-height: 560px;
+  align-content: end;
+  padding: clamp(26px, 4vw, 46px);
+  background:
+    linear-gradient(160deg, rgba(13, 29, 32, 0.88), rgba(13, 29, 32, 0.58)),
+    url("assets/images/souk-marrakech.jpg") center / cover;
+  color: #fff;
+}
+
+.section-kicker {
+  margin: 0 0 14px;
+}
+
+.command-copy .section-kicker {
+  color: #f2c775;
+}
+
+h1,
+h2,
+h3,
+p {
+  hyphens: none;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  letter-spacing: 0;
+}
+
+h1 {
+  max-width: 900px;
+  font-size: clamp(2.7rem, 5.8vw, 5.6rem);
+  line-height: 0.96;
+}
+
+h2 {
+  font-size: clamp(2rem, 3.9vw, 3.8rem);
+  line-height: 1.04;
+}
+
+h3 {
+  font-size: clamp(1.25rem, 2vw, 1.72rem);
+  line-height: 1.12;
+}
+
+.command-copy p {
+  max-width: 760px;
+  margin: 24px 0 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+}
+
+.command-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.button {
+  border: 1px solid transparent;
+  padding: 12px 16px;
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+}
+
+.button.primary {
+  background: var(--teal);
+  color: #fff;
+}
+
+.button.secondary {
+  border-color: rgba(255, 255, 255, 0.38);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.hero-console {
+  display: grid;
+  gap: 18px;
+  align-content: space-between;
+  min-height: 560px;
+  padding: clamp(22px, 3vw, 34px);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(238, 244, 242, 0.96)),
+    var(--panel);
+}
+
+.console-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.console-topline strong {
+  color: var(--ink-2);
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.metric-grid article {
+  min-height: 170px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 18px;
+}
+
+.metric-grid span,
+.metric-grid small,
+.calculator p,
+.section-heading p,
+.funds-layout p,
+.map-copy p,
+.commerce-shell > div > p,
+.project-card p,
+.commerce-cards p,
+.partner-form label {
+  color: var(--muted);
+}
+
+.metric-grid span,
+.metric-grid small {
+  display: block;
+  font-weight: 800;
+}
+
+.metric-grid strong {
+  display: block;
+  margin: 20px 0 6px;
+  color: var(--ink);
+  font-size: clamp(2rem, 4vw, 3.55rem);
+  line-height: 1;
+}
+
+.flow-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.flow-strip span {
+  min-height: 58px;
+  border-radius: 8px;
+  background: #0d1d20;
+  color: rgba(255, 255, 255, 0.86);
+  display: grid;
+  place-items: center;
+  font-size: 0.86rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.section-heading,
+.funds-layout,
+.commerce-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+  gap: clamp(24px, 5vw, 68px);
+  align-items: end;
+}
+
+.section-heading {
+  margin-bottom: 26px;
+}
+
+.section-heading p,
+.funds-layout p,
+.map-copy p,
+.commerce-shell > div > p {
+  margin: 0;
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+}
+
+.audience-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.audience-tabs button {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink-2);
+  cursor: pointer;
+  padding: 10px 14px;
+}
+
+.audience-tabs button.active {
+  background: var(--ink);
+  color: #fff;
+}
+
+.activation-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.88fr) minmax(420px, 1.12fr);
+  gap: 18px;
+}
+
+.audience-card,
+.calculator {
+  display: grid;
+  gap: 24px;
+  align-content: space-between;
+  min-height: 430px;
+  padding: clamp(22px, 3vw, 34px);
+}
+
+.audience-card {
+  background:
+    linear-gradient(135deg, rgba(0, 127, 117, 0.1), rgba(215, 154, 43, 0.08)),
+    var(--panel);
+}
+
+.audience-card p {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 1.08rem;
+}
+
+.audience-metrics {
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+}
+
+.audience-metrics strong {
+  display: block;
+  color: var(--red);
+  font-size: clamp(2.1rem, 4vw, 3.45rem);
+  line-height: 1;
+}
+
+.audience-metrics span {
+  display: block;
+  max-width: 420px;
+  margin-top: 10px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.calculator h3,
+.calculator p,
+.partner-form h3 {
+  margin: 0;
+}
+
+.calculator label,
+.partner-form label {
+  display: grid;
+  gap: 10px;
+  font-weight: 900;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--teal);
+}
+
+output {
+  width: fit-content;
+  min-width: 110px;
+  border-radius: 8px;
+  background: #e0f1ee;
+  color: var(--teal-dark);
+  font-weight: 950;
+  padding: 7px 10px;
+}
+
+.calculator-total {
+  display: flex;
+  gap: 18px;
+  align-items: end;
+  justify-content: space-between;
+  border-top: 1px solid var(--line);
+  padding-top: 18px;
+}
+
+.calculator-total span {
+  color: var(--muted);
+  font-weight: 850;
+}
+
+.calculator-total strong {
+  color: var(--red);
+  font-size: clamp(2rem, 4vw, 3.7rem);
+  line-height: 1;
+  text-align: right;
+}
+
+.funds-section {
+  background: rgba(255, 255, 255, 0.44);
+}
+
+.allocation-panel {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+}
+
+.allocation-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 0.75fr) auto;
+  gap: 14px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 14px;
+}
+
+.allocation-row strong,
+.allocation-row em {
+  font-style: normal;
+  font-weight: 950;
+}
+
+.allocation-row small {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-weight: 780;
+}
+
+.bar {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e7ece9;
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--bar-color, var(--teal));
+}
+
+.map-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 0.84fr) minmax(420px, 1.16fr);
+  gap: 22px;
+  align-items: stretch;
+  overflow: hidden;
+  padding: 18px;
+}
+
+.map-copy {
+  display: grid;
+  align-content: center;
+  padding: clamp(20px, 4vw, 36px);
+}
+
+.morocco-map {
+  position: relative;
+  min-height: 520px;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(13, 29, 32, 0.2), rgba(13, 29, 32, 0.8)),
+    url("assets/images/village-atlas.jpg") center / cover;
+}
+
+.morocco-map::before {
+  position: absolute;
+  inset: 44px 18% 36px 22%;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 42% 58% 54% 46% / 34% 38% 62% 66%;
+  background: rgba(255, 255, 255, 0.08);
+  content: "";
+  backdrop-filter: blur(2px);
+}
+
+.pin {
+  position: absolute;
+  display: grid;
+  gap: 2px;
+  min-width: 132px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 8px;
+  background: rgba(13, 29, 32, 0.82);
+  color: #fff;
+  padding: 10px 12px;
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.22);
+}
+
+.pin::before {
+  position: absolute;
+  top: -9px;
+  left: 14px;
+  width: 16px;
+  height: 16px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: var(--red);
+  content: "";
+}
+
+.pin strong,
+.pin small {
+  display: block;
+}
+
+.pin small {
+  color: rgba(255, 255, 255, 0.72);
+  font-weight: 800;
+}
+
+.pin.marrakech {
+  top: 46%;
+  left: 42%;
+}
+
+.pin.atlas {
+  top: 24%;
+  left: 55%;
+}
+
+.pin.casa {
+  top: 16%;
+  left: 22%;
+}
+
+.pin.sud {
+  right: 10%;
+  bottom: 16%;
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.project-card {
+  overflow: hidden;
+}
+
+.project-card img {
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.project-card div {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+}
+
+.project-card p {
+  margin: 0;
+}
+
+meter {
+  width: 100%;
+  height: 12px;
+}
+
+meter::-webkit-meter-bar {
+  border: 0;
+  border-radius: 999px;
+  background: #e7ece9;
+}
+
+meter::-webkit-meter-optimum-value {
+  border-radius: 999px;
+  background: var(--teal);
+}
+
+.project-card strong {
+  color: var(--teal-dark);
+}
+
+.commerce-section {
+  background: #0d1d20;
+  color: #fff;
+}
+
+.commerce-shell {
+  background:
+    linear-gradient(135deg, rgba(0, 127, 117, 0.16), rgba(184, 61, 70, 0.12)),
+    #132b30;
+  border-color: rgba(255, 255, 255, 0.12);
+  padding: clamp(22px, 4vw, 38px);
+}
+
+.commerce-shell .section-kicker,
+.commerce-cards span {
+  color: #f2c775;
+}
+
+.commerce-shell > div > p,
+.commerce-cards p {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.commerce-cards {
+  display: grid;
+  gap: 12px;
+}
+
+.commerce-cards article {
+  min-height: 140px;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
+  padding: 18px;
+}
+
+.commerce-cards strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 1.22rem;
+}
+
+.commerce-cards p {
+  margin: 8px 0 0;
+}
+
+.ledger-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.8fr);
+  gap: 18px;
+}
+
+.ledger-table {
+  overflow: hidden;
+}
+
+.ledger-table [role="row"] {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) 120px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  padding: 18px 20px;
+}
+
+.ledger-table [role="row"]:last-child {
+  border-bottom: 0;
+}
+
+.ledger-table [role="columnheader"] {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.status {
+  width: fit-content;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 0.78rem;
+  font-weight: 950;
+}
+
+.status.live {
+  background: #dff2df;
+  color: #326c2d;
+}
+
+.status.review {
+  background: #e2edf7;
+  color: #315f91;
+}
+
+.status.build {
+  background: #f5ead5;
+  color: #825d16;
+}
+
+.partner-form {
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+}
+
+.partner-form input,
+.partner-form select {
+  min-height: 48px;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  padding: 10px 12px;
+}
+
+.form-result {
+  min-height: 48px;
+  margin: 0;
+  color: var(--teal-dark);
+  font-weight: 950;
+}
+
+.rail-nav a:focus-visible,
+.topbar-actions a:focus-visible,
+.audience-tabs button:focus-visible,
+.button:focus-visible,
+.menu-button:focus-visible,
+.partner-form input:focus,
+.partner-form select:focus {
+  outline: 3px solid rgba(0, 127, 117, 0.34);
+  outline-offset: 3px;
+}
+
+@media (max-width: 1180px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .side-rail {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 30;
+    width: min(320px, calc(100vw - 36px));
+    transform: translateX(-105%);
+    transition: transform 180ms ease;
+  }
+
+  body.menu-open .side-rail {
+    transform: translateX(0);
+  }
+
+  .menu-button {
+    display: block;
+  }
+
+  .topbar {
+    gap: 14px;
+    justify-content: start;
+  }
+
+  .topbar-actions {
+    margin-left: auto;
+  }
+
+  .command-center,
+  .activation-grid,
+  .map-panel,
+  .ledger-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .command-copy,
+  .hero-console {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 860px) {
+  .section-heading,
+  .funds-layout,
+  .commerce-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .project-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-grid,
+  .flow-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .morocco-map {
+    min-height: 460px;
+  }
+}
+
+@media (max-width: 640px) {
+  .topbar-copy {
+    display: none;
+  }
+
+  .topbar-actions a {
+    min-height: 42px;
+    padding: 8px 10px;
+  }
+
+  h1 {
+    font-size: 2.42rem;
+    line-height: 1.02;
+  }
+
+  h2 {
+    font-size: 1.92rem;
+    line-height: 1.08;
+  }
+
+  h3 {
+    font-size: 1.22rem;
+    line-height: 1.16;
+  }
+
+  .command-center,
+  .section {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .command-copy,
+  .hero-console,
+  .audience-card,
+  .calculator,
+  .map-panel,
+  .commerce-shell,
+  .partner-form {
+    padding: 20px;
+  }
+
+  .command-copy p,
+  .section-heading p,
+  .funds-layout p,
+  .map-copy p,
+  .commerce-shell > div > p {
+    font-size: 0.98rem;
+  }
+
+  .metric-grid strong,
+  .audience-metrics strong,
+  .calculator-total strong {
+    font-size: 2.25rem;
+  }
+
+  .command-actions,
+  .calculator-total {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .button {
+    width: 100%;
+  }
+
+  .allocation-row,
+  .ledger-table [role="row"] {
+    grid-template-columns: 1fr;
+  }
+
+  .calculator-total strong {
+    text-align: left;
+  }
+
+  .pin {
+    min-width: 118px;
+    font-size: 0.86rem;
+  }
+
+  .morocco-map {
+    min-height: 560px;
+  }
+
+  .morocco-map::before {
+    inset: 44px 24% 40px 24%;
+  }
+
+  .pin.casa {
+    top: 74px;
+    left: 14px;
+  }
+
+  .pin.atlas {
+    top: 156px;
+    right: 14px;
+    left: auto;
+  }
+
+  .pin.marrakech {
+    top: 310px;
+    left: 14px;
+  }
+
+  .pin.sud {
+    right: 14px;
+    bottom: 36px;
+  }
+}
