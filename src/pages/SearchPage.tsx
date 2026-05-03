@@ -44,6 +44,7 @@ import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import MobileSearchOverlay from "@/components/MobileSearchOverlay";
 import FlightSearchOverlay, { type FlightSearchInitial } from "@/components/overlays/FlightSearchOverlay";
 import WebSearchOverlay from "@/components/overlays/WebSearchOverlay";
+import FallbackHotelsPanel from "@/components/overlays/FallbackHotelsPanel";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useTextToSpeech, preloadTTS } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
@@ -816,6 +817,115 @@ const SearchPage = () => {
 
   const [flightOverlay, setFlightOverlay] = useState<{ open: boolean; initial: FlightSearchInitial }>({ open: false, initial: {} });
   const [webOverlay, setWebOverlay] = useState<{ open: boolean; query: string }>({ open: false, query: "" });
+  const [hotelSearchPanel, setHotelSearchPanel] = useState<import("@/components/HotelAvailabilityOverlay").FallbackPanelData | null>(null);
+  const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
+
+  const handleHotelSearch = useCallback(async (intent: { city: string; checkIn?: string; checkOut?: string; adults?: number }) => {
+    const lang = language === "en" ? "en" : "fr";
+    let cityName = (intent.city || "").trim();
+    if (!cityName) {
+      ttsSpeak(lang === "en" ? "Which city would you like to search in?" : "Dans quelle ville souhaitez-vous chercher ?");
+      return;
+    }
+
+    const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+    const dayAfter = new Date(tomorrow); dayAfter.setDate(dayAfter.getDate() + 1);
+    const checkIn = intent.checkIn || tomorrow.toISOString().split("T")[0];
+    const checkOut = intent.checkOut || dayAfter.toISOString().split("T")[0];
+    const adults = intent.adults || 2;
+
+    setInputValue(cityName);
+    setHotelSearchLoading(true);
+    try {
+      const [mappingResult, gammeResult] = await Promise.all([
+        supabase.from("hotel_mappings").select("id, serp_hotel_name, business_id, city").ilike("city", cityName),
+        supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
+      ]);
+      const allMappings = (mappingResult.data || []) as any[];
+      const gammes = gammeResult.data || [];
+      const optimalMaxPages = Math.max(1, Math.ceil(allMappings.length / 20));
+
+      const serpResult = await supabase.functions.invoke("serpapi-hotels", {
+        body: { cityName, checkIn, checkOut, adults, currency: "EUR", maxPages: optimalMaxPages || 1 },
+      });
+      const serpHotels = (serpResult.data?.data || []) as any[];
+
+      const serpByExactName = new globalThis.Map<string, any>();
+      for (const h of serpHotels) {
+        const n = typeof h.name === "string" ? h.name.trim().toLowerCase() : "";
+        if (n && !serpByExactName.has(n)) serpByExactName.set(n, h);
+      }
+
+      const matches = new globalThis.Map<string, { mapping: any; serpMatch: any }>();
+      for (const m of allMappings) {
+        const mn = typeof m.serp_hotel_name === "string" ? m.serp_hotel_name.trim().toLowerCase() : "";
+        if (!m.business_id || !mn || matches.has(m.business_id)) continue;
+        const sm = serpByExactName.get(mn);
+        if (sm) matches.set(m.business_id, { mapping: m, serpMatch: sm });
+      }
+
+      const bizIds = [...matches.keys()];
+      let bizMap = new globalThis.Map<string, any>();
+      if (bizIds.length > 0) {
+        const { data: bizData } = await supabase
+          .from("businesses")
+          .select("id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, opening_hours, show_opening_hours, is_open_24h, engagements, latitude, longitude, rating, min_price, main_category")
+          .in("id", bizIds)
+          .eq("is_active", true)
+          .eq("main_category", "Hôtellerie");
+        bizMap = new globalThis.Map((bizData || []).map((b: any) => [b.id, b]));
+      }
+
+      const gammeMap = new globalThis.Map(gammes.map((g: any) => [g.id, g]));
+      const hotels: any[] = [];
+      for (const { mapping, serpMatch } of matches.values()) {
+        const biz = bizMap.get(mapping.business_id);
+        if (!biz) continue;
+        const gammeInfo = biz.gamme_id ? gammeMap.get(biz.gamme_id) || null : null;
+        hotels.push({
+          hotelId: mapping.id || biz.id,
+          businessId: biz.id,
+          name: biz.name,
+          wtuce_status: biz.wtuce_status || undefined,
+          offers: [],
+          dbImage: biz.images?.[0] || undefined,
+          mainImage: serpMatch.thumbnail || undefined,
+          dbGoogleRating: biz.google_rating,
+          dbGoogleReviewCount: biz.google_review_count,
+          dbTripadvisorRating: biz.tripadvisor_rating,
+          dbTripadvisorReviewCount: biz.tripadvisor_review_count,
+          serpPrice: serpMatch.ratePerNight || null,
+          reserveNowUrl: biz.reserve_now_url,
+          manualPriceRange: biz.manual_price_range,
+          isCurrentHotel: false,
+          gamme: gammeInfo ? { name_fr: gammeInfo.name_fr, color_hex: gammeInfo.color_hex, text_color_hex: gammeInfo.text_color_hex } : null,
+          dealDescription: serpMatch.dealDescription || null,
+          dbBusiness: biz,
+        });
+      }
+
+      setHotelSearchPanel({
+        hotels, city: cityName, checkIn, checkOut, adults, source: "serpapi",
+        gammes: gammes.map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })),
+      });
+
+      if (hotels.length === 0) {
+        ttsSpeak(lang === "en"
+          ? `No hotels available in ${cityName} from ${checkIn} to ${checkOut}.`
+          : `Aucun hôtel disponible à ${cityName} du ${formatDateFr(checkIn)} au ${formatDateFr(checkOut)}.`);
+      } else {
+        ttsSpeak(lang === "en"
+          ? `${hotels.length} hotel${hotels.length > 1 ? "s" : ""} available in ${cityName}.`
+          : `${hotels.length} hôtel${hotels.length > 1 ? "s" : ""} disponible${hotels.length > 1 ? "s" : ""} à ${cityName}.`);
+      }
+    } catch (err) {
+      console.error("Hotel search voice error:", err);
+      ttsSpeak(lang === "en" ? "Sorry, hotel search failed." : "Désolé, la recherche d'hôtels a échoué.");
+    } finally {
+      setHotelSearchLoading(false);
+    }
+  }, [language, ttsSpeak]);
+
 
   const { status: voiceStatus, toggleRecording, finishRecording, liveTranscript } = useVoiceSearch({
     onTranscript: (keywords, spoken, category, timeKeyword) => {
@@ -838,6 +948,7 @@ const SearchPage = () => {
       if (isMobile) window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     onHotelAvailability: handleHotelAvailability,
+    onHotelSearch: handleHotelSearch,
     onFlightSearch: (intent) => {
       setFlightOverlay({ open: true, initial: intent });
     },
@@ -3033,6 +3144,26 @@ const SearchPage = () => {
         initialQuery={webOverlay.query}
         onClose={() => setWebOverlay({ open: false, query: "" })}
       />
+
+      {/* SerpAPI hotel search by city (voice intent: hotelSearch) */}
+      {hotelSearchPanel && (
+        <FallbackHotelsPanel
+          data={hotelSearchPanel}
+          selectedHotelId={null}
+          onClose={() => setHotelSearchPanel(null)}
+          onSelectHotel={(_hotelId, businessId) => {
+            if (businessId) {
+              setHotelSearchPanel(null);
+              setSearchParams({ openBusiness: businessId });
+            }
+          }}
+        />
+      )}
+      {hotelSearchLoading && (
+        <div className="fixed inset-0 z-[230] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      )}
 
       {/* Bottom floating search bar — hidden when the right-side Google Map is visible (it has its own search bar) */}
       {(() => {

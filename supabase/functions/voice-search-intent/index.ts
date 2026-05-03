@@ -31,6 +31,21 @@ serve(async (req) => {
 
 Ta tâche : identifier l'INTENTION sémantique et la traduire en mots-clés concrets (type d'établissement, service, produit, ville, quartier, personnage historique, nom propre).
 
+INTENTION SPÉCIALE — RECHERCHE D'HÔTELS PAR VILLE (sans nom précis) :
+Si l'utilisateur cherche un hôtel/riad/maison d'hôtes DANS UNE VILLE pour des DATES (sans nommer un établissement précis), réponds avec :
+{"intent": "hotelSearch", "city": "Ville", "checkIn": "YYYY-MM-DD", "checkOut": "YYYY-MM-DD", "adults": 2}
+- Déclencheurs : "hôtel à [ville]", "trouve un hôtel à [ville] du X au Y", "réserver un hôtel à [ville]", "hotel in [city] from X to Y", "book a hotel in [city]"
+- Date actuelle : ${today}. Résoudre les dates relatives. Si checkIn donné sans checkOut, mettre checkOut = checkIn + 1 jour.
+- Si AUCUNE date n'est donnée : checkIn = demain, checkOut = après-demain.
+- adults par défaut 2.
+- IMPORTANT : si l'utilisateur nomme un établissement précis → utilise hotelAvailability à la place.
+- Si aucune ville n'est mentionnée mais l'intention est claire, mettre city: "" (le client demandera).
+
+Exemples hotelSearch :
+"Trouve un hôtel à Marrakech du 10 au 15 mars" → {"intent": "hotelSearch", "city": "Marrakech", "checkIn": "2026-03-10", "checkOut": "2026-03-15", "adults": 2}
+"Hôtel à Essaouira ce week-end" → {"intent": "hotelSearch", "city": "Essaouira", "checkIn": "...", "checkOut": "..."}
+"Réserver un hôtel à Casablanca pour 2 adultes" → {"intent": "hotelSearch", "city": "Casablanca", "adults": 2}
+
 INTENTION SPÉCIALE — RECHERCHE DE VOL :
 Si l'utilisateur cherche un vol/billet d'avion, réponds avec ce JSON :
 {"intent": "flightSearch", "origin": "Ville d'origine ou code IATA", "destination": "Ville d'arrivée ou code IATA", "departureDate": "YYYY-MM-DD", "returnDate": "YYYY-MM-DD", "adults": 1}
@@ -265,6 +280,7 @@ Exemples :
     let hotelAvailability: Record<string, unknown> | null = null;
     let flightSearch: Record<string, unknown> | null = null;
     let webSearch: Record<string, unknown> | null = null;
+    let hotelSearch: Record<string, unknown> | null = null;
     try {
       const parsed = JSON.parse(rawContent.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
       
@@ -279,6 +295,16 @@ Exemples :
         };
         query = parsed.hotelName || transcript;
         console.log(`Voice intent: hotelAvailability for "${parsed.hotelName}"`);
+      } else if (parsed.intent === "hotelSearch") {
+        intent = "hotelSearch";
+        hotelSearch = {
+          city: parsed.city || "",
+          checkIn: parsed.checkIn || undefined,
+          checkOut: parsed.checkOut || undefined,
+          adults: parsed.adults || 2,
+        };
+        query = parsed.city || transcript;
+        console.log(`Voice intent: hotelSearch in "${parsed.city}"`);
       } else if (parsed.intent === "flightSearch") {
         intent = "flightSearch";
         flightSearch = {
@@ -306,7 +332,7 @@ Exemples :
 
     console.log(`Voice intent: "${transcript}" → intent="${intent}", keywords="${query}", category="${category}", timeKeyword="${timeKeyword}"`);
 
-    return new Response(JSON.stringify({ query, category, timeKeyword, intent, hotelAvailability, flightSearch, webSearch }), {
+    return new Response(JSON.stringify({ query, category, timeKeyword, intent, hotelAvailability, hotelSearch, flightSearch, webSearch }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
