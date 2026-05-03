@@ -146,6 +146,7 @@ const Home = () => {
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
   const [homeSearchOverlayOpen, setHomeSearchOverlayOpen] = useState(false);
+  const [homeSearchCloseTrigger, setHomeSearchCloseTrigger] = useState(0);
   const [panelOpen, setPanelOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const autoOpenedRef = useRef<string | null>(null);
