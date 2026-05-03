@@ -835,6 +835,10 @@ const SearchPage = () => {
     const adults = intent.adults || 2;
 
     setInputValue(cityName);
+    // Lance aussi la recherche classique dans la page Search (catégorie Hôtellerie + ville)
+    isVoiceSearchRef.current = true;
+    setSearchQuery("hôtel");
+    setSearchParams({ q: "hôtel", category: "Hôtellerie", city: cityName, spoken: `hôtel à ${cityName}` });
     setHotelSearchLoading(true);
     try {
       const [mappingResult, gammeResult] = await Promise.all([
