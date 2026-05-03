@@ -849,13 +849,13 @@ const SearchPage = () => {
       });
       const serpHotels = (serpResult.data?.data || []) as any[];
 
-      const serpByExactName = new Map<string, any>();
+      const serpByExactName = new globalThis.Map<string, any>();
       for (const h of serpHotels) {
         const n = typeof h.name === "string" ? h.name.trim().toLowerCase() : "";
         if (n && !serpByExactName.has(n)) serpByExactName.set(n, h);
       }
 
-      const matches = new Map<string, { mapping: any; serpMatch: any }>();
+      const matches = new globalThis.Map<string, { mapping: any; serpMatch: any }>();
       for (const m of allMappings) {
         const mn = typeof m.serp_hotel_name === "string" ? m.serp_hotel_name.trim().toLowerCase() : "";
         if (!m.business_id || !mn || matches.has(m.business_id)) continue;
@@ -864,7 +864,7 @@ const SearchPage = () => {
       }
 
       const bizIds = [...matches.keys()];
-      let bizMap = new Map<string, any>();
+      let bizMap = new globalThis.Map<string, any>();
       if (bizIds.length > 0) {
         const { data: bizData } = await supabase
           .from("businesses")
@@ -872,10 +872,10 @@ const SearchPage = () => {
           .in("id", bizIds)
           .eq("is_active", true)
           .eq("main_category", "Hôtellerie");
-        bizMap = new Map((bizData || []).map((b: any) => [b.id, b]));
+        bizMap = new globalThis.Map((bizData || []).map((b: any) => [b.id, b]));
       }
 
-      const gammeMap = new Map(gammes.map((g: any) => [g.id, g]));
+      const gammeMap = new globalThis.Map(gammes.map((g: any) => [g.id, g]));
       const hotels: any[] = [];
       for (const { mapping, serpMatch } of matches.values()) {
         const biz = bizMap.get(mapping.business_id);
