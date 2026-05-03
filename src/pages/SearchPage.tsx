@@ -1225,10 +1225,7 @@ const SearchPage = () => {
 
   const { tabs: mobileFrontTabs } = useFrontStructureTabs(effectiveCityForMap || null);
 
-    // Auto-open désactivé : on ne peut jamais deviner avec certitude le bon
-    // établissement à partir d'une simple query texte. On laisse l'utilisateur
-    // sur la grille de résultats + Google Map. Les ouvertures explicites
-    // (?openBusiness=ID, match exact du nom) restent gérées ailleurs.
+
 
 
   useEffect(() => {
