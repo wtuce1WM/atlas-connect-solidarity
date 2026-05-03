@@ -3020,6 +3020,20 @@ const SearchPage = () => {
         onFinish={() => finishRecording()}
       />
 
+      {/* SerpAPI Flight search (voice intent: flightSearch) */}
+      <FlightSearchOverlay
+        open={flightOverlay.open}
+        initial={flightOverlay.initial}
+        onClose={() => setFlightOverlay({ open: false, initial: {} })}
+      />
+
+      {/* SerpAPI Web search (voice intent: webSearch) */}
+      <WebSearchOverlay
+        open={webOverlay.open}
+        initialQuery={webOverlay.query}
+        onClose={() => setWebOverlay({ open: false, query: "" })}
+      />
+
       {/* Bottom floating search bar — hidden when the right-side Google Map is visible (it has its own search bar) */}
       {(() => {
         const rightMapVisible = hasKnownLocation && !compactPanelBusiness && (
