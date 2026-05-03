@@ -66,7 +66,7 @@ declare global {
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-async function extractSearchIntent(transcript: string): Promise<{ query: string; category: string; timeKeyword: string; intent: string; hotelAvailability: HotelAvailabilityIntent | null }> {
+async function extractSearchIntent(transcript: string): Promise<{ query: string; category: string; timeKeyword: string; intent: string; hotelAvailability: HotelAvailabilityIntent | null; flightSearch: FlightSearchIntent | null; webSearch: WebSearchIntent | null }> {
   try {
     const response = await fetch(`${SUPABASE_URL}/functions/v1/voice-search-intent`, {
       method: "POST",
@@ -87,10 +87,12 @@ async function extractSearchIntent(transcript: string): Promise<{ query: string;
       timeKeyword: data.timeKeyword?.trim() || "",
       intent: data.intent?.trim() || "",
       hotelAvailability: data.hotelAvailability || null,
+      flightSearch: data.flightSearch || null,
+      webSearch: data.webSearch || null,
     };
   } catch (err) {
     console.warn("LLM intent extraction failed, using raw transcript:", err);
-    return { query: transcript, category: "", timeKeyword: "", intent: "", hotelAvailability: null };
+    return { query: transcript, category: "", timeKeyword: "", intent: "", hotelAvailability: null, flightSearch: null, webSearch: null };
   }
 }
 
