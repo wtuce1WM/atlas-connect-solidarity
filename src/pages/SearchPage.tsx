@@ -417,6 +417,7 @@ const SearchPage = () => {
    const lastAiServiceRef = useRef<string | null>(null);
     const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
     const [bottomSearchOverlayOpen, setBottomSearchOverlayOpen] = useState(false);
+    const [bottomSearchCloseTrigger, setBottomSearchCloseTrigger] = useState(0);
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
     const [isNestedMosaicOpen, setIsNestedMosaicOpen] = useState(false);
       const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
@@ -3044,29 +3045,38 @@ const SearchPage = () => {
 
       {/* Bottom floating search bar — same as Home when SlidePanelHome closed */}
       {!compactPanelBusiness && (
-        <div
-          className={`fixed z-[85] pointer-events-none ${
-            bottomSearchOverlayOpen
-              ? "inset-y-0 left-1/2 -translate-x-1/2 w-full lg:w-1/2"
-              : "bottom-0 left-1/2 -translate-x-1/2 w-[90%] lg:w-1/2"
-          }`}
-        >
-          <div className="relative w-full h-full pointer-events-auto">
-            <PanelSearchBar
-              onSearch={(params) => {
-                const sp = new URLSearchParams(params);
-                navigate(`/search?${sp.toString()}`);
-              }}
-              onBusinessSelect={(bizId) => {
-                setCompactPanelBusiness({ id: bizId, name: "" } as any);
-                setIsCompactPanelExpanded(false);
-              }}
-              onOverlayChange={setBottomSearchOverlayOpen}
-              noToolbarOffset
-              iconVariant="black"
+        <>
+          {bottomSearchOverlayOpen && (
+            <div
+              className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-md animate-in fade-in duration-200"
+              onClick={() => setBottomSearchCloseTrigger((n) => n + 1)}
             />
+          )}
+          <div
+            className={`fixed pointer-events-none ${
+              bottomSearchOverlayOpen
+                ? "inset-y-0 left-1/2 -translate-x-1/2 w-full lg:w-1/2 z-[201]"
+                : "bottom-0 left-1/2 -translate-x-1/2 w-[90%] lg:w-1/2 z-[85]"
+            }`}
+          >
+            <div className="relative w-full h-full pointer-events-auto">
+              <PanelSearchBar
+                onSearch={(params) => {
+                  const sp = new URLSearchParams(params);
+                  navigate(`/search?${sp.toString()}`);
+                }}
+                onBusinessSelect={(bizId) => {
+                  setCompactPanelBusiness({ id: bizId, name: "" } as any);
+                  setIsCompactPanelExpanded(false);
+                }}
+                onOverlayChange={setBottomSearchOverlayOpen}
+                closeTrigger={bottomSearchCloseTrigger}
+                noToolbarOffset
+                iconVariant="black"
+              />
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* Split view: Left AI text panel + Right business panel */}
