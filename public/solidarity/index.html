@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>One World Morocco x WTUCE | Impact OS</title>
+    <meta
+      name="description"
+      content="Refonte plateforme premium pour activer, piloter et prouver l'impact solidaire du tourisme et du commerce responsable au Maroc."
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="side-rail" aria-label="Navigation plateforme">
+        <a class="brand" href="#dashboard" aria-label="One World Morocco x WTUCE">
+          <span class="brand-mark" aria-hidden="true">OW</span>
+          <span>
+            <strong>One World Morocco</strong>
+            <small>WTUCE Impact OS</small>
+          </span>
+        </a>
+
+        <nav class="rail-nav">
+          <a class="active" href="#dashboard">Dashboard</a>
+          <a href="#activation">Activation</a>
+          <a href="#fonds">Fonds</a>
+          <a href="#projets">Projets</a>
+          <a href="#commerce">Commerce</a>
+          <a href="#pilotage">Pilotage</a>
+        </nav>
+
+        <div class="rail-status">
+          <span>Phase pilote</span>
+          <strong>Marrakech · Maroc</strong>
+          <p>Prêt pour hôtels, riads, OTA et partenaires institutionnels.</p>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <button class="menu-button" type="button" data-menu-button aria-label="Ouvrir le menu">
+            <span></span>
+            <span></span>
+          </button>
+          <div class="topbar-copy">
+            <span>Plateforme partenaire</span>
+            <strong>Activation solidaire en temps réel</strong>
+          </div>
+          <div class="topbar-actions" aria-label="Actions rapides">
+            <a href="#pilotage">Audit</a>
+            <a href="#activation">Pilote</a>
+          </div>
+        </header>
+
+        <section class="command-center" id="dashboard" aria-labelledby="dashboard-title">
+          <div class="command-copy">
+            <div class="section-kicker">Impact Operating System</div>
+            <h1 id="dashboard-title">Rendre chaque nuitée solidaire, traçable et mesurable.</h1>
+            <p>
+              Une interface premium pour activer les partenaires, suivre les fonds et publier la preuve :
+              collecte, allocation, projets, commerce solidaire et gouvernance.
+            </p>
+            <div class="command-actions">
+              <a class="button primary" href="#activation">Configurer un pilote</a>
+              <a class="button secondary" href="#pilotage">Voir la preuve</a>
+            </div>
+          </div>
+
+          <div class="hero-console" aria-label="Console de performance">
+            <div class="console-topline">
+              <span>Live pilot</span>
+              <strong>WTUCE · Morocco</strong>
+            </div>
+            <div class="metric-grid">
+              <article>
+                <span>Potentiel Maroc</span>
+                <strong>85 M€</strong>
+                <small>projection annuelle</small>
+              </article>
+              <article>
+                <span>Nuitées activées</span>
+                <strong data-hero-nights>50 000</strong>
+                <small>mois pilote</small>
+              </article>
+              <article>
+                <span>Fonds</span>
+                <strong>5</strong>
+                <small>axes publics</small>
+              </article>
+              <article>
+                <span>Trace</span>
+                <strong>100%</strong>
+                <small>ledger publiable</small>
+              </article>
+            </div>
+
+            <div class="flow-strip" aria-label="Flux opérationnel">
+              <span>Réservation</span>
+              <span>Collecte</span>
+              <span>Fonds</span>
+              <span>Projet</span>
+              <span>Preuve</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="section activation-section" id="activation">
+          <div class="section-heading">
+            <div>
+              <div class="section-kicker">Studio d’activation</div>
+              <h2>Un discours clair pour chaque partenaire.</h2>
+            </div>
+            <p>
+              Le même mécanisme doit se présenter différemment à un hôtel, une OTA, une institution ou
+              une marketplace. Ici, le parcours devient clair, actionnable et mesurable.
+            </p>
+          </div>
+
+          <div class="audience-tabs" role="tablist" aria-label="Choisir un partenaire">
+            <button class="active" type="button" data-audience="hotel">Hôtel & riad</button>
+            <button type="button" data-audience="ota">OTA</button>
+            <button type="button" data-audience="institution">Institution</button>
+            <button type="button" data-audience="marketplace">Marketplace</button>
+          </div>
+
+          <div class="activation-grid">
+            <article class="audience-card">
+              <span data-audience-tag>Partenaire hôtelier</span>
+              <h3 data-audience-title>Transformer chaque nuitée en preuve d’engagement.</h3>
+              <p data-audience-copy>
+                Activez la contribution à la réservation, affichez un badge d’impact, puis recevez un
+                reporting mensuel prêt pour vos clients, équipes et partenaires.
+              </p>
+              <div class="audience-metrics">
+                <strong data-audience-metric>+50 000 €</strong>
+                <span data-audience-caption>contribution mensuelle sur un pilote de 62 500 nuitées</span>
+              </div>
+            </article>
+
+            <form class="calculator" data-calculator-form>
+              <div>
+                <h3>Simulateur partenaire</h3>
+                <p>Calcule la contribution collectable et son allocation publique.</p>
+              </div>
+              <label>
+                Nuitées ou transactions mensuelles
+                <input type="range" min="1000" max="250000" step="1000" value="62500" data-volume />
+                <output data-volume-output>62 500</output>
+              </label>
+              <label>
+                Taux d’activation
+                <input type="range" min="20" max="100" step="5" value="80" data-rate />
+                <output data-rate-output>80%</output>
+              </label>
+              <div class="calculator-total">
+                <span>Contribution projetée</span>
+                <strong data-total>50 000 €</strong>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section class="section funds-section" id="fonds">
+          <div class="funds-layout">
+            <div>
+              <div class="section-kicker">Fonds d’impact</div>
+              <h2>Une allocation lisible dès le départ.</h2>
+              <p>
+                Les partenaires voient immédiatement comment leur contribution est répartie. Ce n’est
+                pas un don flou : c’est une architecture de financement lisible.
+              </p>
+            </div>
+            <div class="allocation-panel" data-allocation-list aria-label="Répartition des fonds"></div>
+          </div>
+        </section>
+
+        <section class="section map-section" aria-labelledby="map-title">
+          <div class="map-panel">
+            <div class="map-copy">
+              <div class="section-kicker">Carte d’impact</div>
+              <h2 id="map-title">Piloter l’impact par territoire.</h2>
+              <p>
+                Chaque contribution peut être rattachée à une région, un axe d’impact et une preuve
+                terrain. Le Maroc devient la première vitrine d’un modèle exportable.
+              </p>
+            </div>
+            <div class="morocco-map" aria-label="Régions pilotes">
+              <span class="pin marrakech"><strong>Marrakech</strong><small>Hôtels pilotes</small></span>
+              <span class="pin atlas"><strong>Atlas</strong><small>Coopératives</small></span>
+              <span class="pin casa"><strong>Casablanca</strong><small>Partenaires</small></span>
+              <span class="pin sud"><strong>Sud</strong><small>Énergie</small></span>
+            </div>
+          </div>
+        </section>
+
+        <section class="section projects-section" id="projets">
+          <div class="section-heading">
+            <div>
+              <div class="section-kicker">Pipeline projets</div>
+              <h2>Des projets visibles, finançables, vérifiables.</h2>
+            </div>
+            <p>
+              Les projets ne sont plus cachés en bas de page. Ils deviennent des fiches vivantes :
+              budget, statut, indicateurs, photos, justificatifs et reporting.
+            </p>
+          </div>
+
+          <div class="project-grid">
+            <article class="project-card">
+              <img src="assets/images/enfants-maroc.jpg" alt="Deux enfants souriants au Maroc" />
+              <div>
+                <span>Éducation · Marrakech-Safi</span>
+                <h3>Classes numériques rurales</h3>
+                <p>Équipement, formation et suivi trimestriel des usages pédagogiques.</p>
+                <meter min="0" max="100" value="64">64%</meter>
+                <strong>64% financé</strong>
+              </div>
+            </article>
+            <article class="project-card">
+              <img src="assets/images/village-atlas.jpg" alt="Village de montagne et textiles colorés au Maroc" />
+              <div>
+                <span>Patrimoine · Atlas</span>
+                <h3>Ateliers artisanat vivant</h3>
+                <p>Référencement coopératives, transmission et commerce responsable.</p>
+                <meter min="0" max="100" value="48">48%</meter>
+                <strong>48% financé</strong>
+              </div>
+            </article>
+            <article class="project-card">
+              <img src="assets/images/souk-marrakech.jpg" alt="Souk marocain avec artisanat et lanternes" />
+              <div>
+                <span>Énergie · Sud</span>
+                <h3>Solaire pour coopératives</h3>
+                <p>Production locale, réduction des coûts et preuve d’économie mesurée.</p>
+                <meter min="0" max="100" value="36">36%</meter>
+                <strong>36% financé</strong>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section commerce-section" id="commerce">
+          <div class="commerce-shell">
+            <div>
+              <div class="section-kicker">One World Commerce</div>
+              <h2>La marketplace devient le second moteur.</h2>
+              <p>
+                Le commerce solidaire prolonge l’impact au-delà de l’hôtel : artisans, coopératives,
+                produits responsables et contributions rattachées à des fonds publics.
+              </p>
+            </div>
+            <div class="commerce-cards">
+              <article>
+                <span>Vitrine artisanale</span>
+                <strong>Produits vérifiés</strong>
+                <p>Chaque fiche affiche origine, contribution, partenaire et axe d’impact.</p>
+              </article>
+              <article>
+                <span>Contribution intégrée</span>
+                <strong>1 € à 5 € par achat</strong>
+                <p>Un micro-financement visible dans le panier et dans le reçu d’impact.</p>
+              </article>
+              <article>
+                <span>Récit de marque</span>
+                <strong>Contenu ESG</strong>
+                <p>Les partenaires repartent avec des preuves utilisables en communication.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="section governance-section" id="pilotage">
+          <div class="section-heading">
+            <div>
+              <div class="section-kicker">Pilotage & confiance</div>
+              <h2>Le sérieux se voit dans le flux d’argent.</h2>
+            </div>
+            <p>
+              La plateforme doit montrer les conventions, les versements, les audits et la publication
+              des preuves. C’est cette couche qui manque souvent aux projets solidaires.
+            </p>
+          </div>
+
+          <div class="ledger-grid">
+            <div class="ledger-table" role="table" aria-label="Ledger de transparence">
+              <div role="row">
+                <span role="columnheader">Flux</span>
+                <span role="columnheader">Statut</span>
+                <span role="columnheader">Preuve</span>
+              </div>
+              <div role="row">
+                <span role="cell">Collecte hôtels Marrakech</span>
+                <strong class="status live" role="cell">Reconcilié</strong>
+                <span role="cell">Export mensuel + convention</span>
+              </div>
+              <div role="row">
+                <span role="cell">Allocation fonds éducation</span>
+                <strong class="status review" role="cell">Audit</strong>
+                <span role="cell">Budget, facture, indicateurs</span>
+              </div>
+              <div role="row">
+                <span role="cell">Marketplace artisanat</span>
+                <strong class="status build" role="cell">Pilote</strong>
+                <span role="cell">Reçus d’impact par achat</span>
+              </div>
+              <div role="row">
+                <span role="cell">Reporting institutionnel</span>
+                <strong class="status live" role="cell">Publiable</strong>
+                <span role="cell">Dashboard ESG consolidé</span>
+              </div>
+            </div>
+
+            <form class="partner-form" data-partner-form>
+              <h3>Générer un argument partenaire</h3>
+              <label>
+                Organisation
+                <input name="organisation" type="text" placeholder="Hôtel, OTA, institution..." required />
+              </label>
+              <label>
+                Profil
+                <select name="type">
+                  <option>Hôtel / Riad</option>
+                  <option>OTA / plateforme</option>
+                  <option>Institution</option>
+                  <option>Marque solidaire</option>
+                </select>
+              </label>
+              <label>
+                Volume mensuel
+                <input name="volume" type="number" min="100" value="2500" />
+              </label>
+              <button class="button primary" type="submit">Créer l’argument</button>
+              <p class="form-result" data-form-result aria-live="polite"></p>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
