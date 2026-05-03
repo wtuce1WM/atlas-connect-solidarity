@@ -1166,7 +1166,7 @@ const SearchPage = () => {
           .ilike("city", effectiveCityForMap)
           .range(offset, offset + PAGE - 1);
         if (!data || data.length === 0) break;
-        all.push(...data);
+        all.push(...(data as unknown as Business[]));
         if (data.length < PAGE) break;
         offset += PAGE;
       }
