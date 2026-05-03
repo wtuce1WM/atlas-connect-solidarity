@@ -524,8 +524,13 @@ const SearchPage = () => {
      }
    }, [language]);
 
-   // Reset panels, tab, and scroll when query changes
+   // Reset panels, tab, and scroll when query changes (skip on mount to preserve openBusiness param)
+   const isInitialResetMount = useRef(true);
    useEffect(() => {
+     if (isInitialResetMount.current) {
+       isInitialResetMount.current = false;
+       return;
+     }
      setHasScrolledPastHeroAi(false);
      aiPopupShownRef.current = false;
      hasAutoAlignedResultsRef.current = false;
