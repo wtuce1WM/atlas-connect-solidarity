@@ -814,6 +814,9 @@ const SearchPage = () => {
     }
   }, [language, ttsSpeak]);
 
+  const [flightOverlay, setFlightOverlay] = useState<{ open: boolean; initial: FlightSearchInitial }>({ open: false, initial: {} });
+  const [webOverlay, setWebOverlay] = useState<{ open: boolean; query: string }>({ open: false, query: "" });
+
   const { status: voiceStatus, toggleRecording, finishRecording, liveTranscript } = useVoiceSearch({
     onTranscript: (keywords, spoken, category, timeKeyword) => {
       isVoiceSearchRef.current = true;
@@ -835,6 +838,12 @@ const SearchPage = () => {
       if (isMobile) window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     onHotelAvailability: handleHotelAvailability,
+    onFlightSearch: (intent) => {
+      setFlightOverlay({ open: true, initial: intent });
+    },
+    onWebSearch: (intent) => {
+      setWebOverlay({ open: true, query: intent.query });
+    },
     onError: (message) => {
       toast({ variant: "destructive", title: "Erreur microphone", description: message });
     },
