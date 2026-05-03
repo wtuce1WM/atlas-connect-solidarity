@@ -42,6 +42,8 @@ const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePane
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import MobileSearchOverlay from "@/components/MobileSearchOverlay";
+import FlightSearchOverlay, { type FlightSearchInitial } from "@/components/overlays/FlightSearchOverlay";
+import WebSearchOverlay from "@/components/overlays/WebSearchOverlay";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useTextToSpeech, preloadTTS } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
