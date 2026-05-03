@@ -115,6 +115,8 @@ const SearchPage = () => {
   // Sync searchQuery & inputValue when URL params change (e.g. same query re-submitted with _t)
   const urlQ = searchParams.get("q") || "";
   const urlT = searchParams.get("_t") || "";
+  const openBusinessParam = searchParams.get("openBusiness") || "";
+  const pinIdsParam = searchParams.get("pinIds") || "";
   useEffect(() => {
     if (urlQ !== searchQuery || urlT) {
       setSearchQuery(urlQ);
@@ -125,16 +127,13 @@ const SearchPage = () => {
 
 
   // Handle openBusiness URL param (from FloatingSearchBar recently viewed)
+  const lastOpenedBusinessParamRef = useRef<string | null>(null);
   useEffect(() => {
-    const openBizId = searchParams.get("openBusiness");
-    if (openBizId) {
-      openCompactPanel({ id: openBizId, name: "" } as any);
-      // Clean up the param from URL
-      const next = new URLSearchParams(searchParams);
-      next.delete("openBusiness");
-      setSearchParams(next, { replace: true });
+    if (openBusinessParam && lastOpenedBusinessParamRef.current !== openBusinessParam) {
+      lastOpenedBusinessParamRef.current = openBusinessParam;
+      openCompactPanel({ id: openBusinessParam, name: "" } as any);
     }
-  }, [searchParams]);
+  }, [openBusinessParam]);
 
 
   const [fsFilterSubcategories, setFsFilterSubcategories] = useState<Set<string> | null>(null);
