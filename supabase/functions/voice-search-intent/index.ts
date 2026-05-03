@@ -263,6 +263,8 @@ Exemples :
     let timeKeyword = "";
     let intent = "";
     let hotelAvailability: Record<string, unknown> | null = null;
+    let flightSearch: Record<string, unknown> | null = null;
+    let webSearch: Record<string, unknown> | null = null;
     try {
       const parsed = JSON.parse(rawContent.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
       
@@ -277,6 +279,22 @@ Exemples :
         };
         query = parsed.hotelName || transcript;
         console.log(`Voice intent: hotelAvailability for "${parsed.hotelName}"`);
+      } else if (parsed.intent === "flightSearch") {
+        intent = "flightSearch";
+        flightSearch = {
+          origin: parsed.origin || undefined,
+          destination: parsed.destination || "",
+          departureDate: parsed.departureDate || undefined,
+          returnDate: parsed.returnDate || undefined,
+          adults: parsed.adults || 1,
+        };
+        query = `${parsed.origin || ""} ${parsed.destination || ""}`.trim() || transcript;
+        console.log(`Voice intent: flightSearch ${parsed.origin || "?"} -> ${parsed.destination}`);
+      } else if (parsed.intent === "webSearch") {
+        intent = "webSearch";
+        webSearch = { query: parsed.query || transcript };
+        query = parsed.query || transcript;
+        console.log(`Voice intent: webSearch "${parsed.query}"`);
       } else {
         query = parsed.keywords || rawContent;
         category = parsed.category || "";
@@ -288,7 +306,7 @@ Exemples :
 
     console.log(`Voice intent: "${transcript}" → intent="${intent}", keywords="${query}", category="${category}", timeKeyword="${timeKeyword}"`);
 
-    return new Response(JSON.stringify({ query, category, timeKeyword, intent, hotelAvailability }), {
+    return new Response(JSON.stringify({ query, category, timeKeyword, intent, hotelAvailability, flightSearch, webSearch }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
