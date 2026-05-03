@@ -480,6 +480,7 @@ const SearchPage = () => {
      const [hoveredResultId, setHoveredResultId] = useState<string | null>(null);
      const [hoveredPoiId, setHoveredPoiId] = useState<string | null>(null);
      const [hoveredDestId, setHoveredDestId] = useState<string | null>(null);
+     const [pinnedBusinesses, setPinnedBusinesses] = useState<Business[]>([]);
      const [allPois, setAllPois] = useState<PoiMapItem[]>([]);
      const [allDests, setAllDests] = useState<PoiMapItem[]>([]);
       const [allDestItems, setAllDestItems] = useState<DestinationItem[]>([]);
