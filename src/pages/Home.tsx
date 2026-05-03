@@ -2416,15 +2416,15 @@ const Home = () => {
         <>
           {homeSearchOverlayOpen && (
             <div
-              className="fixed inset-0 z-[84] bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+              className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-md animate-in fade-in duration-200"
               onClick={() => setHomeSearchCloseTrigger((n) => n + 1)}
             />
           )}
           <div
-            className={`fixed z-[85] pointer-events-none ${
+            className={`fixed pointer-events-none ${
               homeSearchOverlayOpen
-                ? "inset-y-0 left-1/2 -translate-x-1/2 w-full lg:w-1/2"
-                : "bottom-0 left-1/2 -translate-x-1/2 w-[90%] lg:w-1/2"
+                ? "inset-y-0 left-1/2 -translate-x-1/2 w-full lg:w-1/2 z-[201]"
+                : "bottom-0 left-1/2 -translate-x-1/2 w-[90%] lg:w-1/2 z-[85]"
             }`}
           >
             <div className="relative w-full h-full pointer-events-auto">
