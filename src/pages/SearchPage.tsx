@@ -415,7 +415,7 @@ const SearchPage = () => {
    const [aiRegenerateKey, setAiRegenerateKey] = useState(0);
    const [isAiRegenerating, setIsAiRegenerating] = useState(false);
    const lastAiServiceRef = useRef<string | null>(null);
-    const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
+    const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | (Pick<AIBusinessData, "id" | "name"> & Partial<AIBusinessData>) | null>(null);
     const [bottomSearchOverlayOpen, setBottomSearchOverlayOpen] = useState(false);
     const [bottomSearchCloseTrigger, setBottomSearchCloseTrigger] = useState(0);
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
