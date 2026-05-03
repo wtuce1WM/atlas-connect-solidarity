@@ -55,7 +55,7 @@ import { useFrontStructureTabs } from "@/hooks/useFrontStructureTabs";
 import PoiTabContent from "@/pages/search/PoiTabContent";
 import DestinationsTabContent from "@/pages/search/DestinationsTabContent";
 import ResultsTabContent from "@/pages/search/ResultsTabContent";
-import { normalizeSearchMode, normalizeText as normalizeTextUtil, formatDateFr, ITEMS_PER_PAGE, SERVER_PAGE_SIZE } from "@/pages/search/utils";
+import { normalizeSearchMode, normalizeText, formatDateFr, ITEMS_PER_PAGE, SERVER_PAGE_SIZE } from "@/pages/search/utils";
 
 import type { Business, SearchResult } from "@/pages/search/types";
 
@@ -170,7 +170,7 @@ const SearchPage = () => {
         tripadvisor_review_count: b.tripadvisor_review_count,
       }));
       sessionStorage.setItem("ai_suggestion_businesses", JSON.stringify(bizData));
-    } catch {}
+    } catch { /* sessionStorage unavailable (private mode/quota) */ }
     setStickyAiAnimationNonce((prev) => prev + 1);
     // Pre-generate TTS audio in background so it's instant when user clicks speaker
     if (answer) {
@@ -445,7 +445,7 @@ const SearchPage = () => {
           returnContext = sessionStorage.getItem("returnToTestContext");
           if (returnVideoId) sessionStorage.removeItem("returnToTestVideoId");
           if (returnContext) sessionStorage.removeItem("returnToTestContext");
-        } catch {}
+        } catch { /* sessionStorage unavailable */ }
         setCompactPanelBusiness(null);
         setIsCompactPanelExpanded(false);
         setIsNestedMosaicOpen(false);
@@ -574,7 +574,7 @@ const SearchPage = () => {
      return () => observer.disconnect();
    }, [searchQuery, allBusinesses.length]);
 
-  const normalizeText = normalizeTextUtil;
+  
 
   // Detect country-level terms (e.g. "maroc", "morocco") → national scope, no city filter
   const queryHasCountryScope = useMemo(() => {
@@ -1155,7 +1155,7 @@ const SearchPage = () => {
     let cancelled = false;
     const fetchAll = async () => {
       const selectFields = "id, name, city, categories, engagements, latitude, longitude, images, neighborhood, rating, computed_rating, total_review_count, wtuce_status";
-      let all: any[] = [];
+      const all: Business[] = [];
       let offset = 0;
       const PAGE = 1000;
       while (true) {
