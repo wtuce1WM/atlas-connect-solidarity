@@ -44,6 +44,7 @@ import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import MobileSearchOverlay from "@/components/MobileSearchOverlay";
 import FlightSearchOverlay, { type FlightSearchInitial } from "@/components/overlays/FlightSearchOverlay";
 import WebSearchOverlay from "@/components/overlays/WebSearchOverlay";
+import FallbackHotelsPanel from "@/components/overlays/FallbackHotelsPanel";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useTextToSpeech, preloadTTS } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
