@@ -62,6 +62,7 @@ const CarouselNavDemo = lazy(() => import("./pages/CarouselNavDemo"));
 const FicheImmersive = lazy(() => import("./pages/FicheImmersive"));
 const Test = lazy(() => import("./pages/Home"));
 const Install = lazy(() => import("./pages/Install"));
+const Solidarity = lazy(() => import("./pages/Solidarity"));
 
 const queryClient = new QueryClient();
 
@@ -179,6 +180,7 @@ const AppContent = () => {
               <Route path="/fiche/:slug" element={renderLazyRoute(<FicheImmersive />)} />
               <Route path="/test" element={renderLazyRoute(<Test />)} />
               <Route path="/install" element={renderLazyRoute(<Install />)} />
+              <Route path="/solidarity" element={renderLazyRoute(<Solidarity />)} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={renderLazyRoute(<NotFound />)} />
             </Routes>
