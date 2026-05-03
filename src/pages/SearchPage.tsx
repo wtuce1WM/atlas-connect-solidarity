@@ -42,6 +42,8 @@ const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePane
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import MobileSearchOverlay from "@/components/MobileSearchOverlay";
+import FlightSearchOverlay, { type FlightSearchInitial } from "@/components/overlays/FlightSearchOverlay";
+import WebSearchOverlay from "@/components/overlays/WebSearchOverlay";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useTextToSpeech, preloadTTS } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
@@ -812,6 +814,9 @@ const SearchPage = () => {
     }
   }, [language, ttsSpeak]);
 
+  const [flightOverlay, setFlightOverlay] = useState<{ open: boolean; initial: FlightSearchInitial }>({ open: false, initial: {} });
+  const [webOverlay, setWebOverlay] = useState<{ open: boolean; query: string }>({ open: false, query: "" });
+
   const { status: voiceStatus, toggleRecording, finishRecording, liveTranscript } = useVoiceSearch({
     onTranscript: (keywords, spoken, category, timeKeyword) => {
       isVoiceSearchRef.current = true;
@@ -833,6 +838,12 @@ const SearchPage = () => {
       if (isMobile) window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     onHotelAvailability: handleHotelAvailability,
+    onFlightSearch: (intent) => {
+      setFlightOverlay({ open: true, initial: intent });
+    },
+    onWebSearch: (intent) => {
+      setWebOverlay({ open: true, query: intent.query });
+    },
     onError: (message) => {
       toast({ variant: "destructive", title: "Erreur microphone", description: message });
     },
@@ -3007,6 +3018,20 @@ const SearchPage = () => {
         liveTranscript={liveTranscript}
         onClose={() => toggleRecording()}
         onFinish={() => finishRecording()}
+      />
+
+      {/* SerpAPI Flight search (voice intent: flightSearch) */}
+      <FlightSearchOverlay
+        open={flightOverlay.open}
+        initial={flightOverlay.initial}
+        onClose={() => setFlightOverlay({ open: false, initial: {} })}
+      />
+
+      {/* SerpAPI Web search (voice intent: webSearch) */}
+      <WebSearchOverlay
+        open={webOverlay.open}
+        initialQuery={webOverlay.query}
+        onClose={() => setWebOverlay({ open: false, query: "" })}
       />
 
       {/* Bottom floating search bar — hidden when the right-side Google Map is visible (it has its own search bar) */}

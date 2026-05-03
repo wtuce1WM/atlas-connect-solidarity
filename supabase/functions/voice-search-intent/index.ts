@@ -31,6 +31,30 @@ serve(async (req) => {
 
 Ta tâche : identifier l'INTENTION sémantique et la traduire en mots-clés concrets (type d'établissement, service, produit, ville, quartier, personnage historique, nom propre).
 
+INTENTION SPÉCIALE — RECHERCHE DE VOL :
+Si l'utilisateur cherche un vol/billet d'avion, réponds avec ce JSON :
+{"intent": "flightSearch", "origin": "Ville d'origine ou code IATA", "destination": "Ville d'arrivée ou code IATA", "departureDate": "YYYY-MM-DD", "returnDate": "YYYY-MM-DD", "adults": 1}
+- Déclencheurs : "vol", "billet d'avion", "voler", "prendre l'avion", "flight", "ticket", "fly to"
+- "origin" peut être omis si l'utilisateur ne le précise pas (la géoloc sera utilisée côté client)
+- Résoudre les dates relatives (la date actuelle est ${today}). returnDate optionnel.
+- adults par défaut 1 si non précisé.
+
+Exemples flightSearch :
+"Je veux un vol pour Marrakech le 10 mars" → {"intent": "flightSearch", "destination": "Marrakech", "departureDate": "2026-03-10"}
+"Vol Paris Casablanca du 5 au 12 avril 2 adultes" → {"intent": "flightSearch", "origin": "Paris", "destination": "Casablanca", "departureDate": "2026-04-05", "returnDate": "2026-04-12", "adults": 2}
+"Flight to Agadir next week" → {"intent": "flightSearch", "destination": "Agadir"}
+
+INTENTION SPÉCIALE — RECHERCHE WEB :
+Si l'utilisateur pose une question générale qui ne correspond ni à l'annuaire (établissements au Maroc), ni à un hôtel disponible, ni à un vol — typiquement une question de connaissance générale, actualité, météo, conversion, recherche d'information sur le web — réponds avec :
+{"intent": "webSearch", "query": "requête nettoyée pour Google"}
+- Déclencheurs : "cherche sur Google", "google", "search the web", "qui est", "qu'est-ce que", "quelle est la météo", "convertir", "actualité", "news"
+- N'utilise PAS webSearch si la requête concerne clairement un établissement, restaurant, hôtel, activité au Maroc — utilise le format keywords classique.
+
+Exemples webSearch :
+"Cherche sur Google la météo à Marrakech demain" → {"intent": "webSearch", "query": "météo Marrakech demain"}
+"Qui est le roi du Maroc" → {"intent": "webSearch", "query": "roi du Maroc"}
+"Convertir 100 euros en dirhams" → {"intent": "webSearch", "query": "100 EUR to MAD"}
+
 INTENTION SPÉCIALE — DISPONIBILITÉ HÔTELIÈRE :
 Si l'utilisateur demande la DISPONIBILITÉ d'un hôtel/riad/maison d'hôtes spécifique (par son nom), tu dois répondre avec un JSON spécial :
 {"intent": "hotelAvailability", "hotelName": "Nom de l'hôtel", "checkIn": "YYYY-MM-DD", "checkOut": "YYYY-MM-DD", "adults": 2, "rooms": 1}
@@ -239,6 +263,8 @@ Exemples :
     let timeKeyword = "";
     let intent = "";
     let hotelAvailability: Record<string, unknown> | null = null;
+    let flightSearch: Record<string, unknown> | null = null;
+    let webSearch: Record<string, unknown> | null = null;
     try {
       const parsed = JSON.parse(rawContent.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
       
@@ -253,6 +279,22 @@ Exemples :
         };
         query = parsed.hotelName || transcript;
         console.log(`Voice intent: hotelAvailability for "${parsed.hotelName}"`);
+      } else if (parsed.intent === "flightSearch") {
+        intent = "flightSearch";
+        flightSearch = {
+          origin: parsed.origin || undefined,
+          destination: parsed.destination || "",
+          departureDate: parsed.departureDate || undefined,
+          returnDate: parsed.returnDate || undefined,
+          adults: parsed.adults || 1,
+        };
+        query = `${parsed.origin || ""} ${parsed.destination || ""}`.trim() || transcript;
+        console.log(`Voice intent: flightSearch ${parsed.origin || "?"} -> ${parsed.destination}`);
+      } else if (parsed.intent === "webSearch") {
+        intent = "webSearch";
+        webSearch = { query: parsed.query || transcript };
+        query = parsed.query || transcript;
+        console.log(`Voice intent: webSearch "${parsed.query}"`);
       } else {
         query = parsed.keywords || rawContent;
         category = parsed.category || "";
@@ -264,7 +306,7 @@ Exemples :
 
     console.log(`Voice intent: "${transcript}" → intent="${intent}", keywords="${query}", category="${category}", timeKeyword="${timeKeyword}"`);
 
-    return new Response(JSON.stringify({ query, category, timeKeyword, intent, hotelAvailability }), {
+    return new Response(JSON.stringify({ query, category, timeKeyword, intent, hotelAvailability, flightSearch, webSearch }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {

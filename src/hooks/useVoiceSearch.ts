@@ -10,9 +10,23 @@ interface HotelAvailabilityIntent {
   rooms?: number;
 }
 
+interface FlightSearchIntent {
+  origin?: string;
+  destination?: string;
+  departureDate?: string;
+  returnDate?: string;
+  adults?: number;
+}
+
+interface WebSearchIntent {
+  query: string;
+}
+
 interface UseVoiceSearchOptions {
   onTranscript: (keywords: string, spokenText: string, category?: string, timeKeyword?: string) => void;
   onHotelAvailability?: (intent: HotelAvailabilityIntent, spokenText: string) => void;
+  onFlightSearch?: (intent: FlightSearchIntent, spokenText: string) => void;
+  onWebSearch?: (intent: WebSearchIntent, spokenText: string) => void;
   onError?: (message: string) => void;
   lang?: string;
 }
@@ -52,7 +66,7 @@ declare global {
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-async function extractSearchIntent(transcript: string): Promise<{ query: string; category: string; timeKeyword: string; intent: string; hotelAvailability: HotelAvailabilityIntent | null }> {
+async function extractSearchIntent(transcript: string): Promise<{ query: string; category: string; timeKeyword: string; intent: string; hotelAvailability: HotelAvailabilityIntent | null; flightSearch: FlightSearchIntent | null; webSearch: WebSearchIntent | null }> {
   try {
     const response = await fetch(`${SUPABASE_URL}/functions/v1/voice-search-intent`, {
       method: "POST",
@@ -73,16 +87,18 @@ async function extractSearchIntent(transcript: string): Promise<{ query: string;
       timeKeyword: data.timeKeyword?.trim() || "",
       intent: data.intent?.trim() || "",
       hotelAvailability: data.hotelAvailability || null,
+      flightSearch: data.flightSearch || null,
+      webSearch: data.webSearch || null,
     };
   } catch (err) {
     console.warn("LLM intent extraction failed, using raw transcript:", err);
-    return { query: transcript, category: "", timeKeyword: "", intent: "", hotelAvailability: null };
+    return { query: transcript, category: "", timeKeyword: "", intent: "", hotelAvailability: null, flightSearch: null, webSearch: null };
   }
 }
 
 const SILENCE_DELAY_MS = 2000;
 
-export function useVoiceSearch({ onTranscript, onHotelAvailability, onError, lang = "fr-FR" }: UseVoiceSearchOptions) {
+export function useVoiceSearch({ onTranscript, onHotelAvailability, onFlightSearch, onWebSearch, onError, lang = "fr-FR" }: UseVoiceSearchOptions) {
   const [status, setStatus] = useState<VoiceStatus>("idle");
   const [liveTranscript, setLiveTranscript] = useState("");
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
@@ -92,9 +108,13 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onError, lan
   // Garder les callbacks en ref pour éviter les problèmes de closure dans les handlers async
   const onTranscriptRef = useRef(onTranscript);
   const onHotelAvailabilityRef = useRef(onHotelAvailability);
+  const onFlightSearchRef = useRef(onFlightSearch);
+  const onWebSearchRef = useRef(onWebSearch);
   const onErrorRef = useRef(onError);
   useEffect(() => { onTranscriptRef.current = onTranscript; }, [onTranscript]);
   useEffect(() => { onHotelAvailabilityRef.current = onHotelAvailability; }, [onHotelAvailability]);
+  useEffect(() => { onFlightSearchRef.current = onFlightSearch; }, [onFlightSearch]);
+  useEffect(() => { onWebSearchRef.current = onWebSearch; }, [onWebSearch]);
   useEffect(() => { onErrorRef.current = onError; }, [onError]);
 
   const clearSilenceTimer = useCallback(() => {
@@ -111,11 +131,15 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onError, lan
       return;
     }
     setStatus("processing");
-    const { query: keywords, category, timeKeyword, intent, hotelAvailability } = await extractSearchIntent(transcript);
+    const { query: keywords, category, timeKeyword, intent, hotelAvailability, flightSearch, webSearch } = await extractSearchIntent(transcript);
     setStatus("idle");
-    
+
     if (intent === "hotelAvailability" && hotelAvailability && onHotelAvailabilityRef.current) {
       onHotelAvailabilityRef.current(hotelAvailability, transcript);
+    } else if (intent === "flightSearch" && flightSearch && onFlightSearchRef.current) {
+      onFlightSearchRef.current(flightSearch, transcript);
+    } else if (intent === "webSearch" && webSearch && onWebSearchRef.current) {
+      onWebSearchRef.current(webSearch, transcript);
     } else if (keywords) {
       onTranscriptRef.current(keywords, transcript, category || undefined, timeKeyword || undefined);
     } else {
