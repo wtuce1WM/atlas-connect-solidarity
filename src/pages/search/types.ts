@@ -61,6 +61,10 @@ export interface Business {
   engagements?: string[];
   online_shop_url?: string | null;
   presentation_mode?: string | null;
+  // Computed/derived fields populated by the search edge function or DB queries
+  priority_score?: number | null;
+  computed_rating?: number | null;
+  total_review_count?: number | null;
 }
 
 export interface SearchResult {
