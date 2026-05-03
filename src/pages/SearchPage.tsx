@@ -980,6 +980,13 @@ const SearchPage = () => {
   }, [effectiveCityForMap, neighborhoodCoords, citiesWithPriority, allBusinesses]);
 
   const filteredBusinesses = useMemo(() => {
+    if (pinIdsParam && pinnedBusinesses.length > 0) {
+      const orderedIds = pinIdsParam.split(",").map(s => s.trim()).filter(Boolean);
+      const byId: Record<string, Business> = {};
+      for (const b of pinnedBusinesses) byId[b.id] = b;
+      return orderedIds.map(id => byId[id]).filter(Boolean) as Business[];
+    }
+
     const isServerPaginatedResults = totalCount !== null;
 
     // When server-side pagination is active, the backend already returned the exact
@@ -1092,7 +1099,6 @@ const SearchPage = () => {
 
     // pinIds: explicit allow-list of business IDs (e.g. from /fiche/:slug → KP group)
     // When present, restrict results to these IDs only and preserve the requested order.
-    const pinIdsParam = searchParams.get("pinIds");
     if (pinIdsParam) {
       const orderedIds = pinIdsParam.split(",").map(s => s.trim()).filter(Boolean);
       const allowSet = new Set(orderedIds);
@@ -1103,7 +1109,7 @@ const SearchPage = () => {
     }
 
     return [...filtered].sort(sortWtuceAndRating);
-  }, [allBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots, detectedNeighborhood, searchLevel, totalCount, searchParams]);
+  }, [allBusinesses, pinnedBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots, detectedNeighborhood, searchLevel, totalCount, pinIdsParam]);
 
   // Build subcategory name → icon name map
   const subcategoryIconMap = useMemo(() => {
