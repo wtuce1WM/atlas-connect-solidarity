@@ -117,11 +117,13 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onHotelSearc
   // Garder les callbacks en ref pour éviter les problèmes de closure dans les handlers async
   const onTranscriptRef = useRef(onTranscript);
   const onHotelAvailabilityRef = useRef(onHotelAvailability);
+  const onHotelSearchRef = useRef(onHotelSearch);
   const onFlightSearchRef = useRef(onFlightSearch);
   const onWebSearchRef = useRef(onWebSearch);
   const onErrorRef = useRef(onError);
   useEffect(() => { onTranscriptRef.current = onTranscript; }, [onTranscript]);
   useEffect(() => { onHotelAvailabilityRef.current = onHotelAvailability; }, [onHotelAvailability]);
+  useEffect(() => { onHotelSearchRef.current = onHotelSearch; }, [onHotelSearch]);
   useEffect(() => { onFlightSearchRef.current = onFlightSearch; }, [onFlightSearch]);
   useEffect(() => { onWebSearchRef.current = onWebSearch; }, [onWebSearch]);
   useEffect(() => { onErrorRef.current = onError; }, [onError]);
