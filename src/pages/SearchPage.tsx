@@ -1239,16 +1239,10 @@ const SearchPage = () => {
 
   const { tabs: mobileFrontTabs } = useFrontStructureTabs(effectiveCityForMap || null);
 
-    // Auto-open first result's slide panel when arriving from external link
-    useEffect(() => {
-      if (hasAutoOpenedFirstRef.current) return;
-      if (isLoading || filteredBusinesses.length === 0) return;
-      if (!searchQuery) return;
-      if (hasInteractedWithCompactPanelRef.current) return;
-      hasAutoOpenedFirstRef.current = true;
-      const first = filteredBusinesses[0];
-      openCompactPanel({ id: first.id, name: first.name } as AIBusinessData);
-    }, [isLoading, filteredBusinesses, searchQuery, urlT, openCompactPanel]);
+    // Auto-open désactivé : on ne peut jamais deviner avec certitude le bon
+    // établissement à partir d'une simple query texte. On laisse l'utilisateur
+    // sur la grille de résultats + Google Map. Les ouvertures explicites
+    // (?openBusiness=ID, match exact du nom) restent gérées ailleurs.
 
 
   useEffect(() => {
