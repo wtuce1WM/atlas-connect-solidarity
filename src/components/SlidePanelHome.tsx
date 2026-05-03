@@ -792,7 +792,7 @@ const DescriptionPlusButton = ({ html, businessName, isOpen, onOpenChange }: { h
     <>
       {open && (
         <div
-          className="absolute inset-0 z-[40] flex flex-col bg-black/90 backdrop-blur-sm animate-fade-in pointer-events-auto"
+          className="absolute inset-0 z-[40] flex flex-col bg-black/60 backdrop-blur-sm animate-fade-in pointer-events-auto"
           onClick={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
         >
