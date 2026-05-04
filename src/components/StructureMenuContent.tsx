@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { CITIES, type City, HOME_ID } from "@/lib/homeHelpers";
@@ -25,6 +25,8 @@ interface Props {
  */
 const StructureMenuContent = ({ onNavigate }: Props) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isSearchPage = location.pathname === "/search";
   const [city, setCity] = useState<City>(() => readLastHomepageCity() || "Marrakech");
   const [entries, setEntries] = useState<FrontEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -97,29 +99,31 @@ const StructureMenuContent = ({ onNavigate }: Props) => {
         </Tabs>
       </div>
 
-      {loading ? (
-        <p className="text-xs text-muted-foreground">Chargement…</p>
-      ) : (
-        <ul className="space-y-1">
-          <li>
-            <div
-              onClick={() => goEntry(HOME_ID)}
-              className="px-3 py-2 rounded-md text-sm cursor-pointer transition-colors text-foreground hover:bg-muted"
-            >
-              Home
-            </div>
-          </li>
-          {topLevel.map((e) => (
-            <li key={e.id}>
+      {!isSearchPage && (
+        loading ? (
+          <p className="text-xs text-muted-foreground">Chargement…</p>
+        ) : (
+          <ul className="space-y-1">
+            <li>
               <div
-                onClick={() => goEntry(e.id)}
+                onClick={() => goEntry(HOME_ID)}
                 className="px-3 py-2 rounded-md text-sm cursor-pointer transition-colors text-foreground hover:bg-muted"
               >
-                {e.name}
+                Home
               </div>
             </li>
-          ))}
-        </ul>
+            {topLevel.map((e) => (
+              <li key={e.id}>
+                <div
+                  onClick={() => goEntry(e.id)}
+                  className="px-3 py-2 rounded-md text-sm cursor-pointer transition-colors text-foreground hover:bg-muted"
+                >
+                  {e.name}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )
       )}
 
       <HeaderMenuContent onNavigate={onNavigate} />
