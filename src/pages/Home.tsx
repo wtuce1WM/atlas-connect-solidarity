@@ -1922,14 +1922,6 @@ const Home = () => {
       <div className="pt-[53px] flex w-full min-h-[calc(100vh-53px)]">
         {/* Right zone 80% */}
         <main className={`p-6 pb-24 overflow-y-auto transition-all duration-300 ${panelOpen ? "w-1/2" : "flex-1"}`}>
-          {geo.isEnabled && (geo.confirmedAddress || geo.detectedCity) && (
-            <div className="flex justify-end mb-2">
-              <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground max-w-full truncate">
-                <MapPin className="h-3.5 w-3.5 text-gold shrink-0" />
-                <span className="truncate">{geo.confirmedAddress || geo.detectedCity}</span>
-              </div>
-            </div>
-          )}
           {selectedEntryId === HOME_ID && !videoBadgeFilter && !videoEventFilter && !videoPopularSearchFilter ? (
             <>
               <HomeCityTabs
