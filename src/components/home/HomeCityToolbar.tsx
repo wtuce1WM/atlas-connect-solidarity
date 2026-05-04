@@ -12,6 +12,7 @@ interface Props {
   city: City;
   activeBadgeId?: string | null;
   activeLabel?: string | null;
+  categoryLabel?: string | null;
   onCityChange: (city: City) => void;
   onLabelClick: (
     info: { label: string; kind: "entry" | "extra"; target: HomeCardTarget; badgeId: string | null; eventId?: string | null },
@@ -27,7 +28,7 @@ interface HashtagBadge {
 /**
  * Toolbar (city tabs + hashtags + localisation) intended to be rendered inside the Header.
  */
-const HomeCityToolbar = ({ city, activeBadgeId, activeLabel, onCityChange, onLabelClick }: Props) => {
+const HomeCityToolbar = ({ city, activeBadgeId, activeLabel, categoryLabel, onCityChange, onLabelClick }: Props) => {
   const [hashtagBadges, setHashtagBadges] = useState<HashtagBadge[]>([]);
   const [showLocationOverlay, setShowLocationOverlay] = useState(false);
   const geo = useGeolocation();
@@ -75,8 +76,12 @@ const HomeCityToolbar = ({ city, activeBadgeId, activeLabel, onCityChange, onLab
         className="shrink-0"
       >
         <TabsList>
-          <TabsTrigger value="marrakech" onClick={() => onCityChange("Marrakech")}>Marrakech</TabsTrigger>
-          <TabsTrigger value="essaouira" onClick={() => onCityChange("Essaouira")}>Essaouira</TabsTrigger>
+          <TabsTrigger value="marrakech" onClick={() => onCityChange("Marrakech")}>
+            {city === "Marrakech" && categoryLabel ? `Marrakech › ${categoryLabel}` : "Marrakech"}
+          </TabsTrigger>
+          <TabsTrigger value="essaouira" onClick={() => onCityChange("Essaouira")}>
+            {city === "Essaouira" && categoryLabel ? `Essaouira › ${categoryLabel}` : "Essaouira"}
+          </TabsTrigger>
         </TabsList>
       </Tabs>
 
