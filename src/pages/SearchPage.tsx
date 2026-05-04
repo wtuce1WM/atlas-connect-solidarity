@@ -622,6 +622,7 @@ const SearchPage = () => {
 
   const spokenText = searchParams.get("spoken") || "";
   const isVoiceSearchRef = useRef(false);
+  const hotelSearchSpokenRef = useRef(false);
   const [showResultsOverlay, setShowResultsOverlay] = useState(false);
   const [overlayDismissing, setOverlayDismissing] = useState(false);
    const resultsRef = useRef<HTMLDivElement>(null);
@@ -940,14 +941,17 @@ const SearchPage = () => {
         setAvailabilityRestrictedIds(null);
       }
 
-      if (hotels.length === 0) {
-        ttsSpeak(lang === "en"
-          ? `No hotels available in ${cityName} from ${checkIn} to ${checkOut}.`
-          : `Aucun hôtel disponible à ${cityName} du ${formatDateFr(checkIn)} au ${formatDateFr(checkOut)}.`);
-      } else {
-        ttsSpeak(lang === "en"
-          ? `${hotels.length} hotel${hotels.length > 1 ? "s" : ""} available in ${cityName}.`
-          : `${hotels.length} hôtel${hotels.length > 1 ? "s" : ""} disponible${hotels.length > 1 ? "s" : ""} à ${cityName}.`);
+      if (!hotelSearchSpokenRef.current) {
+        hotelSearchSpokenRef.current = true;
+        if (hotels.length === 0) {
+          ttsSpeak(lang === "en"
+            ? `No hotels available in ${cityName} from ${checkIn} to ${checkOut}.`
+            : `Aucun hôtel disponible à ${cityName} du ${formatDateFr(checkIn)} au ${formatDateFr(checkOut)}.`);
+        } else {
+          ttsSpeak(lang === "en"
+            ? `${hotels.length} hotel${hotels.length > 1 ? "s" : ""} available in ${cityName}.`
+            : `${hotels.length} hôtel${hotels.length > 1 ? "s" : ""} disponible${hotels.length > 1 ? "s" : ""} à ${cityName}.`);
+        }
       }
     } catch (err) {
       console.error("Hotel search voice error:", err);
