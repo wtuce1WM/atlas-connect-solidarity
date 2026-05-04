@@ -943,6 +943,7 @@ const SearchPage = () => {
   const { status: voiceStatus, toggleRecording, finishRecording, liveTranscript } = useVoiceSearch({
     onTranscript: (keywords, spoken, category, timeKeyword) => {
       isVoiceSearchRef.current = true;
+      setAvailabilityRestrictedIds(null);
       setInputValue(keywords);
       setSearchQuery(keywords);
       const params: Record<string, string> = { q: keywords, spoken };
