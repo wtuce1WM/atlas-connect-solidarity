@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Star } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import SlidePanelHome from "@/components/SlidePanelHome";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
@@ -289,11 +289,6 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
               </button>
             </div>
           )}
-          {it.businessName && it.thumbnail && (
-            <div className="absolute top-0 left-0 right-0 p-1.5 z-[5]">
-              <p className="text-[10px] font-medium text-white line-clamp-1">{it.businessName}</p>
-            </div>
-          )}
           {immoBadge}
         </div>
       );
@@ -325,11 +320,6 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
           )}
           <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/70 to-transparent pointer-events-none" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
-          {it.businessName && (
-            <div className="absolute top-0 left-0 right-0 p-1.5 z-[5]">
-              <p className="text-[10px] font-medium text-white line-clamp-1">{it.businessName}</p>
-            </div>
-          )}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="w-10 h-10 rounded-full bg-black/50 group-hover:bg-black/70 transition-colors flex items-center justify-center">
               <div className="w-0 h-0 border-y-[7px] border-y-transparent border-l-[11px] border-l-white ml-0.5" />
@@ -343,15 +333,6 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
                 className="max-w-[100px] max-h-[72px] object-contain"
                 style={{ filter: "drop-shadow(0 0 1px hsla(0,0%,0%,0.9)) drop-shadow(0 0 3px hsla(0,0%,0%,0.7)) drop-shadow(0 2px 8px hsla(0,0%,0%,0.5))" }}
               />
-            </div>
-          )}
-          {it.rating != null && (
-            <div className="absolute bottom-1.5 left-1.5 right-1.5 z-[5] flex items-center gap-1 text-[10px]">
-              <Star className="h-2.5 w-2.5 text-gold fill-gold" />
-              <span className="font-medium text-white">{it.rating}/20</span>
-              {(it.reviewCount ?? 0) > 0 && (
-                <span className="text-white/70">· {it.reviewCount} avis</span>
-              )}
             </div>
           )}
         </button>
