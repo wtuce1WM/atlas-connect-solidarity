@@ -87,6 +87,9 @@ const SearchPage = () => {
   const [hidePoiMap, setHidePoiMap] = useState(false);
   const [hideDestMap, setHideDestMap] = useState(false);
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
+  // Voice intent: restrict displayed results to a specific subset of business IDs
+  // (e.g. only hotels available for the requested dates)
+  const [availabilityRestrictedIds, setAvailabilityRestrictedIds] = useState<Set<string> | null>(null);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [detectedSubcategory, setDetectedSubcategory] = useState<string | null>(null);
   const [detectedCategory, setDetectedCategory] = useState<string | null>(null);
