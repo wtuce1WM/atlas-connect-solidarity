@@ -483,7 +483,7 @@ const SlidePanelHome = ({
                 playsInline
                 autoPlay
                 muted
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
                 onTimeUpdate={(e) => onTimeUpdate(e.currentTarget.currentTime)}
               />
             ) : (
