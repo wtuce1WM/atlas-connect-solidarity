@@ -3071,6 +3071,7 @@ const SearchPage = () => {
                 setIsCompactPanelExpanded(false);
               }}
               closeTrigger={mapPanelCloseTrigger}
+              solidBackground
             />
           </div>
         </div>
