@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { MapPin, Phone, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -54,9 +54,11 @@ interface HeaderProps {
 
 const Header = ({ variant = "default", compact = false, rightContent, leftContent }: HeaderProps) => {
   const { t, language } = useLanguage();
+  const location = useLocation();
   const [, setMobileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
+  const isSearchPage = location.pathname === "/search";
 
   useEffect(() => {
     const fetchSocialLinks = async () => {
@@ -186,7 +188,7 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
             {leftContent ?? defaultLeft}
           </div>
           <div className="flex-1 min-w-0 overflow-x-auto scrollbar-hide ml-2">
-            {rightContent ?? <GlobalHeaderToolbar />}
+            {rightContent ?? (isSearchPage ? null : <GlobalHeaderToolbar />)}
           </div>
         </div>
       </header>
