@@ -2063,30 +2063,6 @@ const Home = () => {
                       )}
                     </h3>
                   </div>
-                  {showHashtagsTileFinal && hashtagItems.length > 0 && (
-                    <div className="flex items-center gap-2 overflow-x-auto lg:flex-wrap lg:overflow-visible -mx-2 px-2 lg:mx-0 lg:px-0 cursor-grab select-none touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden mb-3">
-                      {hashtagItems.map((h) => {
-                        return (
-                          <button
-                            key={h.id}
-                            type="button"
-                            onClick={() => {
-                              setVideoEventFilter(null);
-                              setVideoPopularSearchFilter(null);
-                              setBadgeView(null);
-                              setSelectedEntryId(HOME_ID);
-                              setSelectedSubId(null);
-                              setVideoBadgeFilter({ badgeId: h.id, label: h.name });
-                            }}
-                            className="shrink-0 inline-flex items-center rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-medium text-gold hover:bg-gold/20 hover:border-gold/60 transition-colors"
-                            title={`Filtrer par ${h.name}`}
-                          >
-                            {h.name}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
                   <div className={`grid gap-4 ${panelOpen ? "grid-cols-1 md:grid-cols-3 lg:grid-cols-3" : "grid-cols-1 md:grid-cols-3 lg:grid-cols-6"}`}>
                     {(() => {
                       const items: Array<
