@@ -127,6 +127,11 @@ const SearchPage = () => {
     if (urlQ !== searchQuery || urlT) {
       setSearchQuery(urlQ);
       setInputValue(urlQ);
+      // Drop the availability restriction unless the URL still describes a hotel voice search
+      const spoken = searchParams.get("spoken") || "";
+      if (!/^h[oô]tel à /i.test(spoken)) {
+        setAvailabilityRestrictedIds(null);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlQ, urlT]);
