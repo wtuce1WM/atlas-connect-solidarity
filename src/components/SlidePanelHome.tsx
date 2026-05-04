@@ -705,7 +705,7 @@ const SlidePanelHome = ({
               </>
             )}
             {embed.type === "file" && (
-              <div className="pointer-events-auto mb-8">
+              <div className="pointer-events-auto mb-16">
                 <VideoControls
                   type="file"
                   videoRef={videoRef}
@@ -715,7 +715,7 @@ const SlidePanelHome = ({
               </div>
             )}
             {embed.type === "youtube" && (
-              <div className="pointer-events-auto mb-8">
+              <div className="pointer-events-auto mb-16">
                 <VideoControls
                   type="youtube"
                   iframeRef={iframeRef}
