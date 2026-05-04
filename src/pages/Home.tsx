@@ -1947,6 +1947,8 @@ const Home = () => {
               setVideoBadgeFilter(null);
               setVideoEventFilter(null);
               setVideoPopularSearchFilter(null);
+              setSelectedEntryId(HOME_ID);
+              setSelectedSubId(null);
             }}
             onLabelClick={(info, cityForLabel) => handleHomeLabelClick(info, cityForLabel)}
           />
