@@ -2100,67 +2100,6 @@ const Home = () => {
             <div className="flex gap-6 items-start">
               {displayList.length > 0 && (
                 <div className="w-full min-w-0">
-                  <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
-                    <h3
-                      className="text-sm font-semibold text-foreground flex items-center gap-1.5 flex-wrap [&_button]:font-['Roboto'] [&_button]:normal-case [&_button]:tracking-normal [&_span]:font-['Roboto'] [&_span]:normal-case [&_span]:tracking-normal"
-                      style={{ fontFamily: "'Roboto', sans-serif", letterSpacing: 0, textTransform: "none" }}
-                    >
-                      {videoEventFilter ? (
-                        <>
-                          <button type="button" onClick={() => { setVideoEventFilter(null); setVideoBadgeFilter(null); setVideoPopularSearchFilter(null); setSelectedEntryId(HOME_ID); setSelectedSubId(null); }} className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors">{city}</button>
-                          <span className="text-muted-foreground font-normal">›</span>
-                          <span>{videoEventFilter.label}</span>
-                          <span className="text-muted-foreground font-normal">({displayList.length})</span>
-                        </>
-                      ) : videoBadgeFilter ? (
-                        <>
-                          <button type="button" onClick={() => { setVideoEventFilter(null); setVideoBadgeFilter(null); setVideoPopularSearchFilter(null); setSelectedEntryId(HOME_ID); setSelectedSubId(null); }} className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors">{city}</button>
-                          <span className="text-muted-foreground font-normal">›</span>
-                          <span>{videoBadgeFilter.label}</span>
-                          <span className="text-muted-foreground font-normal">({displayList.length})</span>
-                        </>
-                      ) : videoPopularSearchFilter ? (
-                        <>
-                          <button type="button" onClick={() => { setVideoEventFilter(null); setVideoBadgeFilter(null); setVideoPopularSearchFilter(null); setSelectedEntryId(HOME_ID); setSelectedSubId(null); }} className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors">{city}</button>
-                          <span className="text-muted-foreground font-normal">›</span>
-                          <span>{videoPopularSearchFilter.label}</span>
-                          <span className="text-muted-foreground font-normal">({displayList.length})</span>
-                        </>
-                      ) : selectedSubId && subcatNames[selectedSubId] ? (
-                        <>
-                          <button type="button" onClick={() => { setVideoEventFilter(null); setVideoBadgeFilter(null); setVideoPopularSearchFilter(null); setSelectedEntryId(HOME_ID); setSelectedSubId(null); }} className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors">{city}</button>
-                          <span className="text-muted-foreground font-normal">›</span>
-                          {selectedEntry && selectedEntry.id !== HOME_ID && (
-                            <>
-                              <button
-                                type="button"
-                                onClick={() => setSelectedSubId(null)}
-                                className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors"
-                              >
-                                {selectedEntry.name}
-                              </button>
-                              <span className="text-muted-foreground font-normal">›</span>
-                            </>
-                          )}
-                          <span>{subcatNames[selectedSubId]}</span>
-                          <span className="text-muted-foreground font-normal">({displayList.length})</span>
-                        </>
-                      ) : isParentEntry ? (
-                        <>
-                          <button type="button" onClick={() => { setVideoEventFilter(null); setVideoBadgeFilter(null); setVideoPopularSearchFilter(null); setSelectedEntryId(HOME_ID); setSelectedSubId(null); }} className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors">{city}</button>
-                          <span className="text-muted-foreground font-normal">›</span>
-                          <span>{selectedEntry.name}</span>
-                          <span className="text-muted-foreground font-normal">({displayList.length})</span>
-                        </>
-                      ) : (
-                        <>
-                          <button type="button" onClick={() => { setVideoEventFilter(null); setVideoBadgeFilter(null); setVideoPopularSearchFilter(null); setSelectedEntryId(HOME_ID); setSelectedSubId(null); }} className="text-muted-foreground font-normal hover:text-foreground hover:underline transition-colors">{city}</button>
-                          <span className="text-muted-foreground font-normal">›</span>
-                          <span>{selectedEntry.name} ({displayList.length})</span>
-                        </>
-                      )}
-                    </h3>
-                  </div>
                   <div className={`grid gap-4 ${panelOpen ? "grid-cols-1 md:grid-cols-3 lg:grid-cols-3" : "grid-cols-1 md:grid-cols-3 lg:grid-cols-6"}`}>
                     {(() => {
                       const items: Array<
