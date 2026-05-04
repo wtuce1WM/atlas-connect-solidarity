@@ -213,15 +213,6 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     }
     prevHotelSearchLoadingRef.current = hotelSearchLoading;
   }, [hotelSearchLoading]);
-
-  // Open availability overlay by default for hotels with price
-  const availabilityAutoOpenedRef = useRef<string | null>(null);
-  useEffect(() => {
-    if (isHotelWithPrice && businessId && availabilityAutoOpenedRef.current !== businessId) {
-      availabilityAutoOpenedRef.current = businessId;
-      setShowAvailabilitySearch(true);
-    }
-  }, [isHotelWithPrice, businessId]);
   
   const fallbackDataRef = useRef<FallbackPanelData | null>(null);
   useEffect(() => {
@@ -783,9 +774,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           </div>
           )}
           {isHotelWithPrice ? (
-            <div onClick={() => setShowAvailabilitySearch(true)} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
-              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[130px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Disponibilité</span>
-              <CalendarCheck className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
+            <div onClick={() => setShowAvailabilitySearch(true)} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-4">
+              <span className="max-w-[130px] opacity-100 transition-all duration-300 ease-out text-[11px] font-medium uppercase whitespace-nowrap font-['Josefin_Sans',sans-serif]">Disponibilité</span>
+              <CalendarCheck className="h-[22px] w-[22px] shrink-0 ml-2 transition-[margin] duration-300" />
             </div>
           ) : hasOpeningHours && !business?.is_open_24h ? (
             <div onClick={() => setShowHoursOverlay(true)} className="group flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4">
