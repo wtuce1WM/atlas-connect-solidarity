@@ -196,7 +196,12 @@ export default function AvailabilitySearchOverlay({ language, isSearching, onSea
         </div>
 
         <button
-          onClick={() => onSearch(checkIn, checkOut, adults)}
+          onClick={() => {
+            try {
+              sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ checkIn, checkOut, adults }));
+            } catch { /* ignore */ }
+            onSearch(checkIn, checkOut, adults);
+          }}
           disabled={isSearching}
           className="mt-4 w-full px-5 py-3 rounded-full bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
         >
