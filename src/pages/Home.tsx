@@ -1028,7 +1028,7 @@ const Home = () => {
           }
         }
 
-        safeSetVideos(applyPin([...docVideoItems, ...genericVideoItems, ...youtubeVideoItems]));
+        safeSetVideos(applyPin([...docVideoItems, ...youtubeVideoItems, ...genericVideoItems]));
         safeSetLoadingVideos(false);
         return;
       }
