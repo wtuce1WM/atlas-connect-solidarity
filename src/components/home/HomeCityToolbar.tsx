@@ -32,6 +32,8 @@ const HomeCityToolbar = ({ city, activeBadgeId, onCityChange, onLabelClick }: Pr
   const geo = useGeolocation();
   const hashtagsScrollRef = useDragScroll<HTMLDivElement>();
 
+  const [activeNonHashtag, setActiveNonHashtag] = useState<HashtagBadge | null>(null);
+
   useEffect(() => {
     const load = async () => {
       const { data } = await (supabase as any)
@@ -43,6 +45,23 @@ const HomeCityToolbar = ({ city, activeBadgeId, onCityChange, onLabelClick }: Pr
     };
     load();
   }, []);
+
+  // If the active badge isn't a #hashtag (e.g. "Rooftop Restaurant & Bars"),
+  // fetch it so we can still display it highlighted in terracotta.
+  useEffect(() => {
+    if (!activeBadgeId) { setActiveNonHashtag(null); return; }
+    if (hashtagBadges.some((b) => b.id === activeBadgeId)) { setActiveNonHashtag(null); return; }
+    let cancelled = false;
+    (supabase as any)
+      .from("badges")
+      .select("id, name_fr")
+      .eq("id", activeBadgeId)
+      .maybeSingle()
+      .then(({ data }: any) => {
+        if (!cancelled && data) setActiveNonHashtag({ id: data.id, name_fr: data.name_fr });
+      });
+    return () => { cancelled = true; };
+  }, [activeBadgeId, hashtagBadges]);
 
   return (
     <div ref={hashtagsScrollRef} className="flex items-center gap-2 w-full overflow-x-auto cursor-grab select-none touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -87,6 +106,29 @@ const HomeCityToolbar = ({ city, activeBadgeId, onCityChange, onLabelClick }: Pr
             : "Localisation"}
         </span>
       </button>
+
+      {activeNonHashtag && (
+        <button
+          key={activeNonHashtag.id}
+          type="button"
+          onClick={() =>
+            onLabelClick(
+              {
+                label: activeNonHashtag.name_fr,
+                kind: "extra",
+                target: { type: "badge", id: activeNonHashtag.id },
+                badgeId: activeNonHashtag.id,
+                eventId: null,
+              },
+              city,
+            )
+          }
+          className="shrink-0 inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium transition-colors bg-[#C04F17] text-white border-[#C04F17] hover:bg-[#C04F17]/90"
+          title={`Filtrer par ${activeNonHashtag.name_fr}`}
+        >
+          {activeNonHashtag.name_fr}
+        </button>
+      )}
 
       {hashtagBadges.map((b) => {
         const isActive = activeBadgeId === b.id;
