@@ -918,6 +918,10 @@ const SearchPage = () => {
         gammes: gammes.map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })),
       });
 
+      // Restrict the Search page list to only the available hotels (by business id)
+      const availableIds = hotels.map(h => h.businessId).filter(Boolean) as string[];
+      setAvailabilityRestrictedIds(availableIds.length > 0 ? new Set(availableIds) : null);
+
       if (hotels.length === 0) {
         ttsSpeak(lang === "en"
           ? `No hotels available in ${cityName} from ${checkIn} to ${checkOut}.`
