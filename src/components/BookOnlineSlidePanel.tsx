@@ -1704,6 +1704,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               showSearchBar={showSearchBar}
               onSearch={onSearch}
               onSearchBusinessSelect={onSearchBusinessSelect}
+              onHotelSearch={onHotelSearch}
               onMosaicStateChange={onMosaicStateChange}
               propagateMosaicState
               toolbarPortalPrefix="poi"
@@ -1730,6 +1731,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               showSearchBar={showSearchBar}
               onSearch={onSearch}
               onSearchBusinessSelect={onSearchBusinessSelect}
+              onHotelSearch={onHotelSearch}
               onMosaicStateChange={onMosaicStateChange}
               propagateMosaicState
               toolbarPortalPrefix="kp"
