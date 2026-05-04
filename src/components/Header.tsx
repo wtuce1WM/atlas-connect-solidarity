@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { MapPin, Phone, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
