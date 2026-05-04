@@ -3098,6 +3098,7 @@ const SearchPage = () => {
                 setIsGeoCityAutoSelected(false);
                 setSearchParams(params);
               }}
+              onHotelSearch={handleHotelSearch}
               onBusinessSelect={(bizId) => {
                 setShowMobileMap(false);
                 setCompactPanelBusiness({ id: bizId, name: "" } as any);
@@ -3232,6 +3233,7 @@ const SearchPage = () => {
                   const sp = new URLSearchParams(params);
                   navigate(`/search?${sp.toString()}`);
                 }}
+                onHotelSearch={handleHotelSearch}
                 onBusinessSelect={(bizId) => {
                   setCompactPanelBusiness({ id: bizId, name: "" } as any);
                   setIsCompactPanelExpanded(false);
