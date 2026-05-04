@@ -744,10 +744,6 @@ const SearchPage = () => {
 
       const biz = businesses?.[0];
       if (!biz) {
-        const msg = lang === "en"
-          ? `I couldn't find ${hotelName} in our directory.`
-          : `Je n'ai pas trouvé ${hotelName} dans notre annuaire.`;
-        ttsSpeak(msg);
         return;
       }
 
@@ -760,10 +756,6 @@ const SearchPage = () => {
 
       const liteApiId = mappings?.[0]?.liteapi_hotel_id;
       if (!liteApiId) {
-        const msg = lang === "en"
-          ? `${biz.name} doesn't have real-time availability enabled yet.`
-          : `${biz.name} n'a pas encore la disponibilité en temps réel activée.`;
-        ttsSpeak(msg);
         return;
       }
 
@@ -795,34 +787,11 @@ const SearchPage = () => {
         if (h.available && h.offers) allOffers.push(...h.offers);
       }
 
-      // 5. Build TTS response
-      let ttsMsg: string;
-      if (allOffers.length === 0) {
-        ttsMsg = lang === "en"
-          ? `Sorry, ${biz.name} has no availability from ${finalCheckIn} to ${finalCheckOut}.`
-          : `Désolé, ${biz.name} n'a aucune disponibilité du ${formatDateFr(finalCheckIn)} au ${formatDateFr(finalCheckOut)}.`;
-      } else {
-        const cheapest = allOffers.reduce((min, o) =>
-          parseFloat(o.price.total) < parseFloat(min.price.total) ? o : min
-        );
-        const priceStr = `${Math.round(parseFloat(cheapest.price.total))} ${cheapest.price.currency}`;
-
-        ttsMsg = lang === "en"
-          ? `${biz.name} has ${allOffers.length} room${allOffers.length > 1 ? "s" : ""} available from ${finalCheckIn} to ${finalCheckOut}, starting at ${priceStr}.`
-          : `${biz.name} a ${allOffers.length} chambre${allOffers.length > 1 ? "s" : ""} disponible${allOffers.length > 1 ? "s" : ""} du ${formatDateFr(finalCheckIn)} au ${formatDateFr(finalCheckOut)}, à partir de ${priceStr}.`;
-      }
-
-      voiceLoopRef.current = true;
-      ttsSpeak(ttsMsg);
-
+      // TTS désactivé: déclenchement uniquement via le bouton Speaker dans l'overlay Suggestion IA
     } catch (err) {
       console.error("Hotel availability voice error:", err);
-      const msg = lang === "en"
-        ? "Sorry, I couldn't check the availability. Please try again."
-        : "Désolé, je n'ai pas pu vérifier la disponibilité. Réessayez.";
-      ttsSpeak(msg);
     }
-  }, [language, ttsSpeak]);
+  }, [language]);
 
   const [flightOverlay, setFlightOverlay] = useState<{ open: boolean; initial: FlightSearchInitial }>({ open: false, initial: {} });
   const [webOverlay, setWebOverlay] = useState<{ open: boolean; query: string }>({ open: false, query: "" });
