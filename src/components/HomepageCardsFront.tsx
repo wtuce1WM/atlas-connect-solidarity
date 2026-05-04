@@ -283,7 +283,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
               <button
                 type="button"
                 onClick={() => handleLabelActivate(slot)}
-                className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black cursor-pointer hover:bg-gold/90 transition-colors"
+                className="px-2.5 py-1 rounded-md bg-white text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black cursor-pointer hover:bg-white/90 transition-colors"
               >
                 {it.label}
               </button>
@@ -349,7 +349,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
                 e.stopPropagation();
                 handleLabelActivate(slot);
               }}
-              className="px-2.5 py-1 rounded-md bg-gold text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black cursor-pointer hover:bg-gold/90 transition-colors"
+              className="px-2.5 py-1 rounded-md bg-white text-black text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black cursor-pointer hover:bg-white/90 transition-colors"
             >
               {it.label}
             </button>
