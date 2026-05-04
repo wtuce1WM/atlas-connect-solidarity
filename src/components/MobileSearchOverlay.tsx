@@ -132,7 +132,7 @@ const MobileSearchOverlay = ({
 
   return (
     <div
-      className={`${contained ? 'absolute' : 'fixed'} inset-0 ${contained ? 'z-[78]' : 'z-[10000]'} bg-background flex flex-col animate-in slide-in-from-bottom duration-200 ${
+      className={`${contained ? 'absolute' : 'fixed'} inset-0 ${contained ? 'z-[78]' : 'z-[10000]'} bg-white flex flex-col animate-in slide-in-from-bottom duration-200 ${
         desktopDocked
           ? `lg:inset-auto lg:top-0 lg:bottom-0 lg:left-0 lg:right-auto lg:border-r lg:border-border ${desktopHalfWidth ? "lg:w-1/2" : "lg:w-full"}`
           : ""
