@@ -110,6 +110,7 @@ const HeaderMenuContent = ({ onNavigate }: Props) => {
             <li><Link to="/conditions-generales" className="hover:text-gold transition-colors" onClick={close}>Conditions Générales</Link></li>
             <li><a href="/affiliates" className="hover:text-gold transition-colors" onClick={close}>{t("footer.affiliates")}</a></li>
             <li><Link to="/blog" className="hover:text-gold transition-colors" onClick={close}>{t("footer.blog")}</Link></li>
+            <li><Link to="/club" className="hover:text-gold transition-colors" onClick={close}>{language === "ar" ? "النادي" : language === "en" ? "The Club" : "Le Club"}</Link></li>
             <li><Link to="/devenir-affilie" className="hover:text-gold transition-colors" onClick={close}>{language === "ar" ? "أدرج شركتك" : language === "en" ? "Add your business" : "Ajoutez votre entreprise"}</Link></li>
             <li><Link to="/test" className="hover:text-gold transition-colors" onClick={close}>Test</Link></li>
           </ul>
