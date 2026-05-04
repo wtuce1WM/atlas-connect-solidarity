@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { MapPin, Phone, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import HeaderMenuContent from "@/components/HeaderMenuContent";
 import logoGold from "@/assets/logoGOLDsimpleSML.webp";
 
 const SOCIAL_ORDER = [
