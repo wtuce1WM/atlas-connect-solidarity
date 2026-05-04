@@ -1213,6 +1213,11 @@ const SearchPage = () => {
       return [...openDuring.sort(sortWtuceAndRating), ...rest.sort(sortWtuceAndRating)];
     }
 
+    // Voice hotel search: restrict to available hotels only
+    if (availabilityRestrictedIds && availabilityRestrictedIds.size > 0) {
+      filtered = filtered.filter(b => availabilityRestrictedIds.has(b.id));
+    }
+
     // pinIds: explicit allow-list of business IDs (e.g. from /fiche/:slug → KP group)
     // When present, restrict results to these IDs only and preserve the requested order.
     if (pinIdsParam) {
@@ -1225,7 +1230,7 @@ const SearchPage = () => {
     }
 
     return [...filtered].sort(sortWtuceAndRating);
-  }, [allBusinesses, pinnedBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots, detectedNeighborhood, searchLevel, totalCount, pinIdsParam]);
+  }, [allBusinesses, pinnedBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots, detectedNeighborhood, searchLevel, totalCount, pinIdsParam, availabilityRestrictedIds]);
 
   // Build subcategory name → icon name map
   const subcategoryIconMap = useMemo(() => {
