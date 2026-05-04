@@ -481,6 +481,8 @@ const SlidePanelHome = ({
                 src={videoUrl}
                 loop
                 playsInline
+                autoPlay
+                muted
                 className="w-full h-full object-cover"
                 onTimeUpdate={(e) => onTimeUpdate(e.currentTarget.currentTime)}
               />

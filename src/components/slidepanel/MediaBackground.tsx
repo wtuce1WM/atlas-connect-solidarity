@@ -46,6 +46,7 @@ const MediaBackground = React.memo(function MediaBackground({
           loop
           playsInline
           muted
+          autoPlay
           onPlay={() => {
             if (videoRef.current) videoRef.current.muted = true;
           }}
