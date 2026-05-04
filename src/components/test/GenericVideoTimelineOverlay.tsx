@@ -272,7 +272,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
       {reachedItems.length > 0 && (
         <div
           ref={scrollRef}
-          className="absolute top-3 left-16 right-3 z-20 flex flex-row gap-2 overflow-x-auto scrollbar-hide pb-1"
+          className="absolute top-3 left-3 right-3 z-[60] flex flex-row gap-2 overflow-x-auto scrollbar-hide pb-1"
           style={{ scrollbarWidth: "none" }}
         >
           {reachedItems.map((it) => {
