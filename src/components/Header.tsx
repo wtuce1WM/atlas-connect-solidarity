@@ -4,6 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { MapPin, Phone, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import HeaderMenuContent from "@/components/HeaderMenuContent";
+import StructureMenuContent from "@/components/StructureMenuContent";
 import GlobalHeaderToolbar from "@/components/home/GlobalHeaderToolbar";
 import logoGold from "@/assets/logoGOLDsimpleSML.webp";
 
@@ -202,7 +203,7 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
             className="w-full lg:w-1/2 h-full bg-background border-r border-border shadow-xl animate-in slide-in-from-top-4 fade-in duration-300 overflow-y-auto p-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <HeaderMenuContent onNavigate={() => setMenuOpen(false)} />
+            <StructureMenuContent onNavigate={() => setMenuOpen(false)} />
           </div>
         </div>
       )}
