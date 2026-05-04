@@ -11,6 +11,7 @@ import { useDragScroll } from "@/hooks/useDragScroll";
 interface Props {
   city: City;
   activeBadgeId?: string | null;
+  activeLabel?: string | null;
   onCityChange: (city: City) => void;
   onLabelClick: (
     info: { label: string; kind: "entry" | "extra"; target: HomeCardTarget; badgeId: string | null; eventId?: string | null },
@@ -26,7 +27,7 @@ interface HashtagBadge {
 /**
  * Toolbar (city tabs + hashtags + localisation) intended to be rendered inside the Header.
  */
-const HomeCityToolbar = ({ city, activeBadgeId, onCityChange, onLabelClick }: Props) => {
+const HomeCityToolbar = ({ city, activeBadgeId, activeLabel, onCityChange, onLabelClick }: Props) => {
   const [hashtagBadges, setHashtagBadges] = useState<HashtagBadge[]>([]);
   const [showLocationOverlay, setShowLocationOverlay] = useState(false);
   const geo = useGeolocation();
@@ -108,7 +109,9 @@ const HomeCityToolbar = ({ city, activeBadgeId, onCityChange, onLabelClick }: Pr
       </button>
 
       {hashtagBadges.map((b) => {
-        const isActive = activeBadgeId === b.id;
+        const isActive =
+          activeBadgeId === b.id ||
+          (!!activeLabel && activeLabel.trim().toLowerCase() === b.name_fr.trim().toLowerCase());
         return (
           <button
             key={b.id}

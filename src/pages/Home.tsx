@@ -1941,6 +1941,7 @@ const Home = () => {
             <HomeCityToolbar
               city={city}
               activeBadgeId={videoBadgeFilter?.badgeId ?? null}
+              activeLabel={videoEventFilter?.label ?? videoBadgeFilter?.label ?? null}
               onCityChange={(next) => {
                 setCity(next);
                 setBadgeView(null);
