@@ -1937,21 +1937,19 @@ const Home = () => {
           </button>
         }
         rightContent={
-          selectedEntryId === HOME_ID ? (
-            <HomeCityToolbar
-              city={city}
-              activeBadgeId={videoBadgeFilter?.badgeId ?? null}
-              activeLabel={videoEventFilter?.label ?? videoBadgeFilter?.label ?? null}
-              onCityChange={(next) => {
-                setCity(next);
-                setBadgeView(null);
-                setVideoBadgeFilter(null);
-                setVideoEventFilter(null);
-                setVideoPopularSearchFilter(null);
-              }}
-              onLabelClick={(info, cityForLabel) => handleHomeLabelClick(info, cityForLabel)}
-            />
-          ) : undefined
+          <HomeCityToolbar
+            city={city}
+            activeBadgeId={videoBadgeFilter?.badgeId ?? null}
+            activeLabel={videoEventFilter?.label ?? videoBadgeFilter?.label ?? null}
+            onCityChange={(next) => {
+              setCity(next);
+              setBadgeView(null);
+              setVideoBadgeFilter(null);
+              setVideoEventFilter(null);
+              setVideoPopularSearchFilter(null);
+            }}
+            onLabelClick={(info, cityForLabel) => handleHomeLabelClick(info, cityForLabel)}
+          />
         }
       />
 
