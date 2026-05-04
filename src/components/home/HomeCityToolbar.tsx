@@ -32,6 +32,8 @@ const HomeCityToolbar = ({ city, activeBadgeId, onCityChange, onLabelClick }: Pr
   const geo = useGeolocation();
   const hashtagsScrollRef = useDragScroll<HTMLDivElement>();
 
+  const [activeNonHashtag, setActiveNonHashtag] = useState<HashtagBadge | null>(null);
+
   useEffect(() => {
     const load = async () => {
       const { data } = await (supabase as any)
@@ -43,6 +45,23 @@ const HomeCityToolbar = ({ city, activeBadgeId, onCityChange, onLabelClick }: Pr
     };
     load();
   }, []);
+
+  // If the active badge isn't a #hashtag (e.g. "Rooftop Restaurant & Bars"),
+  // fetch it so we can still display it highlighted in terracotta.
+  useEffect(() => {
+    if (!activeBadgeId) { setActiveNonHashtag(null); return; }
+    if (hashtagBadges.some((b) => b.id === activeBadgeId)) { setActiveNonHashtag(null); return; }
+    let cancelled = false;
+    (supabase as any)
+      .from("badges")
+      .select("id, name_fr")
+      .eq("id", activeBadgeId)
+      .maybeSingle()
+      .then(({ data }: any) => {
+        if (!cancelled && data) setActiveNonHashtag({ id: data.id, name_fr: data.name_fr });
+      });
+    return () => { cancelled = true; };
+  }, [activeBadgeId, hashtagBadges]);
 
   return (
     <div ref={hashtagsScrollRef} className="flex items-center gap-2 w-full overflow-x-auto cursor-grab select-none touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
