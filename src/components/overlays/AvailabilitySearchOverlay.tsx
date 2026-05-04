@@ -11,15 +11,32 @@ interface AvailabilitySearchOverlayProps {
 export default function AvailabilitySearchOverlay({ language, isSearching, onSearch, onClose }: AvailabilitySearchOverlayProps) {
   const isEn = language === "en";
 
+  const fmt = (d: Date) => d.toISOString().split("T")[0];
+  const todayStrInit = fmt(new Date());
+
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const defaultCheckout = new Date(tomorrow);
   defaultCheckout.setDate(defaultCheckout.getDate() + 3);
-  const fmt = (d: Date) => d.toISOString().split("T")[0];
 
-  const [checkIn, setCheckIn] = useState(fmt(tomorrow));
-  const [checkOut, setCheckOut] = useState(fmt(defaultCheckout));
-  const [adults, setAdults] = useState(2);
+  // Restore last search from sessionStorage if still in the future
+  const STORAGE_KEY = "hotel_availability_last_search";
+  const saved = (() => {
+    try {
+      const raw = sessionStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (
+        parsed?.checkIn && parsed?.checkOut && parsed?.adults &&
+        parsed.checkIn > todayStrInit && parsed.checkOut > parsed.checkIn
+      ) return parsed;
+    } catch { /* ignore */ }
+    return null;
+  })();
+
+  const [checkIn, setCheckIn] = useState<string>(saved?.checkIn ?? fmt(tomorrow));
+  const [checkOut, setCheckOut] = useState<string>(saved?.checkOut ?? fmt(defaultCheckout));
+  const [adults, setAdults] = useState<number>(saved?.adults ?? 2);
   const [selectingField, setSelectingField] = useState<"checkin" | "checkout">("checkin");
 
   const [calendarMonth, setCalendarMonth] = useState(() => {
