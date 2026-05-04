@@ -833,7 +833,6 @@ const SearchPage = () => {
     const lang = language === "en" ? "en" : "fr";
     let cityName = (intent.city || "").trim();
     if (!cityName) {
-      ttsSpeak(lang === "en" ? "Which city would you like to search in?" : "Dans quelle ville souhaitez-vous chercher ?");
       return;
     }
 
