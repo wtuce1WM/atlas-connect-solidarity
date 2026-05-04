@@ -26,6 +26,7 @@ const GlobalHeaderToolbar = () => {
   const [hashtagBadges, setHashtagBadges] = useState<HashtagBadge[]>([]);
   const [showLocationOverlay, setShowLocationOverlay] = useState(false);
   const [city, setCity] = useState<City>(() => readLastHomepageCity() || "Marrakech");
+  const [activeBadgeId, setActiveBadgeId] = useState<string | null>(null);
   const geo = useGeolocation();
   const scrollRef = useDragScroll<HTMLDivElement>();
 
@@ -33,6 +34,7 @@ const GlobalHeaderToolbar = () => {
     const sp = new URLSearchParams(location.search);
     const cityParam = sp.get("city") as City | null;
     if (cityParam && CITIES.includes(cityParam)) setCity(cityParam);
+    setActiveBadgeId(sp.get("badgeId") || sp.get("eventId") || null);
   }, [location.search]);
 
   useEffect(() => {
