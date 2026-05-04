@@ -2212,11 +2212,11 @@ const SearchPage = () => {
 
       {/* AI Suggestion Overlay — fullscreen takeover shown on arrival from homepage */}
       {showAiPopup && (
-        <div className="fixed inset-0 z-[9990] flex bg-background/95 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[9990] flex bg-white animate-in fade-in duration-200">
           {/* Left panel: AI suggestion */}
           <div ref={overlayLeftPanelRef} className={`relative flex flex-col justify-center transition-all duration-500 ease-out ${overlaySelectedBusiness ? "w-1/2 border-r border-border" : "w-full"}`}>
           {/* Mobile sticky top bar: speaker + CTA + close */}
-          <div className="sticky top-0 left-0 right-0 sm:hidden flex items-center justify-between px-4 py-3 bg-background/95 backdrop-blur-sm z-10">
+          <div className="sticky top-0 left-0 right-0 sm:hidden flex items-center justify-between px-4 py-3 bg-white z-10">
             {/* Speaker left */}
             <div>
               {(ttsStatus === "playing" || ttsStatus === "loading") ? (
