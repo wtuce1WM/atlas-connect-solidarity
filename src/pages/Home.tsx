@@ -1890,18 +1890,16 @@ const Home = () => {
         </div>
       )}
       <Header
-        rightContent={
-          <div className="flex items-center justify-end pr-2">
-            <button
-              type="button"
-              onClick={() => setMenuOpen((v) => !v)}
-              className="flex items-center gap-1.5 text-base font-semibold text-foreground hover:text-gold transition-colors"
-              aria-label="Menu Structure"
-            >
-              {menuOpen ? <X className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
-              Menu
-            </button>
-          </div>
+        leftContent={
+          <button
+            type="button"
+            onClick={() => setMenuOpen((v) => !v)}
+            className="flex items-center gap-1.5 text-base font-semibold text-foreground hover:text-gold transition-colors"
+            aria-label="Menu Structure"
+          >
+            {menuOpen ? <X className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
+            Menu
+          </button>
         }
       />
 

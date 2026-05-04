@@ -47,9 +47,10 @@ interface HeaderProps {
   variant?: "default" | "morocco" | "city";
   compact?: boolean;
   rightContent?: React.ReactNode;
+  leftContent?: React.ReactNode;
 }
 
-const Header = ({ variant = "default", compact = false, rightContent }: HeaderProps) => {
+const Header = ({ variant = "default", compact = false, rightContent, leftContent }: HeaderProps) => {
   const { t, language } = useLanguage();
   const [, setMobileOpen] = useState(false);
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
@@ -160,21 +161,12 @@ const Header = ({ variant = "default", compact = false, rightContent }: HeaderPr
   return (
     <header className={`fixed left-0 right-0 top-0 z-30 ${headerBg}`}>
       <div className="mx-auto flex items-center px-4 py-3 lg:w-1/2 lg:mr-auto lg:ml-0">
-        {/* Left: logo */}
-        <div className="flex items-center gap-2 shrink-0">
-          <a href="/" className={`items-center gap-2 shrink-0 ${compact ? "hidden md:flex" : "flex"}`}>
-            <span className="text-lg font-bold tracking-tight" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em", textTransform: "uppercase" }}>
-              {compact ? (
-                <span className="text-foreground">1WM</span>
-              ) : (
-                <>
-                  <span className="text-foreground">ONE WORLD</span>{" "}
-                  <span className="text-foreground">MOROCCO</span>
-                </>
-              )}
-            </span>
-          </a>
-        </div>
+        {/* Left: custom content (e.g. menu trigger) */}
+        {leftContent && (
+          <div className="flex items-center gap-2 shrink-0">
+            {leftContent}
+          </div>
+        )}
         {rightContent && (
           <div className="flex-1 min-w-0 overflow-x-auto scrollbar-hide ml-2">
             {rightContent}
