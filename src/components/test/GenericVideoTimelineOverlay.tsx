@@ -290,7 +290,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
                 <div
                   key={it.id}
                   ref={isActive ? activeRef : undefined}
-                  className={`shrink-0 w-[180px] rounded-md bg-black/65 backdrop-blur-sm px-3 py-2 text-white shadow-lg animate-in fade-in duration-300 transition-colors ${
+                  className={`shrink-0 w-[240px] rounded-md bg-black/65 backdrop-blur-sm px-3 py-2 text-white shadow-lg animate-in fade-in duration-300 transition-colors ${
                     isActive ? "border-2 border-gold" : "border border-white/10"
                   }`}
                 >
