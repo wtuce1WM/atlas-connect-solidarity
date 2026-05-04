@@ -188,7 +188,7 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
             {leftContent ?? defaultLeft}
           </div>
           <div className="flex-1 min-w-0 overflow-x-auto scrollbar-hide ml-2">
-            {rightContent ?? <GlobalHeaderToolbar />}
+            {rightContent ?? (isSearchPage ? null : <GlobalHeaderToolbar />)}
           </div>
         </div>
       </header>
