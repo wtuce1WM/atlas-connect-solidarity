@@ -16,6 +16,7 @@ import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { TikTokIcon as SiTiktok } from "@/components/icons/TikTokIcon";
 
 import HomeCityTabs from "@/components/home/HomeCityTabs";
+import HomeCityToolbar from "@/components/home/HomeCityToolbar";
 import BadgeBusinessesGrid from "@/components/home/BadgeBusinessesGrid";
 const HomeVideoSlidePanel = lazy(
   () => import("@/components/home/HomeVideoSlidePanel"),
@@ -1905,6 +1906,21 @@ const Home = () => {
               OW
             </span>
           </button>
+        }
+        rightContent={
+          selectedEntryId === HOME_ID && !videoBadgeFilter && !videoEventFilter && !videoPopularSearchFilter ? (
+            <HomeCityToolbar
+              city={city}
+              onCityChange={(next) => {
+                setCity(next);
+                setBadgeView(null);
+                setVideoBadgeFilter(null);
+                setVideoEventFilter(null);
+                setVideoPopularSearchFilter(null);
+              }}
+              onLabelClick={(info, cityForLabel) => handleHomeLabelClick(info, cityForLabel)}
+            />
+          ) : undefined
         }
       />
 

@@ -160,7 +160,7 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
 
   return (
     <header className={`fixed left-0 right-0 top-0 z-30 ${headerBg}`}>
-      <div className="mx-auto flex items-center px-4 py-3 lg:w-1/2 lg:mr-auto lg:ml-0">
+      <div className="mx-auto flex items-center px-4 py-3 w-full">
         {/* Left: custom content (e.g. menu trigger) */}
         {leftContent && (
           <div className="flex items-center gap-2 shrink-0">
