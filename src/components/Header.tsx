@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { MapPin, Phone, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import HeaderMenuContent from "@/components/HeaderMenuContent";
 import logoGold from "@/assets/logoGOLDsimpleSML.webp";
 
 const SOCIAL_ORDER = [
@@ -53,6 +54,7 @@ interface HeaderProps {
 const Header = ({ variant = "default", compact = false, rightContent, leftContent }: HeaderProps) => {
   const { t, language } = useLanguage();
   const [, setMobileOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -158,22 +160,52 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
     </div>
   );
 
+  const defaultLeft = (
+    <button
+      type="button"
+      onClick={() => setMenuOpen((v) => !v)}
+      className="flex items-center justify-center w-10 h-10 rounded-lg border border-foreground/40 bg-white hover:border-foreground transition-colors"
+      aria-label="Menu OW"
+      aria-expanded={menuOpen}
+    >
+      <span
+        className="text-sm font-bold text-foreground tracking-wider"
+        style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.08em" }}
+      >
+        OW
+      </span>
+    </button>
+  );
+
   return (
-    <header className={`fixed left-0 right-0 top-0 z-30 ${headerBg}`}>
-      <div className="mx-auto flex items-center px-4 py-3 w-full">
-        {/* Left: custom content (e.g. menu trigger) */}
-        {leftContent && (
+    <>
+      <header className={`fixed left-0 right-0 top-0 z-30 ${headerBg}`}>
+        <div className="mx-auto flex items-center px-4 py-3 w-full">
           <div className="flex items-center gap-2 shrink-0">
-            {leftContent}
+            {leftContent ?? defaultLeft}
           </div>
-        )}
-        {rightContent && (
-          <div className="flex-1 min-w-0 overflow-x-auto scrollbar-hide ml-2">
-            {rightContent}
+          {rightContent && (
+            <div className="flex-1 min-w-0 overflow-x-auto scrollbar-hide ml-2">
+              {rightContent}
+            </div>
+          )}
+        </div>
+      </header>
+
+      {menuOpen && (
+        <div
+          className="fixed inset-0 top-[53px] z-[28]"
+          onClick={() => setMenuOpen(false)}
+        >
+          <div
+            className="w-full lg:w-1/2 h-full bg-background border-r border-border shadow-xl animate-in slide-in-from-top-4 fade-in duration-300 overflow-y-auto p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <HeaderMenuContent onNavigate={() => setMenuOpen(false)} />
           </div>
-        )}
-      </div>
-    </header>
+        </div>
+      )}
+    </>
   );
 };
 
