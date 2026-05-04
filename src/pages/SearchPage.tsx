@@ -3207,6 +3207,7 @@ const SearchPage = () => {
                 closeTrigger={bottomSearchCloseTrigger}
                 noToolbarOffset
                 iconVariant="black"
+                solidBackground
               />
             </div>
           </div>
