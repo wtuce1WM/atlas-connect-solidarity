@@ -17,7 +17,7 @@ const BadgeBusinessesGrid = ({ badgeView, businesses, loading, onClose }: Props)
   const navigate = useNavigate();
 
   return (
-    <div className="mt-6">
+    <div className="mt-2">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold">
           {badgeView.label} — {badgeView.city} ({businesses.length})
