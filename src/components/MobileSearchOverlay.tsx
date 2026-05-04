@@ -139,7 +139,7 @@ const MobileSearchOverlay = ({
       }`}
     >
       {/* Header with search bar */}
-      <div className="flex items-center gap-2 px-3 py-3 border-b border-border bg-background">
+      <div className="flex items-center gap-2 px-3 py-3 border-b border-border bg-white">
         <button
           type="button"
           onClick={onClose}
