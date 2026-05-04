@@ -160,16 +160,8 @@ const Header = ({ variant = "default", compact = false, rightContent }: HeaderPr
   return (
     <header className={`fixed left-0 right-0 top-0 z-30 ${headerBg}`}>
       <div className="mx-auto flex items-center px-4 py-3 lg:w-1/2 lg:mr-auto lg:ml-0">
-        {/* Left: hamburger + logo */}
+        {/* Left: logo */}
         <div className="flex items-center gap-2 shrink-0">
-          <button
-            type="button"
-            className="flex items-center justify-center w-10 h-10 rounded-lg text-foreground hover:bg-muted/50 transition-colors"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Menu"
-          >
-            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
           <a href="/" className={`items-center gap-2 shrink-0 ${compact ? "hidden md:flex" : "flex"}`}>
             <span className="text-lg font-bold tracking-tight" style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.12em", textTransform: "uppercase" }}>
               {compact ? (
@@ -189,34 +181,6 @@ const Header = ({ variant = "default", compact = false, rightContent }: HeaderPr
           </div>
         )}
       </div>
-
-      {/* Dropdown menu */}
-      {mobileOpen && (
-        <>
-          {/* Mobile/Tablet: dropdown with footer content */}
-          <div className="lg:hidden border-t border-border bg-white animate-in slide-in-from-top-2 fade-in duration-150 max-h-[calc(100vh-53px)] overflow-y-auto">
-            <nav className="flex flex-col gap-4 px-6 py-5">
-              {navLinks}
-            </nav>
-            <div className="px-6 pb-6">
-              {footerContent}
-            </div>
-          </div>
-          {/* Desktop: full-height left 50% overlay with footer content */}
-          <div className="hidden lg:flex fixed inset-0 top-[53px] z-[29]" onClick={() => setMobileOpen(false)}>
-            <div className="w-1/2 bg-white border-r border-border shadow-xl animate-in slide-in-from-left-2 fade-in duration-200 overflow-y-auto flex flex-col" onClick={(e) => e.stopPropagation()}>
-              <nav className="flex flex-col gap-4 px-6 py-5">
-                {navLinks}
-              </nav>
-              <div className="flex-1" />
-              <div className="px-6 pb-6">
-                {footerContent}
-              </div>
-            </div>
-            <div className="w-1/2 bg-black/20" />
-          </div>
-        </>
-      )}
     </header>
   );
 };
