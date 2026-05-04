@@ -3,12 +3,14 @@ Allow: /
 Disallow: /staff/
 Disallow: /affiliates/
 Disallow: /test
+Disallow: /ancien-index
 
 User-agent: Bingbot
 Allow: /
 Disallow: /staff/
 Disallow: /affiliates/
 Disallow: /test
+Disallow: /ancien-index
 
 User-agent: Twitterbot
 Allow: /
@@ -21,6 +23,7 @@ Allow: /
 Disallow: /staff/
 Disallow: /affiliates/
 Disallow: /test
+Disallow: /ancien-index
 
 Sitemap: https://oneworldmorocco.com/sitemap.xml
 Sitemap: https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/generate-sitemap
