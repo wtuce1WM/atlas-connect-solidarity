@@ -26,6 +26,7 @@ const GlobalHeaderToolbar = () => {
   const [hashtagBadges, setHashtagBadges] = useState<HashtagBadge[]>([]);
   const [showLocationOverlay, setShowLocationOverlay] = useState(false);
   const [city, setCity] = useState<City>(() => readLastHomepageCity() || "Marrakech");
+  const [activeBadgeId, setActiveBadgeId] = useState<string | null>(null);
   const geo = useGeolocation();
   const scrollRef = useDragScroll<HTMLDivElement>();
 
@@ -33,6 +34,7 @@ const GlobalHeaderToolbar = () => {
     const sp = new URLSearchParams(location.search);
     const cityParam = sp.get("city") as City | null;
     if (cityParam && CITIES.includes(cityParam)) setCity(cityParam);
+    setActiveBadgeId(sp.get("badgeId") || sp.get("eventId") || null);
   }, [location.search]);
 
   useEffect(() => {
@@ -123,17 +125,24 @@ const GlobalHeaderToolbar = () => {
         </span>
       </button>
 
-      {hashtagBadges.map((b) => (
-        <button
-          key={b.id}
-          type="button"
-          onClick={() => goBadge(b)}
-          className="shrink-0 inline-flex items-center rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-medium text-gold hover:bg-gold/20 hover:border-gold/60 transition-colors"
-          title={`Filtrer par ${b.name_fr}`}
-        >
-          {b.name_fr}
-        </button>
-      ))}
+      {hashtagBadges.map((b) => {
+        const isActive = activeBadgeId === b.id;
+        return (
+          <button
+            key={b.id}
+            type="button"
+            onClick={() => goBadge(b)}
+            className={`shrink-0 inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+              isActive
+                ? "bg-[#C04F17] text-white border-[#C04F17] hover:bg-[#C04F17]/90"
+                : "border-gold/40 bg-gold/10 text-gold hover:bg-gold/20 hover:border-gold/60"
+            }`}
+            title={`Filtrer par ${b.name_fr}`}
+          >
+            {b.name_fr}
+          </button>
+        );
+      })}
 
       {geo.isEnabled && (geo.confirmedAddress || geo.detectedCity) && (
         <div className="shrink-0 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
