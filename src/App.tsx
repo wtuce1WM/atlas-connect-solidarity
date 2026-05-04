@@ -101,11 +101,13 @@ const GlobalFloatingSearchBar = () => {
 const FloatingButtonsGuard = ({ activePanel, setActivePanel }: { activePanel: "club" | "whatsapp" | null; setActivePanel: (v: "club" | "whatsapp" | null) => void }) => {
   const location = useLocation();
   if (location.pathname.startsWith("/staff/")) return null;
-  const hideClub = location.pathname === "/test";
+  const isHome = location.pathname === "/";
+  const hideClub = location.pathname === "/test" || isHome;
+  const hideWhatsapp = isHome;
   return (
     <>
       {!hideClub && <FloatingClubButton isOpen={activePanel === "club"} onToggle={() => setActivePanel(activePanel === "club" ? null : "club")} />}
-      <FloatingWhatsAppButton isOpen={activePanel === "whatsapp"} onToggle={() => setActivePanel(activePanel === "whatsapp" ? null : "whatsapp")} />
+      {!hideWhatsapp && <FloatingWhatsAppButton isOpen={activePanel === "whatsapp"} onToggle={() => setActivePanel(activePanel === "whatsapp" ? null : "whatsapp")} />}
     </>
   );
 };
