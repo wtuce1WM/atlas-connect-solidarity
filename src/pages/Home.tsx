@@ -2097,7 +2097,7 @@ const Home = () => {
             const showHashtagsTileFinal = showHashtagsTile;
             const childrenTileIndex = 2; // position 3
             return (
-            <div className="flex gap-6 items-start">
+            <div className="flex gap-6 items-start mt-2">
               {displayList.length > 0 && (
                 <div className="w-full min-w-0">
                   <div className={`grid gap-4 ${panelOpen ? "grid-cols-1 md:grid-cols-3 lg:grid-cols-3" : "grid-cols-1 md:grid-cols-3 lg:grid-cols-6"}`}>
