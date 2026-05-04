@@ -833,7 +833,6 @@ const SearchPage = () => {
     const lang = language === "en" ? "en" : "fr";
     let cityName = (intent.city || "").trim();
     if (!cityName) {
-      ttsSpeak(lang === "en" ? "Which city would you like to search in?" : "Dans quelle ville souhaitez-vous chercher ?");
       return;
     }
 
@@ -941,25 +940,12 @@ const SearchPage = () => {
         setAvailabilityRestrictedIds(null);
       }
 
-      if (!hotelSearchSpokenRef.current) {
-        hotelSearchSpokenRef.current = true;
-        if (hotels.length === 0) {
-          ttsSpeak(lang === "en"
-            ? `No hotels available in ${cityName} from ${checkIn} to ${checkOut}.`
-            : `Aucun hôtel disponible à ${cityName} du ${formatDateFr(checkIn)} au ${formatDateFr(checkOut)}.`);
-        } else {
-          ttsSpeak(lang === "en"
-            ? `${hotels.length} hotel${hotels.length > 1 ? "s" : ""} available in ${cityName}.`
-            : `${hotels.length} hôtel${hotels.length > 1 ? "s" : ""} disponible${hotels.length > 1 ? "s" : ""} à ${cityName}.`);
-        }
-      }
     } catch (err) {
       console.error("Hotel search voice error:", err);
-      ttsSpeak(lang === "en" ? "Sorry, hotel search failed." : "Désolé, la recherche d'hôtels a échoué.");
     } finally {
       setHotelSearchLoading(false);
     }
-  }, [language, ttsSpeak]);
+  }, [language]);
 
 
   const { status: voiceStatus, toggleRecording, finishRecording, liveTranscript } = useVoiceSearch({
