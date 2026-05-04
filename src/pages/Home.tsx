@@ -1908,7 +1908,7 @@ const Home = () => {
           </button>
         }
         rightContent={
-          selectedEntryId === HOME_ID && !videoBadgeFilter && !videoEventFilter && !videoPopularSearchFilter ? (
+          selectedEntryId === HOME_ID ? (
             <HomeCityToolbar
               city={city}
               onCityChange={(next) => {
