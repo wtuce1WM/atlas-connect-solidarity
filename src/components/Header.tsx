@@ -4,6 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { MapPin, Phone, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import HeaderMenuContent from "@/components/HeaderMenuContent";
+import GlobalHeaderToolbar from "@/components/home/GlobalHeaderToolbar";
 import logoGold from "@/assets/logoGOLDsimpleSML.webp";
 
 const SOCIAL_ORDER = [
@@ -184,11 +185,9 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
           <div className="flex items-center gap-2 shrink-0">
             {leftContent ?? defaultLeft}
           </div>
-          {rightContent && (
-            <div className="flex-1 min-w-0 overflow-x-auto scrollbar-hide ml-2">
-              {rightContent}
-            </div>
-          )}
+          <div className="flex-1 min-w-0 overflow-x-auto scrollbar-hide ml-2">
+            {rightContent ?? <GlobalHeaderToolbar />}
+          </div>
         </div>
       </header>
 
