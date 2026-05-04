@@ -1911,6 +1911,7 @@ const Home = () => {
           selectedEntryId === HOME_ID ? (
             <HomeCityToolbar
               city={city}
+              activeBadgeId={videoBadgeFilter?.badgeId ?? null}
               onCityChange={(next) => {
                 setCity(next);
                 setBadgeView(null);
