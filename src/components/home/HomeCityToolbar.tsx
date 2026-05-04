@@ -88,28 +88,35 @@ const HomeCityToolbar = ({ city, activeBadgeId, onCityChange, onLabelClick }: Pr
         </span>
       </button>
 
-      {hashtagBadges.map((b) => (
-        <button
-          key={b.id}
-          type="button"
-          onClick={() =>
-            onLabelClick(
-              {
-                label: b.name_fr,
-                kind: "extra",
-                target: { type: "badge", id: b.id },
-                badgeId: b.id,
-                eventId: null,
-              },
-              city,
-            )
-          }
-          className="shrink-0 inline-flex items-center rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-medium text-gold hover:bg-gold/20 hover:border-gold/60 transition-colors"
-          title={`Filtrer par ${b.name_fr}`}
-        >
-          {b.name_fr}
-        </button>
-      ))}
+      {hashtagBadges.map((b) => {
+        const isActive = activeBadgeId === b.id;
+        return (
+          <button
+            key={b.id}
+            type="button"
+            onClick={() =>
+              onLabelClick(
+                {
+                  label: b.name_fr,
+                  kind: "extra",
+                  target: { type: "badge", id: b.id },
+                  badgeId: b.id,
+                  eventId: null,
+                },
+                city,
+              )
+            }
+            className={`shrink-0 inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+              isActive
+                ? "bg-[#C04F17] text-white border-[#C04F17] hover:bg-[#C04F17]/90"
+                : "border-gold/40 bg-gold/10 text-gold hover:bg-gold/20 hover:border-gold/60"
+            }`}
+            title={`Filtrer par ${b.name_fr}`}
+          >
+            {b.name_fr}
+          </button>
+        );
+      })}
 
       {geo.isEnabled && (geo.confirmedAddress || geo.detectedCity) && (
         <div className="shrink-0 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
