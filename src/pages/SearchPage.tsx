@@ -1210,6 +1210,11 @@ const SearchPage = () => {
 
     const hasActiveSearch = !!searchQuery.trim() || !!categoryFromUrl;
 
+    // Voice hotel search: restrict to available hotels only (applied BEFORE timeSlot/sort branches)
+    if (availabilityRestrictedIds && availabilityRestrictedIds.size > 0) {
+      filtered = filtered.filter(b => availabilityRestrictedIds.has(b.id));
+    }
+
     if (activeTimeSlot) {
       // Keep backend order inside each bucket, only prioritize "open during slot"
       const openDuring: Business[] = [];
@@ -1223,11 +1228,6 @@ const SearchPage = () => {
         }
       }
       return [...openDuring.sort(sortWtuceAndRating), ...rest.sort(sortWtuceAndRating)];
-    }
-
-    // Voice hotel search: restrict to available hotels only
-    if (availabilityRestrictedIds && availabilityRestrictedIds.size > 0) {
-      filtered = filtered.filter(b => availabilityRestrictedIds.has(b.id));
     }
 
     // pinIds: explicit allow-list of business IDs (e.g. from /fiche/:slug → KP group)
