@@ -11,19 +11,36 @@ interface AvailabilitySearchOverlayProps {
 export default function AvailabilitySearchOverlay({ language, isSearching, onSearch, onClose }: AvailabilitySearchOverlayProps) {
   const isEn = language === "en";
 
+  const fmt = (d: Date) => d.toISOString().split("T")[0];
+  const todayStrInit = fmt(new Date());
+
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const defaultCheckout = new Date(tomorrow);
   defaultCheckout.setDate(defaultCheckout.getDate() + 3);
-  const fmt = (d: Date) => d.toISOString().split("T")[0];
 
-  const [checkIn, setCheckIn] = useState(fmt(tomorrow));
-  const [checkOut, setCheckOut] = useState(fmt(defaultCheckout));
-  const [adults, setAdults] = useState(2);
+  // Restore last search from sessionStorage if still in the future
+  const STORAGE_KEY = "hotel_availability_last_search";
+  const saved = (() => {
+    try {
+      const raw = sessionStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (
+        parsed?.checkIn && parsed?.checkOut && parsed?.adults &&
+        parsed.checkIn > todayStrInit && parsed.checkOut > parsed.checkIn
+      ) return parsed;
+    } catch { /* ignore */ }
+    return null;
+  })();
+
+  const [checkIn, setCheckIn] = useState<string>(saved?.checkIn ?? fmt(tomorrow));
+  const [checkOut, setCheckOut] = useState<string>(saved?.checkOut ?? fmt(defaultCheckout));
+  const [adults, setAdults] = useState<number>(saved?.adults ?? 2);
   const [selectingField, setSelectingField] = useState<"checkin" | "checkout">("checkin");
 
   const [calendarMonth, setCalendarMonth] = useState(() => {
-    const d = new Date(fmt(tomorrow) + "T12:00:00");
+    const d = new Date((saved?.checkIn ?? fmt(tomorrow)) + "T12:00:00");
     return { year: d.getFullYear(), month: d.getMonth() };
   });
 
@@ -179,7 +196,12 @@ export default function AvailabilitySearchOverlay({ language, isSearching, onSea
         </div>
 
         <button
-          onClick={() => onSearch(checkIn, checkOut, adults)}
+          onClick={() => {
+            try {
+              sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ checkIn, checkOut, adults }));
+            } catch { /* ignore */ }
+            onSearch(checkIn, checkOut, adults);
+          }}
           disabled={isSearching}
           className="mt-4 w-full px-5 py-3 rounded-full bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
         >
