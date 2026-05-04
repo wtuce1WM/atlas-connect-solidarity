@@ -211,8 +211,10 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
     const container = scrollRef.current;
     const el = activeRef.current;
     if (!container || !el) return;
-    const target = el.offsetLeft - (container.clientWidth / 2) + (el.clientWidth / 2);
-    container.scrollTo({ left: Math.max(0, target), behavior: "smooth" });
+    const cRect = container.getBoundingClientRect();
+    const eRect = el.getBoundingClientRect();
+    const delta = (eRect.left - cRect.left) - (container.clientWidth / 2) + (el.clientWidth / 2);
+    container.scrollTo({ left: container.scrollLeft + delta, behavior: "smooth" });
   }, [activeId, reachedItems.length]);
 
   const showClubButton = currentTime >= 10;
