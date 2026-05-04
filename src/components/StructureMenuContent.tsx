@@ -25,6 +25,8 @@ interface Props {
  */
 const StructureMenuContent = ({ onNavigate }: Props) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isSearchPage = location.pathname === "/search";
   const [city, setCity] = useState<City>(() => readLastHomepageCity() || "Marrakech");
   const [entries, setEntries] = useState<FrontEntry[]>([]);
   const [loading, setLoading] = useState(true);
