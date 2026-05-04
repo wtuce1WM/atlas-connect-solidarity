@@ -158,7 +158,7 @@ export default function ResultsTabContent({
           ) : filteredBusinesses.length > 0 ? (
             <>
               {/* Bar: Results count + Carte — STICKY 5 */}
-              <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white lg:bg-white flex items-center justify-center px-4 gap-2 relative py-4 sm:py-4 lg:py-1.5 lg:hidden" style={{ top: '53px' }}>
+              <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white lg:bg-white flex items-center justify-center px-4 gap-2 relative py-4 sm:py-2 md:py-2 lg:py-1.5 lg:hidden" style={{ top: '53px' }}>
                 {isSubDesktop && (
                   <button
                     onClick={() => setShowMobileMap(true)}
@@ -170,7 +170,7 @@ export default function ResultsTabContent({
                 )}
               </div>
               {/* Results grid */}
-              <div className={`grid gap-4 pt-10 sm:pt-12 lg:pt-14 pb-6 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : (hasKnownLocation && !hideResultsMap) ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
+              <div className={`grid gap-4 pt-10 sm:pt-4 md:pt-4 lg:pt-14 pb-6 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : (hasKnownLocation && !hideResultsMap) ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
                 {paginatedBusinesses.map((business, index) => {
                   const card = (
                     <SearchResultCard
