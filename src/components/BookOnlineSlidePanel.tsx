@@ -90,6 +90,7 @@ interface BookOnlineSlidePanelProps {
   showSearchBar?: boolean;
   onSearch?: (params: Record<string, string>) => void;
   onSearchBusinessSelect?: (businessId: string) => void;
+  onHotelSearch?: (intent: { city: string; checkIn?: string; checkOut?: string; adults?: number }, spokenText: string) => void;
   onMosaicStateChange?: (open: boolean) => void;
   closeTrigger?: number;
   propagateMosaicState?: boolean;
@@ -97,7 +98,7 @@ interface BookOnlineSlidePanelProps {
   toolbarPortalPrefix?: string;
 }
 
-const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect, onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix }: BookOnlineSlidePanelProps) => {
+const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef, showSearchBar, onSearch, onSearchBusinessSelect, onHotelSearch, onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix }: BookOnlineSlidePanelProps) => {
   const [activeBusinessId, setActiveBusinessIdRaw] = useState(propBusinessId);
   const [previousBusinessId, setPreviousBusinessId] = useState<string | null>(null);
   const previousCardsHiddenRef = useRef(false);
@@ -1703,6 +1704,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               showSearchBar={showSearchBar}
               onSearch={onSearch}
               onSearchBusinessSelect={onSearchBusinessSelect}
+              onHotelSearch={onHotelSearch}
               onMosaicStateChange={onMosaicStateChange}
               propagateMosaicState
               toolbarPortalPrefix="poi"
@@ -1729,6 +1731,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
               showSearchBar={showSearchBar}
               onSearch={onSearch}
               onSearchBusinessSelect={onSearchBusinessSelect}
+              onHotelSearch={onHotelSearch}
               onMosaicStateChange={onMosaicStateChange}
               propagateMosaicState
               toolbarPortalPrefix="kp"
@@ -1896,6 +1899,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           iconVariant="black"
           onSearch={onSearch}
           onBusinessSelect={onSearchBusinessSelect}
+            onHotelSearch={onHotelSearch}
           businessCity={business?.city}
           businessCategory={business?.main_category}
           businessName={business?.name}

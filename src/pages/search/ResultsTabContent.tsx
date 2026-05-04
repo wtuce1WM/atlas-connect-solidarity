@@ -21,6 +21,7 @@ export interface ResultsTabContentProps {
   setHideResultsMap: (v: boolean) => void;
   mapPanelCloseTrigger: number;
   onSearchNavigate: (params: Record<string, string>) => void;
+  onHotelSearch?: (intent: { city: string; checkIn?: string; checkOut?: string; adults?: number }, spokenText: string) => void;
   onBusinessSelect: (bizId: string) => void;
   isCategoryFilterActive: boolean;
   isMobile: boolean;
@@ -74,6 +75,7 @@ export default function ResultsTabContent({
   setHideResultsMap,
   mapPanelCloseTrigger,
   onSearchNavigate,
+  onHotelSearch,
   onBusinessSelect,
   isCategoryFilterActive,
   isMobile,
@@ -295,6 +297,7 @@ export default function ResultsTabContent({
               </div>
               <PanelSearchBar
                 onSearch={onSearchNavigate}
+                onHotelSearch={onHotelSearch}
                 onBusinessSelect={onBusinessSelect}
                 closeTrigger={mapPanelCloseTrigger}
                 noToolbarOffset
