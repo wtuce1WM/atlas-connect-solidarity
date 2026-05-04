@@ -213,6 +213,15 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
     }
     prevHotelSearchLoadingRef.current = hotelSearchLoading;
   }, [hotelSearchLoading]);
+
+  // Open availability overlay by default for hotels with price
+  const availabilityAutoOpenedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (isHotelWithPrice && businessId && availabilityAutoOpenedRef.current !== businessId) {
+      availabilityAutoOpenedRef.current = businessId;
+      setShowAvailabilitySearch(true);
+    }
+  }, [isHotelWithPrice, businessId]);
   
   const fallbackDataRef = useRef<FallbackPanelData | null>(null);
   useEffect(() => {
