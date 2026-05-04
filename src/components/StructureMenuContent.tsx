@@ -99,29 +99,31 @@ const StructureMenuContent = ({ onNavigate }: Props) => {
         </Tabs>
       </div>
 
-      {loading ? (
-        <p className="text-xs text-muted-foreground">Chargement…</p>
-      ) : (
-        <ul className="space-y-1">
-          <li>
-            <div
-              onClick={() => goEntry(HOME_ID)}
-              className="px-3 py-2 rounded-md text-sm cursor-pointer transition-colors text-foreground hover:bg-muted"
-            >
-              Home
-            </div>
-          </li>
-          {topLevel.map((e) => (
-            <li key={e.id}>
+      {!isSearchPage && (
+        loading ? (
+          <p className="text-xs text-muted-foreground">Chargement…</p>
+        ) : (
+          <ul className="space-y-1">
+            <li>
               <div
-                onClick={() => goEntry(e.id)}
+                onClick={() => goEntry(HOME_ID)}
                 className="px-3 py-2 rounded-md text-sm cursor-pointer transition-colors text-foreground hover:bg-muted"
               >
-                {e.name}
+                Home
               </div>
             </li>
-          ))}
-        </ul>
+            {topLevel.map((e) => (
+              <li key={e.id}>
+                <div
+                  onClick={() => goEntry(e.id)}
+                  className="px-3 py-2 rounded-md text-sm cursor-pointer transition-colors text-foreground hover:bg-muted"
+                >
+                  {e.name}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )
       )}
 
       <HeaderMenuContent onNavigate={onNavigate} />
