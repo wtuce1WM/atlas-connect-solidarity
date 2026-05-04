@@ -453,7 +453,7 @@ const SubcategoryPage = () => {
       <Header />
 
       {/* Hero Section */}
-      <section className="pt-28 pb-8 lg:pb-16 relative overflow-hidden">
+      <section className="pt-32 pb-8 lg:pb-16 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <button
             onClick={() => navigate(-1)}

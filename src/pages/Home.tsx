@@ -2036,7 +2036,7 @@ const Home = () => {
         </div>
       )}
 
-      <div className="pt-[53px] flex w-full min-h-[calc(100vh-53px)]">
+      <div className="pt-[92px] flex w-full min-h-[calc(100vh-92px)]">
         {/* Right zone 80% */}
         <main className={`px-6 pt-2 pb-24 overflow-y-auto transition-all duration-300 ${panelOpen ? "w-1/2" : "flex-1"}`}>
           {selectedEntryId === HOME_ID && !videoBadgeFilter && !videoEventFilter && !videoPopularSearchFilter ? (
