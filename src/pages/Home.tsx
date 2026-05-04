@@ -2187,17 +2187,15 @@ const Home = () => {
                               </>
                             );
                           })()
-                        ) : v.manualCard?.label ? (
-                          /* Gold badge label hidden in category/subcategory results grid */
-                          null
                          ) : (() => {
-                           const isGeneric = genericVideoIds.has(v.id);
-                           const isHomepage = selectedEntry?.id === HOME_ID;
-                           const internalFallbackHook = !isGeneric && !v.videoTitle && !isHomepage
-                             ? ((v.business as any)?.hook_fr || null)
-                             : null;
-                           const topText = isGeneric ? v.videoName : (v.videoTitle || internalFallbackHook);
-                           const hasOrderBadge = selectedEntry?.id !== HOME_ID && v.business?.engagements?.includes("Logistique:Commandez en ligne et recevez votre colis chez vous");
+                            const isGeneric = genericVideoIds.has(v.id);
+                            const isHomepage = selectedEntry?.id === HOME_ID;
+                            const isManual = !!v.manualCard?.label;
+                            const internalFallbackHook = !isGeneric && !v.videoTitle && (!isHomepage || isManual)
+                              ? ((v.business as any)?.hook_fr || null)
+                              : null;
+                            const topText = isGeneric ? v.videoName : (v.videoTitle || internalFallbackHook);
+                            const hasOrderBadge = (selectedEntry?.id !== HOME_ID || isManual) && v.business?.engagements?.includes("Logistique:Commandez en ligne et recevez votre colis chez vous");
                            return topText ? (
                              <div className={`absolute inset-x-0 ${hasOrderBadge ? "top-[20%]" : "top-[12%]"} z-[10] flex flex-col items-center gap-2 px-3 pointer-events-none text-center`}>
                                <p
