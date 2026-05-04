@@ -13,6 +13,8 @@ interface PanelSearchBarProps {
   onSearch?: (params: Record<string, string>) => void;
   /** Called when user selects a business from suggestions */
   onBusinessSelect?: (businessId: string) => void;
+  /** Called when voice search detects a city-level hotel availability search */
+  onHotelSearch?: (intent: { city: string; checkIn?: string; checkOut?: string; adults?: number }, spokenText: string) => void;
   /** Business context for AI suggestion */
   businessCity?: string | null;
   businessCategory?: string | null;
@@ -31,7 +33,7 @@ interface PanelSearchBarProps {
   solidBackground?: boolean;
 }
 
-const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCategory, businessName, onOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false }: PanelSearchBarProps) => {
+const PanelSearchBar = ({ onSearch, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false }: PanelSearchBarProps) => {
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
 
   // Notify parent when search overlay opens/closes
@@ -61,6 +63,10 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
       if (timeKeyword) params.timeKeyword = timeKeyword;
       onSearch?.(params);
     },
+    onHotelSearch: onHotelSearch ? (intent, spoken) => {
+      setOverlay(false);
+      onHotelSearch(intent, spoken);
+    } : undefined,
     onError: (msg) => toast({ title: "Erreur", description: msg, variant: "destructive" }),
   });
 
