@@ -1941,6 +1941,13 @@ const Home = () => {
             city={city}
             activeBadgeId={videoBadgeFilter?.badgeId ?? null}
             activeLabel={videoEventFilter?.label ?? videoBadgeFilter?.label ?? null}
+            categoryLabel={
+              selectedEntry && selectedEntry.id !== HOME_ID
+                ? (selectedSubId && subcatNames[selectedSubId]
+                    ? `${selectedEntry.name} › ${subcatNames[selectedSubId]}`
+                    : selectedEntry.name)
+                : null
+            }
             onCityChange={(next) => {
               setCity(next);
               setBadgeView(null);
