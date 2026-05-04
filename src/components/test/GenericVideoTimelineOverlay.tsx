@@ -278,7 +278,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
       {reachedItems.length > 0 && (
         <div
           ref={scrollRef}
-          className="absolute top-3 left-16 right-3 z-20 overflow-hidden pb-1"
+          className="absolute top-3 left-0 right-0 z-20 overflow-hidden pb-1"
         >
           <div
             className="flex flex-row gap-2 transition-transform duration-500 ease-out"
