@@ -3071,6 +3071,7 @@ const SearchPage = () => {
                 setIsCompactPanelExpanded(false);
               }}
               closeTrigger={mapPanelCloseTrigger}
+              solidBackground
             />
           </div>
         </div>
@@ -3206,6 +3207,7 @@ const SearchPage = () => {
                 closeTrigger={bottomSearchCloseTrigger}
                 noToolbarOffset
                 iconVariant="black"
+                solidBackground
               />
             </div>
           </div>
