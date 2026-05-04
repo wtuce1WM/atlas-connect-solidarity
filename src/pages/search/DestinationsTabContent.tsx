@@ -166,6 +166,7 @@ const DestinationsTabContent = ({
             onBusinessSelect={onBusinessSelect}
             closeTrigger={mapPanelCloseTrigger}
             noToolbarOffset
+            solidBackground
           />
         </div>
       )}

@@ -36,6 +36,7 @@ All colors MUST be HSL.
 
     --map-surface: 0 0% 6%;
     --map-surface-foreground: 0 0% 100%;
+    --searchbar-surface: 0 0% 100%;
 
     /* WTUCE Blue */
     --wtuce-blue: 220 100% 40%;
@@ -99,6 +100,7 @@ All colors MUST be HSL.
 
     --map-surface: 0 0% 6%;
     --map-surface-foreground: 0 0% 100%;
+    --searchbar-surface: 0 0% 100%;
 
 
     --muted: 0 0% 18%;

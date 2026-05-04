@@ -298,6 +298,7 @@ export default function ResultsTabContent({
                 onBusinessSelect={onBusinessSelect}
                 closeTrigger={mapPanelCloseTrigger}
                 noToolbarOffset
+                solidBackground
               />
             </div>
           </div>
