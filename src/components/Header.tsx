@@ -51,7 +51,7 @@ interface HeaderProps {
 
 const Header = ({ variant = "default", compact = false, rightContent }: HeaderProps) => {
   const { t, language } = useLanguage();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [, setMobileOpen] = useState(false);
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
 
   useEffect(() => {
