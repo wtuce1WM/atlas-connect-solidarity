@@ -2109,6 +2109,7 @@ const Home = () => {
                           setPanelOpen(true);
                         };
                         const isVlogThumb = selectedEntry?.id === VLOGS_ID;
+                        const showSubcategoryOverlay = selectedEntryId !== HOME_ID || !!v.manualCard?.label || !!videoBadgeFilter || !!videoEventFilter || !!videoPopularSearchFilter;
                         const thumb = v.thumbnail_url || null;
                         const optimizedThumb = optimizeSupabaseImage(thumb, { width: 400 });
                         return (
@@ -2189,13 +2190,11 @@ const Home = () => {
                           })()
                          ) : (() => {
                             const isGeneric = genericVideoIds.has(v.id);
-                            const isHomepage = selectedEntry?.id === HOME_ID;
-                            const isManual = !!v.manualCard?.label;
-                            const internalFallbackHook = !isGeneric && !v.videoTitle && (!isHomepage || isManual)
+                            const internalFallbackHook = !isGeneric && !v.videoTitle && showSubcategoryOverlay
                               ? ((v.business as any)?.hook_fr || null)
                               : null;
                             const topText = isGeneric ? v.videoName : (v.videoTitle || internalFallbackHook);
-                            const hasOrderBadge = (selectedEntry?.id !== HOME_ID || isManual) && v.business?.engagements?.includes("Logistique:Commandez en ligne et recevez votre colis chez vous");
+                            const hasOrderBadge = showSubcategoryOverlay && v.business?.engagements?.includes("Logistique:Commandez en ligne et recevez votre colis chez vous");
                            return topText ? (
                              <div className={`absolute inset-x-0 ${hasOrderBadge ? "top-[20%]" : "top-[12%]"} z-[10] flex flex-col items-center gap-2 px-3 pointer-events-none text-center`}>
                                <p
@@ -2211,7 +2210,7 @@ const Home = () => {
                              </div>
                           ) : null;
                           })()}
-                         {(selectedEntry?.id !== HOME_ID || !!v.manualCard?.label) && v.business?.engagements?.includes("Logistique:Commandez en ligne et recevez votre colis chez vous") && (
+                         {showSubcategoryOverlay && v.business?.engagements?.includes("Logistique:Commandez en ligne et recevez votre colis chez vous") && (
                           <div className="absolute inset-x-0 top-[10%] z-20 flex items-center justify-center px-2 pointer-events-none">
                             <span
                               className="px-2.5 py-1 rounded-md text-white text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black"
@@ -2283,7 +2282,7 @@ const Home = () => {
                             )}
                           </div>
                         )}
-                          {((isVlogThumb ? v.business_name : v.owner?.name || v.business_name)) && (selectedEntryId !== HOME_ID || !!v.manualCard?.label) && (
+                          {((isVlogThumb ? v.business_name : v.owner?.name || v.business_name)) && showSubcategoryOverlay && (
                             <div className="absolute top-0 left-0 right-0 p-1.5 space-y-0.5 z-[5]">
                                {!v.eventInfo?.name && !genericVideoIds.has(v.id) && (() => {
                                  const displayName = v.business_name || v.owner?.name || "";
@@ -2317,7 +2316,7 @@ const Home = () => {
                                })()}
                             </div>
                           )}
-                          {v.business && (v.business.computed_rating ?? v.business.rating) != null && (selectedEntryId !== HOME_ID || !!v.manualCard?.label) && (
+                          {v.business && (v.business.computed_rating ?? v.business.rating) != null && showSubcategoryOverlay && (
                             <div className="absolute bottom-1.5 left-1.5 z-[5] inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-black/60 backdrop-blur-sm">
                               <Star className="h-2.5 w-2.5 text-gold fill-gold" />
                               <span className="font-medium text-white">{v.business.computed_rating ?? v.business.rating}/20</span>
