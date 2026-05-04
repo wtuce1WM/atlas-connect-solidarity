@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { MapPin, MapPinOff, Loader } from "lucide-react";
 import { type HomeCardTarget } from "@/components/HomepageCardsFront";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CITIES, type City } from "@/lib/homeHelpers";
 import { supabase } from "@/integrations/supabase/client";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -12,7 +11,8 @@ interface Props {
   city: City;
   activeBadgeId?: string | null;
   activeLabel?: string | null;
-  categoryLabel?: string | null;
+  /** Optional breadcrumb rendered inside the active city pill (replaces the simple city name). */
+  breadcrumb?: ReactNode | null;
   onCityChange: (city: City) => void;
   onLabelClick: (
     info: { label: string; kind: "entry" | "extra"; target: HomeCardTarget; badgeId: string | null; eventId?: string | null },
@@ -28,7 +28,7 @@ interface HashtagBadge {
 /**
  * Toolbar (city tabs + hashtags + localisation) intended to be rendered inside the Header.
  */
-const HomeCityToolbar = ({ city, activeBadgeId, activeLabel, categoryLabel, onCityChange, onLabelClick }: Props) => {
+const HomeCityToolbar = ({ city, activeBadgeId, activeLabel, breadcrumb, onCityChange, onLabelClick }: Props) => {
   const [hashtagBadges, setHashtagBadges] = useState<HashtagBadge[]>([]);
   const [showLocationOverlay, setShowLocationOverlay] = useState(false);
   const geo = useGeolocation();
@@ -65,25 +65,45 @@ const HomeCityToolbar = ({ city, activeBadgeId, activeLabel, categoryLabel, onCi
     return () => { cancelled = true; };
   }, [activeBadgeId, hashtagBadges]);
 
+  const renderCityPill = (target: City) => {
+    const isActive = city === target;
+    const baseClasses =
+      "shrink-0 inline-flex items-center rounded-md px-3 h-9 text-sm font-medium transition-colors";
+    if (isActive) {
+      // Render as a div so we can nest interactive sub-buttons (breadcrumb segments).
+      return (
+        <div
+          key={target}
+          className={`${baseClasses} bg-background text-foreground shadow-sm`}
+          role="tab"
+          aria-selected="true"
+        >
+          {breadcrumb ? breadcrumb : target}
+        </div>
+      );
+    }
+    return (
+      <button
+        key={target}
+        type="button"
+        onClick={() => onCityChange(target)}
+        className={`${baseClasses} text-muted-foreground hover:text-foreground`}
+        role="tab"
+        aria-selected="false"
+      >
+        {target}
+      </button>
+    );
+  };
+
   return (
     <div ref={hashtagsScrollRef} className="flex items-center gap-2 w-full overflow-x-auto cursor-grab select-none touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <Tabs
-        value={city.toLowerCase()}
-        onValueChange={(v) => {
-          const next = (v.charAt(0).toUpperCase() + v.slice(1)) as City;
-          if (CITIES.includes(next)) onCityChange(next);
-        }}
-        className="shrink-0"
+      <div
+        className="shrink-0 inline-flex items-center gap-1 rounded-lg bg-muted p-1"
+        role="tablist"
       >
-        <TabsList>
-          <TabsTrigger value="marrakech" onClick={() => onCityChange("Marrakech")}>
-            {city === "Marrakech" && categoryLabel ? `Marrakech › ${categoryLabel}` : "Marrakech"}
-          </TabsTrigger>
-          <TabsTrigger value="essaouira" onClick={() => onCityChange("Essaouira")}>
-            {city === "Essaouira" && categoryLabel ? `Essaouira › ${categoryLabel}` : "Essaouira"}
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+        {CITIES.map((c) => renderCityPill(c))}
+      </div>
 
       <button
         type="button"
