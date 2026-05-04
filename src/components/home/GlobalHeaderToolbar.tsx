@@ -62,6 +62,14 @@ const GlobalHeaderToolbar = () => {
   };
 
   const goBadge = (badge: HashtagBadge) => {
+    if (location.pathname === "/search") {
+      const sp = new URLSearchParams(location.search);
+      sp.set("city", city);
+      sp.set("badgeId", badge.id);
+      sp.set("badgeLabel", badge.name_fr);
+      navigate(`/search?${sp.toString()}`);
+      return;
+    }
     const params = new URLSearchParams({
       city,
       entry: "__home__",

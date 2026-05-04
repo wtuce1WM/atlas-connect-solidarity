@@ -197,6 +197,35 @@ const Home = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // React to URL changes after mount (e.g. clicking a hashtag in the global header
+  // toolbar while already on the home page must update the active filter).
+  useEffect(() => {
+    if (!initialUrlRestoredRef.current) return;
+    const sp = new URLSearchParams(window.location.search);
+    const badgeId = sp.get("badgeId");
+    const badgeLabel = sp.get("badgeLabel");
+    const eventId = sp.get("eventId");
+    const eventLabel = sp.get("eventLabel");
+    const eventIds = sp.get("eventIds");
+    const cityParam = sp.get("city") as City | null;
+
+    if (cityParam && CITIES.includes(cityParam) && cityParam !== city) {
+      setCity(cityParam);
+    }
+
+    if (eventId && eventLabel) {
+      setVideoEventFilter({ eventId, label: eventLabel, eventIds: eventIds ? eventIds.split(",").filter(Boolean) : undefined });
+      setVideoBadgeFilter(null);
+    } else if (badgeId && badgeLabel) {
+      setVideoBadgeFilter({ badgeId, label: badgeLabel });
+      setVideoEventFilter(null);
+    } else {
+      setVideoBadgeFilter(null);
+      setVideoEventFilter(null);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
   // Geo-based homepage city resolution.
   // - Respects URL ?city= override (handled above) and any user manual change.
   // - If geo is enabled & coords arrive: pick the nearest configured homepage.
