@@ -16,6 +16,7 @@ import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
 import { TikTokIcon as SiTiktok } from "@/components/icons/TikTokIcon";
 
 import HomeCityTabs from "@/components/home/HomeCityTabs";
+import HomeCityToolbar from "@/components/home/HomeCityToolbar";
 import BadgeBusinessesGrid from "@/components/home/BadgeBusinessesGrid";
 const HomeVideoSlidePanel = lazy(
   () => import("@/components/home/HomeVideoSlidePanel"),
