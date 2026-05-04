@@ -54,9 +54,11 @@ interface HeaderProps {
 
 const Header = ({ variant = "default", compact = false, rightContent, leftContent }: HeaderProps) => {
   const { t, language } = useLanguage();
+  const location = useLocation();
   const [, setMobileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
+  const isSearchPage = location.pathname === "/search";
 
   useEffect(() => {
     const fetchSocialLinks = async () => {
