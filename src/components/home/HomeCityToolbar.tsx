@@ -28,7 +28,7 @@ interface HashtagBadge {
 /**
  * Toolbar (city tabs + hashtags + localisation) intended to be rendered inside the Header.
  */
-const HomeCityToolbar = ({ city, activeBadgeId, activeLabel, onCityChange, onLabelClick }: Props) => {
+const HomeCityToolbar = ({ city, activeBadgeId, activeLabel, categoryLabel, onCityChange, onLabelClick }: Props) => {
   const [hashtagBadges, setHashtagBadges] = useState<HashtagBadge[]>([]);
   const [showLocationOverlay, setShowLocationOverlay] = useState(false);
   const geo = useGeolocation();
