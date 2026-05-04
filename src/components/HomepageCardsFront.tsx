@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
+import { Loader2, Star } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import SlidePanelHome from "@/components/SlidePanelHome";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
@@ -256,6 +256,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
     const isFileVideo = !!it.videoUrl && !it.thumbnail && !/youtube|youtu\.be|vimeo|mediadelivery/i.test(it.videoUrl);
     const isImmobilier = (it.label || "").trim().toLowerCase() === "immobilier";
     const showImmoBadge = isImmobilier && (it.price || it.priceType);
+    const isManualJsonCard = slot.kind === "extra";
     const priceTypeLabel = it.priceType
       ? it.priceType.toLowerCase() === "location"
         ? "Location"
@@ -335,8 +336,34 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
               />
             </div>
           )}
+          {isManualJsonCard && (it.businessName || it.label) && (
+            <div className="absolute top-0 left-0 right-0 p-1.5 space-y-0.5 z-[5] pointer-events-none">
+              {it.businessName && (
+                <p
+                  className="block w-full text-left text-[10px] font-medium text-white line-clamp-1"
+                  style={{ filter: "drop-shadow(0 1px 2px hsla(0,0%,0%,0.9))" }}
+                >
+                  {it.businessName}
+                </p>
+              )}
+              {it.label && (
+                <p className="text-[10px] font-bold uppercase tracking-wide text-gold line-clamp-1" style={{ filter: "drop-shadow(0 1px 2px hsla(0,0%,0%,0.9))" }}>
+                  {it.label}
+                </p>
+              )}
+            </div>
+          )}
+          {isManualJsonCard && it.rating != null && (
+            <div className="absolute bottom-1.5 left-1.5 z-[5] inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-black/60 backdrop-blur-sm pointer-events-none">
+              <Star className="h-2.5 w-2.5 text-gold fill-gold" />
+              <span className="font-medium text-white">{it.rating}/20</span>
+              {(it.reviewCount ?? 0) > 0 && (
+                <span className="text-white/80">· {it.reviewCount} avis</span>
+              )}
+            </div>
+          )}
         </button>
-        {it.label && (
+        {it.label && !isManualJsonCard && (
           <div className="absolute inset-x-0 top-[10%] z-[8] flex items-center justify-center px-2">
             <button
               type="button"
