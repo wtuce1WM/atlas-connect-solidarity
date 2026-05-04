@@ -79,7 +79,7 @@ const PanelSearchBar = ({ onSearch, onBusinessSelect, businessCity, businessCate
           onClick={() => setOverlay(true)}
           className={`w-full flex items-center justify-center gap-3 px-4 py-3 border rounded-xl ${
             solidBackground
-              ? 'bg-background border-border shadow-sm'
+              ? 'bg-searchbar-surface border-border shadow-sm'
               : `bg-transparent backdrop-blur-sm ${isBlack ? 'border-black ring-1 ring-white ring-offset-0' : 'border-white/40'}`
           }`}
         >

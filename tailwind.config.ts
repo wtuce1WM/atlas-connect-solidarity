@@ -78,6 +78,7 @@ export default {
           DEFAULT: "hsl(var(--map-surface))",
           foreground: "hsl(var(--map-surface-foreground))",
         },
+        "searchbar-surface": "hsl(var(--searchbar-surface))",
 
         "wtuce-blue": {
           DEFAULT: "hsl(var(--wtuce-blue))",
