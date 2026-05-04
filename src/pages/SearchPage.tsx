@@ -841,6 +841,8 @@ const SearchPage = () => {
     // Lance aussi la recherche classique dans la page Search (catégorie Hôtellerie + ville)
     isVoiceSearchRef.current = true;
     setSearchQuery("hôtel");
+    // Reset any previous availability restriction before launching a new search
+    setAvailabilityRestrictedIds(null);
     setSearchParams({ q: "hôtel", category: "Hôtellerie", city: cityName, spoken: `hôtel à ${cityName}` });
     setHotelSearchLoading(true);
     try {
