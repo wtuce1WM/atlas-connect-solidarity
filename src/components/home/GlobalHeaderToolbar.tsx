@@ -27,6 +27,7 @@ const GlobalHeaderToolbar = () => {
   const [showLocationOverlay, setShowLocationOverlay] = useState(false);
   const [city, setCity] = useState<City>(() => readLastHomepageCity() || "Marrakech");
   const [activeBadgeId, setActiveBadgeId] = useState<string | null>(null);
+  const [activeBadgeLabel, setActiveBadgeLabel] = useState<string | null>(null);
   const geo = useGeolocation();
   const scrollRef = useDragScroll<HTMLDivElement>();
 
@@ -35,6 +36,7 @@ const GlobalHeaderToolbar = () => {
     const cityParam = sp.get("city") as City | null;
     if (cityParam && CITIES.includes(cityParam)) setCity(cityParam);
     setActiveBadgeId(sp.get("badgeId") || sp.get("eventId") || null);
+    setActiveBadgeLabel(sp.get("badgeLabel") || sp.get("eventLabel") || null);
   }, [location.search]);
 
   useEffect(() => {
@@ -126,7 +128,7 @@ const GlobalHeaderToolbar = () => {
       </button>
 
       {hashtagBadges.map((b) => {
-        const isActive = activeBadgeId === b.id;
+        const isActive = activeBadgeId === b.id || (!!activeBadgeLabel && activeBadgeLabel.toLowerCase() === b.name_fr.toLowerCase());
         return (
           <button
             key={b.id}
@@ -134,7 +136,7 @@ const GlobalHeaderToolbar = () => {
             onClick={() => goBadge(b)}
             className={`shrink-0 inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
               isActive
-                ? "bg-[#C04F17] text-white border-[#C04F17] hover:bg-[#C04F17]/90"
+                ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90"
                 : "border-gold/40 bg-gold/10 text-gold hover:bg-gold/20 hover:border-gold/60"
             }`}
             title={`Filtrer par ${b.name_fr}`}
