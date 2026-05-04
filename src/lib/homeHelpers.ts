@@ -75,13 +75,53 @@ export const formatTimeRange = (start: string | null, end: string | null): strin
   return start ? trim(start) : (end ? trim(end) : null);
 };
 
+function buildSocialUrl(
+  platform: "instagram" | "tiktok" | "youtube",
+  account: string,
+  rawUrl: string | null | undefined,
+): string {
+  const handle = account.replace(/^@+/, "").trim();
+  const raw = (rawUrl || "").trim();
+  // If raw URL is absolute and well-formed, use it as-is
+  if (/^https?:\/\//i.test(raw)) {
+    try {
+      // Validate
+      // eslint-disable-next-line no-new
+      new URL(raw);
+      return raw;
+    } catch {
+      /* fallthrough to rebuild */
+    }
+  }
+  // Rebuild a canonical URL from the handle
+  switch (platform) {
+    case "instagram":
+      return `https://www.instagram.com/${handle}/`;
+    case "tiktok":
+      return `https://www.tiktok.com/@${handle}`;
+    case "youtube":
+      return handle.startsWith("UC")
+        ? `https://www.youtube.com/channel/${handle}`
+        : `https://www.youtube.com/@${handle}`;
+  }
+}
+
 export function extractSocial(d: any): SocialInfo | null {
   const ig = (d?.instagram_account || "").trim();
-  if (ig) return { platform: "instagram", account: ig.replace(/^@+/, ""), url: d?.instagram_url || null };
+  if (ig) {
+    const account = ig.replace(/^@+/, "");
+    return { platform: "instagram", account, url: buildSocialUrl("instagram", account, d?.instagram_url) };
+  }
   const tt = (d?.tiktok_account || "").trim();
-  if (tt) return { platform: "tiktok", account: tt.replace(/^@+/, ""), url: d?.tiktok_url || null };
+  if (tt) {
+    const account = tt.replace(/^@+/, "");
+    return { platform: "tiktok", account, url: buildSocialUrl("tiktok", account, d?.tiktok_url) };
+  }
   const yt = (d?.youtube_account || "").trim();
-  if (yt) return { platform: "youtube", account: yt.replace(/^@+/, ""), url: d?.youtube_url || null };
+  if (yt) {
+    const account = yt.replace(/^@+/, "");
+    return { platform: "youtube", account, url: buildSocialUrl("youtube", account, d?.youtube_url) };
+  }
   return null;
 }
 
