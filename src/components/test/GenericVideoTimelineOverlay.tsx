@@ -207,13 +207,14 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
   const scrollRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef<HTMLDivElement>(null);
 
+  const [rowOffset, setRowOffset] = useState(0);
   useEffect(() => {
     const container = scrollRef.current;
     const el = activeRef.current;
     if (!container || !el) return;
     const raf = requestAnimationFrame(() => {
-      const target = el.offsetLeft - (container.clientWidth - el.offsetWidth) / 2;
-      container.scrollTo({ left: Math.max(0, target), behavior: "smooth" });
+      const offset = (container.clientWidth / 2) - (el.offsetLeft + el.offsetWidth / 2);
+      setRowOffset(offset);
     });
     return () => cancelAnimationFrame(raf);
   }, [activeId, reachedItems.length]);
