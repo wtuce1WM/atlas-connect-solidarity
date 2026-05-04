@@ -2285,7 +2285,7 @@ const Home = () => {
                             )}
                           </div>
                         )}
-                          {((isVlogThumb ? v.business_name : v.owner?.name || v.business_name)) && selectedEntryId !== HOME_ID && (
+                          {((isVlogThumb ? v.business_name : v.owner?.name || v.business_name)) && (selectedEntryId !== HOME_ID || !!v.manualCard?.label) && (
                             <div className="absolute top-0 left-0 right-0 p-1.5 space-y-0.5 z-[5]">
                                {!v.eventInfo?.name && !genericVideoIds.has(v.id) && (() => {
                                  const displayName = v.business_name || v.owner?.name || "";
@@ -2319,7 +2319,7 @@ const Home = () => {
                                })()}
                             </div>
                           )}
-                          {v.business && (v.business.computed_rating ?? v.business.rating) != null && selectedEntryId !== HOME_ID && (
+                          {v.business && (v.business.computed_rating ?? v.business.rating) != null && (selectedEntryId !== HOME_ID || !!v.manualCard?.label) && (
                             <div className="absolute bottom-1.5 left-1.5 z-[5] inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-black/60 backdrop-blur-sm">
                               <Star className="h-2.5 w-2.5 text-gold fill-gold" />
                               <span className="font-medium text-white">{v.business.computed_rating ?? v.business.rating}/20</span>
