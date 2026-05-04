@@ -97,80 +97,86 @@ const HomeCityToolbar = ({ city, activeBadgeId, activeLabel, breadcrumb, onCityC
   };
 
   return (
-    <div ref={hashtagsScrollRef} className="flex items-center gap-2 w-full overflow-x-auto cursor-grab select-none touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <div
-        className="shrink-0 inline-flex items-center gap-1 rounded-lg bg-muted p-1"
-        role="tablist"
-      >
-        {CITIES.map((c) => renderCityPill(c))}
+    <div className="flex flex-col gap-1.5 w-full">
+      {/* Row 1: city pills + localisation */}
+      <div className="flex items-center gap-2 w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div
+          className="shrink-0 inline-flex items-center gap-1 rounded-lg bg-muted p-1"
+          role="tablist"
+        >
+          {CITIES.map((c) => renderCityPill(c))}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setShowLocationOverlay(true)}
+          className={`shrink-0 inline-flex items-center justify-center gap-1.5 rounded-lg px-3 h-9 text-xs font-medium shadow-lg transition-colors ${
+            geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity || geo.confirmedAddress)
+              ? "bg-gold/20 text-gold border border-gold/40"
+              : "bg-[#C04F17] text-white hover:bg-[#C04F17]/90"
+          }`}
+          style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+        >
+          {geo.isDetecting ? (
+            <Loader className="h-3.5 w-3.5 animate-spin" />
+          ) : geo.isEnabled ? (
+            <MapPin className="h-3.5 w-3.5" />
+          ) : (
+            <MapPinOff className="h-3.5 w-3.5" />
+          )}
+          <span className="truncate max-w-[240px]">
+            {geo.isDetecting
+              ? "…"
+              : geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity)
+              ? `📍 ${[geo.detectedNeighborhood, geo.detectedCity].filter(Boolean).join(", ")}`
+              : geo.isEnabled && geo.confirmedAddress
+              ? `📍 ${geo.confirmedAddress}`
+              : "Localisation"}
+          </span>
+        </button>
+
+        {geo.isEnabled && (geo.confirmedAddress || geo.detectedCity) && (
+          <div className="shrink-0 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+            <MapPin className="h-3.5 w-3.5 text-gold shrink-0" />
+            <span className="truncate">{geo.confirmedAddress || geo.detectedCity}</span>
+          </div>
+        )}
       </div>
 
-      <button
-        type="button"
-        onClick={() => setShowLocationOverlay(true)}
-        className={`shrink-0 inline-flex items-center justify-center gap-1.5 rounded-lg px-3 h-9 text-xs font-medium shadow-lg transition-colors ${
-          geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity || geo.confirmedAddress)
-            ? "bg-gold/20 text-gold border border-gold/40"
-            : "bg-[#C04F17] text-white hover:bg-[#C04F17]/90"
-        }`}
-        style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-      >
-        {geo.isDetecting ? (
-          <Loader className="h-3.5 w-3.5 animate-spin" />
-        ) : geo.isEnabled ? (
-          <MapPin className="h-3.5 w-3.5" />
-        ) : (
-          <MapPinOff className="h-3.5 w-3.5" />
-        )}
-        <span className="truncate max-w-[240px]">
-          {geo.isDetecting
-            ? "…"
-            : geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity)
-            ? `📍 ${[geo.detectedNeighborhood, geo.detectedCity].filter(Boolean).join(", ")}`
-            : geo.isEnabled && geo.confirmedAddress
-            ? `📍 ${geo.confirmedAddress}`
-            : "Localisation"}
-        </span>
-      </button>
-
-      {hashtagBadges.map((b) => {
-        const isActive =
-          activeBadgeId === b.id ||
-          (!!activeLabel && activeLabel.trim().toLowerCase() === b.name_fr.trim().toLowerCase());
-        return (
-          <button
-            key={b.id}
-            type="button"
-            onClick={() =>
-              onLabelClick(
-                {
-                  label: b.name_fr,
-                  kind: "extra",
-                  target: { type: "badge", id: b.id },
-                  badgeId: b.id,
-                  eventId: null,
-                },
-                city,
-              )
-            }
-            className={`shrink-0 inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-              isActive
-                ? "bg-[#C04F17] text-white border-[#C04F17] hover:bg-[#C04F17]/90"
-                : "border-gold/40 bg-gold/10 text-gold hover:bg-gold/20 hover:border-gold/60"
-            }`}
-            title={`Filtrer par ${b.name_fr}`}
-          >
-            {b.name_fr}
-          </button>
-        );
-      })}
-
-      {geo.isEnabled && (geo.confirmedAddress || geo.detectedCity) && (
-        <div className="shrink-0 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-          <MapPin className="h-3.5 w-3.5 text-gold shrink-0" />
-          <span className="truncate">{geo.confirmedAddress || geo.detectedCity}</span>
-        </div>
-      )}
+      {/* Row 2: hashtags */}
+      <div ref={hashtagsScrollRef} className="flex items-center gap-2 w-full overflow-x-auto cursor-grab select-none touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {hashtagBadges.map((b) => {
+          const isActive =
+            activeBadgeId === b.id ||
+            (!!activeLabel && activeLabel.trim().toLowerCase() === b.name_fr.trim().toLowerCase());
+          return (
+            <button
+              key={b.id}
+              type="button"
+              onClick={() =>
+                onLabelClick(
+                  {
+                    label: b.name_fr,
+                    kind: "extra",
+                    target: { type: "badge", id: b.id },
+                    badgeId: b.id,
+                    eventId: null,
+                  },
+                  city,
+                )
+              }
+              className={`shrink-0 inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                isActive
+                  ? "bg-[#C04F17] text-white border-[#C04F17] hover:bg-[#C04F17]/90"
+                  : "border-gold/40 bg-gold/10 text-gold hover:bg-gold/20 hover:border-gold/60"
+              }`}
+              title={`Filtrer par ${b.name_fr}`}
+            >
+              {b.name_fr}
+            </button>
+          );
+        })}
+      </div>
 
       <PanelLocationOverlay
         open={showLocationOverlay}
