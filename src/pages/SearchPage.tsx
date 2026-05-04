@@ -622,6 +622,7 @@ const SearchPage = () => {
 
   const spokenText = searchParams.get("spoken") || "";
   const isVoiceSearchRef = useRef(false);
+  const hotelSearchSpokenRef = useRef(false);
   const [showResultsOverlay, setShowResultsOverlay] = useState(false);
   const [overlayDismissing, setOverlayDismissing] = useState(false);
    const resultsRef = useRef<HTMLDivElement>(null);
