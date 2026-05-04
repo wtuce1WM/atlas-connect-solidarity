@@ -1859,7 +1859,9 @@ const Home = () => {
   };
 
   const structureList = (
-    <HeaderMenuContent onNavigate={() => setMenuOpen(false)} />
+    <div className="pt-[60px]">
+      <HeaderMenuContent onNavigate={() => setMenuOpen(false)} />
+    </div>
   );
 
   return (
