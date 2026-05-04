@@ -88,6 +88,13 @@ const HomeCityTabs = ({ city, onCityChange, onLabelClick }: Props) => {
             </span>
           </button>
 
+          {geo.isEnabled && (geo.confirmedAddress || geo.detectedCity) && (
+            <div className="shrink-0 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+              <MapPin className="h-3.5 w-3.5 text-gold shrink-0" />
+              <span className="truncate">{geo.confirmedAddress || geo.detectedCity}</span>
+            </div>
+          )}
+
           {hashtagBadges.map((b) => (
             <button
               key={b.id}
