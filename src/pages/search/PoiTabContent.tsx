@@ -165,6 +165,7 @@ const PoiTabContent = ({
             onBusinessSelect={onBusinessSelect}
             closeTrigger={mapPanelCloseTrigger}
             noToolbarOffset
+            solidBackground
           />
         </div>
       )}
