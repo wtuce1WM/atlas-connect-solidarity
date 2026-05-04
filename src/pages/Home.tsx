@@ -1907,6 +1907,21 @@ const Home = () => {
             </span>
           </button>
         }
+        rightContent={
+          selectedEntryId === HOME_ID && !videoBadgeFilter && !videoEventFilter && !videoPopularSearchFilter ? (
+            <HomeCityToolbar
+              city={city}
+              onCityChange={(next) => {
+                setCity(next);
+                setBadgeView(null);
+                setVideoBadgeFilter(null);
+                setVideoEventFilter(null);
+                setVideoPopularSearchFilter(null);
+              }}
+              onLabelClick={(info, cityForLabel) => handleHomeLabelClick(info, cityForLabel)}
+            />
+          ) : undefined
+        }
       />
 
       {menuOpen && (
