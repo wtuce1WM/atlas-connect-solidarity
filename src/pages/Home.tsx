@@ -2285,7 +2285,7 @@ const Home = () => {
                             )}
                           </div>
                         )}
-                          {((isVlogThumb ? v.business_name : v.owner?.name || v.business_name)) && selectedEntryId !== HOME_ID && (
+                          {((isVlogThumb ? v.business_name : v.owner?.name || v.business_name)) && (selectedEntryId !== HOME_ID || !!v.manualCard?.label) && (
                             <div className="absolute top-0 left-0 right-0 p-1.5 space-y-0.5 z-[5]">
                                {!v.eventInfo?.name && !genericVideoIds.has(v.id) && (() => {
                                  const displayName = v.business_name || v.owner?.name || "";
