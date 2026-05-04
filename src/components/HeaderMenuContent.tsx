@@ -78,6 +78,9 @@ const HeaderMenuContent = ({ onNavigate }: Props) => {
         <Link to="/contact" className="text-foreground text-sm font-semibold transition-colors hover:text-gold" onClick={close}>
           {t("footer.contact")}
         </Link>
+        <Link to="/club" className="self-start rounded-lg border border-gold px-4 py-2 text-sm font-semibold text-gold transition-colors hover:bg-gold hover:text-gold-foreground text-center" onClick={close}>
+          {language === "ar" ? "النادي" : language === "en" ? "The Club" : "Le Club"}
+        </Link>
         <Link to="/devenir-affilie" className="self-start rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-gold-foreground transition-colors hover:bg-gold/90 text-center" onClick={close}>
           {t("nav.joinNow")}
         </Link>
