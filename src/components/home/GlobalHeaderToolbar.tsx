@@ -50,6 +50,14 @@ const GlobalHeaderToolbar = () => {
   const goCity = (next: City) => {
     setCity(next);
     writeLastHomepageCity(next);
+    // If on the search page (or any page using ?city=), update the param in place
+    // so the toggle stays active across results pages.
+    if (location.pathname === "/search") {
+      const sp = new URLSearchParams(location.search);
+      sp.set("city", next);
+      navigate(`/search?${sp.toString()}`);
+      return;
+    }
     navigate(`/?city=${next}&entry=__home__`);
   };
 
