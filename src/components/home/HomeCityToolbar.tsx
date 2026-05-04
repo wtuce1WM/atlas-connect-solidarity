@@ -75,8 +75,8 @@ const HomeCityToolbar = ({ city, activeBadgeId, activeLabel, onCityChange, onLab
         className="shrink-0"
       >
         <TabsList>
-          <TabsTrigger value="marrakech">Marrakech</TabsTrigger>
-          <TabsTrigger value="essaouira">Essaouira</TabsTrigger>
+          <TabsTrigger value="marrakech" onClick={() => onCityChange("Marrakech")}>Marrakech</TabsTrigger>
+          <TabsTrigger value="essaouira" onClick={() => onCityChange("Essaouira")}>Essaouira</TabsTrigger>
         </TabsList>
       </Tabs>
 
