@@ -144,7 +144,7 @@ const HomeCityToolbar = ({ city, activeBadgeId, activeLabel, breadcrumb, onCityC
       </div>
 
       {/* Row 2: hashtags — starts under the OW button (shifted left to align with header padding) */}
-      <div ref={hashtagsScrollRef} className="flex items-center gap-2 overflow-x-auto cursor-grab select-none touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -ml-14 w-[calc(100%+3.5rem)] pl-2">
+      <div ref={hashtagsScrollRef} className="flex items-center gap-2 overflow-x-auto cursor-grab select-none touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -ml-12 w-[calc(100%+3rem)] py-1">
         {hashtagBadges.map((b) => {
           const isActive =
             activeBadgeId === b.id ||
