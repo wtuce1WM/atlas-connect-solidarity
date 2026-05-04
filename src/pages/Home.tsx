@@ -1894,11 +1894,16 @@ const Home = () => {
           <button
             type="button"
             onClick={() => setMenuOpen((v) => !v)}
-            className="flex items-center gap-1.5 text-base font-semibold text-foreground hover:text-gold transition-colors"
+            className="flex items-center justify-center w-10 h-10 rounded-lg border border-border/60 bg-white hover:border-gold transition-colors"
             aria-label="Menu Structure"
+            aria-expanded={menuOpen}
           >
-            {menuOpen ? <X className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
-            Menu
+            <span
+              className="text-sm font-bold text-gold tracking-wider"
+              style={{ fontFamily: "'Josefin Sans', sans-serif", letterSpacing: "0.08em" }}
+            >
+              OW
+            </span>
           </button>
         }
       />
