@@ -71,6 +71,10 @@ const HeaderMenuContent = ({ onNavigate }: Props) => {
 
   return (
     <div>
+      <p className="text-base leading-relaxed text-foreground mb-6">
+        Faites de chaque achat un acte de générosité. Nous sommes la seule plateforme où l'engagement est inscrit dans notre ADN : 20% du montant de chaque cotisation des annonceurs est directement reversé à des actions humanitaires et de solidarité concrètes sur le terrain.
+      </p>
+
       <nav className="flex flex-col gap-4 py-5">
         <Link to="/mission" className="text-foreground text-sm font-semibold transition-colors hover:text-gold" onClick={close}>
           {t("footer.ourMission")}
@@ -93,9 +97,6 @@ const HeaderMenuContent = ({ onNavigate }: Props) => {
       </nav>
 
       <div className="mt-4 border-t border-border pt-6">
-        <p className="text-xs leading-relaxed text-muted-foreground mb-4">
-          Faites de chaque achat un acte de générosité. Nous sommes la seule plateforme où l'engagement est inscrit dans notre ADN : 20% du montant de chaque cotisation des annonceurs est directement reversé à des actions humanitaires et de solidarité concrètes sur le terrain.
-        </p>
 
         <div className="flex flex-wrap gap-3 mb-6">
           {SOCIAL_ORDER.map((key) => {
