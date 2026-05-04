@@ -87,6 +87,9 @@ const SearchPage = () => {
   const [hidePoiMap, setHidePoiMap] = useState(false);
   const [hideDestMap, setHideDestMap] = useState(false);
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
+  // Voice intent: restrict displayed results to a specific subset of business IDs
+  // (e.g. only hotels available for the requested dates)
+  const [availabilityRestrictedIds, setAvailabilityRestrictedIds] = useState<Set<string> | null>(null);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [detectedSubcategory, setDetectedSubcategory] = useState<string | null>(null);
   const [detectedCategory, setDetectedCategory] = useState<string | null>(null);
@@ -124,6 +127,11 @@ const SearchPage = () => {
     if (urlQ !== searchQuery || urlT) {
       setSearchQuery(urlQ);
       setInputValue(urlQ);
+      // Drop the availability restriction unless the URL still describes a hotel voice search
+      const spoken = searchParams.get("spoken") || "";
+      if (!/^h[oô]tel à /i.test(spoken)) {
+        setAvailabilityRestrictedIds(null);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlQ, urlT]);
@@ -838,6 +846,8 @@ const SearchPage = () => {
     // Lance aussi la recherche classique dans la page Search (catégorie Hôtellerie + ville)
     isVoiceSearchRef.current = true;
     setSearchQuery("hôtel");
+    // Reset any previous availability restriction before launching a new search
+    setAvailabilityRestrictedIds(null);
     setSearchParams({ q: "hôtel", category: "Hôtellerie", city: cityName, spoken: `hôtel à ${cityName}` });
     setHotelSearchLoading(true);
     try {
@@ -913,6 +923,10 @@ const SearchPage = () => {
         gammes: gammes.map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })),
       });
 
+      // Restrict the Search page list to only the available hotels (by business id)
+      const availableIds = hotels.map(h => h.businessId).filter(Boolean) as string[];
+      setAvailabilityRestrictedIds(availableIds.length > 0 ? new Set(availableIds) : null);
+
       if (hotels.length === 0) {
         ttsSpeak(lang === "en"
           ? `No hotels available in ${cityName} from ${checkIn} to ${checkOut}.`
@@ -934,6 +948,7 @@ const SearchPage = () => {
   const { status: voiceStatus, toggleRecording, finishRecording, liveTranscript } = useVoiceSearch({
     onTranscript: (keywords, spoken, category, timeKeyword) => {
       isVoiceSearchRef.current = true;
+      setAvailabilityRestrictedIds(null);
       setInputValue(keywords);
       setSearchQuery(keywords);
       const params: Record<string, string> = { q: keywords, spoken };
@@ -1210,6 +1225,11 @@ const SearchPage = () => {
       return [...openDuring.sort(sortWtuceAndRating), ...rest.sort(sortWtuceAndRating)];
     }
 
+    // Voice hotel search: restrict to available hotels only
+    if (availabilityRestrictedIds && availabilityRestrictedIds.size > 0) {
+      filtered = filtered.filter(b => availabilityRestrictedIds.has(b.id));
+    }
+
     // pinIds: explicit allow-list of business IDs (e.g. from /fiche/:slug → KP group)
     // When present, restrict results to these IDs only and preserve the requested order.
     if (pinIdsParam) {
@@ -1222,7 +1242,7 @@ const SearchPage = () => {
     }
 
     return [...filtered].sort(sortWtuceAndRating);
-  }, [allBusinesses, pinnedBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots, detectedNeighborhood, searchLevel, totalCount, pinIdsParam]);
+  }, [allBusinesses, pinnedBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots, detectedNeighborhood, searchLevel, totalCount, pinIdsParam, availabilityRestrictedIds]);
 
   // Build subcategory name → icon name map
   const subcategoryIconMap = useMemo(() => {
