@@ -40,7 +40,7 @@ export default function AvailabilitySearchOverlay({ language, isSearching, onSea
   const [selectingField, setSelectingField] = useState<"checkin" | "checkout">("checkin");
 
   const [calendarMonth, setCalendarMonth] = useState(() => {
-    const d = new Date(fmt(tomorrow) + "T12:00:00");
+    const d = new Date((saved?.checkIn ?? fmt(tomorrow)) + "T12:00:00");
     return { year: d.getFullYear(), month: d.getMonth() };
   });
 
