@@ -20,12 +20,13 @@ export function optimizeSupabaseImage(
   if (!url) return null;
   if (!url.includes("/storage/v1/object/public/")) return url;
 
-  const { width, height, quality = 70, resize = "cover" } = options;
+  const { width, height, quality = 70, resize } = options;
   const optimized = url.replace("/storage/v1/object/public/", "/storage/v1/render/image/public/");
   const params = new URLSearchParams();
   if (width) params.set("width", String(width));
   if (height) params.set("height", String(height));
   params.set("quality", String(quality));
-  params.set("resize", resize);
+  // Only set resize when both dimensions are provided (otherwise Supabase crops to square)
+  if (resize && width && height) params.set("resize", resize);
   return `${optimized}?${params.toString()}`;
 }
