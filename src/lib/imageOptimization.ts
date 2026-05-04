@@ -26,7 +26,8 @@ export function optimizeSupabaseImage(
   if (width) params.set("width", String(width));
   if (height) params.set("height", String(height));
   params.set("quality", String(quality));
-  // Only set resize when both dimensions are provided (otherwise Supabase crops to square)
-  if (resize && width && height) params.set("resize", resize);
+  // When only one dimension is provided, use "contain" to preserve aspect ratio.
+  // Supabase otherwise stretches the missing dimension to the original size.
+  params.set("resize", resize || (width && height ? "cover" : "contain"));
   return `${optimized}?${params.toString()}`;
 }
