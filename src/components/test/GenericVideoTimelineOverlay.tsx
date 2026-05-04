@@ -316,7 +316,7 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
           type="button"
           onClick={() => setClubOpen(true)}
           style={{ backgroundColor: "#6050DC" }}
-          className="absolute top-[138px] md:top-[128px] left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 rounded-full px-3 py-1 text-white shadow-lg animate-in fade-in slide-in-from-top-2 duration-300 hover:opacity-90 transition-opacity"
+          className="absolute top-[138px] md:top-[133px] left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 rounded-full px-3 py-1 text-white shadow-lg animate-in fade-in slide-in-from-top-2 duration-300 hover:opacity-90 transition-opacity"
         >
           <Heart className="h-3.5 w-3.5" />
           <span className="text-[11px] font-semibold tracking-wide">
