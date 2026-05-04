@@ -109,7 +109,9 @@ const HomeCityToolbar = ({ city, activeBadgeId, activeLabel, onCityChange, onLab
       </button>
 
       {hashtagBadges.map((b) => {
-        const isActive = activeBadgeId === b.id;
+        const isActive =
+          activeBadgeId === b.id ||
+          (!!activeLabel && activeLabel.trim().toLowerCase() === b.name_fr.trim().toLowerCase());
         return (
           <button
             key={b.id}
