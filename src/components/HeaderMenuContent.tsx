@@ -82,6 +82,16 @@ const HeaderMenuContent = ({ onNavigate }: Props) => {
         <Link to="/contact" className="text-foreground text-sm font-semibold transition-colors hover:text-gold" onClick={close}>
           {t("footer.contact")}
         </Link>
+        <a
+          href="https://wa.me/212661439221"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="self-start flex items-center justify-center gap-2 rounded-lg bg-[#25D366] hover:bg-[#1da851] px-4 py-2 text-sm font-semibold text-white transition-colors"
+          onClick={close}
+        >
+          {SOCIAL_ICONS.social_whatsapp("h-4 w-4")}
+          WhatsApp
+        </a>
         <Link
           to="/club"
           onClick={close}
@@ -124,16 +134,6 @@ const HeaderMenuContent = ({ onNavigate }: Props) => {
             <li><Link to="/devenir-affilie" className="hover:text-gold transition-colors" onClick={close}>{language === "ar" ? "أدرج شركتك" : language === "en" ? "Add your business" : "Ajoutez votre entreprise"}</Link></li>
             <li><a href="https://oneworldmorocco.com/solidarity/index.html" target="_blank" rel="noopener noreferrer" className="hover:text-gold transition-colors" onClick={close}>{language === "ar" ? "التضامن" : language === "en" ? "Solidarity" : "Solidarité"}</a></li>
           </ul>
-          <a
-            href="https://wa.me/212661439221"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex w-fit items-center justify-center gap-2 mt-3 rounded-lg bg-[#25D366] hover:bg-[#1da851] px-4 py-2 text-sm font-semibold text-white transition-colors"
-            onClick={close}
-          >
-            {SOCIAL_ICONS.social_whatsapp("h-4 w-4")}
-            WhatsApp
-          </a>
         </div>
 
         <div className="mb-4">
