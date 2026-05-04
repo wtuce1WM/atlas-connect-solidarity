@@ -352,7 +352,7 @@ const SlidePanelHome = ({
 
   const visibleSocial = showSocialBadge ? social : null;
 
-  const embed = getVideoEmbed(videoUrl, window.location.origin, { autoplay: false, defaultSoundOn: soundOn });
+  const embed = getVideoEmbed(videoUrl, window.location.origin, { autoplay: true, defaultSoundOn: soundOn });
   let embedUrl = embed.embedUrl;
   if (embed.type === "youtube") {
     const ytId = videoUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/)?.[1];
