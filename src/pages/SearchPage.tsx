@@ -62,65 +62,6 @@ import { normalizeSearchMode, normalizeText, formatDateFr, ITEMS_PER_PAGE, SERVE
 
 import type { Business, SearchResult } from "@/pages/search/types";
 
-type HotelSearchIntent = { city: string; checkIn?: string; checkOut?: string; adults?: number };
-
-const HOTEL_MONTHS: Record<string, number> = {
-  janvier: 1, fevrier: 2, février: 2, mars: 3, avril: 4, mai: 5, juin: 6,
-  juillet: 7, aout: 8, août: 8, septembre: 9, octobre: 10, novembre: 11, decembre: 12, décembre: 12,
-};
-
-const HOTEL_ADULT_WORDS: Record<string, number> = {
-  un: 1, une: 1, deux: 2, trois: 3, quatre: 4, cinq: 5, six: 6,
-};
-
-const toHotelIsoDate = (day: number, month: number, year?: number) => {
-  const now = new Date();
-  let resolvedYear = year || now.getFullYear();
-  const candidate = new Date(resolvedYear, month - 1, day);
-  if (!year && candidate < new Date(now.getFullYear(), now.getMonth(), now.getDate())) {
-    resolvedYear += 1;
-  }
-  return `${resolvedYear}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-};
-
-const parseClientHotelSearchIntent = (spoken: string, cityNames: string[]): HotelSearchIntent | null => {
-  const normalized = normalizeText(spoken || "");
-  if (!/\b(hotel|hotels|riad|riads|maison d hotes|maison d hote)\b/.test(normalized)) return null;
-
-  const cityFromList = [...cityNames]
-    .sort((a, b) => b.length - a.length)
-    .find(city => normalized.includes(normalizeText(city)));
-  const cityFromText = spoken.match(/(?:à|a|in)\s+([A-Za-zÀ-ÿ' -]+?)(?:\s+(?:pour|du|de|from|avec|le|la nuit|les nuits)\b|$)/i)?.[1]?.trim();
-  const city = cityFromList || cityFromText;
-  if (!city) return null;
-
-  const dateWithTwoMonths = spoken.match(/(?:du|from)\s+(\d{1,2})(?:er)?\s+([A-Za-zÀ-ÿ]+)\s+(?:au|to|jusqu(?:'|’)au|-)\s+(\d{1,2})(?:er)?\s+([A-Za-zÀ-ÿ]+)(?:\s+(\d{4}))?/i);
-  const dateWithOneMonth = spoken.match(/(?:du|from)\s+(\d{1,2})(?:er)?\s+(?:au|to|jusqu(?:'|’)au|-)\s+(\d{1,2})(?:er)?\s+([A-Za-zÀ-ÿ]+)(?:\s+(\d{4}))?/i);
-
-  let checkIn: string | undefined;
-  let checkOut: string | undefined;
-  if (dateWithTwoMonths) {
-    const monthIn = HOTEL_MONTHS[dateWithTwoMonths[2].toLowerCase()];
-    const monthOut = HOTEL_MONTHS[dateWithTwoMonths[4].toLowerCase()];
-    const year = dateWithTwoMonths[5] ? Number(dateWithTwoMonths[5]) : undefined;
-    if (monthIn && monthOut) {
-      checkIn = toHotelIsoDate(Number(dateWithTwoMonths[1]), monthIn, year);
-      checkOut = toHotelIsoDate(Number(dateWithTwoMonths[3]), monthOut, year);
-    }
-  } else if (dateWithOneMonth) {
-    const month = HOTEL_MONTHS[dateWithOneMonth[3].toLowerCase()];
-    const year = dateWithOneMonth[4] ? Number(dateWithOneMonth[4]) : undefined;
-    if (month) {
-      checkIn = toHotelIsoDate(Number(dateWithOneMonth[1]), month, year);
-      checkOut = toHotelIsoDate(Number(dateWithOneMonth[2]), month, year);
-    }
-  }
-
-  const adultMatch = normalized.match(/(\d+|un|une|deux|trois|quatre|cinq|six)\s+adultes?/);
-  const adults = adultMatch ? (Number(adultMatch[1]) || HOTEL_ADULT_WORDS[adultMatch[1]]) : undefined;
-  return { city, checkIn, checkOut, adults };
-};
-
 
 
 
@@ -982,9 +923,22 @@ const SearchPage = () => {
         gammes: gammes.map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })),
       });
 
-      // Restrict the Search page list to only the available hotels (by business id)
+      // Restrict the Search page list to only the available hotels (by business id).
+      // Use pinIds (URL param) which is already wired end-to-end: dedicated fetch by IDs,
+      // no server pagination, no city/category filter — strict allow-list.
       const availableIds = hotels.map(h => h.businessId).filter(Boolean) as string[];
-      setAvailabilityRestrictedIds(availableIds.length > 0 ? new Set(availableIds) : null);
+      if (availableIds.length > 0) {
+        setAvailabilityRestrictedIds(new Set(availableIds));
+        setSearchParams({
+          q: "hôtel",
+          category: "Hôtellerie",
+          city: cityName,
+          spoken: `hôtel à ${cityName}`,
+          pinIds: availableIds.join(","),
+        });
+      } else {
+        setAvailabilityRestrictedIds(null);
+      }
 
       if (hotels.length === 0) {
         ttsSpeak(lang === "en"
@@ -1269,6 +1223,11 @@ const SearchPage = () => {
 
     const hasActiveSearch = !!searchQuery.trim() || !!categoryFromUrl;
 
+    // Voice hotel search: restrict to available hotels only (applied BEFORE timeSlot/sort branches)
+    if (availabilityRestrictedIds && availabilityRestrictedIds.size > 0) {
+      filtered = filtered.filter(b => availabilityRestrictedIds.has(b.id));
+    }
+
     if (activeTimeSlot) {
       // Keep backend order inside each bucket, only prioritize "open during slot"
       const openDuring: Business[] = [];
@@ -1282,11 +1241,6 @@ const SearchPage = () => {
         }
       }
       return [...openDuring.sort(sortWtuceAndRating), ...rest.sort(sortWtuceAndRating)];
-    }
-
-    // Voice hotel search: restrict to available hotels only
-    if (availabilityRestrictedIds && availabilityRestrictedIds.size > 0) {
-      filtered = filtered.filter(b => availabilityRestrictedIds.has(b.id));
     }
 
     // pinIds: explicit allow-list of business IDs (e.g. from /fiche/:slug → KP group)
