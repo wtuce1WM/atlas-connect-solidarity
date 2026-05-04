@@ -1947,8 +1947,9 @@ const Home = () => {
               setVideoBadgeFilter(null);
               setVideoEventFilter(null);
               setVideoPopularSearchFilter(null);
-              setSelectedEntryId(HOME_ID);
-              setSelectedSubId(null);
+              // Preserve the current category (entry/sub) when switching city,
+              // so clicking the toggle navigates to "City + Category" instead of resetting to Home.
+              // If no category is selected, this naturally lands on the City home.
             }}
             onLabelClick={(info, cityForLabel) => handleHomeLabelClick(info, cityForLabel)}
           />
