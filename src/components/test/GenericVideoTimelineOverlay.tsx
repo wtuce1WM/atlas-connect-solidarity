@@ -278,33 +278,37 @@ const GenericVideoTimelineOverlay = ({ genericVideoId, currentTime }: Props) => 
       {reachedItems.length > 0 && (
         <div
           ref={scrollRef}
-          className="absolute top-3 left-16 right-3 z-20 flex flex-row gap-2 overflow-x-auto scrollbar-hide pb-1 pl-2"
-          style={{ scrollbarWidth: "none" }}
+          className="absolute top-3 left-16 right-3 z-20 overflow-hidden pb-1"
         >
-          {reachedItems.map((it) => {
-            const isActive = it.id === activeId;
-            return (
-              <div
-                key={it.id}
-                ref={isActive ? activeRef : undefined}
-                className={`shrink-0 w-[33%] min-w-[180px] rounded-md bg-black/65 backdrop-blur-sm px-3 py-2 text-white shadow-lg animate-in fade-in slide-in-from-left-2 duration-300 transition-colors ${
-                  isActive ? "border-2 border-gold" : "border border-white/10"
-                }`}
-              >
-                <p className="text-sm font-semibold leading-tight break-words">{it.name}</p>
-                {it.hook && (
-                  <p className="text-[11px] text-white/85 leading-snug mt-0.5 break-words">
-                    {it.hook}
-                  </p>
-                )}
-                {it.ratingOn20 != null && (
-                  <p className="text-xs font-bold text-gold mt-1">
-                    {formatRating(it.ratingOn20)}/20
-                  </p>
-                )}
-              </div>
-            );
-          })}
+          <div
+            className="flex flex-row gap-2 transition-transform duration-500 ease-out"
+            style={{ transform: `translateX(${rowOffset}px)` }}
+          >
+            {reachedItems.map((it) => {
+              const isActive = it.id === activeId;
+              return (
+                <div
+                  key={it.id}
+                  ref={isActive ? activeRef : undefined}
+                  className={`shrink-0 w-[180px] rounded-md bg-black/65 backdrop-blur-sm px-3 py-2 text-white shadow-lg animate-in fade-in duration-300 transition-colors ${
+                    isActive ? "border-2 border-gold" : "border border-white/10"
+                  }`}
+                >
+                  <p className="text-sm font-semibold leading-tight break-words">{it.name}</p>
+                  {it.hook && (
+                    <p className="text-[11px] text-white/85 leading-snug mt-0.5 break-words">
+                      {it.hook}
+                    </p>
+                  )}
+                  {it.ratingOn20 != null && (
+                    <p className="text-xs font-bold text-gold mt-1">
+                      {formatRating(it.ratingOn20)}/20
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
       {reachedItems.length > 0 && (
