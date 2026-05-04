@@ -1859,57 +1859,7 @@ const Home = () => {
   };
 
   const structureList = (
-    <>
-      <div className="mb-4">
-        <Tabs
-          value={city.toLowerCase()}
-          onValueChange={(v) => {
-            const next = (v.charAt(0).toUpperCase() + v.slice(1)) as City;
-            if (CITIES.includes(next)) setCity(next);
-          }}
-        >
-          <TabsList>
-            {CITIES.map((c) => (
-              <TabsTrigger key={c} value={c.toLowerCase()}>{c}</TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-      </div>
-
-      {loading && topLevelEntries.length === 0 ? (
-        <p className="text-xs text-muted-foreground">Chargement…</p>
-      ) : visibleEntries.filter((e) => e.id !== HOME_ID).length === 0 ? (
-        <p className="text-xs text-muted-foreground">Aucune entrée pour {city}.</p>
-      ) : (
-        <ul className="space-y-1">
-          {visibleEntries.filter((e) => e.id !== HOME_ID).map((e) => {
-            const isActive = e.id === selectedEntryId;
-            return (
-              <li key={e.id}>
-                <div
-                  onClick={() => {
-                    setSelectedEntryId(e.id);
-                    setSelectedSubId(null);
-                    setMenuOpen(false);
-                  }}
-                  className={`px-3 py-2 rounded-md text-sm cursor-pointer transition-colors ${
-                    isActive && !selectedSubId
-                      ? "bg-primary text-primary-foreground"
-                      : isActive
-                      ? "bg-muted text-foreground"
-                      : "text-foreground hover:bg-muted"
-                  }`}
-                >
-                  {e.name}
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-
-      <HeaderMenuContent onNavigate={() => setMenuOpen(false)} />
-    </>
+    <HeaderMenuContent onNavigate={() => setMenuOpen(false)} />
   );
 
   return (
