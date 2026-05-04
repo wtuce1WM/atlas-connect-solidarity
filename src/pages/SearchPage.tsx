@@ -3285,6 +3285,7 @@ const SearchPage = () => {
                   showSearchBar
                   closeTrigger={mapPanelCloseTrigger}
                   onMosaicStateChange={setIsNestedMosaicOpen}
+                  onHotelSearch={handleHotelSearch}
                   onSearch={(params) => {
                     setSelectedCategoryFilter(null);
                     setSelectedSubcategoryFilter(null);
