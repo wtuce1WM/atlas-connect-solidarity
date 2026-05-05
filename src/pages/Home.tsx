@@ -429,67 +429,37 @@ const Home = () => {
     };
   }, [menuOpen]);
 
-  // Load front structure (independent of city) — stale-while-revalidate
+  // Bootstrap: front structure + badges + generic videos in 1 round-trip (edge function)
+  // Stale-while-revalidate from localStorage for instant repeat-visit display.
   useEffect(() => {
-    type FrontStructurePayload = {
-      entries: FrontEntry[];
-      subcatNames: Record<string, string>;
-      serviceNames: Record<string, string>;
+    type BootstrapPayload = {
+      frontStructure: {
+        entries: FrontEntry[];
+        subcatNames: Record<string, string>;
+        serviceNames: Record<string, string>;
+      };
+      badgeNames: Record<string, string>;
+      genericVideoIds: string[];
     };
 
-    const apply = (payload: FrontStructurePayload) => {
-      setSubcatNames(payload.subcatNames);
-      setServiceNames(payload.serviceNames);
-      setEntries(payload.entries);
+    const apply = (p: BootstrapPayload) => {
+      setSubcatNames(p.frontStructure.subcatNames);
+      setServiceNames(p.frontStructure.serviceNames);
+      setEntries(p.frontStructure.entries);
+      setBadgeNamesById(p.badgeNames);
+      setGenericVideoIds(new Set(p.genericVideoIds));
     };
 
-    const cached = getCached<FrontStructurePayload>("home:frontStructure");
+    const cached = getCached<BootstrapPayload>("home:bootstrap");
     if (cached) apply(cached);
 
     let cancelled = false;
-    revalidate<FrontStructurePayload>(
-      "home:frontStructure",
+    revalidate<BootstrapPayload>(
+      "home:bootstrap",
       async () => {
-        const [entriesRes, linksRes, svcLinksRes, badgeLinksRes, subsRes, servicesRes] = await Promise.all([
-          supabase.from("front_structure").select("*").order("sort_order"),
-          supabase.from("front_structure_subcategories").select("*"),
-          supabase.from("front_structure_services" as any).select("*"),
-          supabase.from("front_structure_badges" as any).select("*"),
-          supabase.from("subcategories").select("id, name_fr, category_id"),
-          supabase.from("services").select("id, name_fr").eq("is_active", true),
-        ]);
-
-        const subMap: Record<string, string> = {};
-        (subsRes.data || []).forEach((s: any) => { subMap[s.id] = s.name_fr; });
-
-        const svcMap: Record<string, string> = {};
-        (servicesRes.data || []).forEach((s: any) => { svcMap[s.id] = s.name_fr; });
-
-        const linksByEntry: Record<string, string[]> = {};
-        (linksRes.data || []).forEach((l: any) => {
-          (linksByEntry[l.front_structure_id] ||= []).push(l.subcategory_id);
-        });
-        const svcLinksByEntry: Record<string, string[]> = {};
-        ((svcLinksRes.data || []) as any[]).forEach((l: any) => {
-          (svcLinksByEntry[l.front_structure_id] ||= []).push(l.service_id);
-        });
-        const badgeLinksByEntry: Record<string, string[]> = {};
-        ((badgeLinksRes.data || []) as any[]).forEach((l: any) => {
-          (badgeLinksByEntry[l.front_structure_id] ||= []).push(l.badge_id);
-        });
-
-        const builtEntries: FrontEntry[] = (entriesRes.data || [])
-          .filter((e: any) => e.show_in_menu !== false)
-          .map((e: any) => ({
-            id: e.id,
-            name: e.name,
-            sort_order: e.sort_order,
-            subcategory_ids: linksByEntry[e.id] || [],
-            service_ids: svcLinksByEntry[e.id] || [],
-            badge_ids: badgeLinksByEntry[e.id] || [],
-          }));
-
-        return { entries: builtEntries, subcatNames: subMap, serviceNames: svcMap };
+        const { data, error } = await supabase.functions.invoke("home-bootstrap");
+        if (error || !data) throw error || new Error("home-bootstrap failed");
+        return data as BootstrapPayload;
       },
       (fresh) => { if (!cancelled) apply(fresh); }
     );
