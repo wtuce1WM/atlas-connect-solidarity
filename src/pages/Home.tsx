@@ -53,6 +53,7 @@ import { resolveHomepageCity, readLastHomepageCity, writeLastHomepageCity } from
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { sortWtuceAndRating } from "@/lib/businessRanking";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
+import { getCached, revalidate } from "@/lib/swrCache";
 
 interface FrontEntry {
   id: string;
