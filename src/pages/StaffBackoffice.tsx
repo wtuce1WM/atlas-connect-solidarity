@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Plus, Search, Edit, Trash2, Eye, EyeOff, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle, LayoutDashboard, Crown, CheckCircle, Settings2, ArrowLeft, ClipboardList, Wrench, Key, Hotel, CalendarDays } from "lucide-react";
+import { LogOut, Plus, Search, Edit, Trash2, Eye, EyeOff, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle, LayoutDashboard, Crown, CheckCircle, Settings2, ArrowLeft, ClipboardList, Wrench, Key, Hotel, CalendarDays, QrCode } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import BusinessForm from "@/components/staff/BusinessForm";
 import BusinessTable, { type PriceCacheEntry } from "@/components/staff/BusinessTable";
@@ -34,6 +34,7 @@ import KeywordManagement from "@/components/staff/KeywordManagement";
 import HotelMappingManagement from "@/components/staff/HotelMappingManagement";
 import SocialLinksManagement from "@/components/staff/SocialLinksManagement";
 import EventManagement from "@/components/staff/EventManagement";
+import QRCodeManagement from "@/components/staff/QRCodeManagement";
 
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -487,6 +488,10 @@ const StaffBackoffice = () => {
                 <Hotel className="h-4 w-4" />
                 Mapping Hôtels
               </TabsTrigger>
+              <TabsTrigger value="qr-codes" className="gap-2">
+                <QrCode className="h-4 w-4" />
+                QR Codes
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="dashboard">
@@ -827,6 +832,10 @@ const StaffBackoffice = () => {
 
             <TabsContent value="hotel-mapping">
               <HotelMappingManagement />
+            </TabsContent>
+
+            <TabsContent value="qr-codes">
+              <QRCodeManagement businesses={businesses as any} />
             </TabsContent>
 
           </Tabs>
