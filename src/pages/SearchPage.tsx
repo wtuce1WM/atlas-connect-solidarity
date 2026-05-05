@@ -935,9 +935,15 @@ const SearchPage = () => {
         setAllBusinesses(hotelBusinesses);
         setTotalCount(null);
         setSearchMessage("");
+        // Pin the IDs in the URL so the standard text-search effect (which runs
+        // in parallel and would otherwise overwrite allBusinesses with its own,
+        // often single, name-match) cannot clobber the SerpAPI hotel list.
+        setSearchParams(prev => {
+          const next = new URLSearchParams(prev);
+          next.set("pinIds", availableIds.join(","));
+          return next;
+        }, { replace: true });
       }
-
-      // N'altère plus la page Search en arrière-plan : seul l'overlay s'affiche.
 
     } catch (err) {
       console.error("Hotel search voice error:", err);
