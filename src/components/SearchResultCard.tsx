@@ -1,6 +1,7 @@
 import { Building2, Star, MapPin, Leaf, Truck, Accessibility, Package, Award } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import { isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHours";
+import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 
 export interface SearchResultBusiness {
   id: string;
