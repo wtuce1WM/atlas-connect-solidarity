@@ -359,16 +359,21 @@ const Home = () => {
   const [videoBadgeDocIds, setVideoBadgeDocIds] = useState<Set<string> | null>(null);
   const [badgeNamesById, setBadgeNamesById] = useState<Record<string, string>>({});
 
-  // Load all badge names once (small table)
+  // Load all badge names once (small table) — stale-while-revalidate from localStorage
   useEffect(() => {
+    const cached = getCached<Record<string, string>>("home:badgeNames");
+    if (cached) setBadgeNamesById(cached);
     let cancelled = false;
-    (async () => {
-      const { data } = await supabase.from("badges").select("id, name_fr");
-      if (cancelled || !data) return;
-      const map: Record<string, string> = {};
-      for (const b of data as any[]) map[b.id] = b.name_fr;
-      setBadgeNamesById(map);
-    })();
+    revalidate<Record<string, string>>(
+      "home:badgeNames",
+      async () => {
+        const { data } = await supabase.from("badges").select("id, name_fr");
+        const map: Record<string, string> = {};
+        for (const b of (data as any[]) || []) map[b.id] = b.name_fr;
+        return map;
+      },
+      (fresh) => { if (!cancelled) setBadgeNamesById(fresh); }
+    );
     return () => { cancelled = true; };
   }, []);
 
