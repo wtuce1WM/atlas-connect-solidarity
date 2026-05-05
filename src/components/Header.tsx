@@ -188,7 +188,10 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
           <div className="flex items-center gap-2 shrink-0">
             {leftContent ?? defaultLeft}
           </div>
-          <div className="flex-1 min-w-0 ml-2">
+          <div
+            className="flex-1 min-w-0 ml-2"
+            onClickCapture={() => { if (menuOpen) setMenuOpen(false); }}
+          >
             {rightContent ?? <GlobalHeaderToolbar />}
           </div>
         </div>
