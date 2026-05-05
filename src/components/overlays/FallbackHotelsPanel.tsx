@@ -177,6 +177,15 @@ const FallbackHotelsPanel = ({ data, selectedHotelId, onClose, onSelectHotel, in
   const { language } = useLanguage();
   const isEn = language === "en";
 
+  useEffect(() => {
+    if (inline) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [inline]);
+
   const sortedHotels = [...data.hotels.filter(h => !h.isCurrentHotel)].sort((a, b) => {
     const aV = a.wtuce_status === "verified" ? 1 : 0;
     const bV = b.wtuce_status === "verified" ? 1 : 0;
