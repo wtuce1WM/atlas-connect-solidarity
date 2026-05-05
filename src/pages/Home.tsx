@@ -1620,11 +1620,18 @@ const Home = () => {
   // (Don't rely solely on selectedEntryId — generic videos can be opened from badges, events, etc.)
   const [genericVideoIds, setGenericVideoIds] = useState<Set<string>>(new Set());
   useEffect(() => {
+    const key = "home:genericVideoIds";
+    const cached = getCached<string[]>(key);
+    if (cached) setGenericVideoIds(new Set(cached));
     let cancelled = false;
-    (async () => {
-      const { data } = await (supabase as any).from("generic_videos").select("id");
-      if (!cancelled && data) setGenericVideoIds(new Set((data as any[]).map((r) => r.id)));
-    })();
+    revalidate<string[]>(
+      key,
+      async () => {
+        const { data } = await (supabase as any).from("generic_videos").select("id");
+        return ((data as any[]) || []).map((r) => r.id);
+      },
+      (fresh) => { if (!cancelled) setGenericVideoIds(new Set(fresh)); }
+    );
     return () => { cancelled = true; };
   }, []);
 
