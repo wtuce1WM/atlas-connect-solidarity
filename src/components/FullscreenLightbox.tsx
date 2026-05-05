@@ -104,23 +104,9 @@ const FullscreenLightbox = ({ items, currentIndex, onIndexChange, onClose }: Ful
       </button>
       {renderMedia()}
       {count > 1 && (
-        <>
-          <button
-            onClick={goPrev}
-            className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-neutral-700/80 hover:bg-neutral-600/90 transition-colors"
-          >
-            <ChevronLeft className="h-6 w-6 text-white" />
-          </button>
-          <button
-            onClick={goNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-neutral-700/80 hover:bg-neutral-600/90 transition-colors"
-          >
-            <ChevronRight className="h-6 w-6 text-white" />
-          </button>
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-white/10 text-sm text-white">
-            {currentIndex + 1} / {count}
-          </div>
-        </>
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-white/10 text-sm text-white">
+          {currentIndex + 1} / {count}
+        </div>
       )}
     </div>,
     document.body
