@@ -1803,7 +1803,7 @@ const SearchPage = () => {
     };
 
     fetchData();
-  }, [searchQuery, categoryFromUrl, language, urlT, pinIdsParam, openBusinessParam]);
+  }, [searchQuery, categoryFromUrl, language, urlT, pinIdsParam]);
 
   // Fetch label logos for search result businesses
   useEffect(() => {
@@ -3130,18 +3130,33 @@ const SearchPage = () => {
           onClose={() => setHotelSearchPanel(null)}
           onSelectHotel={(_hotelId, businessId) => {
             if (businessId) {
-              // Restrict left-panel results to the hotels found available in the overlay
-              const availableIds = new Set<string>(
-                (hotelSearchPanel?.hotels || [])
-                  .map((h: any) => h.businessId)
-                  .filter((id: string | undefined): id is string => !!id)
-              );
-              if (availableIds.size > 0) {
-                setAvailabilityRestrictedIds(availableIds);
+              const hotelBusinesses = (hotelSearchPanel?.hotels || [])
+                .map((h: any) => h.dbBusiness)
+                .filter((biz: Business | null | undefined): biz is Business => !!biz?.id);
+              const availableBusinessIds = (hotelSearchPanel?.hotels || [])
+                .map((h: any) => h.businessId)
+                .filter((id: string | undefined): id is string => !!id);
+
+              if (hotelBusinesses.length > 0) {
+                setPinnedBusinesses(hotelBusinesses);
+                setAllBusinesses(hotelBusinesses);
+                setTotalCount(null);
+                setSearchMessage("");
               }
+
+              if (availableBusinessIds.length > 0) {
+                setAvailabilityRestrictedIds(new Set<string>(availableBusinessIds));
+              }
+
               setHotelSearchPanel(null);
+
               const next = new URLSearchParams(searchParams);
               next.set("openBusiness", businessId);
+
+              if (availableBusinessIds.length > 0) {
+                next.set("pinIds", availableBusinessIds.join(","));
+              }
+
               setSearchParams(next);
             }
           }}
