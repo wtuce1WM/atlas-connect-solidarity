@@ -332,6 +332,13 @@ const SlidePanelHome = ({
     if (!v) return;
     // Apply the user's persisted sound preference to this new video element
     v.muted = !soundOn;
+    const tryPlay = v.play();
+    if (tryPlay && typeof tryPlay.catch === "function") {
+      tryPlay.catch(() => {
+        v.muted = true;
+        v.play().catch(() => {});
+      });
+    }
     const onPlay = () => setFilePaused(false);
     const onPause = () => setFilePaused(true);
     const onVol = () => {
