@@ -2882,6 +2882,8 @@ const SearchPage = () => {
           hoveredPoiId={hoveredPoiId}
           setHoveredPoiId={setHoveredPoiId}
           onSearchNavigate={(params) => {
+            setCompactPanelBusiness(null);
+            setIsCompactPanelExpanded(false);
             setSelectedCategoryFilter(null);
             setSelectedSubcategoryFilter(null);
             setSelectedServiceFilter(null);
@@ -2920,6 +2922,8 @@ const SearchPage = () => {
           hoveredDestId={hoveredDestId}
           setHoveredDestId={setHoveredDestId}
           onSearchNavigate={(params) => {
+            setCompactPanelBusiness(null);
+            setIsCompactPanelExpanded(false);
             setSelectedCategoryFilter(null);
             setSelectedSubcategoryFilter(null);
             setSelectedServiceFilter(null);
@@ -2950,6 +2954,8 @@ const SearchPage = () => {
           setHideResultsMap={setHideResultsMap}
           mapPanelCloseTrigger={mapPanelCloseTrigger}
           onSearchNavigate={(params) => {
+            setCompactPanelBusiness(null);
+            setIsCompactPanelExpanded(false);
             setSelectedCategoryFilter(null);
             setSelectedSubcategoryFilter(null);
             setSelectedServiceFilter(null);
@@ -3066,6 +3072,8 @@ const SearchPage = () => {
             />
             <PanelSearchBar
               onSearch={(params) => {
+                setCompactPanelBusiness(null);
+                setIsCompactPanelExpanded(false);
                 setShowMobileMap(false);
                 setSelectedCategoryFilter(null);
                 setSelectedSubcategoryFilter(null);
@@ -3101,6 +3109,8 @@ const SearchPage = () => {
           setIsCompactPanelExpanded(false);
         }}
         onSearch={(params) => {
+          setCompactPanelBusiness(null);
+          setIsCompactPanelExpanded(false);
           setSelectedCategoryFilter(null);
           setSelectedSubcategoryFilter(null);
           setSelectedServiceFilter(null);
@@ -3294,6 +3304,8 @@ const SearchPage = () => {
                   initialAvailabilityCheckOut={latestHotelSearchDates.checkOut}
                   initialAvailabilityAdults={latestHotelSearchDates.adults}
                   onSearch={(params) => {
+                    setCompactPanelBusiness(null);
+                    setIsCompactPanelExpanded(false);
                     setSelectedCategoryFilter(null);
                     setSelectedSubcategoryFilter(null);
                     setSelectedServiceFilter(null);
