@@ -19,7 +19,8 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === "development" && componentTagger(),
-    visualizer({ filename: "dist/stats.html", template: "treemap", gzipSize: true, brotliSize: false }) as any,
+    // Bundle analyzer — only when ANALYZE=1 is set. Generates dist/stats.html.
+    process.env.ANALYZE === "1" && (visualizer({ filename: "dist/stats.html", template: "treemap", gzipSize: true, brotliSize: false }) as any),
   ].filter(Boolean),
   resolve: {
     alias: {
