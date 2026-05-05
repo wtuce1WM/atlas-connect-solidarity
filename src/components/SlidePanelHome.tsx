@@ -392,11 +392,13 @@ const SlidePanelHome = ({
         <div className="absolute top-0 left-0 right-0 z-[70] flex items-center justify-between px-4 py-2 pointer-events-none">
           <button
             type="button"
-            onClick={onClose}
-            className="pointer-events-auto h-9 w-9 flex items-center justify-center rounded-full bg-white text-black shadow-2xl hover:bg-white/90 transition-opacity"
+            onPointerUp={(e) => { e.preventDefault(); e.stopPropagation(); onClose(); }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose(); }}
+            className="pointer-events-auto h-11 w-11 flex items-center justify-center rounded-full bg-white text-black shadow-2xl hover:bg-white/90 transition-opacity touch-manipulation"
+            style={{ WebkitTapHighlightColor: "transparent" }}
             aria-label="Fermer"
           >
-            <X className="h-4 w-4" />
+            <X className="h-5 w-5" />
           </button>
           <div className="pointer-events-auto flex items-center gap-6">
             {ctaBusiness?.whatsapp ? (
