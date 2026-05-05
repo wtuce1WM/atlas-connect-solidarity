@@ -49,7 +49,7 @@
                   var u = t;
                   // Same low-res transform as React (width=240, quality=50) for LCP
                   if (/\/storage\/v1\/object\/public\//.test(t) && !/\?/.test(t)) {
-                    u = t.replace("/object/public/", "/render/image/public/") + "?width=240&quality=50";
+                    u = t.replace("/object/public/", "/render/image/public/") + "?width=200&quality=45";
                   }
                   var link = document.createElement("link");
                   link.rel = "preload"; link.as = "image"; link.href = u;
