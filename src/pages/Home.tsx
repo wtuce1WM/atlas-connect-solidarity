@@ -513,11 +513,15 @@ const Home = () => {
 
   // Resolve the cities table id (for multi-city video assignments)
   useEffect(() => {
+    const key = `home:cityRowId:${city}`;
+    const cached = getCached<string | null>(key);
+    if (cached) setCityRowId(cached);
     let cancelled = false;
-    (async () => {
-      const id = await getCityIdByName(city);
-      if (!cancelled) setCityRowId(id);
-    })();
+    revalidate<string | null>(
+      key,
+      async () => (await getCityIdByName(city)) ?? null,
+      (fresh) => { if (!cancelled) setCityRowId(fresh); }
+    );
     return () => { cancelled = true; };
   }, [city]);
 
@@ -1616,11 +1620,18 @@ const Home = () => {
   // (Don't rely solely on selectedEntryId — generic videos can be opened from badges, events, etc.)
   const [genericVideoIds, setGenericVideoIds] = useState<Set<string>>(new Set());
   useEffect(() => {
+    const key = "home:genericVideoIds";
+    const cached = getCached<string[]>(key);
+    if (cached) setGenericVideoIds(new Set(cached));
     let cancelled = false;
-    (async () => {
-      const { data } = await (supabase as any).from("generic_videos").select("id");
-      if (!cancelled && data) setGenericVideoIds(new Set((data as any[]).map((r) => r.id)));
-    })();
+    revalidate<string[]>(
+      key,
+      async () => {
+        const { data } = await (supabase as any).from("generic_videos").select("id");
+        return ((data as any[]) || []).map((r) => r.id);
+      },
+      (fresh) => { if (!cancelled) setGenericVideoIds(new Set(fresh)); }
+    );
     return () => { cancelled = true; };
   }, []);
 
