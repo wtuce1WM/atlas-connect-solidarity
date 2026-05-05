@@ -50,9 +50,11 @@
                 var t = payload[0].data.thumbnail;
                 if (t) {
                   var u = t;
-                  // Same low-res transform as React (width=240, quality=50) for LCP
+                  // MUST match optimizeSupabaseImage(url, { width: 400 }) in src/pages/Home.tsx
+                  // (width=400, quality=70, resize=contain) — otherwise the preloaded bytes
+                  // differ from what React actually requests and the preload is wasted.
                   if (/\/storage\/v1\/object\/public\//.test(t) && !/\?/.test(t)) {
-                    u = t.replace("/object/public/", "/render/image/public/") + "?width=200&quality=45";
+                    u = t.replace("/object/public/", "/render/image/public/") + "?width=400&quality=70&resize=contain";
                   }
                   var link = document.createElement("link");
                   link.rel = "preload"; link.as = "image"; link.href = u;
