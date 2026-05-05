@@ -1571,24 +1571,8 @@ const Home = () => {
     setCurrentTime(0);
   }, [activeVideo?.id]);
 
-  // Detect if the active video is a generic video by checking generic_videos table.
-  // (Don't rely solely on selectedEntryId — generic videos can be opened from badges, events, etc.)
+  // Generic video ids are loaded by the home-bootstrap edge function (see useEffect above).
   const [genericVideoIds, setGenericVideoIds] = useState<Set<string>>(new Set());
-  useEffect(() => {
-    const key = "home:genericVideoIds";
-    const cached = getCached<string[]>(key);
-    if (cached) setGenericVideoIds(new Set(cached));
-    let cancelled = false;
-    revalidate<string[]>(
-      key,
-      async () => {
-        const { data } = await (supabase as any).from("generic_videos").select("id");
-        return ((data as any[]) || []).map((r) => r.id);
-      },
-      (fresh) => { if (!cancelled) setGenericVideoIds(new Set(fresh)); }
-    );
-    return () => { cancelled = true; };
-  }, []);
 
   const isActiveGeneric = useMemo(
     () => !!activeVideo && (selectedEntryId === VLOGS_ID || genericVideoIds.has(activeVideo.id)),
