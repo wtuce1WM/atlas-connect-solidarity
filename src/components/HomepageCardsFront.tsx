@@ -1,11 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Star } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
-import SlidePanelHome from "@/components/SlidePanelHome";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 import { getCached, setCached } from "@/lib/swrCache";
+
+// Heavy player/overlay — never visible at first paint. Code-split out of the initial bundle.
+const SlidePanelHome = lazy(() => import("@/components/SlidePanelHome"));
 
 export type HomeCardTarget = { type: "badge" | "event"; id: string } | null;
 
