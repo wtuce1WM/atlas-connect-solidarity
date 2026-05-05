@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { supabase } from "@/integrations/supabase/client";
 import { CITIES, type City, HOME_ID } from "@/lib/homeHelpers";
 import { readLastHomepageCity, writeLastHomepageCity } from "@/lib/cityHomepage";
