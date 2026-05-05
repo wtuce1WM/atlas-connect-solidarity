@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { supabase } from "@/integrations/supabase/client";
 import { CITIES, type City, HOME_ID } from "@/lib/homeHelpers";
 import { readLastHomepageCity, writeLastHomepageCity } from "@/lib/cityHomepage";
@@ -84,19 +84,25 @@ const StructureMenuContent = ({ onNavigate }: Props) => {
   return (
     <>
       <div className="mb-4">
-        <Tabs
-          value={city.toLowerCase()}
-          onValueChange={(v) => {
-            const next = (v.charAt(0).toUpperCase() + v.slice(1)) as City;
-            if (CITIES.includes(next)) goCity(next);
-          }}
-        >
-          <TabsList>
-            {CITIES.map((c) => (
-              <TabsTrigger key={c} value={c.toLowerCase()}>{c}</TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
+        <div role="tablist" className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground">
+          {CITIES.map((c) => {
+            const isActive = c === city;
+            return (
+              <button
+                key={c}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => goCity(c)}
+                className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium transition-all ${
+                  isActive ? "bg-background text-foreground shadow-sm" : "hover:text-foreground"
+                }`}
+              >
+                {c}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {!isSearchPage && (
