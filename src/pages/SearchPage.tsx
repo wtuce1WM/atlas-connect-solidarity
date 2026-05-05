@@ -1649,6 +1649,7 @@ const SearchPage = () => {
             language: language,
             pageSize: SERVER_PAGE_SIZE,
             offset: 0,
+            compact: "card",
           }
         });
 
