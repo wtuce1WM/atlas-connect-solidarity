@@ -41,11 +41,6 @@ const SlidePanelHeader = ({
       <div className="flex items-center gap-3 shrink-0 relative z-10">
         <button
           type="button"
-          onPointerDown={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onClose();
-          }}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
