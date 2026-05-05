@@ -146,6 +146,28 @@ const Home = () => {
     document.head.appendChild(link);
     return () => { try { document.head.removeChild(link); } catch {} };
   }, [videos]);
+
+  // Reset visible count when videos list changes (new entry/sub/badge/city)
+  useEffect(() => {
+    setVisibleCount(INITIAL_VISIBLE);
+  }, [videos]);
+
+  // Infinite scroll observer: load more cards when sentinel approaches viewport
+  useEffect(() => {
+    const el = loadMoreSentinelRef.current;
+    if (!el) return;
+    if (visibleCount >= videos.length) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setVisibleCount((c) => Math.min(c + VISIBLE_INCREMENT, videos.length));
+        }
+      },
+      { rootMargin: "600px 0px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [visibleCount, videos.length]);
   const [entriesWithVideos, setEntriesWithVideos] = useState<Set<string>>(new Set());
   const [subsWithVideos, setSubsWithVideos] = useState<Set<string>>(new Set());
   const [cityRowId, setCityRowId] = useState<string | null>(null);
