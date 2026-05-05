@@ -136,6 +136,37 @@ const SearchPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlQ, urlT]);
 
+  // Text-search hotel intent: when typed query looks like a hotel search sentence,
+  // run the same intent extraction used by voice and trigger the hotel availability flow.
+  const lastTextHotelKeyRef = useRef<string>("");
+  useEffect(() => {
+    if (!urlQ) return;
+    const looksLikeHotelSearch = /h[oô]tel/i.test(urlQ) && /\s/.test(urlQ);
+    if (!looksLikeHotelSearch) return;
+    // Skip if this query was already triggered by the voice flow (spoken param present)
+    if (searchParams.get("spoken")) return;
+    const key = `${urlQ}::${urlT}`;
+    if (lastTextHotelKeyRef.current === key) return;
+    lastTextHotelKeyRef.current = key;
+    (async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("voice-search-intent", {
+          body: { transcript: urlQ },
+        });
+        if (error || !data) return;
+        if (data.intent === "hotelSearch" && data.hotelSearch) {
+          handleHotelSearch(data.hotelSearch);
+        } else if (data.intent === "hotelAvailability" && data.hotelAvailability) {
+          handleHotelAvailability(data.hotelAvailability, urlQ);
+        }
+      } catch (e) {
+        console.warn("Text hotel intent extraction failed:", e);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlQ, urlT]);
+
+
 
   // Handle openBusiness URL param (from FloatingSearchBar recently viewed)
   const lastOpenedBusinessParamRef = useRef<string | null>(null);
