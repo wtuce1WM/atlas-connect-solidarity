@@ -698,7 +698,8 @@ serve(async (req) => {
       spoken,
     skipRerank,
     mainCategory,
-    }: SearchParams & { language?: string; mode?: string; spoken?: string; skipRerank?: boolean; mainCategory?: string } = await req.json();
+    compact,
+    }: SearchParams & { language?: string; mode?: string; spoken?: string; skipRerank?: boolean; mainCategory?: string; compact?: "ids" | "card" | null } = await req.json();
 
     const isAutocomplete = mode === "autocomplete";
 
