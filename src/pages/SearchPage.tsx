@@ -3072,6 +3072,8 @@ const SearchPage = () => {
             />
             <PanelSearchBar
               onSearch={(params) => {
+                setCompactPanelBusiness(null);
+                setIsCompactPanelExpanded(false);
                 setShowMobileMap(false);
                 setSelectedCategoryFilter(null);
                 setSelectedSubcategoryFilter(null);
