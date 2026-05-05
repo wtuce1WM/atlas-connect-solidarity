@@ -1108,7 +1108,7 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
           ytBgPlaying={ytBgPlaying}
           ytBgMuted={ytBgMuted}
           setYtBgPlaying={setYtBgPlaying}
-          setYtBgMuted={setYtBgMuted}
+          setYtBgMuted={(m: boolean) => { setYtBgMuted(m); setGlobalSoundOn(!m); }}
           setShowDirections={setShowDirections}
           setShowBookingOverlay={setShowBookingOverlay}
           setBookingOverlayLoaded={setBookingOverlayLoaded}
