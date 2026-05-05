@@ -15,6 +15,7 @@ import { businessUrl, buildOgShareUrl } from "@/lib/businessUrl";
 import { buildKpSearchUrl } from "@/lib/buildKpSearchUrl";
 import { useVideoSoundPreference } from "@/hooks/useVideoSoundPreference";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
+import SlidePanelHeader from "@/components/SlidePanelHeader";
 import ShareButton from "@/components/ShareButton";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { whatsappUrl } from "@/lib/phoneUtils";
@@ -118,6 +119,8 @@ const SlidePanelHome = ({
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
   const [eventBusiness, setEventBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [businessDescription, setBusinessDescription] = useState<string | null>(null);
+  const [, forceRender] = useState(0);
+  useEffect(() => { if (open) forceRender((n) => n + 1); }, [open]);
 
   // Description source (video text is ALWAYS prioritary):
   // - If the video has its own description, use it.
@@ -387,54 +390,56 @@ const SlidePanelHome = ({
         ref={panelRef}
         className="absolute right-0 top-0 h-full w-full bg-background border-l border-border shadow-2xl animate-slide-in-right overflow-hidden"
       >
-        {/* Top toolbar : close + WhatsApp/Phone + Share */}
+        {/* Top toolbar : SlidePanelHeader (même base que SlidePanel de Search) */}
         {!descOverlayOpen && (
-        <div className="absolute top-0 left-0 right-0 z-[75] flex items-center justify-between px-4 py-2 bg-transparent overflow-visible pointer-events-none">
-          <div className="flex items-center gap-3 shrink-0 relative z-10 pointer-events-auto">
-            <button
-              type="button"
-              onClick={onClose}
-              className="h-9 w-9 flex items-center justify-center rounded-full bg-white text-black shadow-2xl hover:bg-white/90 transition-opacity"
-              title="Fermer"
-              aria-label="Fermer le panneau"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none [&>*]:pointer-events-auto">
-            {ctaBusiness?.whatsapp ? (
-              <a
-                href={whatsappUrl(ctaBusiness.whatsapp)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="h-9 w-9 flex items-center justify-center rounded-full text-white hover:opacity-90 transition-opacity"
-                style={{ backgroundColor: "#25D366" }}
-                aria-label="WhatsApp"
-              >
-                <WhatsAppIcon className="h-4 w-4" />
-              </a>
-            ) : ctaBusiness?.phone ? (
-              <a
-                href={`tel:${ctaBusiness.phone}`}
-                className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background hover:opacity-90 transition-opacity"
-                aria-label="Appeler"
-              >
-                <Phone className="h-4 w-4" />
-              </a>
-            ) : null}
-          </div>
-          <div className="flex items-center gap-3 shrink-0 relative z-10 pointer-events-auto">
-            {ctaBusiness && (
-              <ShareButton
-                title={ctaBusiness.name || businessName}
-                variant="dark"
-                className="shrink-0"
-                shareUrl={ctaBusiness.slug ? buildOgShareUrl(ctaBusiness.slug) : undefined}
-              />
-            )}
-          </div>
-        </div>
+          <SlidePanelHeader
+            onClose={onClose}
+            alwaysDark
+            toolbarLeftId="slide-panel-home-toolbar-left"
+            toolbarCenterId="slide-panel-home-toolbar-center"
+            toolbarRightId="slide-panel-home-toolbar-right"
+          />
         )}
+        {!descOverlayOpen && typeof document !== "undefined" && (() => {
+          const centerEl = document.getElementById("slide-panel-home-toolbar-center");
+          const rightEl = document.getElementById("slide-panel-home-toolbar-right");
+          return (
+            <>
+              {centerEl && createPortal(
+                ctaBusiness?.whatsapp ? (
+                  <a
+                    href={whatsappUrl(ctaBusiness.whatsapp)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="h-9 w-9 flex items-center justify-center rounded-full text-white hover:opacity-90 transition-opacity"
+                    style={{ backgroundColor: "#25D366" }}
+                    aria-label="WhatsApp"
+                  >
+                    <WhatsAppIcon className="h-4 w-4" />
+                  </a>
+                ) : ctaBusiness?.phone ? (
+                  <a
+                    href={`tel:${ctaBusiness.phone}`}
+                    className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background hover:opacity-90 transition-opacity"
+                    aria-label="Appeler"
+                  >
+                    <Phone className="h-4 w-4" />
+                  </a>
+                ) : <span />,
+                centerEl
+              )}
+              {rightEl && ctaBusiness && createPortal(
+                <ShareButton
+                  title={ctaBusiness.name || businessName}
+                  variant="dark"
+                  className="shrink-0"
+                  shareUrl={ctaBusiness.slug ? buildOgShareUrl(ctaBusiness.slug) : undefined}
+                />,
+                rightEl
+              )}
+            </>
+          );
+        })()}
 
         {/* BusinessHeader: Logo + Nom + Ville + Quartier + Adresse */}
         {!descOverlayOpen && !directionsBusiness && !searchOverlayOpen && !poiOverlayBusinessId && ctaBusiness && (
