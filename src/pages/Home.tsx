@@ -2039,7 +2039,8 @@ const Home = () => {
             const showHashtagsTile = true;
 
             const hashtagItems = hashtagBadges;
-            const displayList = otherVideos;
+            const displayList = otherVideos.slice(0, visibleCount);
+            const hasMore = visibleCount < otherVideos.length;
 
             const isParentEntry =
               !!selectedEntry &&
