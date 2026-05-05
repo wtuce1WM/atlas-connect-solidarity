@@ -2063,6 +2063,7 @@ const SearchPage = () => {
           language: language,
           pageSize: SERVER_PAGE_SIZE,
           offset,
+          compact: "card",
         }
       });
       if (error) throw error;
