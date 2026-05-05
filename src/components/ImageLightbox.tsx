@@ -38,7 +38,7 @@ const ImageLightbox = ({
             className="max-w-full max-h-full object-contain"
           />
 
-          {images.length > 1 && (
+          {false && images.length > 1 && (
             <>
               <Button
                 variant="ghost"
