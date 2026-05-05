@@ -106,6 +106,17 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
   // No dynamic <link rel="preload"> here — it competed with the JS bundle for bandwidth
   // and degraded FCP on mobile.
 
+  // #3 Preload the SlidePanelHome chunk after the homepage is idle, so the first
+  // click on a card opens instantly (chunk already in cache, no network round-trip).
+  useEffect(() => {
+    const ric: any = (window as any).requestIdleCallback || ((cb: any) => setTimeout(cb, 1500));
+    const handle = ric(() => { import("@/components/SlidePanelHome").catch(() => {}); });
+    return () => {
+      const cic: any = (window as any).cancelIdleCallback;
+      if (cic && typeof handle === "number") cic(handle);
+    };
+  }, []);
+
   // Playable slots only (have a video)
   const playableIndices = slots
     .map((s, i) => (s.data.videoId ? i : -1))
@@ -235,13 +246,25 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
     const immoBadge = null;
     // LCP image: smaller width (mobile-first) + low quality. Other vignettes: 400px.
     const optimizedThumb = optimizeSupabaseImage(it.thumbnail, isPriority ? { width: 200, quality: 45 } : { width: 400 });
+    // #8 Retina srcset: serve a 2x variant for high-DPI screens, original (1x) for mobile.
+    const thumb2x = isPriority
+      ? optimizeSupabaseImage(it.thumbnail, { width: 400, quality: 55 })
+      : optimizeSupabaseImage(it.thumbnail, { width: 800 });
+    const thumbSrcSet = optimizedThumb && thumb2x && thumb2x !== optimizedThumb
+      ? `${optimizedThumb} 1x, ${thumb2x} 2x`
+      : undefined;
+    // #6 content-visibility: skip layout/paint for off-screen cards. Keep the first
+    // row (6 cards on lg) eagerly rendered so LCP isn't delayed.
+    const cvStyle: React.CSSProperties | undefined = index >= 6
+      ? { contentVisibility: "auto", containIntrinsicSize: "auto 360px" } as React.CSSProperties
+      : undefined;
 
     if (!it.videoId) {
       return (
-        <div className="relative aspect-[9/16] rounded-lg bg-muted overflow-hidden flex items-center justify-center text-xs text-muted-foreground text-center px-2">
+        <div className="relative aspect-[9/16] rounded-lg bg-muted overflow-hidden flex items-center justify-center text-xs text-muted-foreground text-center px-2" style={cvStyle}>
           {it.thumbnail ? (
             <>
-              <img src={optimizedThumb || it.thumbnail} alt={it.businessName || it.label || ""} className="absolute inset-0 w-full h-full object-cover" loading={isPriority ? "eager" : "lazy"} fetchPriority={isPriority ? "high" : "auto"} decoding={isPriority ? "sync" : "async"} />
+              <img src={optimizedThumb || it.thumbnail} srcSet={thumbSrcSet} alt={it.businessName || it.label || ""} className="absolute inset-0 w-full h-full object-cover" loading={isPriority ? "eager" : "lazy"} fetchPriority={isPriority ? "high" : "auto"} decoding={isPriority ? "sync" : "async"} />
               <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/70 to-transparent pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
             </>
@@ -265,7 +288,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
     }
 
     return (
-      <div className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted group w-full">
+      <div className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted group w-full" style={cvStyle}>
         <button
           type="button"
           onClick={() => {
@@ -282,7 +305,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
           aria-label={it.label ? `Filtrer ${it.label}` : `Lire ${it.businessName || ""}`}
         >
           {it.thumbnail ? (
-            <img src={optimizedThumb || it.thumbnail} alt={it.businessName || ""} className="w-full h-full object-cover" loading={isPriority ? "eager" : "lazy"} fetchPriority={isPriority ? "high" : "auto"} decoding={isPriority ? "sync" : "async"} />
+            <img src={optimizedThumb || it.thumbnail} srcSet={thumbSrcSet} alt={it.businessName || ""} className="w-full h-full object-cover" loading={isPriority ? "eager" : "lazy"} fetchPriority={isPriority ? "high" : "auto"} decoding={isPriority ? "sync" : "async"} />
           ) : isFileVideo && it.videoUrl ? (
             <VideoThumbnail src={it.videoUrl} alt={it.businessName || ""} className="w-full h-full object-cover" />
           ) : (
