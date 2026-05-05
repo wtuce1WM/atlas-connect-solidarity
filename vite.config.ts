@@ -42,7 +42,12 @@ export default defineConfig(({ mode }) => ({
           if (id.includes("@tiptap") || id.includes("prosemirror")) return "vendor-tiptap";
           // React core — strict match (avoid catching @tiptap/react etc.)
           if (id.match(/node_modules\/(react|react-dom|react-router|react-router-dom|@remix-run\/router|scheduler)\//)) return "vendor-react";
-          if (id.includes("@radix-ui")) return "vendor-radix";
+          // Radix — split per primitive so each route only downloads what it uses.
+          if (id.includes("@radix-ui/react-")) {
+            const m = id.match(/@radix-ui\/react-([a-z-]+)/);
+            if (m) return `radix-${m[1]}`;
+          }
+          if (id.includes("@radix-ui")) return "vendor-radix-shared";
           if (id.includes("@supabase")) return "vendor-supabase";
           if (id.includes("@tanstack")) return "vendor-query";
           if (id.includes("lucide-react")) return "vendor-icons";
