@@ -886,6 +886,12 @@ const SearchPage = () => {
         gammes: gammes.map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })),
       });
 
+      // Restrict left panel results to the hotels matched against SerpAPI availability
+      const availableIds = hotels.map((h: any) => h.businessId).filter(Boolean);
+      if (availableIds.length > 0) {
+        setAvailabilityRestrictedIds(availableIds);
+      }
+
       // N'altère plus la page Search en arrière-plan : seul l'overlay s'affiche.
 
     } catch (err) {
