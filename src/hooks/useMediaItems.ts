@@ -62,7 +62,7 @@ export function useVideoInfo(effectiveMedia: MediaItem | null, defaultSoundOn?: 
 
   const videoInfo = useMemo(() => {
     if (effectiveMedia?.kind !== "video") return null;
-    const base = getVideoEmbed(effectiveMedia.url, window.location.origin, { background: true, defaultSoundOn: false, autoplay: true });
+    const base = getVideoEmbed(effectiveMedia.url, window.location.origin, { background: true, defaultSoundOn: defaultSoundOn ?? true, autoplay: true });
     if (base.type === "youtube") {
       return { ...base, embedUrl: base.embedUrl.replace(/controls=0/, "controls=1").replace(/disablekb=1/, "disablekb=0") };
     }
