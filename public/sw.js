@@ -8,8 +8,30 @@
 const SNAPSHOT_CACHE = "oneworld-snapshot-v1";
 const SNAPSHOT_PATH = "/rest/v1/homepage_cards_snapshots";
 
+// Cities to prewarm at install time. Keep in sync with the cities that have
+// a homepage snapshot. Navigation between these cities = instant (no network).
+const PREWARM_CITIES = ["Marrakech", "Essaouira"];
+const SUPABASE_BASE = "https://plnphgdrawpsnumnejzc.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsbnBoZ2RyYXdwc251bW5lanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjA5ODcsImV4cCI6MjA4NTgzNjk4N30.RwHKmL6E0Gd2LTVvDkfYx5RkZ-k7LKKp4iUoCS34pW4";
+
 self.addEventListener("install", (event) => {
-  event.waitUntil(self.skipWaiting());
+  event.waitUntil((async () => {
+    try {
+      const cache = await caches.open(SNAPSHOT_CACHE);
+      await Promise.all(PREWARM_CITIES.map(async (city) => {
+        const url = `${SUPABASE_BASE}${SNAPSHOT_PATH}?select=payload&city=eq.${encodeURIComponent(city)}`;
+        try {
+          const res = await fetch(url, {
+            headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}`, Accept: "application/json" },
+          });
+          if (res && res.ok) {
+            await cache.put(new Request(url, { method: "GET" }), res.clone());
+          }
+        } catch {}
+      }));
+    } catch {}
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener("activate", (event) => {
