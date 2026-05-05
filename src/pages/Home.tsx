@@ -359,23 +359,8 @@ const Home = () => {
   const [videoBadgeDocIds, setVideoBadgeDocIds] = useState<Set<string> | null>(null);
   const [badgeNamesById, setBadgeNamesById] = useState<Record<string, string>>({});
 
-  // Load all badge names once (small table) — stale-while-revalidate from localStorage
-  useEffect(() => {
-    const cached = getCached<Record<string, string>>("home:badgeNames");
-    if (cached) setBadgeNamesById(cached);
-    let cancelled = false;
-    revalidate<Record<string, string>>(
-      "home:badgeNames",
-      async () => {
-        const { data } = await supabase.from("badges").select("id, name_fr");
-        const map: Record<string, string> = {};
-        for (const b of (data as any[]) || []) map[b.id] = b.name_fr;
-        return map;
-      },
-      (fresh) => { if (!cancelled) setBadgeNamesById(fresh); }
-    );
-    return () => { cancelled = true; };
-  }, []);
+  // Badge names + front structure + generic video ids are now loaded together
+  // via the home-bootstrap edge function (single round-trip). See useEffect below.
 
   const hashtagBadges = useMemo(
     () => Object.entries(badgeNamesById)
@@ -444,67 +429,37 @@ const Home = () => {
     };
   }, [menuOpen]);
 
-  // Load front structure (independent of city) — stale-while-revalidate
+  // Bootstrap: front structure + badges + generic videos in 1 round-trip (edge function)
+  // Stale-while-revalidate from localStorage for instant repeat-visit display.
   useEffect(() => {
-    type FrontStructurePayload = {
-      entries: FrontEntry[];
-      subcatNames: Record<string, string>;
-      serviceNames: Record<string, string>;
+    type BootstrapPayload = {
+      frontStructure: {
+        entries: FrontEntry[];
+        subcatNames: Record<string, string>;
+        serviceNames: Record<string, string>;
+      };
+      badgeNames: Record<string, string>;
+      genericVideoIds: string[];
     };
 
-    const apply = (payload: FrontStructurePayload) => {
-      setSubcatNames(payload.subcatNames);
-      setServiceNames(payload.serviceNames);
-      setEntries(payload.entries);
+    const apply = (p: BootstrapPayload) => {
+      setSubcatNames(p.frontStructure.subcatNames);
+      setServiceNames(p.frontStructure.serviceNames);
+      setEntries(p.frontStructure.entries);
+      setBadgeNamesById(p.badgeNames);
+      setGenericVideoIds(new Set(p.genericVideoIds));
     };
 
-    const cached = getCached<FrontStructurePayload>("home:frontStructure");
+    const cached = getCached<BootstrapPayload>("home:bootstrap");
     if (cached) apply(cached);
 
     let cancelled = false;
-    revalidate<FrontStructurePayload>(
-      "home:frontStructure",
+    revalidate<BootstrapPayload>(
+      "home:bootstrap",
       async () => {
-        const [entriesRes, linksRes, svcLinksRes, badgeLinksRes, subsRes, servicesRes] = await Promise.all([
-          supabase.from("front_structure").select("*").order("sort_order"),
-          supabase.from("front_structure_subcategories").select("*"),
-          supabase.from("front_structure_services" as any).select("*"),
-          supabase.from("front_structure_badges" as any).select("*"),
-          supabase.from("subcategories").select("id, name_fr, category_id"),
-          supabase.from("services").select("id, name_fr").eq("is_active", true),
-        ]);
-
-        const subMap: Record<string, string> = {};
-        (subsRes.data || []).forEach((s: any) => { subMap[s.id] = s.name_fr; });
-
-        const svcMap: Record<string, string> = {};
-        (servicesRes.data || []).forEach((s: any) => { svcMap[s.id] = s.name_fr; });
-
-        const linksByEntry: Record<string, string[]> = {};
-        (linksRes.data || []).forEach((l: any) => {
-          (linksByEntry[l.front_structure_id] ||= []).push(l.subcategory_id);
-        });
-        const svcLinksByEntry: Record<string, string[]> = {};
-        ((svcLinksRes.data || []) as any[]).forEach((l: any) => {
-          (svcLinksByEntry[l.front_structure_id] ||= []).push(l.service_id);
-        });
-        const badgeLinksByEntry: Record<string, string[]> = {};
-        ((badgeLinksRes.data || []) as any[]).forEach((l: any) => {
-          (badgeLinksByEntry[l.front_structure_id] ||= []).push(l.badge_id);
-        });
-
-        const builtEntries: FrontEntry[] = (entriesRes.data || [])
-          .filter((e: any) => e.show_in_menu !== false)
-          .map((e: any) => ({
-            id: e.id,
-            name: e.name,
-            sort_order: e.sort_order,
-            subcategory_ids: linksByEntry[e.id] || [],
-            service_ids: svcLinksByEntry[e.id] || [],
-            badge_ids: badgeLinksByEntry[e.id] || [],
-          }));
-
-        return { entries: builtEntries, subcatNames: subMap, serviceNames: svcMap };
+        const { data, error } = await supabase.functions.invoke("home-bootstrap");
+        if (error || !data) throw error || new Error("home-bootstrap failed");
+        return data as BootstrapPayload;
       },
       (fresh) => { if (!cancelled) apply(fresh); }
     );
@@ -1616,24 +1571,8 @@ const Home = () => {
     setCurrentTime(0);
   }, [activeVideo?.id]);
 
-  // Detect if the active video is a generic video by checking generic_videos table.
-  // (Don't rely solely on selectedEntryId — generic videos can be opened from badges, events, etc.)
+  // Generic video ids are loaded by the home-bootstrap edge function (see useEffect above).
   const [genericVideoIds, setGenericVideoIds] = useState<Set<string>>(new Set());
-  useEffect(() => {
-    const key = "home:genericVideoIds";
-    const cached = getCached<string[]>(key);
-    if (cached) setGenericVideoIds(new Set(cached));
-    let cancelled = false;
-    revalidate<string[]>(
-      key,
-      async () => {
-        const { data } = await (supabase as any).from("generic_videos").select("id");
-        return ((data as any[]) || []).map((r) => r.id);
-      },
-      (fresh) => { if (!cancelled) setGenericVideoIds(new Set(fresh)); }
-    );
-    return () => { cancelled = true; };
-  }, []);
 
   const isActiveGeneric = useMemo(
     () => !!activeVideo && (selectedEntryId === VLOGS_ID || genericVideoIds.has(activeVideo.id)),
