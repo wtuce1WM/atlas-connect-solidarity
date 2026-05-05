@@ -1030,7 +1030,7 @@ const Home = () => {
                   ? `https://www.youtube.com/shorts/${y.video_id}`
                   : `https://www.youtube.com/watch?v=${y.video_id}`,
                 business_name: y.title || biz?.name || "—",
-                thumbnail_url: y.custom_thumbnail_url || y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/maxresdefault.jpg`,
+                thumbnail_url: y.custom_thumbnail_url || y.thumbnail || `https://i.ytimg.com/vi/${y.video_id}/hqdefault.jpg`,
                 business: biz,
                 owner: null,
                 social,
