@@ -206,7 +206,11 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
             className="w-full lg:w-1/2 h-full bg-background border-r border-border shadow-xl animate-in slide-in-from-top-4 fade-in duration-300 overflow-y-auto p-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <StructureMenuContent onNavigate={() => setMenuOpen(false)} />
+            {isSearchPage ? (
+              <StructureMenuContent onNavigate={() => setMenuOpen(false)} />
+            ) : (
+              <HeaderMenuContent onNavigate={() => setMenuOpen(false)} />
+            )}
           </div>
         </div>
       )}
