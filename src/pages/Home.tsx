@@ -128,6 +128,11 @@ const Home = () => {
   const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [loadingVideos, setLoadingVideos] = useState(false);
+  // Infinite scroll: render only first N cards initially, load more on scroll (LCP optimization)
+  const INITIAL_VISIBLE = 6;
+  const VISIBLE_INCREMENT = 12;
+  const [visibleCount, setVisibleCount] = useState<number>(INITIAL_VISIBLE);
+  const loadMoreSentinelRef = useRef<HTMLDivElement | null>(null);
 
   // Preload first video thumbnail to accelerate LCP on /test (cards-only optimization)
   useEffect(() => {
@@ -141,6 +146,28 @@ const Home = () => {
     document.head.appendChild(link);
     return () => { try { document.head.removeChild(link); } catch {} };
   }, [videos]);
+
+  // Reset visible count when videos list changes (new entry/sub/badge/city)
+  useEffect(() => {
+    setVisibleCount(INITIAL_VISIBLE);
+  }, [videos]);
+
+  // Infinite scroll observer: load more cards when sentinel approaches viewport
+  useEffect(() => {
+    const el = loadMoreSentinelRef.current;
+    if (!el) return;
+    if (visibleCount >= videos.length) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setVisibleCount((c) => Math.min(c + VISIBLE_INCREMENT, videos.length));
+        }
+      },
+      { rootMargin: "600px 0px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [visibleCount, videos.length]);
   const [entriesWithVideos, setEntriesWithVideos] = useState<Set<string>>(new Set());
   const [subsWithVideos, setSubsWithVideos] = useState<Set<string>>(new Set());
   const [cityRowId, setCityRowId] = useState<string | null>(null);
@@ -2012,7 +2039,8 @@ const Home = () => {
             const showHashtagsTile = true;
 
             const hashtagItems = hashtagBadges;
-            const displayList = otherVideos;
+            const displayList = otherVideos.slice(0, visibleCount);
+            const hasMore = visibleCount < otherVideos.length;
 
             const isParentEntry =
               !!selectedEntry &&
@@ -2300,7 +2328,9 @@ const Home = () => {
                       });
                     })()}
                   </div>
-
+                  {hasMore && (
+                    <div ref={loadMoreSentinelRef} className="h-10 w-full" aria-hidden="true" />
+                  )}
                 </div>
               )}
             </div>
