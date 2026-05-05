@@ -14,11 +14,12 @@ const STORAGE_KEY = "videoSoundPreference"; // "on" | "off"
 const EVENT_NAME = "video-sound-preference-change";
 
 const readPref = (): boolean => {
-  if (typeof window === "undefined") return false;
+  if (typeof window === "undefined") return true;
   try {
-    return window.localStorage.getItem(STORAGE_KEY) === "on";
+    // Default to sound ON unless the user has explicitly turned it off.
+    return window.localStorage.getItem(STORAGE_KEY) !== "off";
   } catch {
-    return false;
+    return true;
   }
 };
 
