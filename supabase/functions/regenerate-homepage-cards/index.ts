@@ -163,12 +163,14 @@ async function buildSnapshot(supabase: any, city: string) {
 
   const firstDocByEntry: Record<string, any> = {};
   const allBizIds = new Set<string>();
+  const allDocIdsForImmo = new Set<string>();
   for (const { entryId, candidate } of entryDocResults) {
     if (candidate) {
       firstDocByEntry[entryId] = candidate;
       const dispId = candidate.poi_id || candidate.linked_business_id || candidate.business_id;
       if (dispId) allBizIds.add(dispId);
       if (candidate.business_id) allBizIds.add(candidate.business_id);
+      if (candidate.id) allDocIdsForImmo.add(candidate.id);
     }
     const ovId = overrideByEntry[entryId];
     if (ovId) allBizIds.add(ovId);
@@ -180,6 +182,7 @@ async function buildSnapshot(supabase: any, city: string) {
       const dispId = doc.poi_id || doc.linked_business_id || doc.business_id;
       if (dispId) allBizIds.add(dispId);
       if (doc.business_id) allBizIds.add(doc.business_id);
+      if (doc.id) allDocIdsForImmo.add(doc.id);
     }
   }
   for (const card of extraRows) if (card.business_id) allBizIds.add(card.business_id);
@@ -197,6 +200,20 @@ async function buildSnapshot(supabase: any, city: string) {
   }
   const bizResults = await Promise.all(bizChunks);
   bizResults.forEach((r) => (r.data || []).forEach((b: any) => bizMap.set(b.id, b)));
+
+  // Fetch event details (for cards with event_id) and immo prices (for video docs)
+  const eventIdsAll = [...new Set(extraRows.map((c: any) => c.event_id).filter(Boolean))] as string[];
+  const docIdsArr = [...allDocIdsForImmo];
+  const [eventsRes, immoRes] = await Promise.all([
+    eventIdsAll.length > 0
+      ? supabase.from("events").select("id, name, images").in("id", eventIdsAll)
+      : Promise.resolve({ data: [] as any[] }),
+    docIdsArr.length > 0
+      ? supabase.from("business_documents").select("id, price, price_type").in("id", docIdsArr)
+      : Promise.resolve({ data: [] as any[] }),
+  ]);
+  const eventMap = new Map<string, any>(((eventsRes.data as any[]) || []).map((e) => [e.id, e]));
+  const immoMap = new Map<string, any>(((immoRes.data as any[]) || []).map((d) => [d.id, d]));
 
   const entryCards = entries.map((entry: any) => {
     const doc = firstDocByEntry[entry.id];
