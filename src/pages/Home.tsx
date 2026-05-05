@@ -155,6 +155,36 @@ const Home = () => {
     setVisibleCount(INITIAL_VISIBLE);
   }, [videos]);
 
+  // Stale-While-Revalidate cache for the videos list (LCP optimization on repeat visits).
+  // Hydrates videos[] instantly from localStorage, then the regular fetch effect refreshes silently.
+  const videosCacheKey = useMemo(
+    () =>
+      buildHomeVideosCacheKey({
+        city,
+        entryId: selectedEntryId,
+        subId: selectedSubId,
+        badgeId: videoBadgeFilter?.badgeId ?? null,
+        eventId: videoEventFilter?.eventId ?? null,
+        popularId: videoPopularSearchFilter?.popularSearchId ?? null,
+      }),
+    [city, selectedEntryId, selectedSubId, videoBadgeFilter, videoEventFilter, videoPopularSearchFilter]
+  );
+  const hydratedKeysRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (hydratedKeysRef.current.has(videosCacheKey)) return;
+    hydratedKeysRef.current.add(videosCacheKey);
+    const cached = readHomeVideosCache<VideoItem>(videosCacheKey);
+    if (cached && cached.length > 0) {
+      setVideos(cached);
+    }
+  }, [videosCacheKey]);
+  // Persist whenever videos changes for the current key (only non-empty, only when not loading)
+  useEffect(() => {
+    if (loadingVideos) return;
+    if (!videos || videos.length === 0) return;
+    writeHomeVideosCache(videosCacheKey, videos);
+  }, [videos, videosCacheKey, loadingVideos]);
+
   // Infinite scroll observer: load more cards when sentinel approaches viewport
   useEffect(() => {
     const el = loadMoreSentinelRef.current;
