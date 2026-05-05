@@ -3304,6 +3304,8 @@ const SearchPage = () => {
                   initialAvailabilityCheckOut={latestHotelSearchDates.checkOut}
                   initialAvailabilityAdults={latestHotelSearchDates.adults}
                   onSearch={(params) => {
+                    setCompactPanelBusiness(null);
+                    setIsCompactPanelExpanded(false);
                     setSelectedCategoryFilter(null);
                     setSelectedSubcategoryFilter(null);
                     setSelectedServiceFilter(null);
