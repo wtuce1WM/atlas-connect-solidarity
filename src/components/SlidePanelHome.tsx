@@ -172,12 +172,12 @@ const SlidePanelHome = ({
           .limit(1),
         (supabase as any)
           .from("events")
-          .select("name, logo_url")
+          .select("name, logo_url, description")
           .eq("id", eventId)
           .maybeSingle(),
       ]);
       if (cancelled) return;
-      setEventInfo(evRow ? { name: (evRow as any).name, logo_url: (evRow as any).logo_url } : null);
+      setEventInfo(evRow ? { name: (evRow as any).name, logo_url: (evRow as any).logo_url, description: (evRow as any).description ?? null } : null);
       const bizId = ((ebRows as any[]) || [])[0]?.business_id;
       if (!bizId) { setEventBusiness(null); return; }
       const { data: bizRow } = await supabase
