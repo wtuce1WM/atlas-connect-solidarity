@@ -1209,6 +1209,9 @@ const BookOnlineSlidePanel = ({ businessId: propBusinessId, onClose, externalOve
         <AvailabilitySearchOverlay
           language={language}
           isSearching={hotelSearchLoading}
+          initialCheckIn={fallbackPanelData?.checkIn}
+          initialCheckOut={fallbackPanelData?.checkOut}
+          initialAdults={fallbackPanelData?.adults}
           onSearch={(checkIn, checkOut, adults) => {
             handleCheckAvailability(checkIn, checkOut, adults);
           }}
