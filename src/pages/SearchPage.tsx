@@ -3130,18 +3130,23 @@ const SearchPage = () => {
           onClose={() => setHotelSearchPanel(null)}
           onSelectHotel={(_hotelId, businessId) => {
             if (businessId) {
-              // Restrict left-panel results to the hotels found available in the overlay
-              const availableIds = new Set<string>(
-                (hotelSearchPanel?.hotels || [])
-                  .map((h: any) => h.businessId)
-                  .filter((id: string | undefined): id is string => !!id)
-              );
-              if (availableIds.size > 0) {
-                setAvailabilityRestrictedIds(availableIds);
+              const availableBusinessIds = (hotelSearchPanel?.hotels || [])
+                .map((h: any) => h.businessId)
+                .filter((id: string | undefined): id is string => !!id);
+
+              if (availableBusinessIds.length > 0) {
+                setAvailabilityRestrictedIds(new Set<string>(availableBusinessIds));
               }
+
               setHotelSearchPanel(null);
+
               const next = new URLSearchParams(searchParams);
               next.set("openBusiness", businessId);
+
+              if (availableBusinessIds.length > 0) {
+                next.set("pinIds", availableBusinessIds.join(","));
+              }
+
               setSearchParams(next);
             }
           }}
