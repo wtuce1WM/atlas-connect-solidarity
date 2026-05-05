@@ -811,13 +811,6 @@ const SearchPage = () => {
     const checkOut = intent.checkOut || dayAfter.toISOString().split("T")[0];
     const adults = intent.adults || 2;
 
-    setInputValue(cityName);
-    // Lance aussi la recherche classique dans la page Search (catégorie Hôtellerie + ville)
-    isVoiceSearchRef.current = true;
-    setSearchQuery("hôtel");
-    // Reset any previous availability restriction before launching a new search
-    setAvailabilityRestrictedIds(null);
-    setSearchParams({ q: "hôtel", category: "Hôtellerie", city: cityName, spoken: `hôtel à ${cityName}` });
     setHotelSearchLoading(true);
     try {
       const [mappingResult, gammeResult] = await Promise.all([
@@ -892,22 +885,7 @@ const SearchPage = () => {
         gammes: gammes.map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })),
       });
 
-      // Restrict the Search page list to only the available hotels (by business id).
-      // Use pinIds (URL param) which is already wired end-to-end: dedicated fetch by IDs,
-      // no server pagination, no city/category filter — strict allow-list.
-      const availableIds = hotels.map(h => h.businessId).filter(Boolean) as string[];
-      if (availableIds.length > 0) {
-        setAvailabilityRestrictedIds(new Set(availableIds));
-        setSearchParams({
-          q: "hôtel",
-          category: "Hôtellerie",
-          city: cityName,
-          spoken: `hôtel à ${cityName}`,
-          pinIds: availableIds.join(","),
-        });
-      } else {
-        setAvailabilityRestrictedIds(null);
-      }
+      // N'altère plus la page Search en arrière-plan : seul l'overlay s'affiche.
 
     } catch (err) {
       console.error("Hotel search voice error:", err);
