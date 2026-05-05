@@ -887,9 +887,9 @@ const SearchPage = () => {
       });
 
       // Restrict left panel results to the hotels matched against SerpAPI availability
-      const availableIds = hotels.map((h: any) => h.businessId).filter(Boolean);
+      const availableIds = hotels.map((h: any) => h.businessId).filter(Boolean) as string[];
       if (availableIds.length > 0) {
-        setAvailabilityRestrictedIds(availableIds);
+        setAvailabilityRestrictedIds(new Set(availableIds));
       }
 
       // N'altère plus la page Search en arrière-plan : seul l'overlay s'affiche.
