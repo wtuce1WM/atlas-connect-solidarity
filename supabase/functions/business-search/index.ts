@@ -5003,6 +5003,21 @@ serve(async (req) => {
         engagements: b.engagements ?? null,
         priority_score: b.priority_score ?? null,
         distance_km: b.distance_km ?? null,
+        // Fields used by SearchPage (BusinessMap, vacation/badge logic, hook display, gamme/badge resolution)
+        address: b.address ?? null,
+        phone: b.phone ?? null,
+        whatsapp: b.whatsapp ?? null,
+        hook_fr: b.hook_fr ?? null,
+        hook_en: b.hook_en ?? null,
+        hook_ar: b.hook_ar ?? null,
+        gamme_id: b.gamme_id ?? null,
+        badge_id: b.badge_id ?? null,
+        vacation_dates: b.vacation_dates ?? null,
+        destination_enriched: b.destination_enriched ?? false,
+        google_rating: b.google_rating ?? null,
+        google_review_count: b.google_review_count ?? null,
+        tripadvisor_rating: b.tripadvisor_rating ?? null,
+        tripadvisor_review_count: b.tripadvisor_review_count ?? null,
       }));
     }
 
