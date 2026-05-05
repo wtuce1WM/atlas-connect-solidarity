@@ -1,4 +1,5 @@
 import { createPortal } from "react-dom";
+import { useEffect } from "react";
 import { X, Star, MapPin, Building2, Leaf, Award, Truck, Package, Accessibility } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { FallbackPanelData, FallbackHotel } from "@/components/HotelAvailabilityOverlay";
