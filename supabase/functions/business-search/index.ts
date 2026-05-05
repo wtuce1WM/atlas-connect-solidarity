@@ -698,7 +698,8 @@ serve(async (req) => {
       spoken,
     skipRerank,
     mainCategory,
-    }: SearchParams & { language?: string; mode?: string; spoken?: string; skipRerank?: boolean; mainCategory?: string } = await req.json();
+    compact,
+    }: SearchParams & { language?: string; mode?: string; spoken?: string; skipRerank?: boolean; mainCategory?: string; compact?: "ids" | "card" | null } = await req.json();
 
     const isAutocomplete = mode === "autocomplete";
 
@@ -4964,11 +4965,52 @@ serve(async (req) => {
     // preciseMatch: true when the search was driven by a synonym or a detected service/keyword
     // This tells the frontend NOT to run the extra category fetch that would dilute precise results
     const preciseMatch = synonymWasUsed || serviceWasDetected || serviceShortcutActivated || labelShortcutActivated;
+    // Optional payload slimming for clients that only need a subset of fields.
+    // - "ids": ultra-light, only enough to identify and link a business (used by Home).
+    // - "card": fields needed to render search result cards (no description, hooks, raw rating sources, etc.).
+    // - undefined/null: full payload (legacy behavior, used by SearchPage detail panels).
+    let projectedBusinesses: any[] = paginatedBusinesses as any[];
+    if (compact === "ids") {
+      projectedBusinesses = paginatedBusinesses.map((b: any) => ({
+        id: b.id,
+        name: b.name,
+        slug: b.slug ?? null,
+        city: b.city ?? null,
+        main_category: b.main_category ?? null,
+        logo_url: b.logo_url ?? null,
+      }));
+    } else if (compact === "card") {
+      projectedBusinesses = paginatedBusinesses.map((b: any) => ({
+        id: b.id,
+        name: b.name,
+        slug: b.slug ?? null,
+        city: b.city ?? null,
+        neighborhood: b.neighborhood ?? null,
+        main_category: b.main_category ?? null,
+        categories: b.categories ?? null,
+        logo_url: b.logo_url ?? null,
+        images: b.images ?? null,
+        latitude: b.latitude ?? null,
+        longitude: b.longitude ?? null,
+        rating: b.rating ?? null,
+        computed_rating: b.computed_rating ?? null,
+        total_review_count: b.total_review_count ?? null,
+        wtuce_status: b.wtuce_status ?? null,
+        opening_hours: b.opening_hours ?? null,
+        show_opening_hours: b.show_opening_hours ?? null,
+        is_open_24h: b.is_open_24h ?? null,
+        default_service: b.default_service ?? null,
+        engagements: b.engagements ?? null,
+        priority_score: b.priority_score ?? null,
+        distance_km: b.distance_km ?? null,
+      }));
+    }
+
     const result: SearchResult = {
-      businesses: paginatedBusinesses,
+      businesses: projectedBusinesses as any,
       searchLevel,
       message: getSearchLevelMessage(searchLevel, language),
-      totalResults: paginatedBusinesses.length,
+      totalResults: projectedBusinesses.length,
       totalCount,
       detectedSubcategory: detectedSubcategory || null,
       detectedCity: effectiveCity || null,
@@ -4977,7 +5019,6 @@ serve(async (req) => {
       detectedService: detectedService || null,
       intentSubcategoryConflict,
       searchMode: serviceShortcutActivated ? "service_shortcut" : "broad",
-      // bundleTimeSlots is declared in an inner scope and not accessible here
       disambiguationType,
       synonymUsed: synonymWasUsed || undefined,
       preciseMatch: preciseMatch || undefined,

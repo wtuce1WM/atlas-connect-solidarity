@@ -1650,7 +1650,7 @@ const Home = () => {
 
     try {
       const { data, error } = await supabase.functions.invoke("business-search", {
-        body: { query, city: clickedCity, language: "fr" },
+        body: { query, city: clickedCity, language: "fr", compact: "ids" },
       });
       if (!error) {
         const list = ((data as any)?.businesses || []) as SearchResultBusiness[];
