@@ -106,6 +106,17 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
   // No dynamic <link rel="preload"> here — it competed with the JS bundle for bandwidth
   // and degraded FCP on mobile.
 
+  // #3 Preload the SlidePanelHome chunk after the homepage is idle, so the first
+  // click on a card opens instantly (chunk already in cache, no network round-trip).
+  useEffect(() => {
+    const ric: any = (window as any).requestIdleCallback || ((cb: any) => setTimeout(cb, 1500));
+    const handle = ric(() => { import("@/components/SlidePanelHome").catch(() => {}); });
+    return () => {
+      const cic: any = (window as any).cancelIdleCallback;
+      if (cic && typeof handle === "number") cic(handle);
+    };
+  }, []);
+
   // Playable slots only (have a video)
   const playableIndices = slots
     .map((s, i) => (s.data.videoId ? i : -1))
