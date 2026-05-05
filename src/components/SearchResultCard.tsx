@@ -111,7 +111,14 @@ export default function SearchResultCard({ business, index, labelLogos, distance
       className="group overflow-hidden rounded-xl border border-border shadow-sm hover:shadow-md transition-all cursor-pointer relative aspect-square bg-muted"
     >
       {img ? (
-        <img src={img} alt={business.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+        <img
+          src={img}
+          alt={business.name}
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          loading={isPriority ? "eager" : "lazy"}
+          decoding="async"
+          {...({ fetchpriority: isPriority ? "high" : "low" } as any)}
+        />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center">
           <Building2 className="h-10 w-10 text-muted-foreground" />
