@@ -1969,6 +1969,7 @@ const Home = () => {
               setVideoPopularSearchFilter(null);
               setSelectedEntryId(HOME_ID);
               setSelectedSubId(null);
+              requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "auto" }));
             }}
             onLabelClick={(info, cityForLabel) => handleHomeLabelClick(info, cityForLabel)}
           />
