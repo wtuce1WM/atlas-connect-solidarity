@@ -10,6 +10,7 @@ import SearchResultCard, { type SearchResultBusiness } from "@/components/Search
 import PanelSearchBar from "@/components/PanelSearchBar";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
 import { businessUrl } from "@/lib/businessUrl";
+import { buildHomeVideosCacheKey, readHomeVideosCache, writeHomeVideosCache } from "@/lib/homeVideosCache";
 
 import { Menu as MenuIcon, X, Star, Youtube, MapPin } from "lucide-react";
 import { InstagramIcon } from "@/components/staff/SocialMediaIcons";
@@ -153,6 +154,7 @@ const Home = () => {
   useEffect(() => {
     setVisibleCount(INITIAL_VISIBLE);
   }, [videos]);
+
 
   // Infinite scroll observer: load more cards when sentinel approaches viewport
   useEffect(() => {
@@ -382,6 +384,33 @@ const Home = () => {
   const [videoBadgeFilter, setVideoBadgeFilter] = useState<{ badgeId: string; label: string } | null>(null);
   const [videoEventFilter, setVideoEventFilter] = useState<VideoEventFilter | null>(null);
   const [videoPopularSearchFilter, setVideoPopularSearchFilter] = useState<{ popularSearchId: string; label: string; businessIds: string[]; resolved?: boolean } | null>(null);
+
+  // Stale-While-Revalidate cache for the videos list (LCP optimization on repeat visits).
+  // Hydrates videos[] instantly from localStorage; the regular fetch effect refreshes silently after.
+  const videosCacheKey = useMemo(
+    () =>
+      buildHomeVideosCacheKey({
+        city,
+        entryId: selectedEntryId,
+        subId: selectedSubId,
+        badgeId: videoBadgeFilter?.badgeId ?? null,
+        eventId: videoEventFilter?.eventId ?? null,
+        popularId: videoPopularSearchFilter?.popularSearchId ?? null,
+      }),
+    [city, selectedEntryId, selectedSubId, videoBadgeFilter, videoEventFilter, videoPopularSearchFilter]
+  );
+  const hydratedKeysRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (hydratedKeysRef.current.has(videosCacheKey)) return;
+    hydratedKeysRef.current.add(videosCacheKey);
+    const cached = readHomeVideosCache<VideoItem>(videosCacheKey);
+    if (cached && cached.length > 0) setVideos(cached);
+  }, [videosCacheKey]);
+  useEffect(() => {
+    if (loadingVideos) return;
+    if (!videos || videos.length === 0) return;
+    writeHomeVideosCache(videosCacheKey, videos);
+  }, [videos, videosCacheKey, loadingVideos]);
   // Set when the user opens a homepage card linked to a specific business.
   // That business will be pinned at the top of the next filtered list (badge view, video filter, etc.).
   const [pinnedBusinessId, setPinnedBusinessId] = useState<string | null>(null);
