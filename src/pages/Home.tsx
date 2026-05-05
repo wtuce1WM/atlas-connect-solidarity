@@ -1889,6 +1889,7 @@ const Home = () => {
           </button>
         }
         rightContent={
+          <div onClickCapture={() => { if (menuOpen) setMenuOpen(false); }}>
           <HomeCityToolbar
             city={city}
             activeBadgeId={videoBadgeFilter?.badgeId ?? null}
@@ -1971,6 +1972,7 @@ const Home = () => {
             }}
             onLabelClick={(info, cityForLabel) => handleHomeLabelClick(info, cityForLabel)}
           />
+          </div>
         }
       />
 
