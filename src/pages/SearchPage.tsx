@@ -2954,6 +2954,8 @@ const SearchPage = () => {
           setHideResultsMap={setHideResultsMap}
           mapPanelCloseTrigger={mapPanelCloseTrigger}
           onSearchNavigate={(params) => {
+            setCompactPanelBusiness(null);
+            setIsCompactPanelExpanded(false);
             setSelectedCategoryFilter(null);
             setSelectedSubcategoryFilter(null);
             setSelectedServiceFilter(null);
