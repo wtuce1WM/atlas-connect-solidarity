@@ -85,3 +85,6 @@ verify_jwt = false
 [functions.youtube-player-page]
 verify_jwt = false
 
+
+[functions.home-bootstrap]
+verify_jwt = false
