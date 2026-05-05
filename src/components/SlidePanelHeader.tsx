@@ -41,8 +41,17 @@ const SlidePanelHeader = ({
       <div className="flex items-center gap-3 shrink-0 relative z-10">
         <button
           type="button"
-          onClick={onClose}
-          className={`h-9 w-9 flex items-center justify-center rounded-full ${closeClass}`}
+          onPointerDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onClose();
+          }}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onClose();
+          }}
+          className={`h-9 w-9 flex items-center justify-center rounded-full touch-manipulation ${closeClass}`}
           title="Fermer"
           aria-label="Fermer le panneau"
         >
