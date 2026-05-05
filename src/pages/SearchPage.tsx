@@ -1803,7 +1803,7 @@ const SearchPage = () => {
     };
 
     fetchData();
-  }, [searchQuery, categoryFromUrl, language, urlT, pinIdsParam, openBusinessParam]);
+  }, [searchQuery, categoryFromUrl, language, urlT, pinIdsParam]);
 
   // Fetch label logos for search result businesses
   useEffect(() => {
