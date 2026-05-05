@@ -2922,6 +2922,8 @@ const SearchPage = () => {
           hoveredDestId={hoveredDestId}
           setHoveredDestId={setHoveredDestId}
           onSearchNavigate={(params) => {
+            setCompactPanelBusiness(null);
+            setIsCompactPanelExpanded(false);
             setSelectedCategoryFilter(null);
             setSelectedSubcategoryFilter(null);
             setSelectedServiceFilter(null);
