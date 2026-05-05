@@ -522,28 +522,35 @@ const Home = () => {
   }, [city]);
 
   // Document ids assigned to this city via business_document_cities (multi-city)
-  // Paginate to bypass PostgREST 1000-row limit.
+  // Paginate to bypass PostgREST 1000-row limit. SWR-cached per city.
   useEffect(() => {
     if (!cityRowId) { setExtraCityDocIds(new Set()); return; }
+    const key = `home:extraCityDocIds:${cityRowId}`;
+    const cached = getCached<string[]>(key);
+    if (cached) setExtraCityDocIds(new Set(cached));
     let cancelled = false;
-    (async () => {
-      const all: string[] = [];
-      const PAGE = 1000;
-      let offset = 0;
-      while (true) {
-         const { data } = await supabase
-          .from("business_document_cities")
-          .select("document_id")
-          .eq("city_id", cityRowId)
-          .order("document_id", { ascending: true })
-          .range(offset, offset + PAGE - 1);
-        const rows = (data as any[]) || [];
-        all.push(...rows.map((r) => r.document_id));
-        if (rows.length < PAGE) break;
-        offset += PAGE;
-      }
-      if (!cancelled) setExtraCityDocIds(new Set(all));
-    })();
+    revalidate<string[]>(
+      key,
+      async () => {
+        const all: string[] = [];
+        const PAGE = 1000;
+        let offset = 0;
+        while (true) {
+          const { data } = await supabase
+            .from("business_document_cities")
+            .select("document_id")
+            .eq("city_id", cityRowId)
+            .order("document_id", { ascending: true })
+            .range(offset, offset + PAGE - 1);
+          const rows = (data as any[]) || [];
+          all.push(...rows.map((r) => r.document_id));
+          if (rows.length < PAGE) break;
+          offset += PAGE;
+        }
+        return all;
+      },
+      (fresh) => { if (!cancelled) setExtraCityDocIds(new Set(fresh)); }
+    );
     return () => { cancelled = true; };
   }, [cityRowId]);
 
