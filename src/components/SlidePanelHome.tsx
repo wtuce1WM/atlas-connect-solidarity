@@ -142,17 +142,18 @@ const SlidePanelHome = ({
     return () => { cancelled = true; };
   }, [open, owner?.id, pageBusinessId, description]);
 
-  const effectiveDescription = (description && description.trim())
-    ? description
-    : (eventId && eventInfo?.description && eventInfo.description.trim())
-      ? eventInfo.description
-      : businessDescription;
   const [descOverlayOpen, setDescOverlayOpen] = useState(false);
   useEffect(() => { if (!open) setDescOverlayOpen(false); }, [open]);
   const [ownerBusiness, setOwnerBusiness] = useState<AgendaEvent["business"] | null>(null);
   const [eventInfo, setEventInfo] = useState<{ name: string; logo_url: string | null; description: string | null } | null>(null);
   const [poiOverlayBusinessId, setPoiOverlayBusinessId] = useState<string | null>(null);
   useEffect(() => { if (!open) setPoiOverlayBusinessId(null); }, [open]);
+
+  const effectiveDescription = (description && description.trim())
+    ? description
+    : (eventId && eventInfo?.description && eventInfo.description.trim())
+      ? eventInfo.description
+      : businessDescription;
 
   // Resolve a business for the CTA bar:
   // - If `eventId` is set, take the first linked business via event_businesses (eventBusiness).
