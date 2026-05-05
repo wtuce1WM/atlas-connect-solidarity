@@ -3290,6 +3290,9 @@ const SearchPage = () => {
                   closeTrigger={mapPanelCloseTrigger}
                   onMosaicStateChange={setIsNestedMosaicOpen}
                   onHotelSearch={handleHotelSearch}
+                  initialAvailabilityCheckIn={latestHotelSearchDates.checkIn}
+                  initialAvailabilityCheckOut={latestHotelSearchDates.checkOut}
+                  initialAvailabilityAdults={latestHotelSearchDates.adults}
                   onSearch={(params) => {
                     setSelectedCategoryFilter(null);
                     setSelectedSubcategoryFilter(null);
