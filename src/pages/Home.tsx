@@ -128,6 +128,11 @@ const Home = () => {
   const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [loadingVideos, setLoadingVideos] = useState(false);
+  // Infinite scroll: render only first N cards initially, load more on scroll (LCP optimization)
+  const INITIAL_VISIBLE = 6;
+  const VISIBLE_INCREMENT = 12;
+  const [visibleCount, setVisibleCount] = useState<number>(INITIAL_VISIBLE);
+  const loadMoreSentinelRef = useRef<HTMLDivElement | null>(null);
 
   // Preload first video thumbnail to accelerate LCP on /test (cards-only optimization)
   useEffect(() => {
