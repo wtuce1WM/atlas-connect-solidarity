@@ -2328,7 +2328,9 @@ const Home = () => {
                       });
                     })()}
                   </div>
-
+                  {hasMore && (
+                    <div ref={loadMoreSentinelRef} className="h-10 w-full" aria-hidden="true" />
+                  )}
                 </div>
               )}
             </div>
