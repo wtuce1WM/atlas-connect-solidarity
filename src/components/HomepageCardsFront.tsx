@@ -76,6 +76,7 @@ const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: 
 
       // PASS 1 — render immediately with the snapshot to unblock LCP
       setSlots(payload);
+      setCached(cacheKey, payload);
       setLoading(false);
       isFirstLoad.current = false;
 
